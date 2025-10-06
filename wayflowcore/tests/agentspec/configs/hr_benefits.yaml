@@ -1,0 +1,258 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+$referenced_components:
+  1d62562a-7c7c-4a8f-81b4-d95c568bf941:
+    api_spec_uri: null
+    component_type: RemoteTool
+    data:
+      task: "{{task}}"
+    description: Retrieves information about dependents and beneficiaries linked to
+      benefits plans.
+    headers: {}
+    http_method: GET
+    id: 1d62562a-7c7c-4a8f-81b4-d95c568bf941
+    inputs:
+    - description: A task, of which data to look up in the database
+      title: task
+      type: string
+    metadata: {}
+    name: Dependents_and_Beneficiaries_REST_API_Tool
+    outputs:
+    - description: Output of the tool Dependents_and_Beneficiaries_REST_API_Tool
+      title: dependents_and_beneficiaries
+      type: string
+    query_params: {}
+    url: http://127.0.0.1:5000/dependents
+  60d04b30-a36d-4b01-9363-91673ae8ee6a:
+    api_spec_uri: null
+    component_type: RemoteTool
+    data:
+      task: "{{task}}"
+    description: Provides detailed information about the employee's existing benefits
+      coverage and plans.
+    headers: {}
+    http_method: GET
+    id: 60d04b30-a36d-4b01-9363-91673ae8ee6a
+    inputs:
+    - description: A task, of which data to look up in the database
+      title: task
+      type: string
+    metadata: {}
+    name: Coverage_and_Plan_Details_REST_API_Tool
+    outputs:
+    - description: Output of the tool Coverage_and_Plan_Details_REST_API_Tool
+      title: coverage_and_plan
+      type: string
+    query_params: {}
+    url: http://127.0.0.1:5000/coverage
+  7767612c-8326-4afd-a037-c1360589c202:
+    api_spec_uri: null
+    component_type: RemoteTool
+    data:
+      task: "{{task}}"
+    description: Tracks the current status and pending actions related to benefits
+      enrollment.
+    headers: {}
+    http_method: GET
+    id: 7767612c-8326-4afd-a037-c1360589c202
+    inputs:
+    - description: A task, of which data to look up in the database
+      title: task
+      type: string
+    metadata: {}
+    name: Benefits_Enrollment_Status_REST_API_Tool
+    outputs:
+    - description: Output of the tool Benefits_Enrollment_Status_REST_API_Tool
+      title: benefits_enrollment_status
+      type: string
+    query_params: {}
+    url: http://127.0.0.1:5000/benefits
+  b366bef7-2fbc-4bf7-bd8b-43727c5c9169:
+    component_type: VllmConfig
+    default_generation_parameters: null
+    description: null
+    id: b366bef7-2fbc-4bf7-bd8b-43727c5c9169
+    metadata: {}
+    model_id: /storage/models/Llama-3.3-70B-Instruct
+    name: llama-3.3-70b-instruct
+    url: LLAMA70BV33_API_URL
+  b8553f8b-789d-4e10-bfc2-5c331aafb80d:
+    api_spec_uri: null
+    component_type: RemoteTool
+    data:
+      employee_id: '{{employee_id}}'
+    description: "Generates a breakdown of costs and contributions associated with\
+      \ benefits plans."
+    headers: {}
+    http_method: GET
+    id: b8553f8b-789d-4e10-bfc2-5c331aafb80d
+    inputs:
+    - description: The id of an employee
+      title: employee_id
+      type: string
+    metadata: {}
+    name: Costs_and_Contributions_REST_API_Tool
+    outputs:
+    - description: Output of the tool Costs_and_Contributions_REST_API_Tool
+      title: cost_and_contribution
+      type: string
+    query_params: {}
+    url: http://127.0.0.1:5000/costs
+  c019fc9d-f56e-45e7-b1da-525a1a8ed7c4:
+    api_spec_uri: null
+    component_type: RemoteTool
+    data:
+      problem: '{{problem}}'
+    description: This tool allows agents to perform real-time mathematical computations
+      for needs like estimates of benefits costs, deductibles, coverages, etc.
+    headers: {}
+    http_method: POST
+    id: c019fc9d-f56e-45e7-b1da-525a1a8ed7c4
+    inputs:
+    - description: A mathematical problem in natural language
+      title: problem
+      type: string
+    metadata: {}
+    name: Calculator_Tool
+    outputs:
+    - description: Output of the tool Calculator_Tool
+      title: calculator_output
+      type: string
+    query_params: {}
+    url: http://127.0.0.1:5000/calculator
+  d1452c88-64f0-40a0-93a7-a218c06bb6e5:
+    api_spec_uri: null
+    component_type: RemoteTool
+    data:
+      query: "{{query}}"
+    description: This tool empowers agents to retrieve HR benefits policy documents
+      or chunks of documents from a knowledge base, enhancing the accuracy of responses.
+    headers: {}
+    http_method: GET
+    id: d1452c88-64f0-40a0-93a7-a218c06bb6e5
+    inputs:
+    - description: The query string in interrogative form to be used to retrieve policy
+        documents for addressing user questions.
+      title: query
+      type: string
+    metadata: {}
+    name: RAG_Retrieval_Tool
+    outputs:
+    - description: Output of the tool RAG_Retrieval_Tool
+      items:
+        type: string
+      title: benefits_policy_rag
+      type: array
+    query_params: {}
+    url: http://127.0.0.1:5000/rag
+  d14c5ecd-3384-4234-a37e-4fa1cbb6b7fb:
+    api_spec_uri: null
+    component_type: RemoteTool
+    data:
+      task: "{{task}}"
+    description: Offers details about benefits providers and policy-related information.
+    headers: {}
+    http_method: GET
+    id: d14c5ecd-3384-4234-a37e-4fa1cbb6b7fb
+    inputs:
+    - description: A task of which data to look up in the database
+      title: task
+      type: string
+    metadata: {}
+    name: Providers_and_Policy_Information_REST_API_Tool
+    outputs:
+    - description: Output of the tool Providers_and_Policy_Information_REST_API_Tool
+      title: providers_and_policy_info
+      type: string
+    query_params: {}
+    url: http://127.0.0.1:5000/providers
+agents: []
+component_type: Agent
+description: null
+flows: []
+id: bf79ca8b-b5d7-4379-a011-6f14071fb235
+inputs:
+- default: Benefits Assistant Agent
+  description: The agent title
+  title: agent_title
+  type: string
+- default: This agent provides employees with accurate and efficient responses to
+    benefits related inquiries
+  description: The agent description
+  title: agent_description
+  type: string
+- default: Benefits Advisor Workflow
+  description: The workflow title
+  title: workflow_title
+  type: string
+- default: This Agent assists employees in optimizing their benefits plans
+  description: The workflow description
+  title: workflow_description
+  type: string
+- default: '
+    - General Benefits Coverage
+    - Retirement Benefits Coverage
+    - Employee Benefits Enrollments
+  '
+  description: The topics
+  title: topics
+  type: string
+- description: The format instructions
+  title: format_instructions
+  type: string
+- default: "- Use CHAT HISTORY as context to answer questions or refer to previously\
+    \ asked queries whenever useful.\n- Users may ask single or multi-intent questions,\
+    \ which might require multiple steps to respond satisfactorily.\n- Most questions\
+    \ will require two or more tools to answer the question\n- Treat the USER_QUERY as the sole source of the user's question."
+  description: The special instructions
+  title: special_instructions
+  type: string
+- description: The context
+  title: context
+  type: string
+llm_config:
+  $component_ref: b366bef7-2fbc-4bf7-bd8b-43727c5c9169
+metadata: {}
+name: Benefits Advisor
+outputs: []
+system_prompt: 'You are a helpful agent. Your official title is: {{agent_title}}.
+
+  The following statement describes your responsibilities:
+  "{{agent_description}}".
+
+  You are part of the workflow {{workflow_title}} within the company.
+  The following is a quick description of the workflow:
+  "{{workflow_description}}".
+
+  Your tasks are related to the following topics with their special instructions:
+  {{topics}}
+
+  Here are some extra special instructions:
+  {{special_instructions}}
+
+  Your answer is intended to be customer-facing, so do not make any reference
+  to the discussion of the various chat agents. Formulate your response for the
+  user only. Be sure to be professional and courteous in your response.
+
+  Your answer should rely solely on the data provided to you from the chat history.
+  Do not invent answers or information.
+
+  Your answer will be used to populate a chat interface. Speak to the user naturally.
+
+  {{format_instructions}}
+
+  {{context}}
+  '
+tools:
+- $component_ref: 7767612c-8326-4afd-a037-c1360589c202
+- $component_ref: b8553f8b-789d-4e10-bfc2-5c331aafb80d
+- $component_ref: 60d04b30-a36d-4b01-9363-91673ae8ee6a
+- $component_ref: 1d62562a-7c7c-4a8f-81b4-d95c568bf941
+- $component_ref: d14c5ecd-3384-4234-a37e-4fa1cbb6b7fb
+- $component_ref: d1452c88-64f0-40a0-93a7-a218c06bb6e5
+- $component_ref: c019fc9d-f56e-45e7-b1da-525a1a8ed7c4
+agentspec_version: 25.4.1

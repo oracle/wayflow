@@ -1,0 +1,82 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+$referenced_components:
+  1cc16c4e-d458-4dc7-b21a-ba90b5ebc8a2:
+    component_type: ServerTool
+    description: Add a user account
+    id: 1cc16c4e-d458-4dc7-b21a-ba90b5ebc8a2
+    inputs:
+    - title: username
+      type: string
+    - title: email
+      type: string
+    metadata: {}
+    name: add_user_account
+    outputs:
+    - title: user_id
+      type: string
+  235ec8f6-96a2-450e-85d2-b3c80b96e766:
+    component_type: VllmConfig
+    default_generation_parameters: null
+    description: null
+    id: 235ec8f6-96a2-450e-85d2-b3c80b96e766
+    metadata: {}
+    model_id: /storage/models/Llama-3.3-70B-Instruct
+    name: llama-3.3-70b-instruct
+    url: LLAMA70BV33_API_URL
+  304cc09f-65a1-4566-b0e2-e937d5f16da7:
+    component_type: ServerTool
+    description: Gather user account information
+    id: 304cc09f-65a1-4566-b0e2-e937d5f16da7
+    inputs:
+    - title: user_id
+      type: string
+    metadata: {}
+    name: gather_user_account_information
+    outputs:
+    - title: user_id
+      type: string
+    - title: username
+      type: string
+    - title: email
+      type: string
+  4fc27152-7da5-4356-acef-3e9b75b6e162:
+    component_type: ServerTool
+    description: Delete a user account
+    id: 4fc27152-7da5-4356-acef-3e9b75b6e162
+    inputs:
+    - title: user_id
+      type: string
+    metadata: {}
+    name: delete_user_account_information
+    outputs: []
+agents: []
+component_type: Agent
+description: null
+flows: []
+id: 6f29d741-c6b6-4718-b88f-531f44871c5b
+inputs: []
+llm_config:
+  $component_ref: 235ec8f6-96a2-450e-85d2-b3c80b96e766
+metadata: {}
+name: Oracle Agent
+outputs: []
+system_prompt: "Oracle Cloud Infrastructure (OCI) is the next-generation cloud designed\
+  \ to run any application, faster and more securely, for less.\n\n    Oracle Cloud\
+  \ spans 50 interconnected geographic commercial and government cloud regions. Unlike\
+  \ other providers, each region offers a consistent set of more than 150 Oracle Cloud\
+  \ Infrastructure services, with consistent low pricing worldwide.\n    For more\
+  \ complete support of customer cloud strategies, Oracle Cloud also offers a full\
+  \ suite of Oracle Cloud Applications and direct interconnections with Microsoft\
+  \ Azure and Google Cloud.\n\n    Not all clouds are created equal. \n\
+  \n    You are a helpful OCI agent. Please assist the user with any request.\
+  \ Be polite in your answers."
+tools:
+- $component_ref: 304cc09f-65a1-4566-b0e2-e937d5f16da7
+- $component_ref: 1cc16c4e-d458-4dc7-b21a-ba90b5ebc8a2
+- $component_ref: 4fc27152-7da5-4356-acef-3e9b75b6e162
+agentspec_version: 25.4.1

@@ -1,0 +1,464 @@
+component_type: Flow
+id: 77a036ac-c0bd-4b9b-a83a-d92ed10c439c
+name: flow_fb5f11e1__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs:
+- title: my_var
+  type: string
+outputs:
+- description: the first extracted value using the regex "(\[SUCCESS\]|\[FAILURE\])"
+    from the raw input
+  default: ''
+  title: output
+  type: string
+- description: the message added to the messages list
+  title: output_message
+  type: string
+start_node:
+  $component_ref: fbedaf76-4ad6-4685-af53-e92e0f861b80
+nodes:
+- $component_ref: fbedaf76-4ad6-4685-af53-e92e0f861b80
+- $component_ref: 9f320a77-0c89-4a68-890d-6f15e4951f41
+- $component_ref: 5caca307-4822-4e85-8df5-e8ee7de01203
+- $component_ref: f4f49441-ff33-47c0-a46d-012556117992
+- $component_ref: ba398191-3e18-41c0-acef-2940637299cf
+control_flow_connections:
+- component_type: ControlFlowEdge
+  id: 91469c9b-817f-46ea-9917-35e12140ce42
+  name: outer_start_step_to_subflow_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: fbedaf76-4ad6-4685-af53-e92e0f861b80
+  from_branch: null
+  to_node:
+    $component_ref: 9f320a77-0c89-4a68-890d-6f15e4951f41
+- component_type: ControlFlowEdge
+  id: ef3dda69-e480-490e-bae8-3da59efea428
+  name: subflow_step_to_success_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 9f320a77-0c89-4a68-890d-6f15e4951f41
+  from_branch: success_internal_step
+  to_node:
+    $component_ref: 5caca307-4822-4e85-8df5-e8ee7de01203
+- component_type: ControlFlowEdge
+  id: fb72a951-7bdf-4b48-87df-828755e31900
+  name: subflow_step_to_failure_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 9f320a77-0c89-4a68-890d-6f15e4951f41
+  from_branch: failure_internal_step
+  to_node:
+    $component_ref: f4f49441-ff33-47c0-a46d-012556117992
+- component_type: ControlFlowEdge
+  id: 009977e8-49b9-4378-8fd5-5a168d24f54e
+  name: success_step_to_None End node_control_flow_edge
+  description: null
+  metadata: {}
+  from_node:
+    $component_ref: 5caca307-4822-4e85-8df5-e8ee7de01203
+  from_branch: null
+  to_node:
+    $component_ref: ba398191-3e18-41c0-acef-2940637299cf
+- component_type: ControlFlowEdge
+  id: ad33df8a-d907-4735-a9e5-9c72782715f0
+  name: failure_step_to_None End node_control_flow_edge
+  description: null
+  metadata: {}
+  from_node:
+    $component_ref: f4f49441-ff33-47c0-a46d-012556117992
+  from_branch: null
+  to_node:
+    $component_ref: ba398191-3e18-41c0-acef-2940637299cf
+data_flow_connections:
+- component_type: DataFlowEdge
+  id: 1fd49451-f772-452d-b82f-0337cbbcc5d0
+  name: outer_start_step_my_var_to_subflow_step_my_var_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: fbedaf76-4ad6-4685-af53-e92e0f861b80
+  source_output: my_var
+  destination_node:
+    $component_ref: 9f320a77-0c89-4a68-890d-6f15e4951f41
+  destination_input: my_var
+- component_type: DataFlowEdge
+  id: ead87d3d-ef10-439e-86ea-27c03d0aed50
+  name: subflow_step_output_to_None End node_output_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 9f320a77-0c89-4a68-890d-6f15e4951f41
+  source_output: output
+  destination_node:
+    $component_ref: ba398191-3e18-41c0-acef-2940637299cf
+  destination_input: output
+- component_type: DataFlowEdge
+  id: 96a375d7-8555-453f-a2b7-73a559c5c29f
+  name: success_step_output_message_to_None End node_output_message_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 5caca307-4822-4e85-8df5-e8ee7de01203
+  source_output: output_message
+  destination_node:
+    $component_ref: ba398191-3e18-41c0-acef-2940637299cf
+  destination_input: output_message
+- component_type: DataFlowEdge
+  id: 87cdc413-f1a8-494b-b449-d87e70ba268d
+  name: failure_step_output_message_to_None End node_output_message_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: f4f49441-ff33-47c0-a46d-012556117992
+  source_output: output_message
+  destination_node:
+    $component_ref: ba398191-3e18-41c0-acef-2940637299cf
+  destination_input: output_message
+$referenced_components:
+  9f320a77-0c89-4a68-890d-6f15e4951f41:
+    component_type: FlowNode
+    id: 9f320a77-0c89-4a68-890d-6f15e4951f41
+    name: subflow_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - title: my_var
+      type: string
+    outputs:
+    - description: the first extracted value using the regex "(\[SUCCESS\]|\[FAILURE\])"
+        from the raw input
+      default: ''
+      title: output
+      type: string
+    branches:
+    - failure_internal_step
+    - success_internal_step
+    subflow:
+      component_type: Flow
+      id: 9319f3be-3d97-470f-a74c-946e71831a9e
+      name: flow_ad0e97b3__auto
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - title: my_var
+        type: string
+      outputs:
+      - description: the first extracted value using the regex "(\[SUCCESS\]|\[FAILURE\])"
+          from the raw input
+        default: ''
+        title: output
+        type: string
+      start_node:
+        $component_ref: c921ea31-5d7f-4a84-9b9f-21559d3725db
+      nodes:
+      - $component_ref: c921ea31-5d7f-4a84-9b9f-21559d3725db
+      - $component_ref: cf622bf5-1acd-4d9d-80a5-724d11b2db5e
+      - $component_ref: 411335e3-ad41-4549-8372-0f9549d375c9
+      - $component_ref: 553882d4-a7c3-4ece-934a-86627a760951
+      - $component_ref: b17890ce-10de-46d9-8ef7-505b25364343
+      control_flow_connections:
+      - component_type: ControlFlowEdge
+        id: 42d7c2ba-8d8c-4d55-a9fb-73c4c8256526
+        name: sub_start_step_to_regex_step_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: c921ea31-5d7f-4a84-9b9f-21559d3725db
+        from_branch: null
+        to_node:
+          $component_ref: cf622bf5-1acd-4d9d-80a5-724d11b2db5e
+      - component_type: ControlFlowEdge
+        id: 97c4c82b-597d-4924-8109-7c26f8275736
+        name: regex_step_to_branching_step_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: cf622bf5-1acd-4d9d-80a5-724d11b2db5e
+        from_branch: null
+        to_node:
+          $component_ref: 411335e3-ad41-4549-8372-0f9549d375c9
+      - component_type: ControlFlowEdge
+        id: 4afb7077-3517-4d5e-b443-013e2757ea25
+        name: branching_step_to_success_internal_step_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: 411335e3-ad41-4549-8372-0f9549d375c9
+        from_branch: success
+        to_node:
+          $component_ref: 553882d4-a7c3-4ece-934a-86627a760951
+      - component_type: ControlFlowEdge
+        id: 4c04c350-d2f3-4a56-b9ff-656dc00eacdd
+        name: branching_step_to_failure_internal_step_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: 411335e3-ad41-4549-8372-0f9549d375c9
+        from_branch: failure
+        to_node:
+          $component_ref: b17890ce-10de-46d9-8ef7-505b25364343
+      - component_type: ControlFlowEdge
+        id: 9dcde3d1-971f-492b-bf6f-ce7150e2acbb
+        name: branching_step_to_failure_internal_step_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: 411335e3-ad41-4549-8372-0f9549d375c9
+        from_branch: default
+        to_node:
+          $component_ref: b17890ce-10de-46d9-8ef7-505b25364343
+      data_flow_connections:
+      - component_type: DataFlowEdge
+        id: 43de5266-2e5c-4541-829d-0456cb1d1e0d
+        name: sub_start_step_my_var_to_regex_step_text_data_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        source_node:
+          $component_ref: c921ea31-5d7f-4a84-9b9f-21559d3725db
+        source_output: my_var
+        destination_node:
+          $component_ref: cf622bf5-1acd-4d9d-80a5-724d11b2db5e
+        destination_input: text
+      - component_type: DataFlowEdge
+        id: b2508f9c-4ee9-44f4-817c-90b226ddb035
+        name: regex_step_output_to_branching_step_next_step_name_data_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        source_node:
+          $component_ref: cf622bf5-1acd-4d9d-80a5-724d11b2db5e
+        source_output: output
+        destination_node:
+          $component_ref: 411335e3-ad41-4549-8372-0f9549d375c9
+        destination_input: next_step_name
+      - component_type: DataFlowEdge
+        id: 85416132-fa2c-4015-ab85-906af9f26cca
+        name: regex_step_output_to_success_internal_step_output_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: cf622bf5-1acd-4d9d-80a5-724d11b2db5e
+        source_output: output
+        destination_node:
+          $component_ref: 553882d4-a7c3-4ece-934a-86627a760951
+        destination_input: output
+      - component_type: DataFlowEdge
+        id: 681f604a-35c2-4e74-9529-176e070c0b0a
+        name: regex_step_output_to_failure_internal_step_output_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: cf622bf5-1acd-4d9d-80a5-724d11b2db5e
+        source_output: output
+        destination_node:
+          $component_ref: b17890ce-10de-46d9-8ef7-505b25364343
+        destination_input: output
+      $referenced_components:
+        cf622bf5-1acd-4d9d-80a5-724d11b2db5e:
+          component_type: PluginRegexNode
+          id: cf622bf5-1acd-4d9d-80a5-724d11b2db5e
+          name: regex_step
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - description: raw text to extract information from
+            title: text
+            type: string
+          outputs:
+          - description: the first extracted value using the regex "(\[SUCCESS\]|\[FAILURE\])"
+              from the raw input
+            default: ''
+            title: output
+            type: string
+          branches:
+          - next
+          input_mapping: {}
+          output_mapping: {}
+          regex_pattern: (\[SUCCESS\]|\[FAILURE\])
+          return_first_match_only: true
+          component_plugin_name: NodesPlugin
+          component_plugin_version: 25.4.0.dev0
+        c921ea31-5d7f-4a84-9b9f-21559d3725db:
+          component_type: StartNode
+          id: c921ea31-5d7f-4a84-9b9f-21559d3725db
+          name: sub_start_step
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - title: my_var
+            type: string
+          outputs:
+          - title: my_var
+            type: string
+          branches:
+          - next
+        411335e3-ad41-4549-8372-0f9549d375c9:
+          component_type: BranchingNode
+          id: 411335e3-ad41-4549-8372-0f9549d375c9
+          name: branching_step
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - description: Next branch name in the flow
+            default: default
+            title: next_step_name
+            type: string
+          outputs: []
+          branches:
+          - default
+          - failure
+          - success
+          mapping:
+            '[FAILURE]': failure
+            '[SUCCESS]': success
+        553882d4-a7c3-4ece-934a-86627a760951:
+          component_type: EndNode
+          id: 553882d4-a7c3-4ece-934a-86627a760951
+          name: success_internal_step
+          description: null
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - description: the first extracted value using the regex "(\[SUCCESS\]|\[FAILURE\])"
+              from the raw input
+            default: ''
+            title: output
+            type: string
+          outputs:
+          - description: the first extracted value using the regex "(\[SUCCESS\]|\[FAILURE\])"
+              from the raw input
+            default: ''
+            title: output
+            type: string
+          branches: []
+          branch_name: success_internal_step
+        b17890ce-10de-46d9-8ef7-505b25364343:
+          component_type: EndNode
+          id: b17890ce-10de-46d9-8ef7-505b25364343
+          name: failure_internal_step
+          description: null
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - description: the first extracted value using the regex "(\[SUCCESS\]|\[FAILURE\])"
+              from the raw input
+            default: ''
+            title: output
+            type: string
+          outputs:
+          - description: the first extracted value using the regex "(\[SUCCESS\]|\[FAILURE\])"
+              from the raw input
+            default: ''
+            title: output
+            type: string
+          branches: []
+          branch_name: failure_internal_step
+  fbedaf76-4ad6-4685-af53-e92e0f861b80:
+    component_type: StartNode
+    id: fbedaf76-4ad6-4685-af53-e92e0f861b80
+    name: outer_start_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - title: my_var
+      type: string
+    outputs:
+    - title: my_var
+      type: string
+    branches:
+    - next
+  ba398191-3e18-41c0-acef-2940637299cf:
+    component_type: EndNode
+    id: ba398191-3e18-41c0-acef-2940637299cf
+    name: None End node
+    description: End node representing all transitions to None in the WayFlow flow
+    metadata: {}
+    inputs:
+    - description: the first extracted value using the regex "(\[SUCCESS\]|\[FAILURE\])"
+        from the raw input
+      default: ''
+      title: output
+      type: string
+    - description: the message added to the messages list
+      title: output_message
+      type: string
+    outputs:
+    - description: the first extracted value using the regex "(\[SUCCESS\]|\[FAILURE\])"
+        from the raw input
+      default: ''
+      title: output
+      type: string
+    - description: the message added to the messages list
+      title: output_message
+      type: string
+    branches: []
+    branch_name: next
+  5caca307-4822-4e85-8df5-e8ee7de01203:
+    component_type: PluginOutputMessageNode
+    id: 5caca307-4822-4e85-8df5-e8ee7de01203
+    name: success_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs:
+    - description: the message added to the messages list
+      title: output_message
+      type: string
+    branches:
+    - next
+    expose_message_as_output: True
+    message: It was a success
+    input_mapping: {}
+    output_mapping: {}
+    message_type: AGENT
+    rephrase: false
+    llm_config: null
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 25.4.0.dev0
+  f4f49441-ff33-47c0-a46d-012556117992:
+    component_type: PluginOutputMessageNode
+    id: f4f49441-ff33-47c0-a46d-012556117992
+    name: failure_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs:
+    - description: the message added to the messages list
+      title: output_message
+      type: string
+    branches:
+    - next
+    expose_message_as_output: True
+    message: It was a failure
+    input_mapping: {}
+    output_mapping: {}
+    message_type: AGENT
+    rephrase: false
+    llm_config: null
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 25.4.0.dev0
+agentspec_version: 25.4.1

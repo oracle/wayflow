@@ -1,0 +1,353 @@
+component_type: Flow
+id: bf3ca5b3-39bc-40ca-9d9a-a387bee07031
+name: flow_e057bcd6__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs:
+- description: the input value provided by the user
+  type: string
+  title: user_query
+- type: string
+  title: hr_data_context
+- type: string
+  title: answer
+- description: the message added to the messages list
+  type: string
+  title: output_message
+start_node:
+  $component_ref: 91594dfc-44fa-41d9-91ba-52ae7b0b0f16
+nodes:
+- $component_ref: 91594dfc-44fa-41d9-91ba-52ae7b0b0f16
+- $component_ref: c79bea59-c54b-4a54-8ac5-df6daaa60d22
+- $component_ref: 819ae9c0-4055-4fe6-ab05-f03c45775206
+- $component_ref: d9b795cd-3949-4acb-9399-6d9f0a10d7e6
+- $component_ref: 01c4a5ff-6568-42a0-a8de-8efaec780712
+- $component_ref: 953ccf06-5550-4597-9518-df1043269693
+control_flow_connections:
+- component_type: ControlFlowEdge
+  id: a71aebf8-0416-4811-bb89-6cf4627dc170
+  name: start_step_to_user_input_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 91594dfc-44fa-41d9-91ba-52ae7b0b0f16
+  from_branch: null
+  to_node:
+    $component_ref: c79bea59-c54b-4a54-8ac5-df6daaa60d22
+- component_type: ControlFlowEdge
+  id: b2e0fb5c-8b57-4c32-9261-bd036ee607c1
+  name: user_input_step_to_hr_lookup_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: c79bea59-c54b-4a54-8ac5-df6daaa60d22
+  from_branch: null
+  to_node:
+    $component_ref: 819ae9c0-4055-4fe6-ab05-f03c45775206
+- component_type: ControlFlowEdge
+  id: 4d1bea5b-0c63-4042-891b-aca964e1640f
+  name: hr_lookup_step_to_llm_answer_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 819ae9c0-4055-4fe6-ab05-f03c45775206
+  from_branch: null
+  to_node:
+    $component_ref: d9b795cd-3949-4acb-9399-6d9f0a10d7e6
+- component_type: ControlFlowEdge
+  id: 9323cd7b-5da2-46b6-8333-46ac19d22d4d
+  name: llm_answer_step_to_user_output_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: d9b795cd-3949-4acb-9399-6d9f0a10d7e6
+  from_branch: null
+  to_node:
+    $component_ref: 01c4a5ff-6568-42a0-a8de-8efaec780712
+- component_type: ControlFlowEdge
+  id: e8075a13-3e48-4611-b68f-aa10423309ec
+  name: user_output_step_to_final_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 01c4a5ff-6568-42a0-a8de-8efaec780712
+  from_branch: null
+  to_node:
+    $component_ref: 953ccf06-5550-4597-9518-df1043269693
+data_flow_connections:
+- component_type: DataFlowEdge
+  id: 1a76f7f9-19b0-438e-aa3e-274dc06d4aa2
+  name: user_input_step_user_query_to_hr_lookup_step_query_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: c79bea59-c54b-4a54-8ac5-df6daaa60d22
+  source_output: user_query
+  destination_node:
+    $component_ref: 819ae9c0-4055-4fe6-ab05-f03c45775206
+  destination_input: query
+- component_type: DataFlowEdge
+  id: f4a11a6e-0b79-4ede-8673-30ad1b79af2d
+  name: user_input_step_user_query_to_llm_answer_step_user_question_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: c79bea59-c54b-4a54-8ac5-df6daaa60d22
+  source_output: user_query
+  destination_node:
+    $component_ref: d9b795cd-3949-4acb-9399-6d9f0a10d7e6
+  destination_input: user_question
+- component_type: DataFlowEdge
+  id: ee8b7cdd-762a-4202-b320-d71dab6d6318
+  name: hr_lookup_step_hr_data_context_to_llm_answer_step_hr_data_context_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 819ae9c0-4055-4fe6-ab05-f03c45775206
+  source_output: hr_data_context
+  destination_node:
+    $component_ref: d9b795cd-3949-4acb-9399-6d9f0a10d7e6
+  destination_input: hr_data_context
+- component_type: DataFlowEdge
+  id: ac2e45dc-75c2-427f-8c75-1114aeda295d
+  name: llm_answer_step_answer_to_user_output_step_answer_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: d9b795cd-3949-4acb-9399-6d9f0a10d7e6
+  source_output: answer
+  destination_node:
+    $component_ref: 01c4a5ff-6568-42a0-a8de-8efaec780712
+  destination_input: answer
+- component_type: DataFlowEdge
+  id: cae80dba-f95a-4a24-9b93-684928a23b11
+  name: user_input_step_user_query_to_final_step_user_query_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: c79bea59-c54b-4a54-8ac5-df6daaa60d22
+  source_output: user_query
+  destination_node:
+    $component_ref: 953ccf06-5550-4597-9518-df1043269693
+  destination_input: user_query
+- component_type: DataFlowEdge
+  id: fe0c03de-5f80-4575-8d0e-605211ab9b3c
+  name: hr_lookup_step_hr_data_context_to_final_step_hr_data_context_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 819ae9c0-4055-4fe6-ab05-f03c45775206
+  source_output: hr_data_context
+  destination_node:
+    $component_ref: 953ccf06-5550-4597-9518-df1043269693
+  destination_input: hr_data_context
+- component_type: DataFlowEdge
+  id: a22200bc-dbba-4658-aeb1-0ddced3beb3e
+  name: llm_answer_step_answer_to_final_step_answer_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: d9b795cd-3949-4acb-9399-6d9f0a10d7e6
+  source_output: answer
+  destination_node:
+    $component_ref: 953ccf06-5550-4597-9518-df1043269693
+  destination_input: answer
+- component_type: DataFlowEdge
+  id: de05873e-c565-41be-a3f8-f9c6600e4f57
+  name: user_output_step_output_message_to_final_step_output_message_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 01c4a5ff-6568-42a0-a8de-8efaec780712
+  source_output: output_message
+  destination_node:
+    $component_ref: 953ccf06-5550-4597-9518-df1043269693
+  destination_input: output_message
+$referenced_components:
+  819ae9c0-4055-4fe6-ab05-f03c45775206:
+    component_type: ExtendedToolNode
+    id: 819ae9c0-4055-4fe6-ab05-f03c45775206
+    name: hr_lookup_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - type: string
+      title: query
+    outputs:
+    - type: string
+      title: hr_data_context
+    branches:
+    - next
+    tool:
+      component_type: ServerTool
+      id: 6ca8f0ef-2496-4c9b-bbea-ca6e5969c07e
+      name: search_hr_database
+      description: "Function that searches the HR database for employee benefits.\n\
+        \nParameters\n----------\nquery:\n    a query string\n\nReturns\n-------\n\
+        \    a JSON response"
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - type: string
+        title: query
+      outputs:
+      - type: string
+        title: hr_data_context
+    input_mapping: {}
+    output_mapping: {}
+    raise_exceptions: false
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 25.4.0.dev0
+  c79bea59-c54b-4a54-8ac5-df6daaa60d22:
+    component_type: PluginInputMessageNode
+    id: c79bea59-c54b-4a54-8ac5-df6daaa60d22
+    name: user_input_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs:
+    - description: the input value provided by the user
+      type: string
+      title: user_query
+    branches:
+    - next
+    input_mapping: {}
+    output_mapping:
+      user_provided_input: user_query
+    message_template: '
+
+      I am an HR Assistant, designed to answer your questions about HR matters.
+
+      What kinds of questions do you have today?
+
+      Example of HR topics:
+
+      - Employee benefits
+
+      - Salaries
+
+      - Career advancement
+
+      '
+    rephrase: false
+    llm_config: null
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 25.4.0.dev0
+  d9b795cd-3949-4acb-9399-6d9f0a10d7e6:
+    component_type: LlmNode
+    id: d9b795cd-3949-4acb-9399-6d9f0a10d7e6
+    name: llm_answer_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: '"user_question" input variable for the template'
+      type: string
+      title: user_question
+    - description: '"hr_data_context" input variable for the template'
+      type: string
+      title: hr_data_context
+    outputs:
+    - type: string
+      title: answer
+    branches:
+    - next
+    llm_config:
+      component_type: VllmConfig
+      id: 22ce9b88-6c3f-40a4-88f9-2f81a7960993
+      name: LLAMA_MODEL_ID
+      description: null
+      metadata:
+        __metadata_info__: {}
+      default_generation_parameters: null
+      url: LLAMA_API_URL
+      model_id: LLAMA_MODEL_ID
+    prompt_template: "\nYou are a knowledgeable, factual, and helpful HR assistant\
+      \ that can answer simple     HR-related questions like salary and benefits.\n\
+      Your task:\n    - Based on the HR data given below, answer the user's question\n\
+      Important:\n    - Be helpful and concise in your messages\n    - Do not tell\
+      \ the user any details not mentioned in the tool response, let's be factual.\n\
+      \nHere is the User question:\n- {{ user_question }}\n\nHere is the HR data:\n\
+      - {{ hr_data_context }}\n"
+  01c4a5ff-6568-42a0-a8de-8efaec780712:
+    component_type: PluginOutputMessageNode
+    id: 01c4a5ff-6568-42a0-a8de-8efaec780712
+    name: user_output_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: '"answer" input variable for the template'
+      type: string
+      title: answer
+    outputs:
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    branches:
+    - next
+    expose_message_as_output: True
+    message: 'My Assistant''s Response: {{ answer }}'
+    input_mapping: {}
+    output_mapping: {}
+    message_type: AGENT
+    rephrase: false
+    llm_config: null
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 25.4.0.dev0
+  953ccf06-5550-4597-9518-df1043269693:
+    component_type: EndNode
+    id: 953ccf06-5550-4597-9518-df1043269693
+    name: final_step
+    description: null
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: the input value provided by the user
+      type: string
+      title: user_query
+    - type: string
+      title: hr_data_context
+    - type: string
+      title: answer
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    outputs:
+    - description: the input value provided by the user
+      type: string
+      title: user_query
+    - type: string
+      title: hr_data_context
+    - type: string
+      title: answer
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    branches: []
+    branch_name: final_step
+  91594dfc-44fa-41d9-91ba-52ae7b0b0f16:
+    component_type: StartNode
+    id: 91594dfc-44fa-41d9-91ba-52ae7b0b0f16
+    name: start_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs: []
+    branches:
+    - next
+agentspec_version: 25.4.1

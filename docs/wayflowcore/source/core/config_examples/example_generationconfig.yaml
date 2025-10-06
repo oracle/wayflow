@@ -1,0 +1,126 @@
+component_type: Flow
+id: fc3d10f4-5ee2-40d8-a580-0db6c44b0b39
+name: flow_0e4b989a
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs:
+- type: string
+  title: user_question
+outputs:
+- description: the generated text
+  type: string
+  title: output
+start_node:
+  $component_ref: d8870848-f3c1-4a88-a0f3-b6ca20c61bab
+nodes:
+- $component_ref: d8870848-f3c1-4a88-a0f3-b6ca20c61bab
+- $component_ref: 25917cac-52d4-4816-8c62-c18d8b70ee33
+- $component_ref: 158c838b-f8be-41ef-8b66-64348c8d379c
+control_flow_connections:
+- component_type: ControlFlowEdge
+  id: 7b8c0c0b-fcd1-4bf3-96be-dcf726ab1526
+  name: start_step_to_PromptExecution_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: d8870848-f3c1-4a88-a0f3-b6ca20c61bab
+  from_branch: null
+  to_node:
+    $component_ref: 25917cac-52d4-4816-8c62-c18d8b70ee33
+- component_type: ControlFlowEdge
+  id: 6b2c2840-126c-43fe-a8e1-f3cb08e8ae88
+  name: PromptExecution_to_None End node_control_flow_edge
+  description: null
+  metadata: {}
+  from_node:
+    $component_ref: 25917cac-52d4-4816-8c62-c18d8b70ee33
+  from_branch: null
+  to_node:
+    $component_ref: 158c838b-f8be-41ef-8b66-64348c8d379c
+data_flow_connections:
+- component_type: DataFlowEdge
+  id: 86ba0435-be9b-46b0-97ae-64e145045e19
+  name: start_step_user_question_to_PromptExecution_user_question_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: d8870848-f3c1-4a88-a0f3-b6ca20c61bab
+  source_output: user_question
+  destination_node:
+    $component_ref: 25917cac-52d4-4816-8c62-c18d8b70ee33
+  destination_input: user_question
+- component_type: DataFlowEdge
+  id: 8638e234-9a23-45c5-89d4-296fc5a8c5ac
+  name: PromptExecution_output_to_None End node_output_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 25917cac-52d4-4816-8c62-c18d8b70ee33
+  source_output: output
+  destination_node:
+    $component_ref: 158c838b-f8be-41ef-8b66-64348c8d379c
+  destination_input: output
+$referenced_components:
+  25917cac-52d4-4816-8c62-c18d8b70ee33:
+    component_type: LlmNode
+    id: 25917cac-52d4-4816-8c62-c18d8b70ee33
+    name: PromptExecution
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: '"user_question" input variable for the template'
+      type: string
+      title: user_question
+    outputs:
+    - description: the generated text
+      type: string
+      title: output
+    branches:
+    - next
+    llm_config:
+      component_type: VllmConfig
+      id: 93d098ef-9643-4d38-a012-8903bacbb784
+      name: LLAMA_MODEL_ID
+      description: null
+      metadata:
+        __metadata_info__: {}
+      default_generation_parameters: null
+      url: LLAMA_API_URL
+      model_id: LLAMA_MODEL_ID
+    prompt_template: '{{user_question}}'
+  d8870848-f3c1-4a88-a0f3-b6ca20c61bab:
+    component_type: StartNode
+    id: d8870848-f3c1-4a88-a0f3-b6ca20c61bab
+    name: start_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - type: string
+      title: user_question
+    outputs:
+    - type: string
+      title: user_question
+    branches:
+    - next
+  158c838b-f8be-41ef-8b66-64348c8d379c:
+    component_type: EndNode
+    id: 158c838b-f8be-41ef-8b66-64348c8d379c
+    name: None End node
+    description: End node representing all transitions to None in the WayFlow flow
+    metadata: {}
+    inputs:
+    - description: the generated text
+      type: string
+      title: output
+    outputs:
+    - description: the generated text
+      type: string
+      title: output
+    branches: []
+    branch_name: next
+agentspec_version: 25.4.1

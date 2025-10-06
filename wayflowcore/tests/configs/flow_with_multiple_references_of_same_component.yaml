@@ -1,0 +1,216 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+_component_type: Flow
+_referenced_objects:
+  controlflowedge/09f56ad7-1b79-4718-a4ac-3a33fb0e1d6c:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: inputmessagestep/5134072208
+    id: 09f56ad7-1b79-4718-a4ac-3a33fb0e1d6c
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/5134059408
+  controlflowedge/0b7b366d-9f53-45c4-a7ed-f4426eb6e7cf:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/5133926160
+    id: 0b7b366d-9f53-45c4-a7ed-f4426eb6e7cf
+    source_branch: next
+    source_step:
+      $ref: inputmessagestep/5134072208
+  controlflowedge/651da3fa-d653-4c17-9359-5c1e9fccd015:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/5134059408
+    id: 651da3fa-d653-4c17-9359-5c1e9fccd015
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/5133917328
+  controlflowedge/7ef0e811-05bd-4a84-a1e0-f64926c6a4e2:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/5133926160
+    id: 7ef0e811-05bd-4a84-a1e0-f64926c6a4e2
+    source_branch: next
+    source_step:
+      $ref: startstep/5ff43326-0faf-4c9c-9b66-d5a64c7257a9
+  controlflowedge/adc00547-e72f-46d3-9df3-c3e96b7223ce:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: flowexecutionstep/5134066512
+    id: adc00547-e72f-46d3-9df3-c3e96b7223ce
+    source_branch: next
+    source_step:
+      $ref: startstep/ccdb0f8f-e4c0-4bae-bd60-7a91108bbee2
+  controlflowedge/caea7760-5642-4eb5-8161-aae9bb3295df:
+    _component_type: ControlFlowEdge
+    destination_step: null
+    id: caea7760-5642-4eb5-8161-aae9bb3295df
+    source_branch: next
+    source_step:
+      $ref: flowexecutionstep/5134066512
+  controlflowedge/f8c1c7f9-fc6f-4e2e-96fc-659ee074c4b4:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/5133917328
+    id: f8c1c7f9-fc6f-4e2e-96fc-659ee074c4b4
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/5133926160
+  flow/5134066576:
+    _component_type: Flow
+    begin_step_name: __StartStep__
+    control_flow_edges:
+    - $ref: controlflowedge/f8c1c7f9-fc6f-4e2e-96fc-659ee074c4b4
+    - $ref: controlflowedge/651da3fa-d653-4c17-9359-5c1e9fccd015
+    - $ref: controlflowedge/09f56ad7-1b79-4718-a4ac-3a33fb0e1d6c
+    - $ref: controlflowedge/0b7b366d-9f53-45c4-a7ed-f4426eb6e7cf
+    - $ref: controlflowedge/7ef0e811-05bd-4a84-a1e0-f64926c6a4e2
+    data_flow_edges: []
+    description: ''
+    end_steps:
+    - null
+    flow_id: '5134066576'
+    name: flow_990307c5
+    steps:
+      STEP_A:
+        $ref: outputmessagestep/5133926160
+      STEP_B:
+        $ref: outputmessagestep/5133917328
+      STEP_C:
+        $ref: outputmessagestep/5134059408
+      STEP_D:
+        $ref: inputmessagestep/5134072208
+      __StartStep__:
+        $ref: startstep/5ff43326-0faf-4c9c-9b66-d5a64c7257a9
+    variables: []
+  flowexecutionstep/5134066512:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '5134066512'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_f9bf8b51
+    output_descriptors: []
+    output_mapping: {}
+    step_args:
+      flow:
+        $ref: flow/5134066576
+    step_cls: FlowExecutionStep
+  inputmessagestep/5134072208:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '5134072208'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_8242591f
+    output_descriptors:
+    - _component_type: Property
+      description: the input value provided by the user
+      title: user_provided_input
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: you?
+      rephrase: false
+    step_cls: InputMessageStep
+  outputmessagestep/5133917328:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '5133917328'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_993d4aef
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: output_message
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: How
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  outputmessagestep/5133926160:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '5133926160'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_60bf519f
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: output_message
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: Hello!
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  outputmessagestep/5134059408:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '5134059408'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_f1baa7db
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: output_message
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: are
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  startstep/5ff43326-0faf-4c9c-9b66-d5a64c7257a9:
+    __metadata_info__: {}
+    _component_type: Step
+    id: 5ff43326-0faf-4c9c-9b66-d5a64c7257a9
+    input_descriptors: []
+    input_mapping: {}
+    name: step_3f01b256
+    output_descriptors: []
+    output_mapping: {}
+    step_args: {}
+    step_cls: StartStep
+  startstep/ccdb0f8f-e4c0-4bae-bd60-7a91108bbee2:
+    __metadata_info__: {}
+    _component_type: Step
+    id: ccdb0f8f-e4c0-4bae-bd60-7a91108bbee2
+    input_descriptors: []
+    input_mapping: {}
+    name: step_29c30843
+    output_descriptors: []
+    output_mapping: {}
+    step_args: {}
+    step_cls: StartStep
+begin_step_name: __StartStep__
+control_flow_edges:
+- $ref: controlflowedge/caea7760-5642-4eb5-8161-aae9bb3295df
+- $ref: controlflowedge/adc00547-e72f-46d3-9df3-c3e96b7223ce
+data_flow_edges: []
+description: ''
+end_steps:
+- null
+flow_id: c7e75c92-e831-4bd8-a101-285ab3578d96
+name: flow_28c24d34
+steps:
+  STEP_ALPHA:
+    $ref: flowexecutionstep/5134066512
+  __StartStep__:
+    $ref: startstep/ccdb0f8f-e4c0-4bae-bd60-7a91108bbee2
+variables: []

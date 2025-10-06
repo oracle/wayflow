@@ -1,0 +1,108 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+_component_type: ContextProvider
+_referenced_objects:
+  controlflowedge/7ed1a737-603b-41ee-ac37-f97452865a45:
+    _component_type: ControlFlowEdge
+    destination_step: null
+    id: 7ed1a737-603b-41ee-ac37-f97452865a45
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/140201443442640
+  controlflowedge/98a61f43-1cc7-476b-8bbd-49b0588af369:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/140201443442640
+    id: 98a61f43-1cc7-476b-8bbd-49b0588af369
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/140201443446640
+  controlflowedge/9cbfcd49-dfbd-458a-a55f-d82ef0f1709a:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/140201443446640
+    id: 9cbfcd49-dfbd-458a-a55f-d82ef0f1709a
+    source_branch: next
+    source_step:
+      $ref: startstep/8a6da8c3-cbe2-4884-a982-5942684151b4
+  flow/140202488436864:
+    _component_type: Flow
+    begin_step_name: __StartStep__
+    control_flow_edges:
+    - $ref: controlflowedge/98a61f43-1cc7-476b-8bbd-49b0588af369
+    - $ref: controlflowedge/7ed1a737-603b-41ee-ac37-f97452865a45
+    - $ref: controlflowedge/9cbfcd49-dfbd-458a-a55f-d82ef0f1709a
+    data_flow_edges: []
+    description: ''
+    end_steps:
+    - null
+    flow_id: '140202488436864'
+    name: flow_f608932b
+    steps:
+      __StartStep__:
+        $ref: startstep/8a6da8c3-cbe2-4884-a982-5942684151b4
+      place_output_step:
+        $ref: outputmessagestep/140201443446640
+      time_output_step:
+        $ref: outputmessagestep/140201443442640
+    variables: []
+  outputmessagestep/140201443442640:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '140201443442640'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_2477bf96
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: time_output_io
+      type: string
+    output_mapping:
+      output_message: time_output_io
+    step_args:
+      llm: null
+      message_template: The current time is 2pm.
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  outputmessagestep/140201443446640:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '140201443446640'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_965b35ea
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: output_message
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: The current place is Zurich.
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  startstep/8a6da8c3-cbe2-4884-a982-5942684151b4:
+    __metadata_info__: {}
+    _component_type: Step
+    id: 8a6da8c3-cbe2-4884-a982-5942684151b4
+    input_descriptors: []
+    input_mapping: {}
+    name: step_0c00c7ad
+    output_descriptors: []
+    output_mapping: {}
+    step_args: {}
+    step_cls: StartStep
+context_provider_args:
+  flow:
+    $ref: flow/140202488436864
+  flow_output_names:
+  - time_output_io
+context_provider_type: flow

@@ -1,0 +1,24 @@
+component_type: PluginInputMessageNode
+id: c7f3b49e-0db5-45b6-9a18-42c565230dc9
+name: step_7137de34
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs:
+- type: string
+  title: username
+outputs:
+- description: the input value provided by the user
+  type: string
+  title: user_provided_input
+branches:
+- next
+input_mapping:
+  unclear_var_name: username
+output_mapping: {}
+message_template: Hi {{unclear_var_name}}. How are you doing?
+rephrase: false
+llm_config: null
+component_plugin_name: NodesPlugin
+component_plugin_version: 25.4.0.dev0
+agentspec_version: 25.4.1

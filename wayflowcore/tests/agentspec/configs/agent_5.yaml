@@ -1,0 +1,37 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+agents: []
+component_type: Agent
+description: Agent with OCI LLM
+flows: []
+id: agent_with_oci_llm
+inputs: []
+llm_config:
+  client_config:
+    auth_file_location: ~/.oci/config
+    auth_profile: DEFAULT
+    auth_type: API_KEY
+    component_type: OciClientConfigWithApiKey
+    description: null
+    id: oci_client
+    metadata: {}
+    name: oci_client
+    service_endpoint: my_service_endpoint
+  compartment_id: my_compartment_id
+  component_type: OciGenAiConfig
+  default_generation_parameters: null
+  description: null
+  id: oci_llm_config
+  metadata: {}
+  model_id: meta.model_id
+  name: llm_config
+metadata: {}
+name: my_agent
+outputs: []
+system_prompt: Assist the user with their requests.
+tools: []
+agentspec_version: 25.4.1

@@ -1,0 +1,554 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+$referenced_components:
+  0bea957e-36ca-41b5-a576-b05a663656b1:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: iterated_denominator
+    destination_node:
+      $component_ref: c1b53c55-b35e-4102-9a80-a711df29abc6
+    id: 0bea957e-36ca-41b5-a576-b05a663656b1
+    metadata: {}
+    name: denominator_edge
+    source_node:
+      $component_ref: dbe9f89a-00f4-4f8f-a546-4819d7f4d01a
+    source_output: squared_sum
+  11160b18-4336-4815-8ad9-fc624d495e77:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: numerator
+    destination_node:
+      $component_ref: 35e83332-cc06-4caf-a8be-1aabdec12481
+    id: 11160b18-4336-4815-8ad9-fc624d495e77
+    metadata: {}
+    name: numerator_edge
+    source_node:
+      $component_ref: ba9939d9-e0ca-4671-b542-68b2c63f15d9
+    source_output: numerator
+  163d0d6f-509d-4a8c-a488-c3501917fad0:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: dbe9f89a-00f4-4f8f-a546-4819d7f4d01a
+    id: 163d0d6f-509d-4a8c-a488-c3501917fad0
+    metadata: {}
+    name: squared_sum_tool_to_normalize
+    to_node:
+      $component_ref: c1b53c55-b35e-4102-9a80-a711df29abc6
+  1b9fce39-a95f-4b50-9d0c-b3654a1ddef8:
+    component_type: ServerTool
+    description: Computes the square of a number
+    id: 1b9fce39-a95f-4b50-9d0c-b3654a1ddef8
+    inputs:
+    - title: x
+      type: number
+    metadata: {}
+    name: compute_square_tool
+    outputs:
+    - title: x_square
+      type: number
+  1ebf6004-be2d-414c-845c-d88058e0de6e:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: result
+    destination_node:
+      $component_ref: d5d52b3f-1ac5-46f6-b59a-d8c7fd7ac5f7
+    id: 1ebf6004-be2d-414c-845c-d88058e0de6e
+    metadata: {}
+    name: result_edge
+    source_node:
+      $component_ref: 35e83332-cc06-4caf-a8be-1aabdec12481
+    source_output: result
+  26765f66-c3e4-4803-8147-bfff7d3a716a:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: x_list
+    destination_node:
+      $component_ref: dbe9f89a-00f4-4f8f-a546-4819d7f4d01a
+    id: 26765f66-c3e4-4803-8147-bfff7d3a716a
+    metadata: {}
+    name: x_square_list_edge
+    source_node:
+      $component_ref: 9e887acb-333a-4084-b08e-2285fb0d237f
+    source_output: collected_x_square
+  2e99462e-9122-46c5-8571-617030dd2527:
+    component_type: ServerTool
+    description: Computes the squared sum of a list of numbers
+    id: 2e99462e-9122-46c5-8571-617030dd2527
+    inputs:
+    - items:
+        type: number
+      title: x_list
+      type: array
+    metadata: {}
+    name: squared_sum_tool
+    outputs:
+    - title: squared_sum
+      type: number
+  35e83332-cc06-4caf-a8be-1aabdec12481:
+    branches:
+    - next
+    component_type: ToolNode
+    description: null
+    id: 35e83332-cc06-4caf-a8be-1aabdec12481
+    inputs:
+    - title: numerator
+      type: number
+    - title: denominator
+      type: number
+    metadata: {}
+    name: divide node
+    outputs:
+    - title: result
+      type: number
+    tool:
+      $component_ref: ee112cfb-e4fb-4eb9-8620-c4c95b9abd73
+  5df15693-e648-44d3-8d64-590a758ce09e:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: iterated_numerator
+    destination_node:
+      $component_ref: c1b53c55-b35e-4102-9a80-a711df29abc6
+    id: 5df15693-e648-44d3-8d64-590a758ce09e
+    metadata: {}
+    name: numerator_edge
+    source_node:
+      $component_ref: e75f33dc-b490-4103-8071-93f45d179c82
+    source_output: x_list
+  5f107d8b-d6e1-43df-94fe-6248be132892:
+    branch_name: next
+    branches: []
+    component_type: EndNode
+    description: null
+    id: 5f107d8b-d6e1-43df-94fe-6248be132892
+    inputs:
+    - items:
+        type: number
+      title: collected_result
+      type: array
+    metadata: {}
+    name: end
+    outputs:
+    - items:
+        type: number
+      title: collected_result
+      type: array
+  66e7ad69-69ba-4003-bcf7-bd7b7e1926df:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: ba9939d9-e0ca-4671-b542-68b2c63f15d9
+    id: 66e7ad69-69ba-4003-bcf7-bd7b7e1926df
+    metadata: {}
+    name: start_to_tool
+    to_node:
+      $component_ref: 35e83332-cc06-4caf-a8be-1aabdec12481
+  704bc64f-59ce-46bc-8c02-2042b16c8c56:
+    branches:
+    - next
+    component_type: StartNode
+    description: null
+    id: 704bc64f-59ce-46bc-8c02-2042b16c8c56
+    inputs:
+    - title: x
+      type: number
+    metadata: {}
+    name: start
+    outputs:
+    - title: x
+      type: number
+  83e37e55-bdd4-47b9-8ec8-9565755b0cf2:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: 35e83332-cc06-4caf-a8be-1aabdec12481
+    id: 83e37e55-bdd4-47b9-8ec8-9565755b0cf2
+    metadata: {}
+    name: tool_to_end
+    to_node:
+      $component_ref: d5d52b3f-1ac5-46f6-b59a-d8c7fd7ac5f7
+  99f59dfa-3533-434c-bf9b-b75379b20ab0:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: iterated_x
+    destination_node:
+      $component_ref: 9e887acb-333a-4084-b08e-2285fb0d237f
+    id: 99f59dfa-3533-434c-bf9b-b75379b20ab0
+    metadata: {}
+    name: list_of_x_edge
+    source_node:
+      $component_ref: e75f33dc-b490-4103-8071-93f45d179c82
+    source_output: x_list
+  9e887acb-333a-4084-b08e-2285fb0d237f:
+    branches:
+    - next
+    component_type: MapNode
+    description: null
+    id: 9e887acb-333a-4084-b08e-2285fb0d237f
+    inputs:
+    - anyOf:
+      - title: x
+        type: number
+      - items:
+          title: x
+          type: number
+        type: array
+      title: iterated_x
+    metadata: {}
+    name: square number map node
+    outputs:
+    - items:
+        title: x_square
+        type: number
+      title: collected_x_square
+      type: array
+    reducers:
+      x_square: append
+    subflow:
+      $component_ref: ed462629-41b4-400f-a549-2cfc88297bec
+  9fd22dc6-d3bc-4182-830d-4ecded7c4ff2:
+    branch_name: next
+    branches: []
+    component_type: EndNode
+    description: null
+    id: 9fd22dc6-d3bc-4182-830d-4ecded7c4ff2
+    inputs:
+    - title: x_square
+      type: number
+    metadata: {}
+    name: end
+    outputs:
+    - title: x_square
+      type: number
+  a63a8967-50ca-4814-858e-ef6fb69b2efd:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: 9e887acb-333a-4084-b08e-2285fb0d237f
+    id: a63a8967-50ca-4814-858e-ef6fb69b2efd
+    metadata: {}
+    name: square_numbers_to_squared_sum_tool
+    to_node:
+      $component_ref: dbe9f89a-00f4-4f8f-a546-4819d7f4d01a
+  b348c3a7-cdfc-455e-9c0b-aa7c01890b5d:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: collected_result
+    destination_node:
+      $component_ref: 5f107d8b-d6e1-43df-94fe-6248be132892
+    id: b348c3a7-cdfc-455e-9c0b-aa7c01890b5d
+    metadata: {}
+    name: collected_result_edge
+    source_node:
+      $component_ref: c1b53c55-b35e-4102-9a80-a711df29abc6
+    source_output: collected_result
+  b706890b-2c82-4677-8de7-b541f49eb90f:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: e75f33dc-b490-4103-8071-93f45d179c82
+    id: b706890b-2c82-4677-8de7-b541f49eb90f
+    metadata: {}
+    name: start_to_square_numbers
+    to_node:
+      $component_ref: 9e887acb-333a-4084-b08e-2285fb0d237f
+  ba9939d9-e0ca-4671-b542-68b2c63f15d9:
+    branches:
+    - next
+    component_type: StartNode
+    description: null
+    id: ba9939d9-e0ca-4671-b542-68b2c63f15d9
+    inputs:
+    - title: numerator
+      type: number
+    - title: denominator
+      type: number
+    metadata: {}
+    name: start
+    outputs:
+    - title: numerator
+      type: number
+    - title: denominator
+      type: number
+  bccd7536-caf7-4fbf-9cdc-b14d412c4b9b:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: c1b53c55-b35e-4102-9a80-a711df29abc6
+    id: bccd7536-caf7-4fbf-9cdc-b14d412c4b9b
+    metadata: {}
+    name: normalize_to_end
+    to_node:
+      $component_ref: 5f107d8b-d6e1-43df-94fe-6248be132892
+  c04b6234-bc00-4974-8af0-947940835845:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: c5ea1ce2-3014-42cf-b0e9-fc39e00501b2
+    id: c04b6234-bc00-4974-8af0-947940835845
+    metadata: {}
+    name: tool_to_end
+    to_node:
+      $component_ref: 9fd22dc6-d3bc-4182-830d-4ecded7c4ff2
+  c1b53c55-b35e-4102-9a80-a711df29abc6:
+    branches:
+    - next
+    component_type: MapNode
+    description: null
+    id: c1b53c55-b35e-4102-9a80-a711df29abc6
+    inputs:
+    - anyOf:
+      - title: numerator
+        type: number
+      - items:
+          title: numerator
+          type: number
+        type: array
+      title: iterated_numerator
+    - anyOf:
+      - title: denominator
+        type: number
+      - items:
+          title: denominator
+          type: number
+        type: array
+      title: iterated_denominator
+    metadata: {}
+    name: normalize map node
+    outputs:
+    - items:
+        title: result
+        type: number
+      title: collected_result
+      type: array
+    reducers:
+      result: append
+    subflow:
+      $component_ref: f7911fec-41b2-47ca-a7a4-69839cce5e11
+  c5ea1ce2-3014-42cf-b0e9-fc39e00501b2:
+    branches:
+    - next
+    component_type: ToolNode
+    description: null
+    id: c5ea1ce2-3014-42cf-b0e9-fc39e00501b2
+    inputs:
+    - title: x
+      type: number
+    metadata: {}
+    name: square tool node
+    outputs:
+    - title: x_square
+      type: number
+    tool:
+      $component_ref: 1b9fce39-a95f-4b50-9d0c-b3654a1ddef8
+  ca85930a-fca3-4e84-954f-46d094da9366:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: 704bc64f-59ce-46bc-8c02-2042b16c8c56
+    id: ca85930a-fca3-4e84-954f-46d094da9366
+    metadata: {}
+    name: start_to_tool
+    to_node:
+      $component_ref: c5ea1ce2-3014-42cf-b0e9-fc39e00501b2
+  cc4ac93b-b94b-4e13-af85-df2c8a60a4df:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: x
+    destination_node:
+      $component_ref: c5ea1ce2-3014-42cf-b0e9-fc39e00501b2
+    id: cc4ac93b-b94b-4e13-af85-df2c8a60a4df
+    metadata: {}
+    name: x_edge
+    source_node:
+      $component_ref: 704bc64f-59ce-46bc-8c02-2042b16c8c56
+    source_output: x
+  d2e3058b-6d45-48dd-adc3-4cbacd7e458e:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: denominator
+    destination_node:
+      $component_ref: 35e83332-cc06-4caf-a8be-1aabdec12481
+    id: d2e3058b-6d45-48dd-adc3-4cbacd7e458e
+    metadata: {}
+    name: denominator_edge
+    source_node:
+      $component_ref: ba9939d9-e0ca-4671-b542-68b2c63f15d9
+    source_output: denominator
+  d5d52b3f-1ac5-46f6-b59a-d8c7fd7ac5f7:
+    branch_name: next
+    branches: []
+    component_type: EndNode
+    description: null
+    id: d5d52b3f-1ac5-46f6-b59a-d8c7fd7ac5f7
+    inputs:
+    - title: result
+      type: number
+    metadata: {}
+    name: end
+    outputs:
+    - title: result
+      type: number
+  dbe9f89a-00f4-4f8f-a546-4819d7f4d01a:
+    branches:
+    - next
+    component_type: ToolNode
+    description: null
+    id: dbe9f89a-00f4-4f8f-a546-4819d7f4d01a
+    inputs:
+    - items:
+        type: number
+      title: x_list
+      type: array
+    metadata: {}
+    name: squared sum tool node
+    outputs:
+    - title: squared_sum
+      type: number
+    tool:
+      $component_ref: 2e99462e-9122-46c5-8571-617030dd2527
+  e16f609f-27d4-4014-9a5a-16982af2e8db:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: x_square
+    destination_node:
+      $component_ref: 9fd22dc6-d3bc-4182-830d-4ecded7c4ff2
+    id: e16f609f-27d4-4014-9a5a-16982af2e8db
+    metadata: {}
+    name: x_square_edge
+    source_node:
+      $component_ref: c5ea1ce2-3014-42cf-b0e9-fc39e00501b2
+    source_output: x_square
+  e75f33dc-b490-4103-8071-93f45d179c82:
+    branches:
+    - next
+    component_type: StartNode
+    description: null
+    id: e75f33dc-b490-4103-8071-93f45d179c82
+    inputs:
+    - items:
+        type: number
+      title: x_list
+      type: array
+    metadata: {}
+    name: start
+    outputs:
+    - items:
+        type: number
+      title: x_list
+      type: array
+  ed462629-41b4-400f-a549-2cfc88297bec:
+    component_type: Flow
+    control_flow_connections:
+    - $component_ref: ca85930a-fca3-4e84-954f-46d094da9366
+    - $component_ref: c04b6234-bc00-4974-8af0-947940835845
+    data_flow_connections:
+    - $component_ref: cc4ac93b-b94b-4e13-af85-df2c8a60a4df
+    - $component_ref: e16f609f-27d4-4014-9a5a-16982af2e8db
+    description: null
+    id: ed462629-41b4-400f-a549-2cfc88297bec
+    inputs:
+    - title: x
+      type: number
+    metadata: {}
+    name: Square number flow
+    nodes:
+    - $component_ref: 704bc64f-59ce-46bc-8c02-2042b16c8c56
+    - $component_ref: c5ea1ce2-3014-42cf-b0e9-fc39e00501b2
+    - $component_ref: 9fd22dc6-d3bc-4182-830d-4ecded7c4ff2
+    outputs:
+    - title: x_square
+      type: number
+    start_node:
+      $component_ref: 704bc64f-59ce-46bc-8c02-2042b16c8c56
+    state: []
+  ee112cfb-e4fb-4eb9-8620-c4c95b9abd73:
+    component_type: ServerTool
+    description: Computes the ratio between two numbers
+    id: ee112cfb-e4fb-4eb9-8620-c4c95b9abd73
+    inputs:
+    - title: numerator
+      type: number
+    - title: denominator
+      type: number
+    metadata: {}
+    name: division_tool
+    outputs:
+    - title: result
+      type: number
+  f7911fec-41b2-47ca-a7a4-69839cce5e11:
+    component_type: Flow
+    control_flow_connections:
+    - $component_ref: 66e7ad69-69ba-4003-bcf7-bd7b7e1926df
+    - $component_ref: 83e37e55-bdd4-47b9-8ec8-9565755b0cf2
+    data_flow_connections:
+    - $component_ref: 11160b18-4336-4815-8ad9-fc624d495e77
+    - $component_ref: d2e3058b-6d45-48dd-adc3-4cbacd7e458e
+    - $component_ref: 1ebf6004-be2d-414c-845c-d88058e0de6e
+    description: null
+    id: f7911fec-41b2-47ca-a7a4-69839cce5e11
+    inputs:
+    - title: numerator
+      type: number
+    - title: denominator
+      type: number
+    metadata: {}
+    name: Normalize flow
+    nodes:
+    - $component_ref: ba9939d9-e0ca-4671-b542-68b2c63f15d9
+    - $component_ref: 35e83332-cc06-4caf-a8be-1aabdec12481
+    - $component_ref: d5d52b3f-1ac5-46f6-b59a-d8c7fd7ac5f7
+    outputs:
+    - title: result
+      type: number
+    start_node:
+      $component_ref: ba9939d9-e0ca-4671-b542-68b2c63f15d9
+    state: []
+component_type: Flow
+control_flow_connections:
+- $component_ref: b706890b-2c82-4677-8de7-b541f49eb90f
+- $component_ref: a63a8967-50ca-4814-858e-ef6fb69b2efd
+- $component_ref: 163d0d6f-509d-4a8c-a488-c3501917fad0
+- $component_ref: bccd7536-caf7-4fbf-9cdc-b14d412c4b9b
+data_flow_connections:
+- $component_ref: 99f59dfa-3533-434c-bf9b-b75379b20ab0
+- $component_ref: 26765f66-c3e4-4803-8147-bfff7d3a716a
+- $component_ref: 5df15693-e648-44d3-8d64-590a758ce09e
+- $component_ref: 0bea957e-36ca-41b5-a576-b05a663656b1
+- $component_ref: b348c3a7-cdfc-455e-9c0b-aa7c01890b5d
+description: null
+id: 9ddcc007-36e7-4736-92d1-c594c0d6b981
+inputs:
+- items:
+    type: number
+  title: x_list
+  type: array
+metadata: {}
+name: L2 normalize flow
+nodes:
+- $component_ref: e75f33dc-b490-4103-8071-93f45d179c82
+- $component_ref: 9e887acb-333a-4084-b08e-2285fb0d237f
+- $component_ref: dbe9f89a-00f4-4f8f-a546-4819d7f4d01a
+- $component_ref: c1b53c55-b35e-4102-9a80-a711df29abc6
+- $component_ref: 5f107d8b-d6e1-43df-94fe-6248be132892
+outputs:
+- items:
+    type: number
+  title: collected_result
+  type: array
+start_node:
+  $component_ref: e75f33dc-b490-4103-8071-93f45d179c82
+state: []
+agentspec_version: 25.4.1

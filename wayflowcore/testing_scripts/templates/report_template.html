@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flaky Tests Analysis Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .test-card {
+            margin-bottom: 1rem;
+        }
+        .degraded {
+            border-left: 5px solid #dc3545;
+        }
+        .stable {
+            border-left: 5px solid #198754;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Flaky Tests Analysis Report</h1>
+        <p class="text-muted">Generated on: {{ generation_time }}</p>
+
+        <!-- Submodule Selector -->
+        <div class="mb-4">
+            <select class="form-select" id="submoduleSelect" onchange="showSubmodule(this.value)">
+                {% for submodule in submodules %}
+                <option value="{{ submodule }}">{{ submodule }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {% for submodule in submodules %}
+        <div id="{{ submodule }}-content" class="submodule-content" {% if not loop.first %}style="display: none;"{% endif %}>
+            <!-- Summary Charts -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {{ charts[submodule].failure_rate | safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {{ charts[submodule].timing | safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Results -->
+            <h2 class="mb-3">Detailed Results</h2>
+            {% for result in results[submodule] %}
+            <div class="card test-card {% if result.has_degraded %}degraded{% else %}stable{% endif %}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ result.test_name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ result.filepath }}</h6>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6>Docstring Statistics</h6>
+                            <ul class="list-unstyled">
+                                <li>Failure Rate: {{ "%.2f"|format(result.previous_stats.estimated_fail_rate) }}% ({{ result.previous_stats.n_failure }}/{{ result.previous_stats.total_attempts }})</li>
+                                {% if result.previous_stats.average_success_time is not none %}
+                                <li>Success Time: {{ "%.2f"|format(result.previous_stats.average_success_time) }}s</li>
+                                {% endif %}
+                                {% if result.previous_stats.average_failure_time %}
+                                <li>Failure Time: {{ "%.2f"|format(result.previous_stats.average_failure_time) }}s</li>
+                                {% endif %}
+                                <li>Observed: {{ result.previous_stats.observation_date.strftime('%Y-%m-%d') }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Statistics at commit {{ commit_hash }}</h6>
+                            <ul class="list-unstyled">
+                                <li>Failure Rate: {{ "%.2f"|format(result.current_stats.estimated_fail_rate) }}% ({{ result.current_stats.n_failure }}/{{ result.current_stats.total_attempts }})</li>
+                                {% if result.current_stats.average_success_time is not none %}
+                                <li>Success Time: {{ "%.2f"|format(result.current_stats.average_success_time) }}s</li>
+                                {% endif %}
+                                {% if result.current_stats.average_failure_time %}
+                                <li>Failure Time: {{ "%.2f"|format(result.current_stats.average_failure_time) }}s</li>
+                                {% endif %}
+                                <li>Observed: {{ result.current_stats.observation_date.strftime('%Y-%m-%d') }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <h6>Change Analysis</h6>
+                        <p>
+                            Failure Rate Change:
+                            <span class="{% if result.failure_rate_change > 0 %}text-danger{% else %}text-success{% endif %}">
+                                {{ "%+.2f"|format(result.failure_rate_change) }}%
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="mt-3">
+                        <a href="{{ result.log_file }}" class="btn btn-sm btn-outline-secondary" target="_blank">View Logs</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showSubmodule(submodule) {
+            document.querySelectorAll('.submodule-content').forEach(el => el.style.display = 'none');
+            document.getElementById(submodule + '-content').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

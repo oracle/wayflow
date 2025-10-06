@@ -1,0 +1,63 @@
+component_type: ExtendedAgent
+id: 968c6098-44fc-4921-90b7-32aaf1db849e
+name: mcp_agent
+description: null
+metadata: {}
+inputs: []
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: da3d4cf4-6431-4e66-b4f6-47bc1af578af
+  name: llm_model
+  description: null
+  metadata: {}
+  default_generation_parameters: null
+  url: remote/url
+  model_id: gemma
+system_prompt: you are a helpful assistant
+tools:
+- component_type: PluginMCPTool
+  id: 0a201a3e-d71a-477f-b95e-007ba44fce2e
+  name: fooza_tool
+  description: some tool to compute the fooza operation
+  metadata: {}
+  inputs: []
+  outputs: []
+  client_transport:
+    $component_ref: 22a99832-458d-4993-b95a-f94870f70a3a
+  component_plugin_name: MCPPlugin
+  component_plugin_version: 25.4.0
+toolboxes:
+- component_type: PluginMCPToolBox
+  id: e23b3cbf-d9b9-4020-adde-3ff06b148c55
+  name: toolbox
+  description: null
+  metadata: {}
+  client_transport:
+    $component_ref: 22a99832-458d-4993-b95a-f94870f70a3a
+  tool_filter: null
+  component_plugin_name: MCPPlugin
+  component_plugin_version: 25.4.0
+context_providers: null
+can_finish_conversation: false
+max_iterations: 10
+initial_message: Hi! How can I help you?
+caller_input_mode: always
+agents: []
+flows: []
+agent_template: null
+component_plugin_name: AgentPlugin
+component_plugin_version: 25.4.0
+$referenced_components:
+  22a99832-458d-4993-b95a-f94870f70a3a:
+    component_type: PluginSSETransport
+    id: 22a99832-458d-4993-b95a-f94870f70a3a
+    name: transport
+    description: null
+    metadata: {}
+    url: MCP_SERVER_URL
+    headers: null
+    timeout: 5
+    sse_read_timeout: 300
+    component_plugin_name: MCPPlugin
+    component_plugin_version: 25.4.0

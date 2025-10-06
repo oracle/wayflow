@@ -1,0 +1,40 @@
+[tool.isort]
+src_paths = [
+    "wayflowcore/src",
+    "wayflowcore/tests",
+]
+profile = "black"
+line_length = 100
+
+[tool.black]
+line-length = 100
+
+[tool.mypy]
+strict = true
+disable_error_code = [
+    "type-abstract",  # https://stackoverflow.com/questions/48349054/how-do-you-annotate-the-type-of-an-abstract-class-with-mypy
+]
+plugins = ['pydantic.mypy']
+
+[[tool.mypy.overrides]]
+module = [
+    'tests.*',
+    'setup',
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    'jq.*',
+    'IPython.*',
+    'sentence_transformers.*',
+]
+ignore_missing_imports = true
+
+[allowlist]
+description = "ignore # nosec lines"
+regexTarget = "line"
+regexes = ['''# nosec''']
+
+[tool.bandit.assert_used]
+skips = ["*/*_test.py", "*/test_*.py", "**/tests/**", "**/code_examples/*.py"]

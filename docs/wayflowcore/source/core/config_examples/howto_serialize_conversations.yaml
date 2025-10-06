@@ -1,0 +1,23 @@
+component_type: Agent
+id: simple_assistant
+name: agent_0f75efc7
+description: ''
+metadata:
+  __metadata_info__:
+    name: agent_0f75efc7
+    description: ''
+inputs: []
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: 80c8028b-0dd6-4dc9-ad7d-a4860ef1b849
+  name: LLAMA_MODEL_ID
+  description: null
+  metadata:
+    __metadata_info__: {}
+  default_generation_parameters: null
+  url: LLAMA_API_URL
+  model_id: LLAMA_MODEL_ID
+system_prompt: You are a helpful assistant. Be concise.
+tools: []
+agentspec_version: 25.4.1

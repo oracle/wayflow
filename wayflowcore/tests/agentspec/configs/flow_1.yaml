@@ -1,0 +1,134 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+$referenced_components:
+  09a6c6f6-1557-425a-ba4d-dd0b74ee25c5:
+    branches:
+    - next
+    component_type: LlmNode
+    description: null
+    id: 09a6c6f6-1557-425a-ba4d-dd0b74ee25c5
+    inputs:
+    - title: user_request
+      type: string
+    llm_config:
+      $component_ref: 73e490fa-075a-4ba8-ab47-3d6926bb3a1a
+    metadata: {}
+    name: Generate code node
+    outputs:
+    - title: code
+      type: string
+    prompt_template: "You are a great code python software engineer.\n    Please write\
+      \ the python code to satisfy the following user request: \"{{user_request}}\"\
+      .\n    "
+  31a7a340-25f4-4d3a-98c8-dea2c3d6c3ed:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: 09a6c6f6-1557-425a-ba4d-dd0b74ee25c5
+    id: 31a7a340-25f4-4d3a-98c8-dea2c3d6c3ed
+    metadata: {}
+    name: generate_code_to_end_control_edge
+    to_node:
+      $component_ref: 6c5a7cb8-77a8-47c3-807b-23a6baa51399
+  55f51bdc-c60b-47f4-a748-4e59cfdb9677:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: code
+    destination_node:
+      $component_ref: 6c5a7cb8-77a8-47c3-807b-23a6baa51399
+    id: 55f51bdc-c60b-47f4-a748-4e59cfdb9677
+    metadata: {}
+    name: generate_code_to_end_code_data_edge
+    source_node:
+      $component_ref: 09a6c6f6-1557-425a-ba4d-dd0b74ee25c5
+    source_output: code
+  58c2598a-a47f-4239-85f7-acc54d9fbfc4:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: 712172ed-dead-494d-9a5f-5d80b8e8218f
+    id: 58c2598a-a47f-4239-85f7-acc54d9fbfc4
+    metadata: {}
+    name: start_to_generate_code_control_edge
+    to_node:
+      $component_ref: 09a6c6f6-1557-425a-ba4d-dd0b74ee25c5
+  6c5a7cb8-77a8-47c3-807b-23a6baa51399:
+    branch_name: next
+    branches: []
+    component_type: EndNode
+    description: null
+    id: 6c5a7cb8-77a8-47c3-807b-23a6baa51399
+    inputs:
+    - title: code
+      type: string
+    metadata: {}
+    name: End node
+    outputs:
+    - title: code
+      type: string
+  712172ed-dead-494d-9a5f-5d80b8e8218f:
+    branches:
+    - next
+    component_type: StartNode
+    description: null
+    id: 712172ed-dead-494d-9a5f-5d80b8e8218f
+    inputs:
+    - title: user_request
+      type: string
+    metadata: {}
+    name: Start node
+    outputs:
+    - title: user_request
+      type: string
+  73e490fa-075a-4ba8-ab47-3d6926bb3a1a:
+    component_type: OpenAiCompatibleConfig
+    default_generation_parameters: null
+    description: null
+    id: 73e490fa-075a-4ba8-ab47-3d6926bb3a1a
+    metadata: {}
+    model_id: /storage/models/Llama-3.3-70B-Instruct
+    name: llama-3.3-70b-instruct
+    url: LLAMA70BV33_API_URL
+  bfa11d0d-97a3-4514-9b0d-dd88d657d854:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: user_request
+    destination_node:
+      $component_ref: 09a6c6f6-1557-425a-ba4d-dd0b74ee25c5
+    id: bfa11d0d-97a3-4514-9b0d-dd88d657d854
+    metadata: {}
+    name: start_to_generate_code_user_request_data_edge
+    source_node:
+      $component_ref: 712172ed-dead-494d-9a5f-5d80b8e8218f
+    source_output: user_request
+component_type: Flow
+control_flow_connections:
+- $component_ref: 58c2598a-a47f-4239-85f7-acc54d9fbfc4
+- $component_ref: 31a7a340-25f4-4d3a-98c8-dea2c3d6c3ed
+data_flow_connections:
+- $component_ref: bfa11d0d-97a3-4514-9b0d-dd88d657d854
+- $component_ref: 55f51bdc-c60b-47f4-a748-4e59cfdb9677
+description: Simple example of flow that generates code
+id: 6dad645f-c047-4614-9423-b6c37a64666c
+inputs:
+- title: user_request
+  type: string
+metadata: {}
+name: Generate code flow
+nodes:
+- $component_ref: 712172ed-dead-494d-9a5f-5d80b8e8218f
+- $component_ref: 09a6c6f6-1557-425a-ba4d-dd0b74ee25c5
+- $component_ref: 6c5a7cb8-77a8-47c3-807b-23a6baa51399
+outputs:
+- title: code
+  type: string
+start_node:
+  $component_ref: 712172ed-dead-494d-9a5f-5d80b8e8218f
+state: []
+agentspec_version: 25.4.1

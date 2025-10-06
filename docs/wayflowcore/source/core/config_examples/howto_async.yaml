@@ -1,0 +1,44 @@
+component_type: Agent
+id: 7017dd89-e176-476f-a655-06fce4310399
+name: agent_0f9ffda8__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs:
+- description: '"query" input variable for the template'
+  title: query
+  type: string
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: 2ceded67-85f7-4e47-be6c-2278f33f54f3
+  name: LLAMA_MODEL_ID
+  description: null
+  metadata:
+    __metadata_info__: {}
+  default_generation_parameters: null
+  url: LLAMA_API_URL
+  model_id: LLAMA_MODEL_ID
+system_prompt: You are a helpful assistant, answering the user request about {{query}}
+tools:
+- component_type: ServerTool
+  id: bd53ed97-2f4b-4936-99fa-0c5b43d00a90
+  name: heavy_work
+  description: Performs heavy CPU-bound work.
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs:
+  - title: tool_output
+    type: string
+- component_type: ServerTool
+  id: e87b2e06-70db-4439-b653-02978390fa36
+  name: remote_call
+  description: Performs remote API calls (I/O-bound).
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs:
+  - title: tool_output
+    type: string
+agentspec_version: 25.4.1

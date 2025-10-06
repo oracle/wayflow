@@ -1,0 +1,39 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+$referenced_components:
+  4660ecdd-d26f-4fe3-88d0-00fde69e24ba:
+    component_type: VllmConfig
+    default_generation_parameters: null
+    description: null
+    id: 4660ecdd-d26f-4fe3-88d0-00fde69e24ba
+    metadata: {}
+    model_id: /storage/models/Llama-3.3-70B-Instruct
+    name: llama-3.3-70b-instruct
+    url: LLAMA70BV33_API_URL
+agents: []
+component_type: Agent
+description: Example of Agent
+flows: []
+id: 5140714a-326b-4029-83b1-72e37a202b9a
+inputs: []
+llm_config:
+  $component_ref: 4660ecdd-d26f-4fe3-88d0-00fde69e24ba
+metadata: {}
+name: Oracle Agent
+outputs: []
+system_prompt: "Oracle Cloud Infrastructure (OCI) is the next-generation cloud designed\
+  \ to run any application, faster and more securely, for less.\n\n    Oracle Cloud\
+  \ spans 50 interconnected geographic commercial and government cloud regions. Unlike\
+  \ other providers, each region offers a consistent set of more than 150 Oracle Cloud\
+  \ Infrastructure services, with consistent low pricing worldwide.\n    For more\
+  \ complete support of customer cloud strategies, Oracle Cloud also offers a full\
+  \ suite of Oracle Cloud Applications and direct interconnections with Microsoft\
+  \ Azure and Google Cloud.\n\n    Not all clouds are created equal. \n\
+  \n    You are a helpful OCI agent. Please assist the user with any request.\
+  \ Be polite in your answers."
+tools: []
+agentspec_version: 25.4.1

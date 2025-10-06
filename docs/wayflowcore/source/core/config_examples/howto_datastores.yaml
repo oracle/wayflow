@@ -1,0 +1,884 @@
+component_type: ExtendedAgent
+id: 99f1d854-0f10-473a-ad2a-3558b8977244
+name: agent_d18c1f13__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: b10b47da-03bc-4bb3-a024-b2d8330a5be8
+  name: LLAMA_MODEL_ID
+  description: null
+  metadata:
+    __metadata_info__: {}
+  default_generation_parameters: null
+  url: LLAMA_API_URL
+  model_id: LLAMA_MODEL_ID
+system_prompt: '
+
+  You are an inventory assistant. Your task is to help the user with their requests
+  by using the available tools.
+
+  If you are unsure about the action to take, or you don''t have the right tool, simply
+  tell the user so and follow their guidance.
+
+  '
+tools: []
+toolboxes: []
+context_providers: null
+can_finish_conversation: false
+max_iterations: 10
+initial_message: Hi! How can I help you?
+caller_input_mode: always
+agents: []
+flows:
+- component_type: Flow
+  id: 96d3782c-552c-429c-bd7e-4f4af61ff713
+  name: Create product
+  description: Creates a new product in the data source
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - type: object
+    additionalProperties: {}
+    key_type:
+      type: string
+    title: entity
+  outputs:
+  - type: object
+    additionalProperties: {}
+    key_type:
+      type: string
+    title: created_entity
+  start_node:
+    $component_ref: 79b6331a-5543-4310-8d8b-1d9f1337b025
+  nodes:
+  - $component_ref: 331ca41a-8738-4751-a87e-5cc48b8a3e23
+  - $component_ref: 79b6331a-5543-4310-8d8b-1d9f1337b025
+  - $component_ref: ae2f0460-cba8-499e-a993-62b946e56d40
+  control_flow_connections:
+  - component_type: ControlFlowEdge
+    id: fe4ef560-e504-4dc8-a298-7dbb3c067a6f
+    name: __StartStep___to_step_0_control_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    from_node:
+      $component_ref: 79b6331a-5543-4310-8d8b-1d9f1337b025
+    from_branch: null
+    to_node:
+      $component_ref: 331ca41a-8738-4751-a87e-5cc48b8a3e23
+  - component_type: ControlFlowEdge
+    id: a16d091c-0d0c-4d29-9104-7761bdbb4cd3
+    name: step_0_to_None End node_control_flow_edge
+    description: null
+    metadata: {}
+    from_node:
+      $component_ref: 331ca41a-8738-4751-a87e-5cc48b8a3e23
+    from_branch: null
+    to_node:
+      $component_ref: ae2f0460-cba8-499e-a993-62b946e56d40
+  data_flow_connections:
+  - component_type: DataFlowEdge
+    id: 58dbd841-e0a5-4c87-ac0c-08a34625323b
+    name: __StartStep___entity_to_step_0_entity_data_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    source_node:
+      $component_ref: 79b6331a-5543-4310-8d8b-1d9f1337b025
+    source_output: entity
+    destination_node:
+      $component_ref: 331ca41a-8738-4751-a87e-5cc48b8a3e23
+    destination_input: entity
+  - component_type: DataFlowEdge
+    id: 92415266-d5a4-40ca-b8e6-57e01ec002a5
+    name: step_0_created_entity_to_None End node_created_entity_data_flow_edge
+    description: null
+    metadata: {}
+    source_node:
+      $component_ref: 331ca41a-8738-4751-a87e-5cc48b8a3e23
+    source_output: created_entity
+    destination_node:
+      $component_ref: ae2f0460-cba8-499e-a993-62b946e56d40
+    destination_input: created_entity
+  $referenced_components:
+    331ca41a-8738-4751-a87e-5cc48b8a3e23:
+      component_type: PluginDatastoreCreateNode
+      id: 331ca41a-8738-4751-a87e-5cc48b8a3e23
+      name: step_0
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: entity
+      outputs:
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: created_entity
+      branches:
+      - next
+      input_mapping: {}
+      output_mapping: {}
+      datastore:
+        $component_ref: 4f8e1008-2f20-456c-9250-679146e88192
+      collection_name: products
+      ENTITY: entity
+      CREATED_ENTITY: created_entity
+      component_plugin_name: DatastorePlugin
+      component_plugin_version: 25.4.0.dev0
+    79b6331a-5543-4310-8d8b-1d9f1337b025:
+      component_type: StartNode
+      id: 79b6331a-5543-4310-8d8b-1d9f1337b025
+      name: __StartStep__
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: entity
+      outputs:
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: entity
+      branches:
+      - next
+    ae2f0460-cba8-499e-a993-62b946e56d40:
+      component_type: EndNode
+      id: ae2f0460-cba8-499e-a993-62b946e56d40
+      name: None End node
+      description: End node representing all transitions to None in the WayFlow flow
+      metadata: {}
+      inputs:
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: created_entity
+      outputs:
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: created_entity
+      branches: []
+      branch_name: next
+- component_type: Flow
+  id: ba1cd504-bef6-4af3-9498-cbf6e50a0bca
+  name: List all products
+  description: Lists all products in the data source.
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs:
+  - type: array
+    items:
+      type: object
+      additionalProperties: {}
+      key_type:
+        type: string
+    title: entities
+  start_node:
+    $component_ref: bb1b722a-0aae-4e09-b2a4-cbcdb93b2cff
+  nodes:
+  - $component_ref: 0c924103-23f5-4698-b69e-c553250186ab
+  - $component_ref: bb1b722a-0aae-4e09-b2a4-cbcdb93b2cff
+  - $component_ref: 098f2832-4672-44eb-a060-ea9514ceefc5
+  control_flow_connections:
+  - component_type: ControlFlowEdge
+    id: a0392cfe-bed3-44cb-84c0-20a30f1cbe18
+    name: __StartStep___to_step_0_control_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    from_node:
+      $component_ref: bb1b722a-0aae-4e09-b2a4-cbcdb93b2cff
+    from_branch: null
+    to_node:
+      $component_ref: 0c924103-23f5-4698-b69e-c553250186ab
+  - component_type: ControlFlowEdge
+    id: 3290795e-59ca-46f8-8a96-5a265d707c13
+    name: step_0_to_None End node_control_flow_edge
+    description: null
+    metadata: {}
+    from_node:
+      $component_ref: 0c924103-23f5-4698-b69e-c553250186ab
+    from_branch: null
+    to_node:
+      $component_ref: 098f2832-4672-44eb-a060-ea9514ceefc5
+  data_flow_connections:
+  - component_type: DataFlowEdge
+    id: 308b92b6-70f4-4e9c-b41e-1563bc449a24
+    name: step_0_entities_to_None End node_entities_data_flow_edge
+    description: null
+    metadata: {}
+    source_node:
+      $component_ref: 0c924103-23f5-4698-b69e-c553250186ab
+    source_output: entities
+    destination_node:
+      $component_ref: 098f2832-4672-44eb-a060-ea9514ceefc5
+    destination_input: entities
+  $referenced_components:
+    098f2832-4672-44eb-a060-ea9514ceefc5:
+      component_type: EndNode
+      id: 098f2832-4672-44eb-a060-ea9514ceefc5
+      name: None End node
+      description: End node representing all transitions to None in the WayFlow flow
+      metadata: {}
+      inputs:
+      - type: array
+        items:
+          type: object
+          additionalProperties: {}
+          key_type:
+            type: string
+        title: entities
+      outputs:
+      - type: array
+        items:
+          type: object
+          additionalProperties: {}
+          key_type:
+            type: string
+        title: entities
+      branches: []
+      branch_name: next
+    0c924103-23f5-4698-b69e-c553250186ab:
+      component_type: PluginDatastoreListNode
+      id: 0c924103-23f5-4698-b69e-c553250186ab
+      name: step_0
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs: []
+      outputs:
+      - type: array
+        items:
+          type: object
+          additionalProperties: {}
+          key_type:
+            type: string
+        title: entities
+      branches:
+      - next
+      input_mapping: {}
+      output_mapping: {}
+      datastore:
+        $component_ref: 4f8e1008-2f20-456c-9250-679146e88192
+      collection_name: products
+      where: null
+      limit: null
+      unpack_single_entity_from_list: false
+      ENTITIES: entities
+      component_plugin_name: DatastorePlugin
+      component_plugin_version: 25.4.0.dev0
+    bb1b722a-0aae-4e09-b2a4-cbcdb93b2cff:
+      component_type: StartNode
+      id: bb1b722a-0aae-4e09-b2a4-cbcdb93b2cff
+      name: __StartStep__
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs: []
+      outputs: []
+      branches:
+      - next
+- component_type: Flow
+  id: bad00138-48b3-4e7c-84a9-51bd385a38a2
+  name: List single product
+  description: Lists a single product in the data source by its title.
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - description: '"user_requested_product" input variable for the template'
+    type: string
+    title: user_requested_product
+  outputs:
+  - type: object
+    additionalProperties: {}
+    key_type:
+      type: string
+    title: entities
+  start_node:
+    $component_ref: 76d19c9a-241f-4a4d-bbac-2bcbd3359498
+  nodes:
+  - $component_ref: d1b1f436-b91f-435c-867c-ecf9b5b187a1
+  - $component_ref: 76d19c9a-241f-4a4d-bbac-2bcbd3359498
+  - $component_ref: aa8090d6-2220-40ad-ab16-6adb1bdead7b
+  control_flow_connections:
+  - component_type: ControlFlowEdge
+    id: e37ae190-e7f6-4090-8091-c5eddadf7a9d
+    name: __StartStep___to_product_list_step_control_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    from_node:
+      $component_ref: 76d19c9a-241f-4a4d-bbac-2bcbd3359498
+    from_branch: null
+    to_node:
+      $component_ref: d1b1f436-b91f-435c-867c-ecf9b5b187a1
+  - component_type: ControlFlowEdge
+    id: 80680849-e51b-435d-aee6-cdb7e6571ee7
+    name: product_list_step_to_None End node_control_flow_edge
+    description: null
+    metadata: {}
+    from_node:
+      $component_ref: d1b1f436-b91f-435c-867c-ecf9b5b187a1
+    from_branch: null
+    to_node:
+      $component_ref: aa8090d6-2220-40ad-ab16-6adb1bdead7b
+  data_flow_connections:
+  - component_type: DataFlowEdge
+    id: dab6eb95-057c-4adc-85dd-2a40e14713eb
+    name: __StartStep___user_requested_product_to_product_list_step_user_requested_product_data_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    source_node:
+      $component_ref: 76d19c9a-241f-4a4d-bbac-2bcbd3359498
+    source_output: user_requested_product
+    destination_node:
+      $component_ref: d1b1f436-b91f-435c-867c-ecf9b5b187a1
+    destination_input: user_requested_product
+  - component_type: DataFlowEdge
+    id: 82d0a256-6c3d-45a8-a6bf-c1c949069927
+    name: product_list_step_entities_to_None End node_entities_data_flow_edge
+    description: null
+    metadata: {}
+    source_node:
+      $component_ref: d1b1f436-b91f-435c-867c-ecf9b5b187a1
+    source_output: entities
+    destination_node:
+      $component_ref: aa8090d6-2220-40ad-ab16-6adb1bdead7b
+    destination_input: entities
+  $referenced_components:
+    d1b1f436-b91f-435c-867c-ecf9b5b187a1:
+      component_type: PluginDatastoreListNode
+      id: d1b1f436-b91f-435c-867c-ecf9b5b187a1
+      name: product_list_step
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - description: '"user_requested_product" input variable for the template'
+        type: string
+        title: user_requested_product
+      outputs:
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: entities
+      branches:
+      - next
+      input_mapping: {}
+      output_mapping: {}
+      datastore:
+        $component_ref: 4f8e1008-2f20-456c-9250-679146e88192
+      collection_name: products
+      where:
+        title: '{{user_requested_product}}'
+      limit: 1
+      unpack_single_entity_from_list: true
+      ENTITIES: entities
+      component_plugin_name: DatastorePlugin
+      component_plugin_version: 25.4.0.dev0
+    76d19c9a-241f-4a4d-bbac-2bcbd3359498:
+      component_type: StartNode
+      id: 76d19c9a-241f-4a4d-bbac-2bcbd3359498
+      name: __StartStep__
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - description: '"user_requested_product" input variable for the template'
+        type: string
+        title: user_requested_product
+      outputs:
+      - description: '"user_requested_product" input variable for the template'
+        type: string
+        title: user_requested_product
+      branches:
+      - next
+    aa8090d6-2220-40ad-ab16-6adb1bdead7b:
+      component_type: EndNode
+      id: aa8090d6-2220-40ad-ab16-6adb1bdead7b
+      name: None End node
+      description: End node representing all transitions to None in the WayFlow flow
+      metadata: {}
+      inputs:
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: entities
+      outputs:
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: entities
+      branches: []
+      branch_name: next
+- component_type: Flow
+  id: a3047067-dea3-4cc9-a922-c26d35d97c48
+  name: Update product
+  description: Updates a product in the data source by its title.
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - description: '"user_requested_product" input variable for the template'
+    type: string
+    title: user_requested_product
+  - type: object
+    additionalProperties: {}
+    key_type:
+      type: string
+    title: update
+  outputs:
+  - type: array
+    items:
+      type: object
+      additionalProperties: {}
+      key_type:
+        type: string
+    title: entities
+  start_node:
+    $component_ref: 8c74a4c5-fdf0-447e-956f-59498da1dc09
+  nodes:
+  - $component_ref: 487a708b-0553-4bb5-b015-948d2a97ede6
+  - $component_ref: 8c74a4c5-fdf0-447e-956f-59498da1dc09
+  - $component_ref: 9074c861-1cf4-4bd9-88dd-3fe209b2c218
+  control_flow_connections:
+  - component_type: ControlFlowEdge
+    id: 64436400-797d-4d35-92df-78fc557006f2
+    name: __StartStep___to_product_update_step_control_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    from_node:
+      $component_ref: 8c74a4c5-fdf0-447e-956f-59498da1dc09
+    from_branch: null
+    to_node:
+      $component_ref: 487a708b-0553-4bb5-b015-948d2a97ede6
+  - component_type: ControlFlowEdge
+    id: 5e55b5d7-7bf8-435a-9044-f05f1b377671
+    name: product_update_step_to_None End node_control_flow_edge
+    description: null
+    metadata: {}
+    from_node:
+      $component_ref: 487a708b-0553-4bb5-b015-948d2a97ede6
+    from_branch: null
+    to_node:
+      $component_ref: 9074c861-1cf4-4bd9-88dd-3fe209b2c218
+  data_flow_connections:
+  - component_type: DataFlowEdge
+    id: 43c29773-0a4b-4145-9c0d-ad5238410e9d
+    name: __StartStep___user_requested_product_to_product_update_step_user_requested_product_data_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    source_node:
+      $component_ref: 8c74a4c5-fdf0-447e-956f-59498da1dc09
+    source_output: user_requested_product
+    destination_node:
+      $component_ref: 487a708b-0553-4bb5-b015-948d2a97ede6
+    destination_input: user_requested_product
+  - component_type: DataFlowEdge
+    id: 8e5f0ea8-8ea1-42ba-bdba-95a74082c908
+    name: __StartStep___update_to_product_update_step_update_data_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    source_node:
+      $component_ref: 8c74a4c5-fdf0-447e-956f-59498da1dc09
+    source_output: update
+    destination_node:
+      $component_ref: 487a708b-0553-4bb5-b015-948d2a97ede6
+    destination_input: update
+  - component_type: DataFlowEdge
+    id: 1bd34870-1e52-4896-bfaf-5a71006da687
+    name: product_update_step_entities_to_None End node_entities_data_flow_edge
+    description: null
+    metadata: {}
+    source_node:
+      $component_ref: 487a708b-0553-4bb5-b015-948d2a97ede6
+    source_output: entities
+    destination_node:
+      $component_ref: 9074c861-1cf4-4bd9-88dd-3fe209b2c218
+    destination_input: entities
+  $referenced_components:
+    487a708b-0553-4bb5-b015-948d2a97ede6:
+      component_type: PluginDatastoreUpdateNode
+      id: 487a708b-0553-4bb5-b015-948d2a97ede6
+      name: product_update_step
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - description: '"user_requested_product" input variable for the template'
+        type: string
+        title: user_requested_product
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: update
+      outputs:
+      - type: array
+        items:
+          type: object
+          additionalProperties: {}
+          key_type:
+            type: string
+        title: entities
+      branches:
+      - next
+      input_mapping: {}
+      output_mapping: {}
+      datastore:
+        $component_ref: 4f8e1008-2f20-456c-9250-679146e88192
+      collection_name: products
+      where:
+        title: '{{user_requested_product}}'
+      ENTITIES: entities
+      UPDATE: update
+      component_plugin_name: DatastorePlugin
+      component_plugin_version: 25.4.0.dev0
+    8c74a4c5-fdf0-447e-956f-59498da1dc09:
+      component_type: StartNode
+      id: 8c74a4c5-fdf0-447e-956f-59498da1dc09
+      name: __StartStep__
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - description: '"user_requested_product" input variable for the template'
+        type: string
+        title: user_requested_product
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: update
+      outputs:
+      - description: '"user_requested_product" input variable for the template'
+        type: string
+        title: user_requested_product
+      - type: object
+        additionalProperties: {}
+        key_type:
+          type: string
+        title: update
+      branches:
+      - next
+    9074c861-1cf4-4bd9-88dd-3fe209b2c218:
+      component_type: EndNode
+      id: 9074c861-1cf4-4bd9-88dd-3fe209b2c218
+      name: None End node
+      description: End node representing all transitions to None in the WayFlow flow
+      metadata: {}
+      inputs:
+      - type: array
+        items:
+          type: object
+          additionalProperties: {}
+          key_type:
+            type: string
+        title: entities
+      outputs:
+      - type: array
+        items:
+          type: object
+          additionalProperties: {}
+          key_type:
+            type: string
+        title: entities
+      branches: []
+      branch_name: next
+- component_type: Flow
+  id: ebae9461-df3a-4544-9cfd-dd2a2e13e34e
+  name: Delete product
+  description: Delete a product in the data source by its title.
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - description: '"product_title" input variable for the template'
+    type: string
+    title: product_title
+  outputs: []
+  start_node:
+    $component_ref: 13d561e4-1c49-4808-974c-d82311479998
+  nodes:
+  - $component_ref: 9cd4c282-5290-477d-b9c1-f069a599aa68
+  - $component_ref: 13d561e4-1c49-4808-974c-d82311479998
+  - $component_ref: 49384f2b-1825-4c6b-a876-86e8803b0014
+  control_flow_connections:
+  - component_type: ControlFlowEdge
+    id: 7b91ecf7-f24e-4ff3-8df4-f6769847e7a4
+    name: __StartStep___to_step_0_control_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    from_node:
+      $component_ref: 13d561e4-1c49-4808-974c-d82311479998
+    from_branch: null
+    to_node:
+      $component_ref: 9cd4c282-5290-477d-b9c1-f069a599aa68
+  - component_type: ControlFlowEdge
+    id: e666dfe3-6041-4141-b21b-afedfa74f3ab
+    name: step_0_to_None End node_control_flow_edge
+    description: null
+    metadata: {}
+    from_node:
+      $component_ref: 9cd4c282-5290-477d-b9c1-f069a599aa68
+    from_branch: null
+    to_node:
+      $component_ref: 49384f2b-1825-4c6b-a876-86e8803b0014
+  data_flow_connections:
+  - component_type: DataFlowEdge
+    id: a731fb73-ad3b-4a22-9f0b-35e9f1d63131
+    name: __StartStep___product_title_to_step_0_product_title_data_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    source_node:
+      $component_ref: 13d561e4-1c49-4808-974c-d82311479998
+    source_output: product_title
+    destination_node:
+      $component_ref: 9cd4c282-5290-477d-b9c1-f069a599aa68
+    destination_input: product_title
+  $referenced_components:
+    9cd4c282-5290-477d-b9c1-f069a599aa68:
+      component_type: PluginDatastoreDeleteNode
+      id: 9cd4c282-5290-477d-b9c1-f069a599aa68
+      name: step_0
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - description: '"product_title" input variable for the template'
+        type: string
+        title: product_title
+      outputs: []
+      branches:
+      - next
+      input_mapping: {}
+      output_mapping: {}
+      datastore:
+        $component_ref: 4f8e1008-2f20-456c-9250-679146e88192
+      collection_name: products
+      where:
+        title: '{{product_title}}'
+      component_plugin_name: DatastorePlugin
+      component_plugin_version: 25.4.0.dev0
+    13d561e4-1c49-4808-974c-d82311479998:
+      component_type: StartNode
+      id: 13d561e4-1c49-4808-974c-d82311479998
+      name: __StartStep__
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - description: '"product_title" input variable for the template'
+        type: string
+        title: product_title
+      outputs:
+      - description: '"product_title" input variable for the template'
+        type: string
+        title: product_title
+      branches:
+      - next
+    49384f2b-1825-4c6b-a876-86e8803b0014:
+      component_type: EndNode
+      id: 49384f2b-1825-4c6b-a876-86e8803b0014
+      name: None End node
+      description: End node representing all transitions to None in the WayFlow flow
+      metadata: {}
+      inputs: []
+      outputs: []
+      branches: []
+      branch_name: next
+agent_template:
+  component_type: PluginPromptTemplate
+  id: ea261004-a6d8-4380-af2a-4e5adbaf7b9c
+  name: ''
+  description: null
+  metadata:
+    __metadata_info__: {}
+  messages:
+  - role: system
+    contents:
+    - type: text
+      content: '{%- if __TOOLS__ -%}
+
+        Environment: ipython
+
+        Cutting Knowledge Date: December 2023
+
+
+        You are a helpful assistant with tool calling capabilities. Only reply with
+        a tool call if the function exists in the library provided by the user. If
+        it doesn''t exist, just reply directly in natural language. When you receive
+        a tool call response, use the output to format an answer to the original user
+        question.
+
+
+        You have access to the following functions. To call a function, please respond
+        with JSON for a function call.
+
+        Respond in the format {"name": function name, "parameters": dictionary of
+        argument name and its value}.
+
+        Do not use variables.
+
+
+        [{% for tool in __TOOLS__%}{{tool.to_openai_format() | tojson}}{{'', '' if
+        not loop.last}}{% endfor %}]
+
+        {%- endif -%}
+
+        '
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T15:58:42.673848+00:00'
+    time_updated: '2025-09-02T15:58:42.673852+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: '{%- if custom_instruction -%}Additional instructions:
+
+        {{custom_instruction}}{%- endif -%}'
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T15:58:42.673915+00:00'
+    time_updated: '2025-09-02T15:58:42.673916+00:00'
+  - role: user
+    contents: []
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T15:58:42.660189+00:00'
+    time_updated: '2025-09-02T15:58:42.660446+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: "{% if __PLAN__ %}The current plan you should follow is the following:\
+        \ \n{{__PLAN__}}{% endif %}"
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T15:58:42.673985+00:00'
+    time_updated: '2025-09-02T15:58:42.673986+00:00'
+  output_parser:
+    component_type: PluginJsonToolOutputParser
+    id: 8d8b00f0-2c13-4e0f-894c-a46ad91eccbc
+    name: jsontool_outputparser
+    description: null
+    metadata:
+      __metadata_info__: {}
+    tools: null
+    component_plugin_name: OutputParserPlugin
+    component_plugin_version: 25.4.0.dev0
+  inputs:
+  - description: '"__TOOLS__" input variable for the template'
+    title: __TOOLS__
+  - description: '"custom_instruction" input variable for the template'
+    type: string
+    title: custom_instruction
+  - description: '"__PLAN__" input variable for the template'
+    type: string
+    title: __PLAN__
+    default: ''
+  - type: array
+    items: {}
+    title: __CHAT_HISTORY__
+  pre_rendering_transforms: null
+  post_rendering_transforms:
+  - component_type: PluginRemoveEmptyNonUserMessageTransform
+    id: f964b648-4850-43ca-983b-6bf05ec6fe59
+    name: removeemptynonusermessage_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 25.4.0.dev0
+  - component_type: PluginCoalesceSystemMessagesTransform
+    id: b0c702f1-14a8-4692-b746-490f3cc2a406
+    name: coalescesystemmessage_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 25.4.0.dev0
+  - component_type: PluginLlamaMergeToolRequestAndCallsTransform
+    id: 466f3fef-697b-4e2e-804b-cc9788186b0d
+    name: llamamergetoolrequestandcalls_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 25.4.0.dev0
+  tools: null
+  native_tool_calling: false
+  response_format: null
+  native_structured_generation: true
+  generation_config: null
+  component_plugin_name: PromptTemplatePlugin
+  component_plugin_version: 25.4.0.dev0
+component_plugin_name: AgentPlugin
+component_plugin_version: 25.4.0.dev0
+$referenced_components:
+  4f8e1008-2f20-456c-9250-679146e88192:
+    component_type: PluginInMemoryDatastore
+    id: 4f8e1008-2f20-456c-9250-679146e88192
+    name: PluginInMemoryDatastore
+    description: null
+    metadata: {}
+    datastore_schema:
+      products:
+        description: ''
+        title: ''
+        properties:
+          description:
+            type: string
+          ID:
+            description: Unique product identifier
+            type: integer
+          title:
+            description: Brief summary of the product
+            type: string
+          price:
+            type: number
+            default: 0.1
+          category:
+            anyOf:
+            - type: 'null'
+            - type: string
+            default: null
+    component_plugin_name: DatastorePlugin
+    component_plugin_version: 25.4.0.dev0
+agentspec_version: 25.4.1

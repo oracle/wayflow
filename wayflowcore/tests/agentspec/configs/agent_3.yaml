@@ -1,0 +1,358 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+$referenced_components:
+  073e5366-8123-4d00-bdb5-6923a393e606:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: 7d0058ac-6632-41f5-9b51-c2981854a96c
+    id: 073e5366-8123-4d00-bdb5-6923a393e606
+    metadata: {}
+    name: send_email_to_end_control_edge
+    to_node:
+      $component_ref: 9198ec71-7a28-4a40-9c46-c66e598e5ceb
+  16936f7b-87d7-4784-9adb-b02905a6b8a3:
+    component_type: ServerTool
+    description: Add a user account
+    id: 16936f7b-87d7-4784-9adb-b02905a6b8a3
+    inputs:
+    - title: username
+      type: string
+    - title: email
+      type: string
+    metadata: {}
+    name: add_user_account
+    outputs:
+    - title: user_id
+      type: string
+  328797d1-879a-4326-931f-c2ea42ca8526:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: 66d9a87c-8dc1-45c1-ba41-76721e350c9c
+    id: 328797d1-879a-4326-931f-c2ea42ca8526
+    metadata: {}
+    name: start_to_update_account_control_edge
+    to_node:
+      $component_ref: a40cefc0-4c3b-4740-b589-407ed88a84d0
+  66d9a87c-8dc1-45c1-ba41-76721e350c9c:
+    branches:
+    - next
+    component_type: StartNode
+    description: null
+    id: 66d9a87c-8dc1-45c1-ba41-76721e350c9c
+    inputs:
+    - title: user_id
+      type: string
+    - title: username
+      type: string
+    - title: email
+      type: string
+    metadata: {}
+    name: Start node
+    outputs:
+    - title: user_id
+      type: string
+    - title: username
+      type: string
+    - title: email
+      type: string
+  67594823-04d8-459c-b864-0dd38d1cbd04:
+    component_type: ServerTool
+    description: Delete a user account
+    id: 67594823-04d8-459c-b864-0dd38d1cbd04
+    inputs:
+    - title: user_id
+      type: string
+    metadata: {}
+    name: delete_user_account_information
+    outputs: []
+  7d0058ac-6632-41f5-9b51-c2981854a96c:
+    api_spec_uri: null
+    branches:
+    - next
+    component_type: ApiNode
+    data:
+      email: '{{email}}'
+      email_text: '{{email_text}}'
+    description: null
+    headers: {}
+    http_method: POST
+    id: 7d0058ac-6632-41f5-9b51-c2981854a96c
+    inputs:
+    - title: email
+      type: string
+    - title: email_text
+      type: string
+    metadata: {}
+    name: Send email node
+    outputs:
+    - title: api_node_result
+      type: object
+    query_params: {}
+    url: http://127.0.0.1:5000/send_email
+  7fbe1ea4-2b31-44c1-99bb-bf0c74b81775:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: email
+    destination_node:
+      $component_ref: 7d0058ac-6632-41f5-9b51-c2981854a96c
+    id: 7fbe1ea4-2b31-44c1-99bb-bf0c74b81775
+    metadata: {}
+    name: start_to_send_email_email_data_edge
+    source_node:
+      $component_ref: 66d9a87c-8dc1-45c1-ba41-76721e350c9c
+    source_output: email
+  8221a0b4-b284-49c9-a4e1-353aeeb0758d:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: email
+    destination_node:
+      $component_ref: a40cefc0-4c3b-4740-b589-407ed88a84d0
+    id: 8221a0b4-b284-49c9-a4e1-353aeeb0758d
+    metadata: {}
+    name: start_to_update_account_email_data_edge
+    source_node:
+      $component_ref: 66d9a87c-8dc1-45c1-ba41-76721e350c9c
+    source_output: email
+  9198ec71-7a28-4a40-9c46-c66e598e5ceb:
+    branch_name: next
+    branches: []
+    component_type: EndNode
+    description: null
+    id: 9198ec71-7a28-4a40-9c46-c66e598e5ceb
+    inputs:
+    - title: email_text
+      type: string
+    - title: api_node_result
+      type: string
+    metadata: {}
+    name: End node
+    outputs:
+    - title: email_text
+      type: string
+    - title: api_node_result
+      type: string
+  947ccafb-306a-4587-896a-6bcbb9b88d05:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: a40cefc0-4c3b-4740-b589-407ed88a84d0
+    id: 947ccafb-306a-4587-896a-6bcbb9b88d05
+    metadata: {}
+    name: update_account_to_generate_email_text_control_edge
+    to_node:
+      $component_ref: fe99ac9c-98c1-464a-af10-25489be41f51
+  99cdbf38-e7c3-4e75-be44-6c3e7331059c:
+    component_type: OpenAiConfig
+    default_generation_parameters: null
+    description: null
+    id: 99cdbf38-e7c3-4e75-be44-6c3e7331059c
+    metadata: {}
+    model_id: gpt-4o-mini
+    name: gpt-4o-mini
+  9df692bc-68fb-4007-a18d-ff864d3b7716:
+    component_type: ControlFlowEdge
+    description: null
+    from_branch: null
+    from_node:
+      $component_ref: fe99ac9c-98c1-464a-af10-25489be41f51
+    id: 9df692bc-68fb-4007-a18d-ff864d3b7716
+    metadata: {}
+    name: generate_email_text_to_send_email_control_edge
+    to_node:
+      $component_ref: 7d0058ac-6632-41f5-9b51-c2981854a96c
+  a40cefc0-4c3b-4740-b589-407ed88a84d0:
+    api_spec_uri: null
+    branches:
+    - next
+    component_type: ApiNode
+    data:
+      email: '{{email}}'
+      user_id: '{{user_id}}'
+      username: '{{username}}'
+    description: null
+    headers: {}
+    http_method: PUT
+    id: a40cefc0-4c3b-4740-b589-407ed88a84d0
+    inputs:
+    - title: user_id
+      type: string
+    - title: username
+      type: string
+    - title: email
+      type: string
+    metadata: {}
+    name: Update account node
+    outputs:
+    - title: api_node_result
+      type: object
+    query_params: {}
+    url: http://127.0.0.1:5000/update_account
+  a5003a63-15bb-4182-bdcf-69ece1ba1501:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: email_text
+    destination_node:
+      $component_ref: 7d0058ac-6632-41f5-9b51-c2981854a96c
+    id: a5003a63-15bb-4182-bdcf-69ece1ba1501
+    metadata: {}
+    name: generate_email_to_send_email_email_text_data_edge
+    source_node:
+      $component_ref: fe99ac9c-98c1-464a-af10-25489be41f51
+    source_output: email_text
+  b9c28864-2e4d-4889-829f-814a9a89d792:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: username
+    destination_node:
+      $component_ref: a40cefc0-4c3b-4740-b589-407ed88a84d0
+    id: b9c28864-2e4d-4889-829f-814a9a89d792
+    metadata: {}
+    name: start_to_update_account_username_data_edge
+    source_node:
+      $component_ref: 66d9a87c-8dc1-45c1-ba41-76721e350c9c
+    source_output: username
+  d231b6db-b474-4990-b56f-2c3b0da5f56e:
+    component_type: Flow
+    control_flow_connections:
+    - $component_ref: 328797d1-879a-4326-931f-c2ea42ca8526
+    - $component_ref: 947ccafb-306a-4587-896a-6bcbb9b88d05
+    - $component_ref: 9df692bc-68fb-4007-a18d-ff864d3b7716
+    - $component_ref: 073e5366-8123-4d00-bdb5-6923a393e606
+    data_flow_connections:
+    - $component_ref: d4af83e9-ed02-4474-9114-3e826a3e2f46
+    - $component_ref: b9c28864-2e4d-4889-829f-814a9a89d792
+    - $component_ref: 8221a0b4-b284-49c9-a4e1-353aeeb0758d
+    - $component_ref: 7fbe1ea4-2b31-44c1-99bb-bf0c74b81775
+    - $component_ref: a5003a63-15bb-4182-bdcf-69ece1ba1501
+    - $component_ref: e458bed1-612c-4d1e-83b5-7cb1139bbd93
+    - $component_ref: e458bed1-612c-4d1e-83b5-7cb1139bbd94
+    description: null
+    id: d231b6db-b474-4990-b56f-2c3b0da5f56e
+    inputs:
+    - title: user_id
+      type: string
+    - title: username
+      type: string
+    - title: email
+      type: string
+    metadata: {}
+    name: Update user account
+    nodes:
+    - $component_ref: 66d9a87c-8dc1-45c1-ba41-76721e350c9c
+    - $component_ref: a40cefc0-4c3b-4740-b589-407ed88a84d0
+    - $component_ref: fe99ac9c-98c1-464a-af10-25489be41f51
+    - $component_ref: 7d0058ac-6632-41f5-9b51-c2981854a96c
+    - $component_ref: 9198ec71-7a28-4a40-9c46-c66e598e5ceb
+    outputs:
+    - title: email_text
+      type: string
+    - title: api_node_result
+      type: string
+    start_node:
+      $component_ref: 66d9a87c-8dc1-45c1-ba41-76721e350c9c
+    state: []
+  d4af83e9-ed02-4474-9114-3e826a3e2f46:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: user_id
+    destination_node:
+      $component_ref: a40cefc0-4c3b-4740-b589-407ed88a84d0
+    id: d4af83e9-ed02-4474-9114-3e826a3e2f46
+    metadata: {}
+    name: start_to_update_account_user_id_data_edge
+    source_node:
+      $component_ref: 66d9a87c-8dc1-45c1-ba41-76721e350c9c
+    source_output: user_id
+  e458bed1-612c-4d1e-83b5-7cb1139bbd93:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: email_text
+    destination_node:
+      $component_ref: 9198ec71-7a28-4a40-9c46-c66e598e5ceb
+    id: e458bed1-612c-4d1e-83b5-7cb1139bbd93
+    metadata: {}
+    name: generate_email_to_end_email_text_data_edge
+    source_node:
+      $component_ref: fe99ac9c-98c1-464a-af10-25489be41f51
+    source_output: email_text
+  e458bed1-612c-4d1e-83b5-7cb1139bbd94:
+    component_type: DataFlowEdge
+    description: null
+    destination_input: api_node_result
+    destination_node:
+      $component_ref: 9198ec71-7a28-4a40-9c46-c66e598e5ceb
+    id: e458bed1-612c-4d1e-83b5-7cb1139bbd94
+    metadata: {}
+    name: api_node_to_end_api_node_result_data_edge
+    source_node:
+      $component_ref: 7d0058ac-6632-41f5-9b51-c2981854a96c
+    source_output: api_node_result
+  ef666161-9f8a-48d8-a4ae-9a6f1a611673:
+    component_type: ServerTool
+    description: Gather user account information
+    id: ef666161-9f8a-48d8-a4ae-9a6f1a611673
+    inputs:
+    - title: user_id
+      type: string
+    metadata: {}
+    name: gather_user_account_information
+    outputs:
+    - title: user_id
+      type: string
+    - title: username
+      type: string
+    - title: email
+      type: string
+  fe99ac9c-98c1-464a-af10-25489be41f51:
+    branches:
+    - next
+    component_type: LlmNode
+    description: null
+    id: fe99ac9c-98c1-464a-af10-25489be41f51
+    inputs:
+    - title: username
+      type: string
+    llm_config:
+      $component_ref: 99cdbf38-e7c3-4e75-be44-6c3e7331059c
+    metadata: {}
+    name: Generate email text
+    outputs:
+    - title: email_text
+      type: string
+    prompt_template: Please generate an email to inform the user with username `{{username}}`
+      that their account was updated successfully.
+agents: []
+component_type: Agent
+description: null
+flows:
+- $component_ref: d231b6db-b474-4990-b56f-2c3b0da5f56e
+id: beb08ad5-19ab-4ad9-a395-f0b8c6a15349
+inputs: []
+llm_config:
+  $component_ref: 99cdbf38-e7c3-4e75-be44-6c3e7331059c
+metadata: {}
+name: Oracle Agent
+outputs: []
+system_prompt: "Oracle Cloud Infrastructure (OCI) is the next-generation cloud designed\
+  \ to run any application, faster and more securely, for less.\n\n    Oracle Cloud\
+  \ spans 50 interconnected geographic commercial and government cloud regions. Unlike\
+  \ other providers, each region offers a consistent set of more than 150 Oracle Cloud\
+  \ Infrastructure services, with consistent low pricing worldwide.\n    For more\
+  \ complete support of customer cloud strategies, Oracle Cloud also offers a full\
+  \ suite of Oracle Cloud Applications and direct interconnections with Microsoft\
+  \ Azure and Google Cloud.\n\n  Please assist the user with any request.\
+  \ Be polite in your answers."
+tools:
+- $component_ref: ef666161-9f8a-48d8-a4ae-9a6f1a611673
+- $component_ref: 16936f7b-87d7-4784-9adb-b02905a6b8a3
+- $component_ref: 67594823-04d8-459c-b864-0dd38d1cbd04
+agentspec_version: 25.4.1

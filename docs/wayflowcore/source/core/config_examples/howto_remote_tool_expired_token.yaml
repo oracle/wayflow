@@ -1,0 +1,302 @@
+component_type: ExtendedAgent
+id: f3afdfe1-4b5b-469e-9505-33f72b3cd342
+name: Agent
+description: ''
+metadata:
+  __metadata_info__:
+    name: Agent
+    description: ''
+inputs: []
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: ab50c1e4-d6f3-493b-84b6-c570da3c7464
+  name: LLAMA_MODEL_ID
+  description: null
+  metadata:
+    __metadata_info__: {}
+  default_generation_parameters: null
+  url: LLAMA_API_URL
+  model_id: LLAMA_MODEL_ID
+system_prompt: ''
+tools: []
+toolboxes: []
+context_providers: null
+can_finish_conversation: false
+max_iterations: 10
+initial_message: Hi! How can I help you?
+caller_input_mode: always
+agents: []
+flows:
+- component_type: Flow
+  id: 8e8bc09a-6b3c-47c3-b8b8-ec64743beca8
+  name: Remote Call Flow
+  description: Perform a call to a remote endpoint given the `user` parameter.
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - type: string
+    title: user
+  outputs:
+  - type: string
+    title: token
+  - description: returned http status code
+    type: integer
+    title: http_status_code
+  start_node:
+    $component_ref: 2b14ec5f-efe2-4b00-bfd9-1a7070b501b7
+  nodes:
+  - $component_ref: 2b14ec5f-efe2-4b00-bfd9-1a7070b501b7
+  - $component_ref: d4b896d7-fa3d-49ec-a45c-79021bf74e28
+  - $component_ref: ed43def1-9d9b-4f15-84a3-cc9068143021
+  - $component_ref: 969d49b1-785b-4108-bd1e-6082b09160da
+  control_flow_connections:
+  - component_type: ControlFlowEdge
+    id: f44393b4-b9fb-4acd-9dc9-f4d496ccecae
+    name: start_step_to_get_token_step_control_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    from_node:
+      $component_ref: 2b14ec5f-efe2-4b00-bfd9-1a7070b501b7
+    from_branch: null
+    to_node:
+      $component_ref: d4b896d7-fa3d-49ec-a45c-79021bf74e28
+  - component_type: ControlFlowEdge
+    id: 212e435b-059c-4842-9204-ed3b02f2bd17
+    name: get_token_step_to_call_api_step_control_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    from_node:
+      $component_ref: d4b896d7-fa3d-49ec-a45c-79021bf74e28
+    from_branch: null
+    to_node:
+      $component_ref: ed43def1-9d9b-4f15-84a3-cc9068143021
+  - component_type: ControlFlowEdge
+    id: 1b509ffa-24fe-4cda-a441-5456675ad64a
+    name: call_api_step_to_end_step_control_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    from_node:
+      $component_ref: ed43def1-9d9b-4f15-84a3-cc9068143021
+    from_branch: null
+    to_node:
+      $component_ref: 969d49b1-785b-4108-bd1e-6082b09160da
+  data_flow_connections:
+  - component_type: DataFlowEdge
+    id: a2efbfb4-7046-4cba-b88f-010adaa77784
+    name: start_step_user_to_call_api_step_user_data_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    source_node:
+      $component_ref: 2b14ec5f-efe2-4b00-bfd9-1a7070b501b7
+    source_output: user
+    destination_node:
+      $component_ref: ed43def1-9d9b-4f15-84a3-cc9068143021
+    destination_input: user
+  - component_type: DataFlowEdge
+    id: 6d1baa26-611e-48d3-8021-c2ef39ec60d4
+    name: get_token_step_token_to_call_api_step_token_data_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    source_node:
+      $component_ref: d4b896d7-fa3d-49ec-a45c-79021bf74e28
+    source_output: token
+    destination_node:
+      $component_ref: ed43def1-9d9b-4f15-84a3-cc9068143021
+    destination_input: token
+  - component_type: DataFlowEdge
+    id: 91b4c20c-93e6-4238-8dcd-28aea890788c
+    name: get_token_step_token_to_end_step_token_data_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    source_node:
+      $component_ref: d4b896d7-fa3d-49ec-a45c-79021bf74e28
+    source_output: token
+    destination_node:
+      $component_ref: 969d49b1-785b-4108-bd1e-6082b09160da
+    destination_input: token
+  - component_type: DataFlowEdge
+    id: 1c10dfaa-f6f9-4634-9b83-7e286996650c
+    name: call_api_step_http_status_code_to_end_step_http_status_code_data_flow_edge
+    description: null
+    metadata:
+      __metadata_info__: {}
+    source_node:
+      $component_ref: ed43def1-9d9b-4f15-84a3-cc9068143021
+    source_output: http_status_code
+    destination_node:
+      $component_ref: 969d49b1-785b-4108-bd1e-6082b09160da
+    destination_input: http_status_code
+  $referenced_components:
+    ed43def1-9d9b-4f15-84a3-cc9068143021:
+      component_type: ApiNode
+      id: ed43def1-9d9b-4f15-84a3-cc9068143021
+      name: call_api_step
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - description: string template variable named user
+        type: string
+        title: user
+      - description: string template variable named token
+        type: string
+        title: token
+      outputs:
+      - description: returned http status code
+        type: integer
+        title: http_status_code
+      branches:
+      - next
+      url: http://localhost:8003/protected
+      http_method: GET
+      api_spec_uri: null
+      data: {}
+      query_params:
+        user: '{{ user }}'
+      headers:
+        Authorization: Bearer {{ token }}
+    2b14ec5f-efe2-4b00-bfd9-1a7070b501b7:
+      component_type: StartNode
+      id: 2b14ec5f-efe2-4b00-bfd9-1a7070b501b7
+      name: start_step
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - type: string
+        title: user
+      outputs:
+      - type: string
+        title: user
+      branches:
+      - next
+    d4b896d7-fa3d-49ec-a45c-79021bf74e28:
+      component_type: ExtendedToolNode
+      id: d4b896d7-fa3d-49ec-a45c-79021bf74e28
+      name: get_token_step
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs: []
+      outputs:
+      - type: string
+        title: token
+      branches:
+      - next
+      tool:
+        component_type: ClientTool
+        id: 41399e99-d42a-45c1-adc5-d3d016bd5a1c
+        name: get_token_tool
+        description: Get token from user
+        metadata:
+          __metadata_info__: {}
+        inputs: []
+        outputs:
+        - type: string
+          title: token
+      input_mapping: {}
+      output_mapping: {}
+      raise_exceptions: false
+      component_plugin_name: NodesPlugin
+      component_plugin_version: 25.4.0.dev0
+    969d49b1-785b-4108-bd1e-6082b09160da:
+      component_type: EndNode
+      id: 969d49b1-785b-4108-bd1e-6082b09160da
+      name: end_step
+      description: null
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - type: string
+        title: token
+      - description: returned http status code
+        type: integer
+        title: http_status_code
+      outputs:
+      - type: string
+        title: token
+      - description: returned http status code
+        type: integer
+        title: http_status_code
+      branches: []
+      branch_name: end_step
+agent_template:
+  component_type: PluginPromptTemplate
+  id: 95b539ce-0908-4a45-9ab0-cd6fa1b346d7
+  name: ''
+  description: ''
+  metadata:
+    __metadata_info__: {}
+  messages:
+  - role: system
+    contents:
+    - type: text
+      content: '{% if custom_instruction %}{{custom_instruction}}{% endif %}'
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T15:52:22.014400+00:00'
+    time_updated: '2025-09-02T15:52:22.014401+00:00'
+  - role: user
+    contents: []
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T15:52:22.008803+00:00'
+    time_updated: '2025-09-02T15:52:22.010218+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: "{% if __PLAN__ %}The current plan you should follow is the following:\
+        \ \n{{__PLAN__}}{% endif %}"
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T15:52:22.014421+00:00'
+    time_updated: '2025-09-02T15:52:22.014421+00:00'
+  output_parser: null
+  inputs:
+  - description: '"custom_instruction" input variable for the template'
+    type: string
+    title: custom_instruction
+    default: ''
+  - description: '"__PLAN__" input variable for the template'
+    type: string
+    title: __PLAN__
+    default: ''
+  - type: array
+    items: {}
+    title: __CHAT_HISTORY__
+  pre_rendering_transforms: null
+  post_rendering_transforms:
+  - component_type: PluginRemoveEmptyNonUserMessageTransform
+    id: 372d6f16-b945-4b10-b1c8-adc143ddab9d
+    name: removeemptynonusermessage_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 25.4.0.dev0
+  tools: null
+  native_tool_calling: true
+  response_format: null
+  native_structured_generation: true
+  generation_config: null
+  component_plugin_name: PromptTemplatePlugin
+  component_plugin_version: 25.4.0.dev0
+component_plugin_name: AgentPlugin
+component_plugin_version: 25.4.0.dev0
+agentspec_version: 25.4.1

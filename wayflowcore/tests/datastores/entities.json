@@ -1,0 +1,56 @@
+{
+    "employees": [
+        {
+            "ID": 1,
+            "name": "Dwayne Chute",
+            "email": "dwayne@dudemuffin.com",
+            "department_area": "Utica, NY",
+            "department_name": "sales",
+            "salary": 120000.0
+        },
+        {
+            "ID": 2,
+            "name": "Joe Happens",
+            "email": "joe@dudemuffin.com",
+            "department_area": "Utica, NY",
+            "department_name": "sales",
+            "salary": 120500.0
+        },
+        {
+            "ID": 3,
+            "name": "Pamela Beefly",
+            "email": "pam@dudemuffin.com",
+            "department_area": "Utica, NY",
+            "department_name": "reception",
+            "salary": 95000.0
+        },
+        {
+            "ID": 4,
+            "name": "Mike Swat",
+            "email": "mikeswat@dudemuffin.com",
+            "department_area": "Utica, NY",
+            "department_name": "sales",
+            "salary": 150000.0
+        }
+    ],
+    "departments": [
+        {
+            "department_name": "sales",
+            "area": "Utica, NY",
+            "regional_manager": 3,
+            "assistant_to_the_regional_manager": 1
+        },
+        {
+            "department_name": "reception",
+            "area": "Utica, NY",
+            "regional_manager": 3,
+            "assistant_to_the_regional_manager": null
+        },
+        {
+            "department_name": "accounting",
+            "area": "Utica, NY",
+            "regional_manager": 3,
+            "assistant_to_the_regional_manager": null
+        }
+    ]
+}

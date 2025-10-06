@@ -1,0 +1,29 @@
+{
+  "component_type": "Agent",
+  "id": "2fc0cb26-98db-4a53-869b-61587a784b1a",
+  "name": "agent_df87a3d8",
+  "description": "",
+  "metadata": {
+    "__metadata_info__": {
+      "name": "agent_df87a3d8",
+      "description": ""
+    }
+  },
+  "inputs": [],
+  "outputs": [],
+  "llm_config": {
+    "component_type": "VllmConfig",
+    "id": "16d7437d-b510-4599-b1d4-51e8418043c4",
+    "name": "GEMMA_MODEL_ID",
+    "description": null,
+    "metadata": {
+      "__metadata_info__": {}
+    },
+    "default_generation_parameters": null,
+    "url": "GEMMA_API_URL",
+    "model_id": "GEMMA_MODEL_ID"
+  },
+  "system_prompt": "",
+  "tools": [],
+  "agentspec_version": "25.4.1"
+}

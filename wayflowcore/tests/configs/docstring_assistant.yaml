@@ -1,0 +1,69 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+_component_type: Flow
+_referenced_objects:
+  controlflowedge/3f93264d-2718-4722-9ecf-3588452b3114:
+    _component_type: ControlFlowEdge
+    destination_step: null
+    id: 3f93264d-2718-4722-9ecf-3588452b3114
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/881e4bd3-6e70-46d7-9720-a435c3feef98
+  controlflowedge/9e6e2f19-bff5-4be4-b913-c0b6fa310821:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/881e4bd3-6e70-46d7-9720-a435c3feef98
+    id: 9e6e2f19-bff5-4be4-b913-c0b6fa310821
+    source_branch: next
+    source_step:
+      $ref: startstep/d53f76d2-0472-40ab-8274-5252b8af1c51
+  outputmessagestep/881e4bd3-6e70-46d7-9720-a435c3feef98:
+    __metadata_info__: {}
+    _component_type: Step
+    id: 881e4bd3-6e70-46d7-9720-a435c3feef98
+    input_descriptors: []
+    input_mapping: {}
+    name: step_3366975d
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: output_message
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: some_output
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  startstep/d53f76d2-0472-40ab-8274-5252b8af1c51:
+    __metadata_info__: {}
+    _component_type: Step
+    id: d53f76d2-0472-40ab-8274-5252b8af1c51
+    input_descriptors: []
+    input_mapping: {}
+    name: step_69535e53
+    output_descriptors: []
+    output_mapping: {}
+    step_args: {}
+    step_cls: StartStep
+begin_step_name: __StartStep__
+control_flow_edges:
+- $ref: controlflowedge/3f93264d-2718-4722-9ecf-3588452b3114
+- $ref: controlflowedge/9e6e2f19-bff5-4be4-b913-c0b6fa310821
+data_flow_edges: []
+description: ''
+end_steps:
+- null
+flow_id: bc63d41b-3775-41ac-b2d9-fdc7c28f19f9
+name: flow_3eda62fc
+steps:
+  __StartStep__:
+    $ref: startstep/d53f76d2-0472-40ab-8274-5252b8af1c51
+  gen_step:
+    $ref: outputmessagestep/881e4bd3-6e70-46d7-9720-a435c3feef98
+variables: []

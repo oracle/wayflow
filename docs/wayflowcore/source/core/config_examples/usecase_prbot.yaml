@@ -1,0 +1,1132 @@
+component_type: Flow
+id: 9c65246d-a0dd-4ec4-801d-afd640b2488e
+name: PR bot flow
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs:
+- type: string
+  title: $repo_dirpath_io
+outputs:
+- type: array
+  items:
+    type: string
+  title: $filepath_list
+- type: array
+  items: {}
+  title: $nested_comment_list
+- type: string
+  title: $raw_pr_diff
+- description: the list of extracted value using the regex "(diff --git[\s\S]*?)(?=diff
+    --git|$)" from the raw input
+  type: array
+  items:
+    type: string
+  title: $file_diff_list
+  default: []
+start_node:
+  $component_ref: 020c885e-6d0b-472a-bb91-246ab70ab1db
+nodes:
+- $component_ref: 47e367be-4d74-49dc-ac3b-89bb97ffa7df
+- $component_ref: 43d58c76-23a0-4d10-943d-f9c5e0835a7c
+- $component_ref: 020c885e-6d0b-472a-bb91-246ab70ab1db
+- $component_ref: a544af64-e63b-4ccf-9ab0-8d25cdbc0b93
+control_flow_connections:
+- component_type: ControlFlowEdge
+  id: a5c123ff-c14c-4291-b174-61d61170f187
+  name: retrieve_diff_flowstep_to_generate_comments_flowstep_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 47e367be-4d74-49dc-ac3b-89bb97ffa7df
+  from_branch: null
+  to_node:
+    $component_ref: 43d58c76-23a0-4d10-943d-f9c5e0835a7c
+- component_type: ControlFlowEdge
+  id: 8a10b23a-2d0c-46c4-82ac-e66ad0b9399b
+  name: __StartStep___to_retrieve_diff_flowstep_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 020c885e-6d0b-472a-bb91-246ab70ab1db
+  from_branch: null
+  to_node:
+    $component_ref: 47e367be-4d74-49dc-ac3b-89bb97ffa7df
+- component_type: ControlFlowEdge
+  id: dac07720-8a5a-4a61-b1e7-50be506ed937
+  name: generate_comments_flowstep_to_None End node_control_flow_edge
+  description: null
+  metadata: {}
+  from_node:
+    $component_ref: 43d58c76-23a0-4d10-943d-f9c5e0835a7c
+  from_branch: null
+  to_node:
+    $component_ref: a544af64-e63b-4ccf-9ab0-8d25cdbc0b93
+data_flow_connections:
+- component_type: DataFlowEdge
+  id: 7b12dfed-309b-46ff-8a2d-bb6f2a3154b6
+  name: retrieve_diff_flowstep_$file_diff_list_to_generate_comments_flowstep_$file_diff_list_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 47e367be-4d74-49dc-ac3b-89bb97ffa7df
+  source_output: $file_diff_list
+  destination_node:
+    $component_ref: 43d58c76-23a0-4d10-943d-f9c5e0835a7c
+  destination_input: $file_diff_list
+- component_type: DataFlowEdge
+  id: 51122844-22d3-40a8-b652-1b020ce24945
+  name: __StartStep___$repo_dirpath_io_to_retrieve_diff_flowstep_$repo_dirpath_io_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 020c885e-6d0b-472a-bb91-246ab70ab1db
+  source_output: $repo_dirpath_io
+  destination_node:
+    $component_ref: 47e367be-4d74-49dc-ac3b-89bb97ffa7df
+  destination_input: $repo_dirpath_io
+- component_type: DataFlowEdge
+  id: 72aa469c-98cd-4f0d-9496-0aa454373aef
+  name: generate_comments_flowstep_$filepath_list_to_None End node_$filepath_list_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 43d58c76-23a0-4d10-943d-f9c5e0835a7c
+  source_output: $filepath_list
+  destination_node:
+    $component_ref: a544af64-e63b-4ccf-9ab0-8d25cdbc0b93
+  destination_input: $filepath_list
+- component_type: DataFlowEdge
+  id: eac1b375-1541-41f7-87f3-f3e626cc2c9c
+  name: generate_comments_flowstep_$nested_comment_list_to_None End node_$nested_comment_list_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 43d58c76-23a0-4d10-943d-f9c5e0835a7c
+  source_output: $nested_comment_list
+  destination_node:
+    $component_ref: a544af64-e63b-4ccf-9ab0-8d25cdbc0b93
+  destination_input: $nested_comment_list
+- component_type: DataFlowEdge
+  id: 0869acb5-4d8f-4b17-b59b-3b915912b628
+  name: retrieve_diff_flowstep_$raw_pr_diff_to_None End node_$raw_pr_diff_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 47e367be-4d74-49dc-ac3b-89bb97ffa7df
+  source_output: $raw_pr_diff
+  destination_node:
+    $component_ref: a544af64-e63b-4ccf-9ab0-8d25cdbc0b93
+  destination_input: $raw_pr_diff
+- component_type: DataFlowEdge
+  id: 9fb2ab9e-ece1-4195-8f51-ef618dcb72bb
+  name: retrieve_diff_flowstep_$file_diff_list_to_None End node_$file_diff_list_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 47e367be-4d74-49dc-ac3b-89bb97ffa7df
+  source_output: $file_diff_list
+  destination_node:
+    $component_ref: a544af64-e63b-4ccf-9ab0-8d25cdbc0b93
+  destination_input: $file_diff_list
+$referenced_components:
+  43d58c76-23a0-4d10-943d-f9c5e0835a7c:
+    component_type: FlowNode
+    id: 43d58c76-23a0-4d10-943d-f9c5e0835a7c
+    name: generate_comments_flowstep
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: iterated input for the map step
+      type: array
+      items:
+        description: '"message" input variable for the template'
+        title: message
+      title: $file_diff_list
+    outputs:
+    - type: array
+      items:
+        type: string
+      title: $filepath_list
+    - type: array
+      items: {}
+      title: $nested_comment_list
+    branches:
+    - next
+    subflow:
+      component_type: Flow
+      id: f95e0e5d-f573-4e25-9d68-8508371246f9
+      name: flow_028a7dfb__auto
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - description: iterated input for the map step
+        type: array
+        items:
+          description: '"message" input variable for the template'
+          title: message
+        title: $file_diff_list
+      outputs:
+      - type: array
+        items:
+          type: string
+        title: $filepath_list
+      - type: array
+        items: {}
+        title: $nested_comment_list
+      start_node:
+        $component_ref: 367ae568-317d-42ec-ae70-4c41afe0dbd0
+      nodes:
+      - $component_ref: f127a297-842d-4d17-bc89-4704019458d7
+      - $component_ref: 367ae568-317d-42ec-ae70-4c41afe0dbd0
+      - $component_ref: 6f62aecf-03a1-4e38-b551-8eef0efaf4bb
+      control_flow_connections:
+      - component_type: ControlFlowEdge
+        id: 85a2cdff-6ad4-4f58-8d1c-c8deeb05880c
+        name: __StartStep___to_step_0_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: 367ae568-317d-42ec-ae70-4c41afe0dbd0
+        from_branch: null
+        to_node:
+          $component_ref: f127a297-842d-4d17-bc89-4704019458d7
+      - component_type: ControlFlowEdge
+        id: 396e218f-225e-4e36-a33c-a176ca77d345
+        name: step_0_to_None End node_control_flow_edge
+        description: null
+        metadata: {}
+        from_node:
+          $component_ref: f127a297-842d-4d17-bc89-4704019458d7
+        from_branch: null
+        to_node:
+          $component_ref: 6f62aecf-03a1-4e38-b551-8eef0efaf4bb
+      data_flow_connections:
+      - component_type: DataFlowEdge
+        id: 6c8b8f78-b587-49ff-a401-6262cdafb0ee
+        name: __StartStep___$file_diff_list_to_step_0_$file_diff_list_data_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        source_node:
+          $component_ref: 367ae568-317d-42ec-ae70-4c41afe0dbd0
+        source_output: $file_diff_list
+        destination_node:
+          $component_ref: f127a297-842d-4d17-bc89-4704019458d7
+        destination_input: $file_diff_list
+      - component_type: DataFlowEdge
+        id: 84d3a783-38c8-4d53-bc0b-4205732d1fbf
+        name: step_0_$filepath_list_to_None End node_$filepath_list_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: f127a297-842d-4d17-bc89-4704019458d7
+        source_output: $filepath_list
+        destination_node:
+          $component_ref: 6f62aecf-03a1-4e38-b551-8eef0efaf4bb
+        destination_input: $filepath_list
+      - component_type: DataFlowEdge
+        id: b7ffd4c3-4a03-47f0-95fc-0ba670010729
+        name: step_0_$nested_comment_list_to_None End node_$nested_comment_list_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: f127a297-842d-4d17-bc89-4704019458d7
+        source_output: $nested_comment_list
+        destination_node:
+          $component_ref: 6f62aecf-03a1-4e38-b551-8eef0efaf4bb
+        destination_input: $nested_comment_list
+      $referenced_components:
+        f127a297-842d-4d17-bc89-4704019458d7:
+          component_type: ExtendedMapNode
+          id: f127a297-842d-4d17-bc89-4704019458d7
+          name: step_0
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - description: iterated input for the map step
+            type: array
+            items:
+              description: '"message" input variable for the template'
+              title: message
+            title: $file_diff_list
+          outputs:
+          - type: array
+            items: {}
+            title: $nested_comment_list
+          - type: array
+            items:
+              type: string
+            title: $filepath_list
+          branches:
+          - next
+          input_mapping:
+            iterated_input: $file_diff_list
+          output_mapping:
+            $extracted_comments: $nested_comment_list
+            $filename: $filepath_list
+          flow:
+            component_type: Flow
+            id: 3da67cce-b8de-40be-bb8d-e1edead178f0
+            name: Generate review comments flow
+            description: ''
+            metadata:
+              __metadata_info__: {}
+            inputs:
+            - description: '"message" input variable for the template'
+              title: message
+            outputs:
+            - description: The extracted comments content and line number
+              type: array
+              items:
+                type: object
+                additionalProperties: {}
+                key_type:
+                  type: string
+              title: $extracted_comments
+            - description: the generated text
+              type: string
+              title: $json_comments
+            - type: string
+              title: $diff_with_lines
+            - description: the first extracted value using the regex "diff --git a/(.+?)
+                b/" from the raw input
+              type: string
+              title: $filename
+              default: ''
+            - description: the message added to the messages list
+              type: string
+              title: $diff_to_string
+            start_node:
+              $component_ref: e20f5870-d594-4089-9fcd-08146232910d
+            nodes:
+            - $component_ref: f0fb3ab4-a950-43b6-a583-6f0044f18c7f
+            - $component_ref: 6000ee3f-ac80-4937-b36c-94fd65cdcda4
+            - $component_ref: 6f6dc822-9352-47ae-9b48-173402a334fe
+            - $component_ref: 0ce752d7-3ef1-481b-bb01-c7081ef86103
+            - $component_ref: 48057b9c-bee7-4286-baf5-625b6f1a6f1a
+            - $component_ref: e20f5870-d594-4089-9fcd-08146232910d
+            - $component_ref: 39f36227-8910-414c-8b6b-517c0d65b0d8
+            control_flow_connections:
+            - component_type: ControlFlowEdge
+              id: becf6951-96fd-4152-97d0-4a4eff042a29
+              name: format_diff_to_string_to_add_lines_on_diff_control_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              from_node:
+                $component_ref: f0fb3ab4-a950-43b6-a583-6f0044f18c7f
+              from_branch: null
+              to_node:
+                $component_ref: 6000ee3f-ac80-4937-b36c-94fd65cdcda4
+            - component_type: ControlFlowEdge
+              id: c197b0d5-8002-4910-ae8d-61f97f1f8f26
+              name: add_lines_on_diff_to_extract_file_path_control_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              from_node:
+                $component_ref: 6000ee3f-ac80-4937-b36c-94fd65cdcda4
+              from_branch: null
+              to_node:
+                $component_ref: 6f6dc822-9352-47ae-9b48-173402a334fe
+            - component_type: ControlFlowEdge
+              id: 406e0670-cc49-4da4-8d15-8c1c320193e8
+              name: extract_file_path_to_generate_comments_control_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              from_node:
+                $component_ref: 6f6dc822-9352-47ae-9b48-173402a334fe
+              from_branch: null
+              to_node:
+                $component_ref: 0ce752d7-3ef1-481b-bb01-c7081ef86103
+            - component_type: ControlFlowEdge
+              id: e54eb347-2e6c-42c4-a7d6-a42c8059bdf3
+              name: generate_comments_to_extract_comments_from_json_control_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              from_node:
+                $component_ref: 0ce752d7-3ef1-481b-bb01-c7081ef86103
+              from_branch: null
+              to_node:
+                $component_ref: 48057b9c-bee7-4286-baf5-625b6f1a6f1a
+            - component_type: ControlFlowEdge
+              id: ebe5e60b-2724-4b51-b287-79f3e8e7fdd1
+              name: __StartStep___to_format_diff_to_string_control_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              from_node:
+                $component_ref: e20f5870-d594-4089-9fcd-08146232910d
+              from_branch: null
+              to_node:
+                $component_ref: f0fb3ab4-a950-43b6-a583-6f0044f18c7f
+            - component_type: ControlFlowEdge
+              id: 98e7631e-7206-4ba9-b5b0-eb308ac89c0f
+              name: extract_comments_from_json_to_None End node_control_flow_edge
+              description: null
+              metadata: {}
+              from_node:
+                $component_ref: 48057b9c-bee7-4286-baf5-625b6f1a6f1a
+              from_branch: null
+              to_node:
+                $component_ref: 39f36227-8910-414c-8b6b-517c0d65b0d8
+            data_flow_connections:
+            - component_type: DataFlowEdge
+              id: ab8ed6de-3ea7-424e-a830-bca10ac57a32
+              name: format_diff_to_string_$diff_to_string_to_add_lines_on_diff_$diff_to_string_data_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              source_node:
+                $component_ref: f0fb3ab4-a950-43b6-a583-6f0044f18c7f
+              source_output: $diff_to_string
+              destination_node:
+                $component_ref: 6000ee3f-ac80-4937-b36c-94fd65cdcda4
+              destination_input: $diff_to_string
+            - component_type: DataFlowEdge
+              id: 3caaa171-9b4b-44df-8ebd-4d060329f91a
+              name: format_diff_to_string_$diff_to_string_to_extract_file_path_$diff_to_string_data_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              source_node:
+                $component_ref: f0fb3ab4-a950-43b6-a583-6f0044f18c7f
+              source_output: $diff_to_string
+              destination_node:
+                $component_ref: 6f6dc822-9352-47ae-9b48-173402a334fe
+              destination_input: $diff_to_string
+            - component_type: DataFlowEdge
+              id: cdf0945b-5a96-42ff-b410-f7c56b5f8e45
+              name: add_lines_on_diff_$diff_with_lines_to_generate_comments_$diff_with_lines_data_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              source_node:
+                $component_ref: 6000ee3f-ac80-4937-b36c-94fd65cdcda4
+              source_output: $diff_with_lines
+              destination_node:
+                $component_ref: 0ce752d7-3ef1-481b-bb01-c7081ef86103
+              destination_input: $diff_with_lines
+            - component_type: DataFlowEdge
+              id: ca6ed62b-6f6a-405f-9f16-5e1304de6608
+              name: extract_file_path_$filename_to_generate_comments_$filename_data_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              source_node:
+                $component_ref: 6f6dc822-9352-47ae-9b48-173402a334fe
+              source_output: $filename
+              destination_node:
+                $component_ref: 0ce752d7-3ef1-481b-bb01-c7081ef86103
+              destination_input: $filename
+            - component_type: DataFlowEdge
+              id: dec4b4bb-56c9-445a-a282-9d095ff6038e
+              name: generate_comments_$json_comments_to_extract_comments_from_json_$json_comments_data_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              source_node:
+                $component_ref: 0ce752d7-3ef1-481b-bb01-c7081ef86103
+              source_output: $json_comments
+              destination_node:
+                $component_ref: 48057b9c-bee7-4286-baf5-625b6f1a6f1a
+              destination_input: $json_comments
+            - component_type: DataFlowEdge
+              id: 611478d7-281a-4587-81e6-97e8c745da53
+              name: __StartStep___message_to_format_diff_to_string_message_data_flow_edge
+              description: null
+              metadata:
+                __metadata_info__: {}
+              source_node:
+                $component_ref: e20f5870-d594-4089-9fcd-08146232910d
+              source_output: message
+              destination_node:
+                $component_ref: f0fb3ab4-a950-43b6-a583-6f0044f18c7f
+              destination_input: message
+            - component_type: DataFlowEdge
+              id: 227ae098-0baf-4fe8-9615-094bb386c9a9
+              name: extract_comments_from_json_$extracted_comments_to_None End node_$extracted_comments_data_flow_edge
+              description: null
+              metadata: {}
+              source_node:
+                $component_ref: 48057b9c-bee7-4286-baf5-625b6f1a6f1a
+              source_output: $extracted_comments
+              destination_node:
+                $component_ref: 39f36227-8910-414c-8b6b-517c0d65b0d8
+              destination_input: $extracted_comments
+            - component_type: DataFlowEdge
+              id: 6e25b4d8-5656-471b-8ffa-1fe8cfffbc05
+              name: generate_comments_$json_comments_to_None End node_$json_comments_data_flow_edge
+              description: null
+              metadata: {}
+              source_node:
+                $component_ref: 0ce752d7-3ef1-481b-bb01-c7081ef86103
+              source_output: $json_comments
+              destination_node:
+                $component_ref: 39f36227-8910-414c-8b6b-517c0d65b0d8
+              destination_input: $json_comments
+            - component_type: DataFlowEdge
+              id: fdbf1eeb-0278-4dc8-b897-c924937a1692
+              name: add_lines_on_diff_$diff_with_lines_to_None End node_$diff_with_lines_data_flow_edge
+              description: null
+              metadata: {}
+              source_node:
+                $component_ref: 6000ee3f-ac80-4937-b36c-94fd65cdcda4
+              source_output: $diff_with_lines
+              destination_node:
+                $component_ref: 39f36227-8910-414c-8b6b-517c0d65b0d8
+              destination_input: $diff_with_lines
+            - component_type: DataFlowEdge
+              id: 3b6bcba7-635b-45fa-b450-cf0a15dae463
+              name: extract_file_path_$filename_to_None End node_$filename_data_flow_edge
+              description: null
+              metadata: {}
+              source_node:
+                $component_ref: 6f6dc822-9352-47ae-9b48-173402a334fe
+              source_output: $filename
+              destination_node:
+                $component_ref: 39f36227-8910-414c-8b6b-517c0d65b0d8
+              destination_input: $filename
+            - component_type: DataFlowEdge
+              id: 2f95704b-4cc1-4983-8a20-e39c79a94e01
+              name: format_diff_to_string_$diff_to_string_to_None End node_$diff_to_string_data_flow_edge
+              description: null
+              metadata: {}
+              source_node:
+                $component_ref: f0fb3ab4-a950-43b6-a583-6f0044f18c7f
+              source_output: $diff_to_string
+              destination_node:
+                $component_ref: 39f36227-8910-414c-8b6b-517c0d65b0d8
+              destination_input: $diff_to_string
+            $referenced_components:
+              6000ee3f-ac80-4937-b36c-94fd65cdcda4:
+                component_type: ExtendedToolNode
+                id: 6000ee3f-ac80-4937-b36c-94fd65cdcda4
+                name: add_lines_on_diff
+                description: ''
+                metadata:
+                  __metadata_info__: {}
+                inputs:
+                - type: string
+                  title: $diff_to_string
+                outputs:
+                - type: string
+                  title: $diff_with_lines
+                branches:
+                - next
+                tool:
+                  component_type: ServerTool
+                  id: e936566f-7a25-40f3-9434-3e740a7bfb02
+                  name: format_git_diff
+                  description: Formats a git diff by adding line numbers to each line
+                    except removal lines.
+                  metadata:
+                    __metadata_info__: {}
+                  inputs:
+                  - type: string
+                    title: diff_text
+                  outputs:
+                  - type: string
+                    title: tool_output
+                input_mapping:
+                  diff_text: $diff_to_string
+                output_mapping:
+                  tool_output: $diff_with_lines
+                raise_exceptions: false
+                component_plugin_name: NodesPlugin
+                component_plugin_version: 25.4.0.dev0
+              f0fb3ab4-a950-43b6-a583-6f0044f18c7f:
+                component_type: PluginOutputMessageNode
+                id: f0fb3ab4-a950-43b6-a583-6f0044f18c7f
+                name: format_diff_to_string
+                description: ''
+                metadata:
+                  __metadata_info__: {}
+                inputs:
+                - description: '"message" input variable for the template'
+                  title: message
+                outputs:
+                - description: the message added to the messages list
+                  type: string
+                  title: $diff_to_string
+                branches:
+                - next
+                expose_message_as_output: True
+                message: '{{ message | string }}'
+                input_mapping: {}
+                output_mapping:
+                  output_message: $diff_to_string
+                message_type: AGENT
+                rephrase: false
+                llm_config: null
+                component_plugin_name: NodesPlugin
+                component_plugin_version: 25.4.0.dev0
+              6f6dc822-9352-47ae-9b48-173402a334fe:
+                component_type: PluginRegexNode
+                id: 6f6dc822-9352-47ae-9b48-173402a334fe
+                name: extract_file_path
+                description: ''
+                metadata:
+                  __metadata_info__: {}
+                inputs:
+                - description: raw text to extract information from
+                  type: string
+                  title: $diff_to_string
+                outputs:
+                - description: the first extracted value using the regex "diff --git
+                    a/(.+?) b/" from the raw input
+                  type: string
+                  title: $filename
+                  default: ''
+                branches:
+                - next
+                input_mapping:
+                  text: $diff_to_string
+                output_mapping:
+                  output: $filename
+                regex_pattern: diff --git a/(.+?) b/
+                return_first_match_only: true
+                component_plugin_name: NodesPlugin
+                component_plugin_version: 25.4.0.dev0
+              0ce752d7-3ef1-481b-bb01-c7081ef86103:
+                component_type: ExtendedLlmNode
+                id: 0ce752d7-3ef1-481b-bb01-c7081ef86103
+                name: generate_comments
+                description: ''
+                metadata:
+                  __metadata_info__: {}
+                inputs:
+                - description: '"filename" input variable for the template'
+                  type: string
+                  title: $filename
+                - description: '"diff" input variable for the template'
+                  type: string
+                  title: $diff_with_lines
+                outputs:
+                - description: the generated text
+                  type: string
+                  title: $json_comments
+                branches:
+                - next
+                llm_config:
+                  component_type: VllmConfig
+                  id: fb043839-1e69-404c-a178-d8c3de0bfe20
+                  name: LLAMA_MODEL_ID
+                  description: null
+                  metadata:
+                    __metadata_info__: {}
+                  default_generation_parameters: null
+                  url: LLAMA_API_URL
+                  model_id: LLAMA_MODEL_ID
+                prompt_template: "You are a very experienced code reviewer. You are\
+                  \ given a git diff on a file: {{ filename }}\n\n## Context\nThe\
+                  \ git diff contains all changes of a single file. All lines are\
+                  \ prepended with their number. Lines without line number where removed\
+                  \ from the file.\nAfter the line number, a line that was changed\
+                  \ has a \"+\" before the code. All lines without a \"+\" are just\
+                  \ here for context, you will not comment on them.\n\n## Input\n\
+                  ### Code diff\n{{ diff }}\n\n## Task\nYour task is to review these\
+                  \ changes, according to different rules. Only comment lines that\
+                  \ were added, so the lines that have a + just after the line number.\n\
+                  The rules are the following:\n\n\nName: TODO_WITHOUT_TICKET\nDescription:\
+                  \ TODO comments should reference a ticket number for tracking.\n\
+                  Example code:\n```python\n# TODO: Add validation here\ndef process_user_input(data):\n\
+                  \    return data\n```\nExample comment:\n[BOT] TODO_WITHOUT_TICKET:\
+                  \ TODO comment should reference a ticket number for tracking (e.g.,\
+                  \ \"TODO: Add validation here (TICKET-1234)\").\n\n\n---\n\n\nName:\
+                  \ MUTABLE_DEFAULT_ARGUMENT\nDescription: Using mutable objects as\
+                  \ default arguments can lead to unexpected behavior.\nExample code:\n\
+                  ```python\ndef add_item(item, items=[]):\n    items.append(item)\n\
+                  \    return items\n```\nExample comment:\n[BOT] MUTABLE_DEFAULT_ARGUMENT:\
+                  \ Avoid using mutable default arguments. Use None and initialize\
+                  \ in the function: `def add_item(item, items=None): items = items\
+                  \ or []`\n\n\n---\n\n\nName: NON_DESCRIPTIVE_NAME\nDescription:\
+                  \ Variable names should clearly indicate their purpose or content.\n\
+                  Example code:\n```python\ndef process(lst):\n    res = []\n    for\
+                  \ i in lst:\n        res.append(i * 2)\n    return res\n```\nExample\
+                  \ comment:\n[BOT] NON_DESCRIPTIVE_NAME: Use more descriptive names:\
+                  \ 'lst' could be 'numbers', 'res' could be 'doubled_numbers', 'i'\
+                  \ could be 'number'\n\n\n### Reponse Format\nYou need to return\
+                  \ a review as a json as follows:\n```json\n[\n    {\n        \"\
+                  content\": \"the comment as a text\",\n        \"suggestion\": \"\
+                  if the change you propose is a single line, then put here the single\
+                  \ line rewritten that includes your proposal change. IMPORTANT:\
+                  \ a single line, which will erase the current line. Put empty string\
+                  \ if no suggestion of if the suggestion is more than a single line\"\
+                  ,\n        \"line\": \"line number where the comment applies\"\n\
+                  \    },\n    \u2026\n]\n```\nPlease use triple backticks ``` to\
+                  \ delimitate your JSON list of comments. Don't output more than\
+                  \ 5 comments, only comment the most relevant sections.\nIf there\
+                  \ are no comments and the code seems fine, just output an empty\
+                  \ JSON list."
+                input_mapping:
+                  diff: $diff_with_lines
+                  filename: $filename
+                output_mapping:
+                  output: $json_comments
+                prompt_template_object: null
+                send_message: false
+                component_plugin_name: NodesPlugin
+                component_plugin_version: 25.4.0.dev0
+              48057b9c-bee7-4286-baf5-625b6f1a6f1a:
+                component_type: PluginExtractNode
+                id: 48057b9c-bee7-4286-baf5-625b6f1a6f1a
+                name: extract_comments_from_json
+                description: ''
+                metadata:
+                  __metadata_info__: {}
+                inputs:
+                - description: raw text to extract information from
+                  type: string
+                  title: $json_comments
+                outputs:
+                - description: The extracted comments content and line number
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: {}
+                    key_type:
+                      type: string
+                  title: $extracted_comments
+                branches:
+                - next
+                input_mapping:
+                  text: $json_comments
+                output_mapping:
+                  values: $extracted_comments
+                output_values:
+                  values: '[.[] | {"content": .["content"], "line": .["line"]}]'
+                component_plugin_name: NodesPlugin
+                component_plugin_version: 25.4.0.dev0
+              e20f5870-d594-4089-9fcd-08146232910d:
+                component_type: StartNode
+                id: e20f5870-d594-4089-9fcd-08146232910d
+                name: __StartStep__
+                description: ''
+                metadata:
+                  __metadata_info__: {}
+                inputs:
+                - description: '"message" input variable for the template'
+                  title: message
+                outputs:
+                - description: '"message" input variable for the template'
+                  title: message
+                branches:
+                - next
+              39f36227-8910-414c-8b6b-517c0d65b0d8:
+                component_type: EndNode
+                id: 39f36227-8910-414c-8b6b-517c0d65b0d8
+                name: None End node
+                description: End node representing all transitions to None in the
+                  WayFlow flow
+                metadata: {}
+                inputs:
+                - description: The extracted comments content and line number
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: {}
+                    key_type:
+                      type: string
+                  title: $extracted_comments
+                - description: the generated text
+                  type: string
+                  title: $json_comments
+                - type: string
+                  title: $diff_with_lines
+                - description: the first extracted value using the regex "diff --git
+                    a/(.+?) b/" from the raw input
+                  type: string
+                  title: $filename
+                  default: ''
+                - description: the message added to the messages list
+                  type: string
+                  title: $diff_to_string
+                outputs:
+                - description: The extracted comments content and line number
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: {}
+                    key_type:
+                      type: string
+                  title: $extracted_comments
+                - description: the generated text
+                  type: string
+                  title: $json_comments
+                - type: string
+                  title: $diff_with_lines
+                - description: the first extracted value using the regex "diff --git
+                    a/(.+?) b/" from the raw input
+                  type: string
+                  title: $filename
+                  default: ''
+                - description: the message added to the messages list
+                  type: string
+                  title: $diff_to_string
+                branches: []
+                branch_name: next
+          unpack_input:
+            message: .
+          parallel_execution: false
+          component_plugin_name: NodesPlugin
+          component_plugin_version: 25.4.0.dev0
+        367ae568-317d-42ec-ae70-4c41afe0dbd0:
+          component_type: StartNode
+          id: 367ae568-317d-42ec-ae70-4c41afe0dbd0
+          name: __StartStep__
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - description: iterated input for the map step
+            type: array
+            items:
+              description: '"message" input variable for the template'
+              title: message
+            title: $file_diff_list
+          outputs:
+          - description: iterated input for the map step
+            type: array
+            items:
+              description: '"message" input variable for the template'
+              title: message
+            title: $file_diff_list
+          branches:
+          - next
+        6f62aecf-03a1-4e38-b551-8eef0efaf4bb:
+          component_type: EndNode
+          id: 6f62aecf-03a1-4e38-b551-8eef0efaf4bb
+          name: None End node
+          description: End node representing all transitions to None in the WayFlow
+            flow
+          metadata: {}
+          inputs:
+          - type: array
+            items:
+              type: string
+            title: $filepath_list
+          - type: array
+            items: {}
+            title: $nested_comment_list
+          outputs:
+          - type: array
+            items:
+              type: string
+            title: $filepath_list
+          - type: array
+            items: {}
+            title: $nested_comment_list
+          branches: []
+          branch_name: next
+  47e367be-4d74-49dc-ac3b-89bb97ffa7df:
+    component_type: FlowNode
+    id: 47e367be-4d74-49dc-ac3b-89bb97ffa7df
+    name: retrieve_diff_flowstep
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - type: string
+      title: $repo_dirpath_io
+    outputs:
+    - type: string
+      title: $raw_pr_diff
+    - description: the list of extracted value using the regex "(diff --git[\s\S]*?)(?=diff
+        --git|$)" from the raw input
+      type: array
+      items:
+        type: string
+      title: $file_diff_list
+      default: []
+    branches:
+    - next
+    subflow:
+      component_type: Flow
+      id: 9e7aed22-876c-4c32-9d44-20ee7ceb3771
+      name: Retrieve PR diff flow
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - type: string
+        title: $repo_dirpath_io
+      outputs:
+      - type: string
+        title: $raw_pr_diff
+      - description: the list of extracted value using the regex "(diff --git[\s\S]*?)(?=diff
+          --git|$)" from the raw input
+        type: array
+        items:
+          type: string
+        title: $file_diff_list
+        default: []
+      start_node:
+        $component_ref: 4fcb7ebe-325b-446d-a46b-59187c30e260
+      nodes:
+      - $component_ref: 4fcb7ebe-325b-446d-a46b-59187c30e260
+      - $component_ref: 5c73da9c-6ba9-44ce-aab1-212a78d0a720
+      - $component_ref: cf841053-2414-48b6-ba6d-0f0f5e11044c
+      - $component_ref: dd0e56ab-1267-4345-9f59-ecc053baf2af
+      control_flow_connections:
+      - component_type: ControlFlowEdge
+        id: 60dc14b8-d9b9-4aec-a958-9f3676848f48
+        name: start_step_to_get_pr_diff_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: 4fcb7ebe-325b-446d-a46b-59187c30e260
+        from_branch: null
+        to_node:
+          $component_ref: 5c73da9c-6ba9-44ce-aab1-212a78d0a720
+      - component_type: ControlFlowEdge
+        id: 500f97de-78b1-42e0-944c-0375dfca734e
+        name: get_pr_diff_to_extract_into_list_of_file_diff_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: 5c73da9c-6ba9-44ce-aab1-212a78d0a720
+        from_branch: null
+        to_node:
+          $component_ref: cf841053-2414-48b6-ba6d-0f0f5e11044c
+      - component_type: ControlFlowEdge
+        id: 22d0cf0d-8edb-4b04-8f54-a234f5705360
+        name: extract_into_list_of_file_diff_to_None End node_control_flow_edge
+        description: null
+        metadata: {}
+        from_node:
+          $component_ref: cf841053-2414-48b6-ba6d-0f0f5e11044c
+        from_branch: null
+        to_node:
+          $component_ref: dd0e56ab-1267-4345-9f59-ecc053baf2af
+      data_flow_connections:
+      - component_type: DataFlowEdge
+        id: 106e3740-de45-4472-8168-2873ae1dbc82
+        name: start_step_$repo_dirpath_io_to_get_pr_diff_$repo_dirpath_io_data_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        source_node:
+          $component_ref: 4fcb7ebe-325b-446d-a46b-59187c30e260
+        source_output: $repo_dirpath_io
+        destination_node:
+          $component_ref: 5c73da9c-6ba9-44ce-aab1-212a78d0a720
+        destination_input: $repo_dirpath_io
+      - component_type: DataFlowEdge
+        id: a32cbb1c-eafe-4138-80e2-2cf2e1248312
+        name: get_pr_diff_$raw_pr_diff_to_extract_into_list_of_file_diff_$raw_pr_diff_data_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        source_node:
+          $component_ref: 5c73da9c-6ba9-44ce-aab1-212a78d0a720
+        source_output: $raw_pr_diff
+        destination_node:
+          $component_ref: cf841053-2414-48b6-ba6d-0f0f5e11044c
+        destination_input: $raw_pr_diff
+      - component_type: DataFlowEdge
+        id: 3ef5dcf4-acdf-4962-8df6-07b53f249e18
+        name: get_pr_diff_$raw_pr_diff_to_None End node_$raw_pr_diff_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: 5c73da9c-6ba9-44ce-aab1-212a78d0a720
+        source_output: $raw_pr_diff
+        destination_node:
+          $component_ref: dd0e56ab-1267-4345-9f59-ecc053baf2af
+        destination_input: $raw_pr_diff
+      - component_type: DataFlowEdge
+        id: 08cbca39-e591-4cf4-9057-ae67938d9557
+        name: extract_into_list_of_file_diff_$file_diff_list_to_None End node_$file_diff_list_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: cf841053-2414-48b6-ba6d-0f0f5e11044c
+        source_output: $file_diff_list
+        destination_node:
+          $component_ref: dd0e56ab-1267-4345-9f59-ecc053baf2af
+        destination_input: $file_diff_list
+      $referenced_components:
+        5c73da9c-6ba9-44ce-aab1-212a78d0a720:
+          component_type: ExtendedToolNode
+          id: 5c73da9c-6ba9-44ce-aab1-212a78d0a720
+          name: get_pr_diff
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - type: string
+            title: $repo_dirpath_io
+          outputs:
+          - type: string
+            title: $raw_pr_diff
+          branches:
+          - next
+          tool:
+            component_type: ServerTool
+            id: 275aaf19-cdd4-4ed7-a436-e53f922cd740
+            name: local_get_pr_diff_tool
+            description: '# docs-skiprow
+
+              Retrieves code diff with a git command given the  # docs-skiprow
+
+              path to the repository root folder.  # docs-skiprow'
+            metadata:
+              __metadata_info__: {}
+            inputs:
+            - type: string
+              title: repo_dirpath
+            outputs:
+            - type: string
+              title: tool_output
+          input_mapping:
+            repo_dirpath: $repo_dirpath_io
+          output_mapping:
+            tool_output: $raw_pr_diff
+          raise_exceptions: true
+          component_plugin_name: NodesPlugin
+          component_plugin_version: 25.4.0.dev0
+        4fcb7ebe-325b-446d-a46b-59187c30e260:
+          component_type: StartNode
+          id: 4fcb7ebe-325b-446d-a46b-59187c30e260
+          name: start_step
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - type: string
+            title: $repo_dirpath_io
+          outputs:
+          - type: string
+            title: $repo_dirpath_io
+          branches:
+          - next
+        cf841053-2414-48b6-ba6d-0f0f5e11044c:
+          component_type: PluginRegexNode
+          id: cf841053-2414-48b6-ba6d-0f0f5e11044c
+          name: extract_into_list_of_file_diff
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - description: raw text to extract information from
+            type: string
+            title: $raw_pr_diff
+          outputs:
+          - description: the list of extracted value using the regex "(diff --git[\s\S]*?)(?=diff
+              --git|$)" from the raw input
+            type: array
+            items:
+              type: string
+            title: $file_diff_list
+            default: []
+          branches:
+          - next
+          input_mapping:
+            text: $raw_pr_diff
+          output_mapping:
+            output: $file_diff_list
+          regex_pattern: (diff --git[\s\S]*?)(?=diff --git|$)
+          return_first_match_only: false
+          component_plugin_name: NodesPlugin
+          component_plugin_version: 25.4.0.dev0
+        dd0e56ab-1267-4345-9f59-ecc053baf2af:
+          component_type: EndNode
+          id: dd0e56ab-1267-4345-9f59-ecc053baf2af
+          name: None End node
+          description: End node representing all transitions to None in the WayFlow
+            flow
+          metadata: {}
+          inputs:
+          - type: string
+            title: $raw_pr_diff
+          - description: the list of extracted value using the regex "(diff --git[\s\S]*?)(?=diff
+              --git|$)" from the raw input
+            type: array
+            items:
+              type: string
+            title: $file_diff_list
+            default: []
+          outputs:
+          - type: string
+            title: $raw_pr_diff
+          - description: the list of extracted value using the regex "(diff --git[\s\S]*?)(?=diff
+              --git|$)" from the raw input
+            type: array
+            items:
+              type: string
+            title: $file_diff_list
+            default: []
+          branches: []
+          branch_name: next
+  020c885e-6d0b-472a-bb91-246ab70ab1db:
+    component_type: StartNode
+    id: 020c885e-6d0b-472a-bb91-246ab70ab1db
+    name: __StartStep__
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - type: string
+      title: $repo_dirpath_io
+    outputs:
+    - type: string
+      title: $repo_dirpath_io
+    branches:
+    - next
+  a544af64-e63b-4ccf-9ab0-8d25cdbc0b93:
+    component_type: EndNode
+    id: a544af64-e63b-4ccf-9ab0-8d25cdbc0b93
+    name: None End node
+    description: End node representing all transitions to None in the WayFlow flow
+    metadata: {}
+    inputs:
+    - type: array
+      items:
+        type: string
+      title: $filepath_list
+    - type: array
+      items: {}
+      title: $nested_comment_list
+    - type: string
+      title: $raw_pr_diff
+    - description: the list of extracted value using the regex "(diff --git[\s\S]*?)(?=diff
+        --git|$)" from the raw input
+      type: array
+      items:
+        type: string
+      title: $file_diff_list
+      default: []
+    outputs:
+    - type: array
+      items:
+        type: string
+      title: $filepath_list
+    - type: array
+      items: {}
+      title: $nested_comment_list
+    - type: string
+      title: $raw_pr_diff
+    - description: the list of extracted value using the regex "(diff --git[\s\S]*?)(?=diff
+        --git|$)" from the raw input
+      type: array
+      items:
+        type: string
+      title: $file_diff_list
+      default: []
+    branches: []
+    branch_name: next
+agentspec_version: 25.4.1

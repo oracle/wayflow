@@ -1,0 +1,112 @@
+{
+  "component_type": "ExtendedAgent",
+  "id": "0d75db5b-68bd-42b5-8a9f-79f2f3f5f85c",
+  "name": "agent_6a2dfe98",
+  "description": "",
+  "metadata": {
+    "__metadata_info__": {
+      "name": "agent_6a2dfe98",
+      "description": ""
+    }
+  },
+  "inputs": [],
+  "outputs": [],
+  "llm_config": {
+    "component_type": "VllmConfig",
+    "id": "8534806a-5201-4c59-afee-e8a46ac8a17d",
+    "name": "LLAMA_MODEL_ID",
+    "description": null,
+    "metadata": {
+      "__metadata_info__": {}
+    },
+    "default_generation_parameters": null,
+    "url": "LLAMA_API_URL",
+    "model_id": "LLAMA_MODEL_ID"
+  },
+  "system_prompt": "",
+  "tools": [],
+  "toolboxes": [],
+  "context_providers": null,
+  "can_finish_conversation": false,
+  "max_iterations": 10,
+  "initial_message": "Hi! How can I help you?",
+  "caller_input_mode": "always",
+  "agents": [],
+  "flows": [],
+  "agent_template": {
+    "component_type": "PluginPromptTemplate",
+    "id": "d3a8c0b1-722a-44a1-a2a7-c5aa727742e0",
+    "name": "prompt_template",
+    "description": "",
+    "metadata": {
+      "__metadata_info__": {}
+    },
+    "messages": [
+      {
+        "role": "user",
+        "contents": [
+          {
+            "type": "text",
+            "content": "What is the result of 100+(454-3). Think step by step and then give your answer between <result>...</result> delimiters"
+          }
+        ],
+        "tool_requests": null,
+        "tool_result": null,
+        "display_only": false,
+        "sender": null,
+        "recipients": [],
+        "time_created": "2025-08-15T13:31:44.684406+00:00",
+        "time_updated": "2025-08-15T13:31:44.684406+00:00"
+      }
+    ],
+    "output_parser": {
+      "component_type": "PluginRegexOutputParser",
+      "id": "09cdd631-0189-44bd-800f-4e924ab1ff15",
+      "name": "regex_outputparser",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "regex_pattern": {
+        "result": {
+          "pattern": "<result>(.*)</result>",
+          "match": "first",
+          "flags": 16
+        },
+        "thoughts": {
+          "pattern": "(.*)<result>",
+          "match": "first",
+          "flags": 16
+        }
+      },
+      "strict": true,
+      "component_plugin_name": "OutputParserPlugin",
+      "component_plugin_version": "25.4.0.dev0"
+    },
+    "inputs": [],
+    "pre_rendering_transforms": null,
+    "post_rendering_transforms": null,
+    "tools": null,
+    "native_tool_calling": true,
+    "response_format": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "description": "result of the computation",
+          "type": "string"
+        },
+        "thoughts": {
+          "description": "step by step thinking of the LLM",
+          "type": "string"
+        }
+      }
+    },
+    "native_structured_generation": true,
+    "generation_config": null,
+    "component_plugin_name": "PromptTemplatePlugin",
+    "component_plugin_version": "25.4.0.dev0"
+  },
+  "component_plugin_name": "AgentPlugin",
+  "component_plugin_version": "25.4.0.dev0",
+  "agentspec_version": "25.4.1"
+}

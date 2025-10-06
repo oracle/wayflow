@@ -1,0 +1,48 @@
+{
+  "component_type": "Agent",
+  "id": "61bd7075-4f41-4344-8e0d-1d6935975794",
+  "name": "agent_58415549__auto",
+  "description": "",
+  "metadata": {
+    "__metadata_info__": {}
+  },
+  "inputs": [],
+  "outputs": [],
+  "llm_config": {
+    "component_type": "VllmConfig",
+    "id": "7796961b-db94-4a5e-bd12-8c532989fe0f",
+    "name": "LLAMA_MODEL_ID",
+    "description": null,
+    "metadata": {
+      "__metadata_info__": {}
+    },
+    "default_generation_parameters": null,
+    "url": "LLAMA_API_URL",
+    "model_id": "LLAMA_MODEL_ID"
+  },
+  "system_prompt": "You are a knowledgeable, factual, and helpful HR assistant that can answer simple HR-related questions like salary and benefits.\nYou are given a tool to look up the HR database.\nYour task:\n    - Ask the user if they need assistance\n    - Use the provided tool below to retrieve HR data\n    - Based on the data you retrieved, answer the user's question\nImportant:\n    - Be helpful and concise in your messages\n    - Do not tell the user any details not mentioned in the tool response, let's be factual.",
+  "tools": [
+    {
+      "component_type": "ServerTool",
+      "id": "c6d943c1-20a3-4f66-b89b-8173ab854e0b",
+      "name": "search_hr_database",
+      "description": "Function that searches the HR database for employee benefits.\n\nParameters\n----------\nquery:\n    a query string\n\nReturns\n-------\n    a JSON response",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [
+        {
+          "type": "string",
+          "title": "query"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "title": "tool_output"
+        }
+      ]
+    }
+  ],
+  "agentspec_version": "25.4.1"
+}

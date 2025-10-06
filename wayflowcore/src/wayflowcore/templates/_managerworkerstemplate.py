@@ -1,0 +1,198 @@
+# Copyright © 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+import json
+from textwrap import shorten
+from typing import List, Tuple
+
+from wayflowcore.messagelist import Message, TextContent
+from wayflowcore.outputparser import JsonToolOutputParser
+from wayflowcore.serialization.serializer import SerializableObject
+from wayflowcore.templates import PromptTemplate
+from wayflowcore.transforms import (
+    AppendTrailingSystemMessageToUserMessageTransform,
+    CoalesceSystemMessagesTransform,
+    MessageTransform,
+)
+
+_DEFAULT_MANAGERWORKERS_SYSTEM_PROMPT = """
+You are an helpful AI Agent.
+- name: {{name}}
+- description: {{description}}
+
+<environment>
+You are part of a group of Agents.
+You can use tools to interact with other agents in your group.
+
+<user>
+Your user/caller is: {{caller_name}}.
+- The user is **not** aware of the other entities you can communicate with.
+- Include all necessary context when communicating with the user/other entity.
+</user>
+
+<other_entities>
+You can communicate with the following entities.
+{% for agent in other_agents %}
+<expert_agent>
+{{agent.name}}: {{agent.description}}
+</expert_agent>
+{% endfor %}
+</other_entities>
+</environment>
+
+<response_rules>
+<tool_use_rules>
+- You must respond with a tool use (function calling); plain text responses are forbidden
+- Do not mention any specific tool names to users in messages
+- Carefully verify available tools; do not fabricate non-existent tools. Delegate when necessary.
+- Tool request/results may originate from other parts of the system; only use explicitly provided tools
+- Call a single tool per response.
+</tool_use_rules>
+
+Responses should be structured as a thought followed by a your response function call using JSON compliant syntax.
+The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
+-> Put **internal-only** information in the thoughts
+-> Put all necessary information in the tool calls to communicate to user/other entity.
+
+Do not use variables in the function call. Here's the structure:
+
+YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT SEE THOSE!)
+
+{"name": function name, "parameters": dictionary of argument name and its value}
+</response_rules>
+
+<tools>
+Here is a list of functions that you can invoke.
+{% for tool in __TOOLS__%}
+{{tool._to_simple_json_format() | tojson}}
+{{'---' if not loop.last}}
+{% endfor %}
+</tools>
+
+{%- if custom_instruction -%}
+<system_instructions>
+Here are the instructions specific to your role.:
+{{custom_instruction}}
+</system_instructions>{%- endif -%}
+""".strip()
+
+_DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER = """
+--- SYSTEM REMINDER ---
+You are an helpful AI Agent, your name: {{name}}. Your user/caller is: {{caller_name}}.
+The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
+-> Put **internal-only** information in the thoughts
+-> Put all necessary information in the tool calls to communicate to user/other entity.
+
+Responses should be structured as a thought followed by a your response function call using JSON compliant syntax.
+Do not use variables in the function call. Here's the structure:
+
+YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT SEE THOSE!)
+
+{"name": function name, "parameters": dictionary of argument name and its value}
+""".strip()
+
+_MAX_CHAR_TOOL_RESULT_HEADER = 140
+"""Max number of characters in the message header when formatting a Tool Result"""
+
+
+class _ToolRequestAndCallsTransform(MessageTransform, SerializableObject):
+    def __call__(self, messages: List["Message"]) -> List["Message"]:
+        """
+        Format Tool requests as Agent messages and Tool results as User messages to have a simple User/Agent
+        sequence of messages.
+        """
+        from wayflowcore import Message, MessageType
+
+        tool_request_by_id = {  # Mapping for fast lookup
+            tool_request.tool_request_id: tool_request
+            for msg in messages
+            if msg.message_type == MessageType.TOOL_REQUEST and msg.tool_requests
+            for tool_request in msg.tool_requests
+        }
+
+        formatted_messages = []
+        for message in messages:
+            if message.message_type == MessageType.TOOL_RESULT:
+                # Find corresponding ToolRequest by tool_request_id
+                if not message.tool_result:
+                    raise ValueError(f"TOOL_RESULT message must contain tool_result: {message}")
+                tool_request_id = message.tool_result.tool_request_id
+                tool_request = tool_request_by_id.get(tool_request_id)
+                if not tool_request:
+                    raise ValueError(
+                        f"Could not find matching ToolRequest for TOOL_RESULT with id: {tool_request_id}"
+                    )
+
+                message_header_tool_info = shorten(
+                    f"name={tool_request.name}, parameters={tool_request.args}",
+                    width=_MAX_CHAR_TOOL_RESULT_HEADER,
+                    placeholder=" ...}",
+                )
+                formatted_messages.append(
+                    Message(
+                        content=(
+                            f"--- TOOL RESULT: {message_header_tool_info} ---\n"
+                            f"{message.tool_result.content!r}"
+                        ),
+                        message_type=MessageType.USER,
+                    )
+                )
+
+            elif message.message_type is MessageType.TOOL_REQUEST:
+                if not message.tool_requests:
+                    raise ValueError(
+                        "Message is of type TOOL_REQUEST but has no tool_requests. This should be reported."
+                    )
+
+                formatted_tool_calls = "\n".join(
+                    json.dumps({"name": tool_request.name, "parameters": tool_request.args})
+                    for tool_request in message.tool_requests
+                )
+                for tool_request in message.tool_requests:
+                    formatted_messages.append(
+                        Message(
+                            content=(
+                                f"--- MESSAGE: From: {message.sender} ---\n"
+                                f"{message.content}\n"
+                                f"{formatted_tool_calls}"
+                            ),
+                            message_type=MessageType.AGENT,
+                        )
+                    )
+            elif message.message_type == MessageType.SYSTEM:
+                formatted_messages.append(message)
+            else:
+                message_copy = message.copy()
+                message_copy.contents.insert(
+                    0, TextContent(f"--- MESSAGE: From: {message_copy.sender} ---\n")
+                )
+                formatted_messages.append(message_copy)
+        return formatted_messages
+
+
+class ManagerWorkersJsonToolOutputParser(JsonToolOutputParser, SerializableObject):
+    def parse_thoughts_and_calls(self, raw_txt: str) -> Tuple[str, str]:
+        """Mananagerworkers-specific function to separate thoughts and tool calls."""
+        if "{" not in raw_txt:  # Will need to be adapted for parallel tool calls
+            return "", raw_txt
+        thoughts, raw_tool_calls = raw_txt.split("{", maxsplit=1)
+        return thoughts.strip(), "{" + raw_tool_calls.replace("args={", "parameters={")
+
+
+_DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE = PromptTemplate(
+    messages=[
+        {"role": "system", "content": _DEFAULT_MANAGERWORKERS_SYSTEM_PROMPT},
+        PromptTemplate.CHAT_HISTORY_PLACEHOLDER,
+        {"role": "system", "content": _DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER},
+    ],
+    native_tool_calling=False,
+    post_rendering_transforms=[
+        _ToolRequestAndCallsTransform(),
+        CoalesceSystemMessagesTransform(),
+        AppendTrailingSystemMessageToUserMessageTransform(),
+    ],
+    output_parser=ManagerWorkersJsonToolOutputParser(),
+)

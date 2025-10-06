@@ -1,0 +1,27 @@
+{
+  "component_type": "OciAgent",
+  "id": "be5b6589",
+  "name": "oci_agent_be5b6589",
+  "description": "",
+  "metadata": {
+    "__metadata_info__": {
+      "name": "oci_agent_be5b6589",
+      "description": ""
+    }
+  },
+  "inputs": [],
+  "outputs": [],
+  "agent_endpoint_id": "AGENT_ENDPOINT",
+  "client_config": {
+    "component_type": "OciClientConfigWithApiKey",
+    "id": "ceb3acb1-d2c2-4aed-8f4e-c1cd24daa40c",
+    "name": "oci_client_config",
+    "description": null,
+    "metadata": {},
+    "service_endpoint": "OCIGENAI_ENDPOINT",
+    "auth_type": "API_KEY",
+    "auth_profile": "DEFAULT",
+    "auth_file_location": "~/.oci/config"
+  },
+  "agentspec_version": "25.4.1"
+}

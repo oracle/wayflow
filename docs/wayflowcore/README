@@ -1,0 +1,41 @@
+# Building the docs
+
+To build the docs, run the command `make html`.
+Note: The above command should be run from `docs/wayflowcore` folder.
+
+Note: the project should be installed in editable mode. Please refer
+to [the main README.md](../README.md).
+
+# Deploying the docs
+
+## Deploying the main docs
+
+After building the docs, they can be deployed with a simple Python HTTP server:
+``
+cd build/html
+python3 -m http.server 7860
+``
+
+# Writing the docs
+
+When adding new functionality, ask yourself whether it should be part
+of the API for users of the `wayflowcore` library. If not, it should probably be marked
+as non-public with a leading underscore (`_foo`). In this case, it will
+not be included in the generated documentation.
+
+All public classes, methods and functions should have a docstring,
+ideally following the [numpydoc
+standard](https://numpydoc.readthedocs.io/en/latest/example.html).
+
+To add a new public class or module in the documentation, add an
+`autoclass` or `automodule` command in the `.rst` files inside the
+`docs/wayflowcore/source` folder.
+
+Additional notes:
+
+-    Accurate type annotations will improve the documentation.
+     Optionally, it is also possible to provide a parameter type in the
+     docstring, which overrides the type annotation. This is usually
+     not necessary.
+-    Default parameter values are automatically included in the
+     documentation. They don't need to be added in the docstring.

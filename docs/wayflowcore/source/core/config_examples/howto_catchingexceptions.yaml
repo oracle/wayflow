@@ -1,0 +1,427 @@
+component_type: Flow
+id: 8790d14c-d174-4e85-9abe-b4cc9c6dbc25
+name: flow_873c86b9__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs:
+- type: boolean
+  title: raise_error
+outputs:
+- description: Name of the exception that was caught
+  title: exception_name
+  default: ''
+- description: Payload of the exception that was caught
+  title: exception_payload_name
+  default: ''
+- type: string
+  title: tool_output
+- description: the message added to the messages list
+  type: string
+  title: output_message
+start_node:
+  $component_ref: 4ed17c58-5626-4f68-88f6-ebf70477af8f
+nodes:
+- $component_ref: 4ed17c58-5626-4f68-88f6-ebf70477af8f
+- $component_ref: e6fbadc2-f729-40c9-9520-7e23f559b078
+- $component_ref: 9156731d-9ad8-44d0-85e1-3b26dd8950b3
+- $component_ref: 40fc6a52-5dae-4de9-9f7e-9b168cdf45d1
+- $component_ref: 743924fc-4c00-4feb-a536-57affd72e3ae
+control_flow_connections:
+- component_type: ControlFlowEdge
+  id: 60699de0-998d-45aa-99c9-284d59a1dddf
+  name: start_step_to_catch_flow_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 4ed17c58-5626-4f68-88f6-ebf70477af8f
+  from_branch: null
+  to_node:
+    $component_ref: e6fbadc2-f729-40c9-9520-7e23f559b078
+- component_type: ControlFlowEdge
+  id: c88ca590-1015-447f-bc49-8f4ad4da86e8
+  name: catch_flow_step_to_success_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: e6fbadc2-f729-40c9-9520-7e23f559b078
+  from_branch: null
+  to_node:
+    $component_ref: 9156731d-9ad8-44d0-85e1-3b26dd8950b3
+- component_type: ControlFlowEdge
+  id: e3f938c9-0ab2-4285-9852-8dcce8289793
+  name: catch_flow_step_to_failure_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: e6fbadc2-f729-40c9-9520-7e23f559b078
+  from_branch: default_exception_branch
+  to_node:
+    $component_ref: 40fc6a52-5dae-4de9-9f7e-9b168cdf45d1
+- component_type: ControlFlowEdge
+  id: 1d601535-b83a-46b4-91b8-2a1bb7198322
+  name: success_step_to_None End node_control_flow_edge
+  description: null
+  metadata: {}
+  from_node:
+    $component_ref: 9156731d-9ad8-44d0-85e1-3b26dd8950b3
+  from_branch: null
+  to_node:
+    $component_ref: 743924fc-4c00-4feb-a536-57affd72e3ae
+- component_type: ControlFlowEdge
+  id: 094c4349-9eea-4b61-b7c4-d83e370724c2
+  name: failure_step_to_None End node_control_flow_edge
+  description: null
+  metadata: {}
+  from_node:
+    $component_ref: 40fc6a52-5dae-4de9-9f7e-9b168cdf45d1
+  from_branch: null
+  to_node:
+    $component_ref: 743924fc-4c00-4feb-a536-57affd72e3ae
+data_flow_connections:
+- component_type: DataFlowEdge
+  id: b8d87f98-029a-46e4-b149-e00e641eb655
+  name: start_step_raise_error_to_catch_flow_step_raise_error_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 4ed17c58-5626-4f68-88f6-ebf70477af8f
+  source_output: raise_error
+  destination_node:
+    $component_ref: e6fbadc2-f729-40c9-9520-7e23f559b078
+  destination_input: raise_error
+- component_type: DataFlowEdge
+  id: f911cd15-2c43-4732-b12e-f4c73053aa14
+  name: catch_flow_step_exception_name_to_failure_step_tool_error_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: e6fbadc2-f729-40c9-9520-7e23f559b078
+  source_output: exception_name
+  destination_node:
+    $component_ref: 40fc6a52-5dae-4de9-9f7e-9b168cdf45d1
+  destination_input: tool_error
+- component_type: DataFlowEdge
+  id: 0d6a8f69-aa8d-479c-9538-200cda5015de
+  name: catch_flow_step_exception_name_to_None End node_exception_name_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: e6fbadc2-f729-40c9-9520-7e23f559b078
+  source_output: exception_name
+  destination_node:
+    $component_ref: 743924fc-4c00-4feb-a536-57affd72e3ae
+  destination_input: exception_name
+- component_type: DataFlowEdge
+  id: f93ecced-213b-48d1-89fd-b089c92cbdbe
+  name: catch_flow_step_exception_payload_name_to_None End node_exception_payload_name_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: e6fbadc2-f729-40c9-9520-7e23f559b078
+  source_output: exception_payload_name
+  destination_node:
+    $component_ref: 743924fc-4c00-4feb-a536-57affd72e3ae
+  destination_input: exception_payload_name
+- component_type: DataFlowEdge
+  id: bda41fa5-beee-4d94-b4e4-6b916f552c07
+  name: catch_flow_step_tool_output_to_None End node_tool_output_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: e6fbadc2-f729-40c9-9520-7e23f559b078
+  source_output: tool_output
+  destination_node:
+    $component_ref: 743924fc-4c00-4feb-a536-57affd72e3ae
+  destination_input: tool_output
+- component_type: DataFlowEdge
+  id: 6d32d864-b295-41c6-8240-859af65f65d5
+  name: success_step_output_message_to_None End node_output_message_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 9156731d-9ad8-44d0-85e1-3b26dd8950b3
+  source_output: output_message
+  destination_node:
+    $component_ref: 743924fc-4c00-4feb-a536-57affd72e3ae
+  destination_input: output_message
+- component_type: DataFlowEdge
+  id: f922f0b4-a4b2-44f9-aeb1-95eeba6fc077
+  name: failure_step_output_message_to_None End node_output_message_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 40fc6a52-5dae-4de9-9f7e-9b168cdf45d1
+  source_output: output_message
+  destination_node:
+    $component_ref: 743924fc-4c00-4feb-a536-57affd72e3ae
+  destination_input: output_message
+$referenced_components:
+  e6fbadc2-f729-40c9-9520-7e23f559b078:
+    component_type: PluginCatchExceptionNode
+    id: e6fbadc2-f729-40c9-9520-7e23f559b078
+    name: catch_flow_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - type: boolean
+      title: raise_error
+    outputs:
+    - type: string
+      title: tool_output
+    - description: Name of the exception that was caught
+      title: exception_name
+      default: ''
+    - description: Payload of the exception that was caught
+      title: exception_payload_name
+      default: ''
+    branches:
+    - default_exception_branch
+    - next
+    input_mapping: {}
+    output_mapping: {}
+    flow:
+      component_type: Flow
+      id: 7182eaa8-b13c-4ce4-a90a-1dccc15af8e1
+      name: flow_8fc4ea12__auto
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - type: boolean
+        title: raise_error
+      outputs:
+      - type: string
+        title: tool_output
+      start_node:
+        $component_ref: a5cbef29-1162-4ddb-8891-3d656a803154
+      nodes:
+      - $component_ref: a5cbef29-1162-4ddb-8891-3d656a803154
+      - $component_ref: 4ea1f1fe-b93b-4e58-82bf-0c2102e91bf2
+      - $component_ref: 914b281e-f904-4faf-8e5a-b95aefaa944b
+      control_flow_connections:
+      - component_type: ControlFlowEdge
+        id: fbf61770-a9a8-4f32-915b-007b8b2c307a
+        name: start_step_to_flaky_step_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: a5cbef29-1162-4ddb-8891-3d656a803154
+        from_branch: null
+        to_node:
+          $component_ref: 4ea1f1fe-b93b-4e58-82bf-0c2102e91bf2
+      - component_type: ControlFlowEdge
+        id: 5a2a93dd-f29f-47a1-8323-163fdcd5cc60
+        name: flaky_step_to_None End node_control_flow_edge
+        description: null
+        metadata: {}
+        from_node:
+          $component_ref: 4ea1f1fe-b93b-4e58-82bf-0c2102e91bf2
+        from_branch: null
+        to_node:
+          $component_ref: 914b281e-f904-4faf-8e5a-b95aefaa944b
+      data_flow_connections:
+      - component_type: DataFlowEdge
+        id: 9abae96c-dcf5-4421-a251-b62f56fa0916
+        name: start_step_raise_error_to_start_step_raise_error_data_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        source_node:
+          $component_ref: a5cbef29-1162-4ddb-8891-3d656a803154
+        source_output: raise_error
+        destination_node:
+          $component_ref: a5cbef29-1162-4ddb-8891-3d656a803154
+        destination_input: raise_error
+      - component_type: DataFlowEdge
+        id: aae9e5ce-036f-405c-9b4a-186e2ec613df
+        name: start_step_raise_error_to_flaky_step_raise_error_data_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        source_node:
+          $component_ref: a5cbef29-1162-4ddb-8891-3d656a803154
+        source_output: raise_error
+        destination_node:
+          $component_ref: 4ea1f1fe-b93b-4e58-82bf-0c2102e91bf2
+        destination_input: raise_error
+      - component_type: DataFlowEdge
+        id: 397bb536-3a7a-445e-9a05-f632e3f0fb92
+        name: flaky_step_tool_output_to_None End node_tool_output_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: 4ea1f1fe-b93b-4e58-82bf-0c2102e91bf2
+        source_output: tool_output
+        destination_node:
+          $component_ref: 914b281e-f904-4faf-8e5a-b95aefaa944b
+        destination_input: tool_output
+      $referenced_components:
+        a5cbef29-1162-4ddb-8891-3d656a803154:
+          component_type: StartNode
+          id: a5cbef29-1162-4ddb-8891-3d656a803154
+          name: start_step
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - type: boolean
+            title: raise_error
+          outputs:
+          - type: boolean
+            title: raise_error
+          branches:
+          - next
+        4ea1f1fe-b93b-4e58-82bf-0c2102e91bf2:
+          component_type: ToolNode
+          id: 4ea1f1fe-b93b-4e58-82bf-0c2102e91bf2
+          name: flaky_step
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - type: boolean
+            title: raise_error
+            default: false
+          outputs:
+          - type: string
+            title: tool_output
+          branches:
+          - next
+          tool:
+            component_type: ServerTool
+            id: 03df1ec4-1544-4719-8c24-6fa4ad5c4c5d
+            name: flaky_tool
+            description: Will throw a ValueError
+            metadata:
+              __metadata_info__: {}
+            inputs:
+            - type: boolean
+              title: raise_error
+              default: false
+            outputs:
+            - type: string
+              title: tool_output
+        914b281e-f904-4faf-8e5a-b95aefaa944b:
+          component_type: EndNode
+          id: 914b281e-f904-4faf-8e5a-b95aefaa944b
+          name: None End node
+          description: End node representing all transitions to None in the WayFlow
+            flow
+          metadata: {}
+          inputs:
+          - type: string
+            title: tool_output
+          outputs:
+          - type: string
+            title: tool_output
+          branches: []
+          branch_name: next
+    except_on: {}
+    catch_all_exceptions: true
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 25.4.0.dev0
+  4ed17c58-5626-4f68-88f6-ebf70477af8f:
+    component_type: StartNode
+    id: 4ed17c58-5626-4f68-88f6-ebf70477af8f
+    name: start_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - type: boolean
+      title: raise_error
+    outputs:
+    - type: boolean
+      title: raise_error
+    branches:
+    - next
+  40fc6a52-5dae-4de9-9f7e-9b168cdf45d1:
+    component_type: PluginOutputMessageNode
+    id: 40fc6a52-5dae-4de9-9f7e-9b168cdf45d1
+    name: failure_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: '"tool_error" input variable for the template'
+      type: string
+      title: tool_error
+    outputs:
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    branches:
+    - next
+    expose_message_as_output: True
+    message: 'Failure: Did get an error: {{tool_error}}'
+    input_mapping: {}
+    output_mapping: {}
+    message_type: AGENT
+    rephrase: false
+    llm_config: null
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 25.4.0.dev0
+  743924fc-4c00-4feb-a536-57affd72e3ae:
+    component_type: EndNode
+    id: 743924fc-4c00-4feb-a536-57affd72e3ae
+    name: None End node
+    description: End node representing all transitions to None in the WayFlow flow
+    metadata: {}
+    inputs:
+    - description: Name of the exception that was caught
+      title: exception_name
+      default: ''
+    - description: Payload of the exception that was caught
+      title: exception_payload_name
+      default: ''
+    - type: string
+      title: tool_output
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    outputs:
+    - description: Name of the exception that was caught
+      title: exception_name
+      default: ''
+    - description: Payload of the exception that was caught
+      title: exception_payload_name
+      default: ''
+    - type: string
+      title: tool_output
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    branches: []
+    branch_name: next
+  9156731d-9ad8-44d0-85e1-3b26dd8950b3:
+    component_type: PluginOutputMessageNode
+    id: 9156731d-9ad8-44d0-85e1-3b26dd8950b3
+    name: success_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs:
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    branches:
+    - next
+    expose_message_as_output: True
+    message: 'Success: No error was raised'
+    input_mapping: {}
+    output_mapping: {}
+    message_type: AGENT
+    rephrase: false
+    llm_config: null
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 25.4.0.dev0
+agentspec_version: 25.4.1

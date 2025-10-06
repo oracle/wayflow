@@ -1,0 +1,446 @@
+{
+    "$referenced_components": {
+        "2ef3114a-3421-4a79-ac99-1ee83d04c735": {
+            "branches": [
+                "next"
+            ],
+            "component_plugin_name": "NodesPlugin",
+            "component_plugin_version": "25.3.0.dev2",
+            "component_type": "PluginWriteVariableNode",
+            "description": "",
+            "id": "2ef3114a-3421-4a79-ac99-1ee83d04c735",
+            "input_mapping": {},
+            "inputs": [
+                {
+                    "description": "list of user feedback (single element)",
+                    "title": "value",
+                    "type": "string"
+                }
+            ],
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "write_step_1",
+            "operation": "insert",
+            "output_mapping": {},
+            "outputs": [],
+            "variable": {
+                "default": [],
+                "description": "list of user feedback",
+                "items": {
+                    "type": "string"
+                },
+                "title": "user_feedback",
+                "type": "array"
+            }
+        },
+        "64a2de0a-2571-4f10-8b59-7b323b223873": {
+            "branch_name": "next",
+            "branches": [],
+            "component_type": "EndNode",
+            "description": "End node representing all transitions to None in the WayFlow flow",
+            "id": "64a2de0a-2571-4f10-8b59-7b323b223873",
+            "inputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "title": "output_message",
+                    "type": "string"
+                },
+                {
+                    "default": [],
+                    "description": "list of user feedback",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "value",
+                    "type": "array"
+                }
+            ],
+            "metadata": {},
+            "name": "None End node",
+            "outputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "title": "output_message",
+                    "type": "string"
+                },
+                {
+                    "default": [],
+                    "description": "list of user feedback",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "value",
+                    "type": "array"
+                }
+            ]
+        },
+        "79c35cc6-f7e6-45da-80e3-8863d38003ab": {
+            "branches": [
+                "next"
+            ],
+            "component_plugin_name": "NodesPlugin",
+            "component_plugin_version": "25.3.0.dev2",
+            "component_type": "PluginOutputMessageNode",
+            "description": "",
+            "id": "79c35cc6-f7e6-45da-80e3-8863d38003ab",
+            "input_mapping": {},
+            "inputs": [
+                {
+                    "description": "\"feedback\" input variable for the template",
+                    "title": "feedback",
+                    "type": "string"
+                }
+            ],
+            "llm_config": null,
+            "message_template": "Collected feedback: {{ feedback }}",
+            "message_type": "AGENT",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "output_step",
+            "output_mapping": {},
+            "outputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "title": "output_message",
+                    "type": "string"
+                }
+            ],
+            "rephrase": false
+        },
+        "8546551f-4f9c-4e75-a60a-9a059404bfbf": {
+            "branches": [
+                "next"
+            ],
+            "component_type": "StartNode",
+            "description": "",
+            "id": "8546551f-4f9c-4e75-a60a-9a059404bfbf",
+            "inputs": [
+                {
+                    "title": "feedback_2",
+                    "type": "string"
+                },
+                {
+                    "title": "feedback_1",
+                    "type": "string"
+                }
+            ],
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "start_step",
+            "outputs": [
+                {
+                    "title": "feedback_2",
+                    "type": "string"
+                },
+                {
+                    "title": "feedback_1",
+                    "type": "string"
+                }
+            ]
+        },
+        "b431983e-df59-40cd-8e41-83fbce628bdb": {
+            "branches": [
+                "next"
+            ],
+            "component_plugin_name": "NodesPlugin",
+            "component_plugin_version": "25.3.0.dev2",
+            "component_type": "PluginReadVariableNode",
+            "description": "",
+            "id": "b431983e-df59-40cd-8e41-83fbce628bdb",
+            "input_mapping": {},
+            "inputs": [],
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "read_step",
+            "output_mapping": {},
+            "outputs": [
+                {
+                    "default": [],
+                    "description": "list of user feedback",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "value",
+                    "type": "array"
+                }
+            ],
+            "variable": {
+                "default": [],
+                "description": "list of user feedback",
+                "items": {
+                    "type": "string"
+                },
+                "title": "user_feedback",
+                "type": "array"
+            }
+        },
+        "b876b461-2334-4ab3-b03b-6c0c0c5d35cb": {
+            "branches": [
+                "next"
+            ],
+            "component_plugin_name": "NodesPlugin",
+            "component_plugin_version": "25.3.0.dev2",
+            "component_type": "PluginWriteVariableNode",
+            "description": "",
+            "id": "b876b461-2334-4ab3-b03b-6c0c0c5d35cb",
+            "input_mapping": {},
+            "inputs": [
+                {
+                    "description": "list of user feedback (single element)",
+                    "title": "value",
+                    "type": "string"
+                }
+            ],
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "write_step_2",
+            "operation": "insert",
+            "output_mapping": {},
+            "outputs": [],
+            "variable": {
+                "default": [],
+                "description": "list of user feedback",
+                "items": {
+                    "type": "string"
+                },
+                "title": "user_feedback",
+                "type": "array"
+            }
+        }
+    },
+    "component_type": "Flow",
+    "control_flow_connections": [
+        {
+            "component_type": "ControlFlowEdge",
+            "description": null,
+            "from_branch": null,
+            "from_node": {
+                "$component_ref": "8546551f-4f9c-4e75-a60a-9a059404bfbf"
+            },
+            "id": "33311916-0bfa-4f50-80a6-a659f97337ad",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "start_step_to_write_step_1_control_flow_edge",
+            "to_node": {
+                "$component_ref": "2ef3114a-3421-4a79-ac99-1ee83d04c735"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "description": null,
+            "from_branch": null,
+            "from_node": {
+                "$component_ref": "2ef3114a-3421-4a79-ac99-1ee83d04c735"
+            },
+            "id": "cd4b8a8c-a5e7-4288-aff5-f4ef5c082d6c",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "write_step_1_to_write_step_2_control_flow_edge",
+            "to_node": {
+                "$component_ref": "b876b461-2334-4ab3-b03b-6c0c0c5d35cb"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "description": null,
+            "from_branch": null,
+            "from_node": {
+                "$component_ref": "b876b461-2334-4ab3-b03b-6c0c0c5d35cb"
+            },
+            "id": "be8df0e3-120a-4c3c-97e6-8c3af277627f",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "write_step_2_to_read_step_control_flow_edge",
+            "to_node": {
+                "$component_ref": "b431983e-df59-40cd-8e41-83fbce628bdb"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "description": null,
+            "from_branch": null,
+            "from_node": {
+                "$component_ref": "b431983e-df59-40cd-8e41-83fbce628bdb"
+            },
+            "id": "98654d6c-db8c-4d94-8842-0cc9200f05a0",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "read_step_to_output_step_control_flow_edge",
+            "to_node": {
+                "$component_ref": "79c35cc6-f7e6-45da-80e3-8863d38003ab"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "description": null,
+            "from_branch": null,
+            "from_node": {
+                "$component_ref": "79c35cc6-f7e6-45da-80e3-8863d38003ab"
+            },
+            "id": "eab26b31-86ec-4e9b-9d7d-24e9b009fb90",
+            "metadata": {},
+            "name": "output_step_to_None End node_control_flow_edge",
+            "to_node": {
+                "$component_ref": "64a2de0a-2571-4f10-8b59-7b323b223873"
+            }
+        }
+    ],
+    "data_flow_connections": [
+        {
+            "component_type": "DataFlowEdge",
+            "description": null,
+            "destination_input": "value",
+            "destination_node": {
+                "$component_ref": "2ef3114a-3421-4a79-ac99-1ee83d04c735"
+            },
+            "id": "5882a9f6-e363-46df-994c-3a9b00143dae",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "start_step_feedback_1_to_write_step_1_value_data_flow_edge",
+            "source_node": {
+                "$component_ref": "8546551f-4f9c-4e75-a60a-9a059404bfbf"
+            },
+            "source_output": "feedback_1"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "description": null,
+            "destination_input": "value",
+            "destination_node": {
+                "$component_ref": "b876b461-2334-4ab3-b03b-6c0c0c5d35cb"
+            },
+            "id": "7d580306-9848-4d18-9c69-d5042946a52a",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "start_step_feedback_2_to_write_step_2_value_data_flow_edge",
+            "source_node": {
+                "$component_ref": "8546551f-4f9c-4e75-a60a-9a059404bfbf"
+            },
+            "source_output": "feedback_2"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "description": null,
+            "destination_input": "feedback",
+            "destination_node": {
+                "$component_ref": "79c35cc6-f7e6-45da-80e3-8863d38003ab"
+            },
+            "id": "be793090-4a11-47b3-b392-0508de4c736d",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "name": "read_step_value_to_output_step_feedback_data_flow_edge",
+            "source_node": {
+                "$component_ref": "b431983e-df59-40cd-8e41-83fbce628bdb"
+            },
+            "source_output": "value"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "description": null,
+            "destination_input": "output_message",
+            "destination_node": {
+                "$component_ref": "64a2de0a-2571-4f10-8b59-7b323b223873"
+            },
+            "id": "7ca289a8-6270-4527-b8ac-b5c7090acaf1",
+            "metadata": {},
+            "name": "output_step_output_message_to_None End node_output_message_data_flow_edge",
+            "source_node": {
+                "$component_ref": "79c35cc6-f7e6-45da-80e3-8863d38003ab"
+            },
+            "source_output": "output_message"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "description": null,
+            "destination_input": "value",
+            "destination_node": {
+                "$component_ref": "64a2de0a-2571-4f10-8b59-7b323b223873"
+            },
+            "id": "1567f968-75f0-4e72-b837-a24dd9f658a5",
+            "metadata": {},
+            "name": "read_step_value_to_None End node_value_data_flow_edge",
+            "source_node": {
+                "$component_ref": "b431983e-df59-40cd-8e41-83fbce628bdb"
+            },
+            "source_output": "value"
+        }
+    ],
+    "description": "",
+    "id": "817bf187-2abd-4153-a784-923bc8c5aa5c",
+    "inputs": [
+        {
+            "title": "feedback_2",
+            "type": "string"
+        },
+        {
+            "title": "feedback_1",
+            "type": "string"
+        }
+    ],
+    "metadata": {
+        "__metadata_info__": {}
+    },
+    "name": "flow_5c34cdba__auto",
+    "nodes": [
+        {
+            "$component_ref": "8546551f-4f9c-4e75-a60a-9a059404bfbf"
+        },
+        {
+            "$component_ref": "2ef3114a-3421-4a79-ac99-1ee83d04c735"
+        },
+        {
+            "$component_ref": "b876b461-2334-4ab3-b03b-6c0c0c5d35cb"
+        },
+        {
+            "$component_ref": "b431983e-df59-40cd-8e41-83fbce628bdb"
+        },
+        {
+            "$component_ref": "79c35cc6-f7e6-45da-80e3-8863d38003ab"
+        },
+        {
+            "$component_ref": "64a2de0a-2571-4f10-8b59-7b323b223873"
+        }
+    ],
+    "outputs": [
+        {
+            "description": "the message added to the messages list",
+            "title": "output_message",
+            "type": "string"
+        },
+        {
+            "default": [],
+            "description": "list of user feedback",
+            "items": {
+                "type": "string"
+            },
+            "title": "value",
+            "type": "array"
+        }
+    ],
+    "start_node": {
+        "$component_ref": "8546551f-4f9c-4e75-a60a-9a059404bfbf"
+    },
+    "state": [
+        {
+            "default": [],
+            "description": "list of user feedback",
+            "items": {
+                "type": "string"
+            },
+            "title": "user_feedback",
+            "type": "array"
+        }
+    ]
+}

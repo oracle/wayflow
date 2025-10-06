@@ -1,0 +1,971 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+_component_type: Flow
+_referenced_objects:
+  choiceselectionstep/4375672192:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4375672192'
+    input_descriptors:
+    - _component_type: Property
+      description: '"input" input variable for the template'
+      title: user_provided_input
+      type: string
+    input_mapping:
+      input: user_provided_input
+    name: step_f22ef976
+    output_descriptors:
+    - _component_type: Property
+      default: default
+      description: the selected choice
+      title: selected_choice
+      type: string
+    - _component_type: Property
+      description: the output from the LLM potentially containing an explanation as
+        to why the selected choice has been chosen
+      title: llm_output
+      type: string
+    output_mapping: {}
+    step_args:
+      llm:
+        $ref: vllmmodel/4375671856
+      next_steps:
+      - $ref: stepdescription/5204286384
+      - $ref: stepdescription/4444541472
+      num_tokens: 20
+      prompt_template: 'You are a helpful assistant. You must pick a task to execute,
+        given some user input.
+
+        You have several tasks to select from, with the format:
+
+        ```
+
+        task_name: task_description
+
+        ```
+
+
+        The available tasks are:
+
+        ```
+
+        {% for desc in next_steps -%}
+
+        - {{ desc.displayed_step_name }}: {{ desc.description }}
+
+        {% endfor -%}
+
+        ```
+
+
+        Return the task_name (and only the task_name) that you need to execute for
+        this request: {{ input }}'
+    step_cls: ChoiceSelectionStep
+  choiceselectionstep/4386626672:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4386626672'
+    input_descriptors:
+    - _component_type: Property
+      description: '"input" input variable for the template'
+      title: user_provided_input
+      type: string
+    input_mapping:
+      input: user_provided_input
+    name: step_018a4bcf
+    output_descriptors:
+    - _component_type: Property
+      default: default
+      description: the selected choice
+      title: selected_choice
+      type: string
+    - _component_type: Property
+      description: the output from the LLM potentially containing an explanation as
+        to why the selected choice has been chosen
+      title: llm_output
+      type: string
+    output_mapping: {}
+    step_args:
+      llm:
+        $ref: vllmmodel/4375671856
+      next_steps:
+      - $ref: stepdescription/5409978224
+      - $ref: stepdescription/5409977936
+      num_tokens: 20
+      prompt_template: 'You are a helpful assistant. You must pick a task to execute,
+        given some user input.
+
+        You have several tasks to select from, with the format:
+
+        ```
+
+        task_name: task_description
+
+        ```
+
+
+        The available tasks are:
+
+        ```
+
+        {% for desc in next_steps -%}
+
+        - {{ desc.displayed_step_name }}: {{ desc.description }}
+
+        {% endfor -%}
+
+        ```
+
+
+        Return the task_name (and only the task_name) that you need to execute for
+        this request: {{ input }}'
+    step_cls: ChoiceSelectionStep
+  choiceselectionstep/4386627056:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4386627056'
+    input_descriptors:
+    - _component_type: Property
+      description: '"input" input variable for the template'
+      title: user_provided_input
+      type: string
+    input_mapping:
+      input: user_provided_input
+    name: step_bbb1086d
+    output_descriptors:
+    - _component_type: Property
+      default: default
+      description: the selected choice
+      title: selected_choice
+      type: string
+    - _component_type: Property
+      description: the output from the LLM potentially containing an explanation as
+        to why the selected choice has been chosen
+      title: llm_output
+      type: string
+    output_mapping: {}
+    step_args:
+      llm:
+        $ref: vllmmodel/4375671856
+      next_steps:
+      - $ref: stepdescription/5409978608
+      - $ref: stepdescription/5409977408
+      num_tokens: 20
+      prompt_template: 'You are a helpful assistant. You must pick a task to execute,
+        given some user input.
+
+        You have several tasks to select from, with the format:
+
+        ```
+
+        task_name: task_description
+
+        ```
+
+
+        The available tasks are:
+
+        ```
+
+        {% for desc in next_steps -%}
+
+        - {{ desc.displayed_step_name }}: {{ desc.description }}
+
+        {% endfor -%}
+
+        ```
+
+
+        Return the task_name (and only the task_name) that you need to execute for
+        this request: {{ input }}'
+    step_cls: ChoiceSelectionStep
+  choiceselectionstep/4386756976:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4386756976'
+    input_descriptors:
+    - _component_type: Property
+      description: '"input" input variable for the template'
+      title: user_provided_input
+      type: string
+    input_mapping:
+      input: user_provided_input
+    name: step_d517b9f5
+    output_descriptors:
+    - _component_type: Property
+      default: default
+      description: the selected choice
+      title: selected_choice
+      type: string
+    - _component_type: Property
+      description: the output from the LLM potentially containing an explanation as
+        to why the selected choice has been chosen
+      title: llm_output
+      type: string
+    output_mapping: {}
+    step_args:
+      llm:
+        $ref: vllmmodel/4375671856
+      next_steps:
+      - $ref: stepdescription/5410131072
+      - $ref: stepdescription/5410128480
+      num_tokens: 20
+      prompt_template: 'You are a helpful assistant. You must pick a task to execute,
+        given some user input.
+
+        You have several tasks to select from, with the format:
+
+        ```
+
+        task_name: task_description
+
+        ```
+
+
+        The available tasks are:
+
+        ```
+
+        {% for desc in next_steps -%}
+
+        - {{ desc.displayed_step_name }}: {{ desc.description }}
+
+        {% endfor -%}
+
+        ```
+
+
+        Return the task_name (and only the task_name) that you need to execute for
+        this request: {{ input }}'
+    step_cls: ChoiceSelectionStep
+  controlflowedge/087fca66-d00e-4776-adc3-09bd4ab89a64:
+    _component_type: ControlFlowEdge
+    destination_step: null
+    id: 087fca66-d00e-4776-adc3-09bd4ab89a64
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/4386774464
+  controlflowedge/0ea3fbf9-cdc3-47a7-b742-0de891cb255f:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/4386624704
+    id: 0ea3fbf9-cdc3-47a7-b742-0de891cb255f
+    source_branch: google_it
+    source_step:
+      $ref: choiceselectionstep/4386627056
+  controlflowedge/229b0c64-402d-4a07-88ca-40a0169d260b:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: inputmessagestep/4375674640
+    id: 229b0c64-402d-4a07-88ca-40a0169d260b
+    source_branch: default
+    source_step:
+      $ref: choiceselectionstep/4375672192
+  controlflowedge/22f1e7b2-cd47-4362-82ed-8876e59929c9:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/4386624752
+    id: 22f1e7b2-cd47-4362-82ed-8876e59929c9
+    source_branch: it_worked
+    source_step:
+      $ref: choiceselectionstep/4386626672
+  controlflowedge/35566734-73c8-4cfe-b5e2-8079dfcae9e6:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/4386625376
+    id: 35566734-73c8-4cfe-b5e2-8079dfcae9e6
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/4386695680
+  controlflowedge/472490b8-f278-46ef-bfbb-f4f207241cfa:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: choiceselectionstep/4375672192
+    id: 472490b8-f278-46ef-bfbb-f4f207241cfa
+    source_branch: next
+    source_step:
+      $ref: inputmessagestep/4375721728
+  controlflowedge/484874e1-91ba-4de6-83af-530c60eebde5:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: choiceselectionstep/4386627056
+    id: 484874e1-91ba-4de6-83af-530c60eebde5
+    source_branch: next
+    source_step:
+      $ref: inputmessagestep/4375674640
+  controlflowedge/5aac39dd-5b66-4008-b724-fc4ef3026464:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/4386774464
+    id: 5aac39dd-5b66-4008-b724-fc4ef3026464
+    source_branch: default
+    source_step:
+      $ref: choiceselectionstep/4386756976
+  controlflowedge/60887257-24ec-473a-8007-a8723326566d:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/4386695680
+    id: 60887257-24ec-473a-8007-a8723326566d
+    source_branch: pick_at_random
+    source_step:
+      $ref: choiceselectionstep/4386627056
+  controlflowedge/6a6b2bdc-feef-4fd1-a353-df33cb32db8a:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: inputmessagestep/4375721728
+    id: 6a6b2bdc-feef-4fd1-a353-df33cb32db8a
+    source_branch: find_menu_item
+    source_step:
+      $ref: choiceselectionstep/4386756976
+  controlflowedge/7122c533-ca00-4ff5-ab1d-b9532a278fd3:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: inputmessagestep/4375671808
+    id: 7122c533-ca00-4ff5-ab1d-b9532a278fd3
+    source_branch: next
+    source_step:
+      $ref: startstep/7c3b807c-c7c9-4496-93a5-e167220fc839
+  controlflowedge/77c35b63-b168-4aea-b8d5-febf2c34d5a1:
+    _component_type: ControlFlowEdge
+    destination_step: null
+    id: 77c35b63-b168-4aea-b8d5-febf2c34d5a1
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/4386624752
+  controlflowedge/923f4622-672d-4f2d-8dde-63a56bfc4839:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/4386774464
+    id: 923f4622-672d-4f2d-8dde-63a56bfc4839
+    source_branch: give_up
+    source_step:
+      $ref: choiceselectionstep/4386756976
+  controlflowedge/96dc2ea9-a86a-4d45-ad94-821b59060110:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/4386625376
+    id: 96dc2ea9-a86a-4d45-ad94-821b59060110
+    source_branch: click_it
+    source_step:
+      $ref: choiceselectionstep/4375672192
+  controlflowedge/9f1cebc7-0304-4ec6-b130-dac0cd8dc6da:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: inputmessagestep/4386739920
+    id: 9f1cebc7-0304-4ec6-b130-dac0cd8dc6da
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/4386625376
+  controlflowedge/d361cc12-f9fb-4d85-889b-80bbfdcfea3c:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: choiceselectionstep/4386756976
+    id: d361cc12-f9fb-4d85-889b-80bbfdcfea3c
+    source_branch: next
+    source_step:
+      $ref: inputmessagestep/4386625952
+  controlflowedge/d8d25617-95e3-4335-a1c6-b8cce23e1767:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: inputmessagestep/4386739920
+    id: d8d25617-95e3-4335-a1c6-b8cce23e1767
+    source_branch: next
+    source_step:
+      $ref: outputmessagestep/4386624704
+  controlflowedge/e5b37ac5-e3f6-431a-a8e2-9faafdacdc1c:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: inputmessagestep/4375721728
+    id: e5b37ac5-e3f6-431a-a8e2-9faafdacdc1c
+    source_branch: next
+    source_step:
+      $ref: inputmessagestep/4375671808
+  controlflowedge/e793eaa9-dfef-4d38-88c8-bb10a7a86010:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: inputmessagestep/4375674640
+    id: e793eaa9-dfef-4d38-88c8-bb10a7a86010
+    source_branch: tried_all_buttons
+    source_step:
+      $ref: choiceselectionstep/4375672192
+  controlflowedge/f27dc6c7-5283-41c5-9380-48f170ca6652:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/4386695680
+    id: f27dc6c7-5283-41c5-9380-48f170ca6652
+    source_branch: default
+    source_step:
+      $ref: choiceselectionstep/4386627056
+  controlflowedge/f4220a69-ba63-4774-8094-e28ca3679b79:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: outputmessagestep/4386624752
+    id: f4220a69-ba63-4774-8094-e28ca3679b79
+    source_branch: default
+    source_step:
+      $ref: choiceselectionstep/4386626672
+  controlflowedge/fb04a299-5506-4e98-afb6-e000133b00dd:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: choiceselectionstep/4386626672
+    id: fb04a299-5506-4e98-afb6-e000133b00dd
+    source_branch: next
+    source_step:
+      $ref: inputmessagestep/4386739920
+  controlflowedge/ffc58bb2-2621-4276-b663-c86f04fc9213:
+    _component_type: ControlFlowEdge
+    destination_step:
+      $ref: inputmessagestep/4386625952
+    id: ffc58bb2-2621-4276-b663-c86f04fc9213
+    source_branch: have_you_tried_more_than_thirty_minutes
+    source_step:
+      $ref: choiceselectionstep/4386626672
+  dataflowedge/0a53ca37-1698-4928-8073-9facb5501758:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386627056
+    id: 0a53ca37-1698-4928-8073-9facb5501758
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375671808
+  dataflowedge/0be1b284-8848-4d2a-b558-1ef70ddcf72c:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386626672
+    id: 0be1b284-8848-4d2a-b558-1ef70ddcf72c
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375671808
+  dataflowedge/0f85d2a5-3c97-4b9d-855e-6a4ab0105175:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386756976
+    id: 0f85d2a5-3c97-4b9d-855e-6a4ab0105175
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375674640
+  dataflowedge/12cf384d-a8de-491b-94ab-b6431f0aef77:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4375672192
+    id: 12cf384d-a8de-491b-94ab-b6431f0aef77
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375721728
+  dataflowedge/312e9f50-72b6-4a4f-b9d9-6124e81e1d6b:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386756976
+    id: 312e9f50-72b6-4a4f-b9d9-6124e81e1d6b
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375721728
+  dataflowedge/32ec1737-ae4e-4656-b536-dc50c6d5a98c:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386626672
+    id: 32ec1737-ae4e-4656-b536-dc50c6d5a98c
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4386625952
+  dataflowedge/41d5eab7-3a9d-46cf-8bae-f4dd9789b3b0:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386627056
+    id: 41d5eab7-3a9d-46cf-8bae-f4dd9789b3b0
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4386625952
+  dataflowedge/4969d5f4-1868-43e8-a859-0296d5ddfea0:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386627056
+    id: 4969d5f4-1868-43e8-a859-0296d5ddfea0
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375721728
+  dataflowedge/4d6c83f0-e428-487c-a84d-a7ff8d98ff60:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386627056
+    id: 4d6c83f0-e428-487c-a84d-a7ff8d98ff60
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375674640
+  dataflowedge/5d826c3f-90c7-4401-96e8-22e7d45c0422:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4375672192
+    id: 5d826c3f-90c7-4401-96e8-22e7d45c0422
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375674640
+  dataflowedge/80d3033e-b4d0-4ddc-ac12-56b00c0a30a6:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386756976
+    id: 80d3033e-b4d0-4ddc-ac12-56b00c0a30a6
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375671808
+  dataflowedge/8a6ac507-5757-4a80-8e7a-aa2e9be2de72:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386756976
+    id: 8a6ac507-5757-4a80-8e7a-aa2e9be2de72
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4386739920
+  dataflowedge/94569e42-c89d-42c0-8eb4-33daa743ad7b:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4375672192
+    id: 94569e42-c89d-42c0-8eb4-33daa743ad7b
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375671808
+  dataflowedge/9ad7e8be-bad1-41d2-92ab-b09c6b0bda71:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386626672
+    id: 9ad7e8be-bad1-41d2-92ab-b09c6b0bda71
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375674640
+  dataflowedge/a897ecd5-266b-4da7-aabf-d90c25312299:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386627056
+    id: a897ecd5-266b-4da7-aabf-d90c25312299
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4386739920
+  dataflowedge/a9cf9d7c-be1c-4aa3-90c6-14c44911575f:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386626672
+    id: a9cf9d7c-be1c-4aa3-90c6-14c44911575f
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4386739920
+  dataflowedge/b3ee4b5f-e2d1-4b95-a109-91e4d5290a18:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4375672192
+    id: b3ee4b5f-e2d1-4b95-a109-91e4d5290a18
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4386625952
+  dataflowedge/baa1a19f-a590-4141-a41d-c5ea7a534195:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4375672192
+    id: baa1a19f-a590-4141-a41d-c5ea7a534195
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4386739920
+  dataflowedge/c1525f8c-3630-4fb8-bed9-726cff5dd9cc:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386626672
+    id: c1525f8c-3630-4fb8-bed9-726cff5dd9cc
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4375721728
+  dataflowedge/fa2c8219-fba3-45e2-991d-5f9a2cc7f135:
+    _component_type: DataFlowEdge
+    destination_input: user_provided_input
+    destination_step:
+      $ref: choiceselectionstep/4386756976
+    id: fa2c8219-fba3-45e2-991d-5f9a2cc7f135
+    source_output: user_provided_input
+    source_step:
+      $ref: inputmessagestep/4386625952
+  inputmessagestep/4375671808:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4375671808'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_0affa818
+    output_descriptors:
+    - _component_type: Property
+      description: the input value provided by the user
+      title: user_provided_input
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: 'Hello!
+
+        I am WayFlow''s Automated Tech Support bot.
+
+        I am inspired by a comic by xkcd that you can find at https://xkcd.com/627/.
+
+        You called tech support. It means you need help for something!
+
+        What are you trying to do?
+
+        '
+      rephrase: false
+    step_cls: InputMessageStep
+  inputmessagestep/4375674640:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4375674640'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_95e72f70
+    output_descriptors:
+    - _component_type: Property
+      description: the input value provided by the user
+      title: user_provided_input
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: 'Have you tried all the menus and buttons?
+
+        '
+      rephrase: false
+    step_cls: InputMessageStep
+  inputmessagestep/4375721728:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4375721728'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_789025c9
+    output_descriptors:
+    - _component_type: Property
+      description: the input value provided by the user
+      title: user_provided_input
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: 'Look for a menu item or button which looks related to what
+        you are trying to do.
+
+        Have you found one?
+
+        '
+      rephrase: false
+    step_cls: InputMessageStep
+  inputmessagestep/4386625952:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4386625952'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_b1880246
+    output_descriptors:
+    - _component_type: Property
+      description: the input value provided by the user
+      title: user_provided_input
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: 'Have you been trying this for more than 30 minutes?
+
+        '
+      rephrase: false
+    step_cls: InputMessageStep
+  inputmessagestep/4386739920:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4386739920'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_081f8f85
+    output_descriptors:
+    - _component_type: Property
+      description: the input value provided by the user
+      title: user_provided_input
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: 'Did it work?
+
+        '
+      rephrase: false
+    step_cls: InputMessageStep
+  outputmessagestep/4386624704:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4386624704'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_730f7b0c
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: output_message
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: 'Google the name of the program plus a few words related to
+        what you want to do.
+
+        Follow any instructions.
+
+        '
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  outputmessagestep/4386624752:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4386624752'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_3ee8e649
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: output_message
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: 'Yeah! It worked.
+
+        '
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  outputmessagestep/4386625376:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4386625376'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_9ac1d2c7
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: output_message
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: 'Click it!
+
+        '
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  outputmessagestep/4386695680:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4386695680'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_17512ae1
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: output_message
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: 'Pick one at random
+
+        '
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  outputmessagestep/4386774464:
+    __metadata_info__: {}
+    _component_type: Step
+    id: '4386774464'
+    input_descriptors: []
+    input_mapping: {}
+    name: step_57216e73
+    output_descriptors:
+    - _component_type: Property
+      description: the message added to the messages list
+      title: output_message
+      type: string
+    output_mapping: {}
+    step_args:
+      llm: null
+      message_template: 'Unfortunately, we don''t seem to find a solution.
+
+        You should ask someone to help or give up.
+
+        '
+      message_type: AGENT
+      rephrase: false
+    step_cls: OutputMessageStep
+  startstep/7c3b807c-c7c9-4496-93a5-e167220fc839:
+    __metadata_info__: {}
+    _component_type: Step
+    id: 7c3b807c-c7c9-4496-93a5-e167220fc839
+    input_descriptors: []
+    input_mapping: {}
+    name: step_359c3c90
+    output_descriptors: []
+    output_mapping: {}
+    step_args: {}
+    step_cls: StartStep
+  stepdescription/4444541472:
+    _component_type: StepDescription
+    description: The user replied positively.
+    displayed_step_name: positive_reply
+    step_name: click_it
+  stepdescription/5204286384:
+    _component_type: StepDescription
+    description: The user replied negatively.
+    displayed_step_name: negative_reply
+    step_name: tried_all_buttons
+  stepdescription/5409977408:
+    _component_type: StepDescription
+    description: The user replied positively.
+    displayed_step_name: positive_reply
+    step_name: google_it
+  stepdescription/5409977936:
+    _component_type: StepDescription
+    description: The user replied positively.
+    displayed_step_name: positive_reply
+    step_name: it_worked
+  stepdescription/5409978224:
+    _component_type: StepDescription
+    description: The user replied negatively.
+    displayed_step_name: negative_reply
+    step_name: have_you_tried_more_than_thirty_minutes
+  stepdescription/5409978608:
+    _component_type: StepDescription
+    description: The user replied negatively.
+    displayed_step_name: negative_reply
+    step_name: pick_at_random
+  stepdescription/5410128480:
+    _component_type: StepDescription
+    description: The user replied positively.
+    displayed_step_name: positive_reply
+    step_name: give_up
+  stepdescription/5410131072:
+    _component_type: StepDescription
+    description: The user replied negatively.
+    displayed_step_name: negative_reply
+    step_name: find_menu_item
+  vllmmodel/4375671856:
+    _component_type: LlmModel
+    description: null
+    generation_config:
+      max_tokens: 250
+    host_port: LLAMA_API_ENDPOINT
+    id: '4375671856'
+    model_id: meta-llama/Meta-Llama-3.1-8B-Instruct
+    model_type: vllm
+    name: llm_44ef0093-688d-4eec-9ae4-404efe5d6eea
+begin_step_name: __StartStep__
+control_flow_edges:
+- $ref: controlflowedge/e5b37ac5-e3f6-431a-a8e2-9faafdacdc1c
+- $ref: controlflowedge/472490b8-f278-46ef-bfbb-f4f207241cfa
+- $ref: controlflowedge/96dc2ea9-a86a-4d45-ad94-821b59060110
+- $ref: controlflowedge/e793eaa9-dfef-4d38-88c8-bb10a7a86010
+- $ref: controlflowedge/229b0c64-402d-4a07-88ca-40a0169d260b
+- $ref: controlflowedge/484874e1-91ba-4de6-83af-530c60eebde5
+- $ref: controlflowedge/60887257-24ec-473a-8007-a8723326566d
+- $ref: controlflowedge/0ea3fbf9-cdc3-47a7-b742-0de891cb255f
+- $ref: controlflowedge/f27dc6c7-5283-41c5-9380-48f170ca6652
+- $ref: controlflowedge/d8d25617-95e3-4335-a1c6-b8cce23e1767
+- $ref: controlflowedge/35566734-73c8-4cfe-b5e2-8079dfcae9e6
+- $ref: controlflowedge/9f1cebc7-0304-4ec6-b130-dac0cd8dc6da
+- $ref: controlflowedge/fb04a299-5506-4e98-afb6-e000133b00dd
+- $ref: controlflowedge/ffc58bb2-2621-4276-b663-c86f04fc9213
+- $ref: controlflowedge/22f1e7b2-cd47-4362-82ed-8876e59929c9
+- $ref: controlflowedge/f4220a69-ba63-4774-8094-e28ca3679b79
+- $ref: controlflowedge/d361cc12-f9fb-4d85-889b-80bbfdcfea3c
+- $ref: controlflowedge/923f4622-672d-4f2d-8dde-63a56bfc4839
+- $ref: controlflowedge/6a6b2bdc-feef-4fd1-a353-df33cb32db8a
+- $ref: controlflowedge/5aac39dd-5b66-4008-b724-fc4ef3026464
+- $ref: controlflowedge/77c35b63-b168-4aea-b8d5-febf2c34d5a1
+- $ref: controlflowedge/087fca66-d00e-4776-adc3-09bd4ab89a64
+- $ref: controlflowedge/7122c533-ca00-4ff5-ab1d-b9532a278fd3
+data_flow_edges:
+- $ref: dataflowedge/baa1a19f-a590-4141-a41d-c5ea7a534195
+- $ref: dataflowedge/12cf384d-a8de-491b-94ab-b6431f0aef77
+- $ref: dataflowedge/b3ee4b5f-e2d1-4b95-a109-91e4d5290a18
+- $ref: dataflowedge/94569e42-c89d-42c0-8eb4-33daa743ad7b
+- $ref: dataflowedge/5d826c3f-90c7-4401-96e8-22e7d45c0422
+- $ref: dataflowedge/a9cf9d7c-be1c-4aa3-90c6-14c44911575f
+- $ref: dataflowedge/c1525f8c-3630-4fb8-bed9-726cff5dd9cc
+- $ref: dataflowedge/32ec1737-ae4e-4656-b536-dc50c6d5a98c
+- $ref: dataflowedge/0be1b284-8848-4d2a-b558-1ef70ddcf72c
+- $ref: dataflowedge/9ad7e8be-bad1-41d2-92ab-b09c6b0bda71
+- $ref: dataflowedge/a897ecd5-266b-4da7-aabf-d90c25312299
+- $ref: dataflowedge/4969d5f4-1868-43e8-a859-0296d5ddfea0
+- $ref: dataflowedge/41d5eab7-3a9d-46cf-8bae-f4dd9789b3b0
+- $ref: dataflowedge/0a53ca37-1698-4928-8073-9facb5501758
+- $ref: dataflowedge/4d6c83f0-e428-487c-a84d-a7ff8d98ff60
+- $ref: dataflowedge/8a6ac507-5757-4a80-8e7a-aa2e9be2de72
+- $ref: dataflowedge/312e9f50-72b6-4a4f-b9d9-6124e81e1d6b
+- $ref: dataflowedge/fa2c8219-fba3-45e2-991d-5f9a2cc7f135
+- $ref: dataflowedge/80d3033e-b4d0-4ddc-ac12-56b00c0a30a6
+- $ref: dataflowedge/0f85d2a5-3c97-4b9d-855e-6a4ab0105175
+description: ''
+end_steps:
+- null
+flow_id: 067e6b83-932d-483c-84c0-fc919be9f884
+name: flow_069bc00c
+steps:
+  __StartStep__:
+    $ref: startstep/7c3b807c-c7c9-4496-93a5-e167220fc839
+  click_it:
+    $ref: outputmessagestep/4386625376
+  did_it_work:
+    $ref: inputmessagestep/4386739920
+  find_menu_item:
+    $ref: inputmessagestep/4375721728
+  found_item_or_not:
+    $ref: choiceselectionstep/4375672192
+  give_up:
+    $ref: outputmessagestep/4386774464
+  google_it:
+    $ref: outputmessagestep/4386624704
+  have_you_tried_more_than_thirty_minutes:
+    $ref: inputmessagestep/4386625952
+  intro_question:
+    $ref: inputmessagestep/4375671808
+  it_worked:
+    $ref: outputmessagestep/4386624752
+  it_worked_or_not:
+    $ref: choiceselectionstep/4386626672
+  pick_at_random:
+    $ref: outputmessagestep/4386695680
+  pick_at_random_or_google_it:
+    $ref: choiceselectionstep/4386627056
+  tried_all_buttons:
+    $ref: inputmessagestep/4375674640
+  try_again_or_give_up:
+    $ref: choiceselectionstep/4386756976
+variables: []

@@ -1,0 +1,157 @@
+component_type: ExtendedAgent
+id: calculator_agent
+name: Calculator agent
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: 2f1ca95b-d333-43a6-9518-a995a87418c1
+  name: LLAMA_MODEL_ID
+  description: null
+  metadata:
+    __metadata_info__: {}
+  default_generation_parameters: null
+  url: LLAMA_API_URL
+  model_id: LLAMA_MODEL_ID
+system_prompt: You are a calculator agent. Please use tools to do math.
+tools:
+- component_type: ServerTool
+  id: bd8ba23f-162c-4c79-831d-96e03e40d2bd
+  name: sum
+  description: Sum two numbers
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - type: number
+    title: a
+  - type: number
+    title: b
+  outputs:
+  - type: number
+    title: tool_output
+- component_type: ServerTool
+  id: 9bb68f19-8bd9-4089-8511-92afe680e21d
+  name: subtract
+  description: Subtract two numbers
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - type: number
+    title: a
+  - type: number
+    title: b
+  outputs:
+  - type: number
+    title: tool_output
+- component_type: ServerTool
+  id: e7d348eb-ced2-4d75-b80a-90c1b700ce7f
+  name: multiply
+  description: Multiply two numbers
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - type: number
+    title: a
+  - type: number
+    title: b
+  outputs:
+  - type: number
+    title: tool_output
+- component_type: ServerTool
+  id: 29decfc0-687d-44de-bf96-3e0f8d716e8b
+  name: divide
+  description: Divide two numbers
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - type: number
+    title: a
+  - type: number
+    title: b
+  outputs:
+  - type: number
+    title: tool_output
+toolboxes: []
+context_providers: null
+can_finish_conversation: false
+max_iterations: 10
+initial_message: Hi! I am a calculator agent. How can I help you?
+caller_input_mode: always
+agents: []
+flows: []
+agent_template:
+  component_type: PluginPromptTemplate
+  id: 0d9a17fb-25aa-419a-97e6-f9fec9b327c3
+  name: ''
+  description: null
+  metadata:
+    __metadata_info__: {}
+  messages:
+  - role: system
+    contents:
+    - type: text
+      content: '{% if custom_instruction %}{{custom_instruction}}{% endif %}'
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T16:00:18.701799+00:00'
+    time_updated: '2025-09-02T16:00:18.701801+00:00'
+  - role: user
+    contents: []
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T16:00:18.691523+00:00'
+    time_updated: '2025-09-02T16:00:18.691721+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: "{% if __PLAN__ %}The current plan you should follow is the following:\
+        \ \n{{__PLAN__}}{% endif %}"
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T16:00:18.701837+00:00'
+    time_updated: '2025-09-02T16:00:18.701838+00:00'
+  output_parser: null
+  inputs:
+  - description: '"custom_instruction" input variable for the template'
+    type: string
+    title: custom_instruction
+    default: ''
+  - description: '"__PLAN__" input variable for the template'
+    type: string
+    title: __PLAN__
+    default: ''
+  - type: array
+    items: {}
+    title: __CHAT_HISTORY__
+  pre_rendering_transforms: null
+  post_rendering_transforms:
+  - component_type: PluginRemoveEmptyNonUserMessageTransform
+    id: 6eae1b8c-4319-4bd0-bd49-0828e82d16fd
+    name: removeemptynonusermessage_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 25.4.0.dev0
+  tools: null
+  native_tool_calling: true
+  response_format: null
+  native_structured_generation: true
+  generation_config: null
+  component_plugin_name: PromptTemplatePlugin
+  component_plugin_version: 25.4.0.dev0
+component_plugin_name: AgentPlugin
+component_plugin_version: 25.4.0.dev0
+agentspec_version: 25.4.1

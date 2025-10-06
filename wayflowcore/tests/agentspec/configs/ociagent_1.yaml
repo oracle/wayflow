@@ -1,0 +1,30 @@
+# Copyright (C) 2025 Oracle and/or its affiliates.
+#
+# This software is under the Universal Permissive License
+# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
+# 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
+agent_endpoint_id: "ORACLE_PROCESS_HELPER_AGENT_ENDPOINT_ID"
+agents: []
+client_config:
+  auth_file_location: ~/.oci/config
+  auth_profile: DEFAULT
+  auth_type: API_KEY
+  component_type: OciClientConfigWithApiKey
+  description: null
+  id: oci_client
+  metadata: {}
+  name: oci_client
+  service_endpoint: https://agent-runtime.generativeai.us-chicago-1.oci.oraclecloud.com
+component_type: OciAgent
+description: OCI agent
+flows: []
+id: oci_agent
+inputs: []
+llm_config: null
+metadata: {}
+name: oci_agent
+outputs: []
+system_prompt: ''
+tools: []
+agentspec_version: 25.4.1

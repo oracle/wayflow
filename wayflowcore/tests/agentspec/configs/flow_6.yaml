@@ -1,0 +1,79 @@
+$referenced_components:
+  04e66582-71ab-4b27-8145-07420ea2feef:
+    branch_name: next
+    branches: []
+    component_type: EndNode
+    description: null
+    id: 04e66582-71ab-4b27-8145-07420ea2feef
+    inputs: []
+    metadata: {}
+    name: EndNode
+    outputs: []
+  57d0c9d7-9c74-43f3-acab-5d434c8cc7bf:
+    api_spec_uri: null
+    branches:
+    - next
+    component_type: ApiNode
+    data: {}
+    description: null
+    headers: {}
+    http_method: GET
+    id: 57d0c9d7-9c74-43f3-acab-5d434c8cc7bf
+    inputs: []
+    metadata: {}
+    name: ApiNode
+    outputs:
+    - name: http_response
+      title: http_response
+      type: string
+    query_params: {}
+    url: https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m
+  f9f248af-ad3a-413a-9b45-a11388d604cd:
+    branches:
+    - next
+    component_type: StartNode
+    description: null
+    id: f9f248af-ad3a-413a-9b45-a11388d604cd
+    inputs: []
+    metadata: {}
+    name: Start
+    outputs: []
+component_type: Flow
+control_flow_connections:
+- component_type: ControlFlowEdge
+  description: null
+  from_branch: next
+  from_node:
+    $component_ref: f9f248af-ad3a-413a-9b45-a11388d604cd
+  id: e48b07d7-2efc-44f6-a85c-7b64e6a6d01d
+  metadata: {}
+  name: f9f248af-ad3a-413a-9b45-a11388d604cd-57d0c9d7-9c74-43f3-acab-5d434c8cc7bf-next-Prev
+    Node
+  to_node:
+    $component_ref: 57d0c9d7-9c74-43f3-acab-5d434c8cc7bf
+- component_type: ControlFlowEdge
+  description: null
+  from_branch: next
+  from_node:
+    $component_ref: 57d0c9d7-9c74-43f3-acab-5d434c8cc7bf
+  id: 7cce38c9-4d52-4b0e-9848-2810de07871a
+  metadata: {}
+  name: 57d0c9d7-9c74-43f3-acab-5d434c8cc7bf-04e66582-71ab-4b27-8145-07420ea2feef-next-Prev
+    Node
+  to_node:
+    $component_ref: 04e66582-71ab-4b27-8145-07420ea2feef
+data_flow_connections: []
+description: null
+id: 7ae31fbe-2422-472b-b789-ea31e760f7cd
+inputs: []
+metadata: {}
+name: API-Node-Flow
+nodes:
+- $component_ref: f9f248af-ad3a-413a-9b45-a11388d604cd
+- $component_ref: 04e66582-71ab-4b27-8145-07420ea2feef
+- $component_ref: 57d0c9d7-9c74-43f3-acab-5d434c8cc7bf
+outputs: []
+start_node:
+  $component_ref: f9f248af-ad3a-413a-9b45-a11388d604cd
+state: []
+agentspec_version: 25.4.1

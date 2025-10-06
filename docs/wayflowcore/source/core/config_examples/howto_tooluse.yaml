@@ -1,0 +1,127 @@
+component_type: ExtendedAgent
+id: 382a74eb-fd01-4725-abe1-4ad2da5805de
+name: agent_74b004c2
+description: ''
+metadata:
+  __metadata_info__:
+    name: agent_74b004c2
+    description: ''
+inputs: []
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: dbe50cdc-1a2d-4b4a-8c20-09cba28c21f6
+  name: LLAMA_MODEL_ID
+  description: null
+  metadata:
+    __metadata_info__: {}
+  default_generation_parameters: null
+  url: LLAMA_API_URL
+  model_id: LLAMA_MODEL_ID
+system_prompt: "You are helping to load and summarize a PDF file given a filepath.\n\
+  ## Context\nYou will receive a filepath from the username which indicates the path\
+  \ to the\nPDF file we want to summarize\n## Task\nYou will follow the next instructions:\n\
+  1. Use the tool to load the PDF file (don't go to the next step unless the file\
+  \ content was received).\n   If the user does not specify anything, do not clean\
+  \ the PDF prior to summarizing it.\n2. Summarize the given PDF content in 100 words\
+  \ or less.\n## Output Format\nReturn the summarized document as follows:\n```\n\
+  Here is the summarized pdf:\n[summarized pdf]\n```"
+tools:
+- component_type: ClientTool
+  id: 4b1a808b-473f-4e00-b413-23fd7143baf6
+  name: read_pdf
+  description: Reads a PDF file given a filepath
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - description: Path to the pdf file
+    type: string
+    title: file_path
+  - description: Cleans and reformat the pdf pages
+    type: boolean
+    title: clean_pdf
+    default: false
+  outputs:
+  - type: string
+    title: tool_output
+toolboxes: []
+context_providers: null
+can_finish_conversation: false
+max_iterations: 3
+initial_message: Hi! How can I help you?
+caller_input_mode: always
+agents: []
+flows: []
+agent_template:
+  component_type: PluginPromptTemplate
+  id: 95b539ce-0908-4a45-9ab0-cd6fa1b346d7
+  name: ''
+  description: ''
+  metadata:
+    __metadata_info__: {}
+  messages:
+  - role: system
+    contents:
+    - type: text
+      content: '{% if custom_instruction %}{{custom_instruction}}{% endif %}'
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T15:52:22.014400+00:00'
+    time_updated: '2025-09-02T15:52:22.014401+00:00'
+  - role: user
+    contents: []
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T15:52:22.008803+00:00'
+    time_updated: '2025-09-02T15:52:22.010218+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: "{% if __PLAN__ %}The current plan you should follow is the following:\
+        \ \n{{__PLAN__}}{% endif %}"
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-09-02T15:52:22.014421+00:00'
+    time_updated: '2025-09-02T15:52:22.014421+00:00'
+  output_parser: null
+  inputs:
+  - description: '"custom_instruction" input variable for the template'
+    type: string
+    title: custom_instruction
+    default: ''
+  - description: '"__PLAN__" input variable for the template'
+    type: string
+    title: __PLAN__
+    default: ''
+  - type: array
+    items: {}
+    title: __CHAT_HISTORY__
+  pre_rendering_transforms: null
+  post_rendering_transforms:
+  - component_type: PluginRemoveEmptyNonUserMessageTransform
+    id: 372d6f16-b945-4b10-b1c8-adc143ddab9d
+    name: removeemptynonusermessage_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 25.4.0.dev0
+  tools: null
+  native_tool_calling: true
+  response_format: null
+  native_structured_generation: true
+  generation_config: null
+  component_plugin_name: PromptTemplatePlugin
+  component_plugin_version: 25.4.0.dev0
+component_plugin_name: AgentPlugin
+component_plugin_version: 25.4.0.dev0
+agentspec_version: 25.4.1
