@@ -1,0 +1,1523 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>How to Use Variables for Shared State in Flows &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_variable';</script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="API Reference" href="../api/index.html" />
+    <link rel="prev" title="How to Evaluate Assistant Conversations" href="howto_conversation_evaluation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="26.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">How to Evaluate WayFlow Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">How to Evaluate Assistant Conversations</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Use Variables for Shared State in Flows</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-to Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to Use Variables for Shared State in Flows</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="how-to-use-variables-for-shared-state-in-flows">
+<span id="top-howtovariable"></span><h1>How to Use Variables for Shared State in Flows<a class="headerlink" href="#how-to-use-variables-for-shared-state-in-flows" title="Permalink to this heading">#</a></h1>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<p class="sd-card-text">Python script/notebook for this guide.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_variable.py"><span>Variable how-to script</span></a></div>
+</div>
+</div>
+</div>
+<div class="admonition-prerequisites admonition">
+<p class="admonition-title">Prerequisites</p>
+<p>This guide assumes familiarity with <a class="reference internal" href="../tutorials/basic_flow.html"><span class="doc">Flows</span></a></p>
+</div>
+<p>When building Flows, you may need a way to preserve information as it moves from one step to another.
+WayFlow provides this through <a class="reference internal" href="../api/variables.html#variable"><span class="std std-ref">Variable</span></a>, which serves as the flow’s state — a place where values can be stored, accessed, and updated throughout execution.</p>
+<p>Why to use Variable?</p>
+<ul class="simple">
+<li><p><strong>Shared state</strong>: Holds data that multiple steps can share.</p></li>
+<li><p><strong>Intermediate results</strong>: Store partial results and reuse them later.</p></li>
+<li><p><strong>Simpler data flow</strong>: Avoid passing outputs between every step, persist them as state using Variable.</p></li>
+</ul>
+<p>This guide will show you how to:</p>
+<ul class="simple">
+<li><p>Define a <a class="reference internal" href="../api/variables.html#variable"><span class="std std-ref">Variable</span></a> in a Flow.</p></li>
+<li><p>Read its value with <a class="reference internal" href="../api/flows.html#variablereadstep"><span class="std std-ref">VariableReadStep</span></a>.</p></li>
+<li><p>Write to it with <a class="reference internal" href="../api/flows.html#variablewritestep"><span class="std std-ref">VariableWriteStep</span></a>.</p></li>
+</ul>
+<p>In this guide, you will see a simple example including defining a <code class="docutils literal notranslate"><span class="pre">Variable</span></code> that stores a list of user feedback,
+using <code class="docutils literal notranslate"><span class="pre">VariableWriteStep</span></code> to insert new feedback into the list, and
+using <code class="docutils literal notranslate"><span class="pre">VariableReadStep</span></code> to read all collected feedback.</p>
+<section id="define-a-variable">
+<h2>Define a Variable<a class="headerlink" href="#define-a-variable" title="Permalink to this heading">#</a></h2>
+<p>To define a variable, you need to define it with a name, type and optionally, a default value.
+The type of variable determines the kind of data it can hold and is defined using <code class="docutils literal notranslate"><span class="pre">Property</span></code>.
+In this case, our <code class="docutils literal notranslate"><span class="pre">feedback_variable</span></code> has the type of <code class="docutils literal notranslate"><span class="pre">ListProperty</span></code> and the <code class="docutils literal notranslate"><span class="pre">item_type</span></code> of <code class="docutils literal notranslate"><span class="pre">StringProperty</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.variable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Variable</span>
+<span class="linenos">2</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListProperty</span><span class="p">,</span> <span class="n">StringProperty</span>
+<span class="linenos">3</span>
+<span class="linenos">4</span><span class="n">feedback_variable</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span>
+<span class="linenos">5</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;user_feedback&quot;</span><span class="p">,</span>
+<span class="linenos">6</span>    <span class="nb">type</span><span class="o">=</span><span class="n">ListProperty</span><span class="p">(</span><span class="n">item_type</span><span class="o">=</span><span class="n">StringProperty</span><span class="p">()),</span>
+<span class="linenos">7</span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;list of user feedback&quot;</span><span class="p">,</span>
+<span class="linenos">8</span>    <span class="n">default_value</span><span class="o">=</span><span class="p">[],</span>
+<span class="linenos">9</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/variables.html#variable"><span class="std std-ref">Variable</span></a> | <a class="reference internal" href="../api/flows.html#property"><span class="std std-ref">Property</span></a></p>
+</section>
+<section id="define-flow-steps">
+<h2>Define Flow Steps<a class="headerlink" href="#define-flow-steps" title="Permalink to this heading">#</a></h2>
+<p>We will define a simple flow including the following steps.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">StartStep</span><span class="p">,</span> <span class="n">OutputMessageStep</span><span class="p">,</span> <span class="n">VariableReadStep</span><span class="p">,</span> <span class="n">VariableWriteStep</span>
+<span class="linenos"> 2</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringProperty</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="n">FEEDBACK_1</span> <span class="o">=</span> <span class="s2">&quot;feedback_1&quot;</span>
+<span class="linenos"> 5</span><span class="n">FEEDBACK_2</span> <span class="o">=</span> <span class="s2">&quot;feedback_2&quot;</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span>
+<span class="linenos"> 8</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;start_step&quot;</span><span class="p">,</span>
+<span class="linenos"> 9</span>    <span class="n">input_descriptors</span><span class="o">=</span><span class="p">{</span><span class="n">StringProperty</span><span class="p">(</span><span class="n">FEEDBACK_1</span><span class="p">),</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">FEEDBACK_2</span><span class="p">)},</span>
+<span class="linenos">10</span><span class="p">)</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="n">write_feedback_1</span> <span class="o">=</span> <span class="n">VariableWriteStep</span><span class="p">(</span>
+<span class="linenos">13</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;write_step_1&quot;</span><span class="p">,</span>
+<span class="linenos">14</span>    <span class="n">variable</span><span class="o">=</span><span class="n">feedback_variable</span><span class="p">,</span>
+<span class="linenos">15</span>    <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;insert&quot;</span><span class="p">,</span>
+<span class="linenos">16</span><span class="p">)</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="n">write_feedback_2</span> <span class="o">=</span> <span class="n">VariableWriteStep</span><span class="p">(</span>
+<span class="linenos">19</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;write_step_2&quot;</span><span class="p">,</span>
+<span class="linenos">20</span>    <span class="n">variable</span><span class="o">=</span><span class="n">feedback_variable</span><span class="p">,</span>
+<span class="linenos">21</span>    <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;insert&quot;</span><span class="p">,</span>
+<span class="linenos">22</span><span class="p">)</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span><span class="n">read_feedback</span> <span class="o">=</span> <span class="n">VariableReadStep</span><span class="p">(</span><span class="n">variable</span><span class="o">=</span><span class="n">feedback_variable</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;read_step&quot;</span><span class="p">)</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="n">output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;Collected feedback: {{ feedback }}&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;output_step&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For simplicity, we pass initial feedback to the <code class="docutils literal notranslate"><span class="pre">start_step</span></code>, which then routes values to <code class="docutils literal notranslate"><span class="pre">write_feedback_1</span></code> and <code class="docutils literal notranslate"><span class="pre">write_feedback_2</span></code>.
+In practice, those inputs could come from other steps (e.g. <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a>).</p>
+<p>The <a class="reference internal" href="../api/flows.html#variablewritestep"><span class="std std-ref">VariableWriteStep</span></a> requires the <code class="docutils literal notranslate"><span class="pre">variable</span></code> that it writes to. It also accepts the following options of write operation:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">VariableWriteOperation.OVERWRITE</span></code> (or <code class="docutils literal notranslate"><span class="pre">'overwrite'</span></code>) works on any type of variable to replace its value with the incoming value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VariableWriteOperation.MERGE</span></code> (or <code class="docutils literal notranslate"><span class="pre">'merge'</span></code>) updates a <code class="docutils literal notranslate"><span class="pre">Variable</span></code> of type dict (resp. list),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VariableWriteOperation.INSERT</span></code> (or <code class="docutils literal notranslate"><span class="pre">'insert'</span></code>) operation can be used to append a single element at the end of a list.</p></li>
+</ul>
+<p>Here, we choose <code class="docutils literal notranslate"><span class="pre">insert</span></code> as we want to append new user feedback to the our list.</p>
+</section>
+<section id="define-a-flow-with-variable">
+<h2>Define a Flow with Variable<a class="headerlink" href="#define-a-flow-with-variable" title="Permalink to this heading">#</a></h2>
+<p>Now we connect everything into a flow: two write steps add feedback, and a read step collects it all for output.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="linenos"> 2</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
+<span class="linenos"> 3</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+<span class="linenos"> 6</span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>
+<span class="linenos"> 7</span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos"> 8</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">start_step</span><span class="p">,</span> <span class="n">write_feedback_1</span><span class="p">),</span>
+<span class="linenos"> 9</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">write_feedback_1</span><span class="p">,</span> <span class="n">write_feedback_2</span><span class="p">),</span>
+<span class="linenos">10</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">write_feedback_2</span><span class="p">,</span> <span class="n">read_feedback</span><span class="p">),</span>
+<span class="linenos">11</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">read_feedback</span><span class="p">,</span> <span class="n">output_step</span><span class="p">),</span>
+<span class="linenos">12</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">output_step</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+<span class="linenos">13</span>    <span class="p">],</span>
+<span class="linenos">14</span>    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">15</span>        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">start_step</span><span class="p">,</span> <span class="n">FEEDBACK_1</span><span class="p">,</span> <span class="n">write_feedback_1</span><span class="p">,</span> <span class="n">VariableWriteStep</span><span class="o">.</span><span class="n">VALUE</span><span class="p">),</span>
+<span class="linenos">16</span>        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">start_step</span><span class="p">,</span> <span class="n">FEEDBACK_2</span><span class="p">,</span> <span class="n">write_feedback_2</span><span class="p">,</span> <span class="n">VariableWriteStep</span><span class="o">.</span><span class="n">VALUE</span><span class="p">),</span>
+<span class="linenos">17</span>        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">read_feedback</span><span class="p">,</span> <span class="n">VariableReadStep</span><span class="o">.</span><span class="n">VALUE</span><span class="p">,</span> <span class="n">output_step</span><span class="p">,</span> <span class="s2">&quot;feedback&quot;</span><span class="p">),</span>
+<span class="linenos">18</span>    <span class="p">],</span>
+<span class="linenos">19</span>    <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="n">feedback_variable</span><span class="p">],</span>
+<span class="linenos">20</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">VariableWriteStep</span></code> has a single input descriptor <code class="docutils literal notranslate"><span class="pre">VariableWriteStep.VALUE</span></code> - the value to write to the variable it holds.
+Similarly, the <code class="docutils literal notranslate"><span class="pre">VariableReadStep</span></code> has a single output descriptor <code class="docutils literal notranslate"><span class="pre">VariableReadStep.VALUE</span></code>- the value it reads from the variable it holds.</p>
+<p>Remember to include your defined variables in the Flow’s <code class="docutils literal notranslate"><span class="pre">variables</span></code> parameter.</p>
+</section>
+<section id="execute-the-flow">
+<h2>Execute the Flow<a class="headerlink" href="#execute-the-flow" title="Permalink to this heading">#</a></h2>
+<p>Finally, run the flow:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">conv</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span>
+<span class="linenos"> 2</span>    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos"> 3</span>        <span class="n">FEEDBACK_1</span><span class="p">:</span> <span class="s2">&quot;Very good!&quot;</span><span class="p">,</span>
+<span class="linenos"> 4</span>        <span class="n">FEEDBACK_2</span><span class="p">:</span> <span class="s2">&quot;Need to improve!&quot;</span><span class="p">,</span>
+<span class="linenos"> 5</span>    <span class="p">}</span>
+<span class="linenos"> 6</span><span class="p">)</span>
+<span class="linenos"> 7</span><span class="n">conv</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="n">result</span> <span class="o">=</span> <span class="n">conv</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span><span class="o">.</span><span class="n">content</span>
+<span class="linenos">10</span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="linenos">11</span><span class="c1"># &gt;&gt;&gt; Collected feedback: [&quot;Very good!&quot;, &quot;Need to improve!&quot;]</span>
+</pre></div>
+</div>
+</section>
+<section id="agent-spec-exporting-loading">
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+
+<span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is what the <strong>Agent Spec representation will look like ↓</strong></p>
+<details class="summary-click-here-to-see-the-agentspec-assistant-configuration">
+<summary>Click here to see the AgentSpec assistant configuration.</summary><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">YAML</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">JSON</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span>
+<span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5b86a3b4-22b1-442a-91f9-569a938d4789</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flow_96bb6cb7</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="nt">inputs</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feedback_2</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feedback_1</span>
+<span class="nt">outputs</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list of user feedback</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span>
+<span class="w">  </span><span class="nt">items</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">the message added to the messages list</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output_message</span>
+<span class="nt">start_node</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cfcab079-4674-4a0a-bc7c-f1128e852ca0</span>
+<span class="nt">nodes</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cfcab079-4674-4a0a-bc7c-f1128e852ca0</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ded88ecb-17c9-4578-ae45-5c80b01c34ad</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">febaa510-2875-444a-ae51-ea39fbc708f7</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f592ae1a-682f-45e0-849f-579eeb803e04</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a6751ff9-5940-4ff0-90b4-12c7a15b8b87</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">83ea975c-1b64-46f2-9dfb-a12ee1ee8d90</span>
+<span class="nt">state</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list of user feedback</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span>
+<span class="w">  </span><span class="nt">items</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user_feedback</span>
+<span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">control_flow_connections</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ControlFlowEdge</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9340d618-bd88-415b-9f19-b4fed93f5896</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_1a0d93db_to_step_709c5a35_control_flow_edge</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">from_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cfcab079-4674-4a0a-bc7c-f1128e852ca0</span>
+<span class="w">  </span><span class="nt">from_branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">to_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ded88ecb-17c9-4578-ae45-5c80b01c34ad</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ControlFlowEdge</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eca38c7f-f5cb-4e86-86fc-80d0810e2b14</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_709c5a35_to_step_15af65a5_control_flow_edge</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">from_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ded88ecb-17c9-4578-ae45-5c80b01c34ad</span>
+<span class="w">  </span><span class="nt">from_branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">to_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">febaa510-2875-444a-ae51-ea39fbc708f7</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ControlFlowEdge</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">135cc8b2-b2a1-480c-ac28-2b9226658efd</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_15af65a5_to_step_a8581940_control_flow_edge</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">from_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">febaa510-2875-444a-ae51-ea39fbc708f7</span>
+<span class="w">  </span><span class="nt">from_branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">to_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f592ae1a-682f-45e0-849f-579eeb803e04</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ControlFlowEdge</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e8c3990a-45e2-456a-bf40-758efdccb318</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_a8581940_to_step_284a4a1d_control_flow_edge</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">from_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f592ae1a-682f-45e0-849f-579eeb803e04</span>
+<span class="w">  </span><span class="nt">from_branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">to_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a6751ff9-5940-4ff0-90b4-12c7a15b8b87</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ControlFlowEdge</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5315ad19-52b1-44f1-bee8-f296e93d4b67</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_284a4a1d_to_None End node_control_flow_edge</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">from_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a6751ff9-5940-4ff0-90b4-12c7a15b8b87</span>
+<span class="w">  </span><span class="nt">from_branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">to_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">83ea975c-1b64-46f2-9dfb-a12ee1ee8d90</span>
+<span class="nt">data_flow_connections</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DataFlowEdge</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cb51c4b1-0aab-4928-9d19-6bc098de4354</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_1a0d93db_feedback_1_to_step_709c5a35_value_data_flow_edge</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">source_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cfcab079-4674-4a0a-bc7c-f1128e852ca0</span>
+<span class="w">  </span><span class="nt">source_output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feedback_1</span>
+<span class="w">  </span><span class="nt">destination_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ded88ecb-17c9-4578-ae45-5c80b01c34ad</span>
+<span class="w">  </span><span class="nt">destination_input</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DataFlowEdge</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9a794227-085d-4c79-b1f5-cf0d66e048b9</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_1a0d93db_feedback_2_to_step_15af65a5_value_data_flow_edge</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">source_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cfcab079-4674-4a0a-bc7c-f1128e852ca0</span>
+<span class="w">  </span><span class="nt">source_output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feedback_2</span>
+<span class="w">  </span><span class="nt">destination_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">febaa510-2875-444a-ae51-ea39fbc708f7</span>
+<span class="w">  </span><span class="nt">destination_input</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DataFlowEdge</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f6ea2e6d-d1c8-411a-ae78-13abba142591</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_a8581940_value_to_step_284a4a1d_feedback_data_flow_edge</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">source_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f592ae1a-682f-45e0-849f-579eeb803e04</span>
+<span class="w">  </span><span class="nt">source_output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="w">  </span><span class="nt">destination_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a6751ff9-5940-4ff0-90b4-12c7a15b8b87</span>
+<span class="w">  </span><span class="nt">destination_input</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feedback</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DataFlowEdge</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8db068f7-f246-4e8a-bf84-9f6b141aca54</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_a8581940_value_to_None End node_value_data_flow_edge</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">source_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f592ae1a-682f-45e0-849f-579eeb803e04</span>
+<span class="w">  </span><span class="nt">source_output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="w">  </span><span class="nt">destination_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">83ea975c-1b64-46f2-9dfb-a12ee1ee8d90</span>
+<span class="w">  </span><span class="nt">destination_input</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DataFlowEdge</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6c3ea770-a8b9-4bfb-95e7-aee1007d0195</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_284a4a1d_output_message_to_None End node_output_message_data_flow_edge</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">source_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a6751ff9-5940-4ff0-90b4-12c7a15b8b87</span>
+<span class="w">  </span><span class="nt">source_output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output_message</span>
+<span class="w">  </span><span class="nt">destination_node</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">$component_ref</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">83ea975c-1b64-46f2-9dfb-a12ee1ee8d90</span>
+<span class="w">  </span><span class="nt">destination_input</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output_message</span>
+<span class="nt">$referenced_components</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cfcab079-4674-4a0a-bc7c-f1128e852ca0</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">StartNode</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cfcab079-4674-4a0a-bc7c-f1128e852ca0</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_1a0d93db</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feedback_2</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feedback_1</span>
+<span class="w">    </span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feedback_2</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feedback_1</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">next</span>
+<span class="w">  </span><span class="nt">ded88ecb-17c9-4578-ae45-5c80b01c34ad</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PluginWriteVariableNode</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ded88ecb-17c9-4578-ae45-5c80b01c34ad</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_709c5a35</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list of user feedback (single element)</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="w">    </span><span class="nt">outputs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">next</span>
+<span class="w">    </span><span class="nt">input_mapping</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">output_mapping</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">variable</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list of user feedback</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span>
+<span class="w">      </span><span class="nt">items</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user_feedback</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">operation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">insert</span>
+<span class="w">    </span><span class="nt">component_plugin_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NodesPlugin</span>
+<span class="w">    </span><span class="nt">component_plugin_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.3.0.dev2</span>
+<span class="w">  </span><span class="nt">febaa510-2875-444a-ae51-ea39fbc708f7</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PluginWriteVariableNode</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">febaa510-2875-444a-ae51-ea39fbc708f7</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_15af65a5</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list of user feedback (single element)</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="w">    </span><span class="nt">outputs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">next</span>
+<span class="w">    </span><span class="nt">input_mapping</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">output_mapping</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">variable</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list of user feedback</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span>
+<span class="w">      </span><span class="nt">items</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user_feedback</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">operation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">insert</span>
+<span class="w">    </span><span class="nt">component_plugin_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NodesPlugin</span>
+<span class="w">    </span><span class="nt">component_plugin_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.3.0.dev2</span>
+<span class="w">  </span><span class="nt">f592ae1a-682f-45e0-849f-579eeb803e04</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PluginReadVariableNode</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f592ae1a-682f-45e0-849f-579eeb803e04</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_a8581940</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">inputs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list of user feedback</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span>
+<span class="w">      </span><span class="nt">items</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">next</span>
+<span class="w">    </span><span class="nt">input_mapping</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">output_mapping</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">variable</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list of user feedback</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span>
+<span class="w">      </span><span class="nt">items</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user_feedback</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">component_plugin_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NodesPlugin</span>
+<span class="w">    </span><span class="nt">component_plugin_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.3.0.dev2</span>
+<span class="w">  </span><span class="nt">a6751ff9-5940-4ff0-90b4-12c7a15b8b87</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PluginOutputMessageNode</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a6751ff9-5940-4ff0-90b4-12c7a15b8b87</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_284a4a1d</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&quot;feedback&quot;</span><span class="nv"> </span><span class="s">input</span><span class="nv"> </span><span class="s">variable</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">template&#39;</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feedback</span>
+<span class="w">    </span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">the message added to the messages list</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output_message</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">next</span>
+<span class="w">    </span><span class="nt">input_mapping</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">output_mapping</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">message_template</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Collected</span><span class="nv"> </span><span class="s">feedback:</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">feedback</span><span class="nv"> </span><span class="s">}}&#39;</span>
+<span class="w">    </span><span class="nt">message_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AGENT</span>
+<span class="w">    </span><span class="nt">rephrase</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">llm_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">component_plugin_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NodesPlugin</span>
+<span class="w">    </span><span class="nt">component_plugin_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.3.0.dev2</span>
+<span class="w">  </span><span class="nt">83ea975c-1b64-46f2-9dfb-a12ee1ee8d90</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">EndNode</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">83ea975c-1b64-46f2-9dfb-a12ee1ee8d90</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">None End node</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">End node representing all transitions to None in the WayFlow flow</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list of user feedback</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span>
+<span class="w">      </span><span class="nt">items</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">the message added to the messages list</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output_message</span>
+<span class="w">    </span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list of user feedback</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span>
+<span class="w">      </span><span class="nt">items</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">the message added to the messages list</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output_message</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">branch_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">next</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;$referenced_components&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;2ef3114a-3421-4a79-ac99-1ee83d04c735&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;branches&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;next&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;component_plugin_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NodesPlugin&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;component_plugin_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25.3.0.dev2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PluginWriteVariableNode&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2ef3114a-3421-4a79-ac99-1ee83d04c735&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;input_mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list of user feedback (single element)&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;write_step_1&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;operation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;insert&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;output_mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">            </span><span class="nt">&quot;variable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">                </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list of user feedback&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_feedback&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;64a2de0a-2571-4f10-8b59-7b323b223873&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;branch_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;next&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;branches&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;EndNode&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;End node representing all transitions to None in the WayFlow flow&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;64a2de0a-2571-4f10-8b59-7b323b223873&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;the message added to the messages list&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output_message&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">                    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list of user feedback&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                    </span><span class="p">},</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;None End node&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;the message added to the messages list&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output_message&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">                    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list of user feedback&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                    </span><span class="p">},</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;79c35cc6-f7e6-45da-80e3-8863d38003ab&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;branches&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;next&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;component_plugin_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NodesPlugin&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;component_plugin_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25.3.0.dev2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PluginOutputMessageNode&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;79c35cc6-f7e6-45da-80e3-8863d38003ab&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;input_mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;\&quot;feedback\&quot; input variable for the template&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feedback&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;llm_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;message_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Collected feedback: {{ feedback }}&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;message_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AGENT&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output_step&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;output_mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;the message added to the messages list&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output_message&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;rephrase&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;8546551f-4f9c-4e75-a60a-9a059404bfbf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;branches&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;next&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;StartNode&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8546551f-4f9c-4e75-a60a-9a059404bfbf&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feedback_2&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feedback_1&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;start_step&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feedback_2&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feedback_1&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;b431983e-df59-40cd-8e41-83fbce628bdb&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;branches&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;next&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;component_plugin_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NodesPlugin&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;component_plugin_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25.3.0.dev2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PluginReadVariableNode&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b431983e-df59-40cd-8e41-83fbce628bdb&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;input_mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;read_step&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;output_mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">                    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list of user feedback&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                    </span><span class="p">},</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;variable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">                </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list of user feedback&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_feedback&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;b876b461-2334-4ab3-b03b-6c0c0c5d35cb&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;branches&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;next&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;component_plugin_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NodesPlugin&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;component_plugin_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25.3.0.dev2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PluginWriteVariableNode&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b876b461-2334-4ab3-b03b-6c0c0c5d35cb&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;input_mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list of user feedback (single element)&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;write_step_2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;operation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;insert&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;output_mapping&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">            </span><span class="nt">&quot;variable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">                </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list of user feedback&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_feedback&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Flow&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;control_flow_connections&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ControlFlowEdge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;from_branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8546551f-4f9c-4e75-a60a-9a059404bfbf&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;33311916-0bfa-4f50-80a6-a659f97337ad&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;start_step_to_write_step_1_control_flow_edge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;to_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2ef3114a-3421-4a79-ac99-1ee83d04c735&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ControlFlowEdge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;from_branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2ef3114a-3421-4a79-ac99-1ee83d04c735&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cd4b8a8c-a5e7-4288-aff5-f4ef5c082d6c&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;write_step_1_to_write_step_2_control_flow_edge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;to_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b876b461-2334-4ab3-b03b-6c0c0c5d35cb&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ControlFlowEdge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;from_branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b876b461-2334-4ab3-b03b-6c0c0c5d35cb&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;be8df0e3-120a-4c3c-97e6-8c3af277627f&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;write_step_2_to_read_step_control_flow_edge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;to_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b431983e-df59-40cd-8e41-83fbce628bdb&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ControlFlowEdge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;from_branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b431983e-df59-40cd-8e41-83fbce628bdb&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;98654d6c-db8c-4d94-8842-0cc9200f05a0&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;read_step_to_output_step_control_flow_edge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;to_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;79c35cc6-f7e6-45da-80e3-8863d38003ab&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ControlFlowEdge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;from_branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;79c35cc6-f7e6-45da-80e3-8863d38003ab&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eab26b31-86ec-4e9b-9d7d-24e9b009fb90&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output_step_to_None End node_control_flow_edge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;to_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;64a2de0a-2571-4f10-8b59-7b323b223873&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;data_flow_connections&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DataFlowEdge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;destination_input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;destination_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2ef3114a-3421-4a79-ac99-1ee83d04c735&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5882a9f6-e363-46df-994c-3a9b00143dae&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;start_step_feedback_1_to_write_step_1_value_data_flow_edge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;source_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8546551f-4f9c-4e75-a60a-9a059404bfbf&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;source_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feedback_1&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DataFlowEdge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;destination_input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;destination_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b876b461-2334-4ab3-b03b-6c0c0c5d35cb&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7d580306-9848-4d18-9c69-d5042946a52a&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;start_step_feedback_2_to_write_step_2_value_data_flow_edge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;source_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8546551f-4f9c-4e75-a60a-9a059404bfbf&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;source_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feedback_2&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DataFlowEdge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;destination_input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feedback&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;destination_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;79c35cc6-f7e6-45da-80e3-8863d38003ab&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;be793090-4a11-47b3-b392-0508de4c736d&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;read_step_value_to_output_step_feedback_data_flow_edge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;source_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b431983e-df59-40cd-8e41-83fbce628bdb&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;source_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DataFlowEdge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;destination_input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output_message&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;destination_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;64a2de0a-2571-4f10-8b59-7b323b223873&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7ca289a8-6270-4527-b8ac-b5c7090acaf1&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output_step_output_message_to_None End node_output_message_data_flow_edge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;source_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;79c35cc6-f7e6-45da-80e3-8863d38003ab&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;source_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output_message&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DataFlowEdge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;destination_input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;destination_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;64a2de0a-2571-4f10-8b59-7b323b223873&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1567f968-75f0-4e72-b837-a24dd9f658a5&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;read_step_value_to_None End node_value_data_flow_edge&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;source_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b431983e-df59-40cd-8e41-83fbce628bdb&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;source_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;817bf187-2abd-4153-a784-923bc8c5aa5c&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feedback_2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feedback_1&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;flow_5c34cdba__auto&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;nodes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8546551f-4f9c-4e75-a60a-9a059404bfbf&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2ef3114a-3421-4a79-ac99-1ee83d04c735&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b876b461-2334-4ab3-b03b-6c0c0c5d35cb&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b431983e-df59-40cd-8e41-83fbce628bdb&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;79c35cc6-f7e6-45da-80e3-8863d38003ab&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;64a2de0a-2571-4f10-8b59-7b323b223873&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;the message added to the messages list&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output_message&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list of user feedback&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;start_node&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;$component_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8546551f-4f9c-4e75-a60a-9a059404bfbf&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;list of user feedback&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_feedback&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></div>
+</details><p>You can then load the configuration back to an assistant using the <code class="docutils literal notranslate"><span class="pre">AgentSpecLoader</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+
+<span class="n">assistant</span><span class="p">:</span> <span class="n">Flow</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">()</span><span class="o">.</span><span class="n">load_yaml</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This guide uses the following extension/plugin Agent Spec components:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PluginReadVariableNode</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PluginWriteVariableNode</span></code></p></li>
+</ul>
+<p>See the list of available Agent Spec extension/plugin components in the <a class="reference internal" href="../api/agentspec.html"><span class="doc">API Reference</span></a></p>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<p>Now that you have learned how to use Variables in Flows, you may proceed to <a class="reference internal" href="../api/contextproviders.html#flowcontextprovider"><span class="std std-ref">FlowContextProvider</span></a> to learn how to provide context for flow execution.</p>
+</section>
+<section id="full-code">
+<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<p>Click on the card at the <a class="reference internal" href="#top-howtovariable"><span class="std std-ref">top of this page</span></a> to download the full code for this guide or copy the code below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
+<span class="linenos">  2</span><span class="c1">#</span>
+<span class="linenos">  3</span><span class="c1"># This software is under the Universal Permissive License</span>
+<span class="linenos">  4</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">  5</span><span class="c1"># Code Example - How to Use Variables for Shared State in Flows</span>
+<span class="linenos">  6</span><span class="c1"># -------------------------------------------------------------</span>
+<span class="linenos">  7</span>
+<span class="linenos">  8</span><span class="c1"># How to use:</span>
+<span class="linenos">  9</span><span class="c1"># Create a new Python virtual environment and install the latest WayFlow version.</span>
+<span class="linenos"> 10</span><span class="c1"># ```bash</span>
+<span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
+<span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
+<span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1&quot; </span>
+<span class="linenos"> 15</span><span class="c1"># ```</span>
+<span class="linenos"> 16</span>
+<span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
+<span class="linenos"> 18</span><span class="c1"># 1. As a Python file:</span>
+<span class="linenos"> 19</span><span class="c1"># ```bash</span>
+<span class="linenos"> 20</span><span class="c1"># python howto_variable.py</span>
+<span class="linenos"> 21</span><span class="c1"># ```</span>
+<span class="linenos"> 22</span><span class="c1"># 2. As a Notebook (in VSCode):</span>
+<span class="linenos"> 23</span><span class="c1"># When viewing the file,</span>
+<span class="linenos"> 24</span><span class="c1">#  - press the keys Ctrl + Enter to run the selected cell</span>
+<span class="linenos"> 25</span><span class="c1">#  - or Shift + Enter to run the selected cell and move to the cell below# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License</span>
+<span class="linenos"> 26</span><span class="c1"># 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.</span>
+<span class="linenos"> 27</span>
+<span class="linenos"> 28</span>
+<span class="linenos"> 29</span>
+<span class="linenos"> 30</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 31</span><span class="c1">## Define a Variable</span>
+<span class="linenos"> 32</span>
+<span class="linenos"> 33</span><span class="c1"># %%</span>
+<span class="linenos"> 34</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.variable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Variable</span>
+<span class="linenos"> 35</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListProperty</span><span class="p">,</span> <span class="n">StringProperty</span>
+<span class="linenos"> 36</span>
+<span class="linenos"> 37</span><span class="n">feedback_variable</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span>
+<span class="linenos"> 38</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;user_feedback&quot;</span><span class="p">,</span>
+<span class="linenos"> 39</span>    <span class="nb">type</span><span class="o">=</span><span class="n">ListProperty</span><span class="p">(</span><span class="n">item_type</span><span class="o">=</span><span class="n">StringProperty</span><span class="p">()),</span>
+<span class="linenos"> 40</span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;list of user feedback&quot;</span><span class="p">,</span>
+<span class="linenos"> 41</span>    <span class="n">default_value</span><span class="o">=</span><span class="p">[],</span>
+<span class="linenos"> 42</span><span class="p">)</span>
+<span class="linenos"> 43</span>
+<span class="linenos"> 44</span>
+<span class="linenos"> 45</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 46</span><span class="c1">## Define Flow Steps</span>
+<span class="linenos"> 47</span>
+<span class="linenos"> 48</span><span class="c1"># %%</span>
+<span class="linenos"> 49</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">StartStep</span><span class="p">,</span> <span class="n">OutputMessageStep</span><span class="p">,</span> <span class="n">VariableReadStep</span><span class="p">,</span> <span class="n">VariableWriteStep</span>
+<span class="linenos"> 50</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringProperty</span>
+<span class="linenos"> 51</span>
+<span class="linenos"> 52</span><span class="n">FEEDBACK_1</span> <span class="o">=</span> <span class="s2">&quot;feedback_1&quot;</span>
+<span class="linenos"> 53</span><span class="n">FEEDBACK_2</span> <span class="o">=</span> <span class="s2">&quot;feedback_2&quot;</span>
+<span class="linenos"> 54</span>
+<span class="linenos"> 55</span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span>
+<span class="linenos"> 56</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;start_step&quot;</span><span class="p">,</span>
+<span class="linenos"> 57</span>    <span class="n">input_descriptors</span><span class="o">=</span><span class="p">{</span><span class="n">StringProperty</span><span class="p">(</span><span class="n">FEEDBACK_1</span><span class="p">),</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">FEEDBACK_2</span><span class="p">)},</span>
+<span class="linenos"> 58</span><span class="p">)</span>
+<span class="linenos"> 59</span>
+<span class="linenos"> 60</span><span class="n">write_feedback_1</span> <span class="o">=</span> <span class="n">VariableWriteStep</span><span class="p">(</span>
+<span class="linenos"> 61</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;write_step_1&quot;</span><span class="p">,</span>
+<span class="linenos"> 62</span>    <span class="n">variable</span><span class="o">=</span><span class="n">feedback_variable</span><span class="p">,</span>
+<span class="linenos"> 63</span>    <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;insert&quot;</span><span class="p">,</span>
+<span class="linenos"> 64</span><span class="p">)</span>
+<span class="linenos"> 65</span>
+<span class="linenos"> 66</span><span class="n">write_feedback_2</span> <span class="o">=</span> <span class="n">VariableWriteStep</span><span class="p">(</span>
+<span class="linenos"> 67</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;write_step_2&quot;</span><span class="p">,</span>
+<span class="linenos"> 68</span>    <span class="n">variable</span><span class="o">=</span><span class="n">feedback_variable</span><span class="p">,</span>
+<span class="linenos"> 69</span>    <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;insert&quot;</span><span class="p">,</span>
+<span class="linenos"> 70</span><span class="p">)</span>
+<span class="linenos"> 71</span>
+<span class="linenos"> 72</span><span class="n">read_feedback</span> <span class="o">=</span> <span class="n">VariableReadStep</span><span class="p">(</span><span class="n">variable</span><span class="o">=</span><span class="n">feedback_variable</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;read_step&quot;</span><span class="p">)</span>
+<span class="linenos"> 73</span>
+<span class="linenos"> 74</span><span class="n">output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;Collected feedback: {{ feedback }}&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;output_step&quot;</span><span class="p">)</span>
+<span class="linenos"> 75</span>
+<span class="linenos"> 76</span>
+<span class="linenos"> 77</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 78</span><span class="c1">## Define a Flow with variable</span>
+<span class="linenos"> 79</span>
+<span class="linenos"> 80</span><span class="c1"># %%</span>
+<span class="linenos"> 81</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="linenos"> 82</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
+<span class="linenos"> 83</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="linenos"> 84</span>
+<span class="linenos"> 85</span><span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+<span class="linenos"> 86</span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>
+<span class="linenos"> 87</span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos"> 88</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">start_step</span><span class="p">,</span> <span class="n">write_feedback_1</span><span class="p">),</span>
+<span class="linenos"> 89</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">write_feedback_1</span><span class="p">,</span> <span class="n">write_feedback_2</span><span class="p">),</span>
+<span class="linenos"> 90</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">write_feedback_2</span><span class="p">,</span> <span class="n">read_feedback</span><span class="p">),</span>
+<span class="linenos"> 91</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">read_feedback</span><span class="p">,</span> <span class="n">output_step</span><span class="p">),</span>
+<span class="linenos"> 92</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">output_step</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+<span class="linenos"> 93</span>    <span class="p">],</span>
+<span class="linenos"> 94</span>    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos"> 95</span>        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">start_step</span><span class="p">,</span> <span class="n">FEEDBACK_1</span><span class="p">,</span> <span class="n">write_feedback_1</span><span class="p">,</span> <span class="n">VariableWriteStep</span><span class="o">.</span><span class="n">VALUE</span><span class="p">),</span>
+<span class="linenos"> 96</span>        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">start_step</span><span class="p">,</span> <span class="n">FEEDBACK_2</span><span class="p">,</span> <span class="n">write_feedback_2</span><span class="p">,</span> <span class="n">VariableWriteStep</span><span class="o">.</span><span class="n">VALUE</span><span class="p">),</span>
+<span class="linenos"> 97</span>        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">read_feedback</span><span class="p">,</span> <span class="n">VariableReadStep</span><span class="o">.</span><span class="n">VALUE</span><span class="p">,</span> <span class="n">output_step</span><span class="p">,</span> <span class="s2">&quot;feedback&quot;</span><span class="p">),</span>
+<span class="linenos"> 98</span>    <span class="p">],</span>
+<span class="linenos"> 99</span>    <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="n">feedback_variable</span><span class="p">],</span>
+<span class="linenos">100</span><span class="p">)</span>
+<span class="linenos">101</span>
+<span class="linenos">102</span>
+<span class="linenos">103</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">104</span><span class="c1">## Execute flow</span>
+<span class="linenos">105</span>
+<span class="linenos">106</span><span class="c1"># %%</span>
+<span class="linenos">107</span><span class="n">conv</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span>
+<span class="linenos">108</span>    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">109</span>        <span class="n">FEEDBACK_1</span><span class="p">:</span> <span class="s2">&quot;Very good!&quot;</span><span class="p">,</span>
+<span class="linenos">110</span>        <span class="n">FEEDBACK_2</span><span class="p">:</span> <span class="s2">&quot;Need to improve!&quot;</span><span class="p">,</span>
+<span class="linenos">111</span>    <span class="p">}</span>
+<span class="linenos">112</span><span class="p">)</span>
+<span class="linenos">113</span><span class="n">conv</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">114</span>
+<span class="linenos">115</span><span class="n">result</span> <span class="o">=</span> <span class="n">conv</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span><span class="o">.</span><span class="n">content</span>
+<span class="linenos">116</span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="linenos">117</span><span class="c1"># &gt;&gt;&gt; Collected feedback: [&quot;Very good!&quot;, &quot;Need to improve!&quot;]</span>
+<span class="linenos">118</span>
+<span class="linenos">119</span>
+<span class="linenos">120</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">121</span><span class="c1">## Export config to Agent Spec</span>
+<span class="linenos">122</span>
+<span class="linenos">123</span><span class="c1"># %%</span>
+<span class="linenos">124</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+<span class="linenos">125</span>
+<span class="linenos">126</span><span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
+<span class="linenos">127</span>
+<span class="linenos">128</span>
+<span class="linenos">129</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">130</span><span class="c1">## Load Agent Spec config</span>
+<span class="linenos">131</span>
+<span class="linenos">132</span><span class="c1"># %%</span>
+<span class="linenos">133</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+<span class="linenos">134</span>
+<span class="linenos">135</span><span class="n">assistant</span><span class="p">:</span> <span class="n">Flow</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">()</span><span class="o">.</span><span class="n">load_yaml</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-a-variable">Define a Variable</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-flow-steps">Define Flow Steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-a-flow-with-variable">Define a Flow with Variable</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#execute-the-flow">Execute the Flow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agent-spec-exporting-loading">Agent Spec Exporting/Loading</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-code">Full code</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,819 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>How to Send Images to LLMs and Agents &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_imagecontent';</script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to Use OCI Generative AI Agents" href="howto_ociagent.html" />
+    <link rel="prev" title="How to Configure Agents Instructions" href="agents.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="26.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">How to Evaluate WayFlow Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">How to Evaluate Assistant Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-to Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to Send Images to LLMs and Agents</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="how-to-send-images-to-llms-and-agents">
+<span id="top-howtoimagecontent"></span><h1>How to Send Images to LLMs and Agents<a class="headerlink" href="#how-to-send-images-to-llms-and-agents" title="Permalink to this heading">#</a></h1>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<p class="sd-card-text">Python script/notebook for this guide.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_imagecontent.py"><span>Tutorial on using Images with WayFlow models</span></a></div>
+</div>
+</div>
+</div>
+<div class="admonition-prerequisites admonition">
+<p class="admonition-title">Prerequisites</p>
+<ul class="simple">
+<li><p>Familiarity with <a class="reference internal" href="../tutorials/basic_agent.html"><span class="doc">basic agent and prompt workflows</span></a>.</p></li>
+</ul>
+</div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h2>
+<p>Some Large Language Models (LLMs) can handle images in addition to text.
+WayFlow supports passing images alongside text in both direct prompt requests and full agent conversations
+using the <cite>ImageContent</cite> API.</p>
+<p>This guide will show you:</p>
+<ul class="simple">
+<li><p>How to create <cite>ImageContent</cite> in code.</p></li>
+<li><p>How to run a prompt with image input directly with the model.</p></li>
+<li><p>How to send image+text messages in an Agent conversation.</p></li>
+<li><p>How to inspect and use model/agent outputs with image reasoning.</p></li>
+</ul>
+<section id="what-is-imagecontent">
+<h3>What is <code class="docutils literal notranslate"><span class="pre">ImageContent</span></code>?<a class="headerlink" href="#what-is-imagecontent" title="Permalink to this heading">#</a></h3>
+<p><cite>ImageContent</cite> is a type of message content that stores image bytes and format metadata.
+You can combine an image with additional <cite>TextContent</cite> in a single message.</p>
+</section>
+</section>
+<section id="basic-implementation">
+<h2>Basic implementation<a class="headerlink" href="#basic-implementation" title="Permalink to this heading">#</a></h2>
+<p>First import what is needed for this guide:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="linenos">2</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="linenos">3</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.messagelist</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageContent</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> <span class="n">TextContent</span>
+<span class="linenos">4</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmmodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Prompt</span>
+<span class="linenos">5</span>
+</pre></div>
+</div>
+<p>To follow this guide, you will need access to a <strong>Multimodal</strong> large language model (LLM).
+WayFlow supports several LLM API providers.
+Select an LLM from the options below:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+        <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;https://url-to-service-endpoint.com&quot;</span><span class="p">,</span>
+        <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
+        <span class="n">auth_type</span><span class="o">=</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;model-id&quot;</span><span class="p">,</span>
+    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;VLLM_HOST_PORT&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-2" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-2" name="0-2" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OllamaModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OllamaModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;model-id&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="step-1-creating-a-prompt-with-imagecontent">
+<h2>Step 1: Creating a prompt with ImageContent<a class="headerlink" href="#step-1-creating-a-prompt-with-imagecontent" title="Permalink to this heading">#</a></h2>
+<p>Before sending requests to your vision-capable LLMs or agents, you need to construct a prompt containing both the image and text content. The example below demonstrates:</p>
+<ul class="simple">
+<li><p>Downloading an image (here, the Oracle logo) via HTTP request</p></li>
+<li><p>Creating an <cite>ImageContent</cite> object from the image bytes</p></li>
+<li><p>Adding a <cite>TextContent</cite> question</p></li>
+<li><p>Packing both into a <cite>Message</cite>, then into a <cite>Prompt</cite></p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download the Oracle logo as PNG (publicly accessible image)</span>
+<span class="n">image_url</span> <span class="o">=</span> <span class="s2">&quot;https://www.oracle.com/a/ocom/img/oracle-logo.png&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_url</span><span class="p">)</span>
+<span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+<span class="n">image_bytes</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>
+
+<span class="c1"># Create ImageContent: format must match the image (in this case: &quot;png&quot;)</span>
+<span class="n">image_content</span> <span class="o">=</span> <span class="n">ImageContent</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">bytes_content</span><span class="o">=</span><span class="n">image_bytes</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">)</span>
+
+<span class="c1"># Compose a message with both image and question</span>
+<span class="n">text_content</span> <span class="o">=</span> <span class="n">TextContent</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;Which company&#39;s logo is this?&quot;</span><span class="p">)</span>
+<span class="n">user_message</span> <span class="o">=</span> <span class="n">Message</span><span class="p">(</span><span class="n">contents</span><span class="o">=</span><span class="p">[</span><span class="n">image_content</span><span class="p">,</span> <span class="n">text_content</span><span class="p">],</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="n">Prompt</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="n">user_message</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-sending-image-input-to-a-vision-capable-model">
+<h2>Step 2: Sending image input to a vision-capable model<a class="headerlink" href="#step-2-sending-image-input-to-a-vision-capable-model" title="Permalink to this heading">#</a></h2>
+<p>You can send images directly to your LLM by constructing a prompt with both <cite>ImageContent</cite> and <cite>TextContent</cite>.
+The example below downloads the Oracle logo PNG and queries the LLM for recognition.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model output:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+<span class="c1"># For the Oracle logo, output should mention &quot;Oracle Corporation&quot;</span>
+</pre></div>
+</div>
+<p><strong>Expected output:</strong> The model should identify the company (e.g. “Oracle Corporation” or equivalent).
+If your model does not support images, you will get an error.</p>
+</section>
+<section id="step-3-using-images-in-agent-conversations">
+<h2>Step 3: Using images in Agent conversations<a class="headerlink" href="#step-3-using-images-in-agent-conversations" title="Permalink to this heading">#</a></h2>
+<p>You can pass images in an Agent-driven chat workflow.
+This allows assistants to process visual information alongside user dialog.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create an Agent configured for vision</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
+
+<span class="c1"># Start a new conversation</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+
+<span class="c1"># Add a user message with both image and text as contents</span>
+<span class="n">conversation</span><span class="o">.</span><span class="n">append_message</span><span class="p">(</span><span class="n">Message</span><span class="p">(</span><span class="n">contents</span><span class="o">=</span><span class="p">[</span><span class="n">image_content</span><span class="p">,</span> <span class="n">text_content</span><span class="p">],</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">))</span>
+
+<span class="c1"># Run agent logic for this input</span>
+<span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="c1"># Retrieve and print the agent&#39;s last response</span>
+<span class="n">agent_output</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">agent_output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Agent output:&quot;</span><span class="p">,</span> <span class="n">agent_output</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+<span class="c1"># The output should mention &quot;Oracle Corporation&quot;</span>
+</pre></div>
+</div>
+<p><strong>Expected output:</strong> The agent response should mention “Oracle Corporation”.</p>
+</section>
+<section id="api-reference-and-practical-information">
+<h2>API Reference and Practical Information<a class="headerlink" href="#api-reference-and-practical-information" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wayflowcore.messagelist.ImageContent</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wayflowcore.messagelist.TextContent</span></code></p></li>
+<li><p><a class="reference internal" href="../api/agent.html#wayflowcore.agent.Agent" title="wayflowcore.agent.Agent"><code class="xref py py-class docutils literal notranslate"><span class="pre">wayflowcore.agent.Agent</span></code></a></p></li>
+</ul>
+<section id="supported-image-formats">
+<h3>Supported Image Formats<a class="headerlink" href="#supported-image-formats" title="Permalink to this heading">#</a></h3>
+<p>Most vision LLMs support PNG, JPG, JPEG, GIF, or WEBP.
+Always specify the correct format for ImageContent.</p>
+</section>
+</section>
+<section id="agent-spec-exporting-loading">
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+
+<span class="n">serialized_agent</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is what the <strong>Agent Spec representation will look like ↓</strong></p>
+<details class="summary-click-here-to-see-the-assistant-configuration">
+<summary>Click here to see the assistant configuration.</summary><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">JSON</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">YAML</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Agent&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2fc0cb26-98db-4a53-869b-61587a784b1a&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;agent_df87a3d8&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;agent_df87a3d8&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;llm_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VllmConfig&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16d7437d-b510-4599-b1d4-51e8418043c4&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GEMMA_MODEL_ID&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;default_generation_parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GEMMA_API_URL&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;model_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GEMMA_MODEL_ID&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;system_prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;agentspec_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25.4.1&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Agent</span>
+<span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2fc0cb26-98db-4a53-869b-61587a784b1a</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agent_df87a3d8</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">__metadata_info__</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agent_df87a3d8</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="nt">inputs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">outputs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">llm_config</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VllmConfig</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16d7437d-b510-4599-b1d4-51e8418043c4</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GEMMA_MODEL_ID</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">default_generation_parameters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GEMMA_API_URL</span>
+<span class="w">  </span><span class="nt">model_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GEMMA_MODEL_ID</span>
+<span class="nt">system_prompt</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="nt">tools</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">agentspec_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.4.1</span>
+</pre></div>
+</div>
+</div></div>
+</details><p>You can then load the configuration back to an assistant using the <code class="docutils literal notranslate"><span class="pre">AgentSpecLoader</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">()</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_agent</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<p>Having learned how to send images to LLMs and Agents, you may now proceed to:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../tutorials/basic_agent.html"><span class="doc">Build a Simple Conversational Assistant with Agents</span></a></p></li>
+</ul>
+</section>
+<section id="full-code">
+<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<p>Click on the card at the <a class="reference internal" href="#top-howtoimagecontent"><span class="std std-ref">top of this page</span></a> to download the full code for this guide or copy the code below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
+<span class="linenos">  2</span><span class="c1">#</span>
+<span class="linenos">  3</span><span class="c1"># This software is under the Universal Permissive License</span>
+<span class="linenos">  4</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">  5</span><span class="c1"># Code Example - How to use use images in conversations</span>
+<span class="linenos">  6</span><span class="c1"># -----------------------------------------------------</span>
+<span class="linenos">  7</span>
+<span class="linenos">  8</span><span class="c1"># How to use:</span>
+<span class="linenos">  9</span><span class="c1"># Create a new Python virtual environment and install the latest WayFlow version.</span>
+<span class="linenos"> 10</span><span class="c1"># ```bash</span>
+<span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
+<span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
+<span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1&quot; </span>
+<span class="linenos"> 15</span><span class="c1"># ```</span>
+<span class="linenos"> 16</span>
+<span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
+<span class="linenos"> 18</span><span class="c1"># 1. As a Python file:</span>
+<span class="linenos"> 19</span><span class="c1"># ```bash</span>
+<span class="linenos"> 20</span><span class="c1"># python howto_imagecontent.py</span>
+<span class="linenos"> 21</span><span class="c1"># ```</span>
+<span class="linenos"> 22</span><span class="c1"># 2. As a Notebook (in VSCode):</span>
+<span class="linenos"> 23</span><span class="c1"># When viewing the file,</span>
+<span class="linenos"> 24</span><span class="c1">#  - press the keys Ctrl + Enter to run the selected cell</span>
+<span class="linenos"> 25</span><span class="c1">#  - or Shift + Enter to run the selected cell and move to the cell below# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License</span>
+<span class="linenos"> 26</span><span class="c1"># 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.</span>
+<span class="linenos"> 27</span>
+<span class="linenos"> 28</span>
+<span class="linenos"> 29</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 30</span><span class="c1">## Imports</span>
+<span class="linenos"> 31</span>
+<span class="linenos"> 32</span><span class="c1"># %%</span>
+<span class="linenos"> 33</span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="linenos"> 34</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="linenos"> 35</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.messagelist</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageContent</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> <span class="n">TextContent</span>
+<span class="linenos"> 36</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmmodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Prompt</span>
+<span class="linenos"> 37</span>
+<span class="linenos"> 38</span>
+<span class="linenos"> 39</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 40</span><span class="c1">## Model configuration</span>
+<span class="linenos"> 41</span>
+<span class="linenos"> 42</span><span class="c1"># %%</span>
+<span class="linenos"> 43</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+<span class="linenos"> 44</span><span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+<span class="linenos"> 45</span>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;GEMMA_MODEL_ID&quot;</span><span class="p">,</span>
+<span class="linenos"> 46</span>    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;GEMMA_API_URL&quot;</span><span class="p">,</span>
+<span class="linenos"> 47</span><span class="p">)</span>
+<span class="linenos"> 48</span>
+<span class="linenos"> 49</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 50</span><span class="c1">## Create prompt</span>
+<span class="linenos"> 51</span>
+<span class="linenos"> 52</span><span class="c1"># %%</span>
+<span class="linenos"> 53</span><span class="c1"># Download the Oracle logo as PNG (publicly accessible image)</span>
+<span class="linenos"> 54</span><span class="n">image_url</span> <span class="o">=</span> <span class="s2">&quot;https://www.oracle.com/a/ocom/img/oracle-logo.png&quot;</span>
+<span class="linenos"> 55</span><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_url</span><span class="p">)</span>
+<span class="linenos"> 56</span><span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+<span class="linenos"> 57</span><span class="n">image_bytes</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>
+<span class="linenos"> 58</span>
+<span class="linenos"> 59</span><span class="c1"># Create ImageContent: format must match the image (in this case: &quot;png&quot;)</span>
+<span class="linenos"> 60</span><span class="n">image_content</span> <span class="o">=</span> <span class="n">ImageContent</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">bytes_content</span><span class="o">=</span><span class="n">image_bytes</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">)</span>
+<span class="linenos"> 61</span>
+<span class="linenos"> 62</span><span class="c1"># Compose a message with both image and question</span>
+<span class="linenos"> 63</span><span class="n">text_content</span> <span class="o">=</span> <span class="n">TextContent</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;Which company&#39;s logo is this?&quot;</span><span class="p">)</span>
+<span class="linenos"> 64</span><span class="n">user_message</span> <span class="o">=</span> <span class="n">Message</span><span class="p">(</span><span class="n">contents</span><span class="o">=</span><span class="p">[</span><span class="n">image_content</span><span class="p">,</span> <span class="n">text_content</span><span class="p">],</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+<span class="linenos"> 65</span><span class="n">prompt</span> <span class="o">=</span> <span class="n">Prompt</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="n">user_message</span><span class="p">])</span>
+<span class="linenos"> 66</span>
+<span class="linenos"> 67</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 68</span><span class="c1">## Generate completion with an image as input</span>
+<span class="linenos"> 69</span>
+<span class="linenos"> 70</span><span class="c1"># %%</span>
+<span class="linenos"> 71</span><span class="n">result</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="linenos"> 72</span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model output:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+<span class="linenos"> 73</span><span class="c1"># For the Oracle logo, output should mention &quot;Oracle Corporation&quot;</span>
+<span class="linenos"> 74</span>
+<span class="linenos"> 75</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 76</span><span class="c1">## Pass an image to an agent as input</span>
+<span class="linenos"> 77</span>
+<span class="linenos"> 78</span><span class="c1"># %%</span>
+<span class="linenos"> 79</span><span class="c1"># Create an Agent configured for vision</span>
+<span class="linenos"> 80</span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
+<span class="linenos"> 81</span>
+<span class="linenos"> 82</span><span class="c1"># Start a new conversation</span>
+<span class="linenos"> 83</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="linenos"> 84</span>
+<span class="linenos"> 85</span><span class="c1"># Add a user message with both image and text as contents</span>
+<span class="linenos"> 86</span><span class="n">conversation</span><span class="o">.</span><span class="n">append_message</span><span class="p">(</span><span class="n">Message</span><span class="p">(</span><span class="n">contents</span><span class="o">=</span><span class="p">[</span><span class="n">image_content</span><span class="p">,</span> <span class="n">text_content</span><span class="p">],</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">))</span>
+<span class="linenos"> 87</span>
+<span class="linenos"> 88</span><span class="c1"># Run agent logic for this input</span>
+<span class="linenos"> 89</span><span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos"> 90</span>
+<span class="linenos"> 91</span><span class="c1"># Retrieve and print the agent&#39;s last response</span>
+<span class="linenos"> 92</span><span class="n">agent_output</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+<span class="linenos"> 93</span><span class="k">if</span> <span class="n">agent_output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos"> 94</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Agent output:&quot;</span><span class="p">,</span> <span class="n">agent_output</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+<span class="linenos"> 95</span><span class="c1"># The output should mention &quot;Oracle Corporation&quot;</span>
+<span class="linenos"> 96</span>
+<span class="linenos"> 97</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 98</span><span class="c1">## Export config to Agent Spec</span>
+<span class="linenos"> 99</span>
+<span class="linenos">100</span><span class="c1"># %%</span>
+<span class="linenos">101</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+<span class="linenos">102</span>
+<span class="linenos">103</span><span class="n">serialized_agent</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
+<span class="linenos">104</span>
+<span class="linenos">105</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">106</span><span class="c1">## Load Agent Spec config</span>
+<span class="linenos">107</span>
+<span class="linenos">108</span><span class="c1"># %%</span>
+<span class="linenos">109</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+<span class="linenos">110</span>
+<span class="linenos">111</span><span class="n">agent</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">()</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_agent</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-imagecontent">What is <code class="docutils literal notranslate"><span class="pre">ImageContent</span></code>?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-implementation">Basic implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-creating-a-prompt-with-imagecontent">Step 1: Creating a prompt with ImageContent</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-sending-image-input-to-a-vision-capable-model">Step 2: Sending image input to a vision-capable model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-using-images-in-agent-conversations">Step 3: Using images in Agent conversations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-reference-and-practical-information">API Reference and Practical Information</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-image-formats">Supported Image Formats</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agent-spec-exporting-loading">Agent Spec Exporting/Loading</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-code">Full code</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

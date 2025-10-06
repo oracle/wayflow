@@ -1,0 +1,1198 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Evaluation APIs &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/evaluation';</script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="WayFlow Reference Sheet" href="../misc/reference_sheet.html" />
+    <link rel="prev" title="Warnings" href="warnings.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="26.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">How to Evaluate WayFlow Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">How to Evaluate Assistant Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Evaluation APIs</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="evaluation-apis">
+<span id="evaluation"></span><h1>Evaluation APIs<a class="headerlink" href="#evaluation-apis" title="Permalink to this heading">#</a></h1>
+<section id="assistant-evaluation">
+<h2>Assistant Evaluation<a class="headerlink" href="#assistant-evaluation" title="Permalink to this heading">#</a></h2>
+<span class="target" id="evaluationtask"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationTask">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.assistantevaluator.</span></span><span class="sig-name descname"><span class="pre">EvaluationTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scorers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_kwargs=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring_kwargs=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask" title="Permalink to this definition">#</a></dt>
+<dd><p>Class representing a Task for the LLM assistant to solve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task_id</strong> (<em>str</em>) – name of the task</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – description of the task, to be provided to the LLM</p></li>
+<li><p><strong>scorers</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.evaluation.taskscorer.TaskScorer" title="wayflowcore.evaluation.taskscorer.TaskScorer"><em>wayflowcore.evaluation.taskscorer.TaskScorer</em></a><em>]</em>) – list of scorers to compute metrics after execution of the LLM conversation.
+Note that each scorer can compute several metrics, but these metrics
+must be unique across scorers across all tasks, otherwise an exception is raised during the evaluation.</p></li>
+<li><p><strong>task_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – arbitrary dict containing any additional task information for the assistant to solve</p></li>
+<li><p><strong>scoring_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – arbitrary dict containing any additional task information for the scoring (e.g, ground-truth answers, expected results)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationTask.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.description" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationTask.score">
+<span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant_conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.score" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>environment</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment" title="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment"><em>EvaluationEnvironment</em></a>) – </p></li>
+<li><p><strong>assistant</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>) – </p></li>
+<li><p><strong>assistant_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationTask.score_exceptional_case">
+<span class="sig-name descname"><span class="pre">score_exceptional_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exception</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant_conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.score_exceptional_case" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>environment</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment" title="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment"><em>EvaluationEnvironment</em></a>) – </p></li>
+<li><p><strong>exception</strong> (<em>Exception</em>) – </p></li>
+<li><p><strong>assistant</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>) – </p></li>
+<li><p><strong>assistant_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationTask.scorers">
+<span class="sig-name descname"><span class="pre">scorers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wayflowcore.evaluation.taskscorer.TaskScorer" title="wayflowcore.evaluation.taskscorer.TaskScorer"><span class="pre">TaskScorer</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.scorers" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationTask.scoring_kwargs">
+<span class="sig-name descname"><span class="pre">scoring_kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.scoring_kwargs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationTask.task_id">
+<span class="sig-name descname"><span class="pre">task_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.task_id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationTask.task_kwargs">
+<span class="sig-name descname"><span class="pre">task_kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.task_kwargs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<span class="target" id="evaluationenvironment"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.assistantevaluator.</span></span><span class="sig-name descname"><span class="pre">EvaluationEnvironment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment" title="Permalink to this definition">#</a></dt>
+<dd><p><cite>EvaluationEnvironment</cite> is the abstract class to provide the entry points
+needed for the <cite>AssistantEvaluator</cite>. It is responsible for setting up
+assistants for a given task, as well as properly setting the environment
+before and after evaluating the assistant on a task.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env_id</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.get_assistant">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_assistant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.get_assistant" title="Permalink to this definition">#</a></dt>
+<dd><p>Creates the assistant for the task (or re-use a specific one already created by the environment)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask" title="wayflowcore.evaluation.assistantevaluator.EvaluationTask"><em>EvaluationTask</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.get_human_proxy">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_human_proxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.get_human_proxy" title="Permalink to this definition">#</a></dt>
+<dd><p>Creates the human proxy for the task (or re-use a specific one already created by the environment)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask" title="wayflowcore.evaluation.assistantevaluator.EvaluationTask"><em>EvaluationTask</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>HumanProxyAssistant</em> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.init_env">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.init_env" title="Permalink to this definition">#</a></dt>
+<dd><p>Method called before the run of every task to set/reset the environment</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask" title="wayflowcore.evaluation.assistantevaluator.EvaluationTask"><em>EvaluationTask</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.reset_env">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reset_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.reset_env" title="Permalink to this definition">#</a></dt>
+<dd><p>Method called after the run of every task to set/reset the environment</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask" title="wayflowcore.evaluation.assistantevaluator.EvaluationTask"><em>EvaluationTask</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.termination_check">
+<span class="sig-name descname"><span class="pre">termination_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">human_conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.termination_check" title="Permalink to this definition">#</a></dt>
+<dd><p>Method called within the assistant-human proxy conversation loop to determine
+when the conversation should terminate, basically checking for, e.g., trigger words, in the
+<cite>human_conversation</cite> (the same as the assistant conversation but switched roles, see AssistantTester).
+If not overridden, the default is to check if the human proxy utters ‘&lt;ENDED&gt;’ or ‘&lt;FAILED&gt;’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>human_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="assistantevaluator"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.AssistantEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.assistantevaluator.</span></span><span class="sig-name descname"><span class="pre">AssistantEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_conversation_rounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator" title="Permalink to this definition">#</a></dt>
+<dd><p>Class used to run the task evaluations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>environment</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment" title="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment"><em>EvaluationEnvironment</em></a><em> | </em><em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment" title="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment"><em>EvaluationEnvironment</em></a><em>]</em>) – The environment for this evaluation, or a lambda (no args) that returns a new environment instance.
+If you want to run multiple conversations in parallel, you must provide a lambda here.</p></li>
+<li><p><strong>metrics</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – The name of the metrics that need to be provided by the scorers.
+If not provided, by default will use all metrics from all the scorers passed to the EvaluationTasks</p></li>
+<li><p><strong>max_conversation_rounds</strong> (<em>int</em>) – The maximum number of conversation rounds per task.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.TASK_ATTEMPT_NO_COLUMN_NAME">
+<span class="sig-name descname"><span class="pre">TASK_ATTEMPT_NO_COLUMN_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'task_attempt_number'</span></em><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.TASK_ATTEMPT_NO_COLUMN_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.TASK_ID_COLUMN_NAME">
+<span class="sig-name descname"><span class="pre">TASK_ID_COLUMN_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'task_id'</span></em><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.TASK_ID_COLUMN_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.run_benchmark">
+<span class="sig-name descname"><span class="pre">run_benchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_exceptions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_max_concurrency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.run_benchmark" title="Permalink to this definition">#</a></dt>
+<dd><p>Runs all the tasks N times, returning a dataframe with the resulting
+scores for each task round. NaNs values indicate task failures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tasks</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask" title="wayflowcore.evaluation.assistantevaluator.EvaluationTask"><em>EvaluationTask</em></a><em>]</em>) – List of tasks to run the benchmark on.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Number of times to run each task</p></li>
+<li><p><strong>raise_exceptions</strong> (<em>bool</em>) – Whether to raise exceptions (for testing) or just mark them as errors (benchmarking)</p></li>
+<li><p><strong>_max_concurrency</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DataFrame</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="taskscorer"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.taskscorer.TaskScorer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.taskscorer.</span></span><span class="sig-name descname"><span class="pre">TaskScorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scorer_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.taskscorer.TaskScorer" title="Permalink to this definition">#</a></dt>
+<dd><p>TaskScorer is an API to implement different scores and metrics to evaluate LLMs.
+It needs to implement a <cite>score</cite> method to give a metric for a successful conversation
+and a <cite>score_exceptional_case</cite> method to give a metric for a conversation that threw an error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>scorer_id</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the scorer, to avoid conflicts if several scorers are named the same</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.taskscorer.TaskScorer.DEFAULT_SCORER_ID">
+<span class="sig-name descname"><span class="pre">DEFAULT_SCORER_ID</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.evaluation.taskscorer.TaskScorer.DEFAULT_SCORER_ID" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.taskscorer.TaskScorer.OUTPUT_METRICS">
+<span class="sig-name descname"><span class="pre">OUTPUT_METRICS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.evaluation.taskscorer.TaskScorer.OUTPUT_METRICS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.taskscorer.TaskScorer.score">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant_conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.taskscorer.TaskScorer.score" title="Permalink to this definition">#</a></dt>
+<dd><p>Retrieves relevant information from the assistants, conversations and task
+to score a specific task</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>environment</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment" title="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment"><em>EvaluationEnvironment</em></a>) – </p></li>
+<li><p><strong>task</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask" title="wayflowcore.evaluation.assistantevaluator.EvaluationTask"><em>EvaluationTask</em></a>) – </p></li>
+<li><p><strong>assistant</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>) – </p></li>
+<li><p><strong>assistant_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.taskscorer.TaskScorer.score_exceptional_case">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_exceptional_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exception</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant_conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.taskscorer.TaskScorer.score_exceptional_case" title="Permalink to this definition">#</a></dt>
+<dd><p>scores a specific task that failed with an exception</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>environment</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment" title="wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment"><em>EvaluationEnvironment</em></a>) – </p></li>
+<li><p><strong>exception</strong> (<em>Exception</em>) – </p></li>
+<li><p><strong>task</strong> (<a class="reference internal" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask" title="wayflowcore.evaluation.assistantevaluator.EvaluationTask"><em>EvaluationTask</em></a>) – </p></li>
+<li><p><strong>assistant</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>) – </p></li>
+<li><p><strong>assistant_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="runproxyconversation"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.assistantevaluator.run_proxy_agent_conversation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.assistantevaluator.</span></span><span class="sig-name descname"><span class="pre">run_proxy_agent_conversation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_conversation_rounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_agent_msg_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_exceptions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistant_conversation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">human_conversation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">human_proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_human_messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_check_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">termination_check_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.assistantevaluator.run_proxy_agent_conversation" title="Permalink to this definition">#</a></dt>
+<dd><p>Runs a conversation once. In this implementation, the human_proxy begins the conversation first,
+then the assistant, then the human_proxy, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>assistant</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>wayflowcore.conversationalcomponent.ConversationalComponent</em></a>) – component on which to run the conversation</p></li>
+<li><p><strong>max_conversation_rounds</strong> (<em>int</em>) – max number of rounds of conversations</p></li>
+<li><p><strong>only_agent_msg_type</strong> (<em>bool</em>) – messages of the agent to show to the proxy</p></li>
+<li><p><strong>raise_exceptions</strong> (<em>bool</em>) – whether to raise exceptions or just record them</p></li>
+<li><p><strong>assistant_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>wayflowcore.conversation.Conversation</em></a><em> | </em><em>None</em>) – potential conversation to continue for the component</p></li>
+<li><p><strong>human_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>wayflowcore.conversation.Conversation</em></a><em> | </em><em>None</em>) – potential conversation of the proxy to continue</p></li>
+<li><p><strong>human_proxy</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>wayflowcore.conversationalcomponent.ConversationalComponent</em></a><em> | </em><em>None</em>) – proxy to use for the conversation</p></li>
+<li><p><strong>init_human_messages</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – scripted initial interactions for the proxy</p></li>
+<li><p><strong>final_check_function</strong> (<em>Callable</em><em>[</em><em>[</em><em>bool</em><em>]</em><em>, </em><em>bool</em><em>] </em><em>| </em><em>None</em>) – callable to return True or False depending on if the conversation was a success or not</p></li>
+<li><p><strong>termination_check_function</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>wayflowcore.conversation.Conversation</em></a><em>]</em><em>, </em><em>bool</em><em>] </em><em>| </em><em>None</em>) – callable to find out if the conversation should be stopped or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>List</em>[<em>Dict</em>[str, <em>Any</em>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="assistantevaluationresult"></span><span class="target" id="humanproxyassistant"></span></section>
+<section id="conversation-evaluation">
+<h2>Conversation Evaluation<a class="headerlink" href="#conversation-evaluation" title="Permalink to this heading">#</a></h2>
+<span class="target" id="conversationevaluator"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.conversationevaluator.ConversationEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.conversationevaluator.</span></span><span class="sig-name descname"><span class="pre">ConversationEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scorers</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.conversationevaluator.ConversationEvaluator" title="Permalink to this definition">#</a></dt>
+<dd><p>Class used to run the conversation evaluation given a list of conversation scorers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>scorers</strong> (<a class="reference internal" href="#wayflowcore.evaluation.conversationscorer.ConversationScorer" title="wayflowcore.evaluation.conversationscorer.ConversationScorer"><em>ConversationScorer</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.evaluation.conversationscorer.ConversationScorer" title="wayflowcore.evaluation.conversationscorer.ConversationScorer"><em>ConversationScorer</em></a><em>]</em>) – Scorers to be used to evaluate the conversation.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.messagelist</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageList</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConversationEvaluator</span><span class="p">,</span> <span class="n">UsefulnessScorer</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conversation</span> <span class="o">=</span> <span class="n">MessageList</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;What is the capital of France&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conversation</span><span class="o">.</span><span class="n">append_agent_message</span><span class="p">(</span><span class="s2">&quot;The capital of France is Paris&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">usefulness_scorer</span> <span class="o">=</span> <span class="n">UsefulnessScorer</span><span class="p">(</span><span class="s2">&quot;usefulness_scorer1&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">evaluator</span> <span class="o">=</span> <span class="n">ConversationEvaluator</span><span class="p">(</span><span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="n">usefulness_scorer</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">evaluation_results</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">run_evaluations</span><span class="p">([</span><span class="n">conversation</span><span class="p">])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.conversationevaluator.ConversationEvaluator.run_evaluations">
+<span class="sig-name descname"><span class="pre">run_evaluations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_raw_evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.conversationevaluator.ConversationEvaluator.run_evaluations" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluates the conversations using the list of scorers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conversations</strong> (<em>List</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a><em>]</em>) – The list of conversations to evaluate</p></li>
+<li><p><strong>output_raw_evaluation</strong> (<em>bool</em>) – Whether to output the raw evaluation results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>for each conversation (rows)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A DataFrame with the conversation id [int] and the different scores [float] (columns)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.conversationevaluator.ConversationEvaluator.run_evaluations_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_evaluations_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_raw_evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.conversationevaluator.ConversationEvaluator.run_evaluations_async" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluates the conversations using the list of scorers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conversations</strong> (<em>List</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a><em>]</em>) – The list of conversations to evaluate</p></li>
+<li><p><strong>output_raw_evaluation</strong> (<em>bool</em>) – Whether to output the raw evaluation results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>for each conversation (rows)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A DataFrame with the conversation id [int] and the different scores [float] (columns)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="conversationscorer"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.conversationscorer.ConversationScorer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.conversationscorer.</span></span><span class="sig-name descname"><span class="pre">ConversationScorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scorer_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.conversationscorer.ConversationScorer" title="Permalink to this definition">#</a></dt>
+<dd><p>Base Scorer class to evaluate a conversation trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scorer_id</strong> (<em>str</em>) – The scorer identifier. Is used in the column name for the output evaluation DataFrame</p></li>
+<li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a>) – The model to use to evaluate the conversation</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.conversationscorer.ConversationScorer.score">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_messages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_raw_evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.conversationscorer.ConversationScorer.score" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conversation_messages</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a>) – </p></li>
+<li><p><strong>output_raw_evaluation</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.conversationscorer.ConversationScorer.score_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_messages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_raw_evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.conversationscorer.ConversationScorer.score_async" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conversation_messages</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a>) – </p></li>
+<li><p><strong>output_raw_evaluation</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="usefullnessscorer"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.usefulnessscorer.</span></span><span class="sig-name descname"><span class="pre">UsefulnessScorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scorer_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scorer_theme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria_descriptions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_score_to_final_score_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_aggregation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer" title="Permalink to this definition">#</a></dt>
+<dd><p>Scorer to evaluate the conversation trace given a set of criteria. The default score map
+is: <a class="reference internal" href="#defaultscoremap"><span class="std std-ref">DEFAULT_SCORE_MAP</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scorer_id</strong> (<em>str</em>) – The scorer identifier. Is used in the column name for the output evaluation DataFrame</p></li>
+<li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a>) – The model to use to evaluate the conversation</p></li>
+<li><p><strong>scorer_theme</strong> (<em>str</em><em> | </em><em>None</em>) – The score theme for the scorer (e.g. <cite>user frustration</cite>, <cite>assistant helpfulness</cite>, …)
+Is used in the evaluation prompt.</p></li>
+<li><p><strong>criteria_names</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – The list of criteria names. Is used in the output parsing.</p></li>
+<li><p><strong>criteria_descriptions</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – The list of criteria descriptions. Is used in the evaluation prompt.</p></li>
+<li><p><strong>llm_score_to_final_score_map</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em> | </em><em>None</em><em>] </em><em>| </em><em>None</em>) – Optional, the mapping from the evaluations to numbers (e.g. {‘bad’: 0, ‘good’: 1})</p></li>
+<li><p><strong>score_aggregation</strong> (<em>Literal</em><em>[</em><em>'mean'</em><em>, </em><em>'min'</em><em>, </em><em>'max'</em><em>] </em><em>| </em><em>None</em>) – Optional, must be used with <cite>llm_score_to_final_score_map</cite> to produce an aggregated
+score output. Defaults to None (no aggregation).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.CRITERIA_DESCRIPTIONS">
+<span class="sig-name descname"><span class="pre">CRITERIA_DESCRIPTIONS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['\n-</span> <span class="pre">Task</span> <span class="pre">Completion</span> <span class="pre">Efficiency\nExplanation:</span> <span class="pre">[Technical</span> <span class="pre">explanation</span> <span class="pre">here]\nScore:</span> <span class="pre">[Strongly</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Neither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">Strongly</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">N/A]\n\nStrongly</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">consistently</span> <span class="pre">fails</span> <span class="pre">to</span> <span class="pre">complete</span> <span class="pre">tasks</span> <span class="pre">or</span> <span class="pre">requires</span> <span class="pre">an</span> <span class="pre">excessive</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">turns,</span> <span class="pre">severely</span> <span class="pre">impacting</span> <span class="pre">efficiency.\nDisagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">often</span> <span class="pre">struggles</span> <span class="pre">to</span> <span class="pre">complete</span> <span class="pre">tasks,</span> <span class="pre">requiring</span> <span class="pre">more</span> <span class="pre">turns</span> <span class="pre">than</span> <span class="pre">expected</span> <span class="pre">and</span> <span class="pre">showing</span> <span class="pre">limited</span> <span class="pre">efficiency.\nNeither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">completes</span> <span class="pre">tasks</span> <span class="pre">with</span> <span class="pre">average</span> <span class="pre">efficiency,</span> <span class="pre">neither</span> <span class="pre">excelling</span> <span class="pre">nor</span> <span class="pre">failing</span> <span class="pre">noticeably.\nAgree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">generally</span> <span class="pre">completes</span> <span class="pre">tasks</span> <span class="pre">efficiently,</span> <span class="pre">often</span> <span class="pre">requiring</span> <span class="pre">fewer</span> <span class="pre">turns</span> <span class="pre">than</span> <span class="pre">expected.\nStrongly</span> <span class="pre">Agree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">consistently</span> <span class="pre">completes</span> <span class="pre">tasks</span> <span class="pre">with</span> <span class="pre">exceptional</span> <span class="pre">efficiency,</span> <span class="pre">minimizing</span> <span class="pre">the</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">turns</span> <span class="pre">and</span> <span class="pre">maximizing</span> <span class="pre">productivity.\n',</span> <span class="pre">'\n-</span> <span class="pre">Proactive</span> <span class="pre">Assistance\nExplanation:</span> <span class="pre">[Technical</span> <span class="pre">explanation</span> <span class="pre">here]\nScore:</span> <span class="pre">[Strongly</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Neither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">Strongly</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">N/A]\n\nStrongly</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">never</span> <span class="pre">anticipates</span> <span class="pre">user</span> <span class="pre">needs</span> <span class="pre">or</span> <span class="pre">offers</span> <span class="pre">additional</span> <span class="pre">relevant</span> <span class="pre">information</span> <span class="pre">beyond</span> <span class="pre">direct</span> <span class="pre">responses.\nDisagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">rarely</span> <span class="pre">provides</span> <span class="pre">proactive</span> <span class="pre">assistance,</span> <span class="pre">mostly</span> <span class="pre">responding</span> <span class="pre">reactively</span> <span class="pre">to</span> <span class="pre">user</span> <span class="pre">queries.\nNeither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">occasionally</span> <span class="pre">offers</span> <span class="pre">proactive</span> <span class="pre">assistance</span> <span class="pre">but</span> <span class="pre">is</span> <span class="pre">primarily</span> <span class="pre">reactive</span> <span class="pre">in</span> <span class="pre">its</span> <span class="pre">approach.\nAgree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">frequently</span> <span class="pre">anticipates</span> <span class="pre">user</span> <span class="pre">needs</span> <span class="pre">and</span> <span class="pre">provides</span> <span class="pre">relevant</span> <span class="pre">information</span> <span class="pre">or</span> <span class="pre">suggestions</span> <span class="pre">unprompted.\nStrongly</span> <span class="pre">Agree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">consistently</span> <span class="pre">demonstrates</span> <span class="pre">high-level</span> <span class="pre">proactive</span> <span class="pre">assistance,</span> <span class="pre">anticipating</span> <span class="pre">complex</span> <span class="pre">user</span> <span class="pre">needs</span> <span class="pre">and</span> <span class="pre">offering</span> <span class="pre">valuable</span> <span class="pre">insights.\n',</span> <span class="pre">'\n-.</span> <span class="pre">Clarification</span> <span class="pre">and</span> <span class="pre">Elaboration\nExplanation:</span> <span class="pre">[Technical</span> <span class="pre">explanation</span> <span class="pre">here]\nScore:</span> <span class="pre">[Strongly</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Neither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">Strongly</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">N/A]\n\nStrongly</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">consistently</span> <span class="pre">seeks</span> <span class="pre">clarification</span> <span class="pre">when</span> <span class="pre">appropriate</span> <span class="pre">and</span> <span class="pre">provides</span> <span class="pre">comprehensive,</span> <span class="pre">insightful</span> <span class="pre">elaboration</span> <span class="pre">on</span> <span class="pre">all</span> <span class="pre">responses.\nDisagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">frequently</span> <span class="pre">asks</span> <span class="pre">for</span> <span class="pre">clarification</span> <span class="pre">when</span> <span class="pre">needed</span> <span class="pre">and</span> <span class="pre">often</span> <span class="pre">provides</span> <span class="pre">detailed</span> <span class="pre">elaboration</span> <span class="pre">on</span> <span class="pre">its</span> <span class="pre">responses.\nNeither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">sometimes</span> <span class="pre">seeks</span> <span class="pre">clarification</span> <span class="pre">and</span> <span class="pre">provides</span> <span class="pre">basic</span> <span class="pre">elaboration</span> <span class="pre">when</span> <span class="pre">necessary.\nAgree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">rarely</span> <span class="pre">asks</span> <span class="pre">for</span> <span class="pre">clarification</span> <span class="pre">or</span> <span class="pre">elaborates</span> <span class="pre">on</span> <span class="pre">its</span> <span class="pre">responses,</span> <span class="pre">often</span> <span class="pre">leading</span> <span class="pre">to</span> <span class="pre">misunderstandings.\nStrongly</span> <span class="pre">Agree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">never</span> <span class="pre">seeks</span> <span class="pre">clarification</span> <span class="pre">when</span> <span class="pre">needed</span> <span class="pre">and</span> <span class="pre">provides</span> <span class="pre">minimal</span> <span class="pre">or</span> <span class="pre">no</span> <span class="pre">elaboration</span> <span class="pre">on</span> <span class="pre">its</span> <span class="pre">responses.\n']</span></em><a class="headerlink" href="#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.CRITERIA_DESCRIPTIONS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.CRITERIA_NAMES">
+<span class="sig-name descname"><span class="pre">CRITERIA_NAMES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Task</span> <span class="pre">Completion</span> <span class="pre">Efficiency',</span> <span class="pre">'Proactive</span> <span class="pre">Assistance',</span> <span class="pre">'Clarification</span> <span class="pre">and</span> <span class="pre">Elaboration']</span></em><a class="headerlink" href="#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.CRITERIA_NAMES" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.SCORER_THEME">
+<span class="sig-name descname"><span class="pre">SCORER_THEME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'User</span> <span class="pre">Helpfulness'</span></em><a class="headerlink" href="#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.SCORER_THEME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<span class="target" id="userhappinessscorer"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.userhappinessscorer.</span></span><span class="sig-name descname"><span class="pre">UserHappinessScorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scorer_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scorer_theme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria_descriptions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_score_to_final_score_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_aggregation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer" title="Permalink to this definition">#</a></dt>
+<dd><p>Scorer to evaluate the conversation trace given a set of criteria. The default score map
+is: <a class="reference internal" href="#defaultscoremap"><span class="std std-ref">DEFAULT_SCORE_MAP</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scorer_id</strong> (<em>str</em>) – The scorer identifier. Is used in the column name for the output evaluation DataFrame</p></li>
+<li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a>) – The model to use to evaluate the conversation</p></li>
+<li><p><strong>scorer_theme</strong> (<em>str</em><em> | </em><em>None</em>) – The score theme for the scorer (e.g. <cite>user frustration</cite>, <cite>assistant helpfulness</cite>, …)
+Is used in the evaluation prompt.</p></li>
+<li><p><strong>criteria_names</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – The list of criteria names. Is used in the output parsing.</p></li>
+<li><p><strong>criteria_descriptions</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – The list of criteria descriptions. Is used in the evaluation prompt.</p></li>
+<li><p><strong>llm_score_to_final_score_map</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em> | </em><em>None</em><em>] </em><em>| </em><em>None</em>) – Optional, the mapping from the evaluations to numbers (e.g. {‘bad’: 0, ‘good’: 1})</p></li>
+<li><p><strong>score_aggregation</strong> (<em>Literal</em><em>[</em><em>'mean'</em><em>, </em><em>'min'</em><em>, </em><em>'max'</em><em>] </em><em>| </em><em>None</em>) – Optional, must be used with <cite>llm_score_to_final_score_map</cite> to produce an aggregated
+score output. Defaults to None (no aggregation).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.CRITERIA_DESCRIPTIONS">
+<span class="sig-name descname"><span class="pre">CRITERIA_DESCRIPTIONS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&quot;\n-</span> <span class="pre">Query</span> <span class="pre">Repetition</span> <span class="pre">Frequency\nExplanation:</span> <span class="pre">[Technical</span> <span class="pre">explanation</span> <span class="pre">here]\nScore:</span> <span class="pre">[Strongly</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Neither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">Strongly</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">N/A]\n\nStrongly</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">user</span> <span class="pre">consistently</span> <span class="pre">needs</span> <span class="pre">to</span> <span class="pre">repeat</span> <span class="pre">queries</span> <span class="pre">multiple</span> <span class="pre">times,</span> <span class="pre">indicating</span> <span class="pre">severe</span> <span class="pre">communication</span> <span class="pre">issues</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">AI.\nDisagree:</span> <span class="pre">The</span> <span class="pre">user</span> <span class="pre">frequently</span> <span class="pre">needs</span> <span class="pre">to</span> <span class="pre">repeat</span> <span class="pre">queries</span> <span class="pre">due</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">AI's</span> <span class="pre">misunderstanding</span> <span class="pre">or</span> <span class="pre">inadequate</span> <span class="pre">responses.\nNeither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">user</span> <span class="pre">occasionally</span> <span class="pre">needs</span> <span class="pre">to</span> <span class="pre">repeat</span> <span class="pre">queries,</span> <span class="pre">but</span> <span class="pre">it</span> <span class="pre">doesn't</span> <span class="pre">significantly</span> <span class="pre">impact</span> <span class="pre">the</span> <span class="pre">conversation</span> <span class="pre">flow.\nAgree:</span> <span class="pre">The</span> <span class="pre">user</span> <span class="pre">rarely</span> <span class="pre">needs</span> <span class="pre">to</span> <span class="pre">repeat</span> <span class="pre">queries;</span> <span class="pre">the</span> <span class="pre">AI</span> <span class="pre">generally</span> <span class="pre">understands</span> <span class="pre">and</span> <span class="pre">addresses</span> <span class="pre">requests</span> <span class="pre">effectively.\nStrongly</span> <span class="pre">Agree:</span> <span class="pre">The</span> <span class="pre">user</span> <span class="pre">never</span> <span class="pre">needs</span> <span class="pre">to</span> <span class="pre">repeat</span> <span class="pre">queries;</span> <span class="pre">the</span> <span class="pre">AI</span> <span class="pre">understands</span> <span class="pre">and</span> <span class="pre">addresses</span> <span class="pre">all</span> <span class="pre">requests</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">first</span> <span class="pre">attempt.\n&quot;,</span> <span class="pre">&quot;\n-</span> <span class="pre">Misinterpretation</span> <span class="pre">of</span> <span class="pre">User</span> <span class="pre">Intent\nExplanation:</span> <span class="pre">[Technical</span> <span class="pre">explanation</span> <span class="pre">here]\nScore:</span> <span class="pre">[Strongly</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Neither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">Strongly</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">N/A]\n\nStrongly</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">consistently</span> <span class="pre">misinterprets</span> <span class="pre">user</span> <span class="pre">intent,</span> <span class="pre">repeatedly</span> <span class="pre">failing</span> <span class="pre">to</span> <span class="pre">understand</span> <span class="pre">or</span> <span class="pre">address</span> <span class="pre">the</span> <span class="pre">user's</span> <span class="pre">true</span> <span class="pre">goals.\nDisagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">frequently</span> <span class="pre">misinterprets</span> <span class="pre">user</span> <span class="pre">intent,</span> <span class="pre">often</span> <span class="pre">providing</span> <span class="pre">responses</span> <span class="pre">that</span> <span class="pre">don't</span> <span class="pre">align</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">user's</span> <span class="pre">actual</span> <span class="pre">needs.\nNeither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">occasionally</span> <span class="pre">misinterprets</span> <span class="pre">user</span> <span class="pre">intent,</span> <span class="pre">but</span> <span class="pre">usually</span> <span class="pre">corrects</span> <span class="pre">itself</span> <span class="pre">or</span> <span class="pre">seeks</span> <span class="pre">clarification.\nAgree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">rarely</span> <span class="pre">misinterprets</span> <span class="pre">user</span> <span class="pre">intent,</span> <span class="pre">generally</span> <span class="pre">providing</span> <span class="pre">responses</span> <span class="pre">aligned</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">user's</span> <span class="pre">goals.\nStrongly</span> <span class="pre">Agree:</span> <span class="pre">The</span> <span class="pre">AI</span> <span class="pre">never</span> <span class="pre">misinterprets</span> <span class="pre">user</span> <span class="pre">intent,</span> <span class="pre">consistently</span> <span class="pre">understanding</span> <span class="pre">and</span> <span class="pre">addressing</span> <span class="pre">the</span> <span class="pre">user's</span> <span class="pre">actual</span> <span class="pre">needs.\n&quot;,</span> <span class="pre">'\n-</span> <span class="pre">Conversation</span> <span class="pre">Flow</span> <span class="pre">Disruption\nExplanation:</span> <span class="pre">[Technical</span> <span class="pre">explanation</span> <span class="pre">here]\nScore:</span> <span class="pre">[Strongly</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Neither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree</span> <span class="pre">|</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">Strongly</span> <span class="pre">Agree</span> <span class="pre">|</span> <span class="pre">N/A]\n\nStrongly</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">conversation</span> <span class="pre">is</span> <span class="pre">severely</span> <span class="pre">disrupted</span> <span class="pre">throughout;</span> <span class="pre">the</span> <span class="pre">AI</span> <span class="pre">consistently</span> <span class="pre">loses</span> <span class="pre">context,</span> <span class="pre">introduces</span> <span class="pre">irrelevant</span> <span class="pre">information,</span> <span class="pre">or</span> <span class="pre">abruptly</span> <span class="pre">changes</span> <span class="pre">topics.\nDisagree:</span> <span class="pre">The</span> <span class="pre">conversation</span> <span class="pre">is</span> <span class="pre">frequently</span> <span class="pre">disrupted;</span> <span class="pre">the</span> <span class="pre">AI</span> <span class="pre">often</span> <span class="pre">loses</span> <span class="pre">context</span> <span class="pre">or</span> <span class="pre">introduces</span> <span class="pre">irrelevant</span> <span class="pre">information.\nNeither</span> <span class="pre">Agree</span> <span class="pre">nor</span> <span class="pre">Disagree:</span> <span class="pre">The</span> <span class="pre">conversation</span> <span class="pre">has</span> <span class="pre">occasional</span> <span class="pre">disruptions,</span> <span class="pre">but</span> <span class="pre">the</span> <span class="pre">AI</span> <span class="pre">usually</span> <span class="pre">recovers</span> <span class="pre">and</span> <span class="pre">maintains</span> <span class="pre">adequate</span> <span class="pre">flow.\nAgree:</span> <span class="pre">The</span> <span class="pre">conversation</span> <span class="pre">generally</span> <span class="pre">flows</span> <span class="pre">well</span> <span class="pre">with</span> <span class="pre">minimal</span> <span class="pre">disruptions;</span> <span class="pre">the</span> <span class="pre">AI</span> <span class="pre">maintains</span> <span class="pre">good</span> <span class="pre">continuity</span> <span class="pre">and</span> <span class="pre">context.\nStrongly</span> <span class="pre">Agree:</span> <span class="pre">The</span> <span class="pre">conversation</span> <span class="pre">flows</span> <span class="pre">seamlessly</span> <span class="pre">with</span> <span class="pre">no</span> <span class="pre">disruptions;</span> <span class="pre">the</span> <span class="pre">AI</span> <span class="pre">maintains</span> <span class="pre">perfect</span> <span class="pre">continuity</span> <span class="pre">and</span> <span class="pre">context.\n']</span></em><a class="headerlink" href="#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.CRITERIA_DESCRIPTIONS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.CRITERIA_NAMES">
+<span class="sig-name descname"><span class="pre">CRITERIA_NAMES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Query</span> <span class="pre">Repetition</span> <span class="pre">Frequency',</span> <span class="pre">'Misinterpretation</span> <span class="pre">of</span> <span class="pre">User</span> <span class="pre">Intent',</span> <span class="pre">'Conversation</span> <span class="pre">Flow</span> <span class="pre">Disruption']</span></em><a class="headerlink" href="#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.CRITERIA_NAMES" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.SCORER_THEME">
+<span class="sig-name descname"><span class="pre">SCORER_THEME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'User</span> <span class="pre">Frustration</span> <span class="pre">/</span> <span class="pre">Happiness'</span></em><a class="headerlink" href="#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.SCORER_THEME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<span class="target" id="criteriascorer"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.criteriascorer.CriteriaScorer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.criteriascorer.</span></span><span class="sig-name descname"><span class="pre">CriteriaScorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scorer_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scorer_theme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria_descriptions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm_score_to_final_score_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_aggregation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer" title="Permalink to this definition">#</a></dt>
+<dd><p>Scorer to evaluate the conversation trace given a set of criteria. The default score map
+is: <a class="reference internal" href="#defaultscoremap"><span class="std std-ref">DEFAULT_SCORE_MAP</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scorer_id</strong> (<em>str</em>) – The scorer identifier. Is used in the column name for the output evaluation DataFrame</p></li>
+<li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a>) – The model to use to evaluate the conversation</p></li>
+<li><p><strong>scorer_theme</strong> (<em>str</em><em> | </em><em>None</em>) – The score theme for the scorer (e.g. <cite>user frustration</cite>, <cite>assistant helpfulness</cite>, …)
+Is used in the evaluation prompt.</p></li>
+<li><p><strong>criteria_names</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – The list of criteria names. Is used in the output parsing.</p></li>
+<li><p><strong>criteria_descriptions</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – The list of criteria descriptions. Is used in the evaluation prompt.</p></li>
+<li><p><strong>llm_score_to_final_score_map</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em> | </em><em>None</em><em>] </em><em>| </em><em>None</em>) – Optional, the mapping from the evaluations to numbers (e.g. {‘bad’: 0, ‘good’: 1})</p></li>
+<li><p><strong>score_aggregation</strong> (<em>Literal</em><em>[</em><em>'mean'</em><em>, </em><em>'min'</em><em>, </em><em>'max'</em><em>] </em><em>| </em><em>None</em>) – Optional, must be used with <cite>llm_score_to_final_score_map</cite> to produce an aggregated
+score output. Defaults to None (no aggregation).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.criteriascorer.CriteriaScorer.CRITERIA_DESCRIPTIONS">
+<span class="sig-name descname"><span class="pre">CRITERIA_DESCRIPTIONS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer.CRITERIA_DESCRIPTIONS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.criteriascorer.CriteriaScorer.CRITERIA_NAMES">
+<span class="sig-name descname"><span class="pre">CRITERIA_NAMES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer.CRITERIA_NAMES" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.criteriascorer.CriteriaScorer.SCORER_THEME">
+<span class="sig-name descname"><span class="pre">SCORER_THEME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer.SCORER_THEME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.criteriascorer.CriteriaScorer.score">
+<span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_messages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_raw_evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer.score" title="Permalink to this definition">#</a></dt>
+<dd><p>Scores the conversation, focusing on the criteria described in the criteria descriptions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conversation_messages</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a>) – Messages to score</p></li>
+<li><p><strong>output_raw_evaluation</strong> (<em>bool</em>) – Whether to output the raw evaluation results or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.criteriascorer.CriteriaScorer.score_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation_messages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_raw_evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer.score_async" title="Permalink to this definition">#</a></dt>
+<dd><p>Scores the conversation, focusing on the criteria described in the criteria descriptions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conversation_messages</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a>) – Messages to score</p></li>
+<li><p><strong>output_raw_evaluation</strong> (<em>bool</em>) – Whether to output the raw evaluation results or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="defaultscoremap"></span><dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.criteriascorer.DEFAULT_SCORE_MAP">
+<span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.criteriascorer.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_SCORE_MAP</span></span><a class="headerlink" href="#wayflowcore.evaluation.criteriascorer.DEFAULT_SCORE_MAP" title="Permalink to this definition">#</a></dt>
+<dd><p>alias of {‘N/A’: None, ‘agree’: 3.0, ‘disagree’: 1.0, ‘neither agree nor disagree’: 2.0, ‘not applicable’: None, ‘strongly agree’: 4.0, ‘strongly disagree’: 0.0}</p>
+</dd></dl>
+
+</section>
+<section id="evaluation-metrics">
+<h2>Evaluation Metrics<a class="headerlink" href="#evaluation-metrics" title="Permalink to this heading">#</a></h2>
+<span class="target" id="calculate-set-metrics"></span><dl class="py function">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.evaluation_metrics.calculate_set_metrics">
+<span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.evaluation_metrics.</span></span><span class="sig-name descname"><span class="pre">calculate_set_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ground_truth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.evaluation_metrics.calculate_set_metrics" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate precision, recall, and F1 for set-based comparisons (where order doesn’t matter)</p>
+<p>This function implements the following rules and behaviors:</p>
+<p><strong>Input Handling:</strong>
+- Accepts pandas Series containing sets, JSON strings of lists, or single values
+- JSON string representations of lists are parsed and converted to sets
+- Invalid JSON strings fall back to single-element sets containing the original value
+- Non-iterable values (strings, numbers) are wrapped in single-element sets
+- NaN/None values are treated as empty sets
+- Both series must have the same length (raises ValueError otherwise)</p>
+<p><strong>Metric Calculations:</strong>
+- Precision = intersection_size / predicted_set_size (0.0 if predicted set is empty)
+- Recall = intersection_size / ground_truth_set_size (0.0 if ground truth set is empty)
+- F1 = 2 * (precision * recall) / (precision + recall) (0.0 if both precision and recall are 0)
+- Final metrics are averages across all items in the series</p>
+<p><strong>Type Conversions:</strong>
+- Sets remain as sets
+- JSON strings like ‘[“a”, “b”]’ are parsed to sets
+- Single values like “apple” become {“apple”}
+- Invalid JSON becomes single-element sets
+- NaN/None becomes empty set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ground_truth</strong> (<em>Series</em>) – Series containing ground truth values (can be JSON strings of lists)</p></li>
+<li><p><strong>predicted</strong> (<em>Series</em>) – Series containing predicted values (can be JSON strings of lists)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with precision, recall, and f1 scores (all float values between 0.0 and 1.0)</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the series have different lengths</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, float]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.evaluation.evaluation_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_set_metrics</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ground_truth_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([{</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="s2">&quot;c&quot;</span><span class="p">},</span> <span class="nb">set</span><span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">}])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">predicted_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([{</span><span class="s2">&quot;a&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">}])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metrics</span> <span class="o">=</span> <span class="n">calculate_set_metrics</span><span class="p">(</span><span class="n">ground_truth_series</span><span class="p">,</span> <span class="n">predicted_series</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># metrics should be {&quot;precision&quot;: 0.6667, &quot;recall&quot;: 0.4444, &quot;f1&quot;: 0.5333}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<span class="target" id="calculate-accuracy"></span><dl class="py function">
+<dt class="sig sig-object py" id="wayflowcore.evaluation.evaluation_metrics.calculate_accuracy">
+<span class="sig-prename descclassname"><span class="pre">wayflowcore.evaluation.evaluation_metrics.</span></span><span class="sig-name descname"><span class="pre">calculate_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ground_truth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.evaluation.evaluation_metrics.calculate_accuracy" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate accuracy for exact matches (where order matters)</p>
+<p>This function implements the following rules and behaviors:</p>
+<p><strong>Preprocessing Rules:</strong>
+- All values are converted to strings using astype(str)
+- All strings are converted to lowercase using str.lower() (case-insensitive matching)
+- Leading and trailing whitespace is stripped using str.strip()
+- NaN/None values are replaced with empty strings using fillna(“”)</p>
+<p><strong>Type Conversions:</strong>
+- Numbers: 42 → “42”, 3.14 → “3.14”
+- Booleans: True → “true”, False → “false” (after lowercase conversion)
+- Strings: “APPLE” → “apple”, “ Hello “ → “hello”
+- NaN/None: → “” (empty string)</p>
+<p><strong>Matching Rules:</strong>
+- Performs exact string matching after all preprocessing
+- Case-insensitive: “APPLE” matches “apple”
+- Whitespace-insensitive: “ hello “ matches “hello”
+- Type-flexible: 42 matches “42”, True matches “true”</p>
+<p><strong>Calculation:</strong>
+- Accuracy = (number of exact matches) / (total number of items)
+- Returns value between 0.0 (no matches) and 1.0 (all matches)
+- Empty series returns 0.0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ground_truth</strong> (<em>Series</em>) – Series containing ground truth values</p></li>
+<li><p><strong>predicted</strong> (<em>Series</em>) – Series containing predicted values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with accuracy score (float between 0.0 and 1.0)</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the series have different lengths</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, float]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.evaluation.evaluation_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_accuracy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ground_truth_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;apple&quot;</span><span class="p">,</span> <span class="s2">&quot;banana&quot;</span><span class="p">,</span> <span class="s2">&quot;cherry&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">predicted_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;apple&quot;</span><span class="p">,</span> <span class="s2">&quot;banana&quot;</span><span class="p">,</span> <span class="s2">&quot;orange&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metrics</span> <span class="o">=</span> <span class="n">calculate_accuracy</span><span class="p">(</span><span class="n">ground_truth_series</span><span class="p">,</span> <span class="n">predicted_series</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># metrics should be {&quot;accuracy&quot;: 0.6667}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assistant-evaluation">Assistant Evaluation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask"><code class="docutils literal notranslate"><span class="pre">EvaluationTask</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.description"><code class="docutils literal notranslate"><span class="pre">EvaluationTask.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.score"><code class="docutils literal notranslate"><span class="pre">EvaluationTask.score()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.score_exceptional_case"><code class="docutils literal notranslate"><span class="pre">EvaluationTask.score_exceptional_case()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.scorers"><code class="docutils literal notranslate"><span class="pre">EvaluationTask.scorers</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.scoring_kwargs"><code class="docutils literal notranslate"><span class="pre">EvaluationTask.scoring_kwargs</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.task_id"><code class="docutils literal notranslate"><span class="pre">EvaluationTask.task_id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationTask.task_kwargs"><code class="docutils literal notranslate"><span class="pre">EvaluationTask.task_kwargs</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment"><code class="docutils literal notranslate"><span class="pre">EvaluationEnvironment</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.get_assistant"><code class="docutils literal notranslate"><span class="pre">EvaluationEnvironment.get_assistant()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.get_human_proxy"><code class="docutils literal notranslate"><span class="pre">EvaluationEnvironment.get_human_proxy()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.init_env"><code class="docutils literal notranslate"><span class="pre">EvaluationEnvironment.init_env()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.reset_env"><code class="docutils literal notranslate"><span class="pre">EvaluationEnvironment.reset_env()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.termination_check"><code class="docutils literal notranslate"><span class="pre">EvaluationEnvironment.termination_check()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator"><code class="docutils literal notranslate"><span class="pre">AssistantEvaluator</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.TASK_ATTEMPT_NO_COLUMN_NAME"><code class="docutils literal notranslate"><span class="pre">AssistantEvaluator.TASK_ATTEMPT_NO_COLUMN_NAME</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.TASK_ID_COLUMN_NAME"><code class="docutils literal notranslate"><span class="pre">AssistantEvaluator.TASK_ID_COLUMN_NAME</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.run_benchmark"><code class="docutils literal notranslate"><span class="pre">AssistantEvaluator.run_benchmark()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.taskscorer.TaskScorer"><code class="docutils literal notranslate"><span class="pre">TaskScorer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.taskscorer.TaskScorer.DEFAULT_SCORER_ID"><code class="docutils literal notranslate"><span class="pre">TaskScorer.DEFAULT_SCORER_ID</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.taskscorer.TaskScorer.OUTPUT_METRICS"><code class="docutils literal notranslate"><span class="pre">TaskScorer.OUTPUT_METRICS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.taskscorer.TaskScorer.score"><code class="docutils literal notranslate"><span class="pre">TaskScorer.score()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.taskscorer.TaskScorer.score_exceptional_case"><code class="docutils literal notranslate"><span class="pre">TaskScorer.score_exceptional_case()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.assistantevaluator.run_proxy_agent_conversation"><code class="docutils literal notranslate"><span class="pre">run_proxy_agent_conversation</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conversation-evaluation">Conversation Evaluation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.conversationevaluator.ConversationEvaluator"><code class="docutils literal notranslate"><span class="pre">ConversationEvaluator</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.conversationevaluator.ConversationEvaluator.run_evaluations"><code class="docutils literal notranslate"><span class="pre">ConversationEvaluator.run_evaluations()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.conversationevaluator.ConversationEvaluator.run_evaluations_async"><code class="docutils literal notranslate"><span class="pre">ConversationEvaluator.run_evaluations_async()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.conversationscorer.ConversationScorer"><code class="docutils literal notranslate"><span class="pre">ConversationScorer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.conversationscorer.ConversationScorer.score"><code class="docutils literal notranslate"><span class="pre">ConversationScorer.score()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.conversationscorer.ConversationScorer.score_async"><code class="docutils literal notranslate"><span class="pre">ConversationScorer.score_async()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer"><code class="docutils literal notranslate"><span class="pre">UsefulnessScorer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.CRITERIA_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">UsefulnessScorer.CRITERIA_DESCRIPTIONS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.CRITERIA_NAMES"><code class="docutils literal notranslate"><span class="pre">UsefulnessScorer.CRITERIA_NAMES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.SCORER_THEME"><code class="docutils literal notranslate"><span class="pre">UsefulnessScorer.SCORER_THEME</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer"><code class="docutils literal notranslate"><span class="pre">UserHappinessScorer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.CRITERIA_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">UserHappinessScorer.CRITERIA_DESCRIPTIONS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.CRITERIA_NAMES"><code class="docutils literal notranslate"><span class="pre">UserHappinessScorer.CRITERIA_NAMES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.SCORER_THEME"><code class="docutils literal notranslate"><span class="pre">UserHappinessScorer.SCORER_THEME</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer"><code class="docutils literal notranslate"><span class="pre">CriteriaScorer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer.CRITERIA_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">CriteriaScorer.CRITERIA_DESCRIPTIONS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer.CRITERIA_NAMES"><code class="docutils literal notranslate"><span class="pre">CriteriaScorer.CRITERIA_NAMES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer.SCORER_THEME"><code class="docutils literal notranslate"><span class="pre">CriteriaScorer.SCORER_THEME</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer.score"><code class="docutils literal notranslate"><span class="pre">CriteriaScorer.score()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.criteriascorer.CriteriaScorer.score_async"><code class="docutils literal notranslate"><span class="pre">CriteriaScorer.score_async()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.criteriascorer.DEFAULT_SCORE_MAP"><code class="docutils literal notranslate"><span class="pre">DEFAULT_SCORE_MAP</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-metrics">Evaluation Metrics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.evaluation_metrics.calculate_set_metrics"><code class="docutils literal notranslate"><span class="pre">calculate_set_metrics()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.evaluation.evaluation_metrics.calculate_accuracy"><code class="docutils literal notranslate"><span class="pre">calculate_accuracy()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
