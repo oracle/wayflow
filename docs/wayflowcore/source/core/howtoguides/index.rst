@@ -92,6 +92,7 @@ These guides demonstrate how to configure the components of assistants built wit
    Install and Use Ollama <installing_ollama>
    Enable Tracing <howto_tracing>
 
+
 Data in Assistants
 ------------------
 
@@ -100,6 +101,14 @@ Data in Assistants
 
    Connect Assistants to Your Data <howto_datastores>
    Use Embedding Models from Different Providers <embeddingmodels_from_different_providers>
-   How to Evaluate WayFlow Assistants <howto_evaluation>
-   How to Evaluate Assistant Conversations <howto_conversation_evaluation>
    Use Variables for Shared State in Flows <howto_variable>
+
+
+Assistant Testing and Evaluation
+--------------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   Evaluate Assistants <howto_evaluation>
+   Evaluate Conversations <howto_conversation_evaluation>
