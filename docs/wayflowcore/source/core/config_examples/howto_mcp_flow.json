@@ -1,0 +1,164 @@
+{
+    "component_type": "Flow",
+    "id": "f87896a0-62c2-4bf0-9999-7f2c91466369",
+    "name": "flow_4aa9c976__auto",
+    "description": "",
+    "metadata": {
+        "__metadata_info__": {}
+    },
+    "inputs": [],
+    "outputs": [
+        {
+            "type": "string",
+            "title": "tool_output"
+        }
+    ],
+    "start_node": {
+        "$component_ref": "8cb3bb26-f92c-4c6b-a044-34229d4300d7"
+    },
+    "nodes": [
+        {
+            "$component_ref": "0898c700-b180-4bbd-aab5-cbd8e16f5b4f"
+        },
+        {
+            "$component_ref": "8cb3bb26-f92c-4c6b-a044-34229d4300d7"
+        },
+        {
+            "$component_ref": "1dc851f1-7b43-419c-b08a-031d509abaf6"
+        }
+    ],
+    "control_flow_connections": [
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "62fc12c8-c853-4b6a-89f3-177ec8368210",
+            "name": "__StartStep___to_mcp_tool_step_control_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "from_node": {
+                "$component_ref": "8cb3bb26-f92c-4c6b-a044-34229d4300d7"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "0898c700-b180-4bbd-aab5-cbd8e16f5b4f"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "bb3fe1fc-76d7-4a82-b4bf-d2cee6618d1e",
+            "name": "mcp_tool_step_to_None End node_control_flow_edge",
+            "description": null,
+            "metadata": {},
+            "from_node": {
+                "$component_ref": "0898c700-b180-4bbd-aab5-cbd8e16f5b4f"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "1dc851f1-7b43-419c-b08a-031d509abaf6"
+            }
+        }
+    ],
+    "data_flow_connections": [
+        {
+            "component_type": "DataFlowEdge",
+            "id": "b2b6ceb1-1ab8-48a0-b34c-bfad4ddd7927",
+            "name": "mcp_tool_step_tool_output_to_None End node_tool_output_data_flow_edge",
+            "description": null,
+            "metadata": {},
+            "source_node": {
+                "$component_ref": "0898c700-b180-4bbd-aab5-cbd8e16f5b4f"
+            },
+            "source_output": "tool_output",
+            "destination_node": {
+                "$component_ref": "1dc851f1-7b43-419c-b08a-031d509abaf6"
+            },
+            "destination_input": "tool_output"
+        }
+    ],
+    "$referenced_components": {
+        "0898c700-b180-4bbd-aab5-cbd8e16f5b4f": {
+            "component_type": "ToolNode",
+            "id": "0898c700-b180-4bbd-aab5-cbd8e16f5b4f",
+            "name": "mcp_tool_step",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "string",
+                    "title": "tool_output"
+                }
+            ],
+            "branches": [
+                "next"
+            ],
+            "tool": {
+                "component_type": "MCPTool",
+                "id": "ca82dd68-00a8-4b57-b996-7d30369d85b8",
+                "name": "generate_random_string",
+                "description": "Tool to return a random string",
+                "metadata": {
+                    "__metadata_info__": {}
+                },
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "string",
+                        "title": "tool_output"
+                    }
+                ],
+                "client_transport": {
+                    "component_type": "SSETransport",
+                    "id": "ca2e9a97-6e1a-4f11-931a-774826c975ad",
+                    "name": "mcp_client_transport",
+                    "description": null,
+                    "metadata": {},
+                    "session_parameters": {
+                        "read_timeout_seconds": 60
+                    },
+                    "url": "http://localhost:61799/sse",
+                    "headers": null
+                }
+            }
+        },
+        "8cb3bb26-f92c-4c6b-a044-34229d4300d7": {
+            "component_type": "StartNode",
+            "id": "8cb3bb26-f92c-4c6b-a044-34229d4300d7",
+            "name": "__StartStep__",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [],
+            "outputs": [],
+            "branches": [
+                "next"
+            ]
+        },
+        "1dc851f1-7b43-419c-b08a-031d509abaf6": {
+            "component_type": "EndNode",
+            "id": "1dc851f1-7b43-419c-b08a-031d509abaf6",
+            "name": "None End node",
+            "description": "End node representing all transitions to None in the WayFlow flow",
+            "metadata": {},
+            "inputs": [
+                {
+                    "type": "string",
+                    "title": "tool_output"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "string",
+                    "title": "tool_output"
+                }
+            ],
+            "branches": [],
+            "branch_name": "next"
+        }
+    },
+    "agentspec_version": "25.4.1"
+}

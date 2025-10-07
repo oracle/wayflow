@@ -1,0 +1,213 @@
+{
+    "component_type": "ExtendedAgent",
+    "id": "024a2c39-3695-450f-a950-eabc1663db17",
+    "name": "agent_b2a01d24__auto",
+    "description": "",
+    "metadata": {
+        "__metadata_info__": {}
+    },
+    "inputs": [],
+    "outputs": [],
+    "llm_config": {
+        "component_type": "VllmConfig",
+        "id": "f42c7884-3cfb-4f82-86eb-1cea1a5a51c6",
+        "name": "LLAMA_MODEL_ID",
+        "description": null,
+        "metadata": {
+            "__metadata_info__": {}
+        },
+        "default_generation_parameters": {
+            "max_tokens": 512
+        },
+        "url": "LLAMA_API_URL",
+        "model_id": "LLAMA_MODEL_ID"
+    },
+    "system_prompt": "",
+    "tools": [],
+    "toolboxes": [
+        {
+            "component_type": "PluginMCPToolBox",
+            "id": "43a0c0dc-2638-4dee-b868-44dd2b9afa35",
+            "name": "",
+            "description": null,
+            "metadata": {},
+            "client_transport": {
+                "component_type": "SSETransport",
+                "id": "ca2e9a97-6e1a-4f11-931a-774826c975ad",
+                "name": "mcp_client_transport",
+                "description": null,
+                "metadata": {},
+                "session_parameters": {
+                    "read_timeout_seconds": 60
+                },
+                "url": "http://localhost:61799/sse",
+                "headers": null
+            },
+            "tool_filter": null,
+            "component_plugin_name": "MCPPlugin",
+            "component_plugin_version": "25.4.1"
+        }
+    ],
+    "context_providers": null,
+    "can_finish_conversation": false,
+    "max_iterations": 10,
+    "initial_message": "Hi! How can I help you?",
+    "caller_input_mode": "always",
+    "agents": [],
+    "flows": [],
+    "agent_template": {
+        "component_type": "PluginPromptTemplate",
+        "id": "b33b40c4-02d2-4f91-b60a-d3ea1c4d725d",
+        "name": "",
+        "description": null,
+        "metadata": {
+            "__metadata_info__": {}
+        },
+        "messages": [
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "{%- if __TOOLS__ -%}\nEnvironment: ipython\nCutting Knowledge Date: December 2023\n\nYou are a helpful assistant with tool calling capabilities. Only reply with a tool call if the function exists in the library provided by the user. If it doesn't exist, just reply directly in natural language. When you receive a tool call response, use the output to format an answer to the original user question.\n\nYou have access to the following functions. To call a function, please respond with JSON for a function call.\nRespond in the format {\"name\": function name, \"parameters\": dictionary of argument name and its value}.\nDo not use variables.\n\n[{% for tool in __TOOLS__%}{{tool.to_openai_format() | tojson}}{{', ' if not loop.last}}{% endfor %}]\n{%- endif -%}\n"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2025-10-07T08:08:34.942842+00:00",
+                "time_updated": "2025-10-07T08:08:34.942844+00:00"
+            },
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "{%- if custom_instruction -%}Additional instructions:\n{{custom_instruction}}{%- endif -%}"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2025-10-07T08:08:34.942869+00:00",
+                "time_updated": "2025-10-07T08:08:34.942870+00:00"
+            },
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "$$__CHAT_HISTORY_PLACEHOLDER__$$"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2025-10-07T08:08:34.934280+00:00",
+                "time_updated": "2025-10-07T08:08:34.934523+00:00"
+            },
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "{% if __PLAN__ %}The current plan you should follow is the following: \n{{__PLAN__}}{% endif %}"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2025-10-07T08:08:34.942886+00:00",
+                "time_updated": "2025-10-07T08:08:34.942886+00:00"
+            }
+        ],
+        "output_parser": {
+            "component_type": "PluginJsonToolOutputParser",
+            "id": "b5e2e684-7434-4efd-857d-06d9172c2bab",
+            "name": "jsontool_outputparser",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "tools": null,
+            "component_plugin_name": "OutputParserPlugin",
+            "component_plugin_version": "25.4.1"
+        },
+        "inputs": [
+            {
+                "description": "\"__TOOLS__\" input variable for the template",
+                "title": "__TOOLS__"
+            },
+            {
+                "description": "\"custom_instruction\" input variable for the template",
+                "type": "string",
+                "title": "custom_instruction"
+            },
+            {
+                "description": "\"__PLAN__\" input variable for the template",
+                "type": "string",
+                "title": "__PLAN__",
+                "default": ""
+            },
+            {
+                "type": "array",
+                "items": {},
+                "title": "__CHAT_HISTORY__"
+            }
+        ],
+        "pre_rendering_transforms": null,
+        "post_rendering_transforms": [
+            {
+                "component_type": "PluginRemoveEmptyNonUserMessageTransform",
+                "id": "10c7ba9e-49a7-4c1e-b317-081daa14e771",
+                "name": "removeemptynonusermessage_messagetransform",
+                "description": null,
+                "metadata": {
+                    "__metadata_info__": {}
+                },
+                "component_plugin_name": "MessageTransformPlugin",
+                "component_plugin_version": "25.4.1"
+            },
+            {
+                "component_type": "PluginCoalesceSystemMessagesTransform",
+                "id": "f3ac574f-8794-4a2c-8087-3ed21894b4bf",
+                "name": "coalescesystemmessage_messagetransform",
+                "description": null,
+                "metadata": {
+                    "__metadata_info__": {}
+                },
+                "component_plugin_name": "MessageTransformPlugin",
+                "component_plugin_version": "25.4.1"
+            },
+            {
+                "component_type": "PluginLlamaMergeToolRequestAndCallsTransform",
+                "id": "baf2fd46-ca48-4a73-a8af-98cf805ecb08",
+                "name": "llamamergetoolrequestandcalls_messagetransform",
+                "description": null,
+                "metadata": {
+                    "__metadata_info__": {}
+                },
+                "component_plugin_name": "MessageTransformPlugin",
+                "component_plugin_version": "25.4.1"
+            }
+        ],
+        "tools": null,
+        "native_tool_calling": false,
+        "response_format": null,
+        "native_structured_generation": true,
+        "generation_config": null,
+        "component_plugin_name": "PromptTemplatePlugin",
+        "component_plugin_version": "25.4.1"
+    },
+    "component_plugin_name": "AgentPlugin",
+    "component_plugin_version": "25.4.1",
+    "agentspec_version": "25.4.1"
+}

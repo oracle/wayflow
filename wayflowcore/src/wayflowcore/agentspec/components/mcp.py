@@ -38,7 +38,12 @@ class PluginRemoteBaseTransport(RemoteTransport, abstract=True):
 
 
 class PluginSSETransport(PluginRemoteBaseTransport, PluginClientTransport):
-    """Transport implementation that connects to an MCP server via Server-Sent Events."""
+    """Transport implementation that connects to an MCP server via Server-Sent Events.
+
+    .. tip::
+
+        Agent Spec now natively supports ``SSETransport`` which should be preferred to using ``PluginSSETransport``.
+    """
 
 
 class PluginHTTPmTLSBaseTransport(PluginRemoteBaseTransport):
@@ -73,11 +78,20 @@ class PluginSSEmTLSTransport(PluginHTTPmTLSBaseTransport, PluginClientTransport)
       environment variables in any production system.
     - Executors should ensure that these files are rotated and managed securely.
 
+    .. tip::
+
+        Agent Spec now natively supports ``SSEmTLSTransport`` which should be preferred to using ``PluginSSEmTLSTransport``.
+
     """
 
 
 class PluginStreamableHTTPTransport(PluginRemoteBaseTransport, PluginClientTransport):
-    """Transport implementation that connects to an MCP server via Streamable HTTP."""
+    """Transport implementation that connects to an MCP server via Streamable HTTP.
+
+    .. tip::
+
+        Agent Spec now natively supports ``StreamableHTTPTransport`` which should be preferred to using ``PluginStreamableHTTPTransport``.
+    """
 
 
 class PluginStreamableHTTPmTLSTransport(PluginHTTPmTLSBaseTransport, PluginClientTransport):
@@ -96,6 +110,9 @@ class PluginStreamableHTTPmTLSTransport(PluginHTTPmTLSBaseTransport, PluginClien
       environment variables in any production system.
     - Executors should ensure that these files are rotated and managed securely.
 
+    .. tip::
+
+        Agent Spec now natively supports ``StreamableHTTPmTLSTransport`` which should be preferred to using ``PluginStreamableHTTPmTLSTransport``.
     """
 
 
@@ -104,7 +121,12 @@ class PluginMCPToolSpec(Tool):
 
 
 class PluginMCPTool(ServerTool):
-    """Class for tools exposed by MCP servers"""
+    """Class for tools exposed by MCP servers
+
+    .. tip::
+
+        Agent Spec now natively supports ``MCPTool`` which should be preferred to using ``PluginMCPTool``.
+    """
 
     client_transport: SerializeAsAny[ClientTransport]
     """Transport to use for establishing and managing connections to the MCP server."""
@@ -140,6 +162,10 @@ class PluginStdioTransport(PluginClientTransport, StdioTransport):
 
     .. warning::
         Stdio should be used for local prototyping only.
+
+    .. tip::
+
+        Agent Spec now natively supports ``StdioTransport`` which should be preferred to using ``PluginStdioTransport``.
     """
 
     encoding: str = "utf-8"

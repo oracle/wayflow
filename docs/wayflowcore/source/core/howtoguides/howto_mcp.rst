@@ -179,17 +179,35 @@ Here is what the **Agent Spec representation will look like ↓**
 
 .. collapse:: Click here to see the assistant configuration.
 
-   .. tabs::
+    .. tabs::
 
-      .. tab:: JSON
+        .. tab:: Agent Configuration
 
-         .. literalinclude:: ../config_examples/howto_mcp.json
-            :language: json
+            .. tabs::
 
-      .. tab:: YAML
+                .. tab:: JSON
 
-         .. literalinclude:: ../config_examples/howto_mcp.yaml
-            :language: yaml
+                    .. literalinclude:: ../config_examples/howto_mcp_agent.json
+                        :language: json
+
+                .. tab:: YAML
+
+                    .. literalinclude:: ../config_examples/howto_mcp_agent.yaml
+                        :language: yaml
+
+        .. tab:: Flow Configuration
+
+            .. tabs::
+
+                .. tab:: JSON
+
+                    .. literalinclude:: ../config_examples/howto_mcp_flow.json
+                        :language: json
+
+                .. tab:: YAML
+
+                    .. literalinclude:: ../config_examples/howto_mcp_flow.yaml
+                        :language: yaml
 
 
 You can then load the configuration back to an assistant using the ``AgentSpecLoader``.
@@ -204,8 +222,7 @@ You can then load the configuration back to an assistant using the ``AgentSpecLo
 
     This guide uses the following extension/plugin Agent Spec components:
 
-    - ``PluginMCPTool``
-    - ``PluginSSETransport``
+    - ``PluginMCPToolBox``
     - ``ExtendedToolNode``
 
     See the list of available Agent Spec extension/plugin components in the :doc:`API Reference <../api/agentspec>`
