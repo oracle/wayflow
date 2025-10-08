@@ -351,13 +351,13 @@ serialized_group = AgentSpecExporter().to_yaml(group)
 # .. start-##_Load_Agent_Spec_config
 from wayflowcore.agentspec import AgentSpecLoader
 
-TOOL_REGISTORY = {
+TOOL_REGISTRY = {
     "record_survey_response": record_survey_response,
     "check_refund_eligibility": check_refund_eligibility,
     "process_refund": process_refund,
 }
 
 deserialized_group: ManagerWorkers = AgentSpecLoader(
-    tool_registry=TOOL_REGISTORY
+    tool_registry=TOOL_REGISTRY
 ).load_yaml(serialized_group)
 # .. end-##_Load_Agent_Spec_config

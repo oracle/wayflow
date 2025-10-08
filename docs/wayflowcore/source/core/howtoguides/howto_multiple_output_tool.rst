@@ -112,7 +112,7 @@ In this guide, you have learned how to extract individual variables returned by 
 Next steps
 ==========
 
-Now that you hve learned how to produce multiple outputs in a ``Tool`` and use them in a ``Flow``, you may proceed to:
+Now that you have learned how to produce multiple outputs in a ``Tool`` and use them in a ``Flow``, you may proceed to:
 
 - Using a :ref:`BranchingStep <BranchingStep>` to decide how to handle those variables.
 - :doc:`How to Do Map and Reduce Operations in Flows <howto_mapstep>`.

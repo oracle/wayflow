@@ -140,9 +140,9 @@ class PluginReadVariableNode(ExtendedNode):
     def _get_non_mapped_inferred_outputs(self) -> List[Property]:
         if not hasattr(self, "variable"):
             return []
-        json_shema = deepcopy(self.variable.json_schema)
-        json_shema["title"] = PluginReadVariableNode.VALUE
-        return [Property(json_schema=json_shema)]
+        json_schema = deepcopy(self.variable.json_schema)
+        json_schema["title"] = PluginReadVariableNode.VALUE
+        return [Property(json_schema=json_schema)]
 
 
 class PluginWriteVariableNode(ExtendedNode):

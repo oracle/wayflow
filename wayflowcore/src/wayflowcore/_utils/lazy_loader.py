@@ -111,7 +111,7 @@ class LazyLoader:
         args: List
             Arguments passed to the callable
         kwargs: Dict
-            Optinal arguments passed to the callable
+            Optional arguments passed to the callable
 
         Raises
         ------

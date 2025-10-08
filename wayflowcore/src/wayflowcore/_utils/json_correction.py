@@ -48,7 +48,7 @@ def get_parsed_json_blobs(text: str) -> List[str]:
     regions = text.split("```")
     strip_json_identifier = r"^\s*\[?\s*(?:json|JSON)\s*]?\s*\:?\s*([\s\S]+?)\s*$"
     for txt in regions:
-        # Remove any leading "json" idenfifiers, possibly in square brackets and with colon.
+        # Remove any leading "json" identifiers, possibly in square brackets and with colon.
         m = re.search(strip_json_identifier, txt)
         txt = m.groups()[0] if m is not None else txt
 

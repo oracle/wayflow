@@ -74,7 +74,7 @@ class SerializationContext:
 
     def get_reference(self, obj: Any) -> str:
         """
-        Returns the formated string that is used by the serialization context to reference the
+        Returns the formatted string that is used by the serialization context to reference the
         object
 
         Parameters

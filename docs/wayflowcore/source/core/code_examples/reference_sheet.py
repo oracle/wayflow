@@ -303,7 +303,7 @@ from wayflowcore.steps import OutputMessageStep
 
 FAKE_PROCESSING_STEP = "processing_step"
 OUTPUT_STEP = "output_step"
-fake_processing_step = OutputMessageStep("Sucessfully processed username {{username}}")
+fake_processing_step = OutputMessageStep("Successfully processed username {{username}}")
 output_step = OutputMessageStep('{{session_id}}: Received message "{{processing_message}}"')
 flow = Flow(
     begin_step_name=FAKE_PROCESSING_STEP,
@@ -327,7 +327,7 @@ conversation = flow.start_conversation(
 status = conversation.execute()
 last_message = conversation.get_last_message()
 # last_message.content
-# Session#456: Received message "Sucessfully processed username Username#123"
+# Session#456: Received message "Successfully processed username Username#123"
 # .. end-flow_with_dataconnection
 # .. start-flow_with_mapstep::
 from wayflowcore.flowhelpers import create_single_step_flow

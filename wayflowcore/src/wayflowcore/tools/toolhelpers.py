@@ -297,7 +297,7 @@ def tool(
     ...
     >>> my_tool = tool(my_callable)
 
-    Use the ``tool`` helper as a wrapper to create stateful tools (tools that modifiy the internal state of the object):
+    Use the ``tool`` helper as a wrapper to create stateful tools (tools that modify the internal state of the object):
 
     >>> class MyClass:
     ...     def my_callable(

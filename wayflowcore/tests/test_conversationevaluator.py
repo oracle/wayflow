@@ -197,7 +197,7 @@ def _run_assistant_evaluator_end_to_end(
     minimum_score: Optional[int],
     maximum_score: Optional[int],
 ) -> None:
-    # the conversation traces contain the information used for the evluation (e.g. messagelist)
+    # the conversation traces contain the information used for the evaluation (e.g. messagelist)
     conversations = [conversation_to_test]
 
     # Assistant developers can evaluate the hapiness/frustration level from the conversation

@@ -108,7 +108,7 @@ def create_list_io_server_tool():
 
     @tool(description_mode="only_docstring")
     def double_list(arr: List[int]) -> List[int]:
-        """Mulitplies all list entries by 2.
+        """Multiplies all list entries by 2.
         Parameters
         ----------
         arr
@@ -380,7 +380,7 @@ def test_tool_execution_flowscripts(
     tool_input_values: Dict[str, Any],
     check: Union[Callable, str],
 ) -> None:
-    """Explanation of the code flow when `run_assitant` is executed:
+    """Explanation of the code flow when `run_assistant` is executed:
     1. We create the simple assistant consisting of a _InputOutputSpecifiedStep to pass the required
         inputs to the ToolExecutionStep
     2. We run the assistant conversation, which will invoke the tools during the ToolExecutionStep

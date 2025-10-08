@@ -21,7 +21,7 @@ from wayflowcore.agentspec.components._pydantic_plugins import (
 
 class PluginManagerWorkers(ComponentWithIO):
     """
-    Defines a ``ManagerWorkers`` conversaton component.
+    Defines a ``ManagerWorkers`` conversation component.
     A ``ManagerWorkers`` is a multi-agent conversational component in which a group manager agent
         assign tasks to worker agents.
 

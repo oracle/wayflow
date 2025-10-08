@@ -807,7 +807,7 @@
         "url": "LLAMA_API_URL",
         "model_id": "LLAMA_MODEL_ID"
       },
-      "prompt_template": "Your are an helpful assistant. Help answer the user request.\n\nHere is the list of tools:\n{{tools}}\n\nHere is the user request:\n{{request}}\n\n## Reponse format\nYour response should be JSON-compliant dictionary with the following structure.\n\n{\n    \"action\": \"answer|execute_tool\",\n    \"tool_name\": \"None|tool_name\",\n    \"tool_args\": {\"param1\": \"value1\"}\n}\n\nWhen the action is \"answer\", \"tool_name\" should be \"None\" and \"tool_args\" should be {}\nWhen the action is \"execute_tool\", \"tool_name\" should be the name of the tool to execute\nand \"tool_args\" should be the JSON-compliant dictionary of arguments to pass to the tool.\n\nCRITICAL: Only output the JSON-compliant dictionary otherwise the parsing will fail.\nfail."
+      "prompt_template": "Your are an helpful assistant. Help answer the user request.\n\nHere is the list of tools:\n{{tools}}\n\nHere is the user request:\n{{request}}\n\n## Response format\nYour response should be JSON-compliant dictionary with the following structure.\n\n{\n    \"action\": \"answer|execute_tool\",\n    \"tool_name\": \"None|tool_name\",\n    \"tool_args\": {\"param1\": \"value1\"}\n}\n\nWhen the action is \"answer\", \"tool_name\" should be \"None\" and \"tool_args\" should be {}\nWhen the action is \"execute_tool\", \"tool_name\" should be the name of the tool to execute\nand \"tool_args\" should be the JSON-compliant dictionary of arguments to pass to the tool.\n\nCRITICAL: Only output the JSON-compliant dictionary otherwise the parsing will fail.\nfail."
     },
     "a91502a3-117f-40af-a000-3663a3db87e3": {
       "component_type": "PluginConstantContextProvider",

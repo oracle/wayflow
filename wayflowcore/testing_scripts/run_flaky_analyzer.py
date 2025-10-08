@@ -54,7 +54,7 @@ class FlakyTestStatistics:
         # We estimate the failure rate using Laplace Rule of Succession
         # See: https://en.wikipedia.org/wiki/Rule_of_succession
         # This makes the estimation of failure rate more robust. In particular
-        # It does not estimate 100% success when we have 5 out of 5 sucesses
+        # It does not estimate 100% success when we have 5 out of 5 successes
         return (self.n_failure + 1) / (self.n_failure + self.n_success + 2)
 
     @property
@@ -583,7 +583,7 @@ class ReportGenerator:
             self._current_commit_hash = result.stdout.strip()[:11]
         except subprocess.CalledProcessError:
             logging.error("Failed to get the current commit hash")
-            self._current_commit_hash = "unkwown"
+            self._current_commit_hash = "unknown"
         return self._current_commit_hash
 
     def generate_failure_rate_chart(self, results: List[TestResult], submodule: str) -> str:

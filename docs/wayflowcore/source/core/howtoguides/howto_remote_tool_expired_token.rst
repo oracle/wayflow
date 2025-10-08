@@ -20,7 +20,7 @@ How to Do Remote API Calls with Potentially Expiring Tokens
 
     - :doc:`Building Assistants with Tools <howto_build_assistants_with_tools>`
 
-When buidling assistants with tools that reply on remote API calls, it is important to handle the authentication failures gracefully—especially those caused by expired access tokens.
+When building assistants with tools that reply on remote API calls, it is important to handle the authentication failures gracefully—especially those caused by expired access tokens.
 In this guide, you will build an assistant that calls a mock service requiring a valid token for authentication.
 
 Setup

@@ -57,7 +57,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         A ``ManagerWorkers`` is a multi-agent conversational component in which a group manager agent
         assigns tasks to worker agents.
 
-        Paramters
+        Parameters
         ---------
         workers:
             List of Agents that participate in the group. There should be at least one agent in the list.

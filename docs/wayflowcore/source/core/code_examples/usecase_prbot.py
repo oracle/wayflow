@@ -285,7 +285,7 @@ The rules are the following:
 
 {{checks}}
 
-### Reponse Format
+### Response Format
 You need to return a review as a json as follows:
 ```json
 [

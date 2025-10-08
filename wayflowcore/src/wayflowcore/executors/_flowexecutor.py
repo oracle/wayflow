@@ -677,7 +677,7 @@ class FlowConversationExecutor(ConversationExecutor):
         7. Update the current step with the next step to execute
 
         Logic for gathering flow outputs upon flow completion:
-        For all expected flow outupts, attempt to collect the output value from:
+        For all expected flow outputs, attempt to collect the output value from:
         1. I/O dict or Context Providers
         2. Default value from value descriptor
         """
@@ -715,7 +715,7 @@ class FlowConversationExecutor(ConversationExecutor):
         7. Update the current step with the next step to execute
 
         Logic for gathering flow outputs upon flow completion:
-        For all expected flow outupts, attempt to collect the output value from:
+        For all expected flow outputs, attempt to collect the output value from:
         1. I/O dict or Context Providers
         2. Default value from value descriptor
         """

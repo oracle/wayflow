@@ -71,7 +71,7 @@ def test_span_creation_with_missing_arguments_fails(missing_attribute: str) -> N
             ),
             "tool_request": ToolRequest(
                 name="simple_function",
-                args={"lcoation": "Oracle"},
+                args={"location": "Oracle"},
                 tool_request_id="abc123",
             ),
         },

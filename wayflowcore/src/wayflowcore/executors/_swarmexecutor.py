@@ -13,7 +13,7 @@ from wayflowcore.agent import Agent
 from wayflowcore.executors._agenticpattern_helpers import (
     _HANDOFF_TOOL_NAME,
     _SEND_MESSAGE_TOOL_NAME,
-    _close_parallel_tool_requests_if_nessary,
+    _close_parallel_tool_requests_if_necessary,
     _get_last_tool_request_message_from_agent_response,
     _get_tool_request_from_message,
     _get_unanswered_tool_requests_from_agent_response,
@@ -285,7 +285,7 @@ class SwarmRunner(ConversationExecutor):
             message=last_tool_request_message,
             tool_name=_SEND_MESSAGE_TOOL_NAME,
         )
-        _close_parallel_tool_requests_if_nessary(current_thread.message_list, tool_request)
+        _close_parallel_tool_requests_if_necessary(current_thread.message_list, tool_request)
         # ^ We disable parallel client tool calling in Swarm
 
         # validation
@@ -346,7 +346,7 @@ class SwarmRunner(ConversationExecutor):
             message=last_tool_request_message,
             tool_name=_HANDOFF_TOOL_NAME,
         )
-        _close_parallel_tool_requests_if_nessary(current_thread.message_list, tool_request)
+        _close_parallel_tool_requests_if_necessary(current_thread.message_list, tool_request)
 
         # validation
         recipient_agent_name, error_message = _parse_handoff_conversation_tool_request(

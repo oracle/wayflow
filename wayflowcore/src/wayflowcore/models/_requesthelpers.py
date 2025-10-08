@@ -102,7 +102,7 @@ async def request_post_with_retries(
                 try:
                     return response.json()  # type: ignore
                 except json.decoder.JSONDecodeError as json_decode_error:
-                    # It may happen that llm hosting servers forces streamming even so the
+                    # It may happen that llm hosting servers forces streaming even so the
                     # default is stream=False and the request specifies stream=False. In this case
                     # we catch the JSON decode error and fall back on parsing the message from the
                     # list of chunks received.

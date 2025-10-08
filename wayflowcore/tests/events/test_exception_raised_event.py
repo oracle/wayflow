@@ -167,7 +167,7 @@ def test_event_is_triggered_with_tool_execution_and_reraises(
 
 SERVER_TOOL = ServerTool(
     name="create_file",
-    description="This tool attemps to create a file",
+    description="This tool attempts to create a file",
     func=_raises_io_error,
     input_descriptors=[],
 )

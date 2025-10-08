@@ -33,7 +33,7 @@ def extract_potential_json_strings(text: str) -> List[str]:
 
     potential_json_strs = []
     for txt in regions:
-        # Remove any leading "json" idenfifiers, possibly in square brackets and with colon.
+        # Remove any leading "json" identifiers, possibly in square brackets and with colon.
         m = re.search(strip_json_identifier, txt)
         txt = m.groups()[0] if m is not None else txt
         txt = txt.strip()
@@ -197,7 +197,7 @@ class ExtractValueFromJsonStep(Step):
         regions = raw_txt.split("```")
         strip_json_identifier = r"^\s*\[?\s*(?:json|JSON)\s*]?\s*\:?\s*([\s\S]+?)\s*$"
         for txt in regions:
-            # Remove any leading "json" idenfifiers, possibly in square brackets and with colon.
+            # Remove any leading "json" identifiers, possibly in square brackets and with colon.
             m = re.search(strip_json_identifier, txt)
             txt = m.groups()[0] if m is not None else txt
 
@@ -237,7 +237,7 @@ class ExtractValueFromJsonStep(Step):
             logger.debug("Extracting from <%s>", txt)
             # Try to parse the section as JSON
             # Note that this will run over all blocks, including model thoughts (see example below), however :
-            # 1. It is unlikley that random model thoughts will be valid JSON
+            # 1. It is unlikely that random model thoughts will be valid JSON
             # 2. We only take values supplied in JQ templates and do not overwrite existing values
             for output_name, output_jq_processor in self.jq_processors.items():
                 if output_name not in found_values:

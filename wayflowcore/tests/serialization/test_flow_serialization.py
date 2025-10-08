@@ -189,13 +189,13 @@ def test_serialization_raises_if_flow_contains_itself() -> None:
 def test_referenced_objects_are_not_created_twice_on_deserialization(
     flow_with_component_referenced_several_times,
 ) -> None:
-    serialialized_flow = flow_with_component_referenced_several_times
-    flow = cast(Flow, deserialize(Flow, serialialized_flow))
+    serialized_flow = flow_with_component_referenced_several_times
+    flow = cast(Flow, deserialize(Flow, serialized_flow))
     assert flow.steps["STEP_ALPHA"] is flow.control_flow_edges[0].source_step
 
 
 def test_deserialization_raises_on_self_referenced_objects() -> None:
-    self_referential_serialialized_flow = """
+    self_referential_serialized_flow = """
       _component_type: Flow
       _referenced_objects:
         flow/ωωω:
@@ -221,7 +221,7 @@ def test_deserialization_raises_on_self_referenced_objects() -> None:
         ValueError,
         match="Deserialization of objects containing themselves is a mathematical impossibility",
     ):
-        _ = deserialize(Flow, self_referential_serialialized_flow)
+        _ = deserialize(Flow, self_referential_serialized_flow)
 
 
 def test_can_deserialize_flow_with_referenced_llm_model(xkcd_serialized_flow: str) -> None:

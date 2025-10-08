@@ -33,7 +33,7 @@ def _format_failure_message(
         [f"  - {success}: {log}" for success, log in zip(checks_success or [], checks_log or [])]
     )
     checks_log_formatted = "" if checks_log_formatted == "" else f"\n- Checks:\n{checks_log}"
-    return f"""Interaction {interaction_idx} was unsucessful:
+    return f"""Interaction {interaction_idx} was unsuccessful:
 - User input: {user_input}
 - Answer: {answer}{checks_log_formatted}
 - Failure: {error}
@@ -215,7 +215,7 @@ class AssistantTester:
             reports.append(summary_df)
             # logic to determine if the conversation was successful or not
             accuracy.append(summary[_POST_SCRIPT_INTERACTION]["succeeded"])
-            # We absorb all execptions.
+            # We absorb all exceptions.
             # If there was an error, the error message would be found in the second-to-last row of summary
             if summary[_POST_SCRIPT_INTERACTION - 1]["error"] is not None:
                 error = f'Run #{seed} got an exception:\n{summary[-2]["error"]}'

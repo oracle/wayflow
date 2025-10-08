@@ -98,7 +98,7 @@ Creating a tool for the Agent
 =============================
 
 The agent shown in this tutorial is equipped with a tool ``search_hr_database``, which -as the name indicates-
-will enable the assistant to search a (ficticious) HR database.
+will enable the assistant to search a (fictitious) HR database.
 
 .. literalinclude:: ../code_examples/tutorial_agent.py
    :language: python
