@@ -30,7 +30,7 @@ setup(
     version=VERSION,
     description="Package defining the WayFlow core library and the assistant abstractions.",
     license="UPL-1.0 OR APACHE-2.0",
-    long_description=read("README"),
+    long_description=read("README.md"),
     long_description_content_type="text/markdown",
     url="",
     author="Oracle",
