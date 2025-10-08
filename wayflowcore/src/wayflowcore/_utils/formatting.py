@@ -124,7 +124,7 @@ def correct_arguments(
             continue
         casted_value = correct_type(arg_value, expected_types[arg_name])
         if casted_value != arg_value:
-            logger.warning(
+            logger.debug(
                 "The argument `%s` did not have the proper type `%s`. It was converted from `%s` (%s) to `%s` (%s) (according to the schema: %s)",
                 arg_name,
                 expected_types[arg_name].get("type", "object"),
