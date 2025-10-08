@@ -386,7 +386,7 @@ add_lines_on_diff_step = ToolExecutionStep(
 # Step 3: Extract the file path from the diff string using a regular expression
 extract_file_path_step = RegexExtractionStep(
     name="extract_file_path",
-    regex_pattern=r"diff --git a/(.+?) b/",
+    regex_pattern=r"diff --git src://(.+?) dst://",
     return_first_match_only=True,
     input_mapping={RegexExtractionStep.TEXT: DIFF_TO_STRING_IO},
     output_mapping={RegexExtractionStep.OUTPUT: FILEPATH_IO},

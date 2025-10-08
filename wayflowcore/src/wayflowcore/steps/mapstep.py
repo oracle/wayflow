@@ -266,11 +266,10 @@ class MapStep(Step):
     ) -> None:
         if parallel_execution and flow.might_yield:
             raise ValueError("MapStep does not support parallelism on flows that might yield")
-
         elif parallel_execution:
-            logger.warning(
+            logger.info(
                 """Parallel execution with MapStep is a beta feature. It does not support flow
- that can yield, and is prone to side effects. We recommend not using sub-flows with side effects, and be aware that
+that can yield, and is prone to side effects. We recommend not using sub-flows with side effects, and be aware that
 messages may be posted in the order they are produced, in this case not deterministically."""
             )
 
