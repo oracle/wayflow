@@ -379,7 +379,7 @@ class PromptExecutionStep(Step):
             )
             inputs = {PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME: filtered_messages, **inputs}
 
-        prompt = self.prepared_template.format(inputs=inputs)
+        prompt = await self.prepared_template.format_async(inputs=inputs)
 
         if self.send_message and not self.use_structured_generation and _can_use_streaming():
             async_iter = self.llm.stream_generate_async(prompt=prompt, _conversation=conversation)

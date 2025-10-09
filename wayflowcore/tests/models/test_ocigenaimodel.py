@@ -34,7 +34,8 @@ from .test_models import CHAT_TEXT_PROMPT
 
 
 class UnsupportedContent(MessageContent):
-    pass
+    def __hash__(self) -> Any:
+        pass
 
 
 @pytest.fixture(scope="function")

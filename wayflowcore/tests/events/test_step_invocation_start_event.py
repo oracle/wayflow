@@ -137,8 +137,9 @@ def test_event_is_triggered_step_invocation_with_agent_and_flow(
                 assert len(execution_status.tool_requests) == 1
                 tool_request_id = execution_status.tool_requests[-1].tool_request_id
         assert tool_request_id is not None
-        tool_result.tool_request_id = tool_request_id
-        conversation.append_tool_result(tool_result)
+        conversation.append_tool_result(
+            ToolResult(tool_request_id=tool_request_id, content=tool_result.content)
+        )
         agent.execute(conversation)
 
     # StartStep + ToolExecutionStep(Yielding call) + ToolExecutionStep(call after ToolResult)

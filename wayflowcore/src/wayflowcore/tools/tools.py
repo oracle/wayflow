@@ -27,7 +27,7 @@ VALID_JSON_TYPES = {"boolean", "number", "integer", "string", "bool", "object", 
 JSON_SCHEMA_NONE_TYPE = "null"
 
 
-@dataclass
+@dataclass(frozen=True)
 class ToolRequest(SerializableDataclassMixin, SerializableObject):
     _can_be_referenced: ClassVar[bool] = False
     name: str
@@ -35,7 +35,7 @@ class ToolRequest(SerializableDataclassMixin, SerializableObject):
     tool_request_id: str = field(default_factory=IdGenerator.get_or_generate_id)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ToolResult(SerializableDataclassMixin, SerializableObject):
     _can_be_referenced: ClassVar[bool] = False
     content: Any
