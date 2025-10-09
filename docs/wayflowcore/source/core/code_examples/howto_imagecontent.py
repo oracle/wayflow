@@ -9,7 +9,7 @@
 # docs-title: Code Example - How to use use images in conversations
 
 # .. start-##_Imports
-import requests
+import httpx
 from wayflowcore.agent import Agent
 from wayflowcore.messagelist import ImageContent, Message, TextContent
 from wayflowcore.models.llmmodel import Prompt
@@ -25,7 +25,7 @@ llm = VllmModel(
 # .. start-##_Create_prompt
 # Download the Oracle logo as PNG (publicly accessible image)
 image_url = "https://www.oracle.com/a/ocom/img/oracle-logo.png"
-response = requests.get(image_url)
+response = httpx.get(image_url)
 response.raise_for_status()
 image_bytes = response.content
 

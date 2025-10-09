@@ -10,6 +10,7 @@ from textwrap import dedent
 from typing import TYPE_CHECKING, Any, List, Optional, Sequence
 
 from wayflowcore._utils._templating_helpers import render_template
+from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.conversation import Conversation
 from wayflowcore.executors._executionstate import ConversationExecutionState
 from wayflowcore.executors._executor import ConversationExecutor
@@ -22,8 +23,14 @@ from wayflowcore.steps import GetChatHistoryStep
 from wayflowcore.tools import ToolRequest
 
 if TYPE_CHECKING:
+    # Important: do not move this import out of the TYPE_CHECKING block so long as oci is an optional dependency.
+    # Otherwise, importing the module when they are not installed would lead to an import error.
+    import oci  # type: ignore
+
     from wayflowcore.conversation import Conversation
     from wayflowcore.executors.executionstatus import ExecutionStatus
+else:
+    oci = LazyLoader("oci")
 
 
 logger = logging.getLogger(__name__)
@@ -42,16 +49,12 @@ class OciAgentState(ConversationExecutionState):
 
 
 def _init_oci_agent_client(oci_config: OciAgent) -> Any:
-    import oci  # type: ignore
-
     return oci.generative_ai_agent_runtime.GenerativeAiAgentRuntimeClient(
         **_client_config_to_oci_client_kwargs(oci_config.client_config)
     )
 
 
 def _init_oci_agent_session(oci_config: OciAgent, _client: Any) -> str:
-    import oci
-
     session_id = _client.create_session(
         oci.generative_ai_agent_runtime.models.CreateSessionDetails(),
         oci_config.agent_endpoint_id,
@@ -65,8 +68,6 @@ class OciAgentExecutor(ConversationExecutor):
         conversation: "Conversation",
         execution_interrupts: Optional[Sequence["ExecutionInterrupt"]] = None,
     ) -> ExecutionStatus:
-        from oci.generative_ai_agent_runtime.models import ChatDetails  # type: ignore
-
         from wayflowcore.executors._ociagentconversation import OciAgentConversation
 
         messages = conversation.get_messages()
@@ -172,8 +173,6 @@ def _convert_oci_agent_response_into_message(response: Any, agent_id: str) -> "M
 
 
 def _build_chat_details_based_on_messages(new_messages: List[Message], session_id: str) -> Any:
-    import oci
-
     # if only tool result messages, we pass them in a specific format
     if all(msg.message_type == MessageType.TOOL_RESULT for msg in new_messages):
         return oci.generative_ai_agent_runtime.models.ChatDetails(

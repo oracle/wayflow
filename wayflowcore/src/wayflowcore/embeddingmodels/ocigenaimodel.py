@@ -4,20 +4,21 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
 # 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
 import warnings
-from typing import Any, Dict, List, Optional, cast
-
-import oci  # type: ignore
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.embeddingmodels.embeddingmodel import EmbeddingModel
-from wayflowcore.models.ociclientconfig import (
-    OCIClientConfig,
-    OCIClientConfigWithApiKey,
-    OCIClientConfigWithInstancePrincipal,
-    OCIClientConfigWithUserAuthentication,
-)
+from wayflowcore.models.ociclientconfig import OCIClientConfig, _client_config_to_oci_client_kwargs
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
+
+if TYPE_CHECKING:
+    # Important: do not move this import out of the TYPE_CHECKING block so long as oci is an optional dependency.
+    # Otherwise, importing the module when they are not installed would lead to an import error.
+    import oci  # type: ignore
+else:
+    oci = LazyLoader("oci")
 
 
 class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
@@ -119,65 +120,15 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
         #    with appropriate authentication settings.
 
         self.service_endpoint = config.service_endpoint
-
-        # Option (1)
-        if isinstance(config, OCIClientConfigWithUserAuthentication):
-
-            # retry_strategy and timeout are set as the same value as in the langchain wrapper
-            # so that we have the same behavior in both option 1 and option 2
-            self._config = config.user_config._get_config()
-            self._config["compartment_id"] = config.compartment_id
-
-        # Option (2)
-        elif isinstance(config, OCIClientConfigWithInstancePrincipal):
-            try:
-                # For instance principal, we don't need a config dictionary
-                self._config = {"compartment_id": config.compartment_id}
-                self._client = oci.generative_ai_inference.GenerativeAiInferenceClient(
-                    config={},
-                    signer=oci.auth.signers.InstancePrincipalsSecurityTokenSigner(),
-                    service_endpoint=self.service_endpoint,
-                    retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY,
-                    timeout=(10, 240),  # default timeout config for OCI Gen AI service
-                )
-            except oci.exceptions.ServiceError as e:
-                raise ValueError(
-                    f"Instance Principal authentication failed: {str(e)}. "
-                    "This authentication method can only be used on OCI compute instances with "
-                    "the appropriate IAM policies. Please ensure you're running on an OCI instance "
-                    "with the required configuration."
-                ) from e
-            except Exception as e:
-                raise ValueError(
-                    f"Failed to initialize OCI client with Instance Principal: {str(e)}"
-                ) from e
-
-        elif isinstance(config, OCIClientConfigWithApiKey):
-
-            # For API Key from default config file
-            oci_config = oci.config.from_file(
-                file_location=(
-                    config.auth_file_location
-                    if hasattr(config, "auth_file_location")
-                    else "~/.oci/config"
-                ),
-                profile_name=(
-                    config.auth_profile if hasattr(config, "auth_profile") else "DEFAULT"
-                ),
-            )
-            self._config = oci_config
-            self._config["compartment_id"] = config.compartment_id
-
-        # Handle unsupported config types
-        else:
-            raise NotImplementedError(f"Auth config type {type(config)} is not supported.")
+        self.oci_client_kwargs = _client_config_to_oci_client_kwargs(config)
+        self._config = self.oci_client_kwargs["config"]
 
         if compartment_id:
             self.compartment_id = compartment_id
         elif config.compartment_id:
             warnings.warn(
                 "Passing `compartment_id` to the client config is deprecated. "
-                "Please pass the id to the `OCIGenAIModel` instead.",
+                "Please pass the id to the `OCIGenAIEmbeddingModel` instead.",
                 DeprecationWarning,
             )
             self.compartment_id = config.compartment_id
@@ -188,21 +139,22 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
 
         # The client is set in a lazy manner to prevent the model from crashing before being
         # used in case the configuration is not valid for some reason.
-        self._client = None
+        self._lazy_client = None
         self.config = config
 
     def _set_client(self) -> None:
         """Sets the GenerativeAiInferenceClient if it's not set already."""
-        if not self._client:
-            self._client = oci.generative_ai_inference.GenerativeAiInferenceClient(
-                config=self._config,
-                service_endpoint=self.service_endpoint,
-                retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY,
-                timeout=(10, 240),  # default timeout config for OCI Gen AI service
+        if not self._lazy_client:
+            self._lazy_client = oci.generative_ai_inference.GenerativeAiInferenceClient(
+                **self.oci_client_kwargs
             )
 
-    def embed(self, data: List[str]) -> List[List[float]]:
+    @property
+    def _client(self) -> "oci.generative_ai_inference.GenerativeAiInferenceClient":
         self._set_client()
+        return self._lazy_client
+
+    def embed(self, data: List[str]) -> List[List[float]]:
         embed_text_details = oci.generative_ai_inference.models.EmbedTextDetails(
             inputs=data,
             compartment_id=self.compartment_id,
@@ -210,13 +162,11 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
                 model_id=self._model_id
             ),
         )
-
         response = self._client.embed_text(embed_text_details=embed_text_details)
         # Cast the embeddings to the expected return type (mainly for mypy)
         return cast(List[List[float]], response.data.embeddings)
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
-        self._set_client()
         # Store minimal information needed to recreate the embedding model
         # avoiding sensitive authentication details
         serialized_dict: Dict[str, Optional[str]] = {
@@ -232,21 +182,20 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
             serialized_dict["compartment_id"] = self._config["compartment_id"]
 
         # Store information about what type of configuration this is
-        if hasattr(self, "_client") and self._client is not None:
-            # Store service endpoint from client
-            serialized_dict["service_endpoint"] = self._client.base_client.endpoint
+        # Store service endpoint from client
+        serialized_dict["service_endpoint"] = self._client.base_client.endpoint
 
-            # Determine config type
-            if isinstance(self._config, dict) and "user" in self._config:
-                serialized_dict["config_type"] = "user_authentication"
-            elif (
-                isinstance(self._config, dict)
-                and len(self._config) == 1
-                and "compartment_id" in self._config
-            ):
-                serialized_dict["config_type"] = "instance_principal"
-            else:
-                serialized_dict["config_type"] = "api_key"
+        # Determine config type
+        if isinstance(self._config, dict) and "user" in self._config:
+            serialized_dict["config_type"] = "user_authentication"
+        elif (
+            isinstance(self._config, dict)
+            and len(self._config) == 1
+            and "compartment_id" in self._config
+        ):
+            serialized_dict["config_type"] = "instance_principal"
+        else:
+            serialized_dict["config_type"] = "api_key"
 
         return serialized_dict
 
