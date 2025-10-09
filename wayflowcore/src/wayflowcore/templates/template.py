@@ -14,6 +14,7 @@ from wayflowcore._utils._templating_helpers import (
     get_variables_names_and_types_from_template,
     render_template,
 )
+from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore._utils.formatting import render_message_dict_template
 from wayflowcore.component import DataclassComponent
 from wayflowcore.messagelist import Message, MessageType
@@ -21,7 +22,7 @@ from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.outputparser import OutputParser, ToolOutputParser
 from wayflowcore.property import AnyProperty, ListProperty, Property
 from wayflowcore.tools import Tool
-from wayflowcore.transforms import MessageTransform
+from wayflowcore.transforms import CallableMessageTransform, MessageTransform
 
 if TYPE_CHECKING:
     from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
@@ -68,9 +69,16 @@ class PromptTemplate(DataclassComponent):
 
     # related to message formatting
     pre_rendering_transforms: Optional[List[MessageTransform]] = None
-    """Message transform applied before rendering the list of messages into the template."""
+    """
+    Message transform applied before rendering the list of messages into the template.
+    Use these to summarize messages, ...
+    """
     post_rendering_transforms: Optional[List[MessageTransform]] = None
-    """Message transform applied on the rendered list of messages."""
+    """
+    Message transform applied on the rendered list of messages.
+    Use these to ensure the remote LLM will accept the prompt: ensuring a single system_message,
+    ensuring alternating user/assistant messages, ...
+    """
 
     # related to using tools
     tools: Optional[List[Tool]] = None
@@ -100,6 +108,21 @@ class PromptTemplate(DataclassComponent):
 
         if self.input_descriptors is None:
             self._resolve_inputs()
+
+        if self.pre_rendering_transforms and any(
+            not isinstance(m, MessageTransform) for m in self.pre_rendering_transforms
+        ):
+            self.pre_rendering_transforms = [
+                CallableMessageTransform(func=m) if not isinstance(m, MessageTransform) else m
+                for m in self.pre_rendering_transforms
+            ]
+        if self.post_rendering_transforms and any(
+            not isinstance(m, MessageTransform) for m in self.post_rendering_transforms
+        ):
+            self.post_rendering_transforms = [
+                CallableMessageTransform(func=m) if not isinstance(m, MessageTransform) else m
+                for m in self.post_rendering_transforms
+            ]
 
         self._validate_tool_calling()
         self._validate_structured_output()
@@ -182,6 +205,7 @@ class PromptTemplate(DataclassComponent):
         if tools is not None and not isinstance(tools, list):
             raise ValueError(f"Should pass a list of tools to PromptTemplate, but passed: {tools}")
         new_template.tools = tools
+        new_template.__post_init__()
         return new_template
 
     def with_generation_config(
@@ -206,16 +230,33 @@ class PromptTemplate(DataclassComponent):
         """Returns a copy of the template equipped with a given response format."""
         new_template = self.copy()
         new_template.response_format = response_format
+        new_template.__post_init__()
         return new_template
 
     def with_additional_post_rendering_transform(
-        self, transform: MessageTransform
+        self, transform: MessageTransform, append: bool = True
     ) -> "PromptTemplate":
-        """Appends an additional post rendering transform to this template."""
+        """Returns a copy of the prompt template with an additional post rendering transform"""
         new_template = self.copy()
-        new_template.post_rendering_transforms = (new_template.post_rendering_transforms or []) + [
-            transform
-        ]
+        new_template.post_rendering_transforms = (
+            ([transform] if not append else [])
+            + (new_template.post_rendering_transforms or [])
+            + ([transform] if append else [])
+        )
+        new_template.__post_init__()
+        return new_template
+
+    def with_additional_pre_rendering_transform(
+        self, transform: MessageTransform, append: bool = True
+    ) -> "PromptTemplate":
+        """Returns a copy of the prompt template with an additional pre rendering transform"""
+        new_template = self.copy()
+        new_template.pre_rendering_transforms = (
+            ([transform] if not append else [])
+            + (new_template.pre_rendering_transforms or [])
+            + ([transform] if append else [])
+        )
+        new_template.__post_init__()
         return new_template
 
     def with_output_parser(
@@ -270,6 +311,10 @@ class PromptTemplate(DataclassComponent):
 
     def format(self, inputs: Optional[Dict[str, Any]] = None) -> "Prompt":
         """Formats the prompt into a list of messages to pass to the LLM"""
+        return run_async_in_sync(self.format_async, inputs, method_name="format_async")
+
+    async def format_async(self, inputs: Optional[Dict[str, Any]] = None) -> "Prompt":
+        """Synchronously formats the prompt into a list of messages to pass to the LLM"""
         from wayflowcore.models.llmmodel import Prompt
 
         inputs = deepcopy(inputs) or {}
@@ -285,7 +330,7 @@ class PromptTemplate(DataclassComponent):
         ):
             inputs[self.RESPONSE_FORMAT_PLACEHOLDER_NAME] = self.response_format
 
-        messages = self._prepare_messages(inputs)
+        messages = await self._prepare_messages(inputs)
 
         return Prompt(
             messages=messages,
@@ -299,7 +344,7 @@ class PromptTemplate(DataclassComponent):
             generation_config=self.generation_config,
         )
 
-    def _prepare_messages(self, inputs: Dict[str, Any]) -> List[Message]:
+    async def _prepare_messages(self, inputs: Dict[str, Any]) -> List[Message]:
 
         if (
             any(p.name == self.CHAT_HISTORY_PLACEHOLDER_NAME for p in self.input_descriptors or [])
@@ -311,7 +356,7 @@ class PromptTemplate(DataclassComponent):
 
         chat_history = inputs.pop(self.CHAT_HISTORY_PLACEHOLDER_NAME, [])
         for message_transform in self.pre_rendering_transforms or []:
-            chat_history = message_transform(chat_history)
+            chat_history = await message_transform.call_async(chat_history)
 
         chat_history_index = self._get_chat_history_placeholder_index()
         messages: List[Message] = cast(List[Message], list(self.messages))
@@ -327,7 +372,7 @@ class PromptTemplate(DataclassComponent):
             )
 
         for message_transform in self.post_rendering_transforms or []:
-            messages = message_transform(messages)
+            messages = await message_transform.call_async(messages)
 
         return messages
 

@@ -209,7 +209,7 @@ class LlmModel(Component, SerializableObject, ABC):
         if not isinstance(prompt, Prompt):
             from wayflowcore.templates import PromptTemplate
 
-            prompt = PromptTemplate.from_string(prompt).format()
+            prompt = await PromptTemplate.from_string(prompt).format_async()
 
         # add model default values if no generation config is passed
         if prompt.generation_config is None:
@@ -271,7 +271,7 @@ class LlmModel(Component, SerializableObject, ABC):
         if isinstance(prompt, str):
             from wayflowcore.templates import PromptTemplate
 
-            prompt = PromptTemplate.from_string(prompt).format()
+            prompt = await PromptTemplate.from_string(prompt).format_async()
 
         # add model default values if no generation config is passed
         if prompt.generation_config is None:

@@ -202,8 +202,9 @@ def test_event_is_triggered_with_agent_and_flow(
             if isinstance(execution_status, ToolRequestStatus):
                 tool_request_id = execution_status.tool_requests[-1].tool_request_id
         assert tool_request_id is not None
-        tool_result.tool_request_id = tool_request_id
-        conversation.append_tool_result(tool_result)
+        conversation.append_tool_result(
+            ToolResult(content=tool_result.content, tool_request_id=tool_request_id)
+        )
         agent.execute(conversation)
     assert len(event_listener.triggered_events) == len(user_messages)
     if len(user_messages) > 0:

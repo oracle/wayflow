@@ -206,15 +206,24 @@ class ToolOutputParser(SerializableDataclass, OutputParser):
 
         # correct types if necessary
         tools_by_name: Dict[str, Tool] = {tool.name: tool for tool in self.tools}
+
+        tool_requests = []
         for tool_request in message.tool_requests:
             if tool_request.name not in tools_by_name:
                 # model hallucinated a tool
-                continue
-            tool_request.args = correct_arguments(
-                tool_request.args, tools_by_name[tool_request.name].parameters
-            )
+                tool_requests.append(tool_request)
+            else:
+                tool_requests.append(
+                    ToolRequest(
+                        name=tool_request.name,
+                        args=correct_arguments(
+                            tool_request.args, tools_by_name[tool_request.name].parameters
+                        ),
+                        tool_request_id=tool_request.tool_request_id,
+                    )
+                )
 
-        return message
+        return message.copy(tool_requests=tool_requests)
 
     def with_tools(self, tools: Optional[List[Tool]]) -> "ToolOutputParser":
         """Enhances the tool parser with some validation of the parsed tool calls according to specific tools"""

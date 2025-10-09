@@ -91,6 +91,7 @@ These guides demonstrate how to configure the components of assistants built wit
    Use LLM from Different LLM Sources and Providers <llm_from_different_providers>
    Install and Use Ollama <installing_ollama>
    Enable Tracing <howto_tracing>
+   Handle long context with agents <howto_long_context>
 
 
 Data in Assistants

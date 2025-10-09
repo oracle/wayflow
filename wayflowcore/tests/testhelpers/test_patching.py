@@ -145,7 +145,7 @@ async def test_openai_compatible_patch_tool_result():
     )
 
     tools = [Tool(name="some_tool", description="", input_descriptors=[StringProperty(name="a")])]
-    prompt = LLAMA_CHAT_TEMPLATE.with_tools(tools).format(
+    prompt = await LLAMA_CHAT_TEMPLATE.with_tools(tools).format_async(
         inputs={LLAMA_CHAT_TEMPLATE.CHAT_HISTORY_PLACEHOLDER_NAME: []}
     )
 

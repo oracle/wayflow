@@ -271,9 +271,10 @@ def test_event_is_triggered_once_with_multiple_execute_calls(
             if last_message is not None and last_message.message_type == MessageType.TOOL_REQUEST:
                 assert additional_message.tool_result is not None
                 assert last_message.tool_requests is not None
-                additional_message.tool_result.tool_request_id = last_message.tool_requests[
-                    -1
-                ].tool_request_id
+                additional_message.tool_result = ToolResult(
+                    content=additional_message.tool_result.content,
+                    tool_request_id=last_message.tool_requests[-1].tool_request_id,
+                )
 
             conversation.append_message(additional_message)
             execution_status = conversation.execute()

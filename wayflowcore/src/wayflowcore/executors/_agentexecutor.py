@@ -266,7 +266,7 @@ class AgentConversationExecutor(ConversationExecutor):
             messages, state, config.agent_id, config._filter_messages_by_recipient
         )
 
-        prompt = prompt_template.format(
+        prompt = await prompt_template.format_async(
             inputs={
                 **prompt_variables,
                 "custom_instruction": custom_instruction,

@@ -7,6 +7,7 @@
 import base64
 import logging
 import warnings
+from abc import ABC
 from copy import deepcopy
 from dataclasses import dataclass, field, fields
 from datetime import datetime, timezone
@@ -30,6 +31,7 @@ from deprecated import deprecated
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.formatting import stringify
+from wayflowcore._utils.hash import fast_stable_hash
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import (
     SerializableDataclass,
@@ -61,7 +63,7 @@ class MessageType(str, Enum):
 
 
 @dataclass
-class MessageContent(SerializableDataclassMixin, SerializableObject):
+class MessageContent(SerializableDataclassMixin, SerializableObject, ABC):
     """
     Abstract base class for message content chunks.
 
@@ -161,7 +163,7 @@ class ImageContent(MessageContent, SerializableObject):
 class Message(SerializableDataclass):
     """
     Messages are an exchange medium between the user, LLM agent, and controller logic.
-    This helps determining who provided what information.
+    This helps to determine who provided what information.
 
     Parameters
     ----------
@@ -224,6 +226,11 @@ class Message(SerializableDataclass):
         role: Optional[Literal["user", "system", "assistant"]] = None,
         __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
+        if __metadata_info__ is None:
+            __metadata_info__ = {}
+        # because parent is dataclass, the super is the one from dataclasses
+        super().__init__(__metadata_info__=__metadata_info__)
+
         if contents is not None and len(content):
             raise RuntimeError("Contents and content should not be both specified at the same time")
         if recipients is None:
@@ -236,9 +243,6 @@ class Message(SerializableDataclass):
 
         if contents is None:
             contents = []
-
-        if __metadata_info__ is None:
-            __metadata_info__ = {}
 
         self.display_only = display_only
 
@@ -278,9 +282,11 @@ class Message(SerializableDataclass):
         self.sender = sender
         self.recipients = recipients
         self.time_created = time_created
-        super().__init__(__metadata_info__=__metadata_info__)
         self.time_updated = time_updated
         self._validate()
+
+        self._hash_compute_time = time_updated
+        self._hash: Optional[str] = None
 
     def _convert_deprecated_arguments(
         self,
@@ -396,12 +402,30 @@ class Message(SerializableDataclass):
         return bool(self.__metadata_info__.get("is_error", False))
 
     def __setattr__(self, name: str, value: Optional[Union[str, MessageType, datetime]]) -> None:
-        if name != "time_updated" and name != "__metadata_info__":
+        if (
+            name != "time_updated"
+            and name != "__metadata_info__"
+            and name != "_hash"
+            and name != "_hash_compute_time"
+        ):
             super().__setattr__("time_updated", datetime.now(timezone.utc))
         if name == "content" and isinstance(value, str):
             self.contents = [TextContent(content=value)]
         else:
             super().__setattr__(name, value)
+
+    @property
+    def hash(self) -> str:
+        if self._hash is None or self._hash_compute_time < self.time_updated:
+            hashable_values = [
+                [self.contents],
+                self.tool_result,
+                self.tool_requests,
+                str(self.role),
+            ]
+            self._hash = fast_stable_hash(hashable_values)
+            self._hash_compute_time = datetime.now(timezone.utc)
+        return self._hash
 
     @classmethod
     def _deserialize_from_dict(
@@ -438,7 +462,7 @@ class Message(SerializableDataclass):
                 else None
             ),
             content=input_dict.get("content", ""),
-            is_error=input_dict.get("is_error", None),
+            is_error=input_dict.get("is_error", False),
             message_type=(
                 MessageType(input_dict["message_type"]) if "message_type" in input_dict else None
             ),
@@ -454,6 +478,8 @@ class Message(SerializableDataclass):
         self_params.update(kwargs)
         # Id is not part of the message constructor
         self_params.pop("id", None)
+        self_params.pop("_hash", None)
+        self_params.pop("_hash_compute_time", None)
         return Message(**self_params)
 
     def _add_recipients(self, recipients: Set[str]) -> None:

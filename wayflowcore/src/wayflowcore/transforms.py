@@ -3,8 +3,11 @@
 # This software is under the Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
 # 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
-from typing import TYPE_CHECKING, List
 
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Callable, List
+
+from wayflowcore._utils.async_helpers import is_coroutine_function, run_sync_in_thread
 from wayflowcore.serialization.serializer import SerializableCallable, SerializableObject
 
 if TYPE_CHECKING:
@@ -20,8 +23,24 @@ class MessageTransform(SerializableCallable, SerializableObject):
     message flows in the system.
     """
 
-    def __call__(self, tools: List["Message"]) -> List["Message"]:
+    def __call__(self, messages: List["Message"]) -> List["Message"]:
+        """Implement this method for synchronous logic (CPU-bounded)"""
         raise NotImplementedError()
+
+    async def call_async(self, messages: List["Message"]) -> List["Message"]:
+        """Implement this method for asynchronous work (IO-bounded, with LLM calls, DB loading ...)"""
+        return await run_sync_in_thread(self.__call__, messages)
+
+
+@dataclass
+class CallableMessageTransform(MessageTransform):
+    func: Callable[..., Any]
+
+    async def call_async(self, messages: List["Message"]) -> List["Message"]:
+        if is_coroutine_function(self.func):
+            return await self.func(messages)  # type: ignore
+        else:
+            return await run_sync_in_thread(self.func, messages)
 
 
 class CoalesceSystemMessagesTransform(MessageTransform, SerializableObject):
