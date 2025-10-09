@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, AsyncIterable, Callable, Dict, Iterator, 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_sync_in_thread, sync_to_async_iterator
 from wayflowcore._utils.formatting import stringify
+from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.messagelist import ImageContent, MessageType, TextContent
 from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
@@ -33,8 +34,14 @@ logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:
+    # Important: do not move this import out of the TYPE_CHECKING block so long as oci is an optional dependency.
+    # Otherwise, importing the module when they are not installed would lead to an import error.
+    import oci  # type: ignore
+
     from wayflowcore.messagelist import Message
     from wayflowcore.templates import PromptTemplate
+else:
+    oci = LazyLoader("oci")
 
 
 class ServingMode(str, Enum):
@@ -231,8 +238,6 @@ class OCIGenAIModel(LlmModel):
         )
 
     def _init_client(self) -> None:
-        import oci  # type: ignore
-
         self._client = oci.generative_ai_inference.GenerativeAiInferenceClient(
             **_client_config_to_oci_client_kwargs(self.client_config)
         )
@@ -273,8 +278,6 @@ class OCIGenAIModel(LlmModel):
         return LlmCompletion(message=response_message, token_usage=provider.extract_usage(response))
 
     def _post_with_retry(self, provider: "_OciApiFormatter", prompt: Prompt) -> Any:
-        import oci
-
         max_attempts = 3
         for i in range(max_attempts):
             try:
@@ -295,8 +298,6 @@ class OCIGenAIModel(LlmModel):
                     raise e
 
     def _post(self, provider: "_OciApiFormatter", prompt: Prompt) -> Any:
-        import oci
-
         self._init_client_if_needed()
         if self._client is None or self._oci_serving_mode is None:
             raise ValueError("Could not initialize the OCI client")
@@ -316,8 +317,6 @@ class OCIGenAIModel(LlmModel):
         self,
         prompt: Prompt,
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
-        import oci
-
         self._init_client_if_needed()
         if self._client is None or self._oci_serving_mode is None:
             raise ValueError("Could not initialize the OCI client")
@@ -403,8 +402,6 @@ class _GenericOciApiFormatter(_OciApiFormatter):
 
     @classmethod
     def convert_prompt_into_request(cls, prompt: "Prompt", model_id: str) -> Any:
-        import oci
-
         response_format = None
         if prompt.response_format is not None:
             json_schema = _property_to_openai_schema(prompt.response_format)
@@ -550,8 +547,6 @@ def _generation_config_to_generic_oci_parameters(
 
 
 def _tools_to_oci_generic_tools(tool: Tool) -> Any:
-    import oci
-
     return oci.generative_ai_inference.models.FunctionDefinition(
         name=tool.name,
         description=tool.description,
@@ -560,8 +555,6 @@ def _tools_to_oci_generic_tools(tool: Tool) -> Any:
 
 
 def _message_to_generic_oci_message(m: "Message") -> Any:
-    import oci
-
     if m.tool_requests is not None:
         return oci.generative_ai_inference.models.AssistantMessage(
             tool_calls=(
@@ -643,8 +636,6 @@ def _convert_tool_deltas_into_tool_requests(tool_deltas: List[Any]) -> List[Tool
 class _CohereOciApiFormatter(_OciApiFormatter):
     @classmethod
     def convert_prompt_into_request(cls, prompt: "Prompt", model_id: str) -> Any:
-        import oci
-
         cohere_response_format = None
         if prompt.response_format is not None:
             json_schema = _property_to_openai_schema(prompt.response_format)
@@ -814,8 +805,6 @@ class _CohereOciApiFormatter(_OciApiFormatter):
 def _convert_message_into_cohere_oci_message(
     m: "Message", id_to_too_requests_dict: Dict[str, ToolRequest], text_content: str
 ) -> Any:
-    import oci
-
     if m.tool_requests is not None:
 
         return oci.generative_ai_inference.models.CohereChatBotMessage(
@@ -861,8 +850,6 @@ def _convert_message_into_cohere_oci_message(
 
 
 def _tools_to_oci_cohere_tools(tool: Tool) -> Any:
-    import oci
-
     return oci.generative_ai_inference.models.CohereTool(
         name=tool.name,
         description=tool.description,
