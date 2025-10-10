@@ -32,11 +32,9 @@ from .conftest import (
 from .event_listeners import ConversationMessageAddedEventListener
 
 
-@pytest.mark.parametrize("missing_attribute", ["message"])
+@pytest.mark.parametrize("missing_attribute", ["message", "streamed"])
 def test_event_creation_with_missing_arguments_fails(missing_attribute: str) -> None:
-    all_attributes: Dict[str, Any] = {
-        "message": Message(),
-    }
+    all_attributes: Dict[str, Any] = {"message": Message(), "streamed": True}
     del all_attributes[missing_attribute]
     with pytest.raises(ValueError, match=f"An attribute named `{missing_attribute}`"):
         ConversationMessageAddedEvent(**all_attributes)
@@ -52,12 +50,14 @@ def test_event_creation_with_missing_arguments_fails(missing_attribute: str) -> 
             "message": Message(
                 message_type=MessageType.AGENT,
             ),
+            "streamed": True,
         },
         {
             "name": "My other test",
             "message": Message(
                 message_type=MessageType.USER,
             ),
+            "streamed": False,
         },
         {
             "name": "Yet another test",
@@ -66,6 +66,7 @@ def test_event_creation_with_missing_arguments_fails(missing_attribute: str) -> 
                 message_type=MessageType.TOOL_REQUEST,
                 tool_requests=[ToolRequest("get_weather", {}, "abc123")],
             ),
+            "streamed": True,
         },
     ],
 )

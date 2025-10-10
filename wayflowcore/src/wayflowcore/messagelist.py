@@ -552,6 +552,7 @@ class MessageList(SerializableDataclass):
         record_event(
             ConversationMessageAddedEvent(
                 message=message,
+                streamed=False,
             )
         )
 
@@ -635,12 +636,17 @@ class MessageList(SerializableDataclass):
             setattr(last_message, field_name, field_value)
 
     async def _stream_message(self, stream: AsyncIterable["TaggedMessageChunkType"]) -> Message:
-        from wayflowcore.events.event import ConversationMessageAddedEvent
+        from wayflowcore.events.event import (
+            ConversationMessageAddedEvent,
+            ConversationMessageStreamChunkEvent,
+        )
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.models import StreamChunkType
+        from wayflowcore.tracing.span import ConversationMessageStreamSpan
 
         full_streamed_message = ""
         new_message = None
+        streaming_span: Optional[ConversationMessageStreamSpan] = None
         async for chunk in stream:
             chunk_type, content_chunk = chunk
             if chunk_type == StreamChunkType.IGNORED or content_chunk is None:
@@ -648,16 +654,23 @@ class MessageList(SerializableDataclass):
             elif chunk_type == StreamChunkType.START_CHUNK:
                 full_streamed_message += content_chunk.content
                 self.messages.append(content_chunk)
+                streaming_span = ConversationMessageStreamSpan(
+                    message_list=self,
+                    initial_message=content_chunk,
+                )
+                streaming_span.start()
             elif chunk_type == StreamChunkType.TEXT_CHUNK:
                 self._update_last_message(content_chunk, append_only=True)
                 full_streamed_message += content_chunk.content
+                record_event(ConversationMessageStreamChunkEvent(chunk=content_chunk.content))
             elif chunk_type == StreamChunkType.END_CHUNK:
                 new_message = content_chunk
                 self._update_last_message(content_chunk, append_only=False)
+                if streaming_span is not None:
+                    streaming_span.record_end_span_event(message=content_chunk)
+                    streaming_span.end()
                 record_event(
-                    ConversationMessageAddedEvent(
-                        message=self.messages[-1],
-                    )
+                    ConversationMessageAddedEvent(message=self.messages[-1], streamed=True)
                 )
                 if full_streamed_message != new_message.content:
                     logger.debug(
