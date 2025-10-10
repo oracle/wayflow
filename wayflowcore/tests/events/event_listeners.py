@@ -19,6 +19,9 @@ from wayflowcore.events.event import (
     ConversationExecutionFinishedEvent,
     ConversationExecutionStartedEvent,
     ConversationMessageAddedEvent,
+    ConversationMessageStreamChunkEvent,
+    ConversationMessageStreamEndedEvent,
+    ConversationMessageStreamStartedEvent,
     Event,
     ExceptionRaisedEvent,
     FlowExecutionFinishedEvent,
@@ -92,6 +95,36 @@ class ConversationMessageAddedEventListener(EventListener):
 
     def __call__(self, event: Event) -> None:
         if isinstance(event, ConversationMessageAddedEvent):
+            self.triggered_events.append(event)
+
+
+class ConversationMessageStreamChunkEventListener(EventListener):
+
+    def __init__(self):
+        self.triggered_events: List[ConversationMessageStreamChunkEvent] = []
+
+    def __call__(self, event: Event) -> None:
+        if isinstance(event, ConversationMessageStreamChunkEvent):
+            self.triggered_events.append(event)
+
+
+class ConversationMessageStreamStartedEventListener(EventListener):
+
+    def __init__(self):
+        self.triggered_events: List[ConversationMessageStreamStartedEvent] = []
+
+    def __call__(self, event: Event) -> None:
+        if isinstance(event, ConversationMessageStreamStartedEvent):
+            self.triggered_events.append(event)
+
+
+class ConversationMessageStreamEndedEventListener(EventListener):
+
+    def __init__(self):
+        self.triggered_events: List[ConversationMessageStreamEndedEvent] = []
+
+    def __call__(self, event: Event) -> None:
+        if isinstance(event, ConversationMessageStreamEndedEvent):
             self.triggered_events.append(event)
 
 

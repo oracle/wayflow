@@ -19,20 +19,23 @@ from wayflowcore._utils.dataclass_utils import _required_attribute
 from wayflowcore.conversation import Conversation
 from wayflowcore.events import Event, EventListener, record_event
 from wayflowcore.events.eventlistener import _register_event_listeners, get_event_listeners
+from wayflowcore.messagelist import Message, MessageList
+from wayflowcore.serialization import serialize_to_dict
 from wayflowcore.steps.step import Step, StepResult
 from wayflowcore.tools.tools import Tool, ToolRequest, ToolResult
 
 if TYPE_CHECKING:
-    from wayflowcore import Agent, Flow
+    from wayflowcore.agent import Agent
     from wayflowcore.contextproviders import ContextProvider
     from wayflowcore.conversationalcomponent import ConversationalComponent
     from wayflowcore.executors.executionstatus import ExecutionStatus
+    from wayflowcore.flow import Flow
     from wayflowcore.models import LlmCompletion, LlmModel, Prompt
     from wayflowcore.tracing.spanprocessor import SpanProcessor
     from wayflowcore.tracing.trace import Trace
 
 
-_MASKING_TOKEN = "** MASKED **"
+_MASKING_TOKEN = "** MASKED **"  # nosec
 _ACTIVE_SPAN_STACK: ContextVar[List["Span"]] = ContextVar("_ACTIVE_SPAN_STACK", default=[])
 
 # setting it will ensure it's seen by `contextvars.copy_context()`
@@ -528,6 +531,7 @@ class ConversationSpan(Span):
     conversation: Conversation = field(
         default_factory=_required_attribute("conversation", Conversation)
     )
+    """The conversation being executed"""
 
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
@@ -564,9 +568,11 @@ class ConversationSpan(Span):
 @dataclass
 class ToolExecutionSpan(Span):
     tool: Tool = field(default_factory=_required_attribute("tool", Tool))
+    """The tool being executed"""
     tool_request: ToolRequest = field(
         default_factory=_required_attribute("tool_request", ToolRequest)
     )
+    """The tool request (ID and arguments) with which the tool is being executed"""
 
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
@@ -610,7 +616,9 @@ class ToolExecutionSpan(Span):
 @dataclass
 class StepInvocationSpan(Span):
     step: Step = field(default_factory=_required_attribute("step", Step))
+    """The step being executed"""
     inputs: Dict[str, Any] = field(default_factory=_required_attribute("inputs", Dict[str, Any]))
+    """The inputs with which the step is being executed"""
 
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
@@ -659,6 +667,7 @@ class ContextProviderExecutionSpan(Span):
     context_provider: "ContextProvider" = field(
         default_factory=_required_attribute("context_provider", "ContextProvider")
     )
+    """The context provider being executed"""
 
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
@@ -683,5 +692,44 @@ class ContextProviderExecutionSpan(Span):
                 span=self,
                 context_provider=self.context_provider,
                 output=output,
+            )
+        )
+
+
+@dataclass
+class ConversationMessageStreamSpan(Span):
+    message_list: MessageList = field(
+        default_factory=_required_attribute("message_list", MessageList)
+    )
+    """The message list where a message is streamed"""
+    initial_message: Message = field(
+        default_factory=_required_attribute("initial_message", Message)
+    )
+    """The first chunk streamed, with the role and initial content of the message being streamed"""
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            "messages.id": self.message_list.id,
+            "initial_message": (
+                serialize_to_dict(self.initial_message)
+                if not mask_sensitive_information
+                else _MASKING_TOKEN
+            ),
+        }
+
+    def _create_start_span_event(self) -> "Event":
+        from wayflowcore.events.event import ConversationMessageStreamStartedEvent
+
+        return ConversationMessageStreamStartedEvent(
+            message=self.initial_message,
+        )
+
+    def record_end_span_event(self, message: Any) -> None:
+        from wayflowcore.events.event import ConversationMessageStreamEndedEvent
+
+        self._record_end_span_event(
+            event=ConversationMessageStreamEndedEvent(
+                message=message,
             )
         )

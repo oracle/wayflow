@@ -38,7 +38,7 @@ if TYPE_CHECKING:
         ToolExecutionSpan,
     )
 
-_MASKING_TOKEN = "** MASKED **"
+_MASKING_TOKEN = "** MASKED **"  # nosec
 SpanType = TypeVar("SpanType", bound="Span")
 
 
@@ -280,6 +280,65 @@ class ConversationCreatedEvent(Event):
 class ConversationMessageAddedEvent(Event):
     """
     This event is recorded whenever a new message was added to the conversation.
+    """
+
+    message: "Message" = field(default_factory=_required_attribute("message", "Message"))
+    """The message that is being appended to the conversation"""
+    streamed: bool = field(default_factory=_required_attribute("streamed", bool))
+    """Whether the message was streamed or not."""
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            "message": (
+                serialize_to_dict(self.message)
+                if not mask_sensitive_information
+                else _MASKING_TOKEN
+            ),
+            "streamed": self.streamed,
+        }
+
+
+@dataclass(frozen=True)
+class ConversationMessageStreamStartedEvent(Event):
+    """
+    This event is recorded whenever aa new message start being streamed to the conversation
+    """
+
+    message: "Message" = field(default_factory=_required_attribute("message", "Message"))
+    """The message that is being appended to the conversation"""
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            "message": (
+                serialize_to_dict(self.message)
+                if not mask_sensitive_information
+                else _MASKING_TOKEN
+            ),
+        }
+
+
+@dataclass(frozen=True)
+class ConversationMessageStreamChunkEvent(Event):
+    """
+    This event is recorded whenever a message is being streamed and a delta is added to the conversation.
+    """
+
+    chunk: str = field(default_factory=_required_attribute("chunk", str))
+    """The chunk that is being appended to the conversation"""
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            "chunk": self.chunk if not mask_sensitive_information else _MASKING_TOKEN,
+        }
+
+
+@dataclass(frozen=True)
+class ConversationMessageStreamEndedEvent(Event):
+    """
+    This event is recorded whenever aa new message start being streamed to the conversation
     """
 
     message: "Message" = field(default_factory=_required_attribute("message", "Message"))

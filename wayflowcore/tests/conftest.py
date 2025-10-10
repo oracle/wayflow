@@ -12,7 +12,6 @@ import sysconfig
 import threading
 import uuid
 from contextlib import contextmanager
-from distutils.sysconfig import get_python_lib
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, TypedDict, Union
 from unittest.mock import patch
@@ -759,6 +758,9 @@ def limit_filewrites(
     with monkeypatch.context() as m:
         m.setattr(builtins, "open", patched_open)
         yield True
+
+
+_DISABLE_FILE_WRITE_CHECK = "DISABLE_FILE_WRITE_CHECK"
 
 
 @pytest.fixture(scope="function", autouse=True)
