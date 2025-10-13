@@ -787,7 +787,10 @@ class ApiCallStep(Step):
 
         if output_values_json:
             output_descriptors += [
-                string_to_property(output_value) for output_value in output_values_json.keys()
+                string_to_property(output_value)
+                for output_value in output_values_json.keys()
+                if (output_value != ApiCallStep.HTTP_STATUS_CODE)
+                and (output_value != ApiCallStep.HTTP_RESPONSE)
             ]
 
         if store_response:
