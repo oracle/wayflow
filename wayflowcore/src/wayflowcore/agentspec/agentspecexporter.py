@@ -193,7 +193,7 @@ class AgentSpecExporter:
 
         """
         agentspec_assistant = self.to_component(runtime_component)
-        converted_disag_config = converted_disag_config = (
+        converted_disag_config = (
             self._convert_disaggregated_config(disaggregated_components)
             if disaggregated_components is not None
             else None
