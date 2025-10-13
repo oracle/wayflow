@@ -254,7 +254,7 @@ async def json_iterator_from_stream_of_completion_str(
             continue
 
         if not line.startswith("data: "):
-            logger.info("Received unexpected chunk from remote: %s", line)
+            logger.info("Received unexpected chunk from remote: %r", line)
             continue
 
         content = line.lstrip("data: ")

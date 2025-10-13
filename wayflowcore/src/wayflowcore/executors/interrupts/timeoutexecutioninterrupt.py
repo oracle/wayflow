@@ -9,7 +9,6 @@ from __future__ import annotations
 import time
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, Optional
 
-from wayflowcore.conversation import Conversation
 from wayflowcore.executors.interrupts.executioninterrupt import (
     FlexibleExecutionInterrupt,
     FlowExecutionInterrupt,
@@ -20,6 +19,7 @@ from wayflowcore.serialization.context import DeserializationContext, Serializat
 from wayflowcore.serialization.serializer import SerializableObject
 
 if TYPE_CHECKING:
+    from wayflowcore.conversation import Conversation
     from wayflowcore.executors._executionstate import ConversationExecutionState
 
 
@@ -71,7 +71,7 @@ class SoftTimeoutExecutionInterrupt(
         super().__init__()
 
     def _return_status_if_condition_is_met(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         if self.timeout is None or self.starting_time is None:
             # This should never happen, but we put a safeguard anyway
@@ -81,7 +81,7 @@ class SoftTimeoutExecutionInterrupt(
         return None
 
     def _on_execution_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         self.starting_time = time.time()
         return super()._on_execution_start(state, conversation)

@@ -121,6 +121,14 @@ def get_field_type_mapping(cls: Any) -> Dict[str, type]:
         type_3: "MySecondCustomAttr"  <--- resolves the actual type of this kind of attribute
     """
     dataclass_fields = {param.name: param.type for param in fields(cls) if param.init}
+
+    # we resolve the forwards references (e.g. dataclasses with type annotations specified "between quotes")
+    if any(isinstance(t, str) for t in dataclass_fields.values()):
+        try:
+            dataclass_fields = get_type_hints(cls)
+        except NameError as e:
+            pass
+
     if hasattr(cls, "__orig_bases__"):
         # Get the base with concrete types (Box[int, str])
         orig_base = cls.__orig_bases__[0]

@@ -79,8 +79,6 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
 
     agent_template: PromptTemplate
 
-    _filter_messages_by_recipient: bool
-    """Used internally to filter messages with sub-agents"""
     _add_talk_to_user_tool: bool
     """Whether to add a tool for the agent to talk to the user or not"""
 
@@ -127,7 +125,6 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         agent_template: Optional[PromptTemplate] = None,
         _add_talk_to_user_tool: bool = True,
         __metadata_info__: Optional[MetadataType] = None,
-        _filter_messages_by_recipient: bool = True,
     ):
         """
         Agent that can handle a conversation with a user, interact with external tools
@@ -313,7 +310,6 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self._add_talk_to_user_tool = _add_talk_to_user_tool
 
         self.agent_template = agent_template or llm.agent_template
-        self._filter_messages_by_recipient = _filter_messages_by_recipient
 
         self._used_provided_input_descriptors = input_descriptors or []
         self._tools: List[Tool] = []

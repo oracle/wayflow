@@ -407,6 +407,7 @@ comments_valuetype = ListProperty(
     name="values",
     description="The extracted comments content and line number",
     item_type=DictProperty(value_type=AnyProperty()),
+    default_value=[],
 )
 extract_comments_from_json_step = ExtractValueFromJsonStep(
     name="extract_comments_from_json",

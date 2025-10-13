@@ -6,7 +6,7 @@
 
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
 from wayflowcore.contextproviders import ContextProvider
 from wayflowcore.conversation import Conversation
@@ -155,11 +155,10 @@ class FlowConversation(Conversation):
             current_conversation = current_conversation._get_parent_conversation()
         return all_context_providers
 
-    def _get_all_sub_conversations(self) -> List[Tuple["Conversation", str]]:
-
+    def _get_all_sub_conversations(self) -> List[Conversation]:
         from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 
-        return FlowConversationExecutor().get_all_sub_conversations(self.state)
+        return FlowConversationExecutor.get_all_sub_conversations(self.state)
 
     @property
     def current_step_name(self) -> str:

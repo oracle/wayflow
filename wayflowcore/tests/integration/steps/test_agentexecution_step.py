@@ -262,7 +262,6 @@ def test_agent_executor_step_can_read_previous_messages(
         caller_input_mode=CallerInputMode.ALWAYS,
         custom_instruction="Please help me with my tasks.",
         initial_message=None,
-        _filter_messages_by_recipient=False,
     )
     output_step = OutputMessageStep(
         message_with_secret,

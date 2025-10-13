@@ -515,7 +515,9 @@ messages may be posted in the order they are produced, in this case not determin
 
             if status._requires_yielding():
                 return StepResult(
-                    outputs={},  # yielding means it will come back to it, so no need to fill the outputs
+                    outputs={
+                        "__execution_status__": status
+                    },  # yielding means it will come back to it, so no need to fill the outputs
                     branch_name=self.BRANCH_SELF,
                     step_type=StepExecutionStatus.YIELDING,
                 )

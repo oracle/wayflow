@@ -198,7 +198,6 @@ agent = Agent(
     agent_template=llm.agent_template.with_additional_pre_rendering_transform(
         transform, append=False
     ),
-    _filter_messages_by_recipient=False
 )
 
 conversation = agent.start_conversation()
@@ -341,7 +340,6 @@ agent = Agent(
     agent_template=llm.agent_template.with_additional_pre_rendering_transform(
         transform, append=False
     ),
-    _filter_messages_by_recipient=False
 )
 
 conversation = agent.start_conversation()

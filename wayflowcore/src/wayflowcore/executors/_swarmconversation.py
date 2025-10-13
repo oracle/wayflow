@@ -6,7 +6,7 @@
 
 import logging
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from wayflowcore.agent import Agent
 from wayflowcore.conversation import Conversation
@@ -113,7 +113,7 @@ class SwarmConversation(Conversation):
     ) -> List["ContextProvider"]:
         return []
 
-    def _get_all_sub_conversations(self) -> List[Tuple["Conversation", str]]:
+    def _get_all_sub_conversations(self) -> List["Conversation"]:
         return []
 
     def __repr__(self) -> str:

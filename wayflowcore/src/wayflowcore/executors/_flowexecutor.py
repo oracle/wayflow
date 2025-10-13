@@ -877,7 +877,8 @@ class FlowConversationExecutor(ConversationExecutor):
                         and next_tool_request_message.tool_requests is not None
                     ):
                         return ToolRequestStatus(
-                            tool_requests=next_tool_request_message.tool_requests
+                            tool_requests=next_tool_request_message.tool_requests,
+                            _conversation_id=conversation.id,
                         )
                     return UserMessageRequestStatus()
 
@@ -921,9 +922,9 @@ class FlowConversationExecutor(ConversationExecutor):
     @staticmethod
     def get_all_sub_conversations(
         state: FlowConversationExecutionState,
-    ) -> List[Tuple["Conversation", str]]:
+    ) -> List["Conversation"]:
         return [
-            (conv, k)
+            conv
             for k, conv in state.internal_context_key_values.items()
             if FlowConversationExecutor._SUB_CONVERSATION_KEY in k
         ]

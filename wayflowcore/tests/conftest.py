@@ -377,12 +377,8 @@ def should_skip_llm_test() -> bool:
 @pytest.fixture
 def cleanup_env():
     yield
-    # To clean skipped LLM tests using proxy/no-proxy mode
-    from wayflowcore._proxyingmode import _DEV_COMPOSABILITY_MODE
     from wayflowcore.executors._agentexecutor import _DISABLE_STREAMING
 
-    if _DEV_COMPOSABILITY_MODE in os.environ:
-        os.environ.pop(_DEV_COMPOSABILITY_MODE)
     if _DISABLE_STREAMING in os.environ:
         os.environ.pop(_DISABLE_STREAMING)
 
@@ -689,8 +685,10 @@ def get_directory_allowlist_read(tmp_path: str, session_tmp_path: str) -> List[U
         # Used in docstring tests
         Path(os.path.dirname(__file__)).parent / "src" / "wayflowcore",
         Path("~/.pdbrc").expanduser(),
+        Path(os.path.dirname(__file__)) / ".pdbrc",
         Path(os.path.dirname(__file__)).parent / ".pdbrc",
         Path(os.path.dirname(__file__)).parent.parent / ".pdbrc",
+        Path(os.path.dirname(__file__)).parent.parent.parent / ".pdbrc",
         # Used in docs test
         Path(os.path.dirname(__file__)).parents[1] / "docs" / "wayflowcore" / "source" / "core",
         # Used by OCI package to get OS information / read configurations

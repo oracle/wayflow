@@ -6,7 +6,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from wayflowcore.agent import Agent
 from wayflowcore.conversation import Conversation
@@ -56,7 +56,7 @@ class ManagerWorkersConversation(Conversation):
     ) -> List["ContextProvider"]:
         return []
 
-    def _get_all_sub_conversations(self) -> List[Tuple["Conversation", str]]:
+    def _get_all_sub_conversations(self) -> List["Conversation"]:
         return []
 
     def __repr__(self) -> str:

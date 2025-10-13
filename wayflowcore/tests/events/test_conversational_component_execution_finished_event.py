@@ -96,7 +96,8 @@ def test_event_creation_with_missing_arguments_fails(
             "execution_status": ToolRequestStatus(
                 tool_requests=[
                     ToolRequest(name="a", args={"a": 1, "b": "v"}, tool_request_id="a_id")
-                ]
+                ],
+                _conversation_id=None,
             ),
         },
         {
@@ -105,7 +106,8 @@ def test_event_creation_with_missing_arguments_fails(
             "execution_status": ToolRequestStatus(
                 tool_requests=[
                     ToolRequest(name="a", args={"a": 1, "b": "v"}, tool_request_id="a_id")
-                ]
+                ],
+                _conversation_id=None,
             ),
         },
         {

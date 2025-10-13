@@ -4,7 +4,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
 # 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, List
 
 from wayflowcore.conversation import Conversation
 from wayflowcore.executors._ociagentexecutor import OciAgentState
@@ -27,7 +27,7 @@ class OciAgentConversation(Conversation):
     def _get_all_context_providers_from_parent_conversations(self) -> List["ContextProvider"]:
         return []
 
-    def _get_all_sub_conversations(self) -> List[Tuple["Conversation", str]]:
+    def _get_all_sub_conversations(self) -> List[Conversation]:
         return []
 
     def __repr__(self) -> str:

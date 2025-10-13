@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from dataclasses import asdict, dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional
 
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableDataclass, SerializableObject
@@ -22,6 +22,8 @@ class ExecutionStatus(SerializableDataclass):
     """
     Execution status returned by the Assistant. This indicates if the assistant yielded, finished the conversation, ...
     """
+
+    _can_be_referenced: ClassVar[bool] = False
 
     @abstractmethod
     def _requires_yielding(self) -> bool:
@@ -65,15 +67,6 @@ class UserMessageRequestStatus(ExecutionStatus):
     def _requires_yielding(self) -> bool:
         return True  # Indicates that execution yielded
 
-    def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
-        return {}
-
-    @classmethod
-    def _deserialize_from_dict(
-        cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
-    ) -> "SerializableObject":
-        return UserMessageRequestStatus()
-
 
 @dataclass
 class ToolRequestStatus(ExecutionStatus):
@@ -81,13 +74,17 @@ class ToolRequestStatus(ExecutionStatus):
     Execution status for when the assistant is asking the user to call a tool and send back its result
     """
 
-    tool_requests: List[ToolRequest]
+    tool_requests: List["ToolRequest"]
+    _conversation_id: Optional[str]
 
     def _requires_yielding(self) -> bool:
         return True
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
-        return {"tool_requests": [asdict(tool) for tool in self.tool_requests]}
+        return {
+            "tool_requests": [asdict(tool) for tool in self.tool_requests],
+            "_conversation_id": self._conversation_id,
+        }
 
     @classmethod
     def _deserialize_from_dict(
@@ -96,5 +93,6 @@ class ToolRequestStatus(ExecutionStatus):
         from wayflowcore.tools import ToolRequest
 
         return ToolRequestStatus(
-            tool_requests=[ToolRequest(**tool_dict) for tool_dict in input_dict["tool_requests"]]
+            tool_requests=[ToolRequest(**tool_dict) for tool_dict in input_dict["tool_requests"]],
+            _conversation_id=input_dict.get("_conversation_id"),
         )
