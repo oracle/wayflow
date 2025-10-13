@@ -25,6 +25,7 @@ from typing import (
     Set,
     Union,
     cast,
+    overload,
 )
 
 from deprecated import deprecated
@@ -482,10 +483,6 @@ class Message(SerializableDataclass):
         self_params.pop("_hash_compute_time", None)
         return Message(**self_params)
 
-    def _add_recipients(self, recipients: Set[str]) -> None:
-        # Do not call this function directly, or make sure it is not a copy of a message
-        self.recipients.update(recipients)
-
     def _validate(self) -> None:
 
         if self.tool_requests is not None and self.message_type != MessageType.TOOL_REQUEST:
@@ -596,10 +593,6 @@ class MessageList(SerializableDataclass):
                 message_type=MessageType.TOOL_RESULT,
             )
         )
-
-    def _add_recipients_to_message(self, recipients: Set[str], index: int) -> None:
-        """E.g. index=-1 to add to the last message"""
-        self.messages[index]._add_recipients(recipients)
 
     def _update_last_message(self, new_message: Message, append_only: bool) -> None:
         """
@@ -726,9 +719,23 @@ class MessageList(SerializableDataclass):
         """Returns a copy of the messages list"""
         return [message.copy() for message in self.messages]
 
-    def get_last_message(self) -> Optional[Message]:
-        """Returns the last message from the conversation"""
-        return self.messages[-1].copy() if len(self.messages) > 0 else None
+    @overload
+    def get_last_message(self) -> Optional[Message]: ...
+    @overload
+    def get_last_message(self, strict: Literal[True]) -> Message: ...
+    @overload
+    def get_last_message(self, strict: Literal[False]) -> Optional[Message]: ...
+    @overload
+    def get_last_message(self, strict: bool) -> Optional[Message]: ...
+
+    def get_last_message(self, strict: bool = False) -> Optional[Message]:
+        """Returns the last message from the conversation.
+        If strict=True, raises an exception if no messages exist."""
+        if len(self.messages) == 0:
+            if strict:
+                raise ValueError("No messages in conversation")
+            return None
+        return self.messages[-1].copy()
 
     @staticmethod
     def _filter_messages_by_type(
@@ -737,17 +744,6 @@ class MessageList(SerializableDataclass):
         filtered_messages = []
         for message in messages:
             if message.message_type in set(types_to_include):
-                filtered_messages.append(message)
-        return filtered_messages
-
-    @staticmethod
-    def _filter_messages_by_recipient(messages: List[Message], agent_id: str) -> List[Message]:
-        """
-        Filters out the messages for which the given assistant is NOT a recipient
-        """
-        filtered_messages = []
-        for message in messages:
-            if agent_id in message.recipients:
                 filtered_messages.append(message)
         return filtered_messages
 
@@ -762,4 +758,4 @@ class MessageList(SerializableDataclass):
         return len(self.messages)
 
     def __repr__(self) -> str:
-        return str(self.messages)
+        return f"MessageList({self.messages!r})"

@@ -281,7 +281,9 @@ class RetryStep(Step):
 
         if not isinstance(status, FinishedStatus):
             return StepResult(
-                outputs={},  # yielding means it will come back to it, so no need to fill the outputs
+                outputs={
+                    "__execution_status__": status
+                },  # yielding means it will come back to it, so no need to fill the outputs
                 branch_name=self.BRANCH_SELF,
                 step_type=StepExecutionStatus.YIELDING,
             )

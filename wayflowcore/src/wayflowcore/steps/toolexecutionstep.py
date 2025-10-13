@@ -333,9 +333,10 @@ class ToolExecutionStep(Step):
                 )
             )
         except StopIteration:
+            messages_as_str = "\n".join(str(m) for m in conversation.get_messages())
             raise ValueError(
                 f"The ToolExecutionStep was expecting a tool result message with id "
-                f"{tool_request_uuid}, but did not find any."
+                f"{tool_request_uuid}, but did not find any: {messages_as_str}"
             )
         return tool_result_content
 

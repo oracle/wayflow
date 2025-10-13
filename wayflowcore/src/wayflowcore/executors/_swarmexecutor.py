@@ -160,7 +160,6 @@ class SwarmRunner(ConversationExecutor):
                 {
                     "tools": mutated_agent_tools,
                     "agent_template": mutated_agent_template,
-                    "_filter_messages_by_recipient": False,  # to not have filtering issues when using handoff
                 },
             ):
                 status = await agent_sub_conversation.execute_async(

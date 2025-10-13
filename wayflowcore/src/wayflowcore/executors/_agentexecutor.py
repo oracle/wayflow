@@ -11,17 +11,13 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from wayflowcore import Flow
-from wayflowcore._proxyingmode import (
-    ProxyCommunicationContext,
-    _mark_message_if_needed,
-    _set_new_message_recipients_depending_on_communication_mode,
-)
 from wayflowcore._utils._templating_helpers import (
     _DEFAULT_VARIABLE_DESCRIPTION_TEMPLATE,
     render_template,
 )
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.conversation import Conversation
+from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.events import record_event
 from wayflowcore.events.event import (
     AgentExecutionIterationFinishedEvent,
@@ -99,7 +95,7 @@ class AgentConversationExecutionState(ConversationExecutionState):
     tool_call_queue: List[ToolRequest] = field(default_factory=list)
     current_tool_request: Optional[ToolRequest] = None
     current_flow_conversation: Optional["Conversation"] = None
-    current_sub_agent_conversation: Optional["Conversation"] = None
+    current_sub_component_conversations: Dict[str, "Conversation"] = field(default_factory=dict)
     has_confirmed_conversation_exit: bool = False
 
     curr_iter: int = 0
@@ -262,9 +258,7 @@ class AgentConversationExecutor(ConversationExecutor):
         if config.custom_instruction is not None and config.custom_instruction != "":
             custom_instruction = render_template(config.custom_instruction, inputs=prompt_variables)
 
-        chat_history = _filter_messages_by_delimiter_type_and_recipient(
-            messages, state, config.agent_id, config._filter_messages_by_recipient
-        )
+        chat_history = _filter_messages_by_delimiter_type(messages, state, config.agent_id)
 
         prompt = await prompt_template.format_async(
             inputs={
@@ -307,22 +301,13 @@ class AgentConversationExecutor(ConversationExecutor):
             not _conversation_contains_user_messages(conversation)
             and config.initial_message is not None
         ):
-            last_message = None
             new_message = Message(
                 content=config.initial_message,
                 message_type=MessageType.AGENT,
                 sender=config.agent_id,
             )
             conversation.append_message(new_message)
-
         else:
-
-            last_messages = [
-                msg
-                for msg in conversation.get_messages()
-                if msg.message_type != MessageType.DISPLAY_ONLY
-            ]
-            last_message = last_messages[-1] if len(last_messages) else None
             new_message = await AgentConversationExecutor._generate_next_agent_message(
                 config=config,
                 conversation=conversation,
@@ -331,13 +316,6 @@ class AgentConversationExecutor(ConversationExecutor):
                 tools=tools,
                 plan=plan,
             )
-        _set_new_message_recipients_depending_on_communication_mode(
-            config=config,
-            last_message=last_message,
-            new_message=new_message,
-            conversation=conversation,
-            messages=messages,
-        )
         logger.debug(f"Agent executor answered: %s", str(new_message))
 
         # if no tool_requests, we simply yield to the user
@@ -358,21 +336,108 @@ class AgentConversationExecutor(ConversationExecutor):
         return False
 
     @staticmethod
+    def _should_recreate_called_component_conversation(
+        caller_conv: "AgentConversation",
+        caller_config: Agent,
+        called_component: ConversationalComponent,
+        inputs: Dict[str, Any],
+    ) -> bool:
+        """Advanced users can override this method."""
+        if isinstance(called_component, (Agent, OciAgent)):
+            # Agent calls Agent: sub-conversation lifetime is unlimited
+            return False
+        elif isinstance(called_component, Flow):
+            # Agent calls Flow: sub-conversation lifetime is unlimited
+            # TODO: update to single-use
+            return False
+        else:
+            raise ValueError(f"Unsupported called component: {called_component.__class__.__name__}")
+
+    @staticmethod
+    def _should_share_messages_with_called_component(
+        caller_conv: "AgentConversation",
+        caller_config: Agent,
+        called_component: ConversationalComponent,
+        inputs: Dict[str, Any],
+    ) -> bool:
+        """Advanced users can override this method."""
+        if isinstance(called_component, (Agent, OciAgent)):
+            # Agent calls Agent: messages are not shared
+            return False
+        elif isinstance(called_component, Flow):
+            # Agent calls Flow: messages are shared
+            return True
+        else:
+            raise ValueError(f"Unsupported called component: {called_component.__class__.__name__}")
+
+    @staticmethod
+    def _get_or_create_expert_agent_subconversation(
+        caller_config: Agent,
+        caller_conv: "AgentConversation",
+        caller_messages: MessageList,
+        expert_agent: Union[Agent, OciAgent],
+        inputs: Dict[str, Any],
+        caller_request_message: Message,
+    ) -> "Conversation":
+        sub_agent_conversation = caller_conv._get_sub_component_conversation(expert_agent)
+        should_recreate_subconversation = (
+            AgentConversationExecutor._should_recreate_called_component_conversation(
+                caller_conv=caller_conv,
+                caller_config=caller_config,
+                called_component=expert_agent,
+                inputs=inputs,
+            )
+        )
+        # Case 1: No need to (re)create sub-conversation
+        if sub_agent_conversation and not should_recreate_subconversation:
+            # re-using the same conversation: we should not add the caller request
+            # if are resuming from a client-tool execution (ToolRequestStatus)
+            if not isinstance(sub_agent_conversation.status, ToolRequestStatus):
+                sub_agent_conversation.message_list.append_message(caller_request_message)
+            return sub_agent_conversation
+
+        # Case 2: Need to (re)create sub-conversation
+        should_share_messages_with_caller = (
+            AgentConversationExecutor._should_share_messages_with_called_component(
+                caller_conv=caller_conv,
+                caller_config=caller_config,
+                called_component=expert_agent,
+                inputs=inputs,
+            )
+        )
+        init_messages: Optional[MessageList]
+        if should_share_messages_with_caller:
+            init_messages = caller_messages  # using the message list from the caller
+        else:
+            init_messages = MessageList([])
+
+        init_messages.append_message(caller_request_message)
+        sub_agent_conversation = expert_agent.start_conversation(
+            messages=init_messages, inputs=inputs
+        )
+        return sub_agent_conversation
+
+    @staticmethod
     async def _execute_as_expert_agent(
         config: Agent,
-        state: AgentConversationExecutionState,
+        caller_conv: "AgentConversation",
         messages: MessageList,
         expert_agent: Union[Agent, OciAgent],
         agent_inputs: Dict[str, Any],
+        caller_request_message: Message,
     ) -> Tuple[Any, str, ExecutionStatus]:
-        sub_agent_conversation = state.current_sub_agent_conversation
-        if sub_agent_conversation is None:
-            sub_agent_conversation = expert_agent.start_conversation(
-                messages=messages, inputs=agent_inputs
+        sub_agent_conversation = (
+            AgentConversationExecutor._get_or_create_expert_agent_subconversation(
+                caller_config=config,
+                caller_conv=caller_conv,
+                caller_messages=messages,
+                expert_agent=expert_agent,
+                inputs=agent_inputs,
+                caller_request_message=caller_request_message,
             )
-            state.current_sub_agent_conversation = sub_agent_conversation
-        with ProxyCommunicationContext(conversation=sub_agent_conversation, sender=config.agent_id):
-            subagent_execution_status = await sub_agent_conversation.execute_async()
+        )
+        caller_conv._set_sub_component_conversation(expert_agent, sub_agent_conversation)
+        subagent_execution_status = await sub_agent_conversation.execute_async()
 
         last_message = sub_agent_conversation.get_last_message()
         agent_output = last_message.content if last_message is not None else ""
@@ -380,7 +445,7 @@ class AgentConversationExecutor(ConversationExecutor):
 
         if isinstance(subagent_execution_status, FinishedStatus):
             # reset state if agent finishes
-            state.current_sub_agent_conversation = None
+            caller_conv._set_sub_component_conversation(expert_agent, None)
 
         return agent_output, serialized_output, subagent_execution_status
 
@@ -457,7 +522,12 @@ class AgentConversationExecutor(ConversationExecutor):
         for agent in config.agents:
             if tool_request.name == agent.name:
                 return await AgentConversationExecutor._handle_agent_call(
-                    config, state, agent, tool_request, messages
+                    config=config,
+                    state=state,
+                    agent_to_execute=agent,
+                    tool_request=tool_request,
+                    messages=messages,
+                    conversation=conversation,
                 )
         for flow in config.flows:
             if tool_request.name == flow.name:
@@ -518,25 +588,53 @@ class AgentConversationExecutor(ConversationExecutor):
         )
 
     @staticmethod
+    def _get_expert_agent_inputs_from_tool_call(
+        caller_config: Agent,
+        tool_request: ToolRequest,
+        caller_messages: MessageList,
+    ) -> Tuple[Dict[str, Any], Message]:
+        """Advanced users can override this method."""
+        REQUEST_KEY = "context"
+        inputs = {
+            k: v
+            for k, v in tool_request.args.items()
+            if k != REQUEST_KEY  # context is a reserved parameter name
+        }
+        last_message = caller_messages.get_last_message(strict=True)
+        request_content = tool_request.args.get(REQUEST_KEY, last_message.content)
+        request_message = Message(
+            content=request_content,
+            message_type=MessageType.USER,
+            sender=caller_config.agent_id,
+        )
+        return inputs, request_message
+
+    @staticmethod
     async def _handle_agent_call(
         config: Agent,
         state: AgentConversationExecutionState,
         agent_to_execute: Union[Agent, OciAgent],
         tool_request: ToolRequest,
         messages: MessageList,
+        conversation: "AgentConversation",
     ) -> Optional[ExecutionStatus]:
-        agent_inputs = {
-            k: v
-            for k, v in tool_request.args.items()
-            if k != "context"  # context is a reserved parameter name
-        }
+        # 1. Extract inputs and caller request to provide to the Expert Agent
+        agent_inputs, request_message = (
+            AgentConversationExecutor._get_expert_agent_inputs_from_tool_call(
+                caller_config=config,
+                tool_request=tool_request,
+                caller_messages=messages,
+            )
+        )
+        # 2. Call expert Agent
         output, serialized_output, agent_execution_status = (
             await AgentConversationExecutor._execute_as_expert_agent(
-                config,
-                state,
-                messages,
-                agent_to_execute,
-                agent_inputs,
+                config=config,
+                caller_conv=conversation,
+                messages=messages,
+                expert_agent=agent_to_execute,
+                agent_inputs=agent_inputs,
+                caller_request_message=request_message,
             )
         )
         logger.debug(
@@ -549,7 +647,9 @@ class AgentConversationExecutor(ConversationExecutor):
         if isinstance(agent_execution_status, (FinishedStatus, UserMessageRequestStatus)):
             messages.append_message(
                 AgentConversationExecutor._get_tool_response_message(
-                    output, tool_request.tool_request_id, config.agent_id
+                    content=output,
+                    tool_request_id=tool_request.tool_request_id,
+                    agent_id=config.agent_id,
                 )
             )
             return None
@@ -647,7 +747,9 @@ class AgentConversationExecutor(ConversationExecutor):
                         config, conversation.state, messages
                     )
                 )
-                return ToolRequestStatus(tool_requests=all_open_client_tool_requests)
+                return ToolRequestStatus(
+                    tool_requests=all_open_client_tool_requests, _conversation_id=conversation.id
+                )
         elif isinstance(tool, ServerTool):
             with ToolExecutionSpan(
                 tool=tool,
@@ -797,9 +899,6 @@ class AgentConversationExecutor(ConversationExecutor):
             )
 
             messages = conversation.message_list
-            # important, so the agent sees the user message
-            _mark_message_if_needed(messages, agent_config.agent_id)
-
             agent_state.curr_iter = 0
             should_yield = False
 
@@ -887,9 +986,11 @@ class AgentConversationExecutor(ConversationExecutor):
 
                     if should_yield and agent_config.caller_input_mode == CallerInputMode.NEVER:
                         conversation.append_message(
-                            _caller_input_mode_never_reminder(agent_config.caller_input_mode)
+                            _caller_input_mode_never_reminder(
+                                caller_input_mode=agent_config.caller_input_mode,
+                                sender=agent_config.agent_id,
+                            )
                         )
-                        _mark_message_if_needed(conversation.message_list, agent_config.agent_id)
                         should_yield = False
 
                 AgentConversationExecutor._register_event(
@@ -981,13 +1082,13 @@ class AgentConversationExecutor(ConversationExecutor):
         conversation.append_message(
             Message(
                 role="user",
+                sender=config.id,
                 tool_result=ToolResult(
                     content=tool_output_content,
                     tool_request_id=submit_tool_call.tool_request_id,
                 ),
             )
         )
-        _mark_message_if_needed(conversation.message_list, config.agent_id)
 
         if not successful_submission:
             return None
@@ -1024,13 +1125,6 @@ def _convert_talk_to_user_tool_call_into_agent_message(
     message_to_update = conversation.get_last_message()
     if message_to_update is None:
         raise RuntimeError("Last message was None, this should not be the case")
-    _set_new_message_recipients_depending_on_communication_mode(
-        config=agent_config,
-        last_message=None,
-        new_message=message_to_update,
-        conversation=conversation,
-        messages=conversation.message_list,
-    )
     if question_is_present:
         return question_is_present  # True
     # else we need to remind the agent to use the talk to user tool properly
@@ -1040,12 +1134,12 @@ def _convert_talk_to_user_tool_call_into_agent_message(
     return question_is_present  # False
 
 
-def _caller_input_mode_never_reminder(caller_input_mode: CallerInputMode) -> Message:
+def _caller_input_mode_never_reminder(caller_input_mode: CallerInputMode, sender: str) -> Message:
     content = f"I'm not available. Please achieve the task by yourself"
     if caller_input_mode:
         content += f" and submit using the {_SUBMIT_TOOL_NAME} function"
     content += ". DO NOT generate pure text."
-    return Message(role="user", content=content)
+    return Message(role="user", content=content, sender=sender)
 
 
 def _serialize_output(output: Any) -> str:
@@ -1054,11 +1148,10 @@ def _serialize_output(output: Any) -> str:
     return str(output)
 
 
-def _filter_messages_by_delimiter_type_and_recipient(
+def _filter_messages_by_delimiter_type(
     messages: MessageList,
     state: AgentConversationExecutionState,
     agent_id: str,
-    _filter_messages_by_recipient: bool,
 ) -> List[Message]:
     filtered_messages = messages.get_messages()
     logger.debug("%s::Messages before filtering", agent_id)
@@ -1074,12 +1167,6 @@ def _filter_messages_by_delimiter_type_and_recipient(
             MessageType.TOOL_REQUEST,
         ],
     )
-
-    if _filter_messages_by_recipient:
-        filtered_messages = MessageList._filter_messages_by_recipient(
-            filtered_messages, agent_id=agent_id
-        )
-
     logger.debug("%s::Messages after filtering", agent_id)
     _log_messages_for_debug(filtered_messages)
     return filtered_messages

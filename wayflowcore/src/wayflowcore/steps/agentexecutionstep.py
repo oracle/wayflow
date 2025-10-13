@@ -17,6 +17,7 @@ from wayflowcore.steps.step import Step, StepExecutionStatus, StepResult
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.conversation import Conversation
     from wayflowcore.executors._flowconversation import FlowConversation
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,7 @@ class AgentExecutionStep(Step):
         output_mapping: Optional[Dict[str, str]] = None,
         name: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
+        _share_conversation: bool = True,
     ):
         """
         Step that executes an agent. If given some outputs, it will ask the agent to return these outputs.
@@ -186,6 +188,8 @@ class AgentExecutionStep(Step):
 
         self.caller_input_mode = caller_input_mode
         self.agent: Union[Agent, OciAgent] = agent
+        self._share_conversation = _share_conversation
+        """Whether the calling flow shares its messages with the Agent or not."""
 
         if not isinstance(self.agent, Agent):
             if output_descriptors is not None and len(output_descriptors) > 0:
@@ -256,21 +260,40 @@ class AgentExecutionStep(Step):
         else:
             raise NotImplementedError(f"{self.agent} not supported in the agent execution step.")
 
+    def _get_or_create_agent_subconversation(
+        self,
+        sub_conversation_id: str,
+        caller_conv: "FlowConversation",
+        inputs: Dict[str, Any],
+    ) -> "Conversation":
+        from wayflowcore.messagelist import MessageList
+
+        agent_sub_conversation = caller_conv._get_current_sub_conversation(
+            self, sub_conversation_id
+        )
+        if agent_sub_conversation is not None:
+            return agent_sub_conversation
+
+        init_messages = caller_conv.message_list if self._share_conversation else MessageList([])
+        agent_sub_conversation = self.agent.start_conversation(
+            inputs=inputs, messages=init_messages
+        )
+
+        return agent_sub_conversation
+
     async def _invoke_step_async(
         self,
         inputs: Dict[str, Any],
         conversation: "FlowConversation",
     ) -> StepResult:
-        SUB_CONVERSATION_ID = f"agent_sub_conversation_{self.name}"
+        from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 
-        agent_sub_conversation = conversation._get_current_sub_conversation(
-            self, SUB_CONVERSATION_ID
+        SUB_CONVERSATION_ID = (
+            f"agent_sub_conversation_{self.name}" + FlowConversationExecutor._SUB_CONVERSATION_KEY
         )
-        if agent_sub_conversation is None:
-            agent_sub_conversation = self.agent.start_conversation(
-                inputs=inputs, messages=conversation.message_list
-            )
-
+        agent_sub_conversation = self._get_or_create_agent_subconversation(
+            sub_conversation_id=SUB_CONVERSATION_ID, caller_conv=conversation, inputs=inputs
+        )
         conversation._update_sub_conversation(self, agent_sub_conversation, SUB_CONVERSATION_ID)
 
         mutated_agent_parameters: Dict[str, Any] = {
@@ -304,7 +327,9 @@ class AgentExecutionStep(Step):
             )
         if not isinstance(status, FinishedStatus):
             return StepResult(
-                outputs={}, branch_name=self.BRANCH_SELF, step_type=StepExecutionStatus.YIELDING
+                outputs={"__execution_status__": status},
+                branch_name=self.BRANCH_SELF,
+                step_type=StepExecutionStatus.YIELDING,
             )
 
         conversation._cleanup_sub_conversation(self, SUB_CONVERSATION_ID)

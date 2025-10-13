@@ -199,7 +199,6 @@ class FlowExecutionStep(Step):
         )
 
         self.flow: "Flow" = flow
-        self.executor = FlowConversationExecutor()  # stateless flow executor
 
     def sub_flow(self) -> "Flow":
         return self.flow
@@ -260,7 +259,7 @@ class FlowExecutionStep(Step):
             flow=self.flow,
             inputs=inputs,
         )
-        status = await self.executor.execute_async(sub_conversation)
+        status = await sub_conversation.execute_async()
 
         if isinstance(status, InterruptedExecutionStatus):
             return StepResult(
@@ -271,7 +270,9 @@ class FlowExecutionStep(Step):
             )
         if not isinstance(status, FinishedStatus):
             return StepResult(
-                outputs={},  # yielding means it will come back to it, so no need to fill the outputs
+                outputs={
+                    "__execution_status__": status
+                },  # yielding means it will come back to it, so no need to fill the outputs
                 branch_name=self.BRANCH_SELF,
                 step_type=StepExecutionStatus.YIELDING,
             )

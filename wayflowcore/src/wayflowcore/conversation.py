@@ -5,23 +5,13 @@
 # 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    AsyncIterable,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Any, AsyncIterable, Callable, Dict, List, Optional, Sequence
 
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.component import DataclassComponent
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.executors._events.event import Event
-from wayflowcore.executors.executionstatus import ExecutionStatus
+from wayflowcore.executors.executionstatus import ExecutionStatus, ToolRequestStatus
 from wayflowcore.messagelist import Message, MessageList
 from wayflowcore.planning import ExecutionPlan
 from wayflowcore.tokenusage import TokenUsage
@@ -86,7 +76,8 @@ class Conversation(DataclassComponent):
         The ``Execution`` status is returned by the Assistant and indicates if the assistant yielded,
         finished the conversation.
         """
-        return await self.component.runner.execute_async(self, execution_interrupts)
+        self.status = await self.component.runner.execute_async(self, execution_interrupts)
+        return self.status
 
     @property
     @abstractmethod
@@ -101,7 +92,7 @@ class Conversation(DataclassComponent):
         raise NotImplementedError()
 
     @abstractmethod
-    def _get_all_sub_conversations(self) -> List[Tuple["Conversation", str]]:
+    def _get_all_sub_conversations(self) -> List["Conversation"]:
         """Gathers all sub conversations"""
         raise NotImplementedError()
 
@@ -159,7 +150,15 @@ class Conversation(DataclassComponent):
         tool_result:
             message to append.
         """
-        self.message_list.append_tool_result(tool_result)
+        if isinstance(self.status, ToolRequestStatus) and self.status._conversation_id == self.id:
+            # we should append to this conversation message list only if
+            # it is the conversation the ToolRequestStatus originated from.
+            self.message_list.append_tool_result(tool_result)
+        else:
+            # otherwise, we need to propagate the tool_result to sub conversations
+            # to append the message to the conversation bound to the ToolRequestStatus
+            for conv in self._get_all_sub_conversations():
+                conv.append_tool_result(tool_result)
 
     async def _append_streaming_message(
         self,

@@ -16,7 +16,7 @@ from .conftest import mock_llm, patch_streaming_llm
 from .testhelpers.testhelpers import retry_test
 
 
-@retry_test(max_attempts=5)
+@retry_test(max_attempts=4)
 @pytest.mark.parametrize(
     "custom_instructions, expected_answer",
     [
@@ -35,12 +35,12 @@ def test_agent_in_agent_can_call_client_tool(big_llama, custom_instructions, exp
     Justification:         (0.05 ** 4) ~= 0.6 / 100'000
 
     (second test case)
-    Failure rate:          15 out of 100
-    Observed on:           2025-06-19
-    Average success time:  4.68 seconds per successful attempt
-    Average failure time:  4.39 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.16 ** 5) ~= 9.5 / 100'000
+    Failure rate:          3 out of 50
+    Observed on:           2025-09-08
+    Average success time:  4.34 seconds per successful attempt
+    Average failure time:  4.01 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 3.5 / 100'000
     """
     account_check = ClientTool(
         name="account_check",
@@ -82,10 +82,9 @@ def test_agent_in_agent_can_call_client_tool(big_llama, custom_instructions, exp
     assert last_message.message_type == MessageType.AGENT
     assert expected_answer in last_message.content
     assert last_message.sender == agent.agent_id
-    assert "human_user" in last_message.recipients
 
 
-@retry_test(max_attempts=6)
+@retry_test(max_attempts=3)
 @pytest.mark.parametrize(
     "custom_instructions, expected_answer",
     [
@@ -96,20 +95,20 @@ def test_agent_in_agent_can_call_client_tool(big_llama, custom_instructions, exp
 def test_agent_in_agent_can_call_server_tool(big_llama, custom_instructions, expected_answer):
     """
     (first test case)
-    Failure rate:          8 out of 100
-    Observed on:           2025-06-19
-    Average success time:  4.46 seconds per successful attempt
-    Average failure time:  4.43 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.09 ** 4) ~= 6.1 / 100'000
+    Failure rate:          1 out of 50
+    Observed on:           2025-09-08
+    Average success time:  3.85 seconds per successful attempt
+    Average failure time:  3.75 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
 
     (second test case)
-    Failure rate:          19 out of 100
-    Observed on:           2025-06-19
-    Average success time:  4.63 seconds per successful attempt
-    Average failure time:  5.89 seconds per failed attempt
-    Max attempt:           6
-    Justification:         (0.20 ** 6) ~= 5.7 / 100'000
+    Failure rate:          1 out of 50
+    Observed on:           2025-09-08
+    Average success time:  4.25 seconds per successful attempt
+    Average failure time:  3.92 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
     account_check = ServerTool(
         name="account_check",
@@ -142,7 +141,6 @@ def test_agent_in_agent_can_call_server_tool(big_llama, custom_instructions, exp
     assert last_message.message_type == MessageType.AGENT
     assert expected_answer in last_message.content
     assert last_message.sender == agent.agent_id
-    assert "human_user" in last_message.recipients
 
 
 def test_deeply_nested_agent_can_call_client_tool():
@@ -189,15 +187,18 @@ def test_deeply_nested_agent_can_call_client_tool():
     account_check_step_ii = ToolExecutionStep(
         tool=account_check_i,
     )
-    account_check_subflow_iii = Flow.from_steps(steps=[account_check_step_ii])
+    account_check_subflow_iii = Flow.from_steps(
+        name="account_check_subflow_iii", steps=[account_check_step_ii], step_names=["inside_step"]
+    )
     account_check_subflow_step_iv = FlowExecutionStep(
         flow=account_check_subflow_iii,
     )
     account_check_flow_v = Flow.from_steps(
-        steps=[account_check_subflow_step_iv], name="account_check_tool"
+        steps=[account_check_subflow_step_iv], name="account_check_tool", step_names=["middle_step"]
     )
     sub_llm = mock_llm()
     account_check_agent_vi = Agent(
+        agent_id="accounting_expert",
         name="Accounting Expert",
         llm=sub_llm,
         description="Expert able to check amounts in user accounts",
@@ -206,6 +207,8 @@ def test_deeply_nested_agent_can_call_client_tool():
     )
     main_llm = mock_llm()
     agent_vii = Agent(
+        agent_id="main_agent",
+        name="main_agent",
         llm=main_llm,
         custom_instruction="You are an ai agent with access to some expert agents",
         agents=[account_check_agent_vi],
@@ -213,7 +216,9 @@ def test_deeply_nested_agent_can_call_client_tool():
     agent_execution_step_viii = AgentExecutionStep(
         agent=agent_vii,
     )
-    flow_ix = Flow.from_steps(steps=[agent_execution_step_viii])
+    flow_ix = Flow.from_steps(
+        name="flow_ix", steps=[agent_execution_step_viii], step_names=["outside_agent_step"]
+    )
     conversation = flow_ix.start_conversation()
 
     # Scenario & expectations (a)
@@ -227,7 +232,11 @@ def test_deeply_nested_agent_can_call_client_tool():
     with patch_streaming_llm(
         main_llm,
         tool_requests=[
-            ToolRequest(name="Accounting Expert", args={"context": ""}, tool_request_id="id1")
+            ToolRequest(
+                name="Accounting Expert",
+                args={"context": "Main->Accounting expert: Ben Smith account amount?"},
+                tool_request_id="id1",
+            )
         ],
     ):
         with patch_streaming_llm(
@@ -254,16 +263,27 @@ def test_deeply_nested_agent_can_call_client_tool():
     last_message = conversation.get_last_message()
     assert last_message.message_type == MessageType.AGENT
     assert "192" in last_message.content
-    assert "human_user" in last_message.recipients
     # Scenario & expectations (d)
     conversation.append_user_message("I would also like to know about Henry Jacobs, please.")
     with patch_streaming_llm(
         main_llm,
-        tool_requests=[dict(name="Accounting Expert", args={"context": ""})],
+        tool_requests=[
+            ToolRequest(
+                name="Accounting Expert",
+                args={"context": "Main->Accounting expert: Henry Jacobs account amount also?"},
+                tool_request_id="id3",
+            )
+        ],
     ):
         with patch_streaming_llm(
             sub_llm,
-            tool_requests=[dict(name="account_check_tool", args={"username": "Henry Jacobs"})],
+            tool_requests=[
+                ToolRequest(
+                    name="account_check_tool",
+                    args={"username": "Henry Jacobs"},
+                    tool_request_id="id4",
+                )
+            ],
         ):
             status = conversation.execute()
     assert isinstance(status, ToolRequestStatus)
@@ -280,7 +300,6 @@ def test_deeply_nested_agent_can_call_client_tool():
     last_message = conversation.get_last_message()
     assert last_message.message_type == MessageType.AGENT
     assert "22" in last_message.content
-    assert "human_user" in last_message.recipients
 
 
 def test_agent_works_with_both_server_and_client_tools_in_agent():

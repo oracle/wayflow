@@ -128,7 +128,6 @@ class HumanProxyAssistant(Agent):
         super().__init__(
             llm=llm,
             custom_instruction=self.system_prompt,
-            _filter_messages_by_recipient=False,
         )
 
 

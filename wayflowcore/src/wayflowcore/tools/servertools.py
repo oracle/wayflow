@@ -35,6 +35,7 @@ from wayflowcore.executors.executionstatus import (
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
+from wayflowcore.executors.interrupts import ExecutionInterrupt, InterruptedExecutionStatus
 from wayflowcore.property import JsonSchemaParam, Property
 
 from .flowbasedtools import DescribedFlow
@@ -418,11 +419,6 @@ class _FlowAsToolCallable:
         return await self.__call__(**inputs)
 
     async def __call__(self, **inputs: Any) -> Any:
-        from wayflowcore.executors.interrupts.executioninterrupt import (
-            ExecutionInterrupt,
-            InterruptedExecutionStatus,
-        )
-
         conversation: "FlowConversation"
         interrupts: Optional[List["ExecutionInterrupt"]] = None
         if self._parent_conversation is None:

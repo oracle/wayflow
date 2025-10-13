@@ -10,13 +10,13 @@ from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
-from wayflowcore.conversation import Conversation
 from wayflowcore.executors._events.event import Event, EventType
 from wayflowcore.executors.executionstatus import ExecutionStatus
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
 
 if TYPE_CHECKING:
+    from wayflowcore.conversation import Conversation
     from wayflowcore.executors._executionstate import ConversationExecutionState
 
 
@@ -71,7 +71,7 @@ class ExecutionInterrupt(SerializableObject, metaclass=ABCMeta):
     """
 
     def on_event(
-        self, event: Event, state: ConversationExecutionState, conversation: Conversation
+        self, event: Event, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         """
         Checks if the interrupt should be triggered at the current state,
@@ -103,25 +103,25 @@ class ExecutionInterrupt(SerializableObject, metaclass=ABCMeta):
 
     @abstractmethod
     def _on_execution_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
     @abstractmethod
     def _on_execution_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
     @abstractmethod
     def _on_execution_loop_iteration_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
     @abstractmethod
     def _on_execution_loop_iteration_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
@@ -132,7 +132,7 @@ class FlowExecutionInterrupt(ExecutionInterrupt):
     """
 
     def on_event(
-        self, event: Event, state: ConversationExecutionState, conversation: Conversation
+        self, event: Event, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         if event.type == EventType.STEP_EXECUTION_START:
             return self._on_step_execution_start(state, conversation)
@@ -142,13 +142,13 @@ class FlowExecutionInterrupt(ExecutionInterrupt):
 
     @abstractmethod
     def _on_step_execution_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
     @abstractmethod
     def _on_step_execution_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
@@ -159,7 +159,7 @@ class FlexibleExecutionInterrupt(ExecutionInterrupt):
     """
 
     def on_event(
-        self, event: Event, state: ConversationExecutionState, conversation: Conversation
+        self, event: Event, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         if event.type == EventType.GENERATION_START:
             return self._on_generation_start(state, conversation)
@@ -177,37 +177,37 @@ class FlexibleExecutionInterrupt(ExecutionInterrupt):
 
     @abstractmethod
     def _on_generation_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
     @abstractmethod
     def _on_generation_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
     @abstractmethod
     def _on_tool_call_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
     @abstractmethod
     def _on_tool_call_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
     @abstractmethod
     def _on_agent_call_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
     @abstractmethod
     def _on_agent_call_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
@@ -220,67 +220,67 @@ class _AllEventsInterruptMixin(ABC):
 
     @abstractmethod
     def _return_status_if_condition_is_met(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         pass
 
     def _on_execution_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_execution_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_execution_loop_iteration_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_execution_loop_iteration_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_step_execution_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_step_execution_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_generation_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_generation_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_tool_call_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_tool_call_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_agent_call_start(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
     def _on_agent_call_end(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return self._return_status_if_condition_is_met(state, conversation)
 
@@ -295,6 +295,6 @@ class _NullExecutionInterrupt(
     """
 
     def _return_status_if_condition_is_met(
-        self, state: ConversationExecutionState, conversation: Conversation
+        self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
         return None

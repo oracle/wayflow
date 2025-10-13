@@ -8,7 +8,7 @@ import logging
 import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union, cast
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_async_in_sync
@@ -76,6 +76,7 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         _validate_same_component: bool = True,
     ) -> "ExecutionStatus":
         from wayflowcore.events.eventlistener import _record_exception
+        from wayflowcore.executors.executionstatus import ExecutionStatus
 
         warnings.warn(
             "Call to deprecated method execute. (Method was deprecated in 25.3.0 and will be removed in 25.4. Please use `conversation.execute()` instead.)",
@@ -92,11 +93,13 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
                     "You are trying to call the component on a conversation that was not created by it. Please use `conversation.execute()` instead."
                 )
 
-            return run_async_in_sync(
-                self.runner.execute_async,
-                conversation,
-                execution_interrupts,
-                method_name="conversation.execute_async",
+            return cast(
+                ExecutionStatus,
+                run_async_in_sync(
+                    conversation.execute_async,
+                    execution_interrupts,
+                    method_name="conversation.execute_async",
+                ),
             )
 
         except Exception as e:

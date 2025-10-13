@@ -1576,7 +1576,6 @@ def test_can_continue_conversation_after_submitting_outputs(remotely_hosted_llm)
         llm=remotely_hosted_llm,
         custom_instruction="return an answer",
         initial_message=None,
-        _filter_messages_by_recipient=False,
     )
     flow = Flow.from_steps(
         steps=[

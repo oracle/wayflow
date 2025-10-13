@@ -5,11 +5,12 @@
 # 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 
-from wayflowcore import Agent
+from wayflowcore.agent import Agent
 from wayflowcore.contextproviders import ContextProvider
 from wayflowcore.conversation import Conversation
+from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.executors._agentexecutor import AgentConversationExecutionState
 from wayflowcore.planning import ExecutionPlan
 
@@ -56,8 +57,28 @@ class AgentConversation(Conversation):
     ) -> List["ContextProvider"]:
         return []
 
-    def _get_all_sub_conversations(self) -> List[Tuple["Conversation", str]]:
-        return []
+    def _get_all_sub_conversations(self) -> List["Conversation"]:
+        # subconversations of an Agent are conversations from any sub-component,
+        # including sub-agents and (sub-)flows.
+        sub_conversations = list(self.state.current_sub_component_conversations.values())
+        if self.state.current_flow_conversation is not None:
+            sub_conversations += [self.state.current_flow_conversation]
+        return sub_conversations
+
+    def _get_sub_component_conversation(
+        self, component: ConversationalComponent
+    ) -> Optional["Conversation"]:
+        return self.state.current_sub_component_conversations.get(component.id)
+
+    def _set_sub_component_conversation(
+        self, component: ConversationalComponent, conversation: Optional["Conversation"]
+    ) -> None:
+        identifier = component.id
+        component_conversations = self.state.current_sub_component_conversations
+        if not conversation and identifier in component_conversations:
+            component_conversations.pop(identifier)
+        elif conversation:  # otherwise we add only if the conversation is not None
+            component_conversations[identifier] = conversation
 
     @property
     def current_step_name(self) -> str:
