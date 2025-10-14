@@ -38,6 +38,7 @@ ALL_SERIALIZABLE_CLASSES = {
     "FlowConversationExecutionState",
     "InMemoryDatastore",
     "InterruptedExecutionStatus",
+    "ToolExecutionConfirmationStatus",
     "JsonToolOutputParser",
     "LlmModel",
     "MTlsOracleDatabaseConnectionConfig",

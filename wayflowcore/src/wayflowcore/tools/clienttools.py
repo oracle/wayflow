@@ -4,6 +4,10 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
 # 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
 
+from typing import Dict, List, Optional
+
+from wayflowcore._metadata import MetadataType
+from wayflowcore.property import JsonSchemaParam, Property
 
 from .tools import Tool
 
@@ -47,6 +51,33 @@ class ClientTool(Tool):
 
     """
 
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        input_descriptors: Optional[List[Property]] = None,
+        output_descriptors: Optional[List[Property]] = None,
+        parameters: Optional[Dict[str, JsonSchemaParam]] = None,
+        output: Optional[JsonSchemaParam] = None,
+        id: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
+    ):
+
+        super().__init__(
+            name=name,
+            description=description,
+            input_descriptors=input_descriptors,
+            output_descriptors=output_descriptors,
+            parameters=parameters,
+            output=output,
+            id=id,
+            __metadata_info__=__metadata_info__,
+            requires_confirmation=False,
+        )
+
     @property
     def might_yield(self) -> bool:
+        """
+        Indicates that the client tool might yield (it always does).
+        """
         return True

@@ -20,6 +20,7 @@ from wayflowcore.executors._agenticpattern_helpers import (
 from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.executors.executionstatus import (
     ExecutionStatus,
+    ToolExecutionConfirmationStatus,
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
@@ -153,11 +154,11 @@ class ManagerWorkersRunner(ConversationExecutor):
             if (
                 not _last_message
                 or _last_message.message_type == MessageType.TOOL_REQUEST
-                and not isinstance(status, ToolRequestStatus)
+                and not isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus))
             ):
                 raise TypeError(
                     "Internal error: Last agent message is a tool request but execution status "
-                    f"is not of type {ToolRequestStatus} (is '{type(status)}')"
+                    f"is not of type {ToolRequestStatus}, {ToolExecutionConfirmationStatus} (is '{type(status)}')"
                 )
 
             if isinstance(status, ToolRequestStatus) and any(
@@ -185,8 +186,8 @@ class ManagerWorkersRunner(ConversationExecutor):
                     manager_agent_name=managerworkers_config.manager_agent.name,
                     managerworkers_conversation=conversation,
                 )
-            elif isinstance(status, ToolRequestStatus):
-                # 4. usual client tool requests of either manager agent or the worker
+            elif isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus)):
+                # 4. usual client/server tool requests of either manager agent or the worker
                 return status
             else:
                 # 5. illegal agent finishing the conversation

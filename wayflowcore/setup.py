@@ -62,8 +62,6 @@ setup(
         "PyYAML>=5.3,<7.0.0",
         "pydantic>=2.7.4,<3.0.0",
         "mcp>=1.9.3",
-        "opentelemetry-api>=1.33.0,<2.0.0",
-        "opentelemetry-sdk>=1.33.0,<2.0.0",
         # 4rth party dependencies version bounds, for CVE patching
         "annotated-types>=0.6.0",
         "anyio>=4.10.0",
@@ -73,14 +71,19 @@ setup(
         "httpcore>=1.0.9",
         "httpx-sse>=0.4",
         "idna>=3.7",
+        "opentelemetry-api>=1.33.0,<2.0.0",
+        "opentelemetry-sdk>=1.33.0,<2.0.0",
         "pydantic_core>=2.33.0",  # warning but no vulnerabilities
         "pydantic-settings>=2.5.2",
         "python-dotenv>=0.21.0",
         "python-multipart>=0.0.18",
         "sniffio>=1.1",
+        "sse-starlette>=1.6.1",
+        "starlette>=0.42",
         "typing_extensions>=4.12.2",
         "typing-inspection>=0.4.0",
         "exceptiongroup>=1.0.2",
+        "uvicorn >=0.23.1",
     ],
     test_suite="tests",
     entry_points={

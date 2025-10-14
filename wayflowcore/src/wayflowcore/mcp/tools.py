@@ -45,6 +45,7 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
         _validate_tool_exist_on_server: bool = True,
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
+        requires_confirmation: bool = False,
     ):
         self.client_transport = client_transport
         _validate_auth(self.client_transport)
@@ -81,6 +82,7 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
             func=wrapped_async,
             id=id,
             __metadata_info__=__metadata_info__,
+            requires_confirmation=requires_confirmation,
         )
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
@@ -94,6 +96,7 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
                 "input_descriptors",
                 "output_descriptors",
                 "client_transport",
+                "requires_confirmation",
             ]
         }
 
@@ -114,6 +117,7 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
                     "input_descriptors",
                     "output_descriptors",
                     "client_transport",
+                    "requires_confirmation",
                 ]
             }
         )

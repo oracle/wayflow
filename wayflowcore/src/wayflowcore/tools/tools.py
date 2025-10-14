@@ -27,12 +27,15 @@ VALID_JSON_TYPES = {"boolean", "number", "integer", "string", "bool", "object", 
 JSON_SCHEMA_NONE_TYPE = "null"
 
 
-@dataclass(frozen=True)
+@dataclass
 class ToolRequest(SerializableDataclassMixin, SerializableObject):
     _can_be_referenced: ClassVar[bool] = False
     name: str
     args: Dict[str, Any]
     tool_request_id: str = field(default_factory=IdGenerator.get_or_generate_id)
+    _requires_confirmation: bool = False
+    _tool_execution_confirmed: Optional[bool] = None
+    _tool_rejection_reason: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -84,6 +87,9 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
     # override the type of the description
     description: str
 
+    # Ask for user confirmation, yields ToolExecutionConfirmationStatus if True
+    requires_confirmation: bool
+
     def __init__(
         self,
         name: str,
@@ -94,6 +100,7 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
         output: Optional[JsonSchemaParam] = None,
         id: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
+        requires_confirmation: bool = False,
     ):
         if input_descriptors is not None:
             self.input_descriptors = input_descriptors
@@ -121,6 +128,7 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
             self.output_descriptors = [StringProperty(name=self.DEFAULT_TOOL_NAME)]
             self.output = _output_descriptors_to_output(self.output_descriptors)
 
+        self.requires_confirmation = requires_confirmation
         super().__init__(
             input_descriptors=self.input_descriptors,
             output_descriptors=self.output_descriptors,
@@ -190,10 +198,6 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
 
         return _to_openai_function_dict(self)
 
-    @property
-    def might_yield(self) -> bool:
-        return False
-
     def _to_simple_json_format(self) -> Dict[str, Any]:
         """
         Compact/simplified json-style formatting of a tool schema.
@@ -212,6 +216,13 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={repr(self.name)})"
+
+    @property
+    def might_yield(self) -> bool:
+        """
+        Indicates that the tool might yield inside a step or a flow.
+        """
+        return self.requires_confirmation
 
 
 def _make_tool_key(key: str, tools: Dict[str, Any]) -> str:

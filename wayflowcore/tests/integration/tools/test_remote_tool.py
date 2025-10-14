@@ -12,6 +12,7 @@ from unittest.mock import patch
 import httpx
 
 from wayflowcore.agent import Agent
+from wayflowcore.executors.executionstatus import ToolExecutionConfirmationStatus
 from wayflowcore.tools import RemoteTool
 
 from ...testhelpers.testhelpers import retry_test
@@ -89,6 +90,49 @@ def test_remote_tool_uses_the_jq_query(patched_request):
     )
     tool_result = tool.run()
     assert tool_result == "i"
+
+
+@retry_test(max_attempts=3, wait_between_tries=1)
+@patch.object(
+    httpx.AsyncClient,
+    "request",
+    return_value=MockResponse.from_object({"weather": "strong winds at 45 km/h"}),
+)
+def test_agent_can_use_remote_tool_with_confirmation(patched_request, remotely_hosted_llm):
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-10-10
+    Average success time:  0.98 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+    weather_tool = RemoteTool(
+        name="forecast_weather",
+        description="Returns a forecast of the weather for the chosen city",
+        url="https://weatherforecast.com/city/{{ city }}",
+        method="GET",
+        output_jq_query=".weather",
+        requires_confirmation=True,
+    )
+    agent = Agent(
+        llm=remotely_hosted_llm,
+        tools=[weather_tool],
+        max_iterations=3,
+    )
+
+    conversation = agent.start_conversation()
+    conversation.append_user_message("What is the speed of the winds in Zurich?")
+    status = agent.execute(conversation)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.confirm_tool_execution(tool_request=status.tool_requests[0])
+    agent.execute(conversation)
+    patched_request.assert_called_once()
+    assert (
+        patched_request.call_args.kwargs["url"].lower() == "https://weatherforecast.com/city/zurich"
+    )
+    agent_message = conversation.get_last_message().content
+    assert "45" in agent_message  # The speed of the winds
 
 
 @patch.object(httpx.AsyncClient, "request", return_value=MockResponse.from_object({}))

@@ -13,10 +13,8 @@ from typing import Dict, Union
 from wayflowcore.flow import Flow
 from wayflowcore.property import (
     BooleanProperty,
-    DictProperty,
     IntegerProperty,
     StringProperty,
-    UnionProperty,
 )
 from wayflowcore.steps import ToolExecutionStep
 from wayflowcore.tools import ServerTool, tool

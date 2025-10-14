@@ -38,6 +38,7 @@ class InterruptedExecutionStatus(ExecutionStatus, SerializableObject):
     interrupter: ExecutionInterrupt
     reason: str
 
+    @property
     def _requires_yielding(self) -> bool:
         return True
 

@@ -32,6 +32,7 @@ from wayflowcore._utils.async_helpers import (
 )
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
+    ToolExecutionConfirmationStatus,
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
@@ -123,6 +124,8 @@ class ServerTool(Tool):
         be automatically be named ``Tool.DEFAULT_TOOL_NAME``.
     func: Callable
         tool callable
+    requires_confirmation: bool
+        Flag to make tool require confirmation before execution. Yields a ToolExecutionConfirmationStatus during execution.
 
     Examples
     --------
@@ -179,6 +182,7 @@ class ServerTool(Tool):
         id: Optional[str] = None,
         _cpu_bounded: bool = False,
         __metadata_info__: Optional[MetadataType] = None,
+        requires_confirmation: bool = False,
     ):
         # _cpu_bounded:
         #   Whether the tool can be ran in a separate process (for cpu-bound
@@ -198,6 +202,7 @@ class ServerTool(Tool):
             output=output,
             id=id,
             __metadata_info__=__metadata_info__,
+            requires_confirmation=requires_confirmation,
         )
 
     async def run_async(self, *args: Any, **kwargs: Any) -> Any:
@@ -436,7 +441,9 @@ class _FlowAsToolCallable:
         # parent conversation.
         self._parent_conversation = None
 
-        if isinstance(status, (UserMessageRequestStatus, ToolRequestStatus)):
+        if isinstance(
+            status, (UserMessageRequestStatus, ToolRequestStatus, ToolExecutionConfirmationStatus)
+        ):
             raise ValueError(
                 "A server tool was configured with a flow that yield. This is not allowed."
             )

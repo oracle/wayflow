@@ -12,13 +12,19 @@ import pytest
 from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore.agent import DEFAULT_INITIAL_MESSAGE, Agent
 from wayflowcore.executors._agenticpattern_helpers import _SEND_MESSAGE_TOOL_NAME
-from wayflowcore.executors.executionstatus import ToolRequestStatus, UserMessageRequestStatus
+from wayflowcore.executors.executionstatus import (
+    FinishedStatus,
+    ToolExecutionConfirmationStatus,
+    ToolRequestStatus,
+    UserMessageRequestStatus,
+)
 from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.property import IntegerProperty, StringProperty
 from wayflowcore.tools import ClientTool, ToolRequest, ToolResult, tool
 
 from .testhelpers.dummy import DummyModel
+from .testhelpers.testhelpers import retry_test
 
 _MANAGER_TOOL_CALL_TEMPLATE = """
 {{thoughts}}
@@ -375,3 +381,60 @@ def test_managerworkers_execution_does_not_raise_errors(
     conversation = group.start_conversation()
     conversation.append_user_message("Please compute 2*2 + 1")
     conversation.execute()
+
+
+@tool(requires_confirmation=True, description_mode="only_docstring")
+def check_name_in_db_tool(name: str) -> str:
+    """Check if a name is present in the database"""
+    return "This name is present in the database"
+
+
+@retry_test(max_attempts=3)
+def test_managerworkers_execution_works_with_servertool_confirmation(big_llama):
+    """
+    Failure rate:          1 out of 50
+    Observed on:           2025-09-23
+    Average success time:  14.08 seconds per successful attempt
+    Average failure time:  17.05 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    """
+    llm = big_llama
+    agent = Agent(
+        llm=llm,
+        tools=[check_name_in_db_tool],
+        name="check_name_in_db_agent",
+        description="A helpful agent that has access to a tool which check if a given name is present in database.",
+        custom_instruction="You should only use one tool at a time. Only use the talk_to_user tool to ask the user questions, not to inform them about your next action. Don't talk to the user unless reporting on the requested tasks.",
+    )
+
+    group = ManagerWorkers(group_manager=llm, workers=[agent])
+
+    conversation = group.start_conversation()
+    conversation.append_user_message(
+        "Is the name Bob present in the database? Ask your agents if needed"
+    )
+    status = conversation.execute()
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    assert len(status.tool_requests) == 1
+    req = status.tool_requests[0]
+    assert req.name == "check_name_in_db_tool"
+    # Confirm the tool execution
+    status.confirm_tool_execution(tool_request=req)
+    status2 = conversation.execute()
+    # Should result in a user message request or final status
+    assert isinstance(status2, UserMessageRequestStatus) or isinstance(status2, FinishedStatus)
+
+    conversation = group.start_conversation()
+    conversation.append_user_message(
+        "Is the name Alice present in the database? Ask your agents if needed"
+    )
+    status = conversation.execute()
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    assert len(status.tool_requests) == 1
+    status.reject_tool_execution(
+        tool_request=status.tool_requests[0], reason="Access Denied, Do not try again"
+    )
+    status2 = conversation.execute()
+    # Should result in a user message request or final status
+    assert isinstance(status2, UserMessageRequestStatus) or isinstance(status2, FinishedStatus)

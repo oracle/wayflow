@@ -27,6 +27,7 @@ from wayflowcore.executors._executor import ConversationExecutor, ExecutionInter
 from wayflowcore.executors.executionstatus import (
     ExecutionStatus,
     FinishedStatus,
+    ToolExecutionConfirmationStatus,
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
@@ -818,7 +819,9 @@ class FlowConversationExecutor(ConversationExecutor):
                             raise ValueError(
                                 f"Content of `__execution_status__` should be an execution status, but was: {last_status}"
                             )
-                        return last_status
+                        # Do not return for ToolExecutionConfirmationStatus, because we need to prepare for the next step
+                        if not isinstance(last_status, ToolExecutionConfirmationStatus):
+                            return last_status
 
                 next_step_name = FlowConversationExecutor.get_next_step_name_from_branch(
                     control_flow_edges=flow_state.flow.control_flow_edges,
@@ -880,6 +883,11 @@ class FlowConversationExecutor(ConversationExecutor):
                             tool_requests=next_tool_request_message.tool_requests,
                             _conversation_id=conversation.id,
                         )
+
+                    elif isinstance(last_status, ToolExecutionConfirmationStatus):
+                        last_status._conversation_id = conversation.id
+                        return last_status
+
                     return UserMessageRequestStatus()
 
                 FlowConversationExecutor._register_event(

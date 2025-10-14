@@ -1066,6 +1066,11 @@ class RuntimeToAgentSpecConverter:
 
         metadata = _create_agentspec_metadata_from_runtime_component(runtime_tool)
 
+        if runtime_tool.requires_confirmation:
+            raise NotImplementedError(
+                "Conversion of Tools requiring confirmation to AgentSpec is not supported yet"
+            )
+
         # We need to check the RemoteTool first, as it is also an instance of ServerTool
         if isinstance(runtime_tool, RuntimeRemoteTool):
 
@@ -1431,6 +1436,12 @@ class RuntimeToAgentSpecConverter:
         runtime_mcptoolspec: RuntimeTool,
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecPluginMCPToolSpec:
+
+        if runtime_mcptoolspec.requires_confirmation:
+            raise NotImplementedError(
+                "Conversion of Tools requiring confirmation to AgentSpec is not supported yet"
+            )
+
         return AgentSpecPluginMCPToolSpec(
             name=runtime_mcptoolspec.name,
             description=runtime_mcptoolspec.description,

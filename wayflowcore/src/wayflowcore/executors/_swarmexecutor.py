@@ -23,6 +23,7 @@ from wayflowcore.executors._agenticpattern_helpers import (
 from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.executors.executionstatus import (
     ExecutionStatus,
+    ToolExecutionConfirmationStatus,
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
@@ -170,11 +171,11 @@ class SwarmRunner(ConversationExecutor):
             if (
                 not _last_message
                 or _last_message.message_type == MessageType.TOOL_REQUEST
-                and not isinstance(status, ToolRequestStatus)
+                and not isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus))
             ):
                 raise TypeError(
                     "Internal error: Last agent message is a tool request but execution status "
-                    f"is not of type {ToolRequestStatus} (is '{status}')"
+                    f"is not of type {ToolRequestStatus}, {ToolExecutionConfirmationStatus} (is '{status}')"
                 )
 
             if isinstance(status, ToolRequestStatus) and any(
@@ -212,8 +213,8 @@ class SwarmRunner(ConversationExecutor):
                     swarm_conversation=conversation,
                     current_agent_subconversation=agent_sub_conversation,
                 )
-            elif isinstance(status, ToolRequestStatus):
-                # 5. usual client tool requests
+            elif isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus)):
+                # 5. usual client/server tool requests
                 return status
             else:
                 # 6. illegal agent finishing the conversation

@@ -267,6 +267,19 @@ def test_tool_doesnt_raise_if_several_output_descriptors_have_same_name():
         )
 
 
+def test_client_tool_raises_error_with_tool_confirmation():
+    with pytest.raises(TypeError):
+        ClientTool(
+            name="",
+            description="",
+            input_descriptors=[],
+            output_descriptors=[
+                StringProperty("input_1"),
+            ],
+            requires_confirmation=True,
+        )
+
+
 def test_invalid_param_type_raises_exception() -> None:
     with pytest.raises(TypeError):
         ClientTool(

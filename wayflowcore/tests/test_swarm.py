@@ -14,6 +14,11 @@ from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore.agent import Agent
 from wayflowcore.executors._agentexecutor import _TALK_TO_USER_TOOL_NAME
 from wayflowcore.executors._swarmexecutor import _HANDOFF_TOOL_NAME, _SEND_MESSAGE_TOOL_NAME
+from wayflowcore.executors.executionstatus import (
+    FinishedStatus,
+    ToolExecutionConfirmationStatus,
+    UserMessageRequestStatus,
+)
 from wayflowcore.flow import Flow
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.steps import OutputMessageStep
@@ -789,3 +794,76 @@ def test_execute_swarm_on_wrong_conversation_raises(remotely_hosted_llm):
     conv = swarm_1.start_conversation()
     with pytest.raises(ValueError, match="You are trying to call"):
         swarm_2.execute(conv)
+
+
+@tool(requires_confirmation=True, description_mode="only_docstring")
+def check_name_in_db_tool(name: str) -> str:
+    """Check if a name is present in the database"""
+    return "This name is present in the database"
+
+
+@retry_test(max_attempts=3, wait_between_tries=1)
+def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-09-22
+    Average success time:  21.96 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+    # Plug the tool into an agent
+    llm = big_llama
+    main_agent = Agent(
+        llm=llm,
+        description="general agent which will route queries to your agents",
+        custom_instruction="You are a general agent which will always route queries to your agents and collect tool outputs",
+    )
+    agent = Agent(
+        llm=llm,
+        tools=[check_name_in_db_tool],
+        name="check_name_in_db_agent",
+        description="A helpful agent that has access to a tool which check if a given name is present in database.",
+        custom_instruction="You should only use one tool at a time. Only use the talk_to_user tool to ask the user questions, not to inform them about your next action. Don't talk to the user unless reporting on the requested tasks.",
+    )
+    swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent)],
+    )
+
+    conv = swarm.start_conversation()
+    conv.append_user_message("Is the name Alice present in the database? Ask your agents if needed")
+    status = swarm.execute(conv)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    assert len(status.tool_requests) == 1
+    req = status.tool_requests[0]
+    assert req.name == "check_name_in_db_tool"
+
+    # Confirm the tool execution
+    status.confirm_tool_execution(tool_request=req)
+    status2 = swarm.execute(conv)
+    # Should result in a user message request or final status
+    assert isinstance(status2, UserMessageRequestStatus) or isinstance(status2, FinishedStatus)
+
+    # Now test rejection path
+    conv = swarm.start_conversation()
+    conv.append_user_message("Is the name Bob present in the database? Ask your agents if needed")
+    status = swarm.execute(conv)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    # Reject with a reason
+    status.reject_tool_execution(
+        tool_request=status.tool_requests[0], reason="Invalid request. Do not try again"
+    )
+    status2 = swarm.execute(conv)
+    loop_count = 1
+    while isinstance(status2, ToolExecutionConfirmationStatus):
+        status2.reject_tool_execution(
+            tool_request=status2.tool_requests[0],
+            reason="Permission Denied, Do not try to use this tool.",
+        )
+        status2 = swarm.execute(conv)
+        loop_count += 1
+        if loop_count > 3:
+            break
+    # Should result in a user message request or a graceful finish
+    assert isinstance(status2, UserMessageRequestStatus) or isinstance(status2, FinishedStatus)

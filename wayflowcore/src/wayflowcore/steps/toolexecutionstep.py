@@ -9,8 +9,14 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.formatting import generate_tool_id
-from wayflowcore.events.event import ToolExecutionResultEvent, ToolExecutionStartEvent
+from wayflowcore.events.event import (
+    ToolConfirmationRequestEndEvent,
+    ToolConfirmationRequestStartEvent,
+    ToolExecutionResultEvent,
+    ToolExecutionStartEvent,
+)
 from wayflowcore.events.eventlistener import record_event
+from wayflowcore.executors.executionstatus import ToolExecutionConfirmationStatus
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.property import Property
 from wayflowcore.steps.step import Step, StepExecutionStatus, StepResult
@@ -23,6 +29,8 @@ if TYPE_CHECKING:
     from wayflowcore.executors._flowconversation import FlowConversation
 
 logger = logging.getLogger(__name__)
+
+_TOOL_REJECTION_REASON = "Tool Request for tool {tool} denied due to reason: {reason}"
 
 
 class ToolExecutionStep(Step):
@@ -146,7 +154,10 @@ class ToolExecutionStep(Step):
         if isinstance(tool, ClientTool):
             return self._handle_client_tool(tool, conversation, inputs)
         elif isinstance(tool, ServerTool):
-            return await self._handle_server_tool(tool, conversation, inputs)
+            if tool.requires_confirmation:
+                return await self._handle_server_tool_with_confirmation(tool, conversation, inputs)
+            else:
+                return await self._handle_server_tool(tool, conversation, inputs)
         else:
             raise ValueError(f"Unsupported tool type: {self.tool.__class__.__name__}")
 
@@ -154,7 +165,8 @@ class ToolExecutionStep(Step):
     def might_yield(self) -> bool:
         # The tool execution yields if its tool is a client tool **because** in this case it will
         # give tool execution instructions to the client and wait for the tool results.
-        return self._is_client_tool
+        # The tool execution will also yield if the server tool requires confirmation of the user to run
+        return self.tool.might_yield
 
     @property
     def supports_dict_io_with_non_str_keys(self) -> bool:
@@ -229,6 +241,92 @@ class ToolExecutionStep(Step):
                 tool=tool,
                 tool_output=tool_output,
             )
+        )
+
+    async def _handle_server_tool_with_confirmation(
+        self,
+        tool: ServerTool,
+        conversation: "FlowConversation",
+        inputs: Dict[str, Any],
+    ) -> StepResult:
+        tool._bind_parent_conversation_if_applicable(conversation)
+        tool_request_uuid = conversation._get_internal_context_value_for_step(
+            self,
+            ToolExecutionStep.TOOL_REQUEST_UUID,
+        )
+        if tool_request_uuid is None:
+            # initial call, we will ask the user
+            tool_request_uuid = generate_tool_id()
+            tool_request = ToolRequest(
+                name=tool.name,
+                args=inputs,
+                tool_request_id=tool_request_uuid,
+            )
+
+            conversation._put_internal_context_key_value_for_step(
+                self, ToolExecutionStep.TOOL_REQUEST_UUID, tool_request
+            )
+            tool_request._requires_confirmation = True
+
+            record_event(
+                ToolConfirmationRequestStartEvent(
+                    tool=tool,
+                    tool_request=tool_request,
+                )
+            )
+
+            return StepResult(
+                outputs={
+                    "__execution_status__": ToolExecutionConfirmationStatus(
+                        tool_requests=[tool_request], _conversation_id=conversation.id
+                    )
+                },
+                branch_name=self.BRANCH_SELF,
+                step_type=StepExecutionStatus.YIELDING,
+            )
+
+        tool_request = conversation._get_internal_context_value_for_step(
+            self, ToolExecutionStep.TOOL_REQUEST_UUID
+        )
+        record_event(
+            ToolConfirmationRequestEndEvent(
+                tool=tool,
+                tool_request=tool_request,
+            )
+        )
+        if tool_request._tool_execution_confirmed is None:
+            raise ValueError("Tool Confirmation handled badly")
+        else:
+            if not tool_request._tool_execution_confirmed:
+                if self.raise_exceptions:
+                    raise ValueError(
+                        "Tool Execution was rejected by the user. "
+                        "This error is being raised because flow outputs need to be structured and rejecting tool execution could break the flow. "
+                        "Set raise_exceptions=False to set the rejection reason as the tool output"
+                    )
+                else:
+                    tool_output = _TOOL_REJECTION_REASON.format(
+                        tool=tool, reason=tool_request._tool_rejection_reason
+                    )
+            else:
+                with ToolExecutionSpan(
+                    tool=tool,
+                    tool_request=tool_request,
+                ) as span:
+                    tool_output = await self._execute_tool(tool, tool_request.args)
+                    span.record_end_span_event(
+                        output=tool_output,
+                    )
+
+        conversation._put_internal_context_key_value_for_step(
+            self, ToolExecutionStep.TOOL_REQUEST_UUID, None
+        )
+
+        return StepResult(
+            outputs=self._convert_tool_output_into_output_dict(
+                tool=tool,
+                tool_output=tool_output,
+            ),
         )
 
     async def _handle_server_tool(
