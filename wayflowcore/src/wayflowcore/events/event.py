@@ -404,6 +404,62 @@ class ToolExecutionResultEvent(EndSpanEvent["ToolExecutionSpan"]):
 
 
 @dataclass(frozen=True)
+class ToolConfirmationRequestStartEvent(StartSpanEvent["ToolExecutionSpan"]):
+    """
+    This event is recorded whenever a tool confirmation is required.
+    """
+
+    tool: Tool = field(default_factory=_required_attribute("tool", Tool))
+    """Tool that triggered this event"""
+    tool_request: ToolRequest = field(
+        default_factory=_required_attribute("tool_request", ToolRequest)
+    )
+    """ToolRequest object containing the id of the tool request made as well as the tool call's inputs"""
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            "tool_request.inputs": (
+                {key: stringify(value) for key, value in self.tool_request.args.items()}
+                if not mask_sensitive_information
+                else _MASKING_TOKEN
+            ),
+            "tool_request.id": self.tool_request.tool_request_id,
+        }
+
+
+@dataclass(frozen=True)
+class ToolConfirmationRequestEndEvent(EndSpanEvent["ToolExecutionSpan"]):
+    """
+    This event is recorded whenever a tool confirmation has been handled.
+    """
+
+    tool: Tool = field(default_factory=_required_attribute("tool", Tool))
+    """Tool that triggered this event"""
+    tool_request: ToolRequest = field(
+        default_factory=_required_attribute("tool_request", ToolRequest)
+    )
+    """ToolRequest object containing the id of the tool request made as well as the tool call's inputs"""
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            "tool_request.inputs": (
+                {key: stringify(value) for key, value in self.tool_request.args.items()}
+                if not mask_sensitive_information
+                else _MASKING_TOKEN
+            ),
+            "tool_request.id": self.tool_request.tool_request_id,
+            "tool_request.tool_execution_confirmed": stringify(
+                self.tool_request._tool_execution_confirmed
+            ),
+            "tool_request.tool_rejection_reason": stringify(
+                self.tool_request._tool_rejection_reason
+            ),
+        }
+
+
+@dataclass(frozen=True)
 class StepInvocationStartEvent(StartSpanEvent["StepInvocationSpan"]):
     """
     This event is recorded whenever a step is invoked.

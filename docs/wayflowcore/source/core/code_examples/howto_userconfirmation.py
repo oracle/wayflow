@@ -7,108 +7,57 @@
 # fmt: off
 # mypy: ignore-errors
 
-from typing import Any, List
+# docs-title: Code Example - How to Add User Confirmation
 
-from wayflowcore.agent import Agent
+# .. start-##Configure_LLM
 from wayflowcore.models import VllmModel
-from wayflowcore.tools import ClientTool, ToolRequest
 
 llm = VllmModel(
-    model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
-    host_port=os.environ["MY_LLM_HOST_PORT"],
+    model_id="model-id",
+    host_port="VLLM_HOST_PORT",
 )
+# .. end-##Configure_LLM
 
-# .. start-create_tools:
-from wayflowcore.tools import ClientTool
+llm: VllmModel # docs-skiprow
+(llm, ) = _update_globals(["llm_small"]) # docs-skiprow
 
-add_numbers_tool = ClientTool(
-    name="add_numbers",
-    description="Add two numbers",
-    parameters={
-        "number1": {"description": "the first number", "type": "number"},
-        "number2": {"description": "the second number", "type": "number"},
-    },
-    output={"type": "number"},
-)
-subtract_numbers_tool = ClientTool(
-    name="subtract_numbers",
-    description="Subtract two numbers",
-    parameters={
-        "number1": {"description": "the first number", "type": "number"},
-        "number2": {"description": "the second number", "type": "number"},
-    },
-    output={"type": "number"},
-)
-multiply_numbers_tool = ClientTool(
-    name="multiply_numbers",
-    description="Multiply two numbers",
-    parameters={
-        "number1": {"description": "the first number", "type": "number"},
-        "number2": {"description": "the second number", "type": "number"},
-    },
-    output={"type": "number"},
-)
-# .. end-create_tools
-# .. start-create_tool_execution:
-from typing import Any, List
+# .. start-##Create_tools
+from wayflowcore.tools.toolhelpers import tool
+from wayflowcore.executors.executionstatus import ToolExecutionConfirmationStatus
 
-from wayflowcore.tools import ToolRequest
-
-
-def _add_numbers(number1: float, number2: float) -> float:
+@tool(requires_confirmation=True, description_mode="only_docstring")
+def add_numbers_tool(number1: float, number2:  float) -> float:
+    "Add two numbers"
     return number1 + number2
 
-
-def _subtract_numbers(number1: float, number2: float) -> float:
+@tool(requires_confirmation=True, description_mode="only_docstring")
+def subtract_numbers_tool(number1: float, number2:  float) -> float:
+    "Subtract two numbers"
     return number1 - number2
 
-
-def _multiply_numbers(number1: float, number2: float) -> float:
+@tool(requires_confirmation=False, description_mode="only_docstring")
+def multiply_numbers_tool(number1: float, number2:  float) -> float:
+    "Multiply two numbers"
     return number1 * number2
 
+# .. end-##Create_tools
+# .. start-##Create_tool_execution
+def handle_tool_execution_confirmation(
+    status: ToolExecutionConfirmationStatus
+) -> None:
+    for tool_request in status.tool_requests:
+        if tool_request.name == "add_numbers":
+            status.confirm_tool_execution(tool_request = tool_request)
+        elif tool_request.name == "subtract_numbers":
+            status.reject_tool_execution(tool_request = tool_request, reason = "The given numbers could not be subtracted as the tool is not currently functional")
+        elif tool_request.name == "multiply_numbers":
+            raise ValueError(f"Tool name {tool_request.name} should not raise a ToolExecutionConfirmationStatus as it does not require confirmation")
+        else:
+            raise ValueError(f"Tool name {tool_request.name} is not recognized")
 
-def _ask_for_user_confirmation(tool_request: ToolRequest) -> bool:
-    import json
+# .. end-##Create_tool_execution
 
-    message = (
-        "---\nThe Agent requests the following Tool Call:\n"
-        f"Name: `{tool_request.name}`\n"
-        f"Args: {json.dumps(tool_request.args, indent=2)}\n---\n"
-        f"Do you accept this tool call request? (Y/N)\n"
-        ">>> "
-    )
-    while True:
-        user_response = input(message).strip()
-        if user_response == "Y":
-            return True
-        elif user_response == "N":
-            return False
-        print(f"Unrecognized option: `{user_response}`.")
-
-
-def execute_client_tool_from_tool_request(
-    tool_request: ToolRequest, tools_requiring_confirmation: List[str]
-) -> Any:
-    if tool_request.name in tools_requiring_confirmation:
-        is_confirmed = _ask_for_user_confirmation(tool_request)
-        if not is_confirmed:
-            return (
-                f"The user denied the tool request for the tool {tool_request.name} at this time."
-            )
-
-    if tool_request.name == "add_numbers":
-        return _add_numbers(**tool_request.args)
-    elif tool_request.name == "subtract_numbers":
-        return _subtract_numbers(**tool_request.args)
-    elif tool_request.name == "multiply_numbers":
-        return _multiply_numbers(**tool_request.args)
-    else:
-        raise ValueError(f"Tool name {tool_request.name} is not recognized")
-
-
-# .. end-create_tool_execution
-
-# .. start-create_agent:
+# .. start-##Create_agent
 from wayflowcore.agent import Agent
 
 assistant = Agent(
@@ -116,4 +65,35 @@ assistant = Agent(
     tools=[add_numbers_tool, subtract_numbers_tool, multiply_numbers_tool],
     custom_instruction="Use the tools at your disposal to answer the user requests.",
 )
-# .. end-create_agent:
+# .. end-##Create_agent
+
+# .. start-##Run_tool_loop
+from wayflowcore.executors.executionstatus import (
+    FinishedStatus, UserMessageRequestStatus
+)
+
+def run_agent_in_command_line(assistant: Agent) -> None:
+    conversation_inputs = {}
+    conversation = assistant.start_conversation(inputs=conversation_inputs)
+
+    while True:
+        status = conversation.execute()
+        assistant_reply = conversation.get_last_message()
+        if assistant_reply:
+            print(f"Assistant>>> {assistant_reply.content}\n")
+        if isinstance(status, FinishedStatus):
+            print(f"Finished assistant execution. Output values:\n{status.output_values}",)
+            break
+        elif isinstance(status, UserMessageRequestStatus):
+            user_input = input("User>>> ")
+            print("\n")
+            conversation.append_user_message(user_input)
+        elif isinstance(status, ToolExecutionConfirmationStatus):
+            handle_tool_execution_confirmation(status)
+
+        else:
+            raise ValueError(f"Unsupported execution status: '{status}'")
+
+# run_agent_in_command_line(assistant)
+# ^ uncomment and execute
+# .. end-##Run_tool_loop

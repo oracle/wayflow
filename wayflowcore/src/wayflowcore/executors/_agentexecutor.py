@@ -22,6 +22,8 @@ from wayflowcore.events import record_event
 from wayflowcore.events.event import (
     AgentExecutionIterationFinishedEvent,
     AgentExecutionIterationStartedEvent,
+    ToolConfirmationRequestEndEvent,
+    ToolConfirmationRequestStartEvent,
     ToolExecutionResultEvent,
     ToolExecutionStartEvent,
 )
@@ -31,13 +33,13 @@ from wayflowcore.executors._executor import ConversationExecutor, ExecutionInter
 from wayflowcore.executors.executionstatus import (
     ExecutionStatus,
     FinishedStatus,
+    ToolExecutionConfirmationStatus,
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
 from wayflowcore.executors.interrupts.executioninterrupt import (
     ExecutionInterrupt,
     FlowExecutionInterrupt,
-    InterruptedExecutionStatus,
 )
 from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.ociagent import OciAgent
@@ -61,6 +63,7 @@ _TALK_TO_USER_INPUT_PARAM = "text"
 EXIT_CONVERSATION_TOOL_NAME = "end_conversation"
 EXIT_CONVERSATION_TOOL_MESSAGE = "Conversation has been ended by the agent."
 EXIT_CONVERSATION_CONFIRMATION_MESSAGE = "You attempted to end the conversation. If the user indeed asked to exit, please call this tool again and do not reply anything else. You are a helpful assistant; do not annoy the user; do not ask them to confirm."
+_TOOL_REJECTION_REASON = "Tool Request for tool {tool} denied due to reason: {reason}"
 
 
 def _is_running_in_notebook() -> bool:
@@ -391,8 +394,10 @@ class AgentConversationExecutor(ConversationExecutor):
         # Case 1: No need to (re)create sub-conversation
         if sub_agent_conversation and not should_recreate_subconversation:
             # re-using the same conversation: we should not add the caller request
-            # if are resuming from a client-tool execution (ToolRequestStatus)
-            if not isinstance(sub_agent_conversation.status, ToolRequestStatus):
+            # if are resuming from a client-tool execution (ToolRequestStatus/ToolExecutionConfirmationStatus)
+            if not isinstance(
+                sub_agent_conversation.status, (ToolRequestStatus, ToolExecutionConfirmationStatus)
+            ):
                 sub_agent_conversation.message_list.append_message(caller_request_message)
             return sub_agent_conversation
 
@@ -747,10 +752,47 @@ class AgentConversationExecutor(ConversationExecutor):
                         config, conversation.state, messages
                     )
                 )
+
                 return ToolRequestStatus(
                     tool_requests=all_open_client_tool_requests, _conversation_id=conversation.id
                 )
         elif isinstance(tool, ServerTool):
+            if tool.requires_confirmation:
+                if not tool_request._requires_confirmation:
+                    record_event(
+                        ToolConfirmationRequestStartEvent(
+                            tool=tool,
+                            tool_request=tool_request,
+                        )
+                    )
+                    tool_request._requires_confirmation = True
+                    return ToolExecutionConfirmationStatus(
+                        tool_requests=[tool_request], _conversation_id=conversation.id
+                    )
+
+                record_event(
+                    ToolConfirmationRequestEndEvent(
+                        tool=tool,
+                        tool_request=tool_request,
+                    )
+                )
+                if tool_request._tool_execution_confirmed is None:
+                    raise ValueError("Tool Confirmation handled badly")
+                if not tool_request._tool_execution_confirmed:
+
+                    output_message = _TOOL_REJECTION_REASON.format(
+                        tool=tool, reason=tool_request._tool_rejection_reason
+                    )
+                    messages.append_message(
+                        AgentConversationExecutor._get_tool_response_message(
+                            output_message,
+                            tool_request.tool_request_id,
+                            config.agent_id,
+                        )
+                    )
+
+                    return None
+
             with ToolExecutionSpan(
                 tool=tool,
                 tool_request=tool_request,
@@ -869,10 +911,7 @@ class AgentConversationExecutor(ConversationExecutor):
                 messages=conversation.message_list,
             )
 
-            if isinstance(
-                tool_execution_status,
-                (ToolRequestStatus, UserMessageRequestStatus, InterruptedExecutionStatus),
-            ):
+            if tool_execution_status and tool_execution_status._requires_yielding:
                 return tool_execution_status, True
 
             should_yield = False

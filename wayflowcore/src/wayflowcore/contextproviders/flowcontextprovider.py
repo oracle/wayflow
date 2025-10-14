@@ -97,7 +97,7 @@ class FlowContextProvider(ContextProvider):
                 messages=conversation.message_list,
             )
             status = await conversation.execute_async()
-            if status._requires_yielding():
+            if status._requires_yielding:
                 raise ValueError("The context flow must not yield")
             if not isinstance(status, FinishedStatus):  # type narrowing for mypy
                 raise ValueError(

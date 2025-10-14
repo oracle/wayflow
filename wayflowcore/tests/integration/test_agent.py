@@ -23,6 +23,7 @@ from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.executors._agentexecutor import _SUBMIT_TOOL_NAME
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
+    ToolExecutionConfirmationStatus,
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
@@ -601,6 +602,19 @@ def measure_room_temp_tool():
     return tool
 
 
+@pytest.fixture
+def dummy_check_name_in_db_tool():
+    tool_func = lambda name: "This name is present in the database"
+    tool = ServerTool(
+        func=tool_func,
+        name="dummy_check_name_in_db_tool",
+        description="Check if a name is present in the database",
+        parameters={"name": {"type": "string"}},
+        requires_confirmation=True,
+    )
+    return tool
+
+
 def run_test_agent_can_call_client_tool_with_no_parameter(assistant: Union[Flow, Agent]) -> None:
     conversation = assistant.start_conversation()
     conversation.append_user_message("What is the temperature in the room? Use your tool if needed")
@@ -631,6 +645,135 @@ def test_agent_can_call_client_tool_with_no_parameter(
         custom_instruction="You are a helpful agent that has access to some tools.",
     )
     run_test_agent_can_call_client_tool_with_no_parameter(agent)
+
+
+@pytest.fixture
+def agent_with_db_tool(
+    remotely_hosted_llm: LlmModel,
+    dummy_check_name_in_db_tool: ServerTool,
+):
+    agent = Agent(
+        tools=[dummy_check_name_in_db_tool],
+        llm=remotely_hosted_llm,
+        custom_instruction="You are a helpful agent that has access to some tools which check if a person is present in database.",
+    )
+    return agent
+
+
+@retry_test(max_attempts=3)
+def test_agent_can_call_server_tool_with_confirmation(
+    agent_with_db_tool: Agent,
+) -> None:
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-09-23
+    Average success time:  1.88 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+    conversation = agent_with_db_tool.start_conversation()
+    conversation.append_user_message(
+        "Is name Jack present in the database? Use your tool if needed"
+    )
+    execution_status = agent_with_db_tool.execute(conversation)
+    assert isinstance(execution_status, ToolExecutionConfirmationStatus)
+    assert len(execution_status.tool_requests) == 1
+    server_tool_request = execution_status.tool_requests[0]
+    assert server_tool_request.name == "dummy_check_name_in_db_tool"
+    execution_status.confirm_tool_execution(tool_request=server_tool_request)
+    execution_status = agent_with_db_tool.execute(conversation)
+    assert isinstance(execution_status, UserMessageRequestStatus)
+
+    conversation = agent_with_db_tool.start_conversation()
+    conversation.append_user_message(
+        "Is name Jack present in the database? Use your tool if needed"
+    )
+    execution_status = agent_with_db_tool.execute(conversation)
+    assert isinstance(execution_status, ToolExecutionConfirmationStatus)
+    execution_status.confirm_tool_execution(tool_request=execution_status.tool_requests[0])
+    execution_status = agent_with_db_tool.execute(conversation)
+    assert isinstance(execution_status, UserMessageRequestStatus)
+
+
+@retry_test(max_attempts=3, wait_between_tries=1)
+def test_agent_can_handle_server_tool_rejection_multiple_times(agent_with_db_tool: Agent) -> None:
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-09-29
+    Average success time:  1.60 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+    conversation = agent_with_db_tool.start_conversation()
+    conversation.append_user_message(
+        "Is name Jack present in the database? Use your tool if needed"
+    )
+    execution_status = agent_with_db_tool.execute(conversation)
+    assert isinstance(execution_status, ToolExecutionConfirmationStatus)
+    server_tool_request = execution_status.tool_requests[0]
+    execution_status.reject_tool_execution(
+        tool_request=server_tool_request, reason="Simply Call the tool again"
+    )
+    execution_status = agent_with_db_tool.execute(conversation)
+    assert isinstance(execution_status, ToolExecutionConfirmationStatus)
+    execution_status.reject_tool_execution(
+        tool_request=execution_status.tool_requests[0],
+        reason="This database cannot be accessed. Do not try again",
+    )
+    execution_status = agent_with_db_tool.execute(conversation)
+    assert isinstance(execution_status, UserMessageRequestStatus) or isinstance(
+        execution_status, FinishedStatus
+    )
+
+
+@retry_test(max_attempts=3, wait_between_tries=1)
+def test_agent_can_handle_server_tool_rejection_once(agent_with_db_tool: Agent) -> None:
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-09-29
+    Average success time:  1.16 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+
+    conversation = agent_with_db_tool.start_conversation()
+    conversation.append_user_message(
+        "Is name Jack present in the database? Use your tool if needed"
+    )
+    execution_status = agent_with_db_tool.execute(conversation)
+    assert isinstance(execution_status, ToolExecutionConfirmationStatus)
+    execution_status.reject_tool_execution(
+        tool_request=execution_status.tool_requests[0],
+        reason="This database cannot be accessed. Do not try again",
+    )
+    execution_status = agent_with_db_tool.execute(conversation)
+    assert isinstance(execution_status, UserMessageRequestStatus) or isinstance(
+        execution_status, FinishedStatus
+    )
+
+
+@retry_test(max_attempts=3)
+def test_server_tool_raises_error_when_not_confirmed(agent_with_db_tool: Agent) -> None:
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-09-29
+    Average success time:  0.50 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+
+    conversation = agent_with_db_tool.start_conversation()
+    conversation.append_user_message(
+        "Is name Jack present in the database? Use your tool if needed"
+    )
+    execution_status = agent_with_db_tool.execute(conversation)
+    assert isinstance(execution_status, ToolExecutionConfirmationStatus)
+    with pytest.raises(ValueError, match="Tool Confirmation handled badly"):
+        execution_status = agent_with_db_tool.execute(conversation)
 
 
 @pytest.fixture

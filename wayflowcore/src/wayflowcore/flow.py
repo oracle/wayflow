@@ -605,7 +605,7 @@ class Flow(ConversationalComponent, SerializableObject):
         if not _is_step_a_start_step(steps[begin_step_name]):
             from wayflowcore.steps import StartStep
 
-            logger.debug(
+            logger.info(
                 "No StartStep was given as part of the Flow, one will be added automatically."
             )
 

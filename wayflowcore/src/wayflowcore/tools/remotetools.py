@@ -127,7 +127,8 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         A dictionary containing default schemes and their respective ports.
         These ports will be removed from URLs requested or from entries in the allow list during URL normalization.
         Default is ``{'http': 80, 'https': 443}``.
-
+    requires_confirmation
+        Flag for yielding ToolExecutionConfirmationStatus whenever the RemoteTool is called by the agent
 
     Examples
     --------
@@ -192,6 +193,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     allow_credentials: bool
     allow_fragments: bool
     default_ports: Dict[str, int]
+    requires_confirmation: bool
 
     def __init__(
         self,
@@ -219,6 +221,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         tool_name: Optional[str] = None,
         tool_description: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
+        requires_confirmation: bool = False,
     ) -> None:
         from wayflowcore.steps import ApiCallStep
 
@@ -257,6 +260,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
             func=tmp_tool.func,
             id=id,
             __metadata_info__=__metadata_info__,
+            requires_confirmation=requires_confirmation,
         )
         self.tool_name = self.name
         self.tool_description = self.description

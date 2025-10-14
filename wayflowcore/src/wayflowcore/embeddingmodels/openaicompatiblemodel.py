@@ -61,7 +61,11 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         return run_async_in_sync(self.embed_async, data, method_name="embed_async")
 
     async def embed_async(self, data: List[str]) -> List[List[float]]:
-        url = self._base_url if self._base_url.endswith("embeddings") else f"{self._base_url}/v1/embeddings"
+        url = (
+            self._base_url
+            if self._base_url.endswith("embeddings")
+            else f"{self._base_url}/v1/embeddings"
+        )
         payload = {"model": self._model_id, "input": data}
 
         headers = self._get_headers()

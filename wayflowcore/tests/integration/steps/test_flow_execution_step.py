@@ -8,7 +8,11 @@ from typing import Optional
 import pytest
 
 from wayflowcore.controlconnection import ControlFlowEdge
-from wayflowcore.executors.executionstatus import FinishedStatus, ToolRequestStatus
+from wayflowcore.executors.executionstatus import (
+    FinishedStatus,
+    ToolExecutionConfirmationStatus,
+    ToolRequestStatus,
+)
 from wayflowcore.flow import Flow
 from wayflowcore.steps import (
     BranchingStep,
@@ -17,7 +21,7 @@ from wayflowcore.steps import (
     InputMessageStep,
     ToolExecutionStep,
 )
-from wayflowcore.tools import ClientTool, ToolResult
+from wayflowcore.tools import ClientTool, ServerTool, ToolResult
 
 from ...testhelpers.teststeps import _InputOutputSpecifiedStep
 from .test_branching_step import get_branching_flow
@@ -250,6 +254,46 @@ def test_subflow_execution_might_yield_with_tool_request_inside() -> None:
     )
     status = assistant.execute(conv)
     assert isinstance(status, FinishedStatus)
+
+
+def test_subflow_execution_will_yield_with_tool_execution_confirmation_status_inside() -> None:
+    random_func = lambda name: name
+    name_tool = ServerTool(
+        func=random_func,
+        name="name_tool",
+        description="Ask the user for some name",
+        parameters={"name": {"type": "string"}},
+        requires_confirmation=True,
+    )
+    step = FlowExecutionStep(
+        flow=Flow.from_steps(
+            [
+                ToolExecutionStep(tool=name_tool, raise_exceptions=False),
+            ]
+        )
+    )
+    assistant = Flow.from_steps([step])
+    conv = assistant.start_conversation(inputs={"name": "dummy user"})
+    status = assistant.execute(conv)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.reject_tool_execution(tool_request=status.tool_requests[0], reason="No reason")
+    status = assistant.execute(conv)
+    assert isinstance(status, FinishedStatus)
+
+    conv = assistant.start_conversation(inputs={"name": "dummy user"})
+    status = assistant.execute(conv)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.confirm_tool_execution(
+        tool_request=status.tool_requests[0], modified_args={"name": "another user"}
+    )
+    status = assistant.execute(conv)
+    assert isinstance(status, FinishedStatus)
+
+    conv = assistant.start_conversation(inputs={"name": "dummy user"})
+    status = assistant.execute(conv)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    with pytest.raises(ValueError):
+        status = assistant.execute(conv)
 
 
 def get_flow(branch_name: Optional[str] = None) -> Flow:

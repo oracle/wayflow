@@ -227,6 +227,7 @@ def tool(
         DescriptionMode.EXTRACT_FROM_DOCSTRING,
     ] = DescriptionMode.INFER_FROM_SIGNATURE,
     output_descriptors: Optional[List[Property]] = None,
+    requires_confirmation: bool = False,
 ) -> Union[ServerTool, Callable[[Callable[..., Any]], ServerTool]]:
     '''
     Make tools out of callables, can be used as a decorator or as a wrapper.
@@ -246,7 +247,8 @@ def tool(
         Defaults to `"infer_from_signature"`.
     output_descriptors:
         list of properties to describe the tool outputs. Needed in case of tools with several outputs.
-
+    requires_confirmation: bool
+        Flag to make tool require confirmation before execution. Yields a ToolExecutionConfirmationStatus before its execution.
     Returns:
         The decorated/wrapper callable as a ``ServerTool``.
 
@@ -336,6 +338,7 @@ def tool(
             DescriptionMode.EXTRACT_FROM_DOCSTRING,
         ] = DescriptionMode.INFER_FROM_SIGNATURE,
         output_descriptors: Optional[List[Property]] = None,
+        requires_confirmation: bool = False,
     ) -> ServerTool:
         if inspect.isclass(func) or not hasattr(func, "__name__"):
             raise TypeError(
@@ -372,6 +375,7 @@ def tool(
             output_descriptors=output_descriptors,
             output=output_schema if output_descriptors is None else None,
             func=func,
+            requires_confirmation=requires_confirmation,
         )
 
     # When used as a wrapper, `args` can be [tool_name, callable] or [callable]
@@ -384,7 +388,9 @@ def tool(
         # here args[0] is the tool name, and args[1] the callable
         # we simply return the newly created ServerTool
         tool_name = args[0]
-        return _make_tool(args[1], tool_name, description_mode, output_descriptors)
+        return _make_tool(
+            args[1], tool_name, description_mode, output_descriptors, requires_confirmation
+        )
     elif len(args) == 1 and isinstance(args[0], str):
         # Example case: decorator with custom tool name
         # @tool("my_callable1")
@@ -397,7 +403,9 @@ def tool(
         tool_name = args[0]
 
         def _partial_with_name(func: Callable[..., Any]) -> ServerTool:
-            return _make_tool(func, tool_name, description_mode, output_descriptors)
+            return _make_tool(
+                func, tool_name, description_mode, output_descriptors, requires_confirmation
+            )
 
         return _partial_with_name
     elif len(args) == 1 and callable(args[0]):
@@ -407,7 +415,9 @@ def tool(
         # my_tool = tool(my_callable)
         # here args[0] is the callable
         # we simply return the newly created ServerTool
-        return _make_tool(args[0], None, description_mode)
+        return _make_tool(
+            args[0], None, description_mode, output_descriptors, requires_confirmation
+        )
     elif len(args) == 0:
         # Example case: decorator with user-specified description_mode
         # @tool(description_mode='only_docstring')
@@ -418,7 +428,9 @@ def tool(
         # by the `_partial_no_name` function being called, thus converting the
         # callable to a ServerTool
         def _partial_no_name(func: Callable[..., Any]) -> ServerTool:
-            return _make_tool(func, None, description_mode, output_descriptors)
+            return _make_tool(
+                func, None, description_mode, output_descriptors, requires_confirmation
+            )
 
         return _partial_no_name
     else:

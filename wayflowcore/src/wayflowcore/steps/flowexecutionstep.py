@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, cast
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.executors._flowexecutor import FlowConversationExecutor
-from wayflowcore.executors.executionstatus import FinishedStatus
+from wayflowcore.executors.executionstatus import FinishedStatus, ToolExecutionConfirmationStatus
 from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
 from wayflowcore.property import Property
 from wayflowcore.steps.step import Step, StepExecutionStatus, StepResult
@@ -267,6 +267,13 @@ class FlowExecutionStep(Step):
                 outputs={"__execution_status__": status},
                 branch_name=self.BRANCH_SELF,
                 step_type=StepExecutionStatus.INTERRUPTED,
+            )
+        if isinstance(status, ToolExecutionConfirmationStatus):
+            return StepResult(
+                # We return the status so that it can be propagated
+                outputs={"__execution_status__": status},
+                branch_name=self.BRANCH_SELF,
+                step_type=StepExecutionStatus.YIELDING,
             )
         if not isinstance(status, FinishedStatus):
             return StepResult(

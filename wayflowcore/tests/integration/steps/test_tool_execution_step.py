@@ -9,7 +9,11 @@ from typing import Annotated, Any, Callable, Dict, List, Optional, Union
 
 import pytest
 
-from wayflowcore.executors.executionstatus import FinishedStatus, ToolRequestStatus
+from wayflowcore.executors.executionstatus import (
+    FinishedStatus,
+    ToolExecutionConfirmationStatus,
+    ToolRequestStatus,
+)
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import (
     _run_single_step_and_return_conv_and_status,
@@ -828,3 +832,59 @@ def test_tool_with_optional_type_in_flow_correctly_receives_None_input():
     flow = Flow.from_steps([ToolExecutionStep(my_tool)])
     output_values = run_flow_and_return_outputs(flow, inputs={"s": None})
     assert output_values[ToolExecutionStep.TOOL_OUTPUT] == "Double None is still None"
+
+
+def test_tool_confirmation_status_is_returned_for_every_tool_step_with_tool_that_requires_confirmation() -> (
+    None
+):
+    name_func = lambda name: name
+    name_tool = ServerTool(
+        func=name_func,
+        name="name_tool",
+        description="Ask the user for some name",
+        parameters={"name": {"type": "string"}},
+        requires_confirmation=True,
+    )
+
+    assistant = Flow.from_steps(
+        [
+            ToolExecutionStep(tool=name_tool, raise_exceptions=False),
+            ToolExecutionStep(tool=name_tool, raise_exceptions=False),
+        ]
+    )
+    conv = assistant.start_conversation(inputs={"name": "dummy user"})
+    status = assistant.execute(conv)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.reject_tool_execution(tool_request=status.tool_requests[0], reason="No reason")
+    status = assistant.execute(conv)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.confirm_tool_execution(
+        tool_request=status.tool_requests[0], modified_args={"name": "another user"}
+    )
+    status = assistant.execute(conv)
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values["tool_output"] == "another user"
+
+
+def test_tool_confirmation_raises_exceptions_in_flow_if_rejected() -> None:
+    name_func = lambda name: name
+    name_tool = ServerTool(
+        func=name_func,
+        name="name_tool",
+        description="Ask the user for some name",
+        parameters={"name": {"type": "string"}},
+        requires_confirmation=True,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Tool Execution was rejected by the user. "
+        "This error is being raised because flow outputs need to be structured and rejecting tool execution could break the flow. "
+        "Set raise_exceptions=False to set the rejection reason as the tool output",
+    ):
+        assistant = Flow.from_steps([ToolExecutionStep(tool=name_tool, raise_exceptions=True)])
+        conv = assistant.start_conversation(inputs={"name": "dummy user"})
+        status = assistant.execute(conv)
+        assert isinstance(status, ToolExecutionConfirmationStatus)
+        status.reject_tool_execution(tool_request=status.tool_requests[0], reason="No reason")
+        status = assistant.execute(conv)

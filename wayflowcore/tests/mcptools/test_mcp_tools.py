@@ -10,7 +10,10 @@ from anyio import to_thread
 
 from wayflowcore import Agent, Flow
 from wayflowcore.controlconnection import ControlFlowEdge
-from wayflowcore.executors.executionstatus import UserMessageRequestStatus
+from wayflowcore.executors.executionstatus import (
+    ToolExecutionConfirmationStatus,
+    UserMessageRequestStatus,
+)
 from wayflowcore.flowhelpers import create_single_step_flow, run_step_and_return_outputs
 from wayflowcore.mcp import (
     ClientTransport,
@@ -242,6 +245,16 @@ def mcp_fooza_tool(sse_client_transport, with_mcp_enabled):
     )
 
 
+@pytest.fixture
+def mcp_fooza_tool_confirm(sse_client_transport, with_mcp_enabled):
+    return MCPTool(
+        name="fooza_tool",
+        description="custom description",
+        client_transport=sse_client_transport,
+        requires_confirmation=True,
+    )
+
+
 def test_tool_execution_step_can_use_mcp_tool(mcp_fooza_tool):
     step = ToolExecutionStep(tool=mcp_fooza_tool)
     outputs = run_step_and_return_outputs(step, inputs={"a": 1, "b": 2})
@@ -261,6 +274,27 @@ def test_agent_can_use_mcp_tool(mcp_fooza_tool, remotely_hosted_llm):
     agent = Agent(llm=remotely_hosted_llm, tools=[mcp_fooza_tool])
     conv = agent.start_conversation()
     conv.append_user_message("What is the result of fooza of 1 and 2?")
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    assert "7" in conv.get_last_message().content
+
+
+@retry_test(max_attempts=3)
+def test_agent_can_use_mcp_tool_with_confirmation(mcp_fooza_tool_confirm, remotely_hosted_llm):
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-09-23
+    Average success time:  1.01 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+    agent = Agent(llm=remotely_hosted_llm, tools=[mcp_fooza_tool_confirm])
+    conv = agent.start_conversation()
+    conv.append_user_message("What is the result of fooza of 1 and 2?")
+    status = conv.execute()
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.confirm_tool_execution(tool_request=status.tool_requests[0])
     status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     assert "7" in conv.get_last_message().content

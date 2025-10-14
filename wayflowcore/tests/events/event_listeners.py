@@ -32,6 +32,8 @@ from wayflowcore.events.event import (
     LlmGenerationResponseEvent,
     StepInvocationResultEvent,
     StepInvocationStartEvent,
+    ToolConfirmationRequestEndEvent,
+    ToolConfirmationRequestStartEvent,
     ToolExecutionResultEvent,
     ToolExecutionStartEvent,
 )
@@ -271,6 +273,24 @@ class ToolExecutionStartEventListener(EventListener):
 
     def __call__(self, event: Event) -> None:
         if isinstance(event, ToolExecutionStartEvent):
+            self.triggered_events.append(event)
+
+
+class ToolConfirmationRequestStartEventListener(EventListener):
+    def __init__(self) -> None:
+        self.triggered_events: List[ToolConfirmationRequestStartEvent] = []
+
+    def __call__(self, event: Event) -> None:
+        if isinstance(event, ToolConfirmationRequestStartEvent):
+            self.triggered_events.append(event)
+
+
+class ToolConfirmationRequestEndEventListener(EventListener):
+    def __init__(self) -> None:
+        self.triggered_events: List[ToolConfirmationRequestEndEvent] = []
+
+    def __call__(self, event: Event) -> None:
+        if isinstance(event, ToolConfirmationRequestEndEvent):
             self.triggered_events.append(event)
 
 

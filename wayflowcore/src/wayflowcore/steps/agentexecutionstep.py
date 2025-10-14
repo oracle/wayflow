@@ -9,7 +9,11 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent, CallerInputMode, _MutatedAgent
-from wayflowcore.executors.executionstatus import FinishedStatus, ToolRequestStatus
+from wayflowcore.executors.executionstatus import (
+    FinishedStatus,
+    ToolExecutionConfirmationStatus,
+    ToolRequestStatus,
+)
 from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.property import Property
@@ -315,7 +319,9 @@ class AgentExecutionStep(Step):
 
         logger.debug(f"Agent of AgentExecutionStep returned status: {status}")
 
-        if isinstance(status, (InterruptedExecutionStatus, ToolRequestStatus)):
+        if isinstance(
+            status, (InterruptedExecutionStatus, ToolRequestStatus, ToolExecutionConfirmationStatus)
+        ):
             return StepResult(
                 outputs={"__execution_status__": status},
                 branch_name=self.BRANCH_SELF,

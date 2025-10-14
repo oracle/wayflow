@@ -11,7 +11,11 @@ from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.component import DataclassComponent
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.executors._events.event import Event
-from wayflowcore.executors.executionstatus import ExecutionStatus, ToolRequestStatus
+from wayflowcore.executors.executionstatus import (
+    ExecutionStatus,
+    ToolExecutionConfirmationStatus,
+    ToolRequestStatus,
+)
 from wayflowcore.messagelist import Message, MessageList
 from wayflowcore.planning import ExecutionPlan
 from wayflowcore.tokenusage import TokenUsage
@@ -150,13 +154,16 @@ class Conversation(DataclassComponent):
         tool_result:
             message to append.
         """
-        if isinstance(self.status, ToolRequestStatus) and self.status._conversation_id == self.id:
+        if (
+            isinstance(self.status, (ToolRequestStatus, ToolExecutionConfirmationStatus))
+            and self.status._conversation_id == self.id
+        ):
             # we should append to this conversation message list only if
-            # it is the conversation the ToolRequestStatus originated from.
+            # it is the conversation the ToolRequestStatus/ToolExecutionConfirmationStatus originated from.
             self.message_list.append_tool_result(tool_result)
         else:
             # otherwise, we need to propagate the tool_result to sub conversations
-            # to append the message to the conversation bound to the ToolRequestStatus
+            # to append the message to the conversation bound to the ToolRequestStatus/ToolExecutionConfirmationStatus
             for conv in self._get_all_sub_conversations():
                 conv.append_tool_result(tool_result)
 

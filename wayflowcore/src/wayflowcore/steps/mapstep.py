@@ -513,7 +513,7 @@ messages may be posted in the order they are produced, in this case not determin
                     step_type=StepExecutionStatus.INTERRUPTED,
                 )
 
-            if status._requires_yielding():
+            if status._requires_yielding:
                 return StepResult(
                     outputs={
                         "__execution_status__": status

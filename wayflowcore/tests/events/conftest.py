@@ -19,6 +19,7 @@ from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.steps.outputmessagestep import OutputMessageStep
 from wayflowcore.tools.clienttools import ClientTool
 from wayflowcore.tools.flowbasedtools import DescribedFlow
+from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.tools import ToolRequest
 
 from ..testhelpers.dummy import DummyModel
@@ -106,6 +107,20 @@ GET_LOCATION_CLIENT_TOOL = ClientTool(
     },
 )
 
+GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION = ServerTool(
+    name="get_location",
+    description="Search the location of a given company",
+    func=lambda company_name: company_name,
+    parameters={
+        "company_name": {
+            "type": "string",
+            "description": "Name of the company to search the location for",
+            "default": "Oracle",
+        },
+    },
+    requires_confirmation=True,
+)
+
 # NOTE: The following dummy agents work for multiple tests because they're configured using a dictionary, which doesn't get cleared and works for all iterations
 
 DUMMY_AGENT_WITH_GET_LOCATION_TOOL = Agent(
@@ -129,6 +144,29 @@ DUMMY_AGENT_WITH_GET_LOCATION_TOOL = Agent(
     ),
     tools=[GET_LOCATION_CLIENT_TOOL],
 )
+
+DUMMY_AGENT_WITH_SERVER_TOOL = Agent(
+    agent_id="a123",
+    custom_instruction="Be polite",
+    llm=create_dummy_llm_with_next_output(
+        {
+            "Please use the tool": Message(
+                tool_requests=[
+                    ToolRequest(
+                        name=GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION.name,
+                        args={"company_name": "Oracle Labs"},
+                        tool_request_id="tool_request_id_2",
+                    )
+                ],
+                message_type=MessageType.TOOL_REQUEST,
+                sender="a123",
+                recipients={"a123"},
+            )
+        }
+    ),
+    tools=[GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION],
+)
+
 """Do not modify this variable in place"""
 
 DUMMY_AGENT_WITH_CONVERSATION_EXIT = Agent(

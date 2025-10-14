@@ -31,6 +31,7 @@ ToolConfigT = TypedDict(
         "id": str,
         "_component_type": Literal["Tool"],
         "__metadata_info__": MetadataType,
+        "requires_confirmation": bool,
     },
     total=False,
 )
@@ -79,6 +80,7 @@ def serialize_tool_to_config(
         id=tool.id,
         _component_type="Tool",
         __metadata_info__=tool.__metadata_info__,
+        requires_confirmation=tool.requires_confirmation,
     )
     return cast(Dict[str, Any], config)
 
@@ -197,6 +199,13 @@ def deserialize_tool_from_config(
             raise ValueError(
                 f"Information of the registered tool does not match the serialization. For"
                 f"For the output, '{output_descriptors}' != '{deserialized_tool.output_descriptors}'"
+            )
+        # We check if the requires_confirmation flag is the same
+        requires_confirmation = tool_config.get("requires_confirmation", False)
+        if requires_confirmation != deserialized_tool.requires_confirmation:
+            raise ValueError(
+                f"Information of the registered tool does not match the serialization. For"
+                f"requires_confirmation flag of serialized tool {deserialized_tool.requires_confirmation} does not match those of the registered tool ({requires_confirmation})"
             )
 
     return deserialized_tool
