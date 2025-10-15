@@ -220,6 +220,9 @@ class SwarmRunner(ConversationExecutor):
                 # 6. illegal agent finishing the conversation
                 raise ValueError("Should not happen")
 
+            # Set state's current thread to current_thread
+            conversation.state.current_thread = current_thread
+
     @staticmethod
     def _post_agent_answer_to_previous_thread(
         swarm_conversation: "SwarmConversation",

@@ -13,17 +13,21 @@ import pytest
 from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore.agent import Agent
 from wayflowcore.executors._agentexecutor import _TALK_TO_USER_TOOL_NAME
+from wayflowcore.executors._swarmconversation import SwarmConversation
 from wayflowcore.executors._swarmexecutor import _HANDOFF_TOOL_NAME, _SEND_MESSAGE_TOOL_NAME
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolExecutionConfirmationStatus,
+    ToolRequestStatus,
     UserMessageRequestStatus,
 )
 from wayflowcore.flow import Flow
 from wayflowcore.messagelist import Message, MessageType
+from wayflowcore.property import StringProperty
+from wayflowcore.serialization import deserialize, serialize
 from wayflowcore.steps import OutputMessageStep
 from wayflowcore.swarm import Swarm
-from wayflowcore.tools import tool
+from wayflowcore.tools import ClientTool, ToolResult, tool
 
 from .testhelpers.dummy import DummyModel
 from .testhelpers.testhelpers import retry_test
@@ -867,3 +871,58 @@ def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
             break
     # Should result in a user message request or a graceful finish
     assert isinstance(status2, UserMessageRequestStatus) or isinstance(status2, FinishedStatus)
+
+
+@retry_test(max_attempts=4)
+def test_swarm_can_handle_client_tool(big_llama):
+    """
+    Failure rate:          2 out of 50
+    Observed on:           2025-10-09
+    Average success time:  10.91 seconds per successful attempt
+    Average failure time:  8.84 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
+    """
+    check_name_in_db_tool = ClientTool(
+        name="check_name_in_db_tool",
+        description="Check if a name is present in the database",
+        input_descriptors=[
+            StringProperty("name", description="name to check"),
+        ],
+    )
+    # Plug the tool into an agent
+    llm = big_llama
+    main_agent = Agent(
+        llm=llm,
+        description="general agent which will route queries to your agents",
+        custom_instruction="You are a general agent which will always route queries to your agents and collect tool outputs",
+    )
+    agent = Agent(
+        llm=llm,
+        tools=[check_name_in_db_tool],
+        name="check_name_in_db_agent",
+        description="A helpful agent that has access to a tool which check if a given name is present in database.",
+        custom_instruction="You are an agent which checks if a name is present in the database",
+    )
+    swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent)],
+    )
+
+    conv = swarm.start_conversation()
+    conv.append_user_message("Is the name Alice present in the database? Ask your agents if needed")
+    status = conv.execute()
+    assert isinstance(status, ToolRequestStatus)
+    assert len(status.tool_requests) == 1
+    req = status.tool_requests[0]
+    assert req.name == "check_name_in_db_tool"
+
+    # Check conversation can be continued after being serialized and deserialized
+    serialized_conv = serialize(conv)
+    conv = deserialize(SwarmConversation, serialized_conv)
+
+    # Confirm the tool execution
+    tool_result = "The name Alice is present in the database"
+    conv.append_tool_result(ToolResult(content=tool_result, tool_request_id=req.tool_request_id))
+    status_2 = conv.execute()
+    assert isinstance(status_2, UserMessageRequestStatus) or isinstance(status_2, FinishedStatus)
