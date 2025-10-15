@@ -13,6 +13,7 @@ from wayflowcore.conversation import Conversation
 from wayflowcore.executors._executionstate import ConversationExecutionState
 from wayflowcore.messagelist import Message, MessageList
 from wayflowcore.serialization.serializer import SerializableDataclass
+from wayflowcore.tools import ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore.agentconversation import AgentConversation
@@ -134,6 +135,17 @@ class SwarmConversation(Conversation):
 
     def get_last_message(self) -> Optional[Message]:
         return self._get_main_thread_conversation().get_last_message()
+
+    def append_tool_result(self, tool_result: ToolResult) -> None:
+        current_thread = self.state.current_thread
+        if current_thread is None:
+            raise ValueError(f"Internal error: Current thread is None")
+
+        current_conv = self._get_subconversation_for_thread(current_thread)
+        if current_conv is None:
+            raise ValueError(f"Internal error: Current subconversation is None")
+
+        current_conv.append_tool_result(tool_result)
 
     def append_user_message(self, user_input: str) -> None:
         """Append a new message object of type ``MessageType.USER`` to the main thread.
