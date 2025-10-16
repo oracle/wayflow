@@ -362,6 +362,16 @@ class Message(SerializableDataclass):
 
         return ""
 
+    @content.setter
+    def content(self, value: str) -> None:
+        """
+        No-op setter for the `content` property.
+
+        This exists to make type checkers aware that `content` is writable.
+        Real assignment happens in `__setattr__`.
+        """
+        ...
+
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
         from wayflowcore.serialization.serializer import serialize_to_dict
 

@@ -113,3 +113,26 @@ class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform, Serial
 
         penultimate_message.contents.extend(last_message.contents)
         return messages[:-2] + [penultimate_message]
+
+
+class SplitPromptOnDashTransform(MessageTransform, SerializableObject):
+    """
+    Split prompts on a marker consisting of a **newline followed by '---'** into multiple messages
+    with the same role. Only apply to the messes without tool_requests and tool_result.
+
+    This transform is useful for script-based execution flows, where a single prompt script can be converted into multiple conversation turns for step-by-step reasoning.
+    """
+
+    def __call__(self, messages: List["Message"]) -> List["Message"]:
+        marker = "\n---"
+        new_messages = []
+        for msg in messages:
+            if msg.tool_requests is None and msg.tool_result is None and marker in msg.content:
+                parts = [p.strip() for p in msg.content.split(marker) if p.strip()]
+                for part in parts:
+                    new_msg = msg.copy()
+                    new_msg.content = part
+                    new_messages.append(new_msg)
+            else:
+                new_messages.append(msg)
+        return new_messages
