@@ -14,6 +14,7 @@ from wayflowcore.tools import ToolRequest, ToolResult
 from wayflowcore.transforms import (
     CoalesceSystemMessagesTransform,
     RemoveEmptyNonUserMessageTransform,
+    SplitPromptOnMarkerMessageTransform,
 )
 
 
@@ -173,5 +174,31 @@ COMPLEX_TOOL_REQUEST = Message(
 )
 def test_python_merge_tool_request(messages, expected_messages):
     transform = _PythonMergeToolRequestAndCallsTransform()
+    transformed_messages = transform(messages)
+    assert_messages_are_correct(transformed_messages, expected_messages)
+
+
+@pytest.mark.parametrize(
+    "messages,expected_messages",
+    [
+        (
+            [Message(message_type=MessageType.USER, content="First part\n---\nSecond part")],
+            [
+                Message(message_type=MessageType.USER, content="First part"),
+                Message(message_type=MessageType.USER, content="Second part"),
+            ],
+        ),
+        (
+            [Message(message_type=MessageType.USER, content="A\n---\nB\n---\nC")],
+            [
+                Message(message_type=MessageType.USER, content="A"),
+                Message(message_type=MessageType.USER, content="B"),
+                Message(message_type=MessageType.USER, content="C"),
+            ],
+        ),
+    ],
+)
+def test_split_prompt_on_marker(messages, expected_messages):
+    transform = SplitPromptOnMarkerMessageTransform()
     transformed_messages = transform(messages)
     assert_messages_are_correct(transformed_messages, expected_messages)
