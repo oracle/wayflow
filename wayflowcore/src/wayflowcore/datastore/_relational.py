@@ -3,6 +3,7 @@
 # This software is under the Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
 # 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+import warnings
 from abc import ABC
 from logging import getLogger
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, TypeVar, Union, overload
@@ -326,7 +327,16 @@ class RelationalDatastore(Datastore, ABC):
 
     def _create_data_tables_from_entities(self) -> Dict[str, _RelationalDatatable]:
         metadata = sqlalchemy.MetaData()
-        metadata.reflect(bind=self.engine)
+
+        # SQLAlchemy does not support some features of Oracle DB (e.g., JSON columns)
+        # However, since the user might not care about the specific JSON columns when creating the
+        # datastores, we first filter out the warnings, and then handle each column in the datastore
+        # schema individually below
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter(action="always", category=sqlalchemy.exc.SAWarning)
+            metadata.reflect(bind=self.engine)
+            for warning in w or []:
+                logger.warning("Suppressed warning during database inspection: %s", warning.message)
 
         tables_by_case_insensitive = {
             _case_insensitive(tbl_name): tbl for tbl_name, tbl in metadata.tables.items()
@@ -364,7 +374,7 @@ class RelationalDatastore(Datastore, ABC):
         if not isinstance(sqlalchemy_column.type, sqlachemy_type):
             raise DatastoreTypeError(
                 "Mismatching types found in property definition and database. "
-                f"Got {type(property_)}, found {sqlalchemy_column.type}."
+                f"Got {property_}, found {sqlalchemy_column.type} in database."
             )
 
     def list(
