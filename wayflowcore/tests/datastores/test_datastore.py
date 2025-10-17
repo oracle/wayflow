@@ -18,8 +18,9 @@ from wayflowcore.exceptions import (
     DatastoreEntityError,
     DatastoreError,
     DatastoreKeyError,
+    DatastoreTypeError,
 )
-from wayflowcore.property import FloatProperty, IntegerProperty, StringProperty
+from wayflowcore.property import DictProperty, FloatProperty, IntegerProperty, StringProperty
 from wayflowcore.serialization.serializer import autodeserialize, serialize
 from wayflowcore.warnings import SecurityWarning
 
@@ -369,5 +370,77 @@ def test_oracle_column_type_mapping():
     try:
         datastore = get_oracle_datastore_with_schema(ddl, {"products": product})
         assert datastore.list("products") == []
+    finally:
+        cleanup_oracle_datastore(ddl=["DROP TABLE IF EXISTS PRODUCTS cascade constraints"])
+
+
+def test_oracle_json_columns(caplog):
+    """This test verifies that we gracefully handle scenarios that SQLalchemy does not support
+    (i.e., JSON columns).
+
+    We already raise an appropriate error if users try to configure a JSON column via a DictProprty,
+    or some other property that doesn't fit the JSON type itself.
+
+    We also need to additionally ensure that the schema validation does not raise errors/warnings if
+    other columns in the schema (not mapped by the user's Entity are referenced)
+    """
+    ddl = [
+        "DROP TABLE IF EXISTS PRODUCTS cascade constraints",
+        """
+        CREATE TABLE PRODUCTS (
+            ID NUMBER PRIMARY KEY,
+            TITLE NVARCHAR2(255) NOT NULL,
+            DETAILS JSON
+        ) \
+    """,
+    ]
+    product = Entity(
+        properties={
+            "ID": IntegerProperty(description="Unique product identifier"),
+            "title": StringProperty(description="Brief summary of the product"),
+            "details": DictProperty(description="A JSON with all the product details"),
+        },
+    )
+
+    product_slim = Entity(
+        properties={
+            "ID": IntegerProperty(description="Unique product identifier"),
+            "title": StringProperty(description="Brief summary of the product"),
+        },
+    )
+
+    product_with_json_as_str = Entity(
+        properties={
+            "ID": IntegerProperty(description="Unique product identifier"),
+            "title": StringProperty(description="Brief summary of the product"),
+            "details": StringProperty(description="A JSON with all the product details"),
+        },
+    )
+    try:
+        with pytest.raises(
+            DatastoreTypeError,
+            match="is not supported as a column type for the Datastore. Supported property types are",
+        ):
+            _ = get_oracle_datastore_with_schema(ddl, {"products": product})
+            assert (
+                "Suppressed warning during database inspection: Did not recognize type 'JSON' of column 'details'"
+                in caplog.text
+            )
+
+        with pytest.raises(
+            DatastoreTypeError, match="Mismatching types found in property definition and database."
+        ):
+            _ = get_oracle_datastore_with_schema(ddl, {"products": product_with_json_as_str})
+            assert (
+                "Suppressed warning during database inspection: Did not recognize type 'JSON' of column 'details'"
+                in caplog.text
+            )
+
+        # If the datastore schema doesn't reference any JSON column, then this should work without warnings
+        _ = get_oracle_datastore_with_schema(ddl, {"products": product_slim})
+        assert (
+            "Suppressed warning during database inspection: Did not recognize type 'JSON' of column 'details'"
+            in caplog.text
+        )
     finally:
         cleanup_oracle_datastore(ddl=["DROP TABLE IF EXISTS PRODUCTS cascade constraints"])
