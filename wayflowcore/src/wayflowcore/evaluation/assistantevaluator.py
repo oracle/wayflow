@@ -714,7 +714,7 @@ def _format_failure_message(
         [f"  - {success}: {log}" for success, log in zip(checks_success or [], checks_log or [])]
     )
     checks_log_formatted = "" if checks_log_formatted == "" else f"\n- Checks:\n{checks_log}"
-    return f"""Interaction {interaction_idx} was unsucessful:
+    return f"""Interaction {interaction_idx} was unsuccessful:
 - User input: {user_input}
 - Answer: {answer}{checks_log_formatted}
 - Failure: {error}

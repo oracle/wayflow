@@ -59,7 +59,7 @@ class DatastoreListStep(Step):
         However, the ``collection_name`` and keys and values in the ``where``
         dictionary can be parametrized with jinja-style variables.
         By default, the inferred input descriptors will be of type string,
-        but this can be overriden with the ``input_descriptors`` parameter.
+        but this can be overridden with the ``input_descriptors`` parameter.
 
         **Output descriptors**
 
@@ -87,7 +87,7 @@ class DatastoreListStep(Step):
             When limit is set to `1`, one may optionally decide to unpack
             the single entity in the list and only return a the
             dictionary representing the retrieved entity. This can be
-            usefule when, e.g., reading a single entity by its ID.
+            useful when, e.g., reading a single entity by its ID.
         input_descriptors:
             Input descriptors of the step. ``None`` means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.
         output_descriptors:

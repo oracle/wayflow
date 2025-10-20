@@ -85,7 +85,7 @@ class DatastoreQueryStep(Step):
 
                 The provided query will be executed with the session user's privileges
                 (the user configured in the datastore's connection config). SQL queries should be
-                desiged carefully, to ensure their correctness prior to exeuction.
+                designed carefully, to ensure their correctness prior to execution.
 
         input_descriptors:
             Input descriptors of the step. ``None`` means the step will resolve the input

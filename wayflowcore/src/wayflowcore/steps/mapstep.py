@@ -130,7 +130,7 @@ class MapStep(Step):
         Notes
         -----
         If the mapping between iterated items and the inside
-        flow input is 1 to 1 (``unpack_input`` is a ``str``), then the ``iterated_input_type`` subtype will be infered from the inside flow's input type.
+        flow input is 1 to 1 (``unpack_input`` is a ``str``), then the ``iterated_input_type`` subtype will be inferred from the inside flow's input type.
         Otherwise, it will be set to ``AnyType``.
 
         Examples

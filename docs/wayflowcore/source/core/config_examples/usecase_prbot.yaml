@@ -657,7 +657,7 @@ $referenced_components:
                   \ i in lst:\n        res.append(i * 2)\n    return res\n```\nExample\
                   \ comment:\n[BOT] NON_DESCRIPTIVE_NAME: Use more descriptive names:\
                   \ 'lst' could be 'numbers', 'res' could be 'doubled_numbers', 'i'\
-                  \ could be 'number'\n\n\n### Reponse Format\nYou need to return\
+                  \ could be 'number'\n\n\n### Response Format\nYou need to return\
                   \ a review as a json as follows:\n```json\n[\n    {\n        \"\
                   content\": \"the comment as a text\",\n        \"suggestion\": \"\
                   if the change you propose is a single line, then put here the single\

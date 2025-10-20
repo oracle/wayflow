@@ -127,7 +127,7 @@ def test_dataedge_is_successfully_inferred_with_io_mapping():
 
 
 def test_e2e_with_simple_flow_without_mapping():
-    fake_processing_step = OutputMessageStep("Sucessfully processed username {{username}}")
+    fake_processing_step = OutputMessageStep("Successfully processed username {{username}}")
     output_step = OutputMessageStep('{{session_id}}: Received message "{{processing_message}}"')
     data_edge = DataFlowEdge(
         fake_processing_step, OutputMessageStep.OUTPUT, output_step, "processing_message"
@@ -144,7 +144,7 @@ def test_e2e_with_simple_flow_without_mapping():
     )
     assert (
         conv.get_last_message().content
-        == 'Session#456: Received message "Sucessfully processed username Username#123"'
+        == 'Session#456: Received message "Successfully processed username Username#123"'
     )
 
 
@@ -154,7 +154,7 @@ def test_e2e_with_simple_flow_with_mapping():
     PROCESSING_MESSAGE_IO = "$processing_message"
 
     fake_processing_step = OutputMessageStep(
-        "Sucessfully processed username {{username}}",
+        "Successfully processed username {{username}}",
         input_mapping={"username": USERNAME_IO},
         output_mapping={OutputMessageStep.OUTPUT: PROCESSING_MESSAGE_IO},
     )
@@ -176,7 +176,7 @@ def test_e2e_with_simple_flow_with_mapping():
     conv, _ = _run_flow_and_return_conversation_and_status(flow, conv_inputs)
     assert (
         conv.get_last_message().content
-        == 'Session#456: Received message "Sucessfully processed username Username#123"'
+        == 'Session#456: Received message "Successfully processed username Username#123"'
     )
 
 

@@ -414,7 +414,7 @@ class Flow(ConversationalComponent, SerializableObject):
             .. note::
 
                 ``Variables`` defined in this list must have unique names. Whenever a flow starts
-                a new converstation, a variable store is created with keys being the flow's
+                a new conversation, a variable store is created with keys being the flow's
                 variables and values being the variables' default values.
         name:
             name of the agent, used for composition

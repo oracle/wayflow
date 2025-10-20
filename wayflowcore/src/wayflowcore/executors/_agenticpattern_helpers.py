@@ -194,7 +194,7 @@ def _get_unanswered_tool_requests_from_agent_response(
     return unanswered_tool_requests
 
 
-def _close_parallel_tool_requests_if_nessary(
+def _close_parallel_tool_requests_if_necessary(
     message_list: MessageList, tool_request: ToolRequest
 ) -> None:
     """

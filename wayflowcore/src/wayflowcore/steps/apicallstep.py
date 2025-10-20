@@ -496,7 +496,7 @@ class ApiCallStep(Step):
         ...             item_type=IntegerProperty("inner_int")
         ...         ): "[.orders[].id]",  # extract a list of values
         ...     },
-        ...     url_allow_list = ["https://example.com/orders/"] # Example usage of allow_list: Domains and base path are allowed explicitely. We allow any downstream path elements (like the order id in this example) since only the beginning of the path needs to precisely match. All other URLs are rejected.
+        ...     url_allow_list = ["https://example.com/orders/"] # Example usage of allow_list: Domains and base path are allowed explicitly. We allow any downstream path elements (like the order id in this example) since only the beginning of the path needs to precisely match. All other URLs are rejected.
         ... )
         >>>
         >>> call_current_weather_step = ApiCallStep(
@@ -509,7 +509,7 @@ class ApiCallStep(Step):
         ...         "weather": ".weather",
         ...         "temperature_c": ".temperature.celsius"
         ...     },
-        ...     allow_credentials = False,              # in this example requests will be rejected since we explicitely dissallow credentials in the URL.
+        ...     allow_credentials = False,              # in this example requests will be rejected since we explicitly disallow credentials in the URL.
         ... )
         >>>
         >>> call_current_weather_step = ApiCallStep(
@@ -522,7 +522,7 @@ class ApiCallStep(Step):
         ...         "weather": ".weather",
         ...         "temperature_c": ".temperature.celsius"
         ...     },
-        ...     allow_fragments = False,              # in this example the requests will be rejected since we explicitely dissallow fragments in the URL.
+        ...     allow_fragments = False,              # in this example the requests will be rejected since we explicitly disallow fragments in the URL.
         ... )
         >>>
         """
@@ -681,7 +681,7 @@ class ApiCallStep(Step):
             if not any(match_results):
                 raise ValueError(
                     f"Requested URL is not in allowed list.\
-                                   Please contact the application adminstrator to help adding your URL to the list."
+                                   Please contact the application administrator to help adding your URL to the list."
                 )
 
         if self.num_retry_on_bad_http_request == 0:

@@ -63,7 +63,7 @@ dummy_data = [
     {
         "ID": 0,
         "title": "Broccoli",
-        "description": "Healty and delicious cruciferous vegetable!",
+        "description": "Healthy and delicious cruciferous vegetable!",
         "price": 1.5,
         "category": "Produce",
     },
@@ -79,7 +79,7 @@ dummy_data = [
         "title": "Shampoo",
         "description": "Shiny smooth hair in just 10 applications!",
         "price": 4.5,
-        "category": "Personal hygene",
+        "category": "Personal hygiene",
     },
     {
         "ID": 3,

@@ -744,7 +744,7 @@ class AgentConversationExecutor(ConversationExecutor):
                 # Even though we are executing one tool, which happens to be a client tool, we
                 # choose here retrieve all the open client tool requests, such that we minimize the
                 # number of times the agent needs to yield. In particular, yielding for a tool
-                # request typically requires a web reponse to a client and a new request from them,
+                # request typically requires a web response to a client and a new request from them,
                 # so this optimization minimizes the number of required requests between the client
                 # and the agent.
                 all_open_client_tool_requests = (

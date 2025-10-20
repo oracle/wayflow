@@ -127,7 +127,7 @@ Here is the list of tools:
 Here is the user request:
 {{request}}
 
-## Reponse format
+## Response format
 Your response should be JSON-compliant dictionary with the following structure.
 
 {

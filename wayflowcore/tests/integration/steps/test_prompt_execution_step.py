@@ -424,7 +424,7 @@ def _test_can_publish_message_to_conversation(llm):
         llm=llm,
         prompt_template="Is the following sentence positive? 'Wow this Agentic library is so good!'. Simply output '1' (if positive) or '0' (if negative).",
         generation_config=LlmGenerationConfig(max_tokens=20),
-        send_message=True,  #  TO PUBLISH CONENT TO MESSAGE LIST
+        send_message=True,  #  TO PUBLISH CONTENT TO MESSAGE LIST
     )
     conv, status = _run_single_step_and_return_conv_and_status(step)
     assert isinstance(status, FinishedStatus)

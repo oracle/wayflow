@@ -118,7 +118,7 @@ class IODictCheck(FlowScriptCheck):
             return self.check(io_dict[self.key])
         else:
             raise KeyError(
-                f"IODictCheck failed due to missing key '{self.key}', avaliable keys are: "
+                f"IODictCheck failed due to missing key '{self.key}', available keys are: "
                 f"{list(io_dict.keys())}"
             )
 
@@ -166,7 +166,7 @@ class AssistantCheck(FlowScriptCheck):
 class ConversationCheck(FlowScriptCheck):
     def __init__(self, check: Callable[[Conversation], bool]) -> None:
         """
-        Checks that the "check" that the conversation returns will be successful on the conversatino
+        Checks that the "check" that the conversation returns will be successful on the conversation
 
         Parameters
         ----------
@@ -275,7 +275,7 @@ class FlowScript:
     Parameters
     ----------
     name:
-        Name of the script, to be able to differenciate them in the results
+        Name of the script, to be able to differentiate them in the results
     interactions:
         List of interactions that need to happen in order
     """
@@ -351,15 +351,15 @@ def _format_failure_message(
     checks_log: Optional[List[str]] = None,
     error: Optional[str] = None,
 ) -> str:
-    formated_checks_log = "\n".join(
+    formatted_checks_log = "\n".join(
         [f"  - {success}: {log}" for success, log in zip(checks_success or [], checks_log or [])]
     )
-    return f"""Interaction {interaction_idx} was unsucessful:
+    return f"""Interaction {interaction_idx} was unsuccessful:
 - User input: {user_input}
 - Answer: {answer}
 - Messages: {message}
 - Checks:
-{formated_checks_log}
+{formatted_checks_log}
 - Failure: {error}"""
 
 

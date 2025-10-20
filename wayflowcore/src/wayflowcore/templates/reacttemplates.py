@@ -125,7 +125,7 @@ You can either answer with some text, or a tool call format containing 3 section
 ## Observation: the output of the action
 
 The first thought section describes the step by step reasoning about what you should do and why.
-The second action section contains a well formatted json describing which tool to call and with what arguments. $INPUTS is a dictionnary containing the function arguments.
+The second action section contains a well formatted json describing which tool to call and with what arguments. $INPUTS is a dictionary containing the function arguments.
 The third observation section contains the result of the tool. This is not visible by the user, so you might need to repeat its content to the user.
 
 

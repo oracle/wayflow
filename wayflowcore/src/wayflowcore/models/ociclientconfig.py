@@ -83,7 +83,7 @@ class OCIClientConfig(SerializableObject, ABC):
             return OCIClientConfigWithResourcePrincipal(**config)
         else:
             raise ValueError(
-                "Error occured during deserialization. Please make sure the `auth_type` ",
+                "Error occurred during deserialization. Please make sure the `auth_type` ",
                 "is correctly passed.",
             )
 
@@ -345,7 +345,7 @@ def _convert_arguments_into_client_config(
     compartment_id = compartment_id or os.getenv("OCI_GENAI_COMPARTMENT")
     if not (service_endpoint and auth_type and compartment_id):
         raise ValueError(
-            "Either client config (recommeded) or service_endpoint, auth_type, "
+            "Either client config (recommended) or service_endpoint, auth_type, "
             "and compartment_id arguments need to specified (deprecated)."
         )
 

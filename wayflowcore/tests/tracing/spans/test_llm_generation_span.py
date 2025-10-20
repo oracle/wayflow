@@ -87,7 +87,7 @@ def test_span_serialization_format(
         assert serialized_span["llm.generation_config"] == span.llm.generation_config.to_dict()
 
 
-def test_correct_start_and_end_events_are_catched_by_eventlisteners() -> None:
+def test_correct_start_and_end_events_are_caught_by_eventlisteners() -> None:
     from ...events.event_listeners import (
         LlmGenerationRequestEventListener,
         LlmGenerationResponseEventListener,

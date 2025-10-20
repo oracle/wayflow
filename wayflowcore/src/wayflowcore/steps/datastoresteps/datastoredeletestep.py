@@ -54,7 +54,7 @@ class DatastoreDeleteStep(Step):
         dictionary can be parametrized with jinja-style variables.
         Use this construct sparingly, as there is no special validation
         performed on delete. By default, the inferred input descriptors
-        will be of type string, but this can be overriden with the
+        will be of type string, but this can be overridden with the
         ``input_descriptors`` parameter.
 
         **Output descriptors**

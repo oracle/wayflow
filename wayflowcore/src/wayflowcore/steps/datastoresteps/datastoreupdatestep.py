@@ -65,7 +65,7 @@ class DatastoreUpdateStep(Step):
         Use this construct sparingly, as there is no special validation
         performed on update.
         By default, the inferred input descriptors will be of type string,
-        but this can be overriden with the ``input_descriptors`` parameter.
+        but this can be overridden with the ``input_descriptors`` parameter.
 
         **Output descriptors**
 

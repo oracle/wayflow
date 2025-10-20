@@ -105,7 +105,7 @@ class FlakyTestStatistics:
         # We estimate the failure rate using Laplace Rule of Succession
         # See: https://en.wikipedia.org/wiki/Rule_of_succession
         # This makes the estimation of failure rate more robust. In particular
-        # It does not estimate 100% success when we have 5 out of 5 sucesses
+        # It does not estimate 100% success when we have 5 out of 5 successes
         return (self.n_failure + 1) / (self.n_failure + self.n_success + 2)
 
     @property
@@ -225,7 +225,7 @@ def retry_test(
     ```
     """
     if max_attempts > 16:
-        # The number 16 is chosen, because it is the number of attemps needed
+        # The number 16 is chosen, because it is the number of attempts needed
         # when a test has roughly 50% failure rate, which is already quite a
         # for us to want that test in our test-suite.
         raise ValueError(
@@ -257,7 +257,7 @@ def retry_test(
             def wrapper(*args: Any, **kwargs: Any) -> Any:
                 success_count = 0
                 failed_count = 0
-                total_time_of_succesful_runs = 0.0
+                total_time_of_successful_runs = 0.0
                 total_time_of_failed_runs = 0.0
                 signal.signal(signal.SIGALRM, _time_handler)
                 signal.alarm(FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST)
@@ -266,7 +266,7 @@ def retry_test(
                     try:
                         start_time = time.perf_counter()
                         test_func(*args, **kwargs)
-                        total_time_of_succesful_runs += time.perf_counter() - start_time
+                        total_time_of_successful_runs += time.perf_counter() - start_time
                         success_count += 1
                         signal.alarm(0)  # Clear alarm after successful execution
                     except TimeoutError:
@@ -289,7 +289,7 @@ def retry_test(
                 suggested_docstring = _get_suggested_flaky_test_docstring(
                     success_count,
                     failed_count,
-                    total_time_of_succesful_runs,
+                    total_time_of_successful_runs,
                     total_time_of_failed_runs,
                 )
                 timeout_message = (

@@ -399,7 +399,7 @@ class ServerTool(Tool):
                 return cls.from_langchain(tool)
             except Exception as e:
                 raise ValueError(
-                    f"Convertion from `{tool.__class__.__name__}` to `ServerTool` not supported. Supported types: "
+                    f"Conversion from `{tool.__class__.__name__}` to `ServerTool` not supported. Supported types: "
                     f"LangchainStructuredTool, LangchainTool, Flow, Step. Encountered error: {e}"
                 )
 

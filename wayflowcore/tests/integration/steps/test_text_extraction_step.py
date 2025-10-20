@@ -121,7 +121,7 @@ def test_extract_json_does_not_raises_when_value_is_optional() -> None:
     )
 
 
-def test_extract_value_from_json_step_produces_expected_ouputs() -> None:
+def test_extract_value_from_json_step_produces_expected_outputs() -> None:
     run_json_extraction_with_assistant("thought", ".thought")
 
 

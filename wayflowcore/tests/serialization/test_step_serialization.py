@@ -209,7 +209,7 @@ def test_can_deserialise_subflow_execution_step() -> None:
 
 
 def test_can_deserialize_step_that_is_a_reference() -> None:
-    serialialized_step = """
+    serialized_step = """
       _component_type: Step
       _referenced_objects:
         here_is_my_reference_it_can_be_any_string:
@@ -221,7 +221,7 @@ def test_can_deserialize_step_that_is_a_reference() -> None:
           step_cls: OutputMessageStep
       $ref: here_is_my_reference_it_can_be_any_string
     """
-    step = deserialize(Step, serialialized_step)
+    step = deserialize(Step, serialized_step)
     assert isinstance(step, Step)
     assert isinstance(step, OutputMessageStep)
     assert step.message_template == "How can I help you today?"

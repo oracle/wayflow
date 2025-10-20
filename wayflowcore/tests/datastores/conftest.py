@@ -105,7 +105,7 @@ def get_oracle_connection_config():
         )
     else:
         pytest.skip(
-            "No database connection arguments configured in enviroment. "
+            "No database connection arguments configured in environment. "
             "Skipping Oracle DB tests..."
         )
 

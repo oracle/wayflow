@@ -115,7 +115,7 @@ def assert_swarms_are_equal(old_swarm: Swarm, new_swarm: Swarm):
     assert old_swarm.id == new_swarm.id
 
 
-def assert_swarm_converstions_are_equal(
+def assert_swarm_conversations_are_equal(
     old_conversation: SwarmConversation, new_conversation: SwarmConversation
 ):
     assert_swarms_are_equal(old_conversation.swarm, new_conversation.swarm)
@@ -204,7 +204,7 @@ def test_can_deserialize_a_serialized_conversation(simple_conversation: SwarmCon
     s1 = serialize_to_dict(simple_conversation)
     s2 = serialize_to_dict(new_conversation)
     _assert_config_are_equal(s1, s2)
-    assert_swarm_converstions_are_equal(simple_conversation, new_conversation)
+    assert_swarm_conversations_are_equal(simple_conversation, new_conversation)
 
 
 def test_can_continue_a_deserialized_swarm_conversation(simple_swarm: Swarm) -> None:

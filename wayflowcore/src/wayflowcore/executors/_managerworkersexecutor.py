@@ -11,7 +11,7 @@ from wayflowcore import Conversation
 from wayflowcore.agent import Agent
 from wayflowcore.executors._agenticpattern_helpers import (
     _SEND_MESSAGE_TOOL_NAME,
-    _close_parallel_tool_requests_if_nessary,
+    _close_parallel_tool_requests_if_necessary,
     _get_last_tool_request_message_from_agent_response,
     _get_tool_request_from_message,
     _get_unanswered_tool_requests_from_agent_response,
@@ -246,7 +246,9 @@ class ManagerWorkersRunner(ConversationExecutor):
             tool_name=_SEND_MESSAGE_TOOL_NAME,
         )
 
-        _close_parallel_tool_requests_if_nessary(manager_subconversation.message_list, tool_request)
+        _close_parallel_tool_requests_if_necessary(
+            manager_subconversation.message_list, tool_request
+        )
         # ^ We currently do not support parallel tool calling --> need to cancel other tool requests if existing.
 
         recipient_agent_name, message, error_message = _parse_send_message_tool_request(

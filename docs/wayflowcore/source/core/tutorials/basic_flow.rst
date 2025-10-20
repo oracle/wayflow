@@ -297,7 +297,7 @@ So with some questions ready you can now run the assistant. Within the example c
          destination_step=user_input_step
       ),
 
-Run the code below to run the assistant. It will ask the assistant a single one of the above question ane exit.
+Run the code below to run the assistant. It will ask the assistant a single one of the above question and exit.
 
 .. literalinclude:: ../code_examples/tutorial_flow.py
    :language: python

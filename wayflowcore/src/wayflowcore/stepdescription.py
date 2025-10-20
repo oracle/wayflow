@@ -48,6 +48,6 @@ def make_steps_descriptions(
         set([step_description.displayed_step_name for step_description in step_descriptions])
     ):
         raise ValueError(
-            f"Two next steps seem to have the same displayed names. This will make it impossible for the LLM to differenciate them: {step_descriptions}"
+            f"Two next steps seem to have the same displayed names. This will make it impossible for the LLM to differentiate them: {step_descriptions}"
         )
     return step_descriptions
