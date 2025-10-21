@@ -9,6 +9,7 @@ from typing import List, Optional
 from pyagentspec.agent import Agent
 from pyagentspec.component import SerializeAsEnum
 from pyagentspec.flows.flow import Flow
+from pyagentspec.versioning import AgentSpecVersionEnum
 from pydantic import Field, SerializeAsAny
 
 from wayflowcore.agent import DEFAULT_INITIAL_MESSAGE, CallerInputMode
@@ -18,7 +19,6 @@ from wayflowcore.agentspec.components._pydantic_plugins import (
 )
 from wayflowcore.agentspec.components.contextprovider import PluginContextProvider
 from wayflowcore.agentspec.components.template import PluginPromptTemplate
-from wayflowcore.agentspec.components.tools import PluginToolBox
 
 
 class ExtendedAgent(Agent):
@@ -27,8 +27,6 @@ class ExtendedAgent(Agent):
     ExtendedAgent supports composition with subflows and subagents, custom
     prompt templates, context providers, and some more customizations on the agent's execution."""
 
-    toolboxes: List[PluginToolBox] = Field(default_factory=list)
-    """List of toolboxes that the agent can use to fulfil user requests"""
     context_providers: Optional[List[SerializeAsAny[PluginContextProvider]]] = None
     """Context providers for jinja variables in the ``system_prompt``."""
     can_finish_conversation: bool = False
@@ -49,6 +47,14 @@ class ExtendedAgent(Agent):
     """Specific agent template for more advanced prompting techniques. It will be overloaded with the current
     agent ``tools``, and can have placeholders:
     * ``custom_instruction`` placeholder for the ``system_prompt`` parameter"""
+
+    def _versioned_model_fields_to_exclude(
+        self, agentspec_version: AgentSpecVersionEnum
+    ) -> set[str]:
+        return set()
+
+    def _infer_min_agentspec_version_from_configuration(self) -> AgentSpecVersionEnum:
+        return AgentSpecVersionEnum.v25_4_1
 
 
 AGENT_PLUGIN_NAME = "AgentPlugin"

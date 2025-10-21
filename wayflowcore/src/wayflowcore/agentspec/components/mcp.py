@@ -30,10 +30,10 @@ class PluginClientTransport(ClientTransport, abstract=True):
 class PluginRemoteBaseTransport(RemoteTransport, abstract=True):
     """Base transport class for transport with all remotely hosted servers."""
 
-    timeout: float = 5
+    timeout: float = 5.0
     """The timeout for the HTTP request. Defaults to 5 seconds."""
 
-    sse_read_timeout: float = 60 * 5
+    sse_read_timeout: float = 60.0 * 5
     """The timeout for the SSE connection, in seconds. Defaults to 5 minutes."""
 
 
@@ -117,7 +117,13 @@ class PluginStreamableHTTPmTLSTransport(PluginHTTPmTLSBaseTransport, PluginClien
 
 
 class PluginMCPToolSpec(Tool):
-    """Specification of MCP tool"""
+    """
+    Specification of MCP tool
+
+    .. tip::
+
+        Agent Spec now natively supports ``MCPToolSpec`` which should be preferred to using ``PluginMCPToolSpec``.
+    """
 
 
 class PluginMCPTool(ServerTool):
@@ -133,7 +139,13 @@ class PluginMCPTool(ServerTool):
 
 
 class PluginMCPToolBox(PluginToolBox):
-    """Class to dynamically expose a list of tools from a MCP Server."""
+    """
+    Class to dynamically expose a list of tools from a MCP Server.
+
+    .. tip::
+
+        Agent Spec now natively supports ``MCPToolBox`` which should be preferred to using ``PluginMCPToolBox``.
+    """
 
     client_transport: SerializeAsAny[ClientTransport]
     """Transport to use for establishing and managing connections to the MCP server."""

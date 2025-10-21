@@ -51,6 +51,8 @@ from pyagentspec.llms.openaicompatibleconfig import (
     OpenAiCompatibleConfig as AgentSpecOpenAiCompatibleConfig,
 )
 from pyagentspec.llms.vllmconfig import VllmConfig as AgentSpecVllmModel
+from pyagentspec.mcp import MCPToolBox as AgentSpecMCPToolBox
+from pyagentspec.mcp import MCPToolSpec as AgentSpecMCPToolSpec
 from pyagentspec.mcp.clienttransport import ClientTransport as AgentSpecClientTransport
 from pyagentspec.mcp.clienttransport import SSEmTLSTransport as AgentSpecSSEmTLSTransport
 from pyagentspec.mcp.clienttransport import SSETransport as AgentSpecSSETransport
@@ -68,6 +70,7 @@ from pyagentspec.tools import ClientTool as AgentSpecClientTool
 from pyagentspec.tools import RemoteTool as AgentSpecRemoteTool
 from pyagentspec.tools import ServerTool as AgentSpecServerTool
 from pyagentspec.tools import Tool as AgentSpecTool
+from pyagentspec.tools import ToolBox as AgentSpecToolBox
 
 from wayflowcore._metadata import METADATA_KEY
 from wayflowcore._utils._templating_helpers import MessageAsDictT as RuntimeMessageAsDictT
@@ -137,8 +140,6 @@ from wayflowcore.agentspec.components.flow import ExtendedFlow as AgentSpecExten
 from wayflowcore.agentspec.components.managerworkers import (
     PluginManagerWorkers as AgentSpecPluginManagerWorkers,
 )
-from wayflowcore.agentspec.components.mcp import PluginMCPToolBox as AgentSpecPluginMCPToolBox
-from wayflowcore.agentspec.components.mcp import PluginMCPToolSpec as AgentSpecPluginMCPToolSpec
 from wayflowcore.agentspec.components.mcp import (
     PluginSSEmTLSTransport as AgentSpecPluginSSEmTLSTransport,
 )
@@ -405,9 +406,9 @@ def has_default_value_for_attribute(obj: Any, attr: str) -> bool:
     for f in fields(obj):
         if f.name == attr:
             if f.default is not MISSING:
-                return f.default == getattr(obj, f.name)
+                return bool(f.default == getattr(obj, f.name))
             if f.default_factory is not MISSING:
-                return f.default_factory() == getattr(obj, f.name)
+                return bool(f.default_factory() == getattr(obj, f.name))
             raise AttributeError(f"No default value for field '{attr}'")
     raise AttributeError(f"'{obj.__class__.__name__}' has no field named '{attr}'")
 
@@ -1435,14 +1436,14 @@ class RuntimeToAgentSpecConverter:
         self,
         runtime_mcptoolspec: RuntimeTool,
         referenced_objects: Optional[Dict[str, Any]] = None,
-    ) -> AgentSpecPluginMCPToolSpec:
+    ) -> AgentSpecMCPToolSpec:
 
         if runtime_mcptoolspec.requires_confirmation:
             raise NotImplementedError(
                 "Conversion of Tools requiring confirmation to AgentSpec is not supported yet"
             )
 
-        return AgentSpecPluginMCPToolSpec(
+        return AgentSpecMCPToolSpec(
             name=runtime_mcptoolspec.name,
             description=runtime_mcptoolspec.description,
             inputs=[
@@ -1460,7 +1461,7 @@ class RuntimeToAgentSpecConverter:
         self,
         runtime_toolbox: RuntimeToolBox,
         referenced_objects: Optional[Dict[str, Any]] = None,
-    ) -> AgentSpecPluginToolBox:
+    ) -> AgentSpecToolBox:
         if isinstance(runtime_toolbox, RuntimeMCPToolBox):
             tool_filter = (
                 [
@@ -1474,7 +1475,7 @@ class RuntimeToAgentSpecConverter:
                 if runtime_toolbox.tool_filter is not None
                 else None
             )
-            return AgentSpecPluginMCPToolBox(
+            return AgentSpecMCPToolBox(
                 name=runtime_toolbox.name,
                 client_transport=self._mcp_clienttransport_convert_to_agentspec(
                     runtime_toolbox.client_transport, referenced_objects
@@ -1609,6 +1610,10 @@ class RuntimeToAgentSpecConverter:
             cast(AgentSpecTool, self.convert(tool, referenced_objects))
             for tool in runtime_agent._tools
         ]
+        toolboxes = [
+            cast(AgentSpecPluginToolBox, self.convert(tool, referenced_objects))
+            for tool in runtime_agent._toolboxes
+        ]
         flows = [
             cast(AgentSpecFlow, self.convert(flow, referenced_objects))
             for flow in runtime_agent.flows
@@ -1635,7 +1640,6 @@ class RuntimeToAgentSpecConverter:
                     runtime_agent.agent_template is not runtime_agent.llm.agent_template
                 )
             )
-            or (has_toolboxes := runtime_agent._toolboxes)
             or (
                 conv_default := (
                     runtime_agent.can_finish_conversation
@@ -1675,10 +1679,7 @@ class RuntimeToAgentSpecConverter:
                 inputs=inputs,
                 outputs=outputs,
                 metadata=metadata,
-                toolboxes=[
-                    cast(AgentSpecPluginToolBox, self.convert(tool, referenced_objects))
-                    for tool in runtime_agent._toolboxes
-                ],
+                toolboxes=toolboxes,
                 context_providers=(
                     [
                         self.convert(context_provider_, referenced_objects)
@@ -1706,6 +1707,7 @@ class RuntimeToAgentSpecConverter:
             id=runtime_agent.id,
             llm_config=llm_config,
             tools=tools,
+            toolboxes=toolboxes,
             system_prompt=system_prompt,
             inputs=inputs,
             outputs=outputs,

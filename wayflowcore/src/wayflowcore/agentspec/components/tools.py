@@ -6,7 +6,7 @@
 
 from typing import Any, Dict
 
-from pyagentspec.component import Component
+from pyagentspec.tools import ToolBox
 from pydantic import BaseModel
 
 from wayflowcore.agentspec.components._pydantic_plugins import (
@@ -15,13 +15,17 @@ from wayflowcore.agentspec.components._pydantic_plugins import (
 )
 
 
-class PluginToolBox(Component):
+class PluginToolBox(ToolBox):
     """
     Class to expose a list of tools to agentic components.
 
     ToolBox is dynamic which means that agentic components equipped
     with a toolbox can may see its tools to evolve throughout its
     execution.
+
+    .. tip::
+
+        Agent Spec now natively supports ``ToolBox`` which should be preferred to using ``PluginToolBox``.
     """
 
 
