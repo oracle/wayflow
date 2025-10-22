@@ -19,7 +19,7 @@ from wayflowcore.steps import (
     StartStep,
     ToolExecutionStep,
 )
-from wayflowcore.tools import tool
+from wayflowcore.tools import ServerTool, tool
 
 STEP_1 = OutputMessageStep(
     "{{step_name}}",
@@ -218,3 +218,78 @@ async def test_flow_with_many_steps():
     async with anyio.create_task_group() as tg:
         for _ in range(50):
             tg.start_soon(_target)
+
+
+def test_flow_with_subset_of_inputs_outputs_exposes_only_selected_inputs_and_outputs():
+    map_tool = ServerTool(
+        name="tool",
+        description="tool",
+        input_descriptors=[
+            StringProperty(name="input_a"),
+            StringProperty(name="input_b", default_value="hello"),
+        ],
+        output_descriptors=[StringProperty(name="output_a"), StringProperty(name="output_b")],
+        func=lambda input_a, input_b: {"output_a": input_a, "output_b": input_b},
+    )
+    tool_step = ToolExecutionStep(name="tool_node", tool=map_tool)
+    flow = Flow(
+        name="flow",
+        begin_step=tool_step,
+        control_flow_edges=[ControlFlowEdge(source_step=tool_step, destination_step=None)],
+        input_descriptors=[StringProperty(name="input_a")],
+        output_descriptors=[StringProperty(name="output_a")],
+    )
+
+    assert len(flow.input_descriptors) == 1
+    assert flow.input_descriptors[0].name == "input_a"
+    assert len(flow.input_descriptors_dict) == 1
+    assert "input_a" in flow.input_descriptors_dict
+
+    assert len(flow.output_descriptors) == 1
+    assert flow.output_descriptors[0].name == "output_a"
+    assert len(flow.output_descriptors_dict) == 1
+    assert "output_a" in flow.output_descriptors_dict
+
+    conversation = flow.start_conversation(inputs={"input_a": "a"})
+    state = conversation.execute()
+
+    assert isinstance(state, FinishedStatus)
+    assert len(state.output_values) == 1
+    assert state.output_values["output_a"] == "a"
+
+
+def test_flow_with_missing_input_without_default_raises_exception():
+    output_step = OutputMessageStep(
+        name="output_step",
+        message_template="{{user_input}} {{missing_input}}",
+    )
+    with pytest.raises(
+        ValueError,
+        match="Step named `output_step` requires an input called `missing_input`, but no input with",
+    ):
+        _ = Flow(
+            begin_step=output_step,
+            control_flow_edges=[ControlFlowEdge(source_step=output_step, destination_step=None)],
+            input_descriptors=[StringProperty(name="user_input")],
+        )
+
+
+def test_flow_with_missing_input_with_default_value_works():
+    output_step = OutputMessageStep(
+        name="output_step",
+        message_template="{{user_input}} {{default_input}}",
+        input_descriptors=[
+            StringProperty(name="user_input"),
+            StringProperty(name="default_input", default_value="hello"),
+        ],
+    )
+    flow = Flow(
+        begin_step=output_step,
+        control_flow_edges=[ControlFlowEdge(source_step=output_step, destination_step=None)],
+        input_descriptors=[StringProperty(name="user_input")],
+    )
+
+    assert len(flow.input_descriptors) == 1
+    assert flow.input_descriptors[0].name == "user_input"
+    assert len(flow.input_descriptors_dict) == 1
+    assert "user_input" in flow.input_descriptors_dict

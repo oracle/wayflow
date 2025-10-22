@@ -27,7 +27,7 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
         ("flow_1.yaml", {"user_request": "compute the n-th catalan number"}),
         (
             "flow_2.yaml",
-            {"user_request": "compute the n-th catalan number", "review": "", "code": ""},
+            {"user_request": "compute the n-th catalan number"},
         ),
         (
             "flow_3.yaml",

@@ -5,10 +5,16 @@ $referenced_components:
     component_type: EndNode
     description: null
     id: 04e66582-71ab-4b27-8145-07420ea2feef
-    inputs: []
+    inputs:
+    - name: http_response
+      title: http_response
+      type: string
     metadata: {}
     name: EndNode
-    outputs: []
+    outputs:
+    - name: http_response
+      title: http_response
+      type: string
   57d0c9d7-9c74-43f3-acab-5d434c8cc7bf:
     api_spec_uri: null
     branches:
@@ -62,7 +68,7 @@ control_flow_connections:
     Node
   to_node:
     $component_ref: 04e66582-71ab-4b27-8145-07420ea2feef
-data_flow_connections: []
+data_flow_connections: null
 description: null
 id: 7ae31fbe-2422-472b-b789-ea31e760f7cd
 inputs: []
@@ -72,7 +78,10 @@ nodes:
 - $component_ref: f9f248af-ad3a-413a-9b45-a11388d604cd
 - $component_ref: 04e66582-71ab-4b27-8145-07420ea2feef
 - $component_ref: 57d0c9d7-9c74-43f3-acab-5d434c8cc7bf
-outputs: []
+outputs:
+- name: http_response
+  title: http_response
+  type: string
 start_node:
   $component_ref: f9f248af-ad3a-413a-9b45-a11388d604cd
 state: []

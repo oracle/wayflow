@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.component import Component
-from wayflowcore.property import Property
+from wayflowcore.property import Property, _empty_default
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +51,8 @@ class ComponentWithInputsOutputs(Component, ABC):
         Function to resolve the input descriptors of a component. The final input descriptors of the component will
         be:
         - the specified descriptors which names can be mapped to the default descriptors
-        - the default descriptors for which no specified descriptors were found. This is so the step is guaranteed
-          to have the all the inputs to work correctly.
+        - the default descriptors for which no specified descriptors were found, if the default descriptor has no default value.
+          This is to guarantee that the component has all the inputs to work correctly.
 
         If some specified descriptors are found with names not matching the default descriptors, an error will be raised
         to avoid misspellings.
@@ -75,6 +75,8 @@ class ComponentWithInputsOutputs(Component, ABC):
         final_descriptors = [
             specified_descriptors_dict.get(default_descriptor.name, default_descriptor)
             for default_descriptor in default_descriptors
+            if default_descriptor.name in specified_descriptors_dict
+            or default_descriptor.default_value is _empty_default
         ]
 
         if len(set(descriptor.name for descriptor in final_descriptors)) < len(final_descriptors):
@@ -82,7 +84,7 @@ class ComponentWithInputsOutputs(Component, ABC):
                 final_descriptors
             )
 
-        expected_input_names = [descriptor.name for descriptor in final_descriptors]
+        expected_input_names = {descriptor.name for descriptor in final_descriptors}
         for specified_descriptor in specified_descriptors:
             if specified_descriptor.name not in expected_input_names:
                 raise ValueError(
