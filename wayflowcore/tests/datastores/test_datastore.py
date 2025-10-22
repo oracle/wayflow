@@ -278,7 +278,7 @@ def test_access_to_nonexistent_collection(testing_inmemory_data_store_with_data:
         testing_inmemory_data_store_with_data.create("product", entities={})
 
 
-def test_database_with_threadpool(testing_data_store: Datastore):
+def test_database_with_threadpool(testing_data_store: Datastore, shutdown_threadpool_fixture):
     """This test ensures we can run the datastore operations in a map step.
 
     Consistency and validation of order of operations is left to the database.

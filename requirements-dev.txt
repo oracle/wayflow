@@ -36,3 +36,4 @@ snowballstemmer<3
 
 # To make sure all the tests run in the same order with the same pytest version
 pytest==7.4.4
+pytest-xdist==3.8.0
