@@ -36,6 +36,10 @@ class ClientTool(Tool):
         If no output descriptor is passed, or if a single output descriptor is passed without a name, the output will
         be automatically be named ``Tool.DEFAULT_TOOL_NAME``.
 
+    requires_confirmation: bool
+        Flag to make tool require confirmation before execution. Yields a ToolExecutionConfirmationStatus during execution.
+        If tool use is confirmed, then a ToolRequestStatus is raised to ask the client to execute the tool and provide the outputs.
+
     Examples
     --------
     >>> from wayflowcore.tools import ClientTool
@@ -59,6 +63,7 @@ class ClientTool(Tool):
         output_descriptors: Optional[List[Property]] = None,
         parameters: Optional[Dict[str, JsonSchemaParam]] = None,
         output: Optional[JsonSchemaParam] = None,
+        requires_confirmation: bool = False,
         id: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
     ):
@@ -70,9 +75,9 @@ class ClientTool(Tool):
             output_descriptors=output_descriptors,
             parameters=parameters,
             output=output,
+            requires_confirmation=requires_confirmation,
             id=id,
             __metadata_info__=__metadata_info__,
-            requires_confirmation=False,
         )
 
     @property

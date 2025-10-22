@@ -257,6 +257,62 @@ def test_subflow_execution_might_yield_with_tool_request_inside() -> None:
     assert isinstance(status, FinishedStatus)
 
 
+@pytest.fixture
+def flow_with_client_tool_confirmation() -> Flow:
+    name_tool = ClientTool(
+        name="name_tool",
+        description="Ask the user for some name",
+        parameters={},
+        requires_confirmation=True,
+    )
+    step = FlowExecutionStep(
+        flow=Flow.from_steps(
+            [
+                ToolExecutionStep(tool=name_tool, raise_exceptions=False),
+            ]
+        )
+    )
+    assistant = Flow.from_steps([step])
+    return assistant
+
+
+def test_subflow_with_client_tool_confirmation_works_with_tool_confirmation(
+    flow_with_client_tool_confirmation,
+) -> None:
+    conv = flow_with_client_tool_confirmation.start_conversation()
+    status = flow_with_client_tool_confirmation.execute(conv)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.confirm_tool_execution(tool_request=status.tool_requests[0])
+    status = flow_with_client_tool_confirmation.execute(conv)
+    assert isinstance(status, ToolRequestStatus)
+    conv.append_tool_result(
+        ToolResult(content="whatever", tool_request_id=status.tool_requests[0].tool_request_id)
+    )
+    status = flow_with_client_tool_confirmation.execute(conv)
+    assert isinstance(status, FinishedStatus)
+
+
+def test_subflow_with_client_tool_confirmation_works_with_tool_rejection(
+    flow_with_client_tool_confirmation,
+) -> None:
+    conv = flow_with_client_tool_confirmation.start_conversation()
+    status = flow_with_client_tool_confirmation.execute(conv)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.reject_tool_execution(tool_request=status.tool_requests[0])
+    status = flow_with_client_tool_confirmation.execute(conv)
+    assert isinstance(status, FinishedStatus)
+
+
+def test_subflow_with_client_tool_confirmation_raises_if_not_confirmed(
+    flow_with_client_tool_confirmation,
+) -> None:
+    conv = flow_with_client_tool_confirmation.start_conversation()
+    status = flow_with_client_tool_confirmation.execute(conv)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    with pytest.raises(ValueError):
+        status = flow_with_client_tool_confirmation.execute(conv)
+
+
 def test_subflow_execution_will_yield_with_tool_execution_confirmation_status_inside() -> None:
     random_func = lambda name: name
     name_tool = ServerTool(

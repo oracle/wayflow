@@ -874,6 +874,56 @@ def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
 
 
 @retry_test(max_attempts=4)
+def test_swarm_can_handle_client_tool_with_confirmation(big_llama):
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-10-20
+    Average success time:  14.36 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+    check_name_in_db_tool = ClientTool(
+        name="check_name_in_db_tool",
+        description="Check if a name is present in the database",
+        input_descriptors=[
+            StringProperty("name", description="name to check"),
+        ],
+        requires_confirmation=True,
+    )
+    # Plug the tool into an agent
+    llm = big_llama
+    main_agent = Agent(
+        llm=llm,
+        description="general agent which will route queries to your agents",
+        custom_instruction="You are a general agent which will always route queries to your agents and collect tool outputs",
+    )
+    agent = Agent(
+        llm=llm,
+        tools=[check_name_in_db_tool],
+        name="check_name_in_db_agent",
+        description="A helpful agent that has access to a tool which check if a given name is present in database.",
+        custom_instruction="You are an agent which checks if a name is present in the database",
+    )
+    swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent)],
+    )
+
+    conv = swarm.start_conversation()
+    conv.append_user_message("Is the name Alice present in the database? Ask your agents if needed")
+    status = conv.execute()
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    assert len(status.tool_requests) == 1
+    status.confirm_tool_execution(tool_request=status.tool_requests[0])
+    status = conv.execute()
+    assert isinstance(status, ToolRequestStatus)
+    assert len(status.tool_requests) == 1
+    req = status.tool_requests[0]
+    assert req.name == "check_name_in_db_tool"
+
+
+@retry_test(max_attempts=4)
 def test_swarm_can_handle_client_tool(big_llama):
     """
     Failure rate:          2 out of 50

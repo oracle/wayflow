@@ -708,6 +708,46 @@ class AgentConversationExecutor(ConversationExecutor):
             tool_request.tool_request_id,
             tool_request.args,
         )
+
+        if tool.requires_confirmation:
+            if not tool_request._requires_confirmation:
+                record_event(
+                    ToolConfirmationRequestStartEvent(
+                        tool=tool,
+                        tool_request=tool_request,
+                    )
+                )
+                tool_request._requires_confirmation = True
+                return ToolExecutionConfirmationStatus(
+                    tool_requests=[tool_request], _conversation_id=conversation.id
+                )
+
+            record_event(
+                ToolConfirmationRequestEndEvent(
+                    tool=tool,
+                    tool_request=tool_request,
+                )
+            )
+            if tool_request._tool_execution_confirmed is None:
+                raise ValueError(
+                    "Missing tool confirmation, "
+                    "please make sure to either confirm or reject the tool execution before resuming the conversation."
+                )
+            if not tool_request._tool_execution_confirmed:
+
+                output_message = _TOOL_REJECTION_REASON.format(
+                    tool=tool, reason=tool_request._tool_rejection_reason
+                )
+                messages.append_message(
+                    AgentConversationExecutor._get_tool_response_message(
+                        output_message,
+                        tool_request.tool_request_id,
+                        config.agent_id,
+                    )
+                )
+
+                return None
+
         if isinstance(tool, ClientTool):
             try:
                 tool_result_client_answer = next(
@@ -757,42 +797,6 @@ class AgentConversationExecutor(ConversationExecutor):
                     tool_requests=all_open_client_tool_requests, _conversation_id=conversation.id
                 )
         elif isinstance(tool, ServerTool):
-            if tool.requires_confirmation:
-                if not tool_request._requires_confirmation:
-                    record_event(
-                        ToolConfirmationRequestStartEvent(
-                            tool=tool,
-                            tool_request=tool_request,
-                        )
-                    )
-                    tool_request._requires_confirmation = True
-                    return ToolExecutionConfirmationStatus(
-                        tool_requests=[tool_request], _conversation_id=conversation.id
-                    )
-
-                record_event(
-                    ToolConfirmationRequestEndEvent(
-                        tool=tool,
-                        tool_request=tool_request,
-                    )
-                )
-                if tool_request._tool_execution_confirmed is None:
-                    raise ValueError("Tool Confirmation handled badly")
-                if not tool_request._tool_execution_confirmed:
-
-                    output_message = _TOOL_REJECTION_REASON.format(
-                        tool=tool, reason=tool_request._tool_rejection_reason
-                    )
-                    messages.append_message(
-                        AgentConversationExecutor._get_tool_response_message(
-                            output_message,
-                            tool_request.tool_request_id,
-                            config.agent_id,
-                        )
-                    )
-
-                    return None
-
             with ToolExecutionSpan(
                 tool=tool,
                 tool_request=tool_request,

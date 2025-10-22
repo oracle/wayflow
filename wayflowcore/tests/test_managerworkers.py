@@ -235,6 +235,62 @@ def test_worker_with_client_tool_works_as_expected(remotely_hosted_llm) -> None:
         status = conversation.execute()
 
 
+def test_worker_with_client_tool_with_confirmation_works_as_expected(remotely_hosted_llm) -> None:
+    llm = remotely_hosted_llm
+    dummy_llm = DummyModel()
+
+    def _multiply_impl(a: int, b: int) -> int:
+        return a * b
+
+    def execute_client_tool_from_tool_request(tool_request: ToolRequest) -> Any:
+        if tool_request.name == "multiply":
+            return _multiply_impl(**tool_request.args)
+        else:
+            raise ValueError(f"Tool name {tool_request.name} is not recognized")
+
+    multiply_tool = ClientTool(
+        name="multiply",
+        description="Return the result of multiplication between number a and b.",
+        input_descriptors=[
+            IntegerProperty("a", description="first required integer"),
+            IntegerProperty("b", description="second required integer"),
+        ],
+        requires_confirmation=True,
+    )
+
+    multiplication_agent = Agent(
+        name="multiplication_agent",
+        description="Agent that can do multiplication",
+        llm=llm,
+        tools=[multiply_tool],
+        custom_instruction="You can do multiplication.",
+    )
+
+    group = ManagerWorkers(group_manager=dummy_llm, workers=[multiplication_agent])
+
+    dummy_llm.set_next_output(
+        [_send_message(multiplication_agent, message="Please compute 2145 * 123")]
+    )
+
+    conversation = group.start_conversation()
+    conversation.append_user_message("Dummy")
+
+    status = conversation.execute()
+
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.confirm_tool_execution(tool_request=status.tool_requests[0])
+    status = conversation.execute()
+    assert isinstance(status, ToolRequestStatus)
+
+    tool_request = status.tool_requests[0]
+    tool_result = execute_client_tool_from_tool_request(tool_request)
+    conversation.append_tool_result(ToolResult(tool_result, tool_request.tool_request_id))
+
+    dummy_llm.set_next_output(["dummy assistant output"])
+    status = conversation.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+
+
 def test_worker_with_server_tool_execution_does_not_raise_errors(remotely_hosted_llm) -> None:
     dummy_llm = DummyModel()
 
@@ -368,6 +424,71 @@ def test_manager_with_client_tool_execution_works_as_expected():
 
     with pytest.raises(ValueError, match="Did you forget to set the output of the Dummy model"):
         status = conversation.execute()
+
+
+def test_manager_with_client_tool_with_confirmation_execution_works_as_expected():
+    llm = DummyModel()
+
+    def _say_hello(user_name: str) -> str:
+        return f"Hello {user_name}!"
+
+    def execute_client_tool_from_tool_request(tool_request: ToolRequest) -> Any:
+        if tool_request.name == "say_hello":
+            return _say_hello(**tool_request.args)
+        else:
+            raise ValueError(f"Tool name {tool_request.name} is not recognized")
+
+    hello_tool = ClientTool(
+        name="say_hello",
+        description="Return a hello message including user name",
+        input_descriptors=[
+            StringProperty("user_name", description="user name"),
+        ],
+        requires_confirmation=True,
+    )
+
+    manager_agent = Agent(
+        name="manager_agent",
+        description="manager_agent",
+        llm=llm,
+        tools=[hello_tool],
+    )
+    worker = Agent(name="worker", description="worker", llm=llm)
+
+    group = ManagerWorkers(group_manager=manager_agent, workers=[worker])
+
+    llm.set_next_output(
+        [
+            Message(
+                render_template(
+                    _MANAGER_TOOL_CALL_TEMPLATE,
+                    inputs=dict(
+                        thoughts="",
+                        tool_name="say_hello",
+                        tool_params={"user_name": "Iris"},
+                    ),
+                ),
+                message_type=MessageType.AGENT,
+            ),
+        ]
+    )
+
+    conversation = group.start_conversation()
+    conversation.append_user_message("Dummy")
+
+    status = conversation.execute()
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.confirm_tool_execution(tool_request=status.tool_requests[0])
+    status = conversation.execute()
+    assert isinstance(status, ToolRequestStatus)
+
+    tool_request = status.tool_requests[0]
+    tool_result = execute_client_tool_from_tool_request(tool_request)
+    conversation.append_tool_result(ToolResult(tool_result, tool_request.tool_request_id))
+
+    llm.set_next_output(["dummy assistant output"])
+    status = conversation.execute()
+    assert isinstance(status, UserMessageRequestStatus)
 
 
 def test_managerworkers_execution_does_not_raise_errors(

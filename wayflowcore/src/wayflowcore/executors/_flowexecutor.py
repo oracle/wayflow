@@ -874,6 +874,7 @@ class FlowConversationExecutor(ConversationExecutor):
                     # better mechanism for the flow executor to know whether to yield for a user
                     # message or for a tool request
                     next_tool_request_message: Optional[Message] = conversation.get_last_message()
+
                     if (
                         next_tool_request_message is not None
                         and next_tool_request_message.message_type == MessageType.TOOL_REQUEST

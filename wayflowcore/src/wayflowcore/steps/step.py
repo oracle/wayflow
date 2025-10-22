@@ -828,6 +828,11 @@ class Step(ComponentWithInputsOutputs, SerializableObject, metaclass=_StepRegist
             internal_name = self.reversed_output_mapping.get(external_name, external_name)
             if internal_name in outputs:
                 output_with_external_names[external_name] = outputs[internal_name]
+
+        if (
+            "__execution_status__" in outputs
+        ):  # Workaround: If output mapping is specified, this key is removed from the Step Outputs.
+            output_with_external_names["__execution_status__"] = outputs["__execution_status__"]
         return output_with_external_names
 
     def _referenced_tools(self, recursive: bool = True) -> List["Tool"]:
