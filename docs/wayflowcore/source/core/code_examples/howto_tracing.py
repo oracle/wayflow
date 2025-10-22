@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.CRITICAL)
 import pprint
 from pathlib import Path
 from typing import List, Union
-
+import os
 from wayflowcore.tracing.span import Span
 from wayflowcore.tracing.spanexporter import SpanExporter
 
@@ -34,11 +34,11 @@ class FileSpanExporter(SpanExporter):
             filepath = Path(filepath)
         self.filepath: Path = filepath
 
-    def export(self, spans: List[Span]) -> None:
+    def export(self, spans: List[Span], mask_sensitive_information=True) -> None:
         with open(self.filepath, "a") as file:
             for span in spans:
                 print(
-                    pprint.pformat(span.to_tracing_info(), width=80, compact=True),
+                    pprint.pformat(span.to_tracing_info(mask_sensitive_information), width=80, compact=True),
                     file=file,
                 )
 
@@ -118,7 +118,7 @@ span_processor = SimpleSpanProcessor(
     span_exporter=FileSpanExporter(filepath="calculator_agent_traces.txt")
 )
 # .. end-##_Tracing_Basics
-span_processor.span_exporter.export = lambda *args, **kwargs: None  # docs-skiprow
+span_processor.span_exporter =  FileSpanExporter(filepath=os.path.join(os.path.dirname(os.path.abspath(__file__)), "calculator_agent_traces.txt"))  # docs-skiprow
 # .. start-##_Agent_Execution_With_Tracing
 from wayflowcore.tracing.span import ConversationSpan
 from wayflowcore.tracing.trace import Trace
