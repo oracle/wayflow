@@ -34,7 +34,7 @@ from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
-from wayflowcore.property import ObjectProperty, Property, _cast_value_into
+from wayflowcore.property import ObjectProperty, Property, _cast_value_into, _empty_default
 from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.tools import Tool
 
@@ -302,11 +302,37 @@ def _remap_input_to_io_value_keys_with_startstep(
     """
     new_data_flow_edges: List[DataFlowEdge] = []
     remapped_io_value_keys: Dict[str, List["_IoKeyType"]] = dict()
-    connected_input_names: Set[str] = set()
 
     for mapped_input_key, io_keys in input_mapping_to_io_value_keys.items():
         remapped_io_value_keys[mapped_input_key] = []
         for destination_step_name, original_step_input_name in io_keys:
+
+            # We check that if we have a step input that is not given in the start step,
+            # then we have a default value for it that we can use instead
+            source_step_output_names = {
+                descriptor.name for descriptor in steps[begin_step_name].output_descriptors
+            }
+            if mapped_input_key not in source_step_output_names:
+                destination_step_input = next(
+                    (
+                        descriptor
+                        for descriptor in steps[destination_step_name].input_descriptors
+                        if descriptor.name == original_step_input_name
+                    ),
+                    None,
+                )
+                if (
+                    destination_step_input is not None
+                    and destination_step_input.default_value is _empty_default
+                ):
+                    # No default given for the destination input, that's a problem
+                    raise ValueError(
+                        f"Step named `{destination_step_name}` requires an input called `{original_step_input_name}`, "
+                        f"but no input with that name was given to the flow. Please check your input descriptors, "
+                        f"or give it a default value."
+                    )
+                # We have a default, we can continue without adding the edge
+                continue
 
             remapped_io_value_keys[mapped_input_key].append((begin_step_name, mapped_input_key))
             new_data_flow_edges.append(
@@ -317,7 +343,6 @@ def _remap_input_to_io_value_keys_with_startstep(
                     destination_input=original_step_input_name,
                 )
             )
-            connected_input_names.add(original_step_input_name)
     return new_data_flow_edges, remapped_io_value_keys
 
 
@@ -691,6 +716,18 @@ class Flow(ConversationalComponent, SerializableObject):
             specified_descriptors=output_descriptors, default_descriptors=default_output_descriptors
         )
 
+        # Inputs and outputs might be a subset of all those generated, if they are specified by the user.
+        # We make sure that also descriptors dict contain only the inputs and outputs that are supposed to be
+        # exposed by this flow, so that they are aligned with descriptors lists
+        self.input_descriptors_dict = {
+            descriptor.name: self.input_descriptors_dict[descriptor.name]
+            for descriptor in input_descriptors
+        }
+        self.output_descriptors_dict = {
+            descriptor.name: self.output_descriptors_dict[descriptor.name]
+            for descriptor in output_descriptors
+        }
+
         from wayflowcore.executors._flowconversation import FlowConversation
 
         super().__init__(
@@ -1034,7 +1071,7 @@ class Flow(ConversationalComponent, SerializableObject):
         variable_store = {v.name: deepcopy(v.default_value) for v in self.variables}
 
         for input_key in inputs.keys():
-            if input_key not in self._input_mapping_to_io_value_keys:
+            if input_key not in self.input_descriptors_dict:
                 raise ValueError(
                     f"Input '{input_key}' passed to start conversation is not an expected input of the Flow"
                 )

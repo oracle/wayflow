@@ -14,6 +14,7 @@ from wayflowcore.executors.executionstatus import (
     ToolRequestStatus,
 )
 from wayflowcore.flow import Flow
+from wayflowcore.property import StringProperty
 from wayflowcore.steps import (
     BranchingStep,
     CompleteStep,
@@ -357,3 +358,50 @@ def test_execute_flow_on_wrong_conversation(remotely_hosted_llm):
     conv = flow_1.start_conversation()
     with pytest.raises(ValueError, match="You are trying to call"):
         flow_2.execute(conv)
+
+
+def test_subflow_with_subset_of_inputs_outputs_exposes_only_selected_inputs_and_outputs():
+    map_tool = ServerTool(
+        name="tool",
+        description="tool",
+        input_descriptors=[
+            StringProperty(name="input_a"),
+            StringProperty(name="input_b", default_value="hello"),
+        ],
+        output_descriptors=[StringProperty(name="output_a"), StringProperty(name="output_b")],
+        func=lambda input_a, input_b: {"output_a": input_a, "output_b": input_b},
+    )
+    tool_step = ToolExecutionStep(name="tool_node", tool=map_tool)
+    subflow = Flow(
+        name="flow",
+        begin_step=tool_step,
+        control_flow_edges=[ControlFlowEdge(source_step=tool_step, destination_step=None)],
+        input_descriptors=[StringProperty(name="input_a")],
+        output_descriptors=[StringProperty(name="output_a")],
+    )
+    subflow_step = FlowExecutionStep(name="subflow_node", flow=subflow)
+
+    assert len(subflow_step.input_descriptors) == 1
+    assert subflow_step.input_descriptors[0].name == "input_a"
+
+    assert len(subflow_step.output_descriptors) == 1
+    assert subflow_step.output_descriptors[0].name == "output_a"
+
+    flow = Flow.from_steps([subflow_step])
+
+    assert len(flow.input_descriptors) == 1
+    assert flow.input_descriptors[0].name == "input_a"
+    assert len(flow.input_descriptors_dict) == 1
+    assert "input_a" in flow.input_descriptors_dict
+
+    assert len(flow.output_descriptors) == 1
+    assert flow.output_descriptors[0].name == "output_a"
+    assert len(flow.output_descriptors_dict) == 1
+    assert "output_a" in flow.output_descriptors_dict
+
+    conversation = flow.start_conversation(inputs={"input_a": "a"})
+    state = conversation.execute()
+
+    assert isinstance(state, FinishedStatus)
+    assert len(state.output_values) == 1
+    assert state.output_values["output_a"] == "a"
