@@ -453,6 +453,39 @@ def flow_with_client_tool_execution() -> Flow:
     )
 
 
+@pytest.fixture
+def flow_with_client_tool_execution_with_confirmation() -> Flow:
+    addition_client_tool = ClientTool(
+        name="add_numbers",
+        description="Simply adds two numbers",
+        parameters={
+            "a": {
+                "description": "the first number",
+                "type": "integer",
+            },
+            "b": {
+                "description": "the second number",
+                "type": "integer",
+            },
+        },
+        requires_confirmation=True,
+    )
+
+    tool_execution_step = ToolExecutionStep(
+        tool=addition_client_tool,
+        output_mapping={ToolExecutionStep.TOOL_OUTPUT: "d"},
+        name="tool_execution_step",
+    )
+    output_message_step = OutputMessageStep(
+        message_template="{{a}}+{{b}}={{d}}",
+        input_descriptors=[IntegerProperty("a"), IntegerProperty("b")],
+        name="output_message_step",
+    )
+    return Flow.from_steps(
+        steps=[tool_execution_step, output_message_step],
+    )
+
+
 def test_tool_execution_step_can_return_tool_request_message(
     flow_with_client_tool_execution: Flow,
 ) -> None:
@@ -472,6 +505,69 @@ def test_tool_execution_step_can_return_tool_request_message(
     assert tool_request.name == "add_numbers"
     assert tool_request.args["a"] == 56
     assert tool_request.args["b"] == 34
+
+
+def test_tool_execution_step_can_return_tool_request_message_with_confirmation(
+    flow_with_client_tool_execution_with_confirmation: Flow,
+) -> None:
+    conversation = flow_with_client_tool_execution_with_confirmation.start_conversation(
+        inputs={"b": 34, "a": 56}
+    )
+    assistant = flow_with_client_tool_execution_with_confirmation
+    execution_status = assistant.execute(conversation)
+    assert isinstance(execution_status, ToolExecutionConfirmationStatus)
+    execution_status.confirm_tool_execution(tool_request=execution_status.tool_requests[0])
+    execution_status = assistant.execute(conversation)
+    assert isinstance(execution_status, ToolRequestStatus)
+    messages = conversation.get_messages()
+    assert len(messages) == 1
+    last_message: Message = messages[-1]
+    assert last_message.message_type == MessageType.TOOL_REQUEST
+    assert (
+        len(last_message.tool_requests) == 1
+    )  # Tool execution steps only execute one tool at a time
+    # TODO ensure messages carry only a single tool request
+    tool_request: ToolRequest = last_message.tool_requests[0]
+    assert tool_request.name == "add_numbers"
+    assert tool_request.args["a"] == 56
+    assert tool_request.args["b"] == 34
+
+
+def test_tool_execution_step_can_be_reinvoked_with_non_str_tool_result_with_confirmation(
+    flow_with_client_tool_execution: Flow,
+) -> None:
+
+    client_tool = ClientTool(
+        name="some_tool",
+        description="some_description",
+        parameters={"a": {"type": "number"}, "b": {"type": "array", "items": {"type": "boolean"}}},
+        output={"type": "object", "additionalProperties": {"type": "integer"}},
+        requires_confirmation=True,
+    )
+
+    step = ToolExecutionStep(tool=client_tool)
+    flow = create_single_step_flow(step)
+
+    conversation = flow.start_conversation(inputs={"a": 0.4, "b": [True, True, False]})
+
+    status = flow.execute(conversation)
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.confirm_tool_execution(tool_request=status.tool_requests[0])
+    status = flow.execute(conversation)
+    assert isinstance(status, ToolRequestStatus)
+    assert len(status.tool_requests) > 0
+    tool_call_id = status.tool_requests[0].tool_request_id
+
+    tool_result_message = Message(
+        tool_result=ToolResult(content={"e": 1, "f": 2}, tool_request_id=tool_call_id),
+        message_type=MessageType.TOOL_RESULT,
+    )
+    conversation.append_message(tool_result_message)
+
+    status = flow.execute(conversation)
+    assert isinstance(status, FinishedStatus)
+    assert ToolExecutionStep.TOOL_OUTPUT in status.output_values
+    assert status.output_values[ToolExecutionStep.TOOL_OUTPUT] == {"e": 1, "f": 2}
 
 
 def test_tool_execution_step_can_be_reinvoked_with_tool_result(
@@ -866,15 +962,25 @@ def test_tool_confirmation_status_is_returned_for_every_tool_step_with_tool_that
     assert status.output_values["tool_output"] == "another user"
 
 
-def test_tool_confirmation_raises_exceptions_in_flow_if_rejected() -> None:
-    name_func = lambda name: name
-    name_tool = ServerTool(
-        func=name_func,
-        name="name_tool",
-        description="Ask the user for some name",
-        parameters={"name": {"type": "string"}},
-        requires_confirmation=True,
-    )
+@pytest.mark.parametrize(
+    "name_tool",
+    [
+        ServerTool(
+            func=lambda name: name,
+            name="name_tool",
+            description="Ask the user for some name",
+            parameters={"name": {"type": "string"}},
+            requires_confirmation=True,
+        ),
+        ClientTool(
+            name="name_tool",
+            description="Ask the user for some name",
+            parameters={"name": {"type": "string"}},
+            requires_confirmation=True,
+        ),
+    ],
+)
+def test_tool_confirmation_raises_exceptions_in_flow_if_rejected(name_tool) -> None:
 
     with pytest.raises(
         ValueError,

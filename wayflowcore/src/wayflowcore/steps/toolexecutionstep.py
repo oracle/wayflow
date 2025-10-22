@@ -20,9 +20,9 @@ from wayflowcore.executors.executionstatus import ToolExecutionConfirmationStatu
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.property import Property
 from wayflowcore.steps.step import Step, StepExecutionStatus, StepResult
-from wayflowcore.tools import ClientTool, Tool, ToolRequest
+from wayflowcore.tools import ClientTool, ToolRequest
 from wayflowcore.tools.servertools import ServerTool, _convert_previously_supported_tool_if_needed
-from wayflowcore.tools.tools import TOOL_OUTPUT_NAME, ToolResult
+from wayflowcore.tools.tools import TOOL_OUTPUT_NAME, Tool, ToolResult
 from wayflowcore.tracing.span import ToolExecutionSpan
 
 if TYPE_CHECKING:
@@ -39,7 +39,9 @@ class ToolExecutionStep(Step):
     TOOL_OUTPUT = TOOL_OUTPUT_NAME
     """str: Output key for the result obtained from executing the tool."""
     TOOL_REQUEST_UUID = "tool_request_uuid"
-    """str: Output key for uuid of the tool request (useful when using ``ClientTool``)"""
+    """str: Output key for uuid of the tool request (useful when using ``ClientTool`` and tools with confirmation)"""
+    TOOL_REQUEST = "tool_request"
+    """str: ToolRequest for uuid of the tool request (useful when using tools requiring confirmation)"""
 
     def __init__(
         self,
@@ -151,13 +153,12 @@ class ToolExecutionStep(Step):
         conversation: "FlowConversation",
     ) -> StepResult:
         tool = self.tool
+        if tool.requires_confirmation:
+            return await self._handle_tool_with_confirmation(tool, conversation, inputs)
         if isinstance(tool, ClientTool):
             return self._handle_client_tool(tool, conversation, inputs)
         elif isinstance(tool, ServerTool):
-            if tool.requires_confirmation:
-                return await self._handle_server_tool_with_confirmation(tool, conversation, inputs)
-            else:
-                return await self._handle_server_tool(tool, conversation, inputs)
+            return await self._handle_server_tool(tool, conversation, inputs)
         else:
             raise ValueError(f"Unsupported tool type: {self.tool.__class__.__name__}")
 
@@ -243,18 +244,26 @@ class ToolExecutionStep(Step):
             )
         )
 
-    async def _handle_server_tool_with_confirmation(
+    async def _handle_tool_with_confirmation(
         self,
-        tool: ServerTool,
+        tool: Tool,
         conversation: "FlowConversation",
         inputs: Dict[str, Any],
     ) -> StepResult:
-        tool._bind_parent_conversation_if_applicable(conversation)
+        if isinstance(tool, ServerTool):
+            tool._bind_parent_conversation_if_applicable(conversation)
+        # The ToolExecutionStep uses an internal context to store a tool_request_uuid. This is
+        # helpful because it allows for the step to know whether it is invoked in order to create
+        # a TOOL_REQUEST message or whether it is invoked a second time in order to read the tool's
+        # output from a TOOL_RESULT message.
         tool_request_uuid = conversation._get_internal_context_value_for_step(
             self,
             ToolExecutionStep.TOOL_REQUEST_UUID,
         )
-        if tool_request_uuid is None:
+        tool_request = conversation._get_internal_context_value_for_step(
+            self, ToolExecutionStep.TOOL_REQUEST
+        )
+        if not tool_request_uuid and not tool_request:
             # initial call, we will ask the user
             tool_request_uuid = generate_tool_id()
             tool_request = ToolRequest(
@@ -263,10 +272,14 @@ class ToolExecutionStep(Step):
                 tool_request_id=tool_request_uuid,
             )
 
-            conversation._put_internal_context_key_value_for_step(
-                self, ToolExecutionStep.TOOL_REQUEST_UUID, tool_request
-            )
             tool_request._requires_confirmation = True
+
+            conversation._put_internal_context_key_value_for_step(
+                self, ToolExecutionStep.TOOL_REQUEST_UUID, tool_request_uuid
+            )
+            conversation._put_internal_context_key_value_for_step(
+                self, ToolExecutionStep.TOOL_REQUEST, tool_request
+            )
 
             record_event(
                 ToolConfirmationRequestStartEvent(
@@ -274,7 +287,6 @@ class ToolExecutionStep(Step):
                     tool_request=tool_request,
                 )
             )
-
             return StepResult(
                 outputs={
                     "__execution_status__": ToolExecutionConfirmationStatus(
@@ -284,10 +296,30 @@ class ToolExecutionStep(Step):
                 branch_name=self.BRANCH_SELF,
                 step_type=StepExecutionStatus.YIELDING,
             )
+        elif isinstance(tool, ClientTool) and tool_request_uuid and not tool_request:
+            tool_output = self._get_tool_output_from_tool_result_message(
+                conversation, tool_request_uuid
+            )
 
-        tool_request = conversation._get_internal_context_value_for_step(
-            self, ToolExecutionStep.TOOL_REQUEST_UUID
-        )
+            conversation._put_internal_context_key_value_for_step(
+                self, ToolExecutionStep.TOOL_REQUEST, None
+            )
+            record_event(
+                ToolExecutionResultEvent(
+                    tool=tool,
+                    tool_result=ToolResult(
+                        tool_request_id=tool_request_uuid,
+                        content=tool_output,
+                    ),
+                )
+            )
+            return StepResult(
+                outputs=self._convert_tool_output_into_output_dict(
+                    tool=tool,
+                    tool_output=tool_output,
+                )
+            )
+
         record_event(
             ToolConfirmationRequestEndEvent(
                 tool=tool,
@@ -295,7 +327,10 @@ class ToolExecutionStep(Step):
             )
         )
         if tool_request._tool_execution_confirmed is None:
-            raise ValueError("Tool Confirmation handled badly")
+            raise ValueError(
+                "Missing tool confirmation, "
+                "please make sure to either confirm or reject the tool execution before resuming the conversation."
+            )
         else:
             if not tool_request._tool_execution_confirmed:
                 if self.raise_exceptions:
@@ -308,7 +343,28 @@ class ToolExecutionStep(Step):
                     tool_output = _TOOL_REJECTION_REASON.format(
                         tool=tool, reason=tool_request._tool_rejection_reason
                     )
-            else:
+
+            elif isinstance(tool, ClientTool) and tool_request._tool_execution_confirmed:
+                conversation._put_internal_context_key_value_for_step(
+                    self, ToolExecutionStep.TOOL_REQUEST, None
+                )
+                conversation.append_message(
+                    Message(
+                        tool_requests=[tool_request],
+                        role="assistant",
+                    )
+                )
+                record_event(
+                    ToolExecutionStartEvent(
+                        tool=tool,
+                        tool_request=tool_request,
+                    )
+                )
+                return StepResult(
+                    outputs={}, branch_name=self.BRANCH_SELF, step_type=StepExecutionStatus.YIELDING
+                )
+
+            elif isinstance(tool, ServerTool) and tool_request._tool_execution_confirmed:
                 with ToolExecutionSpan(
                     tool=tool,
                     tool_request=tool_request,
@@ -317,16 +373,23 @@ class ToolExecutionStep(Step):
                     span.record_end_span_event(
                         output=tool_output,
                     )
+            else:
+                raise ValueError(
+                    "Internal Error: Tool with Confirmation is not a ServerTool or ClientTool"
+                )
 
         conversation._put_internal_context_key_value_for_step(
             self, ToolExecutionStep.TOOL_REQUEST_UUID, None
+        )
+        conversation._put_internal_context_key_value_for_step(
+            self, ToolExecutionStep.TOOL_REQUEST, None
         )
 
         return StepResult(
             outputs=self._convert_tool_output_into_output_dict(
                 tool=tool,
                 tool_output=tool_output,
-            ),
+            )
         )
 
     async def _handle_server_tool(
@@ -411,7 +474,7 @@ class ToolExecutionStep(Step):
                         tool_request_id=tool_request_uuid,
                     )
                 ],
-                role="user",
+                role="assistant",
             )
         )
 

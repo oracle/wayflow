@@ -107,6 +107,19 @@ GET_LOCATION_CLIENT_TOOL = ClientTool(
     },
 )
 
+GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION = ClientTool(
+    name="get_location",
+    description="Search the location of a given company",
+    parameters={
+        "company_name": {
+            "type": "string",
+            "description": "Name of the company to search the location for",
+            "default": "Oracle",
+        },
+    },
+    requires_confirmation=True,
+)
+
 GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION = ServerTool(
     name="get_location",
     description="Search the location of a given company",
@@ -143,6 +156,28 @@ DUMMY_AGENT_WITH_GET_LOCATION_TOOL = Agent(
         }
     ),
     tools=[GET_LOCATION_CLIENT_TOOL],
+)
+
+DUMMY_AGENT_WITH_GET_LOCATION_TOOL_WITH_CONFIRMATION = Agent(
+    agent_id="a123",
+    custom_instruction="Be polite",
+    llm=create_dummy_llm_with_next_output(
+        {
+            "Please use the tool": Message(
+                tool_requests=[
+                    ToolRequest(
+                        name=GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION.name,
+                        args={"company_name": "Oracle Labs"},
+                        tool_request_id="tool_request_id_1",
+                    )
+                ],
+                message_type=MessageType.TOOL_REQUEST,
+                sender="a123",
+                recipients={"a123"},
+            )
+        }
+    ),
+    tools=[GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION],
 )
 
 DUMMY_AGENT_WITH_SERVER_TOOL = Agent(

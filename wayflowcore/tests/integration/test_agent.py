@@ -603,6 +603,17 @@ def measure_room_temp_tool():
 
 
 @pytest.fixture
+def measure_room_temp_tool_with_confirmation():
+    tool = ClientTool(
+        name="measure_room_temp",
+        description="Return the value of the temperature in the room",
+        parameters={},
+        requires_confirmation=True,
+    )
+    return tool
+
+
+@pytest.fixture
 def dummy_check_name_in_db_tool():
     tool_func = lambda name: "This name is present in the database"
     tool = ServerTool(
@@ -645,6 +656,84 @@ def test_agent_can_call_client_tool_with_no_parameter(
         custom_instruction="You are a helpful agent that has access to some tools.",
     )
     run_test_agent_can_call_client_tool_with_no_parameter(agent)
+
+
+def run_test_agent_can_call_client_tool_with_confirmation_with_no_parameter(
+    assistant: Union[Flow, Agent],
+) -> None:
+    conversation = assistant.start_conversation()
+    conversation.append_user_message("What is the temperature in the room? Use your tool if needed")
+    execution_status = assistant.execute(conversation)
+    assert isinstance(execution_status, ToolExecutionConfirmationStatus)
+    execution_status.confirm_tool_execution(tool_request=execution_status.tool_requests[0])
+    execution_status = assistant.execute(conversation)
+    assert isinstance(execution_status, ToolRequestStatus)
+    assert len(execution_status.tool_requests) == 1
+    client_tool_request = execution_status.tool_requests[0]
+    assert client_tool_request.name == "measure_room_temp"
+    assert not client_tool_request.args  # because the tool has no arguments
+
+
+def run_test_agent_can_call_client_tool_with_rejection_with_no_parameter(
+    assistant: Union[Flow, Agent],
+) -> None:
+    conversation = assistant.start_conversation()
+    conversation.append_user_message("What is the temperature in the room? Use your tool if needed")
+    execution_status = assistant.execute(conversation)
+    assert isinstance(execution_status, ToolExecutionConfirmationStatus)
+    execution_status.reject_tool_execution(
+        tool_request=execution_status.tool_requests[0], reason="Simply Call the tool again"
+    )
+    execution_status = assistant.execute(conversation)
+    assert isinstance(execution_status, ToolExecutionConfirmationStatus)
+    execution_status.reject_tool_execution(
+        tool_request=execution_status.tool_requests[0],
+        reason="You can never access this tool. Do not call the tool again. DO NOT TRY AGAIN!",
+    )
+    execution_status = assistant.execute(conversation)
+    assert isinstance(execution_status, UserMessageRequestStatus)
+
+
+@retry_test(max_attempts=3)
+def test_agent_can_call_client_tool_with_confirmation_with_no_parameter(
+    remotely_hosted_llm: LlmModel,
+    measure_room_temp_tool_with_confirmation: ClientTool,
+) -> None:
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-10-20
+    Average success time:  0.57 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+    agent = Agent(
+        tools=[measure_room_temp_tool_with_confirmation],
+        llm=remotely_hosted_llm,
+        custom_instruction="You are a helpful agent that has access to some tools.",
+    )
+    run_test_agent_can_call_client_tool_with_confirmation_with_no_parameter(agent)
+
+
+@retry_test(max_attempts=3)
+def test_agent_can_call_client_tool_with_rejection_with_no_parameter(
+    remotely_hosted_llm: LlmModel,
+    measure_room_temp_tool_with_confirmation: ClientTool,
+) -> None:
+    """
+    Failure rate:          2 out of 50
+    Observed on:           2025-10-20
+    Average success time:  1.93 seconds per successful attempt
+    Average failure time:  1.16 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
+    """
+    agent = Agent(
+        tools=[measure_room_temp_tool_with_confirmation],
+        llm=remotely_hosted_llm,
+        custom_instruction="You are a helpful agent that has access to some tools.",
+    )
+    run_test_agent_can_call_client_tool_with_rejection_with_no_parameter(agent)
 
 
 @pytest.fixture
@@ -772,7 +861,11 @@ def test_server_tool_raises_error_when_not_confirmed(agent_with_db_tool: Agent) 
     )
     execution_status = agent_with_db_tool.execute(conversation)
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
-    with pytest.raises(ValueError, match="Tool Confirmation handled badly"):
+    with pytest.raises(
+        ValueError,
+        match="Missing tool confirmation, "
+        "please make sure to either confirm or reject the tool execution before resuming the conversation.",
+    ):
         execution_status = agent_with_db_tool.execute(conversation)
 
 

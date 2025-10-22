@@ -26,7 +26,7 @@ How to Add User Confirmation to Tool Call Requests
 WayFlow :ref:`Agents <agent>` can be equipped with :doc:`Tools <../api/tools>` to enhance their capabilities.
 However, end users may want to confirm or deny tool call requests emitted from the agent.
 
-This guide shows you how to achieve this with the :ref:`ServerTool <servertool>`.
+This guide shows you how to achieve this with the :ref:`ServerTool <servertool>`. You can also do this using a :ref:`ClientTool <clienttool>`
 
 
 Basic implementation
@@ -57,7 +57,7 @@ Creating the tools
 ------------------
 
 Sometimes you will want to ask for user confirmation before executing certain tools. You can do this by using a :ref:`ServerTool <servertool>` with the flag ``requires_confirmation`` set to ``True``. This will raise a ``ToolExecutionConfirmationStatus``
-whenever the ``Agent`` tries to execute the tool. We set the multiply_numbers tool to not require confirmation to highlight the differences.
+whenever the ``Agent`` tries to execute the tool. We set the multiply_numbers tool to not require confirmation to highlight the differences. Note that the ``requires_confirmation`` flag can be used for any WayFlow tool.
 
 .. literalinclude:: ../code_examples/howto_userconfirmation.py
     :language: python

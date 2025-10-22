@@ -22,7 +22,9 @@ from wayflowcore.tools.tools import ToolRequest
 
 from ..testhelpers.dummy import DummyModel
 from .conftest import (
+    DUMMY_AGENT_WITH_GET_LOCATION_TOOL_WITH_CONFIRMATION,
     DUMMY_AGENT_WITH_SERVER_TOOL,
+    GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION,
     GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION,
     create_dummy_llm_with_next_output,
 )
@@ -79,17 +81,6 @@ def test_correct_event_serialization_to_tracing_format(
             assert getattr(event, attribute_name) == serialized_event[attribute_name]
 
 
-def test_event_is_triggered_on_tool_call_with_tool_execution_step():
-    event_listener = ToolConfirmationRequestStartEventListener()
-    with register_event_listeners([event_listener]):
-        run_single_step(
-            step=ToolExecutionStep(tool=GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION),
-            inputs={"company_name": "Oracle Labs"},
-        )
-    assert len(event_listener.triggered_events) == 1
-    assert isinstance(event_listener.triggered_events[0], ToolConfirmationRequestStartEvent)
-
-
 @pytest.mark.parametrize(
     "agent, user_messages",
     [
@@ -99,6 +90,42 @@ def test_event_is_triggered_on_tool_call_with_tool_execution_step():
         ),
         (
             DUMMY_AGENT_WITH_SERVER_TOOL,
+            ["Please use the tool"],
+        ),
+        (
+            DUMMY_AGENT_WITH_GET_LOCATION_TOOL_WITH_CONFIRMATION,
+            ["Please use the tool"],
+        ),
+        (
+            Agent(
+                agent_id="a123",
+                custom_instruction="Be polite",
+                llm=create_dummy_llm_with_next_output(
+                    {
+                        "Please use the tool": Message(
+                            tool_requests=[
+                                ToolRequest(
+                                    name=GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION.name,
+                                    args={"company_name": "Oracle Labs"},
+                                    tool_request_id="tool_request_id_1",
+                                )
+                            ],
+                            message_type=MessageType.TOOL_REQUEST,
+                            sender="a123",
+                            recipients={"a123"},
+                        )
+                    },
+                ),
+                flows=[
+                    DescribedFlow(
+                        flow=create_single_step_flow(
+                            step=ToolExecutionStep(tool=GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION)
+                        ),
+                        name=GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION.name,
+                        description=GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION.description,
+                    )
+                ],
+            ),
             ["Please use the tool"],
         ),
         (
@@ -152,12 +179,28 @@ def test_event_is_triggered_with_agent(
         assert isinstance(event_listener.triggered_events[-1], ToolConfirmationRequestStartEvent)
 
 
-def test_event_is_triggered_on_tool_call_with_flow():
+@pytest.mark.parametrize(
+    "location_tool",
+    [GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION, GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION],
+)
+def test_event_is_triggered_on_tool_call_with_flow(location_tool):
     event_listener = ToolConfirmationRequestStartEventListener()
     flow = create_single_step_flow(
-        step=ToolExecutionStep(tool=GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION),
+        step=ToolExecutionStep(tool=location_tool),
     )
     with register_event_listeners([event_listener]):
         _run_flow_and_return_status(flow)
+    assert len(event_listener.triggered_events) == 1
+    assert isinstance(event_listener.triggered_events[0], ToolConfirmationRequestStartEvent)
+
+
+@pytest.mark.parametrize(
+    "location_tool",
+    [GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION, GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION],
+)
+def test_event_is_triggered_on_tool_call_with_tool_execution_step(location_tool):
+    event_listener = ToolConfirmationRequestStartEventListener()
+    with register_event_listeners([event_listener]):
+        run_single_step(step=ToolExecutionStep(tool=location_tool))
     assert len(event_listener.triggered_events) == 1
     assert isinstance(event_listener.triggered_events[0], ToolConfirmationRequestStartEvent)

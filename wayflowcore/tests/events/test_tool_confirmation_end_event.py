@@ -23,7 +23,11 @@ from wayflowcore.tools import DescribedFlow
 from wayflowcore.tools.tools import ToolRequest
 
 from ..testhelpers.dummy import DummyModel
-from .conftest import GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION, create_dummy_llm_with_next_output
+from .conftest import (
+    GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION,
+    GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION,
+    create_dummy_llm_with_next_output,
+)
 from .event_listeners import ToolConfirmationRequestEndEventListener
 
 
@@ -77,10 +81,14 @@ def test_correct_event_serialization_to_tracing_format(
             assert getattr(event, attribute_name) == serialized_event[attribute_name]
 
 
-def test_event_is_not_triggered_after_server_tool_call_with_tool_execution_step():
+@pytest.mark.parametrize(
+    "location_tool",
+    [GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION, GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION],
+)
+def test_event_is_not_triggered_after_server_tool_call_with_tool_execution_step(location_tool):
     event_listener = ToolConfirmationRequestEndEventListener()
     with register_event_listeners([event_listener]):
-        run_single_step(step=ToolExecutionStep(tool=GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION))
+        run_single_step(step=ToolExecutionStep(tool=location_tool))
 
     # The step yields if it's a client tool
     assert len(event_listener.triggered_events) == 0
@@ -117,6 +125,33 @@ def test_event_is_not_triggered_after_server_tool_call_with_tool_execution_step(
                     },
                 ),
                 tools=[GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION],
+            ),
+            ["Please use the tool"],
+        ),
+        (
+            Agent(
+                agent_id="a123",
+                custom_instruction="Be polite",
+                llm=create_dummy_llm_with_next_output(
+                    {
+                        "Please use the tool": Message(
+                            tool_requests=[
+                                ToolRequest(
+                                    name=GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION.name,
+                                    args={"company_name": "Oracle Labs"},
+                                    tool_request_id="tool_request_id_1",
+                                )
+                            ],
+                            message_type=MessageType.TOOL_REQUEST,
+                            sender="a123",
+                            recipients={"a123"},
+                        ),
+                        "Oracle Labs": Message(
+                            content="You are in Oracle Labs", message_type=MessageType.AGENT
+                        ),
+                    },
+                ),
+                tools=[GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION],
             ),
             ["Please use the tool"],
         ),
@@ -183,6 +218,41 @@ def test_event_is_triggered_with_agent(
             ),
             ["Please use the tool"],
         ),
+        (
+            Agent(
+                agent_id="a123",
+                custom_instruction="Be polite",
+                llm=create_dummy_llm_with_next_output(
+                    {
+                        "Please use the tool": Message(
+                            tool_requests=[
+                                ToolRequest(
+                                    name=GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION.name,
+                                    args={"company_name": "Oracle Labs"},
+                                    tool_request_id="tool_request_id_1",
+                                )
+                            ],
+                            message_type=MessageType.TOOL_REQUEST,
+                            sender="a123",
+                            recipients={"a123"},
+                        ),
+                        "Oracle Labs": Message(
+                            content="You are in Oracle Labs", message_type=MessageType.AGENT
+                        ),
+                    },
+                ),
+                flows=[
+                    DescribedFlow(
+                        flow=create_single_step_flow(
+                            step=ToolExecutionStep(tool=GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION),
+                        ),
+                        name=GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION.name,
+                        description=GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION.description,
+                    )
+                ],
+            ),
+            ["Please use the tool"],
+        ),
     ],
 )
 def test_event_is_triggered_with_agent_and_flow(
@@ -211,13 +281,15 @@ def test_event_is_triggered_with_agent_and_flow(
         assert isinstance(event_listener.triggered_events[-1], ToolConfirmationRequestEndEvent)
 
 
-def test_event_is_triggered_after_confirming_server_tool_call_with_flow():
+@pytest.mark.parametrize(
+    "location_tool",
+    [GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION, GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION],
+)
+def test_event_is_triggered_after_confirming_tool_call_with_flow(location_tool):
     event_listener_1 = ToolConfirmationRequestEndEventListener()
     event_listener_2 = ToolConfirmationRequestEndEventListener()
     flow = create_single_step_flow(
-        step=ToolExecutionStep(
-            tool=GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION, raise_exceptions=False
-        ),
+        step=ToolExecutionStep(tool=location_tool, raise_exceptions=False),
     )
     with register_event_listeners([event_listener_1]):
         conv = flow.start_conversation({}, messages=None)
@@ -238,10 +310,14 @@ def test_event_is_triggered_after_confirming_server_tool_call_with_flow():
     assert isinstance(event_listener_2.triggered_events[-1], ToolConfirmationRequestEndEvent)
 
 
-def test_event_is_not_triggered_after_first_server_tool_call_with_flow():
+@pytest.mark.parametrize(
+    "location_tool",
+    [GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION, GET_LOCATION_CLIENT_TOOL_WITH_CONFIRMATION],
+)
+def test_event_is_not_triggered_after_first_server_tool_call_with_flow(location_tool):
     event_listener = ToolConfirmationRequestEndEventListener()
     flow = create_single_step_flow(
-        step=ToolExecutionStep(tool=GET_LOCATION_SERVER_TOOL_WITH_CONFIRMATION),
+        step=ToolExecutionStep(tool=location_tool),
     )
     with register_event_listeners([event_listener]):
         status = _run_flow_and_return_status(flow)

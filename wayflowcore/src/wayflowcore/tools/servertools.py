@@ -179,10 +179,10 @@ class ServerTool(Tool):
         output_descriptors: Optional[List[Property]] = None,
         parameters: Optional[Dict[str, JsonSchemaParam]] = None,
         output: Optional[JsonSchemaParam] = None,
+        requires_confirmation: bool = False,
         id: Optional[str] = None,
         _cpu_bounded: bool = False,
         __metadata_info__: Optional[MetadataType] = None,
-        requires_confirmation: bool = False,
     ):
         # _cpu_bounded:
         #   Whether the tool can be ran in a separate process (for cpu-bound
@@ -200,9 +200,9 @@ class ServerTool(Tool):
             output_descriptors=output_descriptors,
             parameters=parameters,
             output=output,
+            requires_confirmation=requires_confirmation,
             id=id,
             __metadata_info__=__metadata_info__,
-            requires_confirmation=requires_confirmation,
         )
 
     async def run_async(self, *args: Any, **kwargs: Any) -> Any:
