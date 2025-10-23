@@ -636,7 +636,7 @@ def test_flow_has_steps_with_conflicting_input_names_works():
     output_1_step = OutputMessageStep("{{input_1}}")
     output_2_step = OutputMessageStep("{{input_1}}")
     flow = Flow(
-        begin_step_name="step1",
+        begin_step=output_1_step,
         steps={
             "step1": output_1_step,
             "step2": output_2_step,

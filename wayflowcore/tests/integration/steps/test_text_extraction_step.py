@@ -92,7 +92,7 @@ def test_extract_value_from_json_step(llm_txt: str, expected_message: str) -> No
     )
 
     conversation: Conversation = assistant.start_conversation({})
-    assistant.execute(conversation)
+    conversation.execute()
 
     assert conversation.get_last_message().content == expected_message
 
@@ -139,7 +139,7 @@ def run_json_extraction_with_assistant(
         ]
     )
     conversation: Conversation = assistant.start_conversation({})
-    assistant.execute(conversation)
+    conversation.execute()
 
 
 def test_optional_output_in_extract_value_from_json_step() -> None:
@@ -156,7 +156,7 @@ def test_optional_output_in_extract_value_from_json_step() -> None:
     )
 
     conversation: Conversation = assistant.start_conversation({})
-    assistant.execute(conversation)
+    conversation.execute()
 
 
 @pytest.mark.parametrize(
@@ -180,7 +180,7 @@ def test_regex_text_extraction_step(llm_txt: str, pattern: str, expected_message
     )
 
     conversation: Conversation = assistant.start_conversation({})
-    assistant.execute(conversation)
+    conversation.execute()
 
     assert conversation.get_last_message().content == expected_message
 
@@ -223,7 +223,7 @@ def test_extract_from_json_step_matches_first_json(llm_txt: str) -> None:
     )
 
     conversation: Conversation = assistant.start_conversation({})
-    assistant.execute(conversation)
+    conversation.execute()
 
     assert conversation.get_last_message().content == "real_value"
 
@@ -266,7 +266,7 @@ Action:
     )
 
     conversation: Conversation = assistant.start_conversation({})
-    assistant.execute(conversation)
+    conversation.execute()
 
     assert (
         conversation.get_last_message().content
@@ -304,7 +304,7 @@ def test_list_extraction_from_json() -> None:
     )
 
     conversation: Conversation = assistant.start_conversation({})
-    assistant.execute(conversation)
+    conversation.execute()
 
     assert conversation.get_last_message().content == """step1step2step3step4"""
 
@@ -326,7 +326,7 @@ def run_regex_extraction(
     )
 
     conversation: Conversation = assistant.start_conversation({})
-    assistant.execute(conversation)
+    conversation.execute()
     assert conversation.get_last_message().content == expected_output
 
 

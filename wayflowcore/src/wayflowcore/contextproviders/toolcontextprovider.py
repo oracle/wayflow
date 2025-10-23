@@ -63,13 +63,12 @@ class ToolContextProvider(ContextProvider):
         ... )
         >>>
         >>> context_provider = ToolContextProvider(tool=tool, output_name="time_output_io")
+        >>> display_first_step_time = OutputMessageStep(message_template="{{ time_output_io }}")
         >>>
         >>> flow = Flow(
-        ...     begin_step_name="display_first_step_time",
+        ...     begin_step=display_first_step_time,
         ...     steps={
-        ...         "display_first_step_time": OutputMessageStep(
-        ...             message_template="{{ time_output_io }}",
-        ...         ),
+        ...         "display_first_step_time": display_first_step_time,
         ...         "display_second_step_time": OutputMessageStep(
         ...             message_template="{{ time_output_io }}",
         ...         ),

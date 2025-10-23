@@ -161,17 +161,18 @@ class ChoiceSelectionStep(Step):
         >>> OUTPUT_STEP1 = "OUTPUT1"
         >>> OUTPUT_STEP2 = "OUTPUT2"
         >>> CHOICE_SELECTION_IO = "$choice_selection"
+        >>> choice_selection_step = ChoiceSelectionStep(
+        ...         llm=llm,
+        ...         next_steps=[
+        ...             (OUTPUT_STEP1, "The access is denied", "is_access_denied"),
+        ...             (OUTPUT_STEP2, "The access is granted", "is_access_granted"),
+        ...         ],
+        ...         input_mapping={ChoiceSelectionStep.INPUT: CHOICE_SELECTION_IO},
+        ...     )
         >>> assistant = Flow(
-        ...     begin_step_name=CHOICE_SELECTION_STEP,
+        ...     begin_step=choice_selection_step,
         ...     steps={
-        ...         CHOICE_SELECTION_STEP: ChoiceSelectionStep(
-        ...             llm=llm,
-        ...             next_steps=[
-        ...                 (OUTPUT_STEP1, "The access is denied", "is_access_denied"),
-        ...                 (OUTPUT_STEP2, "The access is granted", "is_access_granted"),
-        ...             ],
-        ...             input_mapping={ChoiceSelectionStep.INPUT: CHOICE_SELECTION_IO},
-        ...         ),
+        ...         CHOICE_SELECTION_STEP: choice_selection_step,
         ...         OUTPUT_STEP1: OutputMessageStep("Access denied. Please exit the conversation."),
         ...         OUTPUT_STEP2: OutputMessageStep("Access granted. Press any key to continue..."),
         ...     },

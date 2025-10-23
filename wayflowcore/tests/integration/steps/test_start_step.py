@@ -82,14 +82,14 @@ def test_inputs_are_passed_correctly_when_start_step_has_io_mapping():
     ]
     flow = Flow(
         steps=steps,
-        begin_step_name="start_step",
+        begin_step=steps["start_step"],
         control_flow_edges=control_flow_edges,
     )
     assert len(flow.input_descriptors_dict) == 1
     assert "i1" in flow.input_descriptors_dict
 
     conversation = flow.start_conversation({"i1": "This is the output message!"})
-    status = flow.execute(conversation=conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     assert conversation.get_last_message().content == "This is the output message!"
 
@@ -118,7 +118,7 @@ def test_inputs_are_passed_correctly_when_start_step_has_io_mapping_with_data_ed
     ]
     flow = Flow(
         steps=steps,
-        begin_step_name="start_step",
+        begin_step=steps["start_step"],
         control_flow_edges=control_flow_edges,
         data_flow_edges=data_flow_edges,
     )
@@ -126,7 +126,7 @@ def test_inputs_are_passed_correctly_when_start_step_has_io_mapping_with_data_ed
     assert "i1" in flow.input_descriptors_dict
 
     conversation = flow.start_conversation({"i1": "This is the output message!"})
-    status = flow.execute(conversation=conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     assert conversation.get_last_message().content == "This is the output message!"
 
@@ -162,7 +162,7 @@ def test_start_step_works_with_default_input():
     assert len(flow.input_descriptors_dict) == 2
     assert all(input_ in flow.input_descriptors_dict for input_ in ("i1", "i3"))
     conversation = flow.start_conversation({"i1": "input value 1", "i3": "input value 3"})
-    status = flow.execute(conversation=conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
 
 
@@ -188,7 +188,7 @@ def test_flow_with_control_flow_edge_destination_connected_to_start_steps_raises
         start_step = StartStep()
         io_step = _InputOutputSpecifiedStep(inputs=["i1"], outputs=["o1"])
         _ = Flow(
-            begin_step_name="start_step",
+            begin_step=start_step,
             steps={
                 "start_step": start_step,
                 "io_step": io_step,

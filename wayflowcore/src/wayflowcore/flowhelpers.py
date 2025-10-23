@@ -214,7 +214,7 @@ def _run_flow_and_return_status(
     flow: Flow, inputs: Optional[Dict[str, Any]] = None, messages: Optional[List[Message]] = None
 ) -> ExecutionStatus:
     conv = flow.start_conversation(inputs or {}, messages=messages)
-    return flow.execute(conv)
+    return conv.execute()
 
 
 def _run_flow_and_return_conversation_and_status(

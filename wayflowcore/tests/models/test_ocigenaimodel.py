@@ -167,7 +167,7 @@ def test_ocigenai_model_throws_exception_when_wrongly_configured(
         match="Instance principals authentication can only be used on OCI compute instances",
     ):
         conversation = flow_with_oci_cohere.start_conversation()
-        flow_with_oci_cohere.execute(conversation)
+        conversation.execute()
 
 
 def test_cohere_warning_on_max_tokens():

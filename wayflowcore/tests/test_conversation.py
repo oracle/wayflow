@@ -94,9 +94,9 @@ def _assert_expected_flow_messages(messages: List[Message]):
 
 def test_flow_execute_produces_expected_messages(flow: Flow):
     conv = flow.start_conversation()
-    flow.execute(conv)
+    conv.execute()
     conv.append_user_message(USER_MSG)
-    flow.execute(conv)
+    conv.execute()
     _assert_expected_flow_messages(conv.get_messages())
 
 
@@ -112,9 +112,9 @@ def test_agent_execute_produces_expected_messages(agent: Agent):
     conv = agent.start_conversation()
     conv.append_user_message(USER_MSG_1)
 
-    agent.execute(conv)
+    conv.execute()
     conv.append_user_message(USER_MSG_2)
-    agent.execute(conv)
+    conv.execute()
     _assert_expected_agent_messages(conv.get_messages())
 
 
@@ -132,9 +132,9 @@ def test_swarm_execute_produces_expected_messages(swarm: Swarm):
     conv = swarm.start_conversation()
     conv.append_user_message(USER_MSG_1)
 
-    swarm.execute(conv)
+    conv.execute()
     conv.append_user_message(USER_MSG_2)
-    swarm.execute(conv)
+    conv.execute()
     _assert_expected_agent_messages(conv.get_messages())
 
 

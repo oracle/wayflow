@@ -10,13 +10,7 @@ from unittest.mock import Mock
 import pytest
 
 from wayflowcore.agent import Agent
-from wayflowcore.contextproviders import (
-    ChatHistoryContextProvider,
-    ContextProvider,
-    FlowContextProvider,
-    ToolContextProvider,
-    get_default_context_providers,
-)
+from wayflowcore.contextproviders import ContextProvider, FlowContextProvider, ToolContextProvider
 from wayflowcore.contextproviders.constantcontextprovider import ConstantContextProvider
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.executors._flowexecutor import FlowConversationExecutionState
@@ -25,7 +19,12 @@ from wayflowcore.flowhelpers import create_single_step_flow, run_single_step
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import Property, StringProperty
-from wayflowcore.steps import FlowExecutionStep, OutputMessageStep, RegexExtractionStep
+from wayflowcore.steps import (
+    FlowExecutionStep,
+    GetChatHistoryStep,
+    OutputMessageStep,
+    RegexExtractionStep,
+)
 from wayflowcore.tools import ServerTool
 
 from .testhelpers.dummy import SleepStep
@@ -41,7 +40,7 @@ def run_single_output_message_step_with_context(
         OutputMessageStep(message_template=template), context_providers=context_providers
     )
     conv = flow.start_conversation(inputs=inputs)
-    flow.execute(conv)
+    conv.execute()
     return conv.get_last_message().content
 
 
@@ -119,7 +118,7 @@ def run_single_output_message_step_with_context_within_subflow(
     )
     flow = create_single_step_flow(sub_flow_step, context_providers=top_flow_context_providers)
     conv = flow.start_conversation()
-    flow.execute(conv)
+    conv.execute()
     return conv.get_last_message().content
 
 
@@ -199,10 +198,13 @@ def test_load_history_returns_expected_result(
         messages=messages,
         user_input=user_input,
         context_providers=[
-            ChatHistoryContextProvider(
-                n=max_count,
-                output_name="history",
-            )
+            FlowContextProvider(
+                create_single_step_flow(
+                    GetChatHistoryStep(
+                        n=max_count, output_mapping={GetChatHistoryStep.CHAT_HISTORY: "history"}
+                    )
+                )
+            ),
         ],
     )
     assert isinstance(conversation.state, FlowConversationExecutionState)
@@ -226,11 +228,15 @@ def test_load_history_can_offset_messages(offset: int, expected_history: str) ->
         messages=[Message(f"Message Idx {idx}", MessageType.AGENT) for idx in range(100)],
         user_input="Message Idx 100",
         context_providers=[
-            ChatHistoryContextProvider(
-                n=3,
-                offset=offset,
-                output_name="history",
-            )
+            FlowContextProvider(
+                create_single_step_flow(
+                    GetChatHistoryStep(
+                        n=3,
+                        offset=offset,
+                        output_mapping={GetChatHistoryStep.CHAT_HISTORY: "history"},
+                    )
+                )
+            ),
         ],
     )
     assert isinstance(conversation.state, FlowConversationExecutionState)
@@ -250,7 +256,7 @@ def run_two_output_message_step_with_context(
     )
 
     conv = flow.start_conversation()
-    flow.execute(conv)
+    conv.execute()
     return conv.get_last_message().content
 
 
@@ -326,14 +332,6 @@ def test_instantiating_flow_with_outputs_and_context_collisions_raises() -> None
                 )
             ],
         )
-
-
-def test_can_compute_default_context_providers() -> None:
-    default_cp = get_default_context_providers()
-    assert isinstance(default_cp, dict)
-    assert len(default_cp) > 0
-    assert all(callable(cp) for cp in default_cp.values())
-    assert all(isinstance(vd, Property) for vd in default_cp.keys())
 
 
 def test_context_provider_output_description_names_collision_when_init_flow() -> None:
@@ -429,7 +427,7 @@ def test_flow_with_flow_context_provider_with_one_output_correctly_executes(
     )
 
     conversation = flow.start_conversation()
-    outputs = flow.execute(conversation)
+    outputs = conversation.execute()
     assert isinstance(outputs, FinishedStatus)
 
     assert outputs.output_values["$display_io"] == "Context Time: The current time is 2pm."
@@ -456,16 +454,14 @@ def test_flexassistant_with_flow_context_provider_can_execute(
         initial_message=None,
     )
     conversation = assistant.start_conversation()
-    assistant.execute(conversation)
+    conversation.execute()
 
     assert "April" in conversation.get_last_message().content
 
 
 @retry_test(max_attempts=2, wait_between_tries=0)
-@pytest.mark.parametrize("context_provider_type", ["short_history", "full_history"])
-def test_flexassistant_with_builtin_context_provider_can_execute(
+def test_flexassistant_with_chat_history_context_provider_can_execute(
     remotely_hosted_llm: VllmModel,
-    context_provider_type: str,
 ) -> None:
     """
     Failure rate:          0 out of 100
@@ -476,24 +472,17 @@ def test_flexassistant_with_builtin_context_provider_can_execute(
     Justification:         (0.01 ** 2) ~= 9.6 / 100'000
     """
 
-    context_providers = {
-        value_desc.name: context_prov
-        for value_desc, context_prov in get_default_context_providers().items()
-    }
-    context_provider = context_providers[context_provider_type]
+    context_provider = FlowContextProvider(create_single_step_flow(GetChatHistoryStep()))
     assistant = Agent(
         llm=remotely_hosted_llm,
-        custom_instruction=f"When asked, repeat the following secret word: {{% if 'Task' in {context_provider_type} %}}Task{{% else %}}Banana{{% endif %}}",
+        custom_instruction=f"When asked, repeat the following secret word: Banana",
         context_providers=[context_provider],
     )
     conversation = assistant.start_conversation()
     conversation.append_user_message("What is the secret word?")
-    assistant.execute(conversation)
+    conversation.execute()
     last_message = conversation.get_last_message().content
-    if "history" in context_provider_type:
-        assert "Banana" in last_message
-    else:
-        assert "Task" in last_message
+    assert "Banana" in last_message
 
 
 def test_tool_context_provider_correctly_executes() -> None:
@@ -531,7 +520,7 @@ def test_tool_context_provider_correctly_executes() -> None:
 
     before_time = time()
     conversation = flow.start_conversation()
-    flow.execute(conversation)
+    conversation.execute()
     after_time = time()
     messages = conversation.get_messages()
     assert before_time < float(messages[-2].content) < float(messages[-1].content) < after_time

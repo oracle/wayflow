@@ -122,7 +122,7 @@ def make_update_globals(test_globs: Dict[str, Any], pytest_request):
 @pytest.mark.parametrize(
     "file_path", get_all_code_examples_files(), ids=get_all_code_examples_files()
 )
-def test_code_examples_in_docs_can_be_successfully_ran(
+def test_code_examples_in_docs_can_be_successfully_run(
     file_path: str,
     tmp_path: str,
     remotely_hosted_llm,

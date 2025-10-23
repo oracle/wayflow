@@ -138,10 +138,10 @@ def test_event_is_triggered_with_agent(
     conversation = agent.start_conversation()
 
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
     assert len(event_listener.triggered_events) == len(user_messages)
     if len(user_messages) > 0:
         assert isinstance(event_listener.triggered_events[-1], ToolExecutionStartEvent)

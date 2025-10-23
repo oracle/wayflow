@@ -36,7 +36,7 @@ poem_generation_step = PromptExecutionStep(
     llm=llm, prompt_template="Write a 12 lines poem about the following topic: {{ topic }}"
 )
 poem_generation_flow = Flow(
-    begin_step_name="start_step",
+    begin_step=start_step,
     steps={"start_step": start_step, "poem_generation_step": poem_generation_step},
     control_flow_edges=[
         ControlFlowEdge(source_step=start_step, destination_step=poem_generation_step),

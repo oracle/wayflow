@@ -49,19 +49,19 @@ class DataFlowEdge(FrozenDataclassComponent):
     >>> from wayflowcore.flow import Flow
     >>> from wayflowcore.steps import OutputMessageStep
     >>>
-    >>> FAKE_PROCESSING_STEP = "processing_step"
+    >>> MOCK_PROCESSING_STEP = "processing_step"
     >>> OUTPUT_STEP = "output_step"
-    >>> fake_processing_step = OutputMessageStep("Successfully processed username {{username}}")
+    >>> mock_processing_step = OutputMessageStep("Successfully processed username {{username}}")
     >>> output_step = OutputMessageStep('{{session_id}}: Received message "{{processing_message}}"')
     >>> flow = Flow(
-    ...     begin_step_name=FAKE_PROCESSING_STEP,
+    ...     begin_step=mock_processing_step,
     ...     steps={
-    ...         FAKE_PROCESSING_STEP: fake_processing_step,
+    ...         MOCK_PROCESSING_STEP: mock_processing_step,
     ...         OUTPUT_STEP: output_step,
     ...     },
-    ...     transitions={FAKE_PROCESSING_STEP: [OUTPUT_STEP], OUTPUT_STEP: [None]},
+    ...     transitions={MOCK_PROCESSING_STEP: [OUTPUT_STEP], OUTPUT_STEP: [None]},
     ...     data_flow_edges=[
-    ...         DataFlowEdge(fake_processing_step, OutputMessageStep.OUTPUT, output_step, "processing_message")
+    ...         DataFlowEdge(mock_processing_step, OutputMessageStep.OUTPUT, output_step, "processing_message")
     ...     ]
     ... )
     >>> conversation = flow.start_conversation(inputs={

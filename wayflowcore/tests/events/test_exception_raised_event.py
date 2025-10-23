@@ -123,7 +123,7 @@ def test_event_is_not_triggered_with_tool_execution_raises_exception_false(
     conversation = flow.start_conversation()
 
     with register_event_listeners([event_listener]):
-        flow.execute(conversation)
+        conversation.execute()
 
     assert len(event_listener.triggered_events) == 0
 
@@ -159,7 +159,7 @@ def test_event_is_triggered_with_tool_execution_and_reraises(
 
     with pytest.raises(Exception):
         with register_event_listeners([event_listener]):
-            flow.execute(conversation)
+            conversation.execute()
 
     assert len(event_listener.triggered_events) == 1
     assert isinstance(event_listener.triggered_events[0], ExceptionRaisedEvent)
@@ -229,10 +229,10 @@ def test_event_is_triggered_with_agent_using_flow(
 
     with pytest.raises(Exception):
         with register_event_listeners([event_listener]):
-            agent.execute(conversation)
+            conversation.execute()
             for user_message in user_messages:
                 conversation.append_user_message(user_message)
-                agent.execute(conversation)
+                conversation.execute()
 
     assert len(event_listener.triggered_events) == 1
     assert isinstance(event_listener.triggered_events[0], ExceptionRaisedEvent)
@@ -292,7 +292,7 @@ def test_event_is_triggered_only_once(
 
     with pytest.raises(Exception):
         with register_event_listeners([event_listener]):
-            flow.execute(conversation)
+            conversation.execute()
 
     assert len(event_listener.triggered_events) == 1
     assert all(isinstance(event, ExceptionRaisedEvent) for event in event_listener.triggered_events)
@@ -360,9 +360,9 @@ def test_event_is_triggered_once_with_nested_agent(
 
     with pytest.raises(Exception):
         with register_event_listeners([event_listener]):
-            flow.execute(conversation)
+            conversation.execute()
             conversation.append_user_message("Please use the tool")
-            flow.execute(conversation)
+            conversation.execute()
 
     assert len(event_listener.triggered_events) == 1
     assert isinstance(event_listener.triggered_events[-1], ExceptionRaisedEvent)

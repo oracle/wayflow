@@ -42,7 +42,7 @@ summarize_step = PromptExecutionStep(
 )
 summarize_step_name = "summarize_step"
 flow = Flow(
-    begin_step_name="start_step",
+    begin_step=start_step,
     steps={
         "start_step": start_step,
         summarize_step_name: summarize_step,
@@ -97,7 +97,7 @@ summarize_step = PromptExecutionStep(
 )
 summarize_step_name = "summarize_step"
 flow = Flow(
-    begin_step_name="start_step",
+    begin_step=start_step,
     steps={
         "start_step": start_step,
         summarize_step_name: summarize_step,
@@ -157,7 +157,7 @@ summarize_step = PromptExecutionStep(
 )
 summarize_step_name = "summarize_step"
 flow = Flow(
-    begin_step_name="start_step",
+    begin_step=start_step,
     steps={
         "start_step": start_step,
         summarize_step_name: summarize_step,
@@ -197,7 +197,7 @@ summarize_agent_step = AgentExecutionStep(
 )
 summarize_step_name = "summarize_step"
 flow = Flow(
-    begin_step_name="start_step",
+    begin_step=start_step,
     steps={
         "start_step": start_step,
         summarize_step_name: summarize_agent_step,

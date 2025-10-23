@@ -203,7 +203,7 @@ def test_map_step_can_iterate_with_inside_flow_without_inputs() -> None:
         )
     )
     conv = assistant.start_conversation(inputs={MapStep.ITERATED_INPUT: list(range(10))})
-    assistant.execute(conv)
+    conv.execute()
     messages = conv.get_messages()
     assert len(messages) == 10
     assert all(m.content == "done" for m in messages)
@@ -236,7 +236,7 @@ def test_map_step_has_correct_value_when_collecting_outputs_with_default_value()
         )
     )
     conv = assistant.start_conversation(inputs={MapStep.ITERATED_INPUT: list(range(1))})
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
 
 
@@ -261,23 +261,23 @@ def test_map_step_with_tool_description_call_inside() -> None:
         ]
     )
     conv = assistant.start_conversation(inputs={MapStep.ITERATED_INPUT: list(range(3))})
-    status = assistant.execute(conv)
+    status = conv.execute()
 
     assert isinstance(status, ToolRequestStatus)
     conv.append_tool_result(
         ToolResult(tool_request_id=status.tool_requests[0].tool_request_id, content="damien")
     )
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolRequestStatus)
     conv.append_tool_result(
         ToolResult(tool_request_id=status.tool_requests[0].tool_request_id, content="alex")
     )
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolRequestStatus)
     conv.append_tool_result(
         ToolResult(tool_request_id=status.tool_requests[0].tool_request_id, content="jonas")
     )
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values[ToolExecutionStep.TOOL_OUTPUT] == [
         "damien",
@@ -510,7 +510,7 @@ def run_mapstep_with_thread_tools(
         )
     )
     conv = flow.start_conversation(inputs={MapStep.ITERATED_INPUT: list(range(50))})
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     tool_outputs = status.output_values[ToolExecutionStep.TOOL_OUTPUT]
     number_of_threads_used = len(set(tool_outputs))
@@ -575,13 +575,13 @@ def test_subflow_can_yield_and_sub_state_is_cleaned():
 
     flow = create_single_step_flow(step)
     conv = flow.start_conversation(inputs={MapStep.ITERATED_INPUT: ["d", "l"]})
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     assert conv.get_last_message().content == "What is your name, d?"
     conv.append_user_message("damien")
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     assert conv.get_last_message().content == "What is your name, l?"
     conv.append_user_message("louis")
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)

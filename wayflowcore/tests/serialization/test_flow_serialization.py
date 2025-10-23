@@ -38,7 +38,7 @@ def flow_with_output_and_input_steps():
     step_c = OutputMessageStep(message_template="are")
     step_d = InputMessageStep(message_template="you?")
     return Flow(
-        begin_step_name="STEP_A",
+        begin_step=step_a,
         steps={
             "STEP_A": step_a,
             "STEP_B": step_b,
@@ -62,7 +62,7 @@ def flow_with_subflow_step(flow_with_output_and_input_steps):
     )
     step_beta = FlowExecutionStep(flow=flow_with_output_and_input_steps)
     return Flow(
-        begin_step_name="STEP_ALPHA",
+        begin_step=step_alpha,
         steps={
             "STEP_ALPHA": step_alpha,
             "STEP_BETA": step_beta,
@@ -159,7 +159,7 @@ def test_serialization_of_twice_the_same_step_is_not_duplicated(
 ) -> None:
     step = FlowExecutionStep(flow=flow_with_output_and_input_steps)
     flow_with_twice_same_subflow = Flow(
-        begin_step_name="STEP_ALPHA",
+        begin_step=step,
         steps={
             "STEP_ALPHA": step,
         },
@@ -174,7 +174,7 @@ def test_serialization_of_twice_the_same_step_is_not_duplicated(
 def test_serialization_raises_if_flow_contains_itself() -> None:
     step = OutputMessageStep(message_template="ω")
     strange_loop_flow = Flow(
-        begin_step_name="ω",
+        begin_step=step,
         steps={"ω": step},
         control_flow_edges=[ControlFlowEdge(source_step=step, destination_step=step)],
     )
@@ -386,7 +386,7 @@ def test_can_serialize_and_deserialize_data_flow_edge_with_context_provider():
     step = OutputMessageStep("good")
     context_provider = FlowContextProvider(
         flow=Flow(
-            begin_step_name="start",
+            begin_step=start_step,
             steps={"start": start_step, "my_step": step},
             control_flow_edges=[
                 ControlFlowEdge(source_step=start_step, destination_step=step),
@@ -442,7 +442,7 @@ def test_data_edges_are_serialized_with_input_output_mapping():
     )
     output_step = OutputMessageStep("hi {{username}}")
     flow = Flow(
-        begin_step_name="input",
+        begin_step=input_step,
         steps={"input": input_step, "output": output_step},
         control_flow_edges=[
             ControlFlowEdge(source_step=input_step, destination_step=output_step),

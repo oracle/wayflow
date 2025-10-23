@@ -120,7 +120,7 @@ def test_assistant_in_caller_mode_never(remotely_hosted_llm: VllmModel) -> None:
     conversation = assistant.start_conversation()
     conversation.append_user_message("Iterate the counter until task completion.")
 
-    status = assistant.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     messages = conversation.get_messages()
     assert increment_tool.func.is_completed()  # reached the final number
@@ -151,14 +151,14 @@ def test_assistant_in_caller_mode_always(remotely_hosted_llm: VllmModel) -> None
     max_turns = 3
     current_turn = 0
     while current_turn < max_turns:
-        status = assistant.execute(conversation)
+        status = conversation.execute()
         if isinstance(status, FinishedStatus):
             break
         conversation.append_user_message(
             "continue until task is completed, then use the tool to exit the conversation"
         )
         current_turn += 1
-    status = assistant.execute(conversation)
+    status = conversation.execute()
 
     messages = conversation.get_messages()
 

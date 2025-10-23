@@ -81,7 +81,7 @@ def test_custom_descriptor_for_bind_variables(testing_oracle_data_store_with_dat
     conversation = datastore_query_flow.start_conversation(
         {"bind_variables": {"salary": 100000, "depname": "reception"}}
     )
-    execution_status = datastore_query_flow.execute(conversation)
+    execution_status = conversation.execute()
     assert len(execution_status.output_values[DatastoreQueryStep.RESULT]) == 1
 
     # Second part of the example
@@ -134,4 +134,4 @@ def test_invalid_query_errors_are_propagated(query, testing_oracle_data_store_wi
         {"bind_variables": {"bindvar": "; DROP TABLE EMPLOYEES; --"}}
     )
     with pytest.raises(DatastoreError):
-        datastore_query_flow.execute(conversation)
+        conversation.execute()

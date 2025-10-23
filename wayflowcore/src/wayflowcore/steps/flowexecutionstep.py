@@ -134,14 +134,15 @@ class FlowExecutionStep(Step):
         >>> REASONING_PROMPT_TEMPLATE = '''Provide your best numerical estimate for: {{user_input}}
         ... Your answer should be a single number. Do not include any units, reasoning, or extra text.'''
         >>> # Defining the subflow
+        >>> duplication_step = ToolExecutionStep(
+        ...         tool=duplication_tool,
+        ...         input_mapping={"element": USER_QUERY_IO, "n": N_REPEAT_IO},
+        ...         output_mapping={ToolExecutionStep.TOOL_OUTPUT: FLOW_ITERABLE_QUERIES_IO},
+        ...     )
         >>> mapreduce_flow = Flow(
-        ...     begin_step_name=DUPLICATION_STEP,
+        ...     begin_step=duplication_step,
         ...     steps={
-        ...         DUPLICATION_STEP: ToolExecutionStep(
-        ...             tool=duplication_tool,
-        ...             input_mapping={"element": USER_QUERY_IO, "n": N_REPEAT_IO},
-        ...             output_mapping={ToolExecutionStep.TOOL_OUTPUT: FLOW_ITERABLE_QUERIES_IO},
-        ...         ),
+        ...         DUPLICATION_STEP: duplication_step,
         ...         MAP_STEP: MapStep(
         ...             flow=create_single_step_flow(
         ...                 PromptExecutionStep(
@@ -170,10 +171,11 @@ class FlowExecutionStep(Step):
         >>> from wayflowcore.steps import FlowExecutionStep, OutputMessageStep
         >>> MAPREDUCE_STEP = "MAPREDUCE"
         >>> OUTPUT_STEP = "OUTPUT"
+        >>> mapreduce_step = FlowExecutionStep(mapreduce_flow)
         >>> assistant = Flow(
-        ...     begin_step_name=MAPREDUCE_STEP,
+        ...     begin_step=mapreduce_step,
         ...     steps={
-        ...         MAPREDUCE_STEP: FlowExecutionStep(mapreduce_flow),
+        ...         MAPREDUCE_STEP: mapreduce_step,
         ...         OUTPUT_STEP: OutputMessageStep("The estimation is {{value}}", input_mapping={"value": FINAL_ANSWER_IO})
         ...     },
         ...     transitions={MAPREDUCE_STEP: [OUTPUT_STEP], OUTPUT_STEP: [None]}

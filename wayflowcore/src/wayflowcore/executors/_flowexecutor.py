@@ -21,6 +21,7 @@ from wayflowcore.events.event import (
     FlowExecutionIterationFinishedEvent,
     FlowExecutionIterationStartedEvent,
 )
+from wayflowcore.events.eventlistener import _record_exception
 from wayflowcore.executors._events.event import Event, EventType
 from wayflowcore.executors._executionstate import ConversationExecutionState
 from wayflowcore.executors._executor import ConversationExecutor, ExecutionInterruptedException
@@ -922,6 +923,9 @@ class FlowConversationExecutor(ConversationExecutor):
             )
         except ExecutionInterruptedException as e:
             return e.execution_status
+        except Exception as e:
+            _record_exception(e)
+            raise e
 
         return FinishedStatus(
             output_values=outputs,

@@ -123,10 +123,10 @@ def test_agent_can_use_remote_tool_with_confirmation(patched_request, remotely_h
 
     conversation = agent.start_conversation()
     conversation.append_user_message("What is the speed of the winds in Zurich?")
-    status = agent.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     status.confirm_tool_execution(tool_request=status.tool_requests[0])
-    agent.execute(conversation)
+    conversation.execute()
     patched_request.assert_called_once()
     assert (
         patched_request.call_args.kwargs["url"].lower() == "https://weatherforecast.com/city/zurich"
@@ -185,7 +185,7 @@ def test_agent_can_use_a_simple_remote_tool(patched_request, remotely_hosted_llm
 
     conversation = agent.start_conversation()
     conversation.append_user_message("What is the speed of the winds in Zurich?")
-    agent.execute(conversation)
+    conversation.execute()
     patched_request.assert_called_once()
     assert (
         patched_request.call_args.kwargs["url"].lower() == "https://weatherforecast.com/city/zurich"

@@ -28,7 +28,7 @@ def test_input_step_without_message() -> None:
     assert len(conversation.message_list) == 0
 
     conversation.append_user_message("Louis")
-    status = flow.execute(conversation)
+    status = conversation.execute()
     assert conversation.get_last_message().content == "Louis"
     assert isinstance(status, FinishedStatus)
     assert status.output_values == {question.USER_PROVIDED_INPUT: "Louis"}
@@ -62,13 +62,13 @@ def test_input_step_raises_when_no_new_user_message_is_appended() -> None:
         ],
     )
     conversation = flow.start_conversation()
-    status = flow.execute(conversation)
+    status = conversation.execute()
     assert conversation.get_last_message().content == "What is your name?"
     assert isinstance(status, UserMessageRequestStatus)
     conversation.append_user_message("Louis")
-    status = flow.execute(conversation)
+    status = conversation.execute()
     assert conversation.get_last_message().content == "Hi Louis. What do you want to do today?"
     assert isinstance(status, UserMessageRequestStatus)
     with pytest.raises(ValueError):
         # mistakenly re-executing without having appended a new user message
-        flow.execute(conversation)
+        conversation.execute()

@@ -182,10 +182,10 @@ def test_event_is_triggered_with_agent_execute_exit_conversation() -> None:
     event_listener = AgentExecutionIterationStartedEventListener()
     conversation = agent.start_conversation()
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
 
     assert len(event_listener.triggered_events) == 7
     assert all(
@@ -200,10 +200,10 @@ def test_event_is_triggered_with_agent_execute_client_tool_call() -> None:
     event_listener = AgentExecutionIterationStartedEventListener()
     conversation = agent.start_conversation()
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
 
     assert len(event_listener.triggered_events) == 4
     assert all(
@@ -228,10 +228,10 @@ def test_event_is_triggered_with_agent_execute_client_tool_call_with_flow(
     event_listener = AgentExecutionIterationStartedEventListener()
     conversation = agent.start_conversation()
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
 
     assert len(event_listener.triggered_events) == 5
     assert all(

@@ -153,7 +153,7 @@ def test_event_is_triggered_with_flow(
         message_template="Location of the company is at {{location_output_io}}",
     )
     flow = Flow(
-        begin_step_name="output_step",
+        begin_step=output_step,
         steps={"output_step": output_step},
         control_flow_edges=[ControlFlowEdge(output_step, None)],
         data_flow_edges=[
@@ -165,7 +165,7 @@ def test_event_is_triggered_with_flow(
     event_listener = ContextProviderExecutionRequestEventListener()
 
     with register_event_listeners([event_listener]):
-        flow.execute(conversation)
+        conversation.execute()
 
     assert len(event_listener.triggered_events) == 1
     assert isinstance(event_listener.triggered_events[0], ContextProviderExecutionRequestEvent)
@@ -221,7 +221,7 @@ def test_multiple_events_are_triggered(
         destination_input = f"{source_output}_io"
         data_flow_edges.append(DataFlowEdge(ctx, source_output, test_step, destination_input))
     flow = Flow(
-        begin_step_name="output_step",
+        begin_step=test_step,
         data_flow_edges=data_flow_edges,
         context_providers=context_providers,
         steps={"output_step": test_step},
@@ -231,7 +231,7 @@ def test_multiple_events_are_triggered(
     event_listener = ContextProviderExecutionRequestEventListener()
 
     with register_event_listeners([event_listener]):
-        flow.execute(conversation)
+        conversation.execute()
 
     assert len(event_listener.triggered_events) == len(context_providers)
     assert all(

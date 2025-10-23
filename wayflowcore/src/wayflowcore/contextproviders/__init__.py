@@ -6,7 +6,6 @@
 
 from .chathistorycontextprovider import ChatHistoryContextProvider
 from .contextprovider import ContextProvider
-from .defaultcontextproviders import get_default_context_providers
 from .flowcontextprovider import FlowContextProvider
 from .toolcontextprovider import ToolContextProvider
 
@@ -14,6 +13,5 @@ __all__ = [
     "ChatHistoryContextProvider",
     "ContextProvider",
     "FlowContextProvider",
-    "get_default_context_providers",
     "ToolContextProvider",
 ]

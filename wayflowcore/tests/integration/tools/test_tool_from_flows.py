@@ -137,7 +137,7 @@ def run_flow_with_outputs(
     check_descriptors_names_and_types_equality(tool_from_.output_descriptors, expected_descriptors)
     flow = create_single_step_flow(ToolExecutionStep(tool_from_))
     conv = flow.start_conversation()
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values == expected_outputs
 
@@ -195,7 +195,7 @@ def test_tool_from_multi_step_flow_with_branching_can_be_called() -> None:
     right_output = OutputMessageStep(message_template="This is your arrow: =>")
     failed = OutputMessageStep(message_template="Please try again")
     flow = Flow(
-        begin_step_name="output_choice",
+        begin_step=output_choice,
         steps={
             "output_choice": output_choice,
             "branch_on_choice": branch_on_choice,
@@ -249,7 +249,7 @@ def test_tool_from_flow_can_access_conversation_when_ran_in_tool_execution_step(
     )
     conversation = call_tool_flow.start_conversation()
     conversation.append_user_message("Hello, I am a user. The code is: Expelliarmus")
-    status = call_tool_flow.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     messages = conversation.get_messages()
     assert len(messages) == 3  # Call to the tool must have happened a message

@@ -37,22 +37,22 @@ def create_flow(
 
     user_input_step = InputMessageStep(
         message_template=buf.decode(encoding),
-        rephrase=random.randint(0, 1) == 0,
+        rephrase=random.randint(0, 1) == 0,  # nosec B311
     )
 
     prompt_step = PromptExecutionStep(
         prompt_template=prompt_template,
         generation_config=(
             None
-            if random.randint(0, 1) == 0
+            if random.randint(0, 1) == 0  # nosec B311
             else LlmGenerationConfig.from_dict({buf.decode(encoding): buf.decode(encoding)})
         ),
     )
 
     output_step = OutputMessageStep(
         message_template=message_template,
-        message_type=message_types[random.choice(message_types)],
-        rephrase=random.randint(0, 1) == 0,
+        message_type=message_types[random.choice(message_types)],  # nosec B311
+        rephrase=random.randint(0, 1) == 0,  # nosec B311
     )
 
     steps = {
@@ -71,7 +71,7 @@ def create_flow(
     }
 
     return Flow(
-        begin_step_name=begin_step_name,
+        begin_step=steps[begin_step_name],
         steps=steps,
         transitions=transitions,
     )
@@ -100,8 +100,8 @@ def create_agent(
         llm=llm,
         flows=flows,
         custom_instruction=buf.decode(encoding),
-        max_iterations=random.randint(0, 1000000000),
-        can_finish_conversation=random.randint(0, 1) == 0,
+        max_iterations=random.randint(0, 1000000000),  # nosec B311
+        can_finish_conversation=random.randint(0, 1) == 0,  # nosec B311
     )
 
 
@@ -119,17 +119,17 @@ def execute_assistant(
     assistant: ConversationalComponent,
 ) -> None:
     conversation = assistant.start_conversation()
-    assistant.execute(conversation)
+    conversation.execute()
     message_types = [e.value for e in MessageType]
     user_message = Message(
         content=buf.decode(encoding),
-        message_type=message_types[random.choice(message_types)],
+        message_type=message_types[random.choice(message_types)],  # nosec B311
     )
     conversation.append_message(user_message)
-    assistant.execute(conversation)
+    conversation.execute()
     conversation.append_agent_message(buf.decode(encoding))
     conversation.append_user_message(buf.decode(encoding))
-    assistant.execute(conversation)
+    conversation.execute()
 
 
 def serialize_and_deserialize_assistant(
@@ -158,7 +158,7 @@ def test_flow_assistant(buf: bytes, encoding: str):
 
 def test_agent(buf: bytes, encoding: str):
 
-    if random.randint(0, 1) % 2:
+    if random.randint(0, 1) % 2:  # nosec B311
         llm = create_llm(buf, encoding)
     else:
         llm = LlmModelFactory.from_config(
@@ -168,7 +168,7 @@ def test_agent(buf: bytes, encoding: str):
             }
         )
 
-    if random.randint(0, 1) % 2:
+    if random.randint(0, 1) % 2:  # nosec B311
         flows = [create_flow(buf, encoding)]
     else:
         flows = None
@@ -189,7 +189,7 @@ def test_existing_flow_assistant(buf, encoding):
 
 
 def test_deserialize(buf, encoding):
-    target_class = random.choice(
+    target_class = random.choice(  # nosec B311
         [
             ConversationalComponent,
             Flow,
@@ -223,7 +223,7 @@ def fuzz(buf):
     if buffer_can_be_decoded:
         try:
 
-            test_function = random.choice(test_functions)
+            test_function = random.choice(test_functions)  # nosec B311
             test_function(buf, encoding)
 
         except Exception as e:

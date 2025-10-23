@@ -58,7 +58,7 @@ def create_choiceselectionstep_assistant(
         steps[step_name] = OutputMessageStep(message_template=str(step_name))
         transitions[step_name] = [None]
 
-    return Flow(begin_step_name=begin_step_name, steps=steps, transitions=transitions)
+    return Flow(begin_step=steps["begin_step_name"], steps=steps, transitions=transitions)
 
 
 def run_choice_selection(
@@ -84,7 +84,7 @@ def run_choice_selection(
         **({default_step: CompleteStep()} if default_step is not None else {}),
     }
     flow = Flow(
-        begin_step_name="choice",
+        begin_step=choice_step,
         steps=steps,
         control_flow_edges=[
             ControlFlowEdge(
@@ -192,7 +192,7 @@ def test_choice_selection_step_works_when_some_next_step_has_default_name(
     default_step = CompleteStep()
 
     flow = Flow(
-        begin_step_name="step",
+        begin_step=choice_step,
         steps={
             "step": choice_step,
             "choice1": choice1_step,
@@ -288,7 +288,7 @@ def test_looping_with_choice_selection_step(remotely_hosted_llm: VllmModel) -> N
     complete_step = OutputMessageStep("Content successfully confirmed!")
 
     assistant = Flow(
-        begin_step_name=USER_INPUT_STEP,
+        begin_step=user_input_step,
         steps={
             USER_INPUT_STEP: user_input_step,
             CHOICE_SELECTION_STEP: choice_selection_step,

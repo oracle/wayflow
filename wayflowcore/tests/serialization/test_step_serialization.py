@@ -40,7 +40,7 @@ def example_flow():
     step_C = OutputMessageStep(message_template="are")
     step_D = OutputMessageStep(message_template="you?")
     return Flow(
-        begin_step_name="STEP_A",
+        begin_step=step_A,
         steps={
             "STEP_A": step_A,
             "STEP_B": step_B,

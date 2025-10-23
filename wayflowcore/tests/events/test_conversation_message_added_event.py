@@ -143,10 +143,10 @@ def test_event_is_triggered_with_agent(
     event_listener = ConversationMessageAddedEventListener()
     conversation = agent.start_conversation()
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
     end_tool_verification_messages = 0
     for event in event_listener.triggered_events:
         message = event.message
@@ -210,12 +210,12 @@ def test_event_is_triggered_with_agents_in_flows(flow: Flow) -> None:
 
     with register_event_listeners([event_listener]):
         conversation = flow.start_conversation()
-        status = flow.execute(conversation)
+        status = conversation.execute()
         if isinstance(status, UserMessageRequestStatus):
             conversation.append_user_message("Hello, what is location for company?")
             additional_messages += 1
 
-            status = flow.execute(conversation)
+            status = conversation.execute()
             additional_messages += 1
 
     assert len(event_listener.triggered_events) == 1 + additional_messages
@@ -244,10 +244,10 @@ def test_event_is_triggered_with_flows_in_agents(
     conversation = agent.start_conversation()
 
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
 
     assert (
         len(

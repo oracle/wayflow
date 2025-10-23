@@ -10,16 +10,11 @@ from pathlib import Path
 import pytest
 
 from wayflowcore.agent import Agent
-from wayflowcore.contextproviders import (
-    ContextProvider,
-    FlowContextProvider,
-    ToolContextProvider,
-    get_default_context_providers,
-)
+from wayflowcore.contextproviders import ContextProvider, FlowContextProvider, ToolContextProvider
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.models.vllmmodel import VllmModel
-from wayflowcore.serialization import autodeserialize, deserialize, serialize
+from wayflowcore.serialization import deserialize, serialize
 
 CONFIGS_DIR = Path(os.path.dirname(__file__)).parent / "configs"
 
@@ -29,28 +24,6 @@ def flow_context_provider_config():
     with open(CONFIGS_DIR / "flow_context_provider.yaml") as config_file:
         serialized_contextprovider = config_file.read()
     return serialized_contextprovider
-
-
-def test_can_serialize_all_default_context_providers() -> None:
-    context_providers = get_default_context_providers()
-    for cp in context_providers.values():
-        serialized_cp = serialize(cp)
-        assert "_component_type: ContextProvider" in serialized_cp
-        assert "output_descriptions" not in serialized_cp
-
-
-def test_can_deserialize_all_serialized_default_context_providers() -> None:
-    context_providers = get_default_context_providers()
-    for cp in context_providers.values():
-        new_cp = deserialize(ContextProvider, serialize(cp))
-        assert isinstance(new_cp, type(cp))
-
-
-def test_can_autodeserialize_all_serialized_default_context_providers() -> None:
-    context_providers = get_default_context_providers()
-    for cp in context_providers.values():
-        new_cp = autodeserialize(serialize(cp))
-        assert isinstance(new_cp, type(cp))
 
 
 def test_deserializing_non_supported_context_provider_type_raises() -> None:

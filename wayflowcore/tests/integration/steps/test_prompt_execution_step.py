@@ -342,15 +342,15 @@ COMPLEX_OBJECT_DESCRIPTOR = ObjectProperty(
 )
 
 
-@retry_test(max_attempts=4)
+@retry_test(max_attempts=7)
 def test_structured_generation_with_complex_structure(remotely_hosted_llm):
     """
-    Failure rate:          1 out of 20
-    Observed on:           2025-02-12
-    Average success time:  1.14 seconds per successful attempt
-    Average failure time:  0.99 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.09 ** 4) ~= 6.8 / 100'000
+    Failure rate:          24 out of 100
+    Observed on:           2025-10-16
+    Average success time:  0.58 seconds per successful attempt
+    Average failure time:  0.69 seconds per failed attempt
+    Max attempt:           7
+    Justification:         (0.25 ** 7) ~= 5.3 / 100'000
     """
 
     step = PromptExecutionStep(
@@ -508,11 +508,11 @@ def test_can_use_specific_template_in_prompt_execution_step_with_chat_history(re
         ]
     )
     conv = flow.start_conversation()
-    flow.execute(conv)
+    conv.execute()
     conv.append_user_message("What is the capital of Switzerland?")
-    flow.execute(conv)
+    conv.execute()
     conv.append_user_message("Really? I thought it is Zurich")
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     outputs = status.output_values
     assert PromptExecutionStep.OUTPUT in outputs
@@ -705,7 +705,7 @@ def test_prompt_execution_step_replaces_chat_history_placeholder(monkeypatch, re
         for message in chat_messages:
             conversation.append_message(message)
 
-        status = flow.execute(conversation)
+        status = conversation.execute()
         assert isinstance(status, FinishedStatus)
 
 
@@ -740,7 +740,16 @@ def test_prompt_execution_step_can_generate_enum_value_when_llm_fails(remotely_h
         }
 
 
+@retry_test(max_attempts=3)
 def test_structured_generation_with_enum_str_fail(remotely_hosted_llm):
+    """
+    Failure rate:          1 out of 100
+    Observed on:           2025-10-21
+    Average success time:  0.84 seconds per successful attempt
+    Average failure time:  0.92 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.8 / 100'000
+    """
     text = dedent(
         """
         Here is some text, extract some information about it:

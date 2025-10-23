@@ -103,7 +103,7 @@ class StartStep(Step):
         ...     LLM_ANSWER_STEP: [COMPLETE_STEP],
         ... }
         >>> assistant = Flow(
-        ...     begin_step_name=START_STEP,
+        ...     begin_step=start_step,
         ...     steps=steps,
         ...     transitions=transitions,
         ... )

@@ -1,6 +1,16 @@
 Changelog
 =========
 
+WayFlow 26.1.0
+--------------
+
+Possibly Breaking Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **Removed deprecated Agent/Flow.execute:**
+
+  Removed the deprecated method of `Agent/Flow.execute(conversation)` in favor of conversation.execute().
+
 WayFlow 25.4.2
 --------------
 

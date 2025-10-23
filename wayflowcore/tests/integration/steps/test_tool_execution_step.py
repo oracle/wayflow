@@ -491,7 +491,7 @@ def test_tool_execution_step_can_return_tool_request_message(
 ) -> None:
     conversation = flow_with_client_tool_execution.start_conversation(inputs={"b": 34, "a": 56})
     assistant = flow_with_client_tool_execution
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolRequestStatus)
     messages = conversation.get_messages()
     assert len(messages) == 1
@@ -514,10 +514,10 @@ def test_tool_execution_step_can_return_tool_request_message_with_confirmation(
         inputs={"b": 34, "a": 56}
     )
     assistant = flow_with_client_tool_execution_with_confirmation
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
     execution_status.confirm_tool_execution(tool_request=execution_status.tool_requests[0])
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolRequestStatus)
     messages = conversation.get_messages()
     assert len(messages) == 1
@@ -550,10 +550,10 @@ def test_tool_execution_step_can_be_reinvoked_with_non_str_tool_result_with_conf
 
     conversation = flow.start_conversation(inputs={"a": 0.4, "b": [True, True, False]})
 
-    status = flow.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     status.confirm_tool_execution(tool_request=status.tool_requests[0])
-    status = flow.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, ToolRequestStatus)
     assert len(status.tool_requests) > 0
     tool_call_id = status.tool_requests[0].tool_request_id
@@ -564,7 +564,7 @@ def test_tool_execution_step_can_be_reinvoked_with_non_str_tool_result_with_conf
     )
     conversation.append_message(tool_result_message)
 
-    status = flow.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     assert ToolExecutionStep.TOOL_OUTPUT in status.output_values
     assert status.output_values[ToolExecutionStep.TOOL_OUTPUT] == {"e": 1, "f": 2}
@@ -575,14 +575,14 @@ def test_tool_execution_step_can_be_reinvoked_with_tool_result(
 ) -> None:
     conversation = flow_with_client_tool_execution.start_conversation(inputs={"b": 34, "a": 56})
     assistant = flow_with_client_tool_execution
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     tool_call_id = execution_status.tool_requests[0].tool_request_id
     tool_result_message = Message(
         tool_result=ToolResult(content="123456789", tool_request_id=tool_call_id),
         message_type=MessageType.TOOL_RESULT,
     )
     conversation.append_message(tool_result_message)
-    status = assistant.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     assert "d" in status.output_values
     assert status.output_values["d"] == "123456789"
@@ -605,7 +605,7 @@ def test_tool_execution_step_can_be_reinvoked_with_non_str_tool_result(
 
     conversation = flow.start_conversation(inputs={"a": 0.4, "b": [True, True, False]})
 
-    status = flow.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, ToolRequestStatus)
     assert len(status.tool_requests) > 0
     tool_call_id = status.tool_requests[0].tool_request_id
@@ -616,7 +616,7 @@ def test_tool_execution_step_can_be_reinvoked_with_non_str_tool_result(
     )
     conversation.append_message(tool_result_message)
 
-    status = flow.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     assert ToolExecutionStep.TOOL_OUTPUT in status.output_values
     assert status.output_values[ToolExecutionStep.TOOL_OUTPUT] == {"e": 1, "f": 2}
@@ -627,9 +627,9 @@ def test_tool_execution_step_raises_when_reinvoked_without_expected_tool_message
 ) -> None:
     conversation = flow_with_client_tool_execution.start_conversation(inputs={"b": 34, "a": 56})
     assistant = flow_with_client_tool_execution
-    assistant.execute(conversation)
+    conversation.execute()
     with pytest.raises(ValueError):
-        assistant.execute(conversation)
+        conversation.execute()
 
 
 class MyCustomException(Exception):
@@ -648,14 +648,14 @@ def test_tool_execution_step_can_raise_exception():
         step = ToolExecutionStep(tool=create_raise_tool(), raise_exceptions=True)
         flow = create_single_step_flow(step)
         conv = flow.start_conversation()
-        flow.execute(conv)
+        conv.execute()
 
 
 def test_tool_execution_step_can_catch_exception():
     step = ToolExecutionStep(tool=create_raise_tool(), raise_exceptions=False)
     flow = create_single_step_flow(step)
     conv = flow.start_conversation()
-    flow.execute(conv)
+    conv.execute()
 
 
 def test_tool_execution_step_crashes_if_not_raising_exception_and_output_type_is_not_string():
@@ -671,7 +671,7 @@ def test_tool_execution_step_crashes_if_not_raising_exception_and_output_type_is
 
     with pytest.raises(ValueError):
         conv = flow.start_conversation()
-        flow.execute(conv)
+        conv.execute()
 
 
 all_tool_output_descriptors_possibilities = pytest.mark.parametrize(
@@ -733,13 +733,13 @@ def test_client_tool_step_can_return_several_outputs(tool_, tool_outputs, expect
     tool_step = ToolExecutionStep(tool_)
     flow = create_single_step_flow(tool_step)
     conv = flow.start_conversation()
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolRequestStatus)
     assert len(status.tool_requests) == 1
     conv.append_tool_result(
         ToolResult(tool_request_id=status.tool_requests[0].tool_request_id, content=tool_outputs)
     )
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values == expected_step_outputs
 
@@ -757,7 +757,7 @@ def test_server_tool_step_can_return_several_outputs(tool_, tool_outputs, expect
     tool_step = ToolExecutionStep(server_tool)
     flow = create_single_step_flow(tool_step)
     conv = flow.start_conversation()
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values == expected_step_outputs
 
@@ -949,15 +949,15 @@ def test_tool_confirmation_status_is_returned_for_every_tool_step_with_tool_that
         ]
     )
     conv = assistant.start_conversation(inputs={"name": "dummy user"})
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     status.reject_tool_execution(tool_request=status.tool_requests[0], reason="No reason")
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     status.confirm_tool_execution(
         tool_request=status.tool_requests[0], modified_args={"name": "another user"}
     )
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values["tool_output"] == "another user"
 
@@ -990,7 +990,7 @@ def test_tool_confirmation_raises_exceptions_in_flow_if_rejected(name_tool) -> N
     ):
         assistant = Flow.from_steps([ToolExecutionStep(tool=name_tool, raise_exceptions=True)])
         conv = assistant.start_conversation(inputs={"name": "dummy user"})
-        status = assistant.execute(conv)
+        status = conv.execute()
         assert isinstance(status, ToolExecutionConfirmationStatus)
         status.reject_tool_execution(tool_request=status.tool_requests[0], reason="No reason")
-        status = assistant.execute(conv)
+        status = conv.execute()

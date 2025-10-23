@@ -281,7 +281,7 @@ from wayflowcore.steps import OutputMessageStep
 opening_step = OutputMessageStep("Opening session")
 closing_step = OutputMessageStep('Closing session"')
 flow = Flow(
-    begin_step_name="open_step",
+    begin_step=opening_step,
     steps={
         "open_step": opening_step,
         "close_step": closing_step,
@@ -301,23 +301,23 @@ from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.flow import Flow
 from wayflowcore.steps import OutputMessageStep
 
-FAKE_PROCESSING_STEP = "processing_step"
+MOCK_PROCESSING_STEP = "processing_step"
 OUTPUT_STEP = "output_step"
-fake_processing_step = OutputMessageStep("Successfully processed username {{username}}")
+mock_processing_step = OutputMessageStep("Successfully processed username {{username}}")
 output_step = OutputMessageStep('{{session_id}}: Received message "{{processing_message}}"')
 flow = Flow(
-    begin_step_name=FAKE_PROCESSING_STEP,
+    begin_step=mock_processing_step,
     steps={
-        FAKE_PROCESSING_STEP: fake_processing_step,
+        MOCK_PROCESSING_STEP: mock_processing_step,
         OUTPUT_STEP: output_step,
     },
     control_flow_edges=[
-        ControlFlowEdge(source_step=fake_processing_step, destination_step=output_step),
+        ControlFlowEdge(source_step=mock_processing_step, destination_step=output_step),
         ControlFlowEdge(source_step=output_step, destination_step=None),
     ],
     data_flow_edges=[
         DataFlowEdge(
-            fake_processing_step, OutputMessageStep.OUTPUT, output_step, "processing_message"
+            mock_processing_step, OutputMessageStep.OUTPUT, output_step, "processing_message"
         )
     ],
 )
@@ -361,7 +361,7 @@ branching_step = BranchingStep(
 access_granted_output_step = OutputMessageStep("Access granted. Press any key to continue...")
 access_denied_output_step = OutputMessageStep("Access denied. Please exit the conversation.")
 assistant = Flow(
-    begin_step_name="branching_step",
+    begin_step=branching_step,
     steps={
         "branching_step": branching_step,
         "access_granted_output_step": access_granted_output_step,
@@ -500,7 +500,7 @@ code_generation_step = FlowExecutionStep(code_generation_subflow)
 code_reviewing_step = FlowExecutionStep(code_reviewing_subflow)
 output_step = OutputMessageStep("{{output_content}}")
 flow = Flow(
-    begin_step_name="code_generation",
+    begin_step=code_generation_step,
     steps={
         "code_generation": code_generation_step,
         "code_reviewing": code_reviewing_step,
@@ -587,7 +587,7 @@ from wayflowcore.steps import OutputMessageStep
 
 output_step = OutputMessageStep("{{message_content}}")
 flow = Flow(
-    begin_step_name="output_step",
+    begin_step=output_step,
     steps={"output_step": output_step},
     control_flow_edges=[ControlFlowEdge(output_step, None)],
 )
@@ -617,7 +617,7 @@ def current_time() -> str:
 current_time_contextprovider = ToolContextProvider(current_time, "current_time")
 output_step = OutputMessageStep("Current time: {{time}}\nMessage content: {{message_content}}")
 flow = Flow(
-    begin_step_name="output_step",
+    begin_step=output_step,
     steps={"output_step": output_step},
     control_flow_edges=[ControlFlowEdge(output_step, None)],
     data_flow_edges=[
@@ -648,7 +648,7 @@ contextual_flow = create_single_step_flow(
 context_provider = FlowContextProvider(contextual_flow, flow_output_names=["time_output"])
 output_step = OutputMessageStep("Last time message: {{time_output_io}}")
 flow = Flow(
-    begin_step_name="output_step",
+    begin_step=output_step,
     steps={"output_step": output_step},
     control_flow_edges=[ControlFlowEdge(output_step, None)],
     data_flow_edges=[DataFlowEdge(context_provider, "time_output", output_step, "time_output_io")],
@@ -672,7 +672,7 @@ context_provider = ChatHistoryContextProvider(
 )
 output_step = OutputMessageStep("Chat history number: {{history}}")
 flow = Flow(
-    begin_step_name="output_step",
+    begin_step=output_step,
     steps={"output_step": output_step},
     control_flow_edges=[ControlFlowEdge(output_step, None)],
     context_providers=[context_provider],
