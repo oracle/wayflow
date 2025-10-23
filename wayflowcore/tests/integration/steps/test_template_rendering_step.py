@@ -78,7 +78,7 @@ def test_output_can_use_lists(template, expected_match):
     )
 
     conv = assistant.start_conversation()
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values[TemplateRenderingStep.OUTPUT] == expected_match
 
@@ -92,7 +92,7 @@ def test_output_can_use_dicts():
     )
 
     conv = assistant.start_conversation(inputs={"my_dict": {"k1": "v1", "k2": "v2"}})
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values[TemplateRenderingStep.OUTPUT] == "k1:v1,k2:v2,"
 
@@ -109,7 +109,7 @@ def test_output_can_use_arbitrary_complex_structures():
     conv = assistant.start_conversation(
         inputs={"my_dict": {"N1": [{"k1": "v1"}, {"k2": "v2"}], "N2": [{"k3": "v3"}, {"k4": "v4"}]}}
     )
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values[TemplateRenderingStep.OUTPUT] == "[k1:v1,k2:v2,][k3:v3,k4:v4,]"
 
@@ -123,7 +123,7 @@ def test_does_not_raises_when_jinja_detected_variable_is_str_but_list_is_passed(
     )
 
     conv = assistant.start_conversation()
-    assistant.execute(conv)
+    conv.execute()
 
 
 def test_raises_when_missing_input():
@@ -135,7 +135,7 @@ def test_raises_when_missing_input():
         )
 
         conv = assistant.start_conversation()
-        assistant.execute(conv)
+        conv.execute()
 
 
 @pytest.mark.parametrize(
@@ -157,7 +157,7 @@ def test_correctly_detects_optional_value(template):
         ]
     )
     conv = assistant.start_conversation()
-    assistant.execute(conv)
+    conv.execute()
 
 
 def test_assistant_output_step_might_not_yield():
@@ -180,7 +180,7 @@ def test_can_wire_template_formatting_step_to_other_step():
     )
 
     conv = assistant.start_conversation({"name": "Son"})
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values[OutputMessageStep.OUTPUT] == "My name is Son"
 
@@ -193,6 +193,6 @@ def test_no_conflict_when_variable_is_named_template():
     )
 
     conv = assistant.start_conversation({"template": "anything"})
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values[TemplateRenderingStep.OUTPUT] == "anything"

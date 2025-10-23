@@ -431,7 +431,7 @@ class FlowScriptRunner:
                     conversation.append_message(
                         Message(content=user_input, message_type=MessageType.USER)
                     )
-                status = assistant.execute(conversation)
+                status = conversation.execute()
                 finished = isinstance(status, FinishedStatus)
 
                 last_message = conversation.get_last_message()

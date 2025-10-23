@@ -32,7 +32,7 @@ def run_navigation_assistant(
     other_steps_dict = {step_name: CompleteStep() for step_name in other_steps}
     default_step = CompleteStep()
     flow = Flow(
-        begin_step_name=BRANCHING_STEP,
+        begin_step=navigation_step,
         steps={
             BRANCHING_STEP: navigation_step,
             **other_steps_dict,
@@ -104,7 +104,7 @@ def get_branching_flow(
     failure_branch = CompleteStep(branch_name=failure_branch_name)
     default_next_step = CompleteStep(branch_name=default_branch_name)
     return Flow(
-        begin_step_name="start",
+        begin_step=start_step,
         steps={
             "start": start_step,
             "external_success_step": external_success_step,
@@ -143,6 +143,6 @@ def get_branching_flow(
 def test_can_use_branches_mapping(branching_input, expected_last_step):
     flow = get_branching_flow()
     conv = flow.start_conversation(inputs={BranchingStep.NEXT_BRANCH_NAME: branching_input})
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.complete_step_name == expected_last_step

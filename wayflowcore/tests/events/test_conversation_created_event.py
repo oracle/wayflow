@@ -248,7 +248,7 @@ def test_event_is_triggered_with_agent_subagents_subflows(
         conversation = agent.start_conversation()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
 
     assert len(event_listener.triggered_events) == 1 + additional_conversations
     assert isinstance(event_listener.triggered_events[0], ConversationCreatedEvent)
@@ -291,7 +291,7 @@ def test_event_is_triggered_with_flow_subagents_subflows(
 
     with register_event_listeners([event_listener]):
         conversation = flow.start_conversation()
-        flow.execute(conversation)
+        conversation.execute()
 
     assert len(event_listener.triggered_events) == 1 + additional_conversations
     assert isinstance(event_listener.triggered_events[0], ConversationCreatedEvent)

@@ -226,17 +226,15 @@ def test_agent_interrupts_are_triggered_on_event_and_correctly_continues(event_t
         # Do a full conversation with the assistant first, without interrupts
         conversation = assistant.start_conversation()
         conversation.append_user_message("Hello, how are you?")
-        _ = assistant.execute(conversation, execution_interrupts=[])
+        _ = conversation.execute(execution_interrupts=[])
         conversation.append_user_message("Please use the do_nothing_tool")
-        _ = assistant.execute(conversation, execution_interrupts=[])
+        _ = conversation.execute(execution_interrupts=[])
 
         # Then run a conversation with the interrupt
         execution_interrupts = [OnEventExecutionInterrupt(event_type)]
         conversation_with_interrupts = assistant.start_conversation()
         conversation_with_interrupts.append_user_message("Hello, how are you?")
-        execution_status = assistant.execute(
-            conversation_with_interrupts, execution_interrupts=execution_interrupts
-        )
+        execution_status = conversation_with_interrupts.execute(execution_interrupts)
 
         # Before entering tool events in interrupts, we need to have a first round with the user
         # So we will not have interrupt execution statuses here
@@ -252,15 +250,11 @@ def test_agent_interrupts_are_triggered_on_event_and_correctly_continues(event_t
             EventType.EXECUTION_LOOP_ITERATION_START,
             EventType.GENERATION_START,
         }:
-            execution_status = assistant.execute(
-                conversation_with_interrupts, execution_interrupts=execution_interrupts
-            )
+            execution_status = conversation_with_interrupts.execute(execution_interrupts)
 
         # Make the assistant use the tool
         conversation_with_interrupts.append_user_message("Please use the do_nothing_tool")
-        execution_status = assistant.execute(
-            conversation_with_interrupts, execution_interrupts=execution_interrupts
-        )
+        execution_status = conversation_with_interrupts.execute(execution_interrupts)
 
         # We skipped the check on the returned status before for tool events,
         # now it should be correctly thrown by the interrupts
@@ -268,9 +262,7 @@ def test_agent_interrupts_are_triggered_on_event_and_correctly_continues(event_t
             assert isinstance(execution_status, InterruptedExecutionStatus)
             assert execution_status.interrupter == execution_interrupts[0]
             assert execution_status.reason == str(event_type)
-            _ = assistant.execute(
-                conversation_with_interrupts, execution_interrupts=execution_interrupts
-            )
+            _ = conversation_with_interrupts.execute(execution_interrupts)
 
     # Check that the conversations with and without interrupts are equivalent
     assert_conversations_are_equivalent(conversation, conversation_with_interrupts)
@@ -290,18 +282,16 @@ def test_flow_assistant_interrupts_are_triggered_on_event_and_correctly_continue
         assistant = basic_flow_assistant_with_outputs
     # Do a full conversation with the assistant first, without interrupts
     conversation = assistant.start_conversation()
-    _ = assistant.execute(conversation, execution_interrupts=[])
+    _ = conversation.execute(execution_interrupts=[])
 
     # Run a conversation with the interrupt
     execution_interrupts = [OnEventExecutionInterrupt(event_type)]
     conversation_with_interrupts = assistant.start_conversation()
-    execution_status = assistant.execute(
-        conversation_with_interrupts, execution_interrupts=execution_interrupts
-    )
+    execution_status = conversation_with_interrupts.execute(execution_interrupts)
     assert isinstance(execution_status, InterruptedExecutionStatus)
     assert execution_status.interrupter == execution_interrupts[0]
     assert execution_status.reason == str(event_type)
-    _ = assistant.execute(conversation_with_interrupts, execution_interrupts=execution_interrupts)
+    _ = conversation_with_interrupts.execute(execution_interrupts)
 
     # Check that the conversations with and without interrupts are equivalent
     assert_conversations_are_equivalent(conversation, conversation_with_interrupts)
@@ -314,18 +304,18 @@ def test_flow_assistant_interrupts_are_triggered_on_event_and_correctly_continue
     assistant = basic_flow_assistant_with_outputs
     # Do a full conversation with the assistant first, without interrupts
     conversation = assistant.start_conversation()
-    _ = assistant.execute(conversation, execution_interrupts=[])
+    _ = conversation.execute(execution_interrupts=[])
 
     # Run a conversation with the interrupt
     execution_interrupts = [OnEventExecutionInterrupt(event_type)]
     conversation_with_interrupts = assistant.start_conversation()
-    execution_status = assistant.execute(
-        conversation_with_interrupts, execution_interrupts=execution_interrupts
+    execution_status = conversation_with_interrupts.execute(
+        execution_interrupts=execution_interrupts
     )
     assert isinstance(execution_status, InterruptedExecutionStatus)
     assert execution_status.interrupter == execution_interrupts[0]
     assert execution_status.reason == str(event_type)
-    _ = assistant.execute(conversation_with_interrupts, execution_interrupts=execution_interrupts)
+    _ = conversation_with_interrupts.execute(execution_interrupts)
 
     # Check that the conversations with and without interrupts are equivalent
     assert_conversations_are_equivalent(conversation, conversation_with_interrupts)
@@ -334,7 +324,7 @@ def test_flow_assistant_interrupts_are_triggered_on_event_and_correctly_continue
 def test_conversations_have_default_timeout_execution_interrupt(remotely_hosted_llm):
     assistant = create_basic_flow_assistant()
     conversation = assistant.start_conversation()
-    _ = assistant.execute(conversation)
+    _ = conversation.execute()
     execution_interrupts = conversation.state._get_execution_interrupts()
     assert len(execution_interrupts) == 1
     assert isinstance(execution_interrupts[0], SoftTimeoutExecutionInterrupt)
@@ -342,7 +332,7 @@ def test_conversations_have_default_timeout_execution_interrupt(remotely_hosted_
     assistant = create_basic_agent(remotely_hosted_llm)
     conversation = assistant.start_conversation()
     conversation.append_user_message("Hello, how are you?")
-    _ = assistant.execute(conversation)
+    _ = conversation.execute()
     execution_interrupts = conversation.state._get_execution_interrupts()
     assert len(execution_interrupts) == 1
     assert isinstance(execution_interrupts[0], SoftTimeoutExecutionInterrupt)
@@ -363,9 +353,9 @@ def test_agent_execution_stops_with_timeout_execution_interrupt(remotely_hosted_
     )
     execution_interrupts = [SoftTimeoutExecutionInterrupt(timeout=0.5)]
     conversation = assistant.start_conversation()
-    execution_status = assistant.execute(conversation, execution_interrupts=execution_interrupts)
+    execution_status = conversation.execute(execution_interrupts)
     conversation.append_user_message("Please, use the sleep tool")
-    execution_status = assistant.execute(conversation, execution_interrupts=execution_interrupts)
+    execution_status = conversation.execute(execution_interrupts)
     assert isinstance(execution_status, InterruptedExecutionStatus)
     assert execution_status.interrupter == execution_interrupts[0]
     assert execution_status.reason == "Execution time limit reached"
@@ -375,7 +365,7 @@ def test_flow_assistant_execution_stops_with_timeout_execution_interrupt():
     assistant = create_basic_flow_assistant(step_type=SleepStep)
     execution_interrupts = [SoftTimeoutExecutionInterrupt(timeout=0.5)]
     conversation = assistant.start_conversation()
-    execution_status = assistant.execute(conversation, execution_interrupts=execution_interrupts)
+    execution_status = conversation.execute(execution_interrupts)
     assert isinstance(execution_status, InterruptedExecutionStatus)
     assert execution_status.interrupter == execution_interrupts[0]
     assert execution_status.reason == "Execution time limit reached"
@@ -393,7 +383,7 @@ def test_agent_execution_stops_with_per_model_token_limit_execution_interrupt(
     ]
     conversation = assistant.start_conversation()
     conversation.append_user_message("Hello, how are you?")
-    execution_status = assistant.execute(conversation, execution_interrupts=execution_interrupts)
+    execution_status = conversation.execute(execution_interrupts)
     assert isinstance(execution_status, InterruptedExecutionStatus)
     assert execution_status.interrupter == execution_interrupts[0]
     assert (
@@ -413,7 +403,7 @@ def test_agent_execution_stops_with_global_token_limit_execution_interrupt(
     ]
     conversation = assistant.start_conversation()
     conversation.append_user_message("Hello, how are you?")
-    execution_status = assistant.execute(conversation, execution_interrupts=execution_interrupts)
+    execution_status = conversation.execute(execution_interrupts)
     assert isinstance(execution_status, InterruptedExecutionStatus)
     assert execution_status.interrupter == execution_interrupts[0]
     assert execution_status.reason == "Global token limit reached"
@@ -435,7 +425,7 @@ def test_flow_assistant_execution_stops_with_global_token_limit_execution_interr
         SoftTokenLimitExecutionInterrupt(all_models=[remotely_hosted_llm], total_tokens=1)
     ]
     conversation = flow.start_conversation()
-    execution_status = flow.execute(conversation, execution_interrupts=execution_interrupts)
+    execution_status = conversation.execute(execution_interrupts)
     assert isinstance(execution_status, InterruptedExecutionStatus)
     assert execution_status.interrupter == execution_interrupts[0]
     assert execution_status.reason == "Global token limit reached"

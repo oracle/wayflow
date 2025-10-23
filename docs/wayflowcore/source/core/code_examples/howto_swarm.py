@@ -241,7 +241,7 @@ def run_swarm_in_command_line(assistant: Swarm):
     conversation = assistant.start_conversation(inputs)
 
     while True:
-        status = assistant.execute(conversation)
+        status = conversation.execute()
         if isinstance(status, FinishedStatus):
             break
         assistant_reply = conversation.get_last_message()

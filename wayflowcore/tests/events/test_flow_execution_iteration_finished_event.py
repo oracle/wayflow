@@ -146,7 +146,7 @@ def test_event_is_triggered_with_flow_with_yielding_steps() -> None:
 
     with register_event_listeners([event_listener]):
         conversation = flow.start_conversation()
-        flow.execute(conversation)
+        conversation.execute()
 
     assert len(event_listener.triggered_events) == 1
     assert isinstance(event_listener.triggered_events[0], FlowExecutionIterationFinishedEvent)
@@ -177,7 +177,7 @@ def test_event_is_triggered_with_direct_call_flow_execute(
 
     with register_event_listeners([event_listener]):
         conversation = flow.start_conversation()
-        flow.execute(conversation)
+        conversation.execute()
 
     assert len(event_listener.triggered_events) == 2
     assert isinstance(event_listener.triggered_events[0], FlowExecutionIterationFinishedEvent)
@@ -252,7 +252,7 @@ def test_events_are_triggered_with_nested_flows(
     conversation = flow.start_conversation()
 
     with register_event_listeners([event_listener]):
-        flow.execute(conversation)
+        conversation.execute()
 
     # In this case each step has a flow iteration as well
     assert len(event_listener.triggered_events) == 2 + count_agents_and_flows_in_flow(flow) * 2
@@ -279,10 +279,10 @@ def test_event_is_triggered_with_agent_subflows(
     conversation = agent.start_conversation()
 
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
 
     assert len(event_listener.triggered_events) == 2
     assert isinstance(event_listener.triggered_events[0], FlowExecutionIterationFinishedEvent)

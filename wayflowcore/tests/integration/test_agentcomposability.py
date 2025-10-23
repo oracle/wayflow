@@ -76,7 +76,7 @@ def test_simple_end_to_endcomposability(big_llama):
     assistant = _get_fooza_zinimo_assistant(big_llama)
     conversation = assistant.start_conversation()
     conversation.append_user_message("compute the result the zinimo operation of 4 and 5")
-    assistant.execute(conversation)
+    conversation.execute()
     last_message = conversation.get_last_message().content
     assert any([x in last_message for x in ["0", "zero"]])
 
@@ -113,7 +113,7 @@ def test_agents_provide_inputs_to_subagent(big_llama):
         "I have a coding question: Explain to me in one sentence what `inspect.getframeinfo` enables."
     )
 
-    parent_agent.execute(conversation)
+    conversation.execute()
 
     assert any(
         message.message_type == MessageType.TOOL_REQUEST

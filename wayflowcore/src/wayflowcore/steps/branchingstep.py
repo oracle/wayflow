@@ -96,13 +96,14 @@ class BranchingStep(Step):
         >>> OUTPUT_ACCESS_GRANTED_STEP = "ACCESS_GRANTED"
         >>> OUTPUT_ACCESS_DENIED_STEP = "ACCESS_DENIED"
         >>> NEXT_STEP_NAME_IO = "$next_step_name"
+        >>> branching_step = BranchingStep(
+        ...         branch_name_mapping={"yes": "access_is_granted", "no": "access_is_denied"},
+        ...         input_mapping={BranchingStep.NEXT_BRANCH_NAME: NEXT_STEP_NAME_IO},
+        ...    )
         >>> assistant = Flow(
-        ...     begin_step_name=BRANCHING_STEP,
+        ...     begin_step=branching_step,
         ...     steps={
-        ...         BRANCHING_STEP: BranchingStep(
-        ...             branch_name_mapping={"yes": "access_is_granted", "no": "access_is_denied"},
-        ...             input_mapping={BranchingStep.NEXT_BRANCH_NAME: NEXT_STEP_NAME_IO},
-        ...         ),
+        ...         BRANCHING_STEP: branching_step,
         ...         OUTPUT_ACCESS_GRANTED_STEP: OutputMessageStep("Access granted. Press any key to continue..."),
         ...         OUTPUT_ACCESS_DENIED_STEP: OutputMessageStep("Access denied. Please exit the conversation."),
         ...     },

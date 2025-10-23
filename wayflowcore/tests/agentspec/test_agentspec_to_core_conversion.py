@@ -129,7 +129,7 @@ def run_example(
         text = text.replace("MCP_SERVER_URL", sse_mcp_server_http)
         wayflowcore_assistant = cast(Union[RuntimeAgent, RuntimeFlow], loader.load_yaml(text))
     conversation = wayflowcore_assistant.start_conversation(conversation_inputs)
-    status = wayflowcore_assistant.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, ExecutionStatus)
 
 
@@ -141,6 +141,6 @@ def test_apinode_exposes_http_response_among_outputs_when_executed() -> None:
             Union[RuntimeAgent, RuntimeFlow], loader.load_yaml(file.read())
         )
     conversation = wayflowcore_assistant.start_conversation()
-    status = wayflowcore_assistant.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     assert "http_response" in status.output_values

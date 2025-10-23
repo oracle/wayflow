@@ -335,10 +335,10 @@ def test_event_is_triggered_with_agent(
 ) -> None:
     conversation = agent.start_conversation()
     with Trace(span_processors=[default_span_processor]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
     exported_spans = default_span_exporter.get_exported_spans(
         "AgentExecutionSpan"
     ) + default_span_exporter.get_exported_spans("FlowExecutionSpan")
@@ -432,10 +432,10 @@ def test_event_is_triggered_with_flows_and_agents_in_agent(
 ) -> None:
     conversation = agent.start_conversation()
     with Trace(span_processors=[default_span_processor]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
     exported_spans = default_span_exporter.get_exported_spans(
         "AgentExecutionSpan"
     ) + default_span_exporter.get_exported_spans("FlowExecutionSpan")
@@ -491,7 +491,7 @@ def test_event_is_triggered_with_flows_and_agents_in_flows(
 ) -> None:
     conversation = flow.start_conversation()
     with Trace(span_processors=[default_span_processor]):
-        flow.execute(conversation)
+        conversation.execute()
     exported_spans = default_span_exporter.get_exported_spans(
         "AgentExecutionSpan"
     ) + default_span_exporter.get_exported_spans("FlowExecutionSpan")

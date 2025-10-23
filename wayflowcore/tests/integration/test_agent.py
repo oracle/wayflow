@@ -122,7 +122,7 @@ def agent_with_yielding_subflow(remotely_hosted_llm: LlmModel) -> Agent:
     example_flow = Flow(
         name="get_weather",
         description="Flow to get the weather in Morocco",
-        begin_step_name="input_step",
+        begin_step=input_step,
         steps={
             "input_step": input_step,
             "output_step": output_step,
@@ -203,7 +203,7 @@ def test_flexible_dont_use_tools_on_last_iteration(remotely_hosted_llm: LlmModel
         "compute the result of the zinimo operation between zinimo(2,1) and 4)"
     )
 
-    status = agent.execute(conv)
+    status = conv.execute()
 
 
 @retry_test(max_attempts=5, wait_between_tries=0)
@@ -224,7 +224,7 @@ def test_agent_can_call_one_tool_two_times_in_a_row_vllm(remotely_hosted_llm: Ll
 
     conv = agent.start_conversation()
     conv.append_user_message("what is the result of zinimo(41,5) and zinimo(56,10)?")
-    status = agent.execute(conv)
+    status = conv.execute()
 
     assert isinstance(status, UserMessageRequestStatus)
     agent_answer = conv.get_last_message().content
@@ -320,17 +320,17 @@ def test_agent_can_use_flows_and_tools_vllm(llm_config: Dict[str, str]) -> None:
     conv.append_user_message(
         'help me create a dashboard. The name will be "my_dash". Compute the forecast data using your tool'
     )
-    agent.execute(conv)
+    conv.execute()
     assert (
         conv.get_last_message().content
         == "Please choose a forecasting horizon (in weeks, between 1 and 7)"
     )  # message posted by the flow
     conv.append_user_message("5")
-    agent.execute(conv)
+    conv.execute()
     if not dashboard_called[0]:
         # might need confirmation to continue
         conv.append_user_message('go ahead to create the dashboard named "my_dash"')
-        agent.execute(conv)
+        conv.execute()
     assert dashboard_called[0]
 
 
@@ -534,7 +534,7 @@ def run_test_assistant_can_request_at_once_client_and_server_tools(
     conversation.append_user_message(
         "I want to know the result of the spluk and the gliif operations with a=11 and b=6. Tell me both results at the same time."
     )
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
 
     # We expect that the first invocation has ToolRequestStatus because the
     # agent should try calling both tools before replying to the user and the
@@ -556,7 +556,7 @@ def run_test_assistant_can_request_at_once_client_and_server_tools(
         )
     )
 
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, UserMessageRequestStatus)
     last_agent_message = conversation.get_last_message()
 
@@ -629,7 +629,7 @@ def dummy_check_name_in_db_tool():
 def run_test_agent_can_call_client_tool_with_no_parameter(assistant: Union[Flow, Agent]) -> None:
     conversation = assistant.start_conversation()
     conversation.append_user_message("What is the temperature in the room? Use your tool if needed")
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolRequestStatus)
     assert len(execution_status.tool_requests) == 1
     client_tool_request = execution_status.tool_requests[0]
@@ -663,10 +663,10 @@ def run_test_agent_can_call_client_tool_with_confirmation_with_no_parameter(
 ) -> None:
     conversation = assistant.start_conversation()
     conversation.append_user_message("What is the temperature in the room? Use your tool if needed")
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
     execution_status.confirm_tool_execution(tool_request=execution_status.tool_requests[0])
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolRequestStatus)
     assert len(execution_status.tool_requests) == 1
     client_tool_request = execution_status.tool_requests[0]
@@ -679,18 +679,18 @@ def run_test_agent_can_call_client_tool_with_rejection_with_no_parameter(
 ) -> None:
     conversation = assistant.start_conversation()
     conversation.append_user_message("What is the temperature in the room? Use your tool if needed")
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
     execution_status.reject_tool_execution(
         tool_request=execution_status.tool_requests[0], reason="Simply Call the tool again"
     )
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
     execution_status.reject_tool_execution(
         tool_request=execution_status.tool_requests[0],
         reason="You can never access this tool. Do not call the tool again. DO NOT TRY AGAIN!",
     )
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, UserMessageRequestStatus)
 
 
@@ -765,23 +765,23 @@ def test_agent_can_call_server_tool_with_confirmation(
     conversation.append_user_message(
         "Is name Jack present in the database? Use your tool if needed"
     )
-    execution_status = agent_with_db_tool.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
     assert len(execution_status.tool_requests) == 1
     server_tool_request = execution_status.tool_requests[0]
     assert server_tool_request.name == "dummy_check_name_in_db_tool"
     execution_status.confirm_tool_execution(tool_request=server_tool_request)
-    execution_status = agent_with_db_tool.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, UserMessageRequestStatus)
 
     conversation = agent_with_db_tool.start_conversation()
     conversation.append_user_message(
         "Is name Jack present in the database? Use your tool if needed"
     )
-    execution_status = agent_with_db_tool.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
     execution_status.confirm_tool_execution(tool_request=execution_status.tool_requests[0])
-    execution_status = agent_with_db_tool.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, UserMessageRequestStatus)
 
 
@@ -799,19 +799,19 @@ def test_agent_can_handle_server_tool_rejection_multiple_times(agent_with_db_too
     conversation.append_user_message(
         "Is name Jack present in the database? Use your tool if needed"
     )
-    execution_status = agent_with_db_tool.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
     server_tool_request = execution_status.tool_requests[0]
     execution_status.reject_tool_execution(
         tool_request=server_tool_request, reason="Simply Call the tool again"
     )
-    execution_status = agent_with_db_tool.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
     execution_status.reject_tool_execution(
         tool_request=execution_status.tool_requests[0],
         reason="This database cannot be accessed. Do not try again",
     )
-    execution_status = agent_with_db_tool.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, UserMessageRequestStatus) or isinstance(
         execution_status, FinishedStatus
     )
@@ -832,13 +832,13 @@ def test_agent_can_handle_server_tool_rejection_once(agent_with_db_tool: Agent) 
     conversation.append_user_message(
         "Is name Jack present in the database? Use your tool if needed"
     )
-    execution_status = agent_with_db_tool.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
     execution_status.reject_tool_execution(
         tool_request=execution_status.tool_requests[0],
         reason="This database cannot be accessed. Do not try again",
     )
-    execution_status = agent_with_db_tool.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, UserMessageRequestStatus) or isinstance(
         execution_status, FinishedStatus
     )
@@ -859,14 +859,14 @@ def test_server_tool_raises_error_when_not_confirmed(agent_with_db_tool: Agent) 
     conversation.append_user_message(
         "Is name Jack present in the database? Use your tool if needed"
     )
-    execution_status = agent_with_db_tool.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolExecutionConfirmationStatus)
     with pytest.raises(
         ValueError,
         match="Missing tool confirmation, "
         "please make sure to either confirm or reject the tool execution before resuming the conversation.",
     ):
-        execution_status = agent_with_db_tool.execute(conversation)
+        execution_status = conversation.execute()
 
 
 @pytest.fixture
@@ -910,7 +910,7 @@ def test_agent_returns_tool_request_status_when_using_client_tool_execution_step
     )
     conversation = agent.start_conversation()
     conversation.append_user_message("What is the temperature in the room?")
-    execution_status = agent.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolRequestStatus)
     assert len(execution_status.tool_requests) == 1
     client_tool_request = execution_status.tool_requests[0]
@@ -960,7 +960,7 @@ def run_test_agent_can_return_multiple_tool_requests(assistant: Union[Flow, Agen
     conversation.append_user_message(
         "I want to know the result of the roowl operation for a=5 and for a=6, and also the result of the spuor operation for a=7.  Tell me the three results at the same time."
     )
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, ToolRequestStatus)
     assert len(execution_status.tool_requests) == 3
     for tool_request in execution_status.tool_requests:
@@ -975,7 +975,7 @@ def run_test_agent_can_return_multiple_tool_requests(assistant: Union[Flow, Agen
                 tool_result=client_tool_result,
             )
         )
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, UserMessageRequestStatus)
     last_agent_message = conversation.get_last_message()
 
@@ -1034,12 +1034,12 @@ def test_agent_dummy_model(test_with_llm_fixture):
 
     conv = agent.start_conversation()
 
-    status = agent.execute(conv)
+    status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     assert conv.get_last_message().content == Agent.DEFAULT_INITIAL_MESSAGE
 
     conv.append_user_message(human_question)
-    status = agent.execute(conv)
+    status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
 
     messages = conv.get_messages()
@@ -1068,7 +1068,7 @@ def test_agent_without_custom_instruction(remotely_hosted_llm):
 
     conv = agent.start_conversation()
     conv.append_user_message("What is the result of spluk of 2 and 3? ")
-    status = agent.execute(conv)
+    status = conv.execute()
     response = conv.get_last_message().content
     assert "14" in response
 
@@ -1093,14 +1093,14 @@ def test_agent_without_custom_instruction_openai(gpt_llm):
 
     conv = agent.start_conversation()
     conv.append_user_message("What is the result of spluk of 2 and 3? ")
-    status = agent.execute(conv)
+    status = conv.execute()
     response = conv.get_last_message().content
     assert "14" in response
 
 
 def run_initial_interaction_agent(agent: Agent) -> str:
     conv = agent.start_conversation()
-    status = agent.execute(conv)
+    status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     assert conv.get_last_message().message_type == MessageType.AGENT
     return conv.get_last_message().content
@@ -1202,7 +1202,7 @@ def test_agent_uses_inputs_if_passed(remotely_hosted_llm):
     for name in ["Larry", "Jenny"]:
         conversation = my_agent.start_conversation(inputs={"agent_name": name})
         conversation.append_user_message("Please just tell me your name?")
-        my_agent.execute(conversation)
+        conversation.execute()
         last_message = conversation.get_last_message()
         assert last_message is not None
         assert name.lower() in last_message.content.lower()
@@ -1274,7 +1274,7 @@ def test_agent_without_tool_helpfully_answers_basic_questions_when_it_can_finish
     )
     conversation = agent.start_conversation()
     conversation.append_user_message(user_question)
-    agent.execute(conversation)
+    conversation.execute()
     assert expected_answer in conversation.get_last_message().content.lower()
 
 
@@ -1301,7 +1301,7 @@ def test_agent_with_multi_outputs_tool(remotely_hosted_llm):
 
     conversation = agent.start_conversation()
     conversation.append_user_message("what are my name and id?")
-    status = agent.execute(conversation)
+    status = conversation.execute()
     last_message_content = conversation.get_last_message().content.lower()
     assert "larry" in last_message_content
     assert "123" in last_message_content
@@ -1403,7 +1403,7 @@ def test_ocigenai_agent_can_use_tools(llama_oci_llm):
 
     conv = agent.start_conversation()
     conv.append_user_message("Based on a query on the HR DB, how many vacation days do I have?")
-    status = agent.execute(conv)
+    status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     tool_calls = [tc for m in conv.get_messages() for tc in (m.tool_requests or [])]
     assert len(tool_calls) == 1
@@ -1431,9 +1431,9 @@ def test_flow_as_tool_calling_with_user_response_inside_only_agent(agent_with_yi
     agent = agent_with_yielding_subflow
     conversation = agent.start_conversation()
     conversation.append_user_message("How is the weather in Morocco?")
-    agent.execute(conversation)
+    conversation.execute()
     conversation.append_user_message("windy")
-    agent.execute(conversation)
+    conversation.execute()
 
     messages = [m for m in conversation.get_messages() if m.message_type != MessageType.INTERNAL]
 
@@ -1482,7 +1482,7 @@ def test_llm_in_agent_does_not_raise_event_loop_is_closed_runtime_error__vllm(
     for _ in range(3):
         conv = agent.start_conversation()
         conv.append_user_message("Count to 50")
-        agent.execute(conv)
+        conv.execute()
 
     assert "RuntimeError: Event loop is closed" not in caplog.text
 
@@ -1505,7 +1505,7 @@ GUESS_GAME_TEMPLATE = PromptTemplate(
 def run_simple_guess_game(test_cases, conversation, agent):
     for user_message, expected_agent_output in test_cases:
         conversation.append_user_message(user_message)
-        status = agent.execute(conversation)
+        status = conversation.execute()
         assert conversation.get_last_message().content == expected_agent_output
 
 
@@ -1640,15 +1640,6 @@ def test_agent_raise_warning_about_wrong_parsing_when_outputting_wrongly_formatt
     assert "Couldn't parse tool request" in caplog.text
 
 
-def test_execute_agent_on_wrong_conversation(remotely_hosted_llm):
-    agent_1 = Agent(llm=remotely_hosted_llm)
-    agent_2 = Agent(llm=remotely_hosted_llm)
-
-    conv = agent_1.start_conversation()
-    with pytest.raises(ValueError, match="You are trying to call"):
-        agent_2.execute(conv)
-
-
 def test_execute_agent_with_non_str_outputs(gpt_llm):
     @tool(description_mode="only_docstring")
     def generate_name() -> Dict[str, str]:
@@ -1694,7 +1685,7 @@ def test_agent_handles_image_content_in_user_message(remote_gemma_llm: LlmModel)
     )
 
     # Execute the agent to process the message
-    _ = agent.execute(conversation)
+    _ = conversation.execute()
 
     # Verify the agent processed the message correctly
     last_message = conversation.get_last_message()

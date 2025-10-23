@@ -161,7 +161,7 @@ def test_event_is_triggered_with_flow(
         message_template="Location of the company is at {{location_output_io}}",
     )
     flow = Flow(
-        begin_step_name="output_step",
+        begin_step=output_step,
         steps={"output_step": output_step},
         control_flow_edges=[ControlFlowEdge(output_step, None)],
         data_flow_edges=[

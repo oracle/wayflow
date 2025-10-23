@@ -169,7 +169,7 @@ def test_tracing_works_with_parallel_execution(
     )
     map_step_name = "map_step"
     flow = Flow(
-        begin_step_name="start_step",
+        begin_step=start_step,
         steps={
             "start_step": start_step,
             map_step_name: map_step,

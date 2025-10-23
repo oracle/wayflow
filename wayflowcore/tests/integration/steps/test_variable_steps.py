@@ -132,7 +132,7 @@ def test_variable_read_step_cannot_read_variable_without_default_value(
         variables=[string_variable],
     )
     with pytest.raises(ValueError):
-        flow_assistant.execute(flow_assistant.start_conversation())
+        flow_assistant.start_conversation().execute()
 
 
 @pytest.mark.parametrize(
@@ -152,7 +152,7 @@ def test_variable_read_step_can_read_default_value(variable: str, request: Fixtu
         variables=[variable],
     )
 
-    status = flow_assistant.execute(flow_assistant.start_conversation())
+    status = flow_assistant.start_conversation().execute()
 
     assert isinstance(status, FinishedStatus)
     assert VariableReadStep.VALUE in status.output_values
@@ -171,9 +171,9 @@ def test_variable_write_step_cannot_write_different_type(
         step=VariableWriteStep(variable=variable), variables=[variable]
     )
     with pytest.raises(TypeError):
-        flow_assistant.execute(
-            flow_assistant.start_conversation({VariableWriteStep.VALUE: "clearly different type"})
-        )
+        flow_assistant.start_conversation(
+            {VariableWriteStep.VALUE: "clearly different type"}
+        ).execute()
 
 
 def test_variable_write_step_cannot_write_if_value_not_in_io_dict(
@@ -187,7 +187,7 @@ def test_variable_write_step_cannot_write_if_value_not_in_io_dict(
     )
 
     with pytest.raises(ValueError):
-        flow_assistant.execute(flow_assistant.start_conversation())
+        flow_assistant.start_conversation().execute()
 
 
 @pytest.mark.parametrize(
@@ -212,7 +212,7 @@ def test_flow_can_write_own_reads(variable: str, request: FixtureRequest) -> Non
     )
 
     conversation = assistant.start_conversation()
-    status = assistant.execute(conversation)
+    status = conversation.execute()
 
     assert isinstance(status, FinishedStatus)
 
@@ -244,7 +244,7 @@ def test_variable_readwrite_steps_work_in_flow(string_variable: Variable) -> Non
         variables=[string_variable],
     )
     conversation = assistant.start_conversation()
-    status = assistant.execute(conversation)
+    status = conversation.execute()
 
     assert isinstance(status, FinishedStatus)
     assert status.output_values[VariableReadStep.VALUE] == "my string value"
@@ -265,7 +265,7 @@ def test_multiple_reads(float_variable: Variable, list_of_floats_variable: Varia
     assert isinstance(conversation.state, FlowConversationExecutionState)
     assert len(conversation.state.input_output_key_values) == 0
 
-    status = assistant.execute(conversation)
+    status = conversation.execute()
 
     assert isinstance(status, FinishedStatus)
     assert status.output_values["read1-io"] == float_variable.default_value
@@ -284,7 +284,7 @@ def test_multiple_writes(float_variable: Variable, string_variable: Variable) ->
     conversation = assistant.start_conversation(
         {"write-string-io": "my-string", "write-float-io": 3.14}
     )
-    assistant.execute(conversation)
+    conversation.execute()
 
     assert conversation.state.variable_store[float_variable.name] == 3.14
     assert conversation.state.variable_store[string_variable.name] == "my-string"
@@ -305,7 +305,7 @@ def test_can_read_own_writes(float_variable: Variable, string_variable: Variable
         {"write-string-io": "my-string", "write-float-io": 3.14}
     )
 
-    status = assistant.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
 
     assert (
@@ -331,7 +331,7 @@ def test_insert_into_list(list_of_floats_variable):
     )
 
     conversation = assistant.start_conversation({"write-float-io": 0.1})
-    assistant.execute(conversation)
+    conversation.execute()
 
     expected = [4.0, 4.0, 3.0, 2.1423, 0.1]
     assert conversation.state.variable_store[list_of_floats_variable.name] == expected
@@ -363,13 +363,13 @@ def test_variable_is_reused_when_flow_loops_onto_itself(list_of_floats_variable)
     conversation = assistant.start_conversation(
         {"write-float-io": 0.1, "write-another-float-io": 3.14}
     )
-    assistant.execute(conversation)
+    conversation.execute()
 
     expected = [4.0, 4.0, 3.0, 2.1423, 0.1, 3.14]
     assert conversation.state.variable_store[list_of_floats_variable.name] == expected
 
     conversation.append_user_message("")
-    assistant.execute(conversation)
+    conversation.execute()
 
     expected += [0.1, 3.14]
     assert conversation.state.variable_store[list_of_floats_variable.name] == expected

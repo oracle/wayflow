@@ -185,7 +185,7 @@ def test_output_can_use_lists(template: str, expected_match: str) -> None:
     )
 
     conv = assistant.start_conversation()
-    assistant.execute(conv)
+    conv.execute()
     assert conv.get_last_message().content == expected_match
 
 
@@ -198,7 +198,7 @@ def test_output_can_use_dicts() -> None:
     )
 
     conv = assistant.start_conversation(inputs={"my_dict": {"k1": "v1", "k2": "v2"}})
-    assistant.execute(conv)
+    conv.execute()
     assert conv.get_last_message().content == "k1:v1,k2:v2,"
 
 
@@ -212,7 +212,7 @@ def test_output_step_with_display_only_mode() -> None:
     )
 
     conv = assistant.start_conversation()
-    assistant.execute(conv)
+    conv.execute()
     assert conv.get_last_message().content == "Test Message"
     assert conv.get_last_message().message_type == MessageType.DISPLAY_ONLY
     assert len(conv.get_messages()) == 1
@@ -230,7 +230,7 @@ def test_output_can_use_arbitrary_complex_structures() -> None:
     conv = assistant.start_conversation(
         inputs={"my_dict": {"N1": [{"k1": "v1"}, {"k2": "v2"}], "N2": [{"k3": "v3"}, {"k4": "v4"}]}}
     )
-    assistant.execute(conv)
+    conv.execute()
     assert conv.get_last_message().content == "[k1:v1,k2:v2,][k3:v3,k4:v4,]"
 
 
@@ -244,7 +244,7 @@ def test_output_doesnt_match_wrongly_formatted_lists() -> None:
         )
 
         conv = assistant.start_conversation()
-        assistant.execute(conv)
+        conv.execute()
 
 
 def test_assistant_output_step_might_not_yield() -> None:

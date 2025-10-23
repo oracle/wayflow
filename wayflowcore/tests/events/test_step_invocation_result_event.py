@@ -132,10 +132,10 @@ def test_event_is_triggered_step_invocation_with_agent(
     tool_request_id = None
 
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            execution_status = agent.execute(conversation)
+            execution_status = conversation.execute()
             if isinstance(execution_status, ToolRequestStatus):
                 assert len(execution_status.tool_requests) == 1
                 tool_request_id = execution_status.tool_requests[-1].tool_request_id
@@ -143,7 +143,7 @@ def test_event_is_triggered_step_invocation_with_agent(
         conversation.append_tool_result(
             ToolResult(content=tool_result.content, tool_request_id=tool_request_id)
         )
-        agent.execute(conversation)
+        conversation.execute()
 
     # StartStep + ToolExecutionStep(Yielding call) + ToolExecutionStep(call after ToolResult)
     assert len(event_listener.triggered_events) == 3

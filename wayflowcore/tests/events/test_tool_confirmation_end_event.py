@@ -165,15 +165,15 @@ def test_event_is_triggered_with_agent(
     conversation = agent.start_conversation()
 
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            execution_status = agent.execute(conversation)
+            execution_status = conversation.execute()
             if isinstance(execution_status, ToolExecutionConfirmationStatus):
                 execution_status.confirm_tool_execution(
                     tool_request=execution_status.tool_requests[-1]
                 )
-                execution_status = agent.execute(conversation)
+                execution_status = conversation.execute()
 
     assert len(event_listener.triggered_events) == len(user_messages)
     if len(user_messages) > 0:
@@ -264,16 +264,16 @@ def test_event_is_triggered_with_agent_and_flow(
 
     with register_event_listeners([event_listener]):
         tool_request_id = None
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            execution_status = agent.execute(conversation)
+            execution_status = conversation.execute()
             if isinstance(execution_status, ToolExecutionConfirmationStatus):
                 tool_request_id = execution_status.tool_requests[-1].tool_request_id
                 execution_status.confirm_tool_execution(
                     tool_request=execution_status.tool_requests[-1]
                 )
-                execution_status = agent.execute(conversation)
+                execution_status = conversation.execute()
 
         assert tool_request_id is not None
     assert len(event_listener.triggered_events) == len(user_messages)
@@ -293,15 +293,15 @@ def test_event_is_triggered_after_confirming_tool_call_with_flow(location_tool):
     )
     with register_event_listeners([event_listener_1]):
         conv = flow.start_conversation({}, messages=None)
-        status = flow.execute(conv)
+        status = conv.execute()
         status.reject_tool_execution(tool_request=status.tool_requests[0])
-        status = flow.execute(conv)
+        status = conv.execute()
 
     with register_event_listeners([event_listener_2]):
         conv = flow.start_conversation({}, messages=None)
-        status = flow.execute(conv)
+        status = conv.execute()
         status.confirm_tool_execution(tool_request=status.tool_requests[0])
-        status = flow.execute(conv)
+        status = conv.execute()
 
     # The end event is captured after confirming tool confirmation and executing
     assert len(event_listener_1.triggered_events) == 1

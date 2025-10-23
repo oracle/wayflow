@@ -478,7 +478,7 @@ class Flow(ConversationalComponent, SerializableObject):
         ...     input_mapping={"username": USER_NAME}
         ... )
         >>> flow = Flow(
-        ...     begin_step_name=START_STEP,
+        ...     begin_step=start_step,
         ...     steps={START_STEP: start_step, OUTPUT_STEP: output_step},
         ...     control_flow_edges=[
         ...         ControlFlowEdge(source_step=start_step, destination_step=output_step),
@@ -1232,7 +1232,7 @@ class Flow(ConversationalComponent, SerializableObject):
 
         return Flow(
             flow_id=input_dict.get("flow_id", None),
-            begin_step_name=input_dict["begin_step_name"],
+            begin_step=steps[input_dict["begin_step_name"]],
             steps=steps,
             transitions=transitions,
             context_providers=context_providers_list,

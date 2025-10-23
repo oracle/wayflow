@@ -14,8 +14,8 @@ def test_events_list_length_limit_is_respected(remotely_hosted_llm):
     conversation.state._EVENTS_LIST_MAX_LENGTH = events_max_len
     assert len(conversation.state.events) == 0
     conversation.append_user_message("Hello, how are you?")
-    _ = agent.execute(conversation)
+    _ = conversation.execute()
     assert len(conversation.state.events) == events_max_len
     conversation.append_user_message("Tell me a nice joke")
-    _ = agent.execute(conversation)
+    _ = conversation.execute()
     assert len(conversation.state.events) == events_max_len

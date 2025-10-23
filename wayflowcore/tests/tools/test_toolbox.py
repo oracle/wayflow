@@ -99,7 +99,7 @@ def test_agent_can_call_tool_from_toolboxes(remotely_hosted_llm):
 
     conv = agent.start_conversation()
     conv.append_user_message("compute the result the zbuk operation of 4 and 5")
-    agent.execute(conv)
+    conv.execute()
 
     last_message = conv.get_last_message()
     assert last_message is not None

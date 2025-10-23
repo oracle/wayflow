@@ -43,7 +43,7 @@ class ControlFlowEdge(FrozenDataclassComponent):
     >>> opening_step = OutputMessageStep("Opening session")
     >>> closing_step = OutputMessageStep('Closing session"')
     >>> flow = Flow(
-    ...     begin_step_name="open_step",
+    ...     begin_step=opening_step,
     ...     steps={
     ...         "open_step": opening_step,
     ...         "close_step": closing_step,

@@ -138,7 +138,7 @@ def test_serialize_agent_conversation(
     agent: Agent,
 ) -> None:
     conversation = agent.start_conversation()
-    agent.execute(conversation)
+    conversation.execute()
     # first message of conversation should be a hardcoded one
     assert "Hi! How can I help you?" == conversation.get_last_message().content
 
@@ -305,7 +305,7 @@ def test_interrupted_status_properly_serde(remotely_hosted_llm, interrupter_buil
     )
     flow = create_single_step_flow(step)
     conv = flow.start_conversation()
-    status = flow.execute(conv, execution_interrupts=[interrupter])
+    status = conv.execute(execution_interrupts=[interrupter])
     serialized_conv = serialize(conv)
     deserialized_conv = autodeserialize(serialized_conv)
 

@@ -85,7 +85,7 @@ def create_retry_flow(
         ),
     ]
 
-    return Flow(begin_step_name=retry_step_name, steps=steps, control_flow_edges=control_flow_edges)
+    return Flow(begin_step=retry_step, steps=steps, control_flow_edges=control_flow_edges)
 
 
 @pytest.fixture
@@ -120,7 +120,7 @@ def _run_single_step_to_finish(
     success_step_instance = CompleteStep()
     failure_step_instance = CompleteStep()
     flow = Flow(
-        begin_step_name=branching_step,
+        begin_step=step,
         steps={
             branching_step: step,
             success_step: success_step_instance,
@@ -301,7 +301,7 @@ def test_can_use_branches_mapping(succeeds_on_x, expected_last_step):
     success_step = CompleteStep()
     failure_step = CompleteStep()
     flow = Flow(
-        begin_step_name="start",
+        begin_step=retry_step,
         steps={
             "start": retry_step,
             "success": success_step,
@@ -321,6 +321,6 @@ def test_can_use_branches_mapping(succeeds_on_x, expected_last_step):
         ],
     )
     conv = flow.start_conversation()
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.complete_step_name == expected_last_step

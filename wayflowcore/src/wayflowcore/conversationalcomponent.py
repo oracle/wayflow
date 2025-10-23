@@ -5,13 +5,11 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import logging
-import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
 from wayflowcore.property import Property
 
@@ -21,8 +19,6 @@ logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
     from wayflowcore.executors._executor import ConversationExecutor
-    from wayflowcore.executors.executionstatus import ExecutionStatus
-    from wayflowcore.executors.interrupts.executioninterrupt import ExecutionInterrupt
     from wayflowcore.messagelist import Message, MessageList
     from wayflowcore.models.llmmodel import LlmModel
     from wayflowcore.tools import Tool
@@ -68,43 +64,6 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
     @property
     def llms(self) -> List["LlmModel"]:
         raise NotImplementedError("to be implemented by child classes")
-
-    def execute(
-        self,
-        conversation: "Conversation",
-        execution_interrupts: Optional[List["ExecutionInterrupt"]] = None,
-        _validate_same_component: bool = True,
-    ) -> "ExecutionStatus":
-        from wayflowcore.events.eventlistener import _record_exception
-        from wayflowcore.executors.executionstatus import ExecutionStatus
-
-        warnings.warn(
-            "Call to deprecated method execute. (Method was deprecated in 25.3.0 and will be removed in 25.4. Please use `conversation.execute()` instead.)",
-            category=DeprecationWarning,
-        )
-
-        try:
-            if not isinstance(conversation, self.conversation_class):
-                raise ValueError(
-                    f"the provided conversation to a {self.__class__} must be of type {self.conversation_class} but was {type(conversation).__name__}"
-                )
-            if _validate_same_component and conversation.component is not self:
-                raise ValueError(
-                    "You are trying to call the component on a conversation that was not created by it. Please use `conversation.execute()` instead."
-                )
-
-            return cast(
-                ExecutionStatus,
-                run_async_in_sync(
-                    conversation.execute_async,
-                    execution_interrupts,
-                    method_name="conversation.execute_async",
-                ),
-            )
-
-        except Exception as e:
-            _record_exception(e)
-            raise e
 
     def _referenced_tools(self, recursive: bool = True) -> List["Tool"]:
         """

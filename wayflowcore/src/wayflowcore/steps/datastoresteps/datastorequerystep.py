@@ -144,7 +144,7 @@ class DatastoreQueryStep(Step):
         ...     )
         ... )
         >>> conversation = datastore_query_flow.start_conversation({"bind_variables": {"salary": 100000, "department": "reception"}})
-        >>> execution_status = datastore_query_flow.execute(conversation)
+        >>> execution_status = conversation.execute()
         >>> execution_status.output_values
         {'result': [{'email': 'pam@dudemuffin.com', 'salary': 95000.0}]}
 

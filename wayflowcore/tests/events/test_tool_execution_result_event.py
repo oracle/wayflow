@@ -132,13 +132,13 @@ def test_event_is_triggered_with_agent(
     conversation = agent.start_conversation()
 
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
         for result in client_tool_results:
             conversation.append_tool_result(result)
-            agent.execute(conversation)
+            conversation.execute()
     assert len(event_listener.triggered_events) == len(user_messages)
     if len(user_messages) > 0:
         assert isinstance(event_listener.triggered_events[-1], ToolExecutionResultEvent)
@@ -195,17 +195,17 @@ def test_event_is_triggered_with_agent_and_flow(
 
     with register_event_listeners([event_listener]):
         tool_request_id = None
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            execution_status = agent.execute(conversation)
+            execution_status = conversation.execute()
             if isinstance(execution_status, ToolRequestStatus):
                 tool_request_id = execution_status.tool_requests[-1].tool_request_id
         assert tool_request_id is not None
         conversation.append_tool_result(
             ToolResult(content=tool_result.content, tool_request_id=tool_request_id)
         )
-        agent.execute(conversation)
+        conversation.execute()
     assert len(event_listener.triggered_events) == len(user_messages)
     if len(user_messages) > 0:
         assert isinstance(event_listener.triggered_events[-1], ToolExecutionResultEvent)

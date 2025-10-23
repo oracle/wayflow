@@ -98,7 +98,7 @@ def test_basic_agent_execution_step_without_user_input(zinimo_agent):
     flow = create_single_step_flow(step)
     conv = flow.start_conversation()
     conv.append_user_message("between 2 and 5")
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert "zinimo_result" in status.output_values
     assert status.output_values["zinimo_result"] == -2
@@ -149,13 +149,13 @@ def test_basic_agent_execution_step_with_user_input(zinimo_agent):
     flow = create_single_step_flow(step)
     conv = flow.start_conversation()
     conv.append_user_message("hi, can you help me compute the result of the zinimo operation?")
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     conv.append_user_message("2")
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     conv.append_user_message("5")
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert "zinimo_result" in status.output_values
     assert status.output_values["zinimo_result"] == -2
@@ -319,7 +319,7 @@ def test_agent_only_uses_max_iterations_in_total_during_agent_execution_step(rem
 
     flow = create_single_step_flow(step)
     conv = flow.start_conversation()
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert dummy_llm.output is None  # all generations used
     assert len([m for m in conv.get_messages() if "I'm not available" in m.content]) == 3
@@ -388,7 +388,7 @@ def test_agentexecutionstep_without_tool_helpfully_answers_basic_questions(
     flow = create_single_step_flow(agent_execution_step)
     conversation = flow.start_conversation()
     conversation.append_user_message(user_question)
-    flow.execute(conversation)
+    conversation.execute()
     assert expected_answer in conversation.get_last_message().content.lower()
 
 
@@ -416,9 +416,9 @@ def test_flow_as_tool_calling_with_user_response_inside_agent_execution_step(
     flow = create_single_step_flow(agent_execution_step)
     conversation = flow.start_conversation()
     conversation.append_user_message("How is the weather in Morocco?")
-    flow.execute(conversation)
+    conversation.execute()
     conversation.append_user_message("windy")
-    flow.execute(conversation)
+    conversation.execute()
 
     messages = [m for m in conversation.get_messages() if m.message_type != MessageType.INTERNAL]
 

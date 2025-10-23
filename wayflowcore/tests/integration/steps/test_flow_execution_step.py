@@ -40,7 +40,7 @@ def example_subflow():
     step_c = _InputOutputSpecifiedStep(inputs=["o1", "i2"], outputs=["o2"])
     step_d = _InputOutputSpecifiedStep(inputs=["o1"], outputs=["o2", "o3"])
     return Flow(
-        begin_step_name=STEP_B,
+        begin_step=step_b,
         steps={
             STEP_B: step_b,
             STEP_C: step_c,
@@ -106,7 +106,7 @@ def test_simple_subflow(example_subflow: Flow) -> None:
     )
     conversation = assistant.start_conversation()
     conversation.append_user_message(STEP_C)
-    assistant.execute(conversation)
+    conversation.execute()
 
 
 def test_simple_subflow_missing_output(example_subflow: Flow) -> None:
@@ -121,7 +121,7 @@ def test_simple_subflow_missing_output(example_subflow: Flow) -> None:
 
         conversation = assistant.start_conversation()
         conversation.append_user_message(STEP_C)
-        assistant.execute(conversation)
+        conversation.execute()
 
 
 def test_simple_subflow_add_output(example_subflow: Flow) -> None:
@@ -134,7 +134,7 @@ def test_simple_subflow_add_output(example_subflow: Flow) -> None:
     )
     conversation = assistant.start_conversation({"o3": "o3"})
     conversation.append_user_message(STEP_C)
-    assistant.execute(conversation)
+    conversation.execute()
 
 
 def test_sequential_subflow_execution() -> None:
@@ -165,7 +165,7 @@ def test_sequential_subflow_execution() -> None:
         ]
     )
     conversation = assistant.start_conversation()
-    assistant.execute(conversation)
+    conversation.execute()
 
 
 def test_nested_subflow_execution() -> None:
@@ -191,7 +191,7 @@ def test_nested_subflow_execution() -> None:
         ]
     )
     conversation = assistant.start_conversation()
-    assistant.execute(conversation)
+    conversation.execute()
 
 
 def test_sub_conversation_shares_same_message_list_as_main_conversation() -> None:
@@ -199,7 +199,7 @@ def test_sub_conversation_shares_same_message_list_as_main_conversation() -> Non
     assistant = Flow.from_steps([subflow_step])
 
     conversation = assistant.start_conversation()
-    assistant.execute(conversation)
+    conversation.execute()
 
     subconversation = conversation._get_current_sub_conversation(subflow_step)
 
@@ -248,12 +248,12 @@ def test_subflow_execution_might_yield_with_tool_request_inside() -> None:
 
     assistant = Flow.from_steps([step])
     conv = assistant.start_conversation()
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolRequestStatus)
     conv.append_tool_result(
         ToolResult(content="whatever", tool_request_id=status.tool_requests[0].tool_request_id)
     )
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
 
 
@@ -280,15 +280,15 @@ def test_subflow_with_client_tool_confirmation_works_with_tool_confirmation(
     flow_with_client_tool_confirmation,
 ) -> None:
     conv = flow_with_client_tool_confirmation.start_conversation()
-    status = flow_with_client_tool_confirmation.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     status.confirm_tool_execution(tool_request=status.tool_requests[0])
-    status = flow_with_client_tool_confirmation.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolRequestStatus)
     conv.append_tool_result(
         ToolResult(content="whatever", tool_request_id=status.tool_requests[0].tool_request_id)
     )
-    status = flow_with_client_tool_confirmation.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
 
 
@@ -296,10 +296,10 @@ def test_subflow_with_client_tool_confirmation_works_with_tool_rejection(
     flow_with_client_tool_confirmation,
 ) -> None:
     conv = flow_with_client_tool_confirmation.start_conversation()
-    status = flow_with_client_tool_confirmation.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     status.reject_tool_execution(tool_request=status.tool_requests[0])
-    status = flow_with_client_tool_confirmation.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
 
 
@@ -307,10 +307,10 @@ def test_subflow_with_client_tool_confirmation_raises_if_not_confirmed(
     flow_with_client_tool_confirmation,
 ) -> None:
     conv = flow_with_client_tool_confirmation.start_conversation()
-    status = flow_with_client_tool_confirmation.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     with pytest.raises(ValueError):
-        status = flow_with_client_tool_confirmation.execute(conv)
+        status = conv.execute()
 
 
 def test_subflow_execution_will_yield_with_tool_execution_confirmation_status_inside() -> None:
@@ -331,26 +331,26 @@ def test_subflow_execution_will_yield_with_tool_execution_confirmation_status_in
     )
     assistant = Flow.from_steps([step])
     conv = assistant.start_conversation(inputs={"name": "dummy user"})
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     status.reject_tool_execution(tool_request=status.tool_requests[0], reason="No reason")
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
 
     conv = assistant.start_conversation(inputs={"name": "dummy user"})
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     status.confirm_tool_execution(
         tool_request=status.tool_requests[0], modified_args={"name": "another user"}
     )
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
 
     conv = assistant.start_conversation(inputs={"name": "dummy user"})
-    status = assistant.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     with pytest.raises(ValueError):
-        status = assistant.execute(conv)
+        status = conv.execute()
 
 
 def get_flow(branch_name: Optional[str] = None) -> Flow:
@@ -378,7 +378,7 @@ def get_flow(branch_name: Optional[str] = None) -> Flow:
 def test_can_use_branches_mapping(branching_input, expected_last_step):
     flow = get_flow_with_branching_subflow()
     conv = flow.start_conversation(inputs={BranchingStep.NEXT_BRANCH_NAME: branching_input})
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.complete_step_name == expected_last_step
 
@@ -401,19 +401,9 @@ def test_can_use_branches_mapping_with_complete_step_branch_names(
         default_branch_name="CUSTOM_DEFAULT",
     )
     conv = flow.start_conversation(inputs={BranchingStep.NEXT_BRANCH_NAME: branching_input})
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.complete_step_name == expected_last_step
-
-
-def test_execute_flow_on_wrong_conversation(remotely_hosted_llm):
-    step = InputMessageStep("")
-    flow_1 = Flow.from_steps([step])
-    flow_2 = Flow.from_steps([step])
-
-    conv = flow_1.start_conversation()
-    with pytest.raises(ValueError, match="You are trying to call"):
-        flow_2.execute(conv)
 
 
 def test_subflow_with_subset_of_inputs_outputs_exposes_only_selected_inputs_and_outputs():

@@ -379,7 +379,7 @@ def test_swarm_can_complete_task_without_specialist(example_math_agents, handoff
     math_swarm = _get_math_swarm(*example_math_agents, handoff=handoff)
     conv = math_swarm.start_conversation()  # first agent is fooza
     conv.append_user_message("compute the result the fooza operation of 4 and 5")
-    math_swarm.execute(conv)
+    conv.execute()
 
     last_message = conv.get_last_message()
     assert last_message is not None
@@ -574,7 +574,7 @@ def test_swarm_can_complete_composition_task(math_swarm_no_handoff: Swarm):
     math_swarm = math_swarm_no_handoff
     conv = math_swarm.start_conversation()  # first agent is fooza
     conv.append_user_message("compute the result of the bwip(4, zbuk(5, 6))")
-    math_swarm.execute(conv)
+    conv.execute()
 
     last_message = conv.get_last_message()
     assert last_message is not None
@@ -642,7 +642,7 @@ def test_swarm_warns_agent_on_sending_message_to_caller_instead_of_using_talk_to
     conv.append_user_message("dummy")
     with pytest.raises(ValueError, match="Did you forget to set the output of the Dummy model"):
         # controlled execution
-        swarm.execute(conv)
+        conv.execute()
 
     agent1_agent2_message_list = conv.state.agents_and_threads[agent1.name][
         agent2.name
@@ -691,7 +691,7 @@ def test_swarm_raises_on_missing_relationship_when_using_handoff():
         KeyError,
         match=f"Cannot handoff conversation from .*'{agent1.name}', recipient='{agent2.name}'.*'{agent1.name}', recipient='{agent3.name}'.*'{agent1.name}', '{agent3.name}'",
     ):
-        swarm.execute(conv)
+        conv.execute()
 
 
 def test_circular_calling_warning_with_handoff():
@@ -728,7 +728,7 @@ def test_circular_calling_warning_with_handoff():
 
     with pytest.raises(ValueError, match="Did you forget to set the output of the Dummy model"):
         # controlled execution
-        swarm.execute(conv)
+        conv.execute()
 
     agent1_agent3_message_list = conv.state.agents_and_threads[agent1.name][
         agent3.name
@@ -786,18 +786,7 @@ def test_swarm_execution_does_not_raise_errors(remotely_hosted_llm) -> None:
     )
     conversation = swarm.start_conversation()
     conversation.append_user_message("Please compute 2*2+1")
-    swarm.execute(conversation)
-
-
-def test_execute_swarm_on_wrong_conversation_raises(remotely_hosted_llm):
-    agent = Agent(llm=remotely_hosted_llm)
-    agent_2 = Agent(llm=remotely_hosted_llm, description="sub agent")
-    swarm_1 = Swarm(first_agent=agent, relationships=[(agent, agent_2)])
-    swarm_2 = Swarm(first_agent=agent, relationships=[(agent, agent_2)])
-
-    conv = swarm_1.start_conversation()
-    with pytest.raises(ValueError, match="You are trying to call"):
-        swarm_2.execute(conv)
+    conversation.execute()
 
 
 @tool(requires_confirmation=True, description_mode="only_docstring")
@@ -837,7 +826,7 @@ def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
 
     conv = swarm.start_conversation()
     conv.append_user_message("Is the name Alice present in the database? Ask your agents if needed")
-    status = swarm.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     assert len(status.tool_requests) == 1
     req = status.tool_requests[0]
@@ -845,27 +834,27 @@ def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
 
     # Confirm the tool execution
     status.confirm_tool_execution(tool_request=req)
-    status2 = swarm.execute(conv)
+    status2 = conv.execute()
     # Should result in a user message request or final status
     assert isinstance(status2, UserMessageRequestStatus) or isinstance(status2, FinishedStatus)
 
     # Now test rejection path
     conv = swarm.start_conversation()
     conv.append_user_message("Is the name Bob present in the database? Ask your agents if needed")
-    status = swarm.execute(conv)
+    status = conv.execute()
     assert isinstance(status, ToolExecutionConfirmationStatus)
     # Reject with a reason
     status.reject_tool_execution(
         tool_request=status.tool_requests[0], reason="Invalid request. Do not try again"
     )
-    status2 = swarm.execute(conv)
+    status2 = conv.execute()
     loop_count = 1
     while isinstance(status2, ToolExecutionConfirmationStatus):
         status2.reject_tool_execution(
             tool_request=status2.tool_requests[0],
             reason="Permission Denied, Do not try to use this tool.",
         )
-        status2 = swarm.execute(conv)
+        status2 = conv.execute()
         loop_count += 1
         if loop_count > 3:
             break

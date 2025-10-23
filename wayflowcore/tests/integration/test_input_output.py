@@ -145,7 +145,7 @@ def test_check_input_and_outputs_edge_case() -> None:
     step_e = _InputOutputSpecifiedStep()
 
     flow = Flow(
-        begin_step_name=STEP_A,
+        begin_step=step_a,
         steps={
             STEP_A: step_a,
             STEP_B: step_b,
@@ -304,7 +304,7 @@ def test_flow_io_types(
             ]
         )
         conversation = assistant.start_conversation({})
-        assistant.execute(conversation)
+        conversation.execute()
 
 
 @pytest.mark.parametrize(

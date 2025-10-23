@@ -186,10 +186,10 @@ def test_event_is_triggered_with_agent(
     event_listener = ConversationalComponentExecutionStartedEventListener()
     conversation = agent.start_conversation()
     with register_event_listeners([event_listener, agent_event_listener, flow_event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
     assert len(event_listener.triggered_events) == 1 + len(user_messages)
     assert all(
         isinstance(event, ConversationalComponentExecutionStartedEvent)
@@ -216,10 +216,10 @@ def test_event_is_triggered_with_nested_agents_flows(
     event_listener = ConversationalComponentExecutionStartedEventListener()
     conversation = agent.start_conversation()
     with register_event_listeners([event_listener]):
-        agent.execute(conversation)
+        conversation.execute()
         for user_message in user_messages:
             conversation.append_user_message(user_message)
-            agent.execute(conversation)
+            conversation.execute()
 
     # initial execute + one execute per user message + an execution of the flow as tool
     assert len(event_listener.triggered_events) == 1 + len(user_messages) + 1
@@ -266,7 +266,7 @@ def test_event_is_triggered_with_nested_flows_agents(
     conversation = flow.start_conversation()
 
     with register_event_listeners([event_listener]):
-        flow.execute(conversation)
+        conversation.execute()
 
     assert len(event_listener.triggered_events) == 1 + count_agents_and_flows_in_flow(flow)
     assert isinstance(event_listener.triggered_events[0], FlowExecutionStartedEvent)

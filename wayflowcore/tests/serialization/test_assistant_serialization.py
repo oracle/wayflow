@@ -11,15 +11,16 @@ from typing import List, Optional
 import pytest
 
 from wayflowcore.agent import Agent
-from wayflowcore.contextproviders import ChatHistoryContextProvider
+from wayflowcore.contextproviders import FlowContextProvider
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
+from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.models import LlmModel
 from wayflowcore.property import StringProperty
 from wayflowcore.serialization import autodeserialize, deserialize, serialize
 from wayflowcore.serialization.context import DeserializationContext
-from wayflowcore.steps import InputMessageStep, OutputMessageStep
+from wayflowcore.steps import GetChatHistoryStep, InputMessageStep, OutputMessageStep
 from wayflowcore.tools import DescribedFlow, Tool, register_server_tool, tool
 
 CONFIGS_DIR = Path(os.path.dirname(__file__)).parent / "configs"
@@ -39,7 +40,7 @@ def create_flow():
     step_c = OutputMessageStep(message_template="are")
     step_d = InputMessageStep(message_template="you?")
     return Flow(
-        begin_step_name="STEP_A",
+        begin_step=step_a,
         steps={
             "STEP_A": step_a,
             "STEP_B": step_b,
@@ -82,9 +83,14 @@ def create_agent(
         custom_instruction="Some custom instruction {{ some_context }}",
         max_iterations=99,
         context_providers=[
-            ChatHistoryContextProvider(
-                output_template="some random context", output_name="some_context"
-            )
+            FlowContextProvider(
+                create_single_step_flow(
+                    GetChatHistoryStep(
+                        output_template="some random context",
+                        output_mapping=({GetChatHistoryStep.CHAT_HISTORY: "some_context"}),
+                    )
+                )
+            ),
         ],
         can_finish_conversation=True,
         output_descriptors=[StringProperty(name="agent_output", description="d", default_value="")],
@@ -126,8 +132,8 @@ def test_can_serialize_simple_agent(agent: Agent) -> None:
     assert (
         serialized_assistant.count("tools:") == 1 + 2
     )  # 2 mentions of tool in the template serialization
-    assert serialized_assistant.count(" Flow") == 1
-    assert serialized_assistant.count(" Step") == 5
+    assert serialized_assistant.count(" Flow") == 2
+    assert serialized_assistant.count(" Step") == 7
     assert serialized_assistant.count("max_iterations: 99") == 1
     assert "InputMessageStep" in serialized_assistant
     assert "you?" in serialized_assistant
@@ -146,8 +152,8 @@ def _check_deserialized_agent_validity(old_agent: Agent, new_agent: Agent):
     assert new_agent.custom_instruction == old_agent.custom_instruction
     assert new_agent.max_iterations == old_agent.max_iterations
     assert (
-        next(iter(new_agent.context_providers)).output_template
-        == next(iter(old_agent.context_providers)).output_template
+        next(iter(new_agent.context_providers)).flow.steps["single_step"].output_template
+        == next(iter(old_agent.context_providers)).flow.steps["single_step"].output_template
     )
     assert new_agent.can_finish_conversation == old_agent.can_finish_conversation
     assert new_agent.caller_input_mode == old_agent.caller_input_mode
@@ -187,10 +193,10 @@ def test_can_deserialize_xkcd_assistant() -> None:
 
 def run_branching_flow(flow: Flow, query: str, expected_message: str):
     conv = flow.start_conversation()
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     conv.append_user_message(query)
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values["output_message"] == expected_message
 

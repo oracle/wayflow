@@ -264,7 +264,7 @@ def test_flow_XYZ_to_zxy_correctly_runs_and_infers_ios():
     )
     assert len(XYZ_then_branching_flow.input_descriptors_dict) == 0
     conversation = XYZ_then_branching_flow.start_conversation()
-    status = XYZ_then_branching_flow.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values[OutputMessageStep.OUTPUT] == ">Y"
 
@@ -288,7 +288,7 @@ def test_no_name_mapping_occurs_when_data_flow_edges_are_specified():
     )
     assert set(flow.input_descriptors_dict) == {"output_message"}
     conversation = flow.start_conversation(inputs={"output_message": "This is Y"})
-    status = flow.execute(conversation)
+    status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     messages = conversation.get_messages()
     assert messages[0].content == "X"
@@ -307,7 +307,7 @@ def test_flow_can_have_both_data_edges_and_input_output_mapping():
         "first message was: {{first_message}}", input_mapping={"first_message": "message_1"}
     )
     flow = Flow(
-        begin_step_name="input",
+        begin_step=input_step,
         steps={"input": input_step, "output": output_step},
         data_flow_edges=[
             DataFlowEdge(

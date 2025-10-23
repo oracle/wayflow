@@ -69,7 +69,7 @@ def test_missing_all_control_flow_edges_of_step_raises():
 
     with pytest.raises(ValueError, match="Transition is not specified for step `step_2`"):
         flow = Flow(
-            begin_step_name="step_1",
+            begin_step=step_1,
             steps={
                 "step_1": step_1,
                 "step_2": step_2,
@@ -85,7 +85,7 @@ def test_duplicate_control_flow_edge_raises():
         ValueError, match="Found duplicate control flow edges with same `source_branch`"
     ):
         flow = Flow(
-            begin_step_name="step_1",
+            begin_step=step_1,
             steps={
                 "step_1": step_1,
             },
@@ -99,9 +99,9 @@ def test_duplicate_control_flow_edge_raises():
 def test_missing_one_control_flow_edge_raises():
     step_1 = BranchingStep(branch_name_mapping={"o1": "o1", "o2": "o2"})
 
-    with pytest.warns(UserWarning, match="Missing edge for branch `default` of step"):
+    with (pytest.warns(UserWarning, match="Missing edge for branch `default` of step"),):
         flow = Flow(
-            begin_step_name="step_1",
+            begin_step=step_1,
             steps={
                 "step_1": step_1,
             },

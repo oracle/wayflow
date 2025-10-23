@@ -92,14 +92,14 @@ def create_inside_flow(
             )
         ]
     outer_flow = Flow(
-        begin_step_name="catch_exception_step", steps=steps, control_flow_edges=control_flow_edges
+        begin_step=catch_exception_step, steps=steps, control_flow_edges=control_flow_edges
     )
     return outer_flow
 
 
 def runs_to_the_end(flow: Flow) -> Tuple[Dict[str, Any], Optional[str]]:
     conv = flow.start_conversation(inputs={"a": 5, "b": 6})
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     return status.output_values, status.complete_step_name
 
@@ -203,7 +203,7 @@ def test_catch_exception_step_with_conditional_branching_inside_works(branch):
     step2 = CompleteStep()
     unknown = CompleteStep()
     flow = Flow(
-        begin_step_name="catch",
+        begin_step=catch_step,
         steps={
             "catch": catch_step,
             "1": step1,
@@ -221,7 +221,7 @@ def test_catch_exception_step_with_conditional_branching_inside_works(branch):
         ],
     )
     conv = flow.start_conversation(inputs={BranchingStep.NEXT_BRANCH_NAME: branch})
-    status = flow.execute(conv)
+    status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.complete_step_name == branch
 

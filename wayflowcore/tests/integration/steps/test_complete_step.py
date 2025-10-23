@@ -43,7 +43,7 @@ def test_flow_starts_with_a_complete_step():
 def test_flat_flow_can_exit_with_none():
     flow = create_single_step_flow(_InputOutputSpecifiedStep(inputs=["i1"], outputs=["o1"]))
     conversation = flow.start_conversation(inputs={"i1": "i1"})
-    execution_status = flow.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, FinishedStatus)
     assert "o1" in execution_status.output_values
 
@@ -52,7 +52,7 @@ def test_flat_flow_can_exit_with_single_complete_step():
     step_a = _InputOutputSpecifiedStep(inputs=["i1"], outputs=["o1"])
     complete_step = CompleteStep()
     assistant = Flow(
-        begin_step_name=STEP_A,
+        begin_step=step_a,
         steps={
             STEP_A: step_a,
             COMPLETE_STEP: complete_step,
@@ -60,7 +60,7 @@ def test_flat_flow_can_exit_with_single_complete_step():
         control_flow_edges=[ControlFlowEdge(source_step=step_a, destination_step=complete_step)],
     )
     conversation = assistant.start_conversation(inputs={"i1": "i1"})
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, FinishedStatus)
     assert "o1" in execution_status.output_values
 
@@ -71,7 +71,7 @@ def test_flat_flow_can_exit_with_several_complete_steps():
     exit_1 = CompleteStep()
     exit_2 = CompleteStep()
     assistant = Flow(
-        begin_step_name=STEP_A,
+        begin_step=step_a,
         steps={
             STEP_A: step_a,
             STEP_B: step_b,
@@ -90,7 +90,7 @@ def test_flat_flow_can_exit_with_several_complete_steps():
         ],
     )
     conversation = assistant.start_conversation(inputs={"next_step_name": "c1"})
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, FinishedStatus)
     assert conversation.get_last_message().content == "hello"
 
@@ -112,7 +112,7 @@ def test_nested_flow_can_exit_with_outer_steps_transitions():
         step_names=[STEP_A, STEP_C],
     )
     conversation = assistant.start_conversation(inputs={"i1": "i1"})
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, FinishedStatus)
     assert "o2" in execution_status.output_values
 
@@ -132,7 +132,7 @@ def test_complete_step_remaps_output_names() -> None:
         ],
     )
     conversation = assistant.start_conversation(inputs={"input_1": "abcdefg"})
-    execution_status = assistant.execute(conversation)
+    execution_status = conversation.execute()
     assert isinstance(execution_status, FinishedStatus)
     assert "renamed_input_1" in execution_status.output_values
     assert execution_status.output_values["renamed_input_1"] == "abcdefg"

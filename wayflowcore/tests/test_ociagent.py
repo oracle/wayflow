@@ -189,7 +189,7 @@ def test_oci_agent_with_client_tools_can_generate_tool_requests_and_process_tool
     """
     conv = agent_with_tools.start_conversation()
     conv.append_user_message("What is the weather in Zurich and in Paris?")
-    agent_with_tools.execute(conv)
+    conv.execute()
     last_message = conv.get_last_message()
     tool_requests = last_message.tool_requests
     assert tool_requests is not None and len(tool_requests) == 1
@@ -197,7 +197,7 @@ def test_oci_agent_with_client_tools_can_generate_tool_requests_and_process_tool
     conv.append_tool_result(
         ToolResult(tool_request_id=tool_requests[0].tool_request_id, content="windy")
     )
-    agent_with_tools.execute(conv)
+    conv.execute()
     last_message = conv.get_last_message()
     tool_requests = last_message.tool_requests
     assert tool_requests is not None and len(tool_requests) == 1
@@ -205,7 +205,7 @@ def test_oci_agent_with_client_tools_can_generate_tool_requests_and_process_tool
     conv.append_tool_result(
         ToolResult(tool_request_id=tool_requests[0].tool_request_id, content="sunny")
     )
-    agent_with_tools.execute(conv)
+    conv.execute()
     last_message = conv.get_last_message()
     assert "windy" in last_message.content
     assert "sunny" in last_message.content
