@@ -31,6 +31,15 @@ Bug fixes
     This is now correctly reflected also in other parts of the package.
 
 
+Miscellaneous
+^^^^^^^^^^^^^
+
+* **Dependency Security Updates:**
+  Upgraded **MCP** to **1.17.0** and **PyYAML** to **6.0.3** to resolve known security vulnerabilities, including
+  `GHSA-j975-95f5-7wqh <https://github.com/advisories/GHSA-j975-95f5-7wqh>`_,
+  `GHSA-3qhf-m339-9g5v <https://github.com/advisories/GHSA-3qhf-m339-9g5v>`_,
+  `GHSA-6757-jp84-gxfx <https://github.com/advisories/GHSA-6757-jp84-gxfx>`_,
+  and `GHSA-8q59-q68h-6hv4 <https://github.com/advisories/GHSA-8q59-q68h-6hv4>`_.
 
 WayFlow 25.4.1 — Initial release
 --------------------------------
