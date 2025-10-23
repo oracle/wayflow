@@ -29,7 +29,7 @@ types-python-dateutil
 
 # Additional packages for tests
 cryptography
-starlette>=0.42
+starlette>=0.47.2
 uvicorn>=0.23.1
 
 # This is used to load database connection arguments in the unit tests
