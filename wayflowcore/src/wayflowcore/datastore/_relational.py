@@ -334,7 +334,13 @@ class RelationalDatastore(Datastore, ABC):
         # schema individually below
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter(action="always", category=sqlalchemy.exc.SAWarning)
-            metadata.reflect(bind=self.engine)
+
+            # We only reflect tables explicitly specified in the datastore schema to avoid issues
+            # with un-supported column types (see above) on tables the user doesn't care about,
+            # and any concurrent operations (like drop tables) happening on other schema elements
+            metadata.reflect(
+                bind=self.engine, only=[_case_insensitive(table_name) for table_name in self.schema]
+            )
             for warning in w or []:
                 logger.warning("Suppressed warning during database inspection: %s", warning.message)
 

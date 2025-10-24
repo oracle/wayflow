@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import copy
+import threading
 
 import pytest
 import yaml
@@ -28,6 +29,7 @@ from .conftest import (
     cleanup_oracle_datastore,
     get_basic_office_entities,
     get_default_datastore_content,
+    get_oracle_connection_config,
     get_oracle_datastore_with_schema,
 )
 
@@ -426,7 +428,7 @@ def test_oracle_json_columns(caplog):
                 "Suppressed warning during database inspection: Did not recognize type 'JSON' of column 'details'"
                 in caplog.text
             )
-
+        caplog.clear()
         with pytest.raises(
             DatastoreTypeError, match="Mismatching types found in property definition and database."
         ):
@@ -435,7 +437,7 @@ def test_oracle_json_columns(caplog):
                 "Suppressed warning during database inspection: Did not recognize type 'JSON' of column 'details'"
                 in caplog.text
             )
-
+        caplog.clear()
         # If the datastore schema doesn't reference any JSON column, then this should work without warnings
         _ = get_oracle_datastore_with_schema(ddl, {"products": product_slim})
         assert (
@@ -444,3 +446,81 @@ def test_oracle_json_columns(caplog):
         )
     finally:
         cleanup_oracle_datastore(ddl=["DROP TABLE IF EXISTS PRODUCTS cascade constraints"])
+
+
+def test_schema_inspection_on_dropped_tables():
+    """This test ensures that the datastore is robust against operations (drop tables,
+    in particular), happening to other parts of the database schema that are not part of the
+    datastore schema.
+    """
+
+    ddl = [
+        "DROP TABLE IF EXISTS PRODUCTS cascade constraints",
+        """
+        CREATE TABLE PRODUCTS (
+            ID NUMBER PRIMARY KEY,
+            TITLE NVARCHAR2(255) NOT NULL
+        ) \
+    """,
+    ]
+    for i in range(20):
+        ddl.append(
+            f"""
+                CREATE TABLE TO_BE_DROPPED_{i} (
+                    ID NUMBER PRIMARY KEY
+                ) \
+            """,
+        )
+
+    connection_config = get_oracle_connection_config()
+    with connection_config.get_connection() as conn:
+        for stmt in ddl:
+            conn.cursor().execute(stmt)
+
+    product = Entity(
+        properties={
+            "ID": IntegerProperty(description="Unique product identifier"),
+            "title": StringProperty(description="Brief summary of the product"),
+        },
+    )
+
+    drop_ddl = [f"DROP TABLE IF EXISTS TO_BE_DROPPED_{i} cascade constraints" for i in range(20)]
+
+    datastore = None
+    exception = None
+
+    def instantiate_datastore():
+        nonlocal datastore
+        try:
+            datastore = OracleDatabaseDatastore(
+                {"products": product}, get_oracle_connection_config()
+            )
+        except Exception as e:
+            nonlocal exception
+            exception = e
+
+    def drop_table():
+        cleanup_oracle_datastore(ddl=drop_ddl)
+
+    try:
+        # In parallel, drop the TO_BE_DROPPED table and instantiate the datastore
+        # This emulates what may be happening if we are doing reflection on the
+        # database while other operations are happening in parallel
+        thread1 = threading.Thread(target=instantiate_datastore)
+        thread2 = threading.Thread(target=drop_table)
+
+        thread1.start()
+        thread2.start()
+
+        thread1.join()
+        thread2.join()
+
+        if exception:
+            raise exception
+
+        assert datastore is not None
+        assert datastore.list("products") == []
+    finally:
+        cleanup_oracle_datastore(
+            ddl=["DROP TABLE IF EXISTS PRODUCTS cascade constraints"] + drop_ddl
+        )
