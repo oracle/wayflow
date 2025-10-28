@@ -117,9 +117,11 @@ class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform, Serial
 
 class SplitPromptOnMarkerMessageTransform(MessageTransform, SerializableObject):
     """
-    Split prompts on a marker into multiple messages with the same role. Only apply to the messages without tool_requests and tool_result.
+    Split prompts on a marker into multiple messages with the same role. Only apply to the messages without
+    tool_requests and tool_result.
 
-    This transform is useful for script-based execution flows, where a single prompt script can be converted into multiple conversation turns for step-by-step reasoning.
+    This transform is useful for script-based execution flows, where a single prompt script can be converted
+    into multiple conversation turns for step-by-step reasoning.
     """
 
     def __init__(self, marker: Optional[str] = None):
