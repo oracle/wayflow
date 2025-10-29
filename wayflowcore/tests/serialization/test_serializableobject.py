@@ -71,6 +71,7 @@ ALL_SERIALIZABLE_CLASSES = {
     "ImageContent",
     "MessageContent",
     "AppendTrailingSystemMessageToUserMessageTransform",
+    "SplitPromptOnMarkerMessageTransform",
     "_ToolRequestAndCallsTransform",
     "CoalesceSystemMessagesTransform",
     "RemoveEmptyNonUserMessageTransform",

@@ -23,6 +23,11 @@ New features
 
   For more information check out :doc:`the corresponding how-to guide <howtoguides/howto_userconfirmation>`
 
+* **Added SplitPromptOnMarkerMessageTransform:**
+  Introduced a new Message Transform specialization that splits prompts on a marker into multiple messages with the same role.
+
+  We thank @richl9 for the contribution!
+
 Bug fixes
 ^^^^^^^^^
 

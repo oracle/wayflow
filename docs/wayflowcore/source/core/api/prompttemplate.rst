@@ -37,6 +37,8 @@ Message transforms
 
 .. autoclass:: wayflowcore.transforms.AppendTrailingSystemMessageToUserMessageTransform
 
+.. autoclass:: wayflowcore.transforms.SplitPromptOnMarkerMessageTransform
+
 
 Helpers
 -------

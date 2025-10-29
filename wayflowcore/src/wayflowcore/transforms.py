@@ -5,7 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, List
+from typing import TYPE_CHECKING, Any, Callable, List, Optional
 
 from wayflowcore._utils.async_helpers import is_coroutine_function, run_sync_in_thread
 from wayflowcore.serialization.serializer import SerializableCallable, SerializableObject
@@ -113,3 +113,29 @@ class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform, Serial
 
         penultimate_message.contents.extend(last_message.contents)
         return messages[:-2] + [penultimate_message]
+
+
+class SplitPromptOnMarkerMessageTransform(MessageTransform, SerializableObject):
+    """
+    Split prompts on a marker into multiple messages with the same role. Only apply to the messages without
+    tool_requests and tool_result.
+
+    This transform is useful for script-based execution flows, where a single prompt script can be converted
+    into multiple conversation turns for step-by-step reasoning.
+    """
+
+    def __init__(self, marker: Optional[str] = None):
+        self.marker = marker if marker is not None else "\n---"
+
+    def __call__(self, messages: list["Message"]) -> list["Message"]:
+        new_messages = []
+
+        for msg in messages:
+            if msg.tool_requests is None and msg.tool_result is None and self.marker in msg.content:
+                for part in (p.strip() for p in msg.content.split(self.marker) if p.strip()):
+                    new_msg = msg.copy(content=part)
+                    new_messages.append(new_msg)
+            else:
+                new_messages.append(msg)
+
+        return new_messages
