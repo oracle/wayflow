@@ -1444,6 +1444,7 @@ class Flow(ConversationalComponent, SerializableObject):
         name: Optional[str] = None,
         description: str = "",
         input_descriptors: Optional[List[Property]] = None,
+        output_descriptors: Optional[List[Property]] = None,
     ) -> "Flow":
         """Helper method to create a sequential flow from a list of steps. Each step will be executed in the order
         they are passed.
@@ -1466,6 +1467,10 @@ class Flow(ConversationalComponent, SerializableObject):
             Name of the flow
         description:
             Description of the flow
+        input_descriptors:
+            Input descriptors of the flow
+        output_descriptors:
+            Output descriptors of the flow
 
         Examples
         --------
@@ -1526,6 +1531,7 @@ class Flow(ConversationalComponent, SerializableObject):
             variables=variables,
             name=name,
             description=description,
+            output_descriptors=output_descriptors,
             input_descriptors=input_descriptors,
         )
 
