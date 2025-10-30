@@ -103,6 +103,8 @@ Data in Assistants
    Connect Assistants to Your Data <howto_datastores>
    Use Embedding Models from Different Providers <embeddingmodels_from_different_providers>
    Use Variables for Shared State in Flows <howto_variable>
+   Synthesize Data in WayFlow <howto_data_synthesis>
+
 
 
 Assistant Testing and Evaluation

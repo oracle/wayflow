@@ -6,7 +6,9 @@
 
 import copy
 import glob
+import os
 import runpy
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -17,7 +19,10 @@ from .mcptools.test_mcp_tools import MCP_USER_QUERY
 from .test_ociagent import agent as oci_agent  # noqa
 
 DOCS_DIR = Path(__file__).parents[2] / "docs" / "wayflowcore" / "source" / "core"
+UTILS_DIR = Path(__file__).parent / "_utils"
 EXAMPLE_DOCUMENT_PATH = DOCS_DIR / "_static" / "howto" / "example_document.md"
+
+sys.path.insert(0, os.path.abspath(UTILS_DIR))
 
 
 @pytest.fixture()
