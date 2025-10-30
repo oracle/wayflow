@@ -1783,14 +1783,20 @@ class RuntimeToAgentSpecConverter:
                 # the source is a context provider
                 source_node = context_providers_dict[source_step_id]
             new_edge_name = f"{source_node.name}_{runtime_data_flow_edge.source_output}_to_{destination_node.name}_{runtime_data_flow_edge.destination_input}_data_flow_edge"
-            new_edge = AgentSpecDataFlowEdge(
-                name=new_edge_name,
-                source_node=source_node,
-                source_output=runtime_data_flow_edge.source_output,
-                destination_node=destination_node,
-                destination_input=runtime_data_flow_edge.destination_input,
-                metadata=_create_agentspec_metadata_from_runtime_component(runtime_data_flow_edge),
-                id=runtime_data_flow_edge.id,
+            # We need to use partial build because we might have to rename inputs and outputs, and validation now could fail
+            # We will re-validate the edge later
+            new_edge = AgentSpecDataFlowEdge.build_from_partial_config(
+                dict(
+                    name=new_edge_name,
+                    source_node=source_node,
+                    source_output=runtime_data_flow_edge.source_output,
+                    destination_node=destination_node,
+                    destination_input=runtime_data_flow_edge.destination_input,
+                    metadata=_create_agentspec_metadata_from_runtime_component(
+                        runtime_data_flow_edge
+                    ),
+                    id=runtime_data_flow_edge.id,
+                )
             )
             data_flow_connections.append(new_edge)
 
@@ -1929,22 +1935,47 @@ class RuntimeToAgentSpecConverter:
                 # - look for the node input that starts with `iterated_`
                 # - rename the destination_input of the edge with that name
                 # - rename the data edge name for the consistency
-                try:
-                    new_destination_property = next(
+
+                # The iterated input in WayFlow must be called RuntimeMapStep.ITERATED_INPUT, while
+                # in Agent Spec we call all the inputs "iterated_" + name of the input in the inner flow
+                # The name of the input we iterate on in the inner flow is given in the unpack_input dictionary of the step
+                map_step = cast(
+                    RuntimeMapStep, runtime_flow.steps[data_flow_edge.destination_node.name]
+                )
+                if len(map_step.unpack_input) != 1:
+                    raise ValueError(
+                        f"Unexpected unpack_input value for step `{map_step.name}`. "
+                        f"Expected 1 entry, but found {len(map_step.unpack_input)}, should be converted "
+                        f"to ExtendedMapNode but MapNode found"
+                    )
+                unpack_input_keys = list(map_step.unpack_input.keys())
+                input_property_name_to_iterate = "iterated_" + unpack_input_keys[0]
+
+                new_destination_property = next(
+                    (
                         property_
                         for property_ in data_flow_edge.destination_node.inputs or []
-                        if property_.title.startswith("iterated_")
-                    )
-                except StopIteration:
-                    raise ValueError(
-                        f"No iterated input property found for MapNode `{data_flow_edge.destination_node.name}`."
-                    )
-                data_flow_edge.destination_input = new_destination_property.title
-                data_flow_edge.name = (
-                    f"{data_flow_edge.source_node.name}_{data_flow_edge.source_output}_to_"
-                    f"{data_flow_edge.destination_node.name}_{data_flow_edge.destination_input}_"
-                    "data_flow_edge"
+                        if (
+                            property_.title == "iterated_" + data_flow_edge.destination_input
+                            or (
+                                data_flow_edge.destination_input == RuntimeMapStep.ITERATED_INPUT
+                                and property_.title == input_property_name_to_iterate
+                            )
+                        )
+                    ),
+                    None,
                 )
+                if new_destination_property:
+                    data_flow_edge.destination_input = new_destination_property.title
+
+            data_flow_edge.name = (
+                f"{data_flow_edge.source_node.name}_{data_flow_edge.source_output}_to_"
+                f"{data_flow_edge.destination_node.name}_{data_flow_edge.destination_input}_"
+                "data_flow_edge"
+            )
+
+            # Manually trigger validation
+            _ = AgentSpecDataFlowEdge.model_validate(data_flow_edge.__dict__)
 
         # We align the names in the EndNode input/output with the changes we made above
         # because we do not map an output to a different name at the EndNode.
@@ -2157,6 +2188,11 @@ class RuntimeToAgentSpecConverter:
             )
         elif runtime_step_type is RuntimeFlowExecutionStep:
             runtime_step = cast(RuntimeFlowExecutionStep, runtime_step)
+            # We need to remove inputs and outputs because we might have renamed some inputs and outputs
+            # due to, for example, MapNode i/o names remapping, so it's easier to let the node infer them from
+            # the subflow rather than changing them here too
+            del step_args["inputs"]
+            del step_args["outputs"]
             return AgentSpecFlowNode(
                 **step_args,
                 subflow=cast(AgentSpecFlow, self.convert(runtime_step.flow, referenced_objects)),
