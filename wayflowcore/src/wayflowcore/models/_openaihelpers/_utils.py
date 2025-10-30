@@ -25,7 +25,7 @@ def _prepare_openai_compatible_json_schema(response_format: Property) -> Dict[st
 
 
 def _property_to_openai_schema(property_: Property) -> Dict[str, Any]:
-    schema = dict(property_.to_json_schema())
+    schema = dict(property_.to_json_schema(openai_compatible=True))
     if "properties" in schema and isinstance(schema["properties"], dict):
         # openai requires all properties to be marked required
         # https://platform.openai.com/docs/guides/structured-outputs#all-fields-must-be-required,

@@ -460,7 +460,7 @@ class _GenericOciApiFormatter(_OciApiFormatter):
     def convert_prompt_into_request(cls, prompt: "Prompt", model_id: str) -> Any:
         response_format = None
         if prompt.response_format is not None:
-            json_schema = _property_to_openai_schema(prompt.response_format)
+            json_schema = prompt.response_format.to_json_schema(openai_compatible=True)
             response_format = oci.generative_ai_inference.models.JsonSchemaResponseFormat(
                 json_schema=oci.generative_ai_inference.models.ResponseJsonSchema(
                     name=prompt.response_format.name, is_strict=True, schema=json_schema
@@ -719,7 +719,7 @@ class _CohereOciApiFormatter(_OciApiFormatter):
     def convert_prompt_into_request(cls, prompt: "Prompt", model_id: str) -> Any:
         cohere_response_format = None
         if prompt.response_format is not None:
-            json_schema = _property_to_openai_schema(prompt.response_format)
+            json_schema = prompt.response_format.to_json_schema(openai_compatible=True)
             cohere_response_format = oci.generative_ai_inference.models.CohereResponseJsonFormat(
                 schema=json_schema
             )
