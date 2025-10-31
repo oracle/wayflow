@@ -15,7 +15,6 @@ from typing import Annotated, Any
 
 from wayflowcore.agent import Agent
 from wayflowcore.contextproviders import (
-    ChatHistoryContextProvider,
     FlowContextProvider,
     ToolContextProvider,
 )
@@ -24,7 +23,7 @@ from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.executors.executionstatus import ToolRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
-from wayflowcore.messagelist import Message, MessageList, MessageType
+from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models import StreamChunkType, VllmModel
 from wayflowcore.models.llmmodel import LlmCompletion
 from wayflowcore.property import AnyProperty, FloatProperty, ListProperty, StringProperty
@@ -659,31 +658,6 @@ execution_status = conversation.execute()
 last_message = conversation.get_last_message()
 print(last_message.content)  # Last time message: The current time is 2pm.
 # .. end-flow_contextprovider
-# .. start-chathistory_contextprovider::
-from wayflowcore.contextproviders import ChatHistoryContextProvider
-from wayflowcore.controlconnection import ControlFlowEdge
-from wayflowcore.flow import Flow
-from wayflowcore.messagelist import Message, MessageList
-from wayflowcore.steps import OutputMessageStep
-
-context_provider = ChatHistoryContextProvider(
-    n=2,  # will retrieve the last 2 messages
-    output_name="history",
-)
-output_step = OutputMessageStep("Chat history number: {{history}}")
-flow = Flow(
-    begin_step=output_step,
-    steps={"output_step": output_step},
-    control_flow_edges=[ControlFlowEdge(output_step, None)],
-    context_providers=[context_provider],
-)
-message_list = MessageList([Message(f"Message {i+1}") for i in range(5)])
-conversation = flow.start_conversation(messages=message_list)
-execution_status = conversation.execute()
-print(conversation.get_last_message().content)
-# Chat history number: USER >> Message 4
-# USER >> Message 5
-# .. end-chathistory_contextprovider
 # .. start-context_with_variables::
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge

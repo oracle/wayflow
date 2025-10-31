@@ -511,21 +511,6 @@ Use the :ref:`FlowContextProvider <flowcontextprovider>` to provide information 
 Learn more by reading the :ref:`FlowContextProvider API reference <flowcontextprovider>`.
 
 
-Using the ChatHistoryContextProvider
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Use the :ref:`ChatHistoryContextProvider <chathistorycontextprovider>` to provide chat history information to an assistant.
-
-.. literalinclude:: ../code_examples/reference_sheet.py
-   :language: python
-   :start-after: .. start-chathistory_contextprovider:
-   :end-before: .. end-chathistory_contextprovider
-
-**API Reference:** :ref:`ChatHistoryContextProvider <chathistorycontextprovider>` | :ref:`ControlFlowEdge <controlflowedge>` | :ref:`DataFlowEdge <dataflowedge>` | :ref:`Flow <flow>` | :ref:`OutputMessageStep <outputmessagestep>`
-
-Learn more by reading the :ref:`ChatHistoryContextProvider API reference <chathistorycontextprovider>`.
-
-
 Using Variables to provide context
 ----------------------------------
 

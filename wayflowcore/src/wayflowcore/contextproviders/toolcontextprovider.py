@@ -11,7 +11,6 @@ from wayflowcore._utils.formatting import generate_tool_id
 from wayflowcore.property import Property
 from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.tools import Tool, ToolRequest
-from wayflowcore.tracing.span import ToolExecutionSpan
 
 from .contextprovider import ContextProvider
 
@@ -106,7 +105,7 @@ class ToolContextProvider(ContextProvider):
         )
 
     async def call_async(self, conversation: "Conversation") -> Any:
-        from wayflowcore.tracing.span import ContextProviderExecutionSpan
+        from wayflowcore.tracing.span import ContextProviderExecutionSpan, ToolExecutionSpan
 
         with ContextProviderExecutionSpan(context_provider=self) as context_provider_span:
             self.tool._bind_parent_conversation_if_applicable(conversation)

@@ -373,7 +373,6 @@ class Flow(ConversationalComponent, SerializableObject):
         output_descriptors: Optional[List[Property]] = None,
         __metadata_info__: Optional[MetadataType] = None,
         # deprecated
-        begin_step_name: Optional[str] = None,
         transitions: Optional[
             Mapping[str, Union[List[Optional[str]], Mapping[str, Optional[str]]]]
         ] = None,
@@ -525,11 +524,6 @@ class Flow(ConversationalComponent, SerializableObject):
                 raise ValueError(f"Indicated begin step `{begin_step}` is not present in the steps")
             begin_step_name = next(
                 step_name for step_name, step in steps.items() if step == begin_step
-            )
-        elif begin_step_name is not None:
-            warnings.warn(
-                "Usage of `begin_step_name` is deprecated from 25.2, and will be removed in 25.4. Please use `begin_step` instead.",
-                DeprecationWarning,
             )
         else:
             raise ValueError(

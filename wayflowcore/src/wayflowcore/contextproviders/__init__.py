@@ -4,13 +4,11 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from .chathistorycontextprovider import ChatHistoryContextProvider
 from .contextprovider import ContextProvider
 from .flowcontextprovider import FlowContextProvider
 from .toolcontextprovider import ToolContextProvider
 
 __all__ = [
-    "ChatHistoryContextProvider",
     "ContextProvider",
     "FlowContextProvider",
     "ToolContextProvider",

@@ -18,7 +18,6 @@ from wayflowcore.models.llmmodel import LlmModel
 from wayflowcore.property import Property, StringProperty
 from wayflowcore.steps.step import Step, StepResult
 
-from ..controlconnection import ControlFlowEdge
 from ..stepdescription import StepDescription, StepDescriptionInput, make_steps_descriptions
 from .branchingstep import BranchingStep
 from .completestep import CompleteStep
@@ -183,6 +182,7 @@ class ChoiceSelectionStep(Step):
         >>> # conversation.get_last_message().content
         >>> # Access granted. Press any key to continue...
         """
+        from wayflowcore.controlconnection import ControlFlowEdge
         from wayflowcore.flow import Flow
 
         PROMPT_EXECUTION = "prompt_execution"
