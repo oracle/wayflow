@@ -1551,9 +1551,10 @@ class Flow(ConversationalComponent, SerializableObject):
     def as_client_tool(self) -> "ClientTool":
         """Converts this flow into a client tool"""
         from wayflowcore.tools import ClientTool
+        from wayflowcore.tools.tools import _sanitize_tool_name
 
         return ClientTool(
-            name=self.name,
+            name=_sanitize_tool_name(self.name),
             description=self.description or "",
             input_descriptors=self.input_descriptors,
             output_descriptors=(

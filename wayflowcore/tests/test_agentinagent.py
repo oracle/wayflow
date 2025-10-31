@@ -233,7 +233,7 @@ def test_deeply_nested_agent_can_call_client_tool():
         main_llm,
         tool_requests=[
             ToolRequest(
-                name="Accounting Expert",
+                name="Accounting_Expert",
                 args={"context": "Main->Accounting expert: Ben Smith account amount?"},
                 tool_request_id="id1",
             )
@@ -269,7 +269,7 @@ def test_deeply_nested_agent_can_call_client_tool():
         main_llm,
         tool_requests=[
             ToolRequest(
-                name="Accounting Expert",
+                name="Accounting_Expert",
                 args={"context": "Main->Accounting expert: Henry Jacobs account amount also?"},
                 tool_request_id="id3",
             )

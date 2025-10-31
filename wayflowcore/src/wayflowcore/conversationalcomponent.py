@@ -39,10 +39,18 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         id: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
+        from wayflowcore.tools.tools import _validate_name
+
         # Dictionary of files available in this conversation
         self._files: Dict[str, Path] = {}
         self.runner = runner
         self.conversation_class = conversation_class
+
+        # we want in the future to be able to use any conversational components
+        # as an "agentic component", which might be used in multi-agent patterns
+        # where we need their name to be used for making tool names (to talk between agentic components)
+        # so we need to validate that the name is OK for such use
+        _validate_name(name, allow_space=True, raise_on_invalid=False)
 
         super().__init__(
             id=id,

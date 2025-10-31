@@ -640,7 +640,7 @@ def create_raise_tool() -> ServerTool:
     def func():
         raise MyCustomException()
 
-    return ServerTool(name="", description="", parameters={}, output={}, func=func)
+    return ServerTool(name="empty", description="", parameters={}, output={}, func=func)
 
 
 def test_tool_execution_step_can_raise_exception():
@@ -663,7 +663,7 @@ def test_tool_execution_step_crashes_if_not_raising_exception_and_output_type_is
         raise MyCustomException()
 
     my_int_tool = ServerTool(
-        name="", description="", parameters={}, output={"type": "integer"}, func=func
+        name="empty", description="", parameters={}, output={"type": "integer"}, func=func
     )
 
     step = ToolExecutionStep(tool=my_int_tool, raise_exceptions=False)
@@ -679,14 +679,17 @@ all_tool_output_descriptors_possibilities = pytest.mark.parametrize(
     [
         (
             ClientTool(
-                name="", description="", input_descriptors=[], output_descriptors=[StringProperty()]
+                name="tool",
+                description="",
+                input_descriptors=[],
+                output_descriptors=[StringProperty()],
             ),
             "some_text",
             {"tool_output": "some_text"},
         ),
         (  # different type
             ClientTool(
-                name="",
+                name="tool",
                 description="",
                 input_descriptors=[],
                 output_descriptors=[IntegerProperty()],
@@ -696,7 +699,7 @@ all_tool_output_descriptors_possibilities = pytest.mark.parametrize(
         ),
         (  # rename output
             ClientTool(
-                name="",
+                name="tool",
                 description="",
                 input_descriptors=[],
                 output_descriptors=[IntegerProperty(name="o1")],
@@ -705,18 +708,18 @@ all_tool_output_descriptors_possibilities = pytest.mark.parametrize(
             {"o1": 2},
         ),
         (  # rename output
-            ClientTool(name="", description="", input_descriptors=[], output_descriptors=[]),
+            ClientTool(name="tool", description="", input_descriptors=[], output_descriptors=[]),
             None,
             {},
         ),
         (  # no outputs
-            ClientTool(name="", description="", input_descriptors=[], output_descriptors=[]),
+            ClientTool(name="tool", description="", input_descriptors=[], output_descriptors=[]),
             "ueiwbfuiewb",
             {},
         ),
         (  # several outputs
             ClientTool(
-                name="",
+                name="tool",
                 description="",
                 input_descriptors=[],
                 output_descriptors=[IntegerProperty(name="o1"), IntegerProperty(name="o2")],

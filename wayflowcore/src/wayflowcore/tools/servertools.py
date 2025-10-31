@@ -41,7 +41,7 @@ from wayflowcore.property import JsonSchemaParam, Property
 
 from .flowbasedtools import DescribedFlow
 from .toolbox import ToolBox
-from .tools import Tool, _make_tool_key
+from .tools import Tool, _make_tool_key, _sanitize_tool_name
 
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
@@ -318,7 +318,7 @@ class ServerTool(Tool):
             flow_outputs = None
         func = _FlowAsToolCallable(flow, flow_outputs)
         return ServerTool(
-            name=flow_name,
+            name=_sanitize_tool_name(flow_name),
             description=flow_description,
             input_descriptors=flow.input_descriptors,
             output_descriptors=output_descriptors,

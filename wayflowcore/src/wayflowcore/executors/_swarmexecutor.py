@@ -142,8 +142,11 @@ class SwarmRunner(ConversationExecutor):
             mutated_agent_tools = (
                 list(current_agent.tools) + swarm_config._communication_tools[current_agent.name]
             )
-            if not any(tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools):
-                # All swarm agents should use the `talk_to_user` tool
+            has_talk_to_user_tool = any(
+                tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
+            )
+            if not has_talk_to_user_tool:
+                # Manager agent should have tool to talk to user
                 mutated_agent_tools.append(_make_talk_to_user_tool())
 
             mutated_agent_template = swarm_config.swarm_template.with_partial(
@@ -161,6 +164,7 @@ class SwarmRunner(ConversationExecutor):
                 {
                     "tools": mutated_agent_tools,
                     "agent_template": mutated_agent_template,
+                    "_add_talk_to_user_tool": has_talk_to_user_tool,
                 },
             ):
                 status = await agent_sub_conversation.execute_async(

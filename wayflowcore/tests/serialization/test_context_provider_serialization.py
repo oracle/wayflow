@@ -123,7 +123,7 @@ def test_tool_context_provider_can_be_serde() -> None:
         return str(datetime.now())
 
     tool = ServerTool(
-        name="Current time",
+        name="current_time",
         description="Tool that returns time",
         parameters={},
         output={"type": "string"},

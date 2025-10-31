@@ -55,7 +55,7 @@ class ToolContextProvider(ContextProvider):
         ...     return str(time())
         >>>
         >>> tool = ServerTool(
-        ...     name="Current time",
+        ...     name="CurrentTime",
         ...     description="Tool that returns time",
         ...     parameters={},
         ...     output={"type": "string"},

@@ -120,7 +120,10 @@ class ManagerWorkersRunner(ConversationExecutor):
                     list(current_agent.tools) + managerworkers_config._manager_communication_tools
                 )
 
-                if not any(tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools):
+                has_talk_to_user_tool = any(
+                    tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
+                )
+                if not has_talk_to_user_tool:
                     # Manager agent should have tool to talk to user
                     mutated_agent_tools.append(_make_talk_to_user_tool())
 
@@ -138,6 +141,7 @@ class ManagerWorkersRunner(ConversationExecutor):
                     {
                         "tools": mutated_agent_tools,
                         "agent_template": mutated_agent_template,
+                        "_add_talk_to_user_tool": has_talk_to_user_tool,
                     },
                 ):
                     status = await current_conversation.execute_async(
