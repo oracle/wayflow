@@ -548,7 +548,7 @@ Extended API-specific guidance
 
   This class returns strings and performs *no* escaping. When its output is propagated to a web front-end (often via ``DataFlowEdge → OutputMessageStep.OUTPUT``), apply HTML escaping there.
 
-* **`MessageList` / `ChatHistoryContextProvider`**
+* **`MessageList` / `GetChatHistoryStep`**
 
   Chat histories can contain user HTML. If displaying transcripts, pipe the history through the same sanitiser used for new LLM outputs.
 

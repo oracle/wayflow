@@ -6,19 +6,13 @@
 
 from typing import Any, Dict, Type
 
-from wayflowcore.contextproviders import (
-    ChatHistoryContextProvider,
-    ContextProvider,
-    FlowContextProvider,
-    ToolContextProvider,
-)
+from wayflowcore.contextproviders import ContextProvider, FlowContextProvider, ToolContextProvider
 
 from .._metadata import METADATA_KEY
 from .context import DeserializationContext, SerializationContext
 from .serializer import autodeserialize_any_from_dict, serialize_any_to_dict
 
 SUPPORTED_CONTEXT_PROVIDER_TYPES: Dict[str, Type[ContextProvider]] = {
-    "chat-history": ChatHistoryContextProvider,
     "flow": FlowContextProvider,
     "tool": ToolContextProvider,
 }

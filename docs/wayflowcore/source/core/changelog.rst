@@ -11,6 +11,14 @@ Possibly Breaking Changes
 
   Removed the deprecated method of ``Agent/Flow.execute(conversation)`` in favor of ``conversation.execute()``.
 
+* **Removed deprecated ChatHistoryContextProvider:**
+
+  Removed the deprecated ``ChatHistoryContextProvider`` in favor of ``FlowContextProvider`` with a ``Flow`` with ``GetChatHistoryStep``.
+
+* **Removed deprecated begin_step_name parameter of Flow:**
+
+  Removed the deprecated parameter ``begin_step_name`` of the ``Flow`` class. Please use ``begin_step``, passing in a ``Step`` object instead.
+
 * **Enforce valid tool names:**
 
   When creating any type of ``Tool``, its name field must not contain whitespaces or special characters, so that LLM APIs do not return errors. See bug fix below.

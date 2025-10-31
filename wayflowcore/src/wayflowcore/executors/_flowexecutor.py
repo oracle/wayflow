@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, cast
 
 from wayflowcore._utils.async_helpers import run_async_in_sync
-from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.conversation import Conversation
 from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.events import record_event
@@ -46,6 +45,7 @@ from wayflowcore.tracing.span import FlowExecutionSpan
 
 if TYPE_CHECKING:
     from wayflowcore.contextproviders import ContextProvider
+    from wayflowcore.controlconnection import ControlFlowEdge
     from wayflowcore.executors._flowconversation import FlowConversation
     from wayflowcore.executors.interrupts.executioninterrupt import ExecutionInterrupt
     from wayflowcore.flow import Flow
@@ -622,7 +622,7 @@ class FlowConversationExecutor(ConversationExecutor):
 
     @staticmethod
     def get_next_step_name_from_branch(
-        control_flow_edges: List[ControlFlowEdge],
+        control_flow_edges: List["ControlFlowEdge"],
         current_step_name: str,
         steps: Dict[str, Step],
         branch_taken: str,

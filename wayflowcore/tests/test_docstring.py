@@ -7,7 +7,6 @@
 import doctest
 import glob
 import os
-from contextlib import nullcontext
 from pathlib import Path
 
 import pytest
@@ -68,35 +67,26 @@ def test_examples_in_docstrings_can_be_successfully_ran(
     # Check the docs at https://docs.python.org/3/library/doctest.html#doctest.testfile
     # if you want to understand how this test works.
     assistant = create_assistant()
-    ctx = (
-        pytest.warns(
-            DeprecationWarning,
-            match="Usage of `ChatHistoryContextProvider` is deprecated from 25.2",
-        )
-        if file_path.endswith("chathistorycontextprovider.py")
-        else nullcontext()
+    doctest.testfile(
+        filename=file_path,
+        module_relative=False,
+        globs={
+            "llm": remotely_hosted_llm,
+            "assistant": assistant,
+            "config_file_path": CONFIGS_DIR / "tests/configs/docstring_assistant.yaml",
+            "serialized_assistant_as_str": serialize(assistant),
+            "LLAMA70B_API_ENDPOINT": llama70b_api_url,
+            # Note: the docstring of the datastore query step instantiates a new datastore,
+            # but we use this so that we create a new datastore in the test that connects to the
+            # existing database with the data already there
+            "testing_oracle_data_store_with_data": testing_oracle_data_store_with_data,
+            "database_connection_config": (
+                testing_oracle_data_store_with_data.connection_config
+                if testing_oracle_data_store_with_data
+                else None
+            ),
+            "multimodal_llm": remote_gemma_llm,
+        },
+        raise_on_error=True,
+        verbose=True,
     )
-    with ctx:
-        doctest.testfile(
-            filename=file_path,
-            module_relative=False,
-            globs={
-                "llm": remotely_hosted_llm,
-                "assistant": assistant,
-                "config_file_path": CONFIGS_DIR / "tests/configs/docstring_assistant.yaml",
-                "serialized_assistant_as_str": serialize(assistant),
-                "LLAMA70B_API_ENDPOINT": llama70b_api_url,
-                # Note: the docstring of the datastore query step instantiates a new datastore,
-                # but we use this so that we create a new datastore in the test that connects to the
-                # existing database with the data already there
-                "testing_oracle_data_store_with_data": testing_oracle_data_store_with_data,
-                "database_connection_config": (
-                    testing_oracle_data_store_with_data.connection_config
-                    if testing_oracle_data_store_with_data
-                    else None
-                ),
-                "multimodal_llm": remote_gemma_llm,
-            },
-            raise_on_error=True,
-            verbose=True,
-        )

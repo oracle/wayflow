@@ -15,6 +15,3 @@ Available Context Providers
 
 .. _flowcontextprovider:
 .. autoclass:: wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider
-
-.. _chathistorycontextprovider:
-.. autoclass:: wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider
