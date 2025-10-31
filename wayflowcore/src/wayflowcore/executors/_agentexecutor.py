@@ -46,6 +46,7 @@ from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
 from wayflowcore.property import JsonSchemaParam, Property, StringProperty
 from wayflowcore.tools import ClientTool, ServerTool, Tool, ToolRequest, ToolResult
+from wayflowcore.tools.tools import _sanitize_tool_name
 from wayflowcore.tracing.span import AgentExecutionSpan, ToolExecutionSpan
 
 if TYPE_CHECKING:
@@ -107,7 +108,7 @@ class AgentConversationExecutionState(ConversationExecutionState):
     current_retrieved_tools: Optional[List[Tool]] = field(default=None, init=False)
 
 
-def _agent_as_client_tool(agent: Union[Agent, OciAgent]) -> Tool:
+def _agent_as_client_tool(agent: Union[Agent, OciAgent]) -> ClientTool:
     agent_input_parameters: Dict[str, JsonSchemaParam] = {}
     if isinstance(agent, Agent):
         resolved_agent_input_names = [property_.name for property_ in agent.input_descriptors]
@@ -158,7 +159,7 @@ def _agent_as_client_tool(agent: Union[Agent, OciAgent]) -> Tool:
         **agent_input_parameters,
     }
     return ClientTool(
-        name=agent.name,
+        name=_sanitize_tool_name(agent.name),
         description=agent.description or "",
         parameters=agent_parameters,
     )
@@ -525,7 +526,7 @@ class AgentConversationExecutor(ConversationExecutor):
         messages: MessageList,
     ) -> Optional[ExecutionStatus]:
         for agent in config.agents:
-            if tool_request.name == agent.name:
+            if tool_request.name == _sanitize_tool_name(agent.name):
                 return await AgentConversationExecutor._handle_agent_call(
                     config=config,
                     state=state,
@@ -535,7 +536,7 @@ class AgentConversationExecutor(ConversationExecutor):
                     conversation=conversation,
                 )
         for flow in config.flows:
-            if tool_request.name == flow.name:
+            if tool_request.name == _sanitize_tool_name(flow.name):
                 return await AgentConversationExecutor._handle_flow_call(
                     config, state, flow, tool_request, messages
                 )

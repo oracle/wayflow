@@ -82,6 +82,49 @@ def test_simple_end_to_endcomposability(big_llama):
 
 
 @retry_test(max_attempts=4)
+def test_agent_with_subagent_with_whitespace_in_name_correctly_executes(big_llama):
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-10-27
+    Average success time:  3.87 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+
+    from wayflowcore.templates import NATIVE_AGENT_TEMPLATE
+
+    agent = Agent(
+        custom_instruction="""The functions you have access to allows you to call experts. Use JSON to formulate function calls. Always rephrase the expert's answers to the user""",
+        llm=big_llama,
+        name="master",
+        agents=[
+            Agent(
+                custom_instruction="You are a fooza operation specialist. Answer the user requests about the fooza operation, and their request only (do not attempt to solve unrelated tasks). The fooza operation is a linear transformation, designed by Mr. Fooza. Only tackle the requests you are specialized to tackle, and let other agents take care of the rest.",
+                llm=big_llama,
+                tools=[fooza_tool],
+                agent_id="fooza_expert",
+                name="Expert of Fooza Ops",
+                description="Delegate tasks to an agent that can compute any operations related with the fooza operation",
+            ),
+        ],
+        agent_template=NATIVE_AGENT_TEMPLATE,
+        max_iterations=4,
+    )
+    conversation = agent.start_conversation()
+    conversation.append_user_message("compute the result the fooza operation of 4 and 5")
+    conversation.execute()
+
+    assert any(
+        message.message_type == MessageType.TOOL_REQUEST
+        and message.tool_requests  # has tool requests
+        and message.tool_requests[0].name == "Expert_of_Fooza_Ops"  # transformed name
+        and set(message.tool_requests[0].args.keys()) == {"context"}
+        for message in conversation.get_messages()
+    )
+
+
+@retry_test(max_attempts=4)
 def test_agents_provide_inputs_to_subagent(big_llama):
     """
     Test added for the bug. Error was "ValueError: Missing some contextual variables in conversation, {}, {'user_request'}"

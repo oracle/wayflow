@@ -9,7 +9,23 @@ Possibly Breaking Changes
 
 * **Removed deprecated Agent/Flow.execute:**
 
-  Removed the deprecated method of `Agent/Flow.execute(conversation)` in favor of conversation.execute().
+  Removed the deprecated method of ``Agent/Flow.execute(conversation)`` in favor of ``conversation.execute()``.
+
+* **Enforce valid tool names:**
+
+  When creating any type of ``Tool``, its name field must not contain whitespaces or special characters, so that LLM APIs do not return errors. See bug fix below.
+
+  - For now, a deprecation warning is raised; in the next cycle, an error will be thrown.
+
+Bug fixes
+^^^^^^^^^
+
+* **Some Agent and Flow names could cause issues when used in multi-agent patterns:**
+
+  Fixed a bug where Agents or Flows, whose name contains whitespaces or special characters, would crash upon sending a request to the LLM provider
+
+  - The cause was that internally, WayFlow converted a subagent of an Agent into a Tool, which is then converted to a JSON payload to submit to the LLM provider, which then returns an HTTP error if the tool's name does not match a regex.
+  - Now, users may specify arbitrary names for Agents and Flows. Internally, when creating Tools out of subagents and subflows, their names would be sanitized.
 
 WayFlow 25.4.2
 --------------

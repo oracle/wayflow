@@ -144,7 +144,7 @@ def agent_with_yielding_subflow(remotely_hosted_llm: LlmModel) -> Agent:
 @pytest.fixture
 def what_time_is_it_context_provider() -> ToolContextProvider:
     tool_ = ServerTool(
-        name="Get current time",
+        name="get_current_time",
         description="Tool that returns the current time",
         func=lambda: datetime.now().strftime("%d, %B %Y, %I:%M %p"),
         parameters={},

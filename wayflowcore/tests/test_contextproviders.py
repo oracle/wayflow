@@ -497,7 +497,7 @@ def test_tool_context_provider_correctly_executes() -> None:
         return str(time())
 
     tool = ServerTool(
-        name="Current time",
+        name="CurrentTime",
         description="Tool that returns time",
         parameters={},
         output={"type": "string"},
@@ -535,7 +535,7 @@ def test_tool_context_provider_works_with_tool_with_parameters_with_default() ->
         return str(time())
 
     tool = ServerTool(
-        name="Current time",
+        name="CurrentTime",
         description="Tool that returns time",
         parameters={"param_a": {"type": "string", "default": "hello!"}},
         output={"type": "string"},
@@ -549,7 +549,7 @@ def test_tool_context_provider_fails_with_client_tool() -> None:
     from wayflowcore.tools import ClientTool
 
     tool = ClientTool(
-        name="Current time",
+        name="CurrentTime",
         description="Tool that returns time",
         parameters={},
         output={"type": "string"},
@@ -568,7 +568,7 @@ def test_tool_context_provider_fails_with_tool_with_parameters_without_default()
         return str(time())
 
     tool = ServerTool(
-        name="Current time",
+        name="CurrentTime",
         description="Tool that returns time",
         parameters={"param_a": {"type": "string"}},
         output={"type": "string"},

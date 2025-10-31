@@ -293,7 +293,7 @@ def test_catch_step_has_correct_branches(flow, except_on, catch_all_exceptions, 
             create_single_step_flow(
                 ToolExecutionStep(
                     tool=ClientTool(
-                        name="", description="", parameters={"i1": {}, "i2": {}, "i3": {}}
+                        name="tool", description="", parameters={"i1": {}, "i2": {}, "i3": {}}
                     ),
                     output_mapping={ToolExecutionStep.TOOL_OUTPUT: "my_output"},
                 ),
@@ -310,7 +310,7 @@ def test_catch_step_has_correct_branches(flow, except_on, catch_all_exceptions, 
         (
             create_single_step_flow(
                 ToolExecutionStep(
-                    tool=ClientTool(name="", description="", parameters={}),
+                    tool=ClientTool(name="tool", description="", parameters={}),
                 )
             ),
             None,

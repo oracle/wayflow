@@ -5,8 +5,11 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import logging
+import re
+import warnings
 from abc import ABC
 from dataclasses import dataclass, field
+from functools import cache
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Union
 
 from wayflowcore._metadata import MetadataType
@@ -20,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from wayflowcore.serialization.context import DeserializationContext, SerializationContext
-
 
 VALID_JSON_TYPES = {"boolean", "number", "integer", "string", "bool", "object", "array", "null"}
 
@@ -102,6 +104,8 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
         __metadata_info__: Optional[MetadataType] = None,
         requires_confirmation: bool = False,
     ):
+        _validate_name(name, raise_on_invalid=False)  # next release cycle would raise an error
+
         if input_descriptors is not None:
             self.input_descriptors = input_descriptors
             self.parameters = _input_descriptors_to_parameters(input_descriptors)
@@ -251,3 +255,43 @@ def _convert_list_of_properties_to_tool(
         description="the expected output of the generation",
         input_descriptors=properties,
     )
+
+
+VALID_TOOL_NAME_PATTERN = re.compile(r"^[a-zA-Z0-9_-]+$")
+# Relaxed pattern when spaces are allowed
+VALID_TOOL_NAME_PATTERN_WITH_SPACE = re.compile(r"^[a-zA-Z0-9 _-]+$")
+
+
+@cache
+def _validate_name(
+    name: str,
+    allow_space: bool = False,
+    raise_on_invalid: bool = False,
+) -> None:
+    """
+    Validates tool name against provider rules:
+      - Default: Must match ^[a-zA-Z0-9_-]+$ (no spaces)
+      - If allow_space=True: Must match ^[a-zA-Z0-9 _-]+$ (spaces allowed)
+      - If raise_on_invalid=True: raise ValueError on invalid name; otherwise warn (DeprecationWarning).
+    """
+    if not isinstance(name, str) or name == "":
+        raise ValueError(f"Invalid name '{name}', should be of type str and should not be empty")
+
+    pattern = VALID_TOOL_NAME_PATTERN_WITH_SPACE if allow_space else VALID_TOOL_NAME_PATTERN
+
+    if not pattern.fullmatch(name):
+        expected = r"^[a-zA-Z0-9 _-]+$" if allow_space else r"^[a-zA-Z0-9_-]+$"
+        msg = (
+            f"Invalid name '{name}'. Names should match regex {expected} "
+            f"({'spaces allowed' if allow_space else 'no whitespaces and special characters'}). "
+            "Invalid agent/flow/tool naming is deprecated."
+        )
+        if raise_on_invalid:
+            raise ValueError(msg)
+        else:
+            warnings.warn(msg, DeprecationWarning)
+
+
+def _sanitize_tool_name(name: str) -> str:
+    """This function is only used to transform agentic component names into tool names"""
+    return name.replace(" ", "_")

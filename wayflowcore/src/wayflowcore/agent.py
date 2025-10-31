@@ -515,12 +515,22 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             _make_talk_to_user_tool,
         )
 
-        Agent._validate_agent_tools(tools=tools, flows=flows, agents=agents)
-        all_tools: List[Tool] = [
-            *[tool for tool in tools],
-            *[flow.as_client_tool() for flow in flows],
-            *[_agent_as_client_tool(agent) for agent in agents],
-        ]
+        flow_tools = [flow.as_client_tool() for flow in flows]
+        agent_tools = [_agent_as_client_tool(agent) for agent in agents]
+        all_tools = tools + flow_tools + agent_tools
+
+        if len(set(t.name for t in agent_tools)) < (
+            len(agent_names := [agent.name for agent in agents])
+        ):
+            raise ValueError(
+                f"Sub-agent name collision: names must differ by more than whitespace, punctuation, casing, or special characters. Names of provided agents: {agent_names}"
+            )
+        if len(set(t.name for t in flow_tools)) < (
+            len(flow_names := [flow.name for flow in flows])
+        ):
+            raise ValueError(
+                f"Sub-flow name collision: names must differ by more than whitespace, punctuation, casing, or special characters. Names of provided flows: {flow_names}"
+            )
 
         if can_finish_conversation and len(output_descriptors) == 0:
             exit_tool = _get_end_conversation_tool()
@@ -552,19 +562,15 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 )
             ]
 
-        return all_tools
-
-    @staticmethod
-    def _validate_agent_tools(
-        tools: List[Tool], flows: List["Flow"], agents: List[Union["Agent", "OciAgent"]]
-    ) -> None:
-        all_names = [e.name for e in tools + flows + agents]
+        all_names = [e.name for e in all_tools]
         name_counts = Counter(all_names)
         reused_names = [name for name, name_count in name_counts.items() if name_count > 1]
         if any(reused_names):
             raise ValueError(
-                f"Found overlapping names for agents, flows, and/or tools: {reused_names}"
+                f"Found overlapping names (after normalization) for agents, flows, and/or tools: {reused_names}. Rename flows/agents/tools so normalized names are unique."
             )
+
+        return all_tools
 
     @staticmethod
     def compute_agent_inputs(

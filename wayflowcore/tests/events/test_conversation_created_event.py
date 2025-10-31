@@ -204,7 +204,7 @@ def test_event_is_triggered_with_direct_call_to_start_conversation(
                         "Please use the agent": Message(
                             tool_requests=[
                                 ToolRequest(
-                                    name="Location agent",
+                                    name="location_agent",
                                     args={},
                                     tool_request_id="tool_request_id_1",
                                 )
@@ -222,7 +222,7 @@ def test_event_is_triggered_with_direct_call_to_start_conversation(
                 initial_message="Hey!",
                 agents=[
                     Agent(
-                        name="Location agent",
+                        name="location_agent",
                         description="This agent knows how to pinpoint locations",
                         custom_instruction="Be polite",
                         llm=create_dummy_llm_with_next_output("Hi, location is X"),
