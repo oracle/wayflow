@@ -1,6 +1,6 @@
-===================================================
-How to Build a Havingierarchical Multi-Agent System
-===================================================
+==============================================
+How to Build a Hierarchical Multi-Agent System
+==============================================
 
 
 .. admonition:: Prerequisites
