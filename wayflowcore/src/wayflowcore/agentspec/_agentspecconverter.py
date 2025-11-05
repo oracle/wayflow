@@ -1841,9 +1841,11 @@ class RuntimeToAgentSpecConverter:
                                 (
                                     output_name == agentspec_node_output.json_schema["title"]
                                     or (
-                                        # In case of the MapNode as source node, we might have renamed the source output
-                                        # from `title` to `collected_title`, so we have to rename here to
-                                        isinstance(agentspec_node, AgentSpecMapNode)
+                                        # In case of the MapNode or FlowNode as source node, we might have renamed
+                                        # the source output from `title` to `collected_title`, so we have to rename here
+                                        isinstance(
+                                            agentspec_node, (AgentSpecMapNode, AgentSpecFlowNode)
+                                        )
                                         and "collected_" + output_name
                                         == agentspec_node_output.json_schema["title"]
                                     )
@@ -1868,15 +1870,15 @@ class RuntimeToAgentSpecConverter:
                                     )
                                 )
 
+        all_nodes = list(agentspec_nodes.values())
         # As currently we do not always have end steps in wayflowcore, we create them if there aren't and we connect them
         end_node_added = False
-        additional_end_nodes: List[AgentSpecNode] = []
         for control_flow_edge in runtime_flow.control_flow_edges:
             if control_flow_edge.destination_step is None and not isinstance(
                 control_flow_edge.source_step, RuntimeCompleteStep
             ):
                 if not end_node_added:
-                    additional_end_nodes.append(new_end_node)
+                    all_nodes.append(new_end_node)
                     end_node_added = True
                 # Connect the step that was previously ending the flow to the new end node
                 control_flow_connections.append(
@@ -1896,7 +1898,6 @@ class RuntimeToAgentSpecConverter:
         # something with the expected name. This is needed because in runtime the flow exposes as output
         # all the outputs generated inside itself, so above in this code we had to expose all the generated outputs
         # as inputs in all the EndNodes, and here we connect these EndNode inputs with DataFlowEdges
-        all_nodes = list(agentspec_nodes.values()) + additional_end_nodes
         for node in all_nodes:
             if isinstance(node, AgentSpecEndNode):
                 _connect_all_outputs_to_endnode_inputs(node)
