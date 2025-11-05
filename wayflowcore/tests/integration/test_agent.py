@@ -363,7 +363,14 @@ def run_test_agent_can_call_one_flow_with_one_input(
 
     mock_step = (
         PromptExecutionStep(
-            "This is the question: {{search_query}}. Next, you must say 'Answer: George is the science advisor'.",
+            (
+                "The roles are as follow:\n"
+                "- John is sales consultant\n"
+                "- Lucie is head of strategy\n"
+                "- George is the science advisor\n"
+                "- Camille is the technical expert\n"
+                "Answer with the correct name the following query: {{search_query}}"
+            ),
             llm=remotely_hosted_llm,
             output_mapping={PromptExecutionStep.OUTPUT: "flow_output"},
         )
@@ -409,17 +416,17 @@ def test_agent_can_call_one_flow_with_one_input_tool_execution_step(
     run_test_agent_can_call_one_flow_with_one_input(remotely_hosted_llm, "tool_exec")
 
 
-@retry_test(max_attempts=3, wait_between_tries=0)
+@retry_test(max_attempts=2, wait_between_tries=0)
 def test_agent_can_call_one_flow_with_one_input_prompt_execution_step(
     remotely_hosted_llm: LlmModel,
 ) -> None:
     """
-    Failure rate:          3 out of 100
-    Observed on:           2024-12-17
-    Average success time:  2.61 seconds per successful attempt
-    Average failure time:  2.62 seconds per failed attempt
-    Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 6.0 / 100'000
+    Failure rate:          0 out of 100
+    Observed on:           2025-11-05
+    Average success time:  1.28 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           2
+    Justification:         (0.01 ** 2) ~= 9.6 / 100'000
     """
     run_test_agent_can_call_one_flow_with_one_input(remotely_hosted_llm, "prompt_exec")
 
