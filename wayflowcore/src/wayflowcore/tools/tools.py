@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Union
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
 from wayflowcore.idgeneration import IdGenerator
-from wayflowcore.property import JsonSchemaParam, Property, StringProperty
+from wayflowcore.property import JsonSchemaParam, Property, StringProperty, _empty_default
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 
 logger = logging.getLogger(__name__)
@@ -176,6 +176,31 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
             return all(self._is_type_valid(sub_param_type) for sub_param_type in param_type)
         else:
             return param_type in VALID_JSON_TYPES
+
+    def _add_defaults_to_tool_outputs(self, tool_outputs: Any) -> Any:
+        """
+        In this method, in case we have multiple expected outputs we retrieve default values
+        for outputs that were not generated, if they have one, otherwise we raise an exception
+        """
+        if len(self.output_descriptors) > 1:
+
+            if not isinstance(tool_outputs, dict):
+                raise ValueError(
+                    f"Expected multiple outputs in a dictionary as result of tool `{self.name}`, "
+                    f"but an object of type {type(tool_outputs)} was returned."
+                )
+
+            for tool_descriptor in self.output_descriptors:
+                if tool_descriptor.name not in tool_outputs:
+                    if tool_descriptor.default_value is not _empty_default:
+                        tool_outputs[tool_descriptor.name] = tool_descriptor.default_value
+                    else:
+                        raise ValueError(
+                            f"The tool `{self.name}` did not return all expected outputs. "
+                            f"An output named {tool_descriptor.name} is expected, but no value with this name was returned. "
+                            f"The names of the outputs returned by the tool are: {', '.join(tool_outputs.keys())}."
+                        )
+        return tool_outputs
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
         from wayflowcore.serialization.toolserialization import serialize_tool_to_config

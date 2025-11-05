@@ -1292,7 +1292,7 @@ def test_agent_with_multi_outputs_tool(remotely_hosted_llm):
     @tool(output_descriptors=[StringProperty(name="name"), IntegerProperty(name="id")])
     def get_user_username() -> Dict[str, Union[str, int]]:
         """A tool returning several outputs"""
-        return {"email": "larry", "id": 123}
+        return {"name": "larry", "id": 123}
 
     agent = Agent(
         llm=remotely_hosted_llm,
@@ -1305,6 +1305,90 @@ def test_agent_with_multi_outputs_tool(remotely_hosted_llm):
     last_message_content = conversation.get_last_message().content.lower()
     assert "larry" in last_message_content
     assert "123" in last_message_content
+
+
+@retry_test(max_attempts=3)
+def test_agent_with_multi_outputs_tool_with_default(remotely_hosted_llm):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-04
+    Average success time:  0.88 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+
+    get_user_username = ClientTool(
+        name="get_user_username",
+        description="A tool returning several outputs",
+        input_descriptors=[],
+        output_descriptors=[
+            StringProperty(name="name"),
+            IntegerProperty(name="id", default_value=123),
+        ],
+    )
+
+    agent = Agent(
+        llm=remotely_hosted_llm,
+        tools=[get_user_username],
+    )
+
+    conversation = agent.start_conversation()
+    conversation.append_user_message("what are my name and id?")
+    status = conversation.execute()
+    assert isinstance(status, ToolRequestStatus)
+    assert len(status.tool_requests) == 1
+    conversation.append_tool_result(
+        ToolResult(
+            tool_request_id=status.tool_requests[0].tool_request_id, content={"name": "larry"}
+        )
+    )
+    status = conversation.execute()
+    last_message_content = conversation.get_last_message().content.lower()
+    assert "larry" in last_message_content
+    assert "123" in last_message_content
+
+
+@retry_test(max_attempts=3)
+def test_agent_given_tool_result_with_missing_output_raises(remotely_hosted_llm):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-04
+    Average success time:  0.79 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+
+    get_user_username = ClientTool(
+        name="get_user_username",
+        description="A tool returning several outputs",
+        input_descriptors=[],
+        output_descriptors=[
+            StringProperty(name="name"),
+            IntegerProperty(name="id", default_value=123),
+        ],
+    )
+
+    agent = Agent(
+        llm=remotely_hosted_llm,
+        tools=[get_user_username],
+    )
+
+    conversation = agent.start_conversation()
+    conversation.append_user_message("what are my name and id?")
+    status = conversation.execute()
+    assert isinstance(status, ToolRequestStatus)
+    assert len(status.tool_requests) == 1
+    conversation.append_tool_result(
+        ToolResult(
+            tool_request_id=status.tool_requests[0].tool_request_id, content={"wrong_key": "larry"}
+        )
+    )
+    with pytest.raises(
+        ValueError, match="The tool `get_user_username` did not return all expected outputs."
+    ):
+        _ = conversation.execute()
 
 
 def test_agent_has_default_name(remotely_hosted_llm):

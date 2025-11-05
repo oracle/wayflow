@@ -493,6 +493,7 @@ class ToolExecutionStep(Step):
                     and message.tool_result.tool_request_id == tool_request_uuid
                 )
             )
+            self.tool._add_defaults_to_tool_outputs(tool_result_content)
         except StopIteration:
             messages_as_str = "\n".join(str(m) for m in conversation.get_messages())
             raise ValueError(

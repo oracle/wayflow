@@ -403,3 +403,77 @@ def test_llm_can_use_tool_with_enum_param(remotely_hosted_llm):
     status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     assert "jo" in conv.get_last_message().content.lower()
+
+
+def test_server_tool_output_gets_filled_with_defaults() -> None:
+
+    def tool_func(a: int) -> Dict[str, int]:
+        return {"a": a}
+
+    server_tool = ServerTool(
+        name="my_tool",
+        description="my description",
+        func=tool_func,
+        input_descriptors=[IntegerProperty(name="a", default_value=0)],
+        output_descriptors=[
+            IntegerProperty(name="a", default_value=0),
+            IntegerProperty(name="b", default_value=0),
+        ],
+    )
+
+    result = server_tool.run(a=10)
+    assert result == {"a": 10, "b": 0}
+
+    def tool_func_complex(a: int) -> Dict[dict[str, int], list[int]]:
+        return {"a": {"first": a}}
+
+    complex_server_tool = ServerTool(
+        name="my_complex_tool",
+        description="my description",
+        func=tool_func_complex,
+        input_descriptors=[IntegerProperty(name="a", default_value=0)],
+        output_descriptors=[
+            DictProperty(name="a", value_type=IntegerProperty(), default_value={}),
+            ListProperty(name="b", item_type=IntegerProperty(), default_value=[1, 2]),
+        ],
+    )
+
+    result = complex_server_tool.run(a=10)
+    assert result == {"a": {"first": 10}, "b": [1, 2]}
+
+    async def async_tool_func(a: int) -> Dict[str, int]:
+        return {"a": a}
+
+    async_server_tool = ServerTool(
+        name="my_tool",
+        description="my description",
+        func=async_tool_func,
+        input_descriptors=[IntegerProperty(name="a", default_value=0)],
+        output_descriptors=[
+            IntegerProperty(name="a", default_value=0),
+            IntegerProperty(name="b", default_value=0),
+        ],
+    )
+
+    result = async_server_tool.run(a=10)
+    assert result == {"a": 10, "b": 0}
+
+
+def test_server_tool_without_mandatory_output_raises() -> None:
+
+    def tool_func(a: int) -> Dict[str, int]:
+        return {"a": a}
+
+    server_tool = ServerTool(
+        name="my_tool",
+        description="my description",
+        func=tool_func,
+        input_descriptors=[IntegerProperty(name="a")],
+        output_descriptors=[
+            IntegerProperty(name="a"),
+            IntegerProperty(name="b"),
+        ],
+    )
+
+    with pytest.raises(ValueError, match="The tool `my_tool` did not return all expected outputs."):
+        _ = server_tool.run(a=10)

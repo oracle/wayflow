@@ -181,7 +181,7 @@ def retry_test(
 
     Parameters
     ----------
-    max_attempt:
+    max_attempts:
         The maximum number of attempts the test will be attempted. Note than in average the test
         will be attempted `1/(1-failure_rate)` times (e.g. 1.1 times for a 10% failure rate)
     wait_between_tries:

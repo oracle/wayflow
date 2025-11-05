@@ -753,10 +753,11 @@ class AgentConversationExecutor(ConversationExecutor):
             try:
                 tool_result_client_answer = next(
                     m.tool_result
-                    for m in reversed(messages.get_messages())
+                    for m in reversed(messages.messages)
                     if m.tool_result is not None
                     and m.tool_result.tool_request_id == tool_request.tool_request_id
                 )
+                tool._add_defaults_to_tool_outputs(tool_result_client_answer.content)
                 record_event(
                     ToolExecutionResultEvent(
                         tool=tool,
