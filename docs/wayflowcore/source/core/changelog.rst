@@ -28,6 +28,12 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+* **Default values in tools outputs were ignored:**
+
+  Fixed a bug where if tools had multiple output descriptors with default values set for some of them, these defaults were ignored and not
+  set in the tool result if the tool execution did not produce a value for them. Tools that have a single output still ignore
+  its default, as a return value is always assumed to be produced by the tool (possibly ``None``).
+
 * **Some Agent and Flow names could cause issues when used in multi-agent patterns:**
 
   Fixed a bug where Agents or Flows, whose name contains whitespaces or special characters, would crash upon sending a request to the LLM provider

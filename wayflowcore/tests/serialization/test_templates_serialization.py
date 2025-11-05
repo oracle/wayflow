@@ -87,7 +87,7 @@ def test_output_parser_serialization(output_parser):
 
 
 def test_serialization_of_template_with_custom_parser_works():
-    class MyParser(OutputParser, SerializableObject):
+    class MyParser(OutputParser):
         def _serialize_to_dict(
             self, serialization_context: "SerializationContext"
         ) -> Dict[str, Any]:

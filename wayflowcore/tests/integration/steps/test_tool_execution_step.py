@@ -997,3 +997,56 @@ def test_tool_confirmation_raises_exceptions_in_flow_if_rejected(name_tool) -> N
         assert isinstance(status, ToolExecutionConfirmationStatus)
         status.reject_tool_execution(tool_request=status.tool_requests[0], reason="No reason")
         status = conv.execute()
+
+
+def test_tool_with_multiple_outputs_adds_default_values():
+
+    my_tool = ClientTool(
+        name="my_tool",
+        description="my description",
+        input_descriptors=[],
+        output_descriptors=[
+            StringProperty(name="a"),
+            StringProperty(name="b", default_value="b"),
+        ],
+    )
+
+    flow = Flow.from_steps([ToolExecutionStep(my_tool)])
+    conversation = flow.start_conversation()
+    status = conversation.execute()
+    assert isinstance(status, ToolRequestStatus)
+    assert len(status.tool_requests) == 1
+    conversation.append_tool_result(
+        ToolResult(tool_request_id=status.tool_requests[0].tool_request_id, content={"a": "hey!"})
+    )
+    status = conversation.execute()
+    assert isinstance(status, FinishedStatus)
+    assert all(o in status.output_values for o in ["a", "b"])
+    assert status.output_values["a"] == "hey!"
+    assert status.output_values["b"] == "b"
+
+
+def test_tool_given_wrong_tool_result_format_raises():
+
+    my_tool = ClientTool(
+        name="my_tool",
+        description="my description",
+        input_descriptors=[],
+        output_descriptors=[
+            StringProperty(name="a"),
+            StringProperty(name="b", default_value="b"),
+        ],
+    )
+
+    flow = Flow.from_steps([ToolExecutionStep(my_tool)])
+    conversation = flow.start_conversation()
+    status = conversation.execute()
+    assert isinstance(status, ToolRequestStatus)
+    assert len(status.tool_requests) == 1
+    conversation.append_tool_result(
+        ToolResult(
+            tool_request_id=status.tool_requests[0].tool_request_id, content={"wrong_key": "hey!"}
+        )
+    )
+    with pytest.raises(ValueError, match="The tool `my_tool` did not return all expected outputs."):
+        _ = conversation.execute()

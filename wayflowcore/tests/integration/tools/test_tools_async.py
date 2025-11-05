@@ -4,10 +4,12 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import time
+from typing import Dict
 
 import anyio
 
 from wayflowcore import tool
+from wayflowcore.property import DictProperty, IntegerProperty, ListProperty
 from wayflowcore.tools import ServerTool
 
 
@@ -62,3 +64,57 @@ def test_synchronous_server_tool_is_ran_in_worker_thread():
 
     anyio.run(_check_server_tool_works_asynchronously, my_tool)
     _check_server_tool_works_synchronously(my_tool)
+
+
+def test_server_tool_output_gets_filled_with_defaults() -> None:
+
+    def tool_func(a: int) -> Dict[str, int]:
+        return {"a": a}
+
+    server_tool = ServerTool(
+        name="my_tool",
+        description="my description",
+        func=tool_func,
+        input_descriptors=[IntegerProperty(name="a", default_value=0)],
+        output_descriptors=[
+            IntegerProperty(name="a", default_value=0),
+            IntegerProperty(name="b", default_value=0),
+        ],
+    )
+
+    result = anyio.run(server_tool.run_async, 10)
+    assert result == {"a": 10, "b": 0}
+
+    def tool_func_complex(a: int) -> Dict[dict[str, int], list[int]]:
+        return {"a": {"first": a}}
+
+    complex_server_tool = ServerTool(
+        name="my_complex_tool",
+        description="my description",
+        func=tool_func_complex,
+        input_descriptors=[IntegerProperty(name="a", default_value=0)],
+        output_descriptors=[
+            DictProperty(name="a", value_type=IntegerProperty(), default_value={}),
+            ListProperty(name="b", item_type=IntegerProperty(), default_value=[1, 2]),
+        ],
+    )
+
+    result = anyio.run(complex_server_tool.run_async, 10)
+    assert result == {"a": {"first": 10}, "b": [1, 2]}
+
+    async def async_tool_func(a: int) -> Dict[str, int]:
+        return {"a": a}
+
+    async_server_tool = ServerTool(
+        name="my_tool",
+        description="my description",
+        func=async_tool_func,
+        input_descriptors=[IntegerProperty(name="a", default_value=0)],
+        output_descriptors=[
+            IntegerProperty(name="a", default_value=0),
+            IntegerProperty(name="b", default_value=0),
+        ],
+    )
+
+    result = anyio.run(async_server_tool.run_async, 10)
+    assert result == {"a": 10, "b": 0}

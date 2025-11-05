@@ -212,11 +212,12 @@ class ServerTool(Tool):
         If `func` is synchronous, it will run in an anyio worker thread.
         """
         if is_coroutine_function(self.func):
-            return await self.func(*args, **kwargs)
+            tool_outputs = await self.func(*args, **kwargs)
+            return self._add_defaults_to_tool_outputs(tool_outputs)
         else:
             # wrap to handle named arguments
             def _wrap() -> Any:
-                return self.func(*args, **kwargs)
+                return self._add_defaults_to_tool_outputs(self.func(*args, **kwargs))
 
             if self._cpu_bounded:
                 return await run_sync_in_process(_wrap)
@@ -229,11 +230,12 @@ class ServerTool(Tool):
         synchronous or asynchronous aspect of its `func` attribute.
         """
         if not is_coroutine_function(self.func):
-            return self.func(*args, **kwargs)
+            return self._add_defaults_to_tool_outputs(self.func(*args, **kwargs))
         else:
             # wrap to handle named arguments
             async def _wrap() -> Any:
-                return await self.func(*args, **kwargs)
+                tool_outputs = await self.func(*args, **kwargs)
+                return self._add_defaults_to_tool_outputs(tool_outputs)
 
             return run_async_in_sync(_wrap)
 
