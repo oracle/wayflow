@@ -1,0 +1,73 @@
+component_type: Swarm
+id: a37f7014-8b0a-4baf-91df-ef505fc77583
+name: swarm_97c7a82a__auto
+description: null
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+first_agent:
+  $component_ref: f383e286-655b-412a-a674-550eeb11f845
+relationships:
+- - $component_ref: f383e286-655b-412a-a674-550eeb11f845
+  - $component_ref: cc787476-016d-48ec-bde4-332fd053859a
+- - $component_ref: f383e286-655b-412a-a674-550eeb11f845
+  - $component_ref: ee307484-266e-4749-9f30-d2bc36e62057
+- - $component_ref: cc787476-016d-48ec-bde4-332fd053859a
+  - $component_ref: ee307484-266e-4749-9f30-d2bc36e62057
+handoff: true
+$referenced_components:
+  f383e286-655b-412a-a674-550eeb11f845:
+    component_type: Agent
+    id: f383e286-655b-412a-a674-550eeb11f845
+    name: GeneralistDoctor
+    description: Generalist practitioner doctor
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs: []
+    llm_config:
+      $component_ref: ccd8fecc-b026-42e2-a276-9d634fe51678
+    system_prompt: You are a general practitioner doctor.Patients might come to you
+      for common issues like flu etc. For these, just prescribe something directly
+      For more complicated cases, refer to a specialist.
+    tools: []
+  ccd8fecc-b026-42e2-a276-9d634fe51678:
+    component_type: VllmConfig
+    id: ccd8fecc-b026-42e2-a276-9d634fe51678
+    name: LLAMA_MODEL_ID
+    description: null
+    metadata:
+      __metadata_info__: {}
+    default_generation_parameters: null
+    url: LLAMA_API_URL
+    model_id: LLAMA_MODEL_ID
+  cc787476-016d-48ec-bde4-332fd053859a:
+    component_type: Agent
+    id: cc787476-016d-48ec-bde4-332fd053859a
+    name: NeurologistDoctor
+    description: Neurologist doctor
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs: []
+    llm_config:
+      $component_ref: ccd8fecc-b026-42e2-a276-9d634fe51678
+    system_prompt: You are a neurologist. If a patient has cancer, refer them to the
+      oncologist.
+    tools: []
+  ee307484-266e-4749-9f30-d2bc36e62057:
+    component_type: Agent
+    id: ee307484-266e-4749-9f30-d2bc36e62057
+    name: OncologistDoctor
+    description: Oncologist doctor
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs: []
+    llm_config:
+      $component_ref: ccd8fecc-b026-42e2-a276-9d634fe51678
+    system_prompt: You are an oncologist. You should help patients with cancer, prescribing
+      treatments and giving them precise information
+    tools: []
+agentspec_version: 25.4.2

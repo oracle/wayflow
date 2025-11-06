@@ -6,6 +6,7 @@
 
 from typing import List
 
+from deprecated import deprecated
 from pyagentspec.agent import Agent
 from pyagentspec.component import ComponentWithIO
 from pyagentspec.validation_helpers import model_validator_with_error_accumulation
@@ -18,8 +19,13 @@ from wayflowcore.agentspec.components._pydantic_plugins import (
 )
 
 
+@deprecated("PluginSwarm is deprecated, use Agent Spec Swarm instead.")
 class PluginSwarm(ComponentWithIO):
-    """Defines a ``Swarm`` conversational component.
+    """
+    .. deprecated:: 25.4
+        PluginSwarm is deprecated, use Agent Spec Swarm instead.
+
+    Defines a ``Swarm`` conversational component.
 
     A ``Swarm`` is a multi-agent conversational component in which each agent determines
     the next agent to be executed, based on a list of pre-defined relationships."""

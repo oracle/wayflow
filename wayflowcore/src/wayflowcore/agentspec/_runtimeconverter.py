@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import urllib.parse
+import warnings
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypedDict, Union, cast
 
 from pyagentspec.agent import Agent as AgentSpecAgent
@@ -63,6 +64,7 @@ from pyagentspec.mcp.tools import MCPToolSpec as AgentSpecMCPToolSpec
 from pyagentspec.ociagent import OciAgent as AgentSpecOciAgent
 from pyagentspec.property import ListProperty as AgentSpecListProperty
 from pyagentspec.property import Property as AgentSpecProperty
+from pyagentspec.swarm import Swarm as AgentSpecSwarm
 from pyagentspec.tools.clienttool import ClientTool as AgentSpecClientTool
 from pyagentspec.tools.remotetool import RemoteTool as AgentSpecRemoteTool
 from pyagentspec.tools.servertool import ServerTool as AgentSpecServerTool
@@ -1050,17 +1052,47 @@ class AgentSpecToRuntimeConverter:
                 id=agentspec_component.id,
                 __metadata_info__=metadata_info,
             )
-        elif isinstance(agentspec_component, AgentSpecPluginSwarm):
-            if not hasattr(agentspec_component, "handoff"):
-                raise ValueError(
-                    "Swarm component is missing the ``handoff`` field. "
-                    "Make sure that you are using ``wayflowcore.agentspec.components.PluginSwarm`"
-                )
+        elif isinstance(agentspec_component, AgentSpecSwarm):
+            for relationship in agentspec_component.relationships:
+                for agent in relationship:  # type: ignore[assignment]
+                    if not isinstance(agent, AgentSpecAgent):
+                        raise ValueError(
+                            f"WayFlow Swarm only supports agents of type `Agent`, "
+                            f"but received `{type(agent).__name__}` instead."
+                        )
+
             return RuntimeSwarm(
                 name=agentspec_component.name,
                 description=agentspec_component.description,
                 first_agent=self.convert(
-                    agentspec_component.first_agent, tool_registry, converted_components
+                    agentspec_component.first_agent,
+                    tool_registry,
+                    converted_components,
+                ),
+                relationships=[
+                    (
+                        self.convert(sender, tool_registry, converted_components),
+                        self.convert(recipient, tool_registry, converted_components),
+                    )
+                    for sender, recipient in agentspec_component.relationships
+                ],
+                handoff=agentspec_component.handoff,
+                id=agentspec_component.id,
+                __metadata_info__=metadata_info,
+            )
+        elif isinstance(agentspec_component, AgentSpecPluginSwarm):
+            warnings.warn(
+                "PluginSwarm is deprecated. Convert to Agent Spec Swarm instead.",
+                DeprecationWarning,
+            )
+
+            return RuntimeSwarm(
+                name=agentspec_component.name,
+                description=agentspec_component.description,
+                first_agent=self.convert(
+                    agentspec_component.first_agent,
+                    tool_registry,
+                    converted_components,
                 ),
                 relationships=[
                     (

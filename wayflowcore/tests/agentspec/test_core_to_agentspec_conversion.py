@@ -65,6 +65,7 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
             },
         ),
         ("ociagent_1.yaml", {}),
+        ("swarm.yaml", {}),
     ],
 )
 def test_agentspec_config_can_be_converted_to_core_then_back_to_agentspec(
@@ -129,6 +130,7 @@ def test_agentspec_config_can_be_converted_to_core_then_back_to_agentspec(
             },
         ),
         ("ociagent_1.yaml", {}),
+        ("swarm.yaml", {}),
     ],
 )
 def test_agentspec_json_and_yaml_import_are_equal(
@@ -161,5 +163,20 @@ def test_agentspec_json_and_yaml_import_are_equal(
         )
     elif isinstance(assistant, RuntimeFlow):
         assert_flows_are_copies(deserialized_yaml_assistant, deserialized_json_assistant)
-    else:
+    elif isinstance(assistant, RuntimeAgent):
         assert_agents_are_copies(deserialized_yaml_assistant, deserialized_json_assistant)
+    else:  # RuntimeSwarm
+        assert deserialized_yaml_assistant.name == deserialized_json_assistant.name
+        assert deserialized_yaml_assistant.description == deserialized_json_assistant.description
+        assert_agents_are_copies(
+            deserialized_yaml_assistant.first_agent, deserialized_json_assistant.first_agent
+        )
+        assert len(deserialized_yaml_assistant.relationships) == len(
+            deserialized_json_assistant.relationships
+        )
+        for i in range(len(deserialized_yaml_assistant.relationships)):
+            yaml_agent_1, yaml_agent_2 = deserialized_yaml_assistant.relationships[i]
+            json_agent_1, json_agent_2 = deserialized_json_assistant.relationships[i]
+            assert_agents_are_copies(yaml_agent_1, json_agent_1)
+            assert_agents_are_copies(yaml_agent_2, json_agent_2)
+        assert deserialized_yaml_assistant.handoff == deserialized_json_assistant.handoff

@@ -272,9 +272,7 @@ To enable ``handoff`` in a Swarm, set the ``handoff`` parameter to ``True``.
 Agent Spec Exporting/Loading
 ============================
 
-You can export the assistant configuration to its Agent Spec configuration using the ``AgentSpecExporter``
-and the Swarm plugin. Using the plugin ensures the proper serialization of
-the custom Swarm component.
+You can export the assistant configuration to its Agent Spec configuration using the ``AgentSpecExporter``.
 
 .. literalinclude:: ../code_examples/howto_swarm.py
     :language: python
@@ -300,24 +298,10 @@ Here is what the **Agent Spec representation will look like ↓**
 
 You can then load the configuration back to an assistant using the ``AgentSpecLoader``.
 
-
-Similar to the serialization, use the swarm deserialization plugin to ensure the proper deserialization of
-the custom Swarm component.
-
-
 .. literalinclude:: ../code_examples/howto_swarm.py
     :language: python
     :start-after: .. start-##_Load_Agent_Spec_config
     :end-before: .. end-##_Load_Agent_Spec_config
-
-.. note::
-
-    This guide uses the following extension/plugin Agent Spec components:
-
-    - ``PluginSwarm``
-
-    See the list of available Agent Spec extension/plugin components in the :doc:`API Reference <../api/agentspec>`
-
 
 Next steps
 ==========

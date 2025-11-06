@@ -64,6 +64,7 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
         ),
         ("mcp_agent.yaml", {}),
         ("ociagent_1.yaml", {}),
+        ("swarm.yaml", {}),
     ],
 )
 def test_agentspec_config_can_be_converted_to_core_then_executed(
