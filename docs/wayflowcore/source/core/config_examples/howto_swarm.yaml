@@ -1,5 +1,5 @@
-component_type: PluginSwarm
-id: e6dd83c1-7c17-42f8-874d-e6e174f18424
+component_type: Swarm
+id: 5a35bc2b-25bf-47e6-ad93-86528be5a785
 name: Swarm
 description: null
 metadata:
@@ -7,21 +7,19 @@ metadata:
 inputs: []
 outputs: []
 first_agent:
-  $component_ref: 04597246-9a76-45a7-b4e8-b17730bf90b9
+  $component_ref: 1e1735d7-ec23-4659-9046-b984881163a1
 relationships:
-- - $component_ref: 04597246-9a76-45a7-b4e8-b17730bf90b9
-  - $component_ref: aa80404a-dfc8-49e3-868a-dcfc4892b551
-- - $component_ref: 04597246-9a76-45a7-b4e8-b17730bf90b9
-  - $component_ref: 6377f21e-7b6b-4e11-b05b-029980adf932
-- - $component_ref: 6377f21e-7b6b-4e11-b05b-029980adf932
-  - $component_ref: aa80404a-dfc8-49e3-868a-dcfc4892b551
+- - $component_ref: 1e1735d7-ec23-4659-9046-b984881163a1
+  - $component_ref: c78b8336-2d92-4781-bd56-c28a476c839e
+- - $component_ref: 1e1735d7-ec23-4659-9046-b984881163a1
+  - $component_ref: efddcffd-6d3e-41ad-a071-89cf833fc8f8
+- - $component_ref: efddcffd-6d3e-41ad-a071-89cf833fc8f8
+  - $component_ref: c78b8336-2d92-4781-bd56-c28a476c839e
 handoff: true
-component_plugin_name: SwarmPlugin
-component_plugin_version: 25.4.0.dev0
 $referenced_components:
-  04597246-9a76-45a7-b4e8-b17730bf90b9:
+  1e1735d7-ec23-4659-9046-b984881163a1:
     component_type: Agent
-    id: 04597246-9a76-45a7-b4e8-b17730bf90b9
+    id: 1e1735d7-ec23-4659-9046-b984881163a1
     name: GeneralPractitioner
     description: General Practitioner. Primary point of contact for patients, handles
       general medical inquiries, provides initial diagnoses, and manages referrals.
@@ -30,7 +28,7 @@ $referenced_components:
     inputs: []
     outputs: []
     llm_config:
-      $component_ref: 0f34179f-02fa-4392-98ac-cc6e0dcff7b7
+      $component_ref: 28ae5559-8a7d-46bd-b1ff-82680db4f61f
     system_prompt: "You are an helpful general practitioner LLM doctor responsible\
       \ for handling patient consultations.\nYour goal is to assess patients' symptoms,\
       \ provide initial diagnoses, pescribe medication for\nmild conditions or refer\
@@ -59,7 +57,7 @@ $referenced_components:
       \ to follow the instructions."
     tools:
     - component_type: ServerTool
-      id: 232a7ff6-a97e-49ce-8d62-b415d288a18a
+      id: 384148cc-fc4c-438b-9ad3-f733f1912dd6
       name: symptoms_checker
       description: 'Checks symptoms against the medical knowledge base.
 
@@ -88,19 +86,19 @@ $referenced_components:
         items:
           type: string
         title: tool_output
-  0f34179f-02fa-4392-98ac-cc6e0dcff7b7:
+  28ae5559-8a7d-46bd-b1ff-82680db4f61f:
     component_type: VllmConfig
-    id: 0f34179f-02fa-4392-98ac-cc6e0dcff7b7
-    name: LLAMA_MODEL_ID
+    id: 28ae5559-8a7d-46bd-b1ff-82680db4f61f
+    name: llm_58b6cb28__auto
     description: null
     metadata:
       __metadata_info__: {}
     default_generation_parameters: null
     url: LLAMA_API_URL
     model_id: LLAMA_MODEL_ID
-  aa80404a-dfc8-49e3-868a-dcfc4892b551:
+  c78b8336-2d92-4781-bd56-c28a476c839e:
     component_type: Agent
-    id: aa80404a-dfc8-49e3-868a-dcfc4892b551
+    id: c78b8336-2d92-4781-bd56-c28a476c839e
     name: Pharmacist
     description: Pharmacist. Gives availability and information about specific medication.
     metadata:
@@ -108,7 +106,7 @@ $referenced_components:
     inputs: []
     outputs: []
     llm_config:
-      $component_ref: 0f34179f-02fa-4392-98ac-cc6e0dcff7b7
+      $component_ref: 28ae5559-8a7d-46bd-b1ff-82680db4f61f
     system_prompt: 'You are an helpful Pharmacist LLM Agent responsible for giving
       information about medication.
 
@@ -124,7 +122,7 @@ $referenced_components:
       a specific medication.'
     tools:
     - component_type: ServerTool
-      id: 57b84c13-a61b-4f79-8755-7dc8e2363726
+      id: eb11af0c-e436-4815-b926-4b02cf3bb102
       name: get_medication_info
       description: 'Provides availability and information about a medication.
 
@@ -147,9 +145,9 @@ $referenced_components:
       outputs:
       - type: string
         title: tool_output
-  6377f21e-7b6b-4e11-b05b-029980adf932:
+  efddcffd-6d3e-41ad-a071-89cf833fc8f8:
     component_type: Agent
-    id: 6377f21e-7b6b-4e11-b05b-029980adf932
+    id: efddcffd-6d3e-41ad-a071-89cf833fc8f8
     name: Dermatologist
     description: Dermatologist. Diagnoses and treats skin conditions.
     metadata:
@@ -157,7 +155,7 @@ $referenced_components:
     inputs: []
     outputs: []
     llm_config:
-      $component_ref: 0f34179f-02fa-4392-98ac-cc6e0dcff7b7
+      $component_ref: 28ae5559-8a7d-46bd-b1ff-82680db4f61f
     system_prompt: 'You are an helpful Dermatologist LLM Agent responsible for diagnosing
       and treating skin conditions.
 
@@ -197,7 +195,7 @@ $referenced_components:
       availability.'
     tools:
     - component_type: ServerTool
-      id: c7b805df-39c5-4643-b4e7-352145fa5537
+      id: d637a1fa-9680-407c-8297-df659215e795
       name: knowledge_tool
       description: 'Provides diagnosis and treatment information for skin conditions.
 
@@ -220,4 +218,4 @@ $referenced_components:
       outputs:
       - type: string
         title: tool_output
-agentspec_version: 25.4.1
+agentspec_version: 25.4.2

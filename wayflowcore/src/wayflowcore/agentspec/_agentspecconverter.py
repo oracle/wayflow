@@ -66,6 +66,7 @@ from pyagentspec.mcp.clienttransport import (
 from pyagentspec.mcp.tools import MCPTool as AgentSpecMCPTool
 from pyagentspec.ociagent import OciAgent as AgentSpecOciAgent
 from pyagentspec.property import Property as AgentSpecProperty
+from pyagentspec.swarm import Swarm as AgentSpecSwarm
 from pyagentspec.tools import ClientTool as AgentSpecClientTool
 from pyagentspec.tools import RemoteTool as AgentSpecRemoteTool
 from pyagentspec.tools import ServerTool as AgentSpecServerTool
@@ -213,7 +214,6 @@ from wayflowcore.agentspec.components.outputparser import (
 from wayflowcore.agentspec.components.outputparser import (
     PluginRegexPattern as AgentSpecPluginRegexPattern,
 )
-from wayflowcore.agentspec.components.swarm import PluginSwarm as AgentSpecPluginSwarm
 from wayflowcore.agentspec.components.template import (
     PluginPromptTemplate as AgentSpecPluginPromptTemplate,
 )
@@ -2093,10 +2093,10 @@ class RuntimeToAgentSpecConverter:
 
     def _swarm_convert_to_agentspec(
         self, runtime_swarm: RuntimeSwarm, referenced_objects: Optional[Dict[str, Any]] = None
-    ) -> AgentSpecPluginSwarm:
+    ) -> AgentSpecSwarm:
         metadata = _create_agentspec_metadata_from_runtime_component(runtime_swarm)
 
-        return AgentSpecPluginSwarm(
+        return AgentSpecSwarm(
             name=runtime_swarm.name,
             description=runtime_swarm.description,
             id=runtime_swarm.id,
