@@ -234,9 +234,9 @@ $referenced_components:
     description: null
     id: d6de2132-469e-49af-8f68-515839474472
     metadata: {}
-    model_id: /storage/models/Llama-3.3-70B-Instruct
-    name: llama-3.3-70b-instruct
-    url: LLAMA70BV33_API_URL
+    model_id: google/gemma-3-27b-it
+    name: gemma-3-27b-it
+    url: GEMMA_API_URL
   f7713311-8219-483a-bced-601dba820ce5:
     branches:
     - default
@@ -323,4 +323,4 @@ outputs:
 start_node:
   $component_ref: ff35218d-bff3-49a7-82ba-e51bf80d68c2
 state: []
-agentspec_version: 25.4.1
+agentspec_version: 25.4.2

@@ -58,6 +58,8 @@ from pyagentspec.mcp.clienttransport import (
     StreamableHTTPTransport as AgentSpecStreamableHTTPTransport,
 )
 from pyagentspec.mcp.tools import MCPTool as AgentSpecMCPTool
+from pyagentspec.mcp.tools import MCPToolBox as AgentSpecMCPToolBox
+from pyagentspec.mcp.tools import MCPToolSpec as AgentSpecMCPToolSpec
 from pyagentspec.ociagent import OciAgent as AgentSpecOciAgent
 from pyagentspec.property import ListProperty as AgentSpecListProperty
 from pyagentspec.property import Property as AgentSpecProperty
@@ -805,8 +807,14 @@ class AgentSpecToRuntimeConverter:
             extra_arguments: Dict[str, Any] = {
                 "initial_message": WAYFLOW_DEFAULT_INITIAL_AGENT_MESSAGE,
                 "tools": [
-                    self.convert(t, tool_registry, converted_components)
-                    for t in (agentspec_component.tools or [])
+                    *[
+                        self.convert(t, tool_registry, converted_components)
+                        for t in (agentspec_component.tools or [])
+                    ],
+                    *[
+                        self.convert(t, tool_registry, converted_components)
+                        for t in (agentspec_component.toolboxes or [])
+                    ],
                 ],
             }
             if isinstance(agentspec_component, AgentSpecExtendedAgent):
@@ -839,10 +847,6 @@ class AgentSpecToRuntimeConverter:
                     if isinstance(agentspec_component.agent_template, AgentSpecPluginPromptTemplate)
                     else agentspec_component.agent_template
                 )
-                extra_arguments["tools"] += [
-                    self.convert(t, tool_registry, converted_components)
-                    for t in (agentspec_component.toolboxes or [])
-                ]
 
             agent = RuntimeAgent(
                 name=agentspec_component.name,
@@ -1526,7 +1530,7 @@ class AgentSpecToRuntimeConverter:
                 ],
                 **self._get_component_arguments(agentspec_component),
             )
-        elif isinstance(agentspec_component, AgentSpecPluginMCPToolSpec):
+        elif isinstance(agentspec_component, (AgentSpecPluginMCPToolSpec, AgentSpecMCPToolSpec)):
             return RuntimeTool(
                 input_descriptors=[
                     self._convert_property_to_runtime(input_property)
@@ -1620,7 +1624,7 @@ class AgentSpecToRuntimeConverter:
                 raise ValueError(
                     f"Agent Spec ClientTransport '{agentspec_component.__class__.__name__}' is not supported yet."
                 )
-        elif isinstance(agentspec_component, AgentSpecPluginMCPToolBox):
+        elif isinstance(agentspec_component, (AgentSpecPluginMCPToolBox, AgentSpecMCPToolBox)):
             tool_filter = (
                 [
                     (

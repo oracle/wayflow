@@ -77,31 +77,6 @@ Plugin Components
 Plugin components are new components that are not natively supported in Agent Spec.
 
 
-Model Context Protocol (MCP)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-.. _agentspecclienttransport:
-.. autoclass:: wayflowcore.agentspec.components.mcp.PluginClientTransport
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecssetransport:
-.. autoclass:: wayflowcore.agentspec.components.mcp.PluginSSETransport
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecmcptoolspec:
-.. autoclass:: wayflowcore.agentspec.components.mcp.PluginMCPToolSpec
-    :exclude-members: model_post_init, model_config
-
-.. _agentspectoolbox:
-.. autoclass:: wayflowcore.agentspec.components.tools.PluginToolBox
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecmcptoolbox:
-.. autoclass:: wayflowcore.agentspec.components.mcp.PluginMCPToolBox
-    :exclude-members: model_post_init, model_config
-
-
 Agentic patterns
 ^^^^^^^^^^^^^^^^
 

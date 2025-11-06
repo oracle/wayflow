@@ -163,9 +163,9 @@ $referenced_components:
     description: null
     id: 52d63e41-e763-4cc6-864c-8ba2151b2ab2
     metadata: {}
-    model_id: /storage/models/Llama-3.3-70B-Instruct
-    name: llama-3.3-70b-instruct
-    url: LLAMA70BV33_API_URL
+    model_id: google/gemma-3-27b-it
+    name: gemma-3-27b-it
+    url: GEMMA_API_URL
   6546ffe0-3e82-4428-9f79-134a708cc74c:
     component_type: ControlFlowEdge
     description: null
@@ -753,4 +753,4 @@ outputs:
 start_node:
   $component_ref: b65ecd1c-4772-4d9b-ab0c-3b9731d7dbba
 state: []
-agentspec_version: 25.4.1
+agentspec_version: 25.4.2

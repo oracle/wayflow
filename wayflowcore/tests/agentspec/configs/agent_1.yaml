@@ -11,9 +11,9 @@ $referenced_components:
     description: null
     id: 4660ecdd-d26f-4fe3-88d0-00fde69e24ba
     metadata: {}
-    model_id: /storage/models/Llama-3.3-70B-Instruct
-    name: llama-3.3-70b-instruct
-    url: LLAMA70BV33_API_URL
+    model_id: /storage/models/Llama-3.1-70B-Instruct
+    name: llama-3.1-70b-instruct
+    url: LLAMA70B_API_URL
 agents: []
 component_type: Agent
 description: Example of Agent
