@@ -35,13 +35,13 @@ $referenced_components:
   ccd8fecc-b026-42e2-a276-9d634fe51678:
     component_type: VllmConfig
     id: ccd8fecc-b026-42e2-a276-9d634fe51678
-    name: LLAMA_MODEL_ID
+    name: Llama-3.1-70B-Instruct
     description: null
     metadata:
       __metadata_info__: {}
     default_generation_parameters: null
-    url: LLAMA_API_URL
-    model_id: LLAMA_MODEL_ID
+    url: LLAMA70B_API_URL
+    model_id: /storage/models/Llama-3.1-70B-Instruct
   cc787476-016d-48ec-bde4-332fd053859a:
     component_type: Agent
     id: cc787476-016d-48ec-bde4-332fd053859a

@@ -12,7 +12,7 @@ from pyagentspec.flows.flow import Flow
 from pyagentspec.versioning import AgentSpecVersionEnum
 from pydantic import Field, SerializeAsAny
 
-from wayflowcore.agent import DEFAULT_INITIAL_MESSAGE, CallerInputMode
+from wayflowcore.agent import NOT_SET_INITIAL_MESSAGE, CallerInputMode
 from wayflowcore.agentspec.components._pydantic_plugins import (
     PydanticComponentDeserializationPlugin,
     PydanticComponentSerializationPlugin,
@@ -33,9 +33,9 @@ class ExtendedAgent(Agent):
     """Whether the agent can decide to end the conversation or not."""
     max_iterations: int = 10
     """Maximum number of calls to the agent executor before yielding back to the user."""
-    initial_message: Optional[str] = DEFAULT_INITIAL_MESSAGE
+    initial_message: Optional[str] = NOT_SET_INITIAL_MESSAGE
     """Initial message the agent will post if no previous user message.
-    Default to ``Agent.DEFAULT_INITIAL_MESSAGE``. If None, the LLM will generate it but the agent requires
+    Default to ``Agent.NOT_SET_INITIAL_MESSAGE``. If None, the LLM will generate it but the agent requires
     a custom_instruction."""
     caller_input_mode: SerializeAsEnum[CallerInputMode] = CallerInputMode.ALWAYS
     """Whether the agent is allowed to ask the user questions (CallerInputMode.ALWAYS) or not (CallerInputMode.NEVER).

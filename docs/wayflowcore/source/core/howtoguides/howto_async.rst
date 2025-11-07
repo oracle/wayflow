@@ -186,7 +186,7 @@ Next steps
 Having learned how to use the asynchronous APIs, you may now proceed to:
 
 - :doc:`Use Agents in Flows <howto_agents_in_flows>`
-- :doc:`Do Structured LLM Generation in Flows <promptexecutionstep>`
+- :doc:`Do Structured LLM Generation in Flows <howto_promptexecutionstep>`
 - :doc:`Build Assistants with WayFlow Tools <howto_build_assistants_with_tools>`
 
 

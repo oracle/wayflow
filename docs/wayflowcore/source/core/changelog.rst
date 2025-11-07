@@ -47,6 +47,12 @@ WayFlow 25.4.2
 New features
 ^^^^^^^^^^^^
 
+* **Agent Spec structured generation:**
+  Open Agent Specification introduced Structured Generation in version 25.4.2.
+  Support for this new Agent Spec feature was added in converters.
+
+  For more information check out :doc:`the how-to guide on Structured Generation <howtoguides/howto_promptexecutionstep>`
+
 * **Added Tool Confirmation before Execution:**
   Introduced a `requires_confirmation` flag to the base Tool Class. When enabled, this flag will pause tool execution and emit a `ToolExecutionConfirmationStatus`, requiring explicit user confirmation before proceeding.
   During confirmation, users may edit the tool’s arguments or provide a rejection reason. The tool executes only after confirmation is granted.
