@@ -207,7 +207,7 @@ class OutputMessageStep(Step):
         if self.rephrase and self.llm is not None:
             await _rephrase_message_and_stream_if_possible(message_txt, conversation, self.llm)
         else:
-            conversation.append_message(
+            conversation.message_list.append_message(
                 Message(content=message_txt, message_type=self.message_type)
             )
 

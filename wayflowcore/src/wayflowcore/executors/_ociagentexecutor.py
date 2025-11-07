@@ -78,8 +78,12 @@ class OciAgentExecutor(ConversationExecutor):
         config = conversation.component
 
         if len(messages) == 0:
-            conversation.append_agent_message(config.initial_message)
-            return UserMessageRequestStatus()
+            new_message = Message(role="assistant", content=config.initial_message)
+            conversation.message_list.append_message(new_message)
+            return UserMessageRequestStatus(
+                message=new_message,
+                _conversation_id=conversation.id,
+            )
 
         agent_state = conversation.state
 
@@ -107,12 +111,15 @@ class OciAgentExecutor(ConversationExecutor):
         )
         new_message = _convert_oci_agent_response_into_message(response, config.agent_id)
         logger.debug("OciAgent answered with: `%s`", new_message.content)
-        conversation.append_message(new_message)
+        conversation.message_list.append_message(new_message)
 
         agent_state.last_sent_message = len(
             conversation.message_list
         )  # mark all messages as sent to remote
-        return UserMessageRequestStatus()
+        return UserMessageRequestStatus(
+            message=new_message,
+            _conversation_id=conversation.id,
+        )
 
     @staticmethod
     def _post(config: OciAgent, agent_state: OciAgentState, chat_details: Any) -> Any:

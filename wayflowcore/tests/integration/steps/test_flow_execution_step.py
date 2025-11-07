@@ -7,6 +7,7 @@ from typing import Optional
 
 import pytest
 
+from wayflowcore import Message
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
@@ -204,7 +205,7 @@ def test_sub_conversation_shares_same_message_list_as_main_conversation() -> Non
     subconversation = conversation._get_current_sub_conversation(subflow_step)
 
     assert conversation.get_messages() == subconversation.get_messages()
-    conversation.append_message(None)
+    conversation.append_message(Message(content="hello"))
     assert conversation.get_messages() == subconversation.get_messages()
 
 

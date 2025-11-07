@@ -149,7 +149,6 @@ def test_can_continue_a_deserialized_conversation(simple_managerworkers: Manager
     ser_conv = serialize(conv)
     deser_conv = deserialize(ManagerWorkersConversation, ser_conv)
 
+    assert len(deser_conv.get_messages()) == conv_length_before
     deser_conv.append_user_message("Hello")
-
-    assert len(deser_conv.get_messages()) == conv_length_before + 1
     deser_conv.execute()

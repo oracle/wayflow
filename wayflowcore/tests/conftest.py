@@ -10,7 +10,6 @@ import re
 import stat
 import sysconfig
 import threading
-import uuid
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, TypedDict, Union
@@ -430,7 +429,7 @@ def patch_streaming_llm(
         yield StreamChunkType.TEXT_CHUNK, Message(content="", message_type=MessageType.AGENT), None
         yield StreamChunkType.END_CHUNK, Message(
             content=text_output or "",
-            message_type=(MessageType.AGENT if tool_requests is None else MessageType.TOOL_REQUEST),
+            role="assistant",
             tool_requests=(
                 [
                     (
@@ -439,7 +438,6 @@ def patch_streaming_llm(
                         else ToolRequest(
                             name=t.get("name"),
                             args=t.get("args", {}),
-                            tool_request_id=t.get("tool_request_id", uuid.uuid4()),
                         )
                     )
                     for t in tool_requests
@@ -756,9 +754,6 @@ def limit_filewrites(
     with monkeypatch.context() as m:
         m.setattr(builtins, "open", patched_open)
         yield True
-
-
-_DISABLE_FILE_WRITE_CHECK = "DISABLE_FILE_WRITE_CHECK"
 
 
 @pytest.fixture(scope="function", autouse=True)

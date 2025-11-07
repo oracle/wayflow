@@ -136,13 +136,19 @@ class SoftTokenLimitExecutionInterrupt(
                 tokens_generated = self._get_token_usage_from_llm(llm, conversation_id)
                 total_tokens += tokens_generated
                 if 0 <= self.total_tokens < total_tokens:
-                    return InterruptedExecutionStatus(self, "Global token limit reached")
+                    return InterruptedExecutionStatus(
+                        interrupter=self,
+                        reason="Global token limit reached",
+                        _conversation_id=conversation_id,
+                    )
 
         for llm, max_tokens in self.tokens_per_model.items():
             tokens_generated = self._get_token_usage_from_llm(llm, conversation_id)
             if tokens_generated > max_tokens:
                 return InterruptedExecutionStatus(
-                    self, f"Token limit reached for model {llm.model_id}"
+                    interrupter=self,
+                    reason=f"Token limit reached for model {llm.model_id}",
+                    _conversation_id=conversation_id,
                 )
 
         return None

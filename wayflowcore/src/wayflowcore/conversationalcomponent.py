@@ -65,7 +65,7 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
-        messages: Optional[Union["MessageList", List["Message"]]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
     ) -> "Conversation":
         pass
 

@@ -12,11 +12,7 @@ from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.flow import Flow
-from wayflowcore.flowhelpers import (
-    _run_flow_and_return_conversation_and_status,
-    create_single_step_flow,
-    run_flow_and_return_outputs,
-)
+from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
 from wayflowcore.property import (
     BooleanProperty,
     DictProperty,
@@ -139,9 +135,8 @@ def test_e2e_with_simple_flow_without_mapping():
     )
 
     assert data_edge in flow.data_flow_edges
-    conv, _ = _run_flow_and_return_conversation_and_status(
-        flow, {"username": "Username#123", "session_id": "Session#456"}
-    )
+    conv = flow.start_conversation(inputs={"username": "Username#123", "session_id": "Session#456"})
+    conv.execute()
     assert (
         conv.get_last_message().content
         == 'Session#456: Received message "Successfully processed username Username#123"'
@@ -173,7 +168,8 @@ def test_e2e_with_simple_flow_with_mapping():
     assert data_edge in flow.data_flow_edges
     # mix of using mapping for username and no mapping for the session id
     conv_inputs = {USERNAME_IO: "Username#123", "session_id": "Session#456"}
-    conv, _ = _run_flow_and_return_conversation_and_status(flow, conv_inputs)
+    conv = flow.start_conversation(inputs=conv_inputs)
+    conv.execute()
     assert (
         conv.get_last_message().content
         == 'Session#456: Received message "Successfully processed username Username#123"'

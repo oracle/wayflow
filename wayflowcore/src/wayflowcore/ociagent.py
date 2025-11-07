@@ -101,7 +101,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
-        messages: Optional[Union[MessageList, List[Message]]] = None,
+        messages: Union[None, str, Message, List[Message], MessageList] = None,
     ) -> "Conversation":
         """
         Initializes a conversation with the agent.
@@ -126,6 +126,9 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             _init_oci_agent_session,
         )
 
+        if not isinstance(messages, MessageList):
+            messages = MessageList.from_messages(messages=messages)
+
         _client = _init_oci_agent_client(self)
 
         return OciAgentConversation(
@@ -136,9 +139,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
                 _client=_client,
             ),
             inputs=inputs or {},
-            message_list=(
-                messages if isinstance(messages, MessageList) else MessageList(messages or [])
-            ),
+            message_list=messages,
             status=None,
             conversation_id=IdGenerator.get_or_generate_id(None),
             name="oci_conversation",

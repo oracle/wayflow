@@ -31,7 +31,9 @@ from typing import (
 from deprecated import deprecated
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore._utils.formatting import stringify
+from wayflowcore._utils.formatting import (  # context_providers: Optional[List[ContextProvider]] = None,
+    stringify,
+)
 from wayflowcore._utils.hash import fast_stable_hash
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import (
@@ -351,7 +353,6 @@ class Message(SerializableDataclass):
     @property
     def content(self) -> str:
         """Text content getter"""
-
         txt_chunks = [c.content for c in self.contents if isinstance(c, TextContent)]
         if txt_chunks:
             return "\n".join(txt_chunks)
@@ -521,11 +522,19 @@ class MessageList(SerializableDataclass):
 
     messages: List[Message] = field(default_factory=list)
 
-    _can_be_referenced: ClassVar[bool] = True
-
-    def __post_init__(self) -> None:
-        if self.messages is None:
-            self.messages = []
+    @classmethod
+    def from_messages(
+        cls, messages: Union[None, str, Message, List[Message]] = None
+    ) -> "MessageList":
+        if messages is None:
+            messages = []
+        elif isinstance(messages, str):
+            messages = [Message(role="user", content=messages)]
+        elif isinstance(messages, Message):
+            messages = [messages]
+        else:
+            messages = messages
+        return MessageList(messages=messages)
 
     def append_message(self, message: Message) -> None:
         """Add a message to a message list.

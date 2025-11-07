@@ -979,7 +979,7 @@ class Flow(ConversationalComponent, SerializableObject):
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
-        messages: Optional[Union["MessageList", List["Message"]]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
         nesting_level: int = 0,
         context_providers_from_parent_flow: Optional[Set[str]] = None,
@@ -1012,6 +1012,9 @@ class Flow(ConversationalComponent, SerializableObject):
         context_providers_from_parent_flow = context_providers_from_parent_flow or set()
         if inputs is None:
             inputs = {}
+
+        if not isinstance(messages, MessageList):
+            messages = MessageList.from_messages(messages=messages)
 
         # Check that there is no missing input value to start the flow execution
         for input_name, input_descriptor in self.input_descriptors_dict.items():
@@ -1088,9 +1091,7 @@ class Flow(ConversationalComponent, SerializableObject):
             component=self,
             inputs=inputs,
             conversation_id=IdGenerator.get_or_generate_id(conversation_id),
-            message_list=(
-                messages if isinstance(messages, MessageList) else MessageList(messages or [])
-            ),
+            message_list=messages,
             __metadata_info__={},
             status=None,
             name="flow_conversation",

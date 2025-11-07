@@ -181,7 +181,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
-        messages: Optional[Union["MessageList", List["Message"]]] = None,
+        messages: Union[None, str, "Message", List["Message"], MessageList] = None,
         conversation_id: Optional[str] = None,
         conversation_name: Optional[str] = None,
     ) -> "Conversation":
@@ -191,6 +191,9 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             SwarmThread,
             SwarmUser,
         )
+
+        if not isinstance(messages, MessageList):
+            messages = MessageList.from_messages(messages=messages)
 
         if conversation_id is None:
             conversation_id = IdGenerator.get_or_generate_id(conversation_id)
@@ -212,14 +215,12 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             agents_and_threads=agents_and_threads,
             context_providers=[],
             inputs=inputs,
-            messages=messages or MessageList(),
+            messages=messages,
         )
         return SwarmConversation(
             component=self,
             inputs=inputs or {},
-            message_list=(
-                messages if isinstance(messages, MessageList) else MessageList(messages or [])
-            ),
+            message_list=messages,
             name=conversation_name or "swarm_conversation",
             state=state,
             status=None,

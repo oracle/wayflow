@@ -225,7 +225,9 @@ def test_correct_start_and_end_events_are_caught_by_eventlisteners() -> None:
                 ConversationalComponentExecutionStartedEvent,
             )
             assert len(finished_eventlistener.triggered_events) == 0
-            span.record_end_span_event(execution_status=FinishedStatus({}))
+            span.record_end_span_event(
+                execution_status=FinishedStatus(output_values={}, _conversation_id=None)
+            )
         assert len(started_eventlistener.triggered_events) == 1
         assert len(finished_eventlistener.triggered_events) == 1
         assert isinstance(

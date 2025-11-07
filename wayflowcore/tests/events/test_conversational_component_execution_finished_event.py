@@ -23,6 +23,7 @@ from wayflowcore.executors.executionstatus import (
 )
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import _run_flow_and_return_status, create_single_step_flow
+from wayflowcore.messagelist import Message
 from wayflowcore.steps import InputMessageStep, OutputMessageStep, ToolExecutionStep
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep
 from wayflowcore.steps.flowexecutionstep import FlowExecutionStep
@@ -61,7 +62,9 @@ def test_event_creation_with_missing_arguments_fails(
             if event_class == FlowExecutionFinishedEvent
             else Agent(llm=DummyModel())
         ),
-        "execution_status": UserMessageRequestStatus(),
+        "execution_status": UserMessageRequestStatus(
+            message=Message(content=""), _conversation_id=""
+        ),
     }
     del all_attributes[missing_attribute]
     with pytest.raises(ValueError, match=f"An attribute named `{missing_attribute}`"):
@@ -78,14 +81,18 @@ def test_event_creation_with_missing_arguments_fails(
             "conversational_component": create_single_step_flow(
                 InputMessageStep(message_template="How are you?")
             ),
-            "execution_status": UserMessageRequestStatus(),
+            "execution_status": UserMessageRequestStatus(
+                message=Message(content=""), _conversation_id=""
+            ),
         },
         {
             "name": "My other test",
             "conversational_component": create_single_step_flow(
                 OutputMessageStep(message_template="How are you?")
             ),
-            "execution_status": FinishedStatus(output_values={}, complete_step_name="step_1"),
+            "execution_status": FinishedStatus(
+                output_values={}, complete_step_name="step_1", _conversation_id=None
+            ),
         },
         {
             "name": "Yet another test",
@@ -134,7 +141,9 @@ def test_event_creation_with_missing_arguments_fails(
                     )
                 ],
             ),
-            "execution_status": UserMessageRequestStatus(),
+            "execution_status": UserMessageRequestStatus(
+                message=Message(content=""), _conversation_id=""
+            ),
         },
     ],
 )

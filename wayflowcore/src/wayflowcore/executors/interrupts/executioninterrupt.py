@@ -48,6 +48,8 @@ class InterruptedExecutionStatus(ExecutionStatus, SerializableObject):
         return {
             "interrupter": serialize_to_dict(self.interrupter, serialization_context),
             "reason": self.reason,
+            "_conversation_id": self._conversation_id,
+            "id": self.id,
         }
 
     @classmethod
@@ -62,6 +64,7 @@ class InterruptedExecutionStatus(ExecutionStatus, SerializableObject):
                 autodeserialize_from_dict(input_dict["interrupter"], deserialization_context),
             ),
             reason=input_dict["reason"],
+            _conversation_id=input_dict.get("_conversation_id"),
         )
 
 

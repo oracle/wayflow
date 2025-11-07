@@ -149,7 +149,6 @@ class ManagerWorkersRunner(ConversationExecutor):
                     )
 
             else:  # Current agent is a worker
-                current_agent = managerworkers_config._agent_by_name[current_agent_name]
                 status = await current_conversation.execute_async(
                     execution_interrupts=execution_interrupts,
                 )
@@ -222,7 +221,7 @@ class ManagerWorkersRunner(ConversationExecutor):
 
         last_tool_request_id = unanswered_tool_requests[0].tool_request_id
 
-        manager_subconversation.message_list.append_tool_result(
+        manager_subconversation.append_tool_result(
             ToolResult(message.content, tool_request_id=last_tool_request_id)
         )
 

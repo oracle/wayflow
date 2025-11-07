@@ -9,22 +9,23 @@ from __future__ import annotations
 import warnings
 from abc import abstractmethod
 from dataclasses import asdict, dataclass
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableDataclass, SerializableObject
 
 if TYPE_CHECKING:
-    from wayflowcore.tools import ToolRequest
+    from wayflowcore.messagelist import Message
+    from wayflowcore.tools import ToolRequest, ToolResult
 
 
-@dataclass
+@dataclass(kw_only=True)
 class ExecutionStatus(SerializableDataclass):
     """
     Execution status returned by the Assistant. This indicates if the assistant yielded, finished the conversation, ...
     """
 
-    _can_be_referenced: ClassVar[bool] = False
+    _conversation_id: Optional[str] = None
 
     @property
     @abstractmethod
@@ -50,7 +51,11 @@ class FinishedStatus(ExecutionStatus):
         return False
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
-        return {"output_values": self.output_values, "complete_step_name": self.complete_step_name}
+        return {
+            "output_values": self.output_values,
+            "complete_step_name": self.complete_step_name,
+            "_conversation_id": self._conversation_id,
+        }
 
     @classmethod
     def _deserialize_from_dict(
@@ -59,27 +64,81 @@ class FinishedStatus(ExecutionStatus):
         return FinishedStatus(
             output_values=input_dict["output_values"],
             complete_step_name=input_dict["complete_step_name"],
+            _conversation_id=input_dict.get("_conversation_id", None),
         )
 
 
+@dataclass(kw_only=True)
 class UserMessageRequestStatus(ExecutionStatus):
     """
     Execution status for when the assistant answered and will be waiting for the next user input
     """
 
+    message: "Message"
+    """The message from the assistant to which the user needs to answer to."""
+    _conversation_id: Optional[str]
+    _user_response: Optional["Message"] = None
+
+    def submit_user_response(self, response: Union[str, "Message"]) -> None:
+        """Submit the answer to this user message request."""
+        from wayflowcore import Message
+
+        self._user_response = (
+            response if isinstance(response, Message) else Message(content=response, role="user")
+        )
+
     @property
     def _requires_yielding(self) -> bool:
         return True  # Indicates that execution yielded
 
+    def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
+        from wayflowcore.serialization.serializer import serialize_any_to_dict
 
-@dataclass
+        return {
+            "message": serialize_any_to_dict(self.message, serialization_context),
+            "_conversation_id": self._conversation_id,
+            "_user_response": serialize_any_to_dict(self._user_response, serialization_context),
+        }
+
+    @classmethod
+    def _deserialize_from_dict(
+        cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
+    ) -> "SerializableObject":
+        from wayflowcore.messagelist import Message
+        from wayflowcore.serialization.serializer import deserialize_any_from_dict
+
+        return UserMessageRequestStatus(
+            _conversation_id=input_dict.get("_conversation_id", None),
+            message=deserialize_any_from_dict(
+                input_dict.get("message"), Message, deserialization_context
+            ),
+            _user_response=deserialize_any_from_dict(
+                input_dict.get("_user_response"), Optional[Message], deserialization_context  # type: ignore
+            ),
+        )
+
+
+@dataclass(kw_only=True)
 class ToolRequestStatus(ExecutionStatus):
     """
     Execution status for when the assistant is asking the user to call a tool and send back its result
     """
 
     tool_requests: List["ToolRequest"]
+    """The tool requests for the client tools that the client need to run."""
     _conversation_id: Optional[str]
+    _tool_results: Optional[List["ToolResult"]] = None
+
+    def submit_tool_results(self, tool_results: List["ToolResult"]) -> None:
+        """Submit the tool results to the given tool requests."""
+        for tool_result in tool_results:
+            self.submit_tool_result(tool_result)
+
+    def submit_tool_result(self, tool_result: "ToolResult") -> None:
+        """Submit the tool results to the given tool requests."""
+        if self._tool_results is None:
+            self._tool_results = []
+        self._tool_results.append(tool_result)
 
     @property
     def _requires_yielding(self) -> bool:
@@ -89,21 +148,29 @@ class ToolRequestStatus(ExecutionStatus):
         return {
             "tool_requests": [asdict(tool) for tool in self.tool_requests],
             "_conversation_id": self._conversation_id,
+            "_tool_results": (
+                [asdict(t) for t in self._tool_results] if self._tool_results is not None else None
+            ),
         }
 
     @classmethod
     def _deserialize_from_dict(
         cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
     ) -> "SerializableObject":
-        from wayflowcore.tools import ToolRequest
+        from wayflowcore.tools import ToolRequest, ToolResult
 
         return ToolRequestStatus(
             tool_requests=[ToolRequest(**tool_dict) for tool_dict in input_dict["tool_requests"]],
+            _tool_results=(
+                [ToolResult(**tool_dict) for tool_dict in input_dict["_tool_results"]]
+                if input_dict.get("_tool_results", None) is not None
+                else None
+            ),
             _conversation_id=input_dict.get("_conversation_id"),
         )
 
 
-@dataclass
+@dataclass(kw_only=True)
 class ToolExecutionConfirmationStatus(ExecutionStatus):
     """
     Execution status for when the assistant is asking the user to confirm or reject the execution of a tool

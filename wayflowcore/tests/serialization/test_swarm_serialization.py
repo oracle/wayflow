@@ -223,6 +223,6 @@ def test_can_continue_a_deserialized_swarm_conversation(simple_swarm: Swarm) -> 
         is deser_conv._get_subconversation_for_thread(deser_conv.state.main_thread).message_list
     )
 
+    assert len(deser_conv.get_messages()) == conv_length_before_serialization
     deser_conv.append_user_message("Actually it's better now")
-    assert len(deser_conv.get_messages()) == conv_length_before_serialization + 1
     deser_conv.execute()

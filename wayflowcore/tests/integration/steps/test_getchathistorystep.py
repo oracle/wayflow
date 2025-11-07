@@ -6,8 +6,7 @@
 
 import pytest
 
-from wayflowcore.executors.executionstatus import FinishedStatus
-from wayflowcore.flowhelpers import _run_single_step_and_return_conv_and_status
+from wayflowcore.flowhelpers import run_step_and_return_outputs
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.steps import GetChatHistoryStep
 from wayflowcore.steps.getchathistorystep import MessageSlice
@@ -44,11 +43,10 @@ def chat_history_display_only():
 
 
 def run_get_chat_history_step(step: GetChatHistoryStep, messages):
-    _, status = _run_single_step_and_return_conv_and_status(
-        step=step, inputs=None, user_input="", messages=messages, context_providers=None
+    outputs = run_step_and_return_outputs(
+        step=step, inputs=None, messages=messages, context_providers=None
     )
-    assert isinstance(status, FinishedStatus)
-    return status.output_values[GetChatHistoryStep.CHAT_HISTORY]
+    return outputs[GetChatHistoryStep.CHAT_HISTORY]
 
 
 def test_can_return_string(chat_history):

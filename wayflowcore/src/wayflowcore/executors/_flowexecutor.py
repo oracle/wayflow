@@ -890,7 +890,16 @@ class FlowConversationExecutor(ConversationExecutor):
                         last_status._conversation_id = conversation.id
                         return last_status
 
-                    return UserMessageRequestStatus()
+                    last_message = conversation.get_last_message()
+                    if last_message is None:
+                        last_message = Message(
+                            content="**The flow yielded without posting any message to the conversation**",
+                            role="assistant",
+                        )
+
+                    return UserMessageRequestStatus(
+                        message=last_message, _conversation_id=conversation.id
+                    )
 
                 FlowConversationExecutor._register_event(
                     state=flow_state,
@@ -930,6 +939,7 @@ class FlowConversationExecutor(ConversationExecutor):
         return FinishedStatus(
             output_values=outputs,
             complete_step_name=last_complete_step_name_executed,
+            _conversation_id=conversation.id,
         )
 
     @staticmethod

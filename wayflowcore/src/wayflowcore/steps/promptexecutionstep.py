@@ -389,7 +389,7 @@ class PromptExecutionStep(Step):
                 await self.llm.generate_async(prompt, _conversation=conversation)
             ).message
             if self.send_message:
-                conversation.append_message(new_message)
+                conversation.message_list.append_message(new_message)
 
         outputs, next_branch = self._gather_outputs(new_message)
         validated_outputs = self._validate_outputs(outputs, self._internal_output_descriptors)

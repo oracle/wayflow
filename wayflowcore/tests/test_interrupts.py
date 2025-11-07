@@ -146,7 +146,11 @@ class OnEventExecutionInterrupt(
             and not self.triggered
         ):
             self.triggered = True
-            return InterruptedExecutionStatus(self, str(self.current_event.type))
+            return InterruptedExecutionStatus(
+                interrupter=self,
+                reason=str(self.current_event.type),
+                _conversation_id=conversation.id,
+            )
         return None
 
     def on_event(
