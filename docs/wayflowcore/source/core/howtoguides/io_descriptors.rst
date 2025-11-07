@@ -155,7 +155,7 @@ Next steps
 
 Having learned how to override the default input and output descriptions of a component, you may now proceed to:
 
-- :doc:`How to Do Structured LLM Generation in Flows <promptexecutionstep>`
+- :doc:`How to Do Structured LLM Generation in Flows <howto_promptexecutionstep>`
 - :doc:`How to Use Agents in Flows <howto_agents_in_flows>`
 
 

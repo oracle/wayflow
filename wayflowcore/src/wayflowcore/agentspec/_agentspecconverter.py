@@ -76,6 +76,7 @@ from pyagentspec.tools import ToolBox as AgentSpecToolBox
 from wayflowcore._metadata import METADATA_KEY
 from wayflowcore._utils._templating_helpers import MessageAsDictT as RuntimeMessageAsDictT
 from wayflowcore.agent import Agent as RuntimeAgent
+from wayflowcore.agent import CallerInputMode
 from wayflowcore.agentspec.components import PluginEmbeddingConfig as AgentSpecPluginEmbeddingConfig
 from wayflowcore.agentspec.components import (
     PluginOciGenAiEmbeddingConfig as AgentSpecPluginOciGenAiEmbeddingConfig,
@@ -164,6 +165,7 @@ from wayflowcore.agentspec.components.messagelist import (
 from wayflowcore.agentspec.components.messagelist import (
     PluginTextContent as AgentSpecPluginTextContent,
 )
+from wayflowcore.agentspec.components.nodes import ExtendedAgentNode as AgentSpecExtendedAgentNode
 from wayflowcore.agentspec.components.nodes import ExtendedLlmNode as AgentSpecExtendedLlmNode
 from wayflowcore.agentspec.components.nodes import ExtendedMapNode as AgentSpecExtendedMapNode
 from wayflowcore.agentspec.components.nodes import ExtendedToolNode as AgentSpecExtendedToolNode
@@ -1640,6 +1642,7 @@ class RuntimeToAgentSpecConverter:
                     runtime_agent.agent_template is not runtime_agent.llm.agent_template
                 )
             )
+            or (has_initial_message := (runtime_agent.initial_message is not None))
             or (
                 conv_default := (
                     runtime_agent.can_finish_conversation
@@ -1650,12 +1653,6 @@ class RuntimeToAgentSpecConverter:
                 maxiter_default := (
                     runtime_agent.max_iterations
                     != extended_agent_model_fields["max_iterations"].default
-                )
-            )
-            or (
-                message_default := (
-                    runtime_agent.initial_message
-                    != extended_agent_model_fields["initial_message"].default
                 )
             )
             or (
@@ -2202,9 +2199,26 @@ class RuntimeToAgentSpecConverter:
             )
         elif runtime_step_type is RuntimeAgentExecutionStep:
             runtime_step = cast(RuntimeAgentExecutionStep, runtime_step)
+            inner_agent = cast(AgentSpecAgent, self.convert(runtime_step.agent, referenced_objects))
+            if (
+                runtime_step.output_descriptors != runtime_step.agent.output_descriptors
+                or (
+                    runtime_step.caller_input_mode
+                    and runtime_step.caller_input_mode != CallerInputMode.ALWAYS
+                )
+                or runtime_step.input_mapping
+                or runtime_step.output_mapping
+            ):
+                return AgentSpecExtendedAgentNode(
+                    **step_args,
+                    agent=inner_agent,
+                    caller_input_mode=runtime_step.caller_input_mode,
+                    input_mapping=runtime_step.input_mapping,
+                    output_mapping=runtime_step.output_mapping,
+                )
             return AgentSpecAgentNode(
                 **step_args,
-                agent=cast(AgentSpecAgent, self.convert(runtime_step.agent, referenced_objects)),
+                agent=inner_agent,
             )
         elif runtime_step_type is RuntimeConstantValuesStep:
             runtime_step = cast(RuntimeConstantValuesStep, runtime_step)

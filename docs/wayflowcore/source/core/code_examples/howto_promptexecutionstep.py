@@ -6,32 +6,26 @@
 # isort:skip_file
 # fmt: off
 # mypy: ignore-errors
+# docs-title: Wayflow Code Example - How to Do Structured LLM Generation in Flows
 
-import os
-
-from wayflowcore.models import LlmModelFactory
-
-model_config = {
-    "model_type": "vllm",
-    "host_port": os.environ["VLLM_HOST_PORT"],  # example: 8.8.8.8:8000
-    "model_id": "meta-llama/Meta-Llama-3.1-8B-Instruct",
-}
-
-# .. start-article:
+# .. start-##_Define_the_article
 article = """Sea turtles are ancient reptiles that have been around for over 100 million years. They play crucial roles in marine ecosystems, such as maintaining healthy seagrass beds and coral reefs. Unfortunately, they are under threat due to poaching, habitat loss, and pollution. Conservation efforts worldwide aim to protect nesting sites and reduce bycatch in fishing gear."""
-# .. end-article:
+# .. end-##_Define_the_article
 
-# .. start-llm:
-llm = LlmModelFactory.from_config(model_config)
-# .. end-llm:
+# .. start-##_Define_the_llm
+from wayflowcore.models import VllmModel
 
-
+llm = VllmModel(
+    model_id="LLAMA_MODEL_ID",
+    host_port="LLAMA_API_URL",
+)
+# .. end-##_Define_the_llm
+(llm,) = _update_globals(["llm_small"])  # docs-skiprow # type: ignore
+# .. start-##_Create_the_flow_using_the_prompt_execution_step
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.flow import Flow
 from wayflowcore.property import StringProperty
-
-# .. start-prompt:
 from wayflowcore.steps import PromptExecutionStep, StartStep
 
 start_step = StartStep(input_descriptors=[StringProperty("article")])
@@ -55,19 +49,19 @@ flow = Flow(
         DataFlowEdge(start_step, "article", summarize_step, "article"),
     ],
 )
-# .. end-prompt:
+# .. end-##_Create_the_flow_using_the_prompt_execution_step
 
-# .. start-execute:
+# .. start-##_Run_the_flow_to_get_the_summary
 conversation = flow.start_conversation(inputs={"article": article})
 status = conversation.execute()
 print(status.output_values["summary"])
 # Sea turtles face threats from poaching, habitat loss, and pollution globally.
-# .. end-execute
+# .. end-##_Run_the_flow_to_get_the_summary
 
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
 
-# .. start-structured:
+# .. start-##_Use_structured_generation_to_extract_formatted_information
 from wayflowcore.property import ListProperty, StringProperty
 from wayflowcore.steps import PromptExecutionStep, StartStep
 
@@ -115,12 +109,12 @@ conversation = flow.start_conversation(inputs={"article": article})
 status = conversation.execute()
 print(status.output_values)
 # {'threats': ['poaching', 'habitat loss', 'pollution'], 'danger_level': 'HIGH', 'animal_name': 'Sea turtles'}
-# .. end-structured
+# .. end-##_Use_structured_generation_to_extract_formatted_information
 
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
 
-# .. start-complex:
+# .. start-##_Use_structured_generation_with_JSON_schema
 from wayflowcore.property import Property, StringProperty
 from wayflowcore.steps import PromptExecutionStep, StartStep
 
@@ -175,10 +169,10 @@ conversation = flow.start_conversation(inputs={"article": article})
 status = conversation.execute()
 print(status.output_values)
 # {'animal_object': {'animal_name': 'Sea turtles', 'danger_level': 'MEDIUM', 'threats': ['Poaching', 'Habitat loss', 'Pollution']}}
-# .. end-complex
+# .. end-##_Use_structured_generation_with_JSON_schema
 
 
-# .. start-agent:
+# .. start-##_Use_structured_generation_with_Agents_in_flows
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.steps import AgentExecutionStep, StartStep
@@ -188,13 +182,11 @@ agent = Agent(
     llm=llm,
     custom_instruction="""Extract from the article given by the user the name of the animal, its danger level and the threats it's subject to.""",
     initial_message=None,
+    caller_input_mode=CallerInputMode.ALWAYS,
+    output_descriptors=[animal_output, danger_level_output, threats_output],
 )
 
-summarize_agent_step = AgentExecutionStep(
-    agent=agent,
-    output_descriptors=[animal_output, danger_level_output, threats_output],
-    caller_input_mode=CallerInputMode.NEVER,
-)
+summarize_agent_step = AgentExecutionStep(agent=agent)
 summarize_step_name = "summarize_step"
 flow = Flow(
     begin_step=start_step,
@@ -214,4 +206,13 @@ conversation.append_user_message("Here is the article: " + article)
 status = conversation.execute()
 print(status.output_values)
 # {'animal_name': 'Sea turtles', 'danger_level': 'HIGH', 'threats': ['poaching', 'habitat loss', 'pollution']}
-# .. end-agent
+# .. end-##_Use_structured_generation_with_Agents_in_flows
+
+# .. start-##_Export_config_to_Agent_Spec
+from wayflowcore.agentspec import AgentSpecExporter
+serialized_assistant = AgentSpecExporter().to_json(flow)
+# .. end-##_Export_config_to_Agent_Spec
+# .. start-##_Load_Agent_Spec_config
+from wayflowcore.agentspec import AgentSpecLoader
+new_assistant = AgentSpecLoader().load_json(serialized_assistant)
+# .. end-##_Load_Agent_Spec_config

@@ -6,9 +6,17 @@
 from copy import deepcopy
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, Union, cast
 
+from pyagentspec.agent import Agent
 from pyagentspec.component import SerializeAsEnum
 from pyagentspec.flows.flow import Flow
-from pyagentspec.flows.nodes import EndNode, InputMessageNode, LlmNode, OutputMessageNode, ToolNode
+from pyagentspec.flows.nodes import (
+    AgentNode,
+    EndNode,
+    InputMessageNode,
+    LlmNode,
+    OutputMessageNode,
+    ToolNode,
+)
 from pyagentspec.llms import LlmConfig
 from pyagentspec.property import (
     BooleanProperty,
@@ -32,6 +40,7 @@ from wayflowcore.agentspec.components._utils import (
 )
 from wayflowcore.agentspec.components.messagelist import PluginMessageType  # type: ignore
 from wayflowcore.agentspec.components.template import PluginPromptTemplate
+from wayflowcore.steps.agentexecutionstep import CallerInputMode  # type: ignore
 from wayflowcore.steps.choiceselectionstep import _DEFAULT_CHOICE_SELECTION_TEMPLATE
 from wayflowcore.steps.getchathistorystep import MessageSlice as PluginMessageSlice
 from wayflowcore.variable import VariableWriteOperation as PluginVariableWriteOperation
@@ -634,6 +643,33 @@ class PluginRetryNode(ExtendedNode):
         return branches
 
 
+class ExtendedAgentNode(ExtendedNode, AgentNode):
+    """Extension of the Agent Spec AgentNode. Supports overwriting agent's outputs and caller input mode."""
+
+    caller_input_mode: Optional[SerializeAsEnum[CallerInputMode]] = None
+    """Whether the agent is allowed to ask the user questions (CallerInputMode.ALWAYS) or not (CallerInputMode.NEVER).
+       If set to NEVER, the step won't be able to yield. Defaults to ``None``, which means it will use the ``caller_input_mode``
+       of the underlying agent."""
+
+    def model_post_init(self, __context: Any) -> None:
+        """Override of the method used by Component as post-init."""
+        if self.caller_input_mode is None and hasattr(self, "agent"):
+            self.caller_input_mode = getattr(
+                self.agent, "caller_input_mode", CallerInputMode.ALWAYS
+            )
+        super().model_post_init(__context)
+
+    def _get_non_mapped_inferred_inputs(self) -> List[Property]:
+        return (self.agent.inputs or []) if hasattr(self, "agent") else []
+
+    def _get_non_mapped_inferred_outputs(self) -> List[Property]:
+        outputs: Optional[List[Property]] = getattr(self, "outputs", None)
+        agent: Optional[Agent] = getattr(self, "agent", None)
+        return (
+            outputs if outputs is not None else (agent.outputs or []) if agent is not None else []
+        )
+
+
 NODES_PLUGIN_NAME = "NodesPlugin"
 
 nodes_serialization_plugin = PydanticComponentSerializationPlugin(
@@ -646,6 +682,7 @@ nodes_serialization_plugin = PydanticComponentSerializationPlugin(
         ExtendedToolNode.__name__: ExtendedToolNode,
         ExtendedLlmNode.__name__: ExtendedLlmNode,
         ExtendedMapNode.__name__: ExtendedMapNode,
+        ExtendedAgentNode.__name__: ExtendedAgentNode,
         PluginRegexNode.__name__: PluginRegexNode,
         PluginTemplateNode.__name__: PluginTemplateNode,
         PluginChoiceNode.__name__: PluginChoiceNode,
@@ -666,6 +703,7 @@ nodes_deserialization_plugin = PydanticComponentDeserializationPlugin(
         ExtendedToolNode.__name__: ExtendedToolNode,
         ExtendedLlmNode.__name__: ExtendedLlmNode,
         ExtendedMapNode.__name__: ExtendedMapNode,
+        ExtendedAgentNode.__name__: ExtendedAgentNode,
         PluginRegexNode.__name__: PluginRegexNode,
         PluginTemplateNode.__name__: PluginTemplateNode,
         PluginChoiceNode.__name__: PluginChoiceNode,

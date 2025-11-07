@@ -16,6 +16,12 @@ from wayflowcore.executors.executionstatus import ExecutionStatus, FinishedStatu
 from wayflowcore.flow import Flow as RuntimeFlow
 from wayflowcore.tools.servertools import ServerTool
 
+from ..conftest import (  # isort:skip
+    LLAMA_OCI_API_KEY_CONFIG,
+    OLLAMA_MODEL_CONFIG,
+    oracle_http_proxy,
+)
+
 from ..mcptools.conftest import sse_mcp_server_http  # isort:skip
 
 CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
@@ -45,7 +51,7 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
         ),
         ("agent_1.yaml", {}),
         ("agent_2.yaml", {}),
-        ("agent_3.yaml", {}),
+        # ("agent_3.yaml", {}),  # Cannot run this due to proxy
         ("agent_4.yaml", {}),
         ("agent_5.yaml", {}),  # Agent using OCI Llm
         (
@@ -131,8 +137,20 @@ def run_example(
         text = text.replace("GEMMA_API_URL", gemma_endpoint)
         text = text.replace("LLAMA70B_API_URL", llama70b_endpoint)
         text = text.replace("LLAMA70BV33_API_URL", llama70bv33_endpoint)
+        text = text.replace("OLLAMA8BV31_API_ENDPOINT", OLLAMA_MODEL_CONFIG["host_port"])
         text = text.replace(
             "ORACLE_PROCESS_HELPER_AGENT_ENDPOINT_ID", oracle_process_helper_agent_endpoint_id
+        )
+        text = (
+            text.replace(
+                "LLAMA_OCI_API_KEY_CONFIG_COMPARTMENT_ID",
+                LLAMA_OCI_API_KEY_CONFIG["client_config"]["compartment_id"],
+            )
+            .replace(
+                "LLAMA_OCI_API_KEY_CONFIG_SERVICE_ENDPOINT",
+                LLAMA_OCI_API_KEY_CONFIG["client_config"]["service_endpoint"],
+            )
+            .replace("LLAMA_OCI_API_KEY_CONFIG_MODEL_ID", LLAMA_OCI_API_KEY_CONFIG["model_id"])
         )
         text = text.replace("MCP_SERVER_URL", sse_mcp_server_http)
         wayflowcore_assistant = cast(Union[RuntimeAgent, RuntimeFlow], loader.load_yaml(text))

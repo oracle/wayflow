@@ -42,7 +42,7 @@ These how-to guides demonstrate how to use the main features to create and custo
 
    Ask for User Input in Flows <howto_userinputinflows>
    Create Conditional Transitions in Flows <conditional_flows>
-   Do Structured LLM Generation in Flows <promptexecutionstep>
+   Do Structured LLM Generation in Flows <howto_promptexecutionstep>
    Add User Confirmation to a Tool Call Request <howto_userconfirmation>
    Catch Exceptions in Flows <catching_exceptions>
    Do Map and Reduce Operations in Flows <howto_mapstep>

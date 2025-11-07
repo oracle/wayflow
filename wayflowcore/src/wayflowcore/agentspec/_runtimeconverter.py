@@ -70,7 +70,6 @@ from pyagentspec.tools.remotetool import RemoteTool as AgentSpecRemoteTool
 from pyagentspec.tools.servertool import ServerTool as AgentSpecServerTool
 
 from wayflowcore._metadata import METADATA_ID_KEY
-from wayflowcore.agent import DEFAULT_INITIAL_MESSAGE as WAYFLOW_DEFAULT_INITIAL_AGENT_MESSAGE
 from wayflowcore.agent import Agent as RuntimeAgent
 from wayflowcore.agentspec.components import (
     PluginOciGenAiEmbeddingConfig as AgentSpecPluginOciGenAiEmbeddingConfig,
@@ -162,6 +161,7 @@ from wayflowcore.agentspec.components.messagelist import (
     PluginTextContent as AgentSpecPluginTextContent,
 )
 from wayflowcore.agentspec.components.node import ExtendedNode as AgentSpecExtendedNode
+from wayflowcore.agentspec.components.nodes import ExtendedAgentNode as AgentSpecExtendedAgentNode
 from wayflowcore.agentspec.components.nodes import ExtendedLlmNode as AgentSpecExtendedLlmNode
 from wayflowcore.agentspec.components.nodes import ExtendedMapNode as AgentSpecExtendedMapNode
 from wayflowcore.agentspec.components.nodes import ExtendedToolNode as AgentSpecExtendedToolNode
@@ -807,7 +807,7 @@ class AgentSpecToRuntimeConverter:
                 )
 
             extra_arguments: Dict[str, Any] = {
-                "initial_message": WAYFLOW_DEFAULT_INITIAL_AGENT_MESSAGE,
+                "initial_message": None,
                 "tools": [
                     *[
                         self.convert(t, tool_registry, converted_components)
@@ -1681,6 +1681,12 @@ class AgentSpecToRuntimeConverter:
             return RuntimeAgentExecutionStep(
                 agent=self.convert(agentspec_component.agent, tool_registry, converted_components),
                 **self._get_node_arguments(agentspec_component, metadata_info),
+            )
+        elif isinstance(agentspec_component, AgentSpecExtendedAgentNode):
+            return RuntimeAgentExecutionStep(
+                agent=self.convert(agentspec_component.agent, tool_registry, converted_components),
+                caller_input_mode=agentspec_component.caller_input_mode,
+                **self._get_rt_nodes_arguments(agentspec_component, metadata_info),
             )
         elif isinstance(agentspec_component, AgentSpecFlowNode):
             return RuntimeFlowExecutionStep(

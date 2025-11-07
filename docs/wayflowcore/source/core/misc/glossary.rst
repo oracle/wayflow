@@ -303,7 +303,7 @@ while maintaining natural language fluency.
 
 This approach is particularly valuable for generating data in formats like JSON, XML, or other structured representations.
 
-For more information, see the guide :doc:`How to Do Structured LLM Generation in Flows <../howtoguides/promptexecutionstep>`.
+For more information, see the guide :doc:`How to Do Structured LLM Generation in Flows <../howtoguides/howto_promptexecutionstep>`.
 
 .. _tools_section:
 

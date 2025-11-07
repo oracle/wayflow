@@ -80,7 +80,7 @@ Structured generation can be achieved by specifying the output descriptors of th
 
 **API Reference:** :ref:`StringProperty <stringproperty>` | :ref:`PromptExecutionStep <promptexecutionstep>` | :ref:`Flow <flow>`
 
-Read the guide on :doc:`How to Perform Structured Generation <../howtoguides/promptexecutionstep>` for more information.
+Read the guide on :doc:`How to Perform Structured Generation <../howtoguides/howto_promptexecutionstep>` for more information.
 
 
 Tools

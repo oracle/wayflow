@@ -130,9 +130,9 @@ $referenced_components:
     metadata: {}
     name: Check if code is ready node
     outputs:
-    - default: false
+    - default: "no"
       title: is_code_ready
-      type: boolean
+      type: string
     prompt_template: "You are a software engineer with 20 years of experience. You\
       \ have to take a decision.\n    Based on the following code review, do you think\
       \ that the code is ready to be deployed?\n    ```\n    {{review}}\n    ```\n\
@@ -246,9 +246,9 @@ $referenced_components:
     description: null
     id: f7713311-8219-483a-bced-601dba820ce5
     inputs:
-    - default: false
+    - default: "no"
       title: is_code_ready
-      type: boolean
+      type: string
     mapping:
       'no': 'no'
       'yes': 'yes'

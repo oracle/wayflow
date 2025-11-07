@@ -51,7 +51,7 @@ Assuming you want to summarize a few articles.
     :start-after: .. start-##_Define_the_articles
     :end-before: .. end-##_Define_the_articles
 
-You have the option to generate the summary with the :ref:`PromptExecutionStep <PromptExecutionStep>` class, as explained already in :doc:`the separate guide <promptexecutionstep>`:
+You have the option to generate the summary with the :ref:`PromptExecutionStep <PromptExecutionStep>` class, as explained already in :doc:`the separate guide <howto_promptexecutionstep>`:
 
 .. literalinclude:: ../code_examples/howto_mapstep.py
     :language: python

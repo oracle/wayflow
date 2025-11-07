@@ -12,7 +12,7 @@ $referenced_components:
     id: 4660ecdd-d26f-4fe3-88d0-00fde69e24ba
     metadata: {}
     model_id: llama3.1
-    name: llama-3.1-70b-instruct
+    name: llama-3.1
     url: OLLAMA8BV31_API_ENDPOINT
 agents: []
 component_type: Agent

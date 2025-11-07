@@ -1,0 +1,201 @@
+component_type: Flow
+id: a7d68700-f2f6-43cb-b8e2-db5e0f7eb984
+name: flow_0c07fc25__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs:
+- description: list of threats for the animal
+  type: array
+  items:
+    type: string
+    title: threat
+  title: threats
+  default: []
+- description: level of danger of the animal. Can be "HIGH", "MEDIUM" or "LOW"
+  type: string
+  title: danger_level
+  default: ''
+- description: name of the animal
+  type: string
+  title: animal_name
+  default: ''
+start_node:
+  $component_ref: a65b2a43-c65a-4cca-947f-f76e1410ff66
+nodes:
+- $component_ref: a65b2a43-c65a-4cca-947f-f76e1410ff66
+- $component_ref: fe378524-69cb-4fcd-9d3a-f8fcb1c28316
+- $component_ref: cb466062-c8c3-4d8c-ae59-2ec21e1df9ea
+control_flow_connections:
+- component_type: ControlFlowEdge
+  id: 2c43b11c-9e07-469d-b38d-c4c2a323cc89
+  name: start_step_to_summarize_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: a65b2a43-c65a-4cca-947f-f76e1410ff66
+  from_branch: null
+  to_node:
+    $component_ref: fe378524-69cb-4fcd-9d3a-f8fcb1c28316
+- component_type: ControlFlowEdge
+  id: df47bf8f-46d3-496f-9e5e-a57c8abb9658
+  name: summarize_step_to_None End node_control_flow_edge
+  description: null
+  metadata: {}
+  from_node:
+    $component_ref: fe378524-69cb-4fcd-9d3a-f8fcb1c28316
+  from_branch: null
+  to_node:
+    $component_ref: cb466062-c8c3-4d8c-ae59-2ec21e1df9ea
+data_flow_connections:
+- component_type: DataFlowEdge
+  id: a14b42bc-c53a-4f58-a385-af6bca465872
+  name: summarize_step_threats_to_None End node_threats_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: fe378524-69cb-4fcd-9d3a-f8fcb1c28316
+  source_output: threats
+  destination_node:
+    $component_ref: cb466062-c8c3-4d8c-ae59-2ec21e1df9ea
+  destination_input: threats
+- component_type: DataFlowEdge
+  id: 78113887-9b21-4924-a35a-c6042b5bbe2b
+  name: summarize_step_danger_level_to_None End node_danger_level_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: fe378524-69cb-4fcd-9d3a-f8fcb1c28316
+  source_output: danger_level
+  destination_node:
+    $component_ref: cb466062-c8c3-4d8c-ae59-2ec21e1df9ea
+  destination_input: danger_level
+- component_type: DataFlowEdge
+  id: 5225f4ae-dfec-4edc-92f4-52e57a53000f
+  name: summarize_step_animal_name_to_None End node_animal_name_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: fe378524-69cb-4fcd-9d3a-f8fcb1c28316
+  source_output: animal_name
+  destination_node:
+    $component_ref: cb466062-c8c3-4d8c-ae59-2ec21e1df9ea
+  destination_input: animal_name
+$referenced_components:
+  a65b2a43-c65a-4cca-947f-f76e1410ff66:
+    component_type: StartNode
+    id: a65b2a43-c65a-4cca-947f-f76e1410ff66
+    name: start_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs: []
+    branches:
+    - next
+  fe378524-69cb-4fcd-9d3a-f8fcb1c28316:
+    component_type: AgentNode
+    id: fe378524-69cb-4fcd-9d3a-f8fcb1c28316
+    name: summarize_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs:
+    - description: name of the animal
+      type: string
+      title: animal_name
+      default: ''
+    - description: level of danger of the animal. Can be "HIGH", "MEDIUM" or "LOW"
+      type: string
+      title: danger_level
+      default: ''
+    - description: list of threats for the animal
+      type: array
+      items:
+        type: string
+        title: threat
+      title: threats
+      default: []
+    branches:
+    - next
+    agent:
+      component_type: Agent
+      id: 3fe4580a-2bc6-4de8-85bb-cb8b0b361366
+      name: agent_776abfae__auto
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs: []
+      outputs:
+      - description: name of the animal
+        type: string
+        title: animal_name
+        default: ''
+      - description: level of danger of the animal. Can be "HIGH", "MEDIUM" or "LOW"
+        type: string
+        title: danger_level
+        default: ''
+      - description: list of threats for the animal
+        type: array
+        items:
+          type: string
+          title: threat
+        title: threats
+        default: []
+      llm_config:
+        component_type: VllmConfig
+        id: b32f4c62-2bd2-477d-a660-60ec1443b00c
+        name: llm_650f3ae8__auto
+        description: null
+        metadata:
+          __metadata_info__: {}
+        default_generation_parameters: null
+        url: LLAMA_API_URL
+        model_id: LLAMA_MODEL_ID
+      system_prompt: Extract from the article given by the user the name of the animal,
+        its danger level and the threats it's subject to.
+      tools: []
+  cb466062-c8c3-4d8c-ae59-2ec21e1df9ea:
+    component_type: EndNode
+    id: cb466062-c8c3-4d8c-ae59-2ec21e1df9ea
+    name: None End node
+    description: End node representing all transitions to None in the WayFlow flow
+    metadata: {}
+    inputs:
+    - description: list of threats for the animal
+      type: array
+      items:
+        type: string
+        title: threat
+      title: threats
+      default: []
+    - description: level of danger of the animal. Can be "HIGH", "MEDIUM" or "LOW"
+      type: string
+      title: danger_level
+      default: ''
+    - description: name of the animal
+      type: string
+      title: animal_name
+      default: ''
+    outputs:
+    - description: list of threats for the animal
+      type: array
+      items:
+        type: string
+        title: threat
+      title: threats
+      default: []
+    - description: level of danger of the animal. Can be "HIGH", "MEDIUM" or "LOW"
+      type: string
+      title: danger_level
+      default: ''
+    - description: name of the animal
+      type: string
+      title: animal_name
+      default: ''
+    branches: []
+    branch_name: next
+agentspec_version: 25.4.1
