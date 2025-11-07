@@ -231,7 +231,7 @@ class InputMessageStep(Step):
                         input_message, conversation, self.llm
                     )
                 else:
-                    conversation.append_message(
+                    conversation.message_list.append_message(
                         Message(content=input_message, message_type=MessageType.AGENT)
                     )
 

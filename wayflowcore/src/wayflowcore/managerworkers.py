@@ -155,7 +155,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
-        messages: Optional[Union["MessageList", List["Message"]]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
         conversation_name: Optional[str] = None,
     ) -> "Conversation":
@@ -185,6 +185,9 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             ManagerWorkersConversationExecutionState,
         )
 
+        if not isinstance(messages, MessageList):
+            messages = MessageList.from_messages(messages=messages)
+
         if conversation_id is None:
             conversation_id = IdGenerator.get_or_generate_id(conversation_id)
 
@@ -192,7 +195,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             ConversationCreatedEvent(
                 conversational_component=self,
                 inputs=inputs or {},
-                messages=messages or MessageList(),
+                messages=messages,
                 conversation_id=conversation_id,
                 nesting_level=None,
             )
@@ -201,7 +204,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         subconversations: Dict[str, AgentConversation] = {}
         subconversations[self.manager_agent.name] = self.manager_agent.start_conversation(
             inputs=inputs,
-            messages=messages if isinstance(messages, MessageList) else MessageList(messages or []),
+            messages=messages,
         )
 
         state = ManagerWorkersConversationExecutionState(
@@ -212,7 +215,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         return ManagerWorkersConversation(
             component=self,
             inputs={},
-            message_list=MessageList(),
+            message_list=messages,
             name=conversation_name or "managerworkers_conversation",
             state=state,
             status=None,

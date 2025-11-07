@@ -282,7 +282,6 @@ def test_serialize_agent_conversation_with_internal_states(remotely_hosted_llm) 
             content="the answer is 5",
         )
     )
-
     deserialized_conv.append_tool_result(ToolResult(content=5, tool_request_id=tool_request_id))
     status = deserialized_conv.execute()
     # should continue the conversation, ie finish the flow

@@ -90,6 +90,39 @@ Miscellaneous
   `GHSA-6757-jp84-gxfx <https://github.com/advisories/GHSA-6757-jp84-gxfx>`_,
   and `GHSA-8q59-q68h-6hv4 <https://github.com/advisories/GHSA-8q59-q68h-6hv4>`_.
 
+Improvements
+^^^^^^^^^^^^
+
+* **Use execution statuses to interact with the components**
+  Users can now directly see the conversation state and interact with the agent via the execution status.
+
+  .. code-block:: python
+
+      agent = Agent(...)
+      tools_dict = {...}
+
+      conversation: Conversation = agent.start_conversation()
+
+      while True:
+          status = conversation.execute()
+
+          if isintance(status, UserMessageRequestStatus):
+              print('Agent >> ', status.message.content)
+              user_response = input('User >> ')
+              status.submit_user_response(user_response)
+          elif isinstance(status, ToolRequestStatus):
+              for tool_request in status.tool_requests:
+                  tool_result = ToolResult(
+                      tool_id=tool_request.tool_request_id,
+                      content=tools_dict[tool_request.name](**tool_request.args)
+                  )
+                  status.submit_tool_result(tool_result)
+          elif isinstance(status, FinishedStatus):
+              break
+
+  For more information check out :doc:`Reference Sheet <misc/reference_sheet>`
+
+
 WayFlow 25.4.1 — Initial release
 --------------------------------
 

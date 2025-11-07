@@ -81,7 +81,9 @@ class SwarmConversationExecutionState(ConversationExecutionState):
 
         if message_list is not None:
             thread.message_list = (
-                MessageList(message_list) if isinstance(message_list, list) else message_list
+                MessageList.from_messages(message_list)
+                if isinstance(message_list, list)
+                else message_list
             )
         conversation = thread.recipient_agent.start_conversation(
             inputs=inputs,

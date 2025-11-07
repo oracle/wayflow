@@ -20,7 +20,7 @@ from wayflowcore.contextproviders import (
 )
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
-from wayflowcore.executors.executionstatus import ToolRequestStatus
+from wayflowcore.executors.executionstatus import ToolRequestStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
 from wayflowcore.messagelist import Message, MessageType
@@ -228,7 +228,7 @@ assert isinstance(status, ToolRequestStatus)
 tool_request = status.tool_requests[0]
 tool_execution_content = execute_client_tool_from_tool_request(tool_request)
 
-conversation.append_tool_result(ToolResult(tool_execution_content, tool_request.tool_request_id))
+status.submit_tool_result(ToolResult(tool_execution_content, tool_request.tool_request_id))
 # conversation.execute() # continue the execution of the Flow
 # .. end-client_tool
 # .. start-simple_agent::
@@ -238,10 +238,7 @@ agent = Agent(
     llm, custom_instruction="You are a helpful assistant, please answer the user requests."
 )
 
-conversation = agent.start_conversation()
-conversation.append_user_message(
-    "Please write a simple Python function to compute the sum of 2 numbers."
-)
+conversation = agent.start_conversation(messages="Please write a simple Python function to compute the sum of 2 numbers.")
 conversation.execute()
 print(conversation.get_last_message().content)
 # Here's a simple Python function that...
@@ -266,10 +263,10 @@ def days_between_dates(
 
 
 agent = Agent(llm, tools=[days_between_dates])
-conversation = agent.start_conversation()
-conversation.append_user_message("How many days are there between 01/01/2020 and 31/12/2020?")
-conversation.execute()
-print(conversation.get_last_message().content)
+conversation = agent.start_conversation(messages="How many days are there between 01/01/2020 and 31/12/2020?")
+status = conversation.execute()
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)
 # There are 365 days between 01/01/2020 and 31/12/2020.
 # .. end-agent_with_tool
 # .. start-simple_flow::
@@ -292,7 +289,8 @@ flow = Flow(
 )
 conversation = flow.start_conversation()
 status = conversation.execute()
-print(conversation.get_messages())
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)
 # .. end-simple_flow
 # .. start-flow_with_dataconnection::
 from wayflowcore.controlconnection import ControlFlowEdge
@@ -324,7 +322,7 @@ conversation = flow.start_conversation(
     inputs={"username": "Username#123", "session_id": "Session#456"}
 )
 status = conversation.execute()
-last_message = conversation.get_last_message()
+last_message = status.message
 # last_message.content
 # Session#456: Received message "Successfully processed username Username#123"
 # .. end-flow_with_dataconnection
@@ -382,7 +380,7 @@ assistant = Flow(
 )
 conversation = assistant.start_conversation(inputs={NEXT_STEP_NAME_IO: "yes"})
 status = conversation.execute()
-# conversation.get_last_message().content
+# status.message.content
 # Access granted. Press any key to continue...
 # .. end-flow_with_branching::
 # .. start-flow_with_tools::
@@ -415,10 +413,12 @@ code_agent = Agent(
 flow = create_single_step_flow(AgentExecutionStep(code_agent))
 conversation = flow.start_conversation()
 status = conversation.execute()
-print(conversation.get_last_message().content)  # Hi! How can I help you?
-conversation.append_user_message("Write a simple Python function to sum two numbers")
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)  # Hi! How can I help you?
+status.submit_user_response("Write a simple Python function to sum two numbers")
 status = conversation.execute()
-print(conversation.get_last_message().content)  # Here's a simple Python function that ...
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)  # Here's a simple Python function that ...
 # .. end-agent_in_flow
 # .. start-agent_in_agent::
 from wayflowcore.agent import Agent
@@ -439,10 +439,12 @@ agent = Agent(
 
 conversation = agent.start_conversation()
 status = conversation.execute()
-print(conversation.get_last_message().content)  # Hi! How can I help you?
-conversation.append_user_message("Write a simple Python function to sum two numbers")
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)  # Hi! How can I help you?
+status.submit_user_response("Write a simple Python function to sum two numbers")
 status = conversation.execute()
-print(conversation.get_last_message().content)  # Here's a simple Python function that ...
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)  # Here's a simple Python function that ...
 # .. end-agent_in_agent
 # .. start-flow_in_agent::
 from wayflowcore.agent import Agent
@@ -471,10 +473,12 @@ agent = Agent(
 
 conversation = agent.start_conversation()
 status = conversation.execute()
-print(conversation.get_last_message().content)  # Hi! How can I help you?
-conversation.append_user_message("Write a simple Python function to sum two numbers")
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)  # Hi! How can I help you?
+status.submit_user_response("Write a simple Python function to sum two numbers")
 status = conversation.execute()
-print(conversation.get_last_message().content)  # Here's a simple Python function that ...
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)  # Here's a simple Python function that ...
 # .. end-flow_in_agent
 # .. start-flow_in_flow::
 from wayflowcore.controlconnection import ControlFlowEdge
@@ -524,7 +528,8 @@ conversation = flow.start_conversation(
     {"user_input": "Write a simple Python function to sum two numbers"}
 )
 status = conversation.execute()
-print(conversation.get_last_message().content)
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)
 # .. end-flow_in_flow
 # .. start-serialize_simple_assistants::
 from wayflowcore.agent import Agent
@@ -593,8 +598,9 @@ flow = Flow(
 
 input_context = {"message_content": "Here is my input context"}
 conversation = flow.start_conversation(inputs=input_context)
-conversation.execute()
-print(conversation.get_last_message().content)
+status = conversation.execute()
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)
 # .. end-inputs_provider
 # .. start-tool_contextprovider::
 from wayflowcore.contextproviders import ToolContextProvider
@@ -628,7 +634,8 @@ flow = Flow(
 input_context = {"message_content": "Here is my input context"}
 conversation = flow.start_conversation(inputs=input_context)
 conversation.execute()
-print(conversation.get_last_message().content)
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)
 # .. end-tool_contextprovider
 # .. start-flow_contextprovider::
 from wayflowcore.contextproviders import FlowContextProvider
@@ -655,8 +662,8 @@ flow = Flow(
 )
 conversation = flow.start_conversation()
 execution_status = conversation.execute()
-last_message = conversation.get_last_message()
-print(last_message.content)  # Last time message: The current time is 2pm.
+assert isinstance(execution_status, UserMessageRequestStatus)
+print(execution_status.message.content)  # Last time message: The current time is 2pm.
 # .. end-flow_contextprovider
 # .. start-context_with_variables::
 from wayflowcore.controlconnection import ControlFlowEdge
@@ -707,5 +714,6 @@ flow = Flow(
 
 conversation = flow.start_conversation()
 status = conversation.execute()
-print(conversation.get_last_message().content)
+assert isinstance(status, UserMessageRequestStatus)
+print(status.message.content)
 # .. end-context_with_variables

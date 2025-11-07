@@ -415,7 +415,7 @@ class AgentConversationExecutor(ConversationExecutor):
         if should_share_messages_with_caller:
             init_messages = caller_messages  # using the message list from the caller
         else:
-            init_messages = MessageList([])
+            init_messages = MessageList.from_messages([])
 
         init_messages.append_message(caller_request_message)
         sub_agent_conversation = expert_agent.start_conversation(
@@ -879,7 +879,7 @@ class AgentConversationExecutor(ConversationExecutor):
                 conversation=conversation,
             )
             if outputs is not None:
-                return FinishedStatus(output_values=outputs), True
+                return FinishedStatus(output_values=outputs, _conversation_id=conversation.id), True
         elif tool_request.name == _TALK_TO_USER_TOOL_NAME:
             successful_tool_use = _convert_talk_to_user_tool_call_into_agent_message(
                 agent_config=agent_config,
@@ -907,7 +907,7 @@ class AgentConversationExecutor(ConversationExecutor):
                         agent_config.agent_id,
                     )
                 )
-                return FinishedStatus(output_values={}), True
+                return FinishedStatus(output_values={}, _conversation_id=conversation.id), True
         else:
             tool_execution_status = await AgentConversationExecutor._execute_next_subcall(
                 config=agent_config,
@@ -996,7 +996,9 @@ class AgentConversationExecutor(ConversationExecutor):
                         default_outputs = {
                             o.name: o.default_value for o in agent_config.output_descriptors
                         }
-                        return FinishedStatus(output_values=default_outputs)
+                        return FinishedStatus(
+                            output_values=default_outputs, _conversation_id=conversation.id
+                        )
                     break
                 else:
                     logger.debug("No open tool call, will decide next action by prompting the llm")
@@ -1057,11 +1059,15 @@ class AgentConversationExecutor(ConversationExecutor):
         except ExecutionInterruptedException as e:
             return e.execution_status
 
-        return (
-            UserMessageRequestStatus()
-            if agent_config.caller_input_mode == CallerInputMode.ALWAYS
-            else FinishedStatus(output_values={})
-        )
+        if agent_config.caller_input_mode == CallerInputMode.ALWAYS:
+            last_message = conversation.get_last_message()
+            if last_message is None:
+                raise ValueError("Something went wrong, should not happen")
+            return UserMessageRequestStatus(
+                message=last_message,
+                _conversation_id=conversation.id,
+            )
+        return FinishedStatus(output_values={}, _conversation_id=conversation.id)
 
     @staticmethod
     async def _collect_tools(config: Agent, curr_iter: int) -> Optional[List[Tool]]:

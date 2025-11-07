@@ -278,7 +278,9 @@ class AgentExecutionStep(Step):
         if agent_sub_conversation is not None:
             return agent_sub_conversation
 
-        init_messages = caller_conv.message_list if self._share_conversation else MessageList([])
+        init_messages = (
+            caller_conv.message_list if self._share_conversation else MessageList.from_messages([])
+        )
         agent_sub_conversation = self.agent.start_conversation(
             inputs=inputs, messages=init_messages
         )

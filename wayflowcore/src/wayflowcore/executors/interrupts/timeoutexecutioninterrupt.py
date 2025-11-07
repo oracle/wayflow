@@ -77,7 +77,11 @@ class SoftTimeoutExecutionInterrupt(
             # This should never happen, but we put a safeguard anyway
             raise ValueError("Illegal State: execution start event was not called correctly")
         if time.time() - self.starting_time > self.timeout:
-            return InterruptedExecutionStatus(self, "Execution time limit reached")
+            return InterruptedExecutionStatus(
+                interrupter=self,
+                reason="Execution time limit reached",
+                _conversation_id=conversation.id,
+            )
         return None
 
     def _on_execution_start(

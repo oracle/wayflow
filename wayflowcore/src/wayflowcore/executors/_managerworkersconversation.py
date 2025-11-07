@@ -57,7 +57,7 @@ class ManagerWorkersConversation(Conversation):
         return []
 
     def _get_all_sub_conversations(self) -> List["Conversation"]:
-        return []
+        return list(self.state.subconversations.values())
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(state={self.state!r}, subconversations={self.subconversations!r})"

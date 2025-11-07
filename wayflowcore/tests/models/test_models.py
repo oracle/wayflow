@@ -1499,7 +1499,16 @@ def test_all_parameter_configs_set_works(llm_config):
     )
 
 
+@retry_test(max_attempts=4)
 def test_structured_generation_uses_default(remotely_hosted_llm, caplog):
+    """
+    Failure rate:          2 out of 40
+    Observed on:           2025-11-04
+    Average success time:  0.60 seconds per successful attempt
+    Average failure time:  5.70 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.07 ** 4) ~= 2.6 / 100'000
+    """
     prompt = Prompt(
         messages=[Message(content="Analyse the stacktrace:\n\nno error")],
         response_format=ObjectProperty(

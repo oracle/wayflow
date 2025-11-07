@@ -19,7 +19,10 @@ from wayflowcore.variable import Variable
 
 
 def run_step_and_return_outputs(
-    step: Step, inputs: Optional[Dict[str, Any]] = None, messages: Optional[List[Message]] = None
+    step: Step,
+    inputs: Optional[Dict[str, Any]] = None,
+    messages: Optional[List[Message]] = None,
+    context_providers: Optional[List[ContextProvider]] = None,
 ) -> Dict[str, Any]:
     """Helper function to run a step with some inputs and return the outputs of the step.
 
@@ -32,6 +35,8 @@ def run_step_and_return_outputs(
         can be checked using ``step.input_descriptors``.
     messages:
         List of previous messages
+    user_input:
+        Initial message from the user
 
     Examples
     --------
@@ -46,12 +51,14 @@ def run_step_and_return_outputs(
     >>> # {"output": "the capital of Switzerland is Bern"}
 
     """
-    flow = Flow.from_steps([step])
+    flow = Flow.from_steps([step], context_providers=context_providers)
     return run_flow_and_return_outputs(flow, inputs, messages=messages)
 
 
 def run_flow_and_return_outputs(
-    flow: Flow, inputs: Optional[Dict[str, Any]] = None, messages: Optional[List[Message]] = None
+    flow: Flow,
+    inputs: Optional[Dict[str, Any]] = None,
+    messages: Optional[List[Message]] = None,
 ) -> Dict[str, Any]:
     """
     Runs a `Flow` until completion and returns the outputs of the flow. It should not use any `ClientTool` nor `Agent`.
@@ -63,6 +70,8 @@ def run_flow_and_return_outputs(
     inputs:
         Inputs for the flow. Need to contain all expected inputs of the flow. Their names and types
         can be checked using ``flow.input_descriptors``.
+    messages:
+        Initial messages of the conversation
 
     Examples
     --------
@@ -73,21 +82,16 @@ def run_flow_and_return_outputs(
     >>> from wayflowcore.flowhelpers import run_flow_and_return_outputs
     >>> generation_step = PromptExecutionStep(
     ...     llm=llm,
-    ...     prompt_template="What is the capital of {{country}}? Only answer by the name of city, and the name of the city only."
+    ...     prompt_template="What is the capital of {{country}}? Only answer by the name of city, and the name of the city only.",
+    ...     name='generation',
     ... )
     >>> branching_step = BranchingStep(
-    ...     branch_name_mapping={'bern': 'success'}
+    ...     branch_name_mapping={'bern': 'success'}, name='branching'
     ... )
-    >>> success_step = OutputMessageStep('Well done, llama!')
-    >>> failure_step = OutputMessageStep("That's not it...")
+    >>> success_step = OutputMessageStep('Well done, llama!', name='success')
+    >>> failure_step = OutputMessageStep("That's not it...", name='failure')
     >>> flow = Flow(
     ...     begin_step=generation_step,
-    ...     steps={
-    ...         'generation': generation_step,
-    ...         'branching': branching_step,
-    ...         'success': success_step,
-    ...         'failure': failure_step,
-    ...     },
     ...     control_flow_edges=[
     ...         ControlFlowEdge(source_step=generation_step, destination_step=branching_step),
     ...         ControlFlowEdge(source_step=branching_step, destination_step=success_step, source_branch='success'),
@@ -211,20 +215,14 @@ def run_single_step(
 
 
 def _run_flow_and_return_status(
-    flow: Flow, inputs: Optional[Dict[str, Any]] = None, messages: Optional[List[Message]] = None
+    flow: Flow,
+    inputs: Optional[Dict[str, Any]] = None,
+    messages: Optional[List[Message]] = None,
 ) -> ExecutionStatus:
-    conv = flow.start_conversation(inputs or {}, messages=messages)
-    return conv.execute()
-
-
-def _run_flow_and_return_conversation_and_status(
-    flow: Flow, inputs: Optional[Dict[str, Any]] = None, assert_finished: bool = False
-) -> Tuple["Conversation", ExecutionStatus]:
-    conv = flow.start_conversation(inputs or {})
-    status = conv.execute()
-    if assert_finished:
-        assert isinstance(status, FinishedStatus)  # nosec
-    return conv, status
+    return flow.start_conversation(
+        inputs=inputs or {},
+        messages=messages,
+    ).execute()
 
 
 def _run_single_step_and_return_conv_and_status(
@@ -236,7 +234,7 @@ def _run_single_step_and_return_conv_and_status(
         Union[Dict[Property, ContextProviderType], List[ContextProvider]]
     ] = None,
 ) -> Tuple["Conversation", ExecutionStatus]:
-    message_list = MessageList(messages or [])
+    message_list = MessageList.from_messages(messages or [])
     inputs = inputs or {}
     context_providers = context_providers or []
     assistant = create_single_step_flow(step, "step", context_providers)

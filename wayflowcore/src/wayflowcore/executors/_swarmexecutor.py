@@ -191,6 +191,8 @@ class SwarmRunner(ConversationExecutor):
                     current_thread=current_thread,
                     current_agent=current_agent,
                 )
+                # we will handle the conversation manually
+                agent_sub_conversation.status = None
             elif isinstance(status, ToolRequestStatus) and any(
                 t.name == _HANDOFF_TOOL_NAME for t in status.tool_requests
             ):
@@ -201,6 +203,8 @@ class SwarmRunner(ConversationExecutor):
                     current_thread=current_thread,
                     current_agent=current_agent,
                 )
+                # we will handle the conversation manually
+                agent_sub_conversation.status = None
             elif isinstance(status, UserMessageRequestStatus) and current_thread.is_main_thread:
                 # 3. agent posted to main conversation, back to the user/caller
                 _last_message = conversation.get_last_message()
@@ -217,6 +221,8 @@ class SwarmRunner(ConversationExecutor):
                     swarm_conversation=conversation,
                     current_agent_subconversation=agent_sub_conversation,
                 )
+                # we will handle the conversation manually
+                agent_sub_conversation.status = None
             elif isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus)):
                 # 5. usual client/server tool requests
                 return status

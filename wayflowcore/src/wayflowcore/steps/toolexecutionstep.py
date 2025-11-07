@@ -465,7 +465,7 @@ class ToolExecutionStep(Step):
         conversation._put_internal_context_key_value_for_step(
             self, ToolExecutionStep.TOOL_REQUEST_UUID, tool_request_uuid
         )
-        conversation.append_message(
+        conversation.message_list.append_message(
             Message(
                 tool_requests=[
                     ToolRequest(

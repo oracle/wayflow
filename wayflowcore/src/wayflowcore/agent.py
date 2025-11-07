@@ -364,7 +364,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
-        messages: Optional[Union["MessageList", List["Message"]]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
     ) -> "AgentConversation":
         """
@@ -388,6 +388,9 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.executors._agentconversation import AgentConversation
+
+        if not isinstance(messages, MessageList):
+            messages = MessageList.from_messages(messages=messages)
 
         if len(self.input_descriptors) > 0:
             if inputs is None:
@@ -424,9 +427,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
 
         return AgentConversation(
             component=self,
-            message_list=(
-                messages if isinstance(messages, MessageList) else MessageList(messages or [])
-            ),
+            message_list=messages,
             conversation_id=IdGenerator.get_or_generate_id(conversation_id),
             inputs=inputs or {},
             name="agent_conversation",
