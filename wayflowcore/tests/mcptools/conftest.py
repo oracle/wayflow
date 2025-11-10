@@ -224,7 +224,7 @@ def _start_mcp_server(
     ssl_cert_reqs: int = 0,  # ssl.CERT_NONE
     client_key_path: Optional[str] = None,
     client_cert_path: Optional[str] = None,
-    ready_timeout_s: float = 5.0,
+    ready_timeout_s: float = 10.0,
 ) -> Tuple[subprocess.Popen, str]:
     process_args = [
         "python",
