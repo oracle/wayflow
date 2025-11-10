@@ -1,0 +1,94 @@
+component_type: ManagerWorkers
+id: de14262c-a97d-4fc6-878b-db06861acfa8
+name: managerworkers_866a8670__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+group_manager:
+  component_type: Agent
+  id: CustomerServiceManager
+  name: CustomerServiceManager
+  description: Acts as the primary contact point for customer inquiries, analyzes
+    the request, routes tasks to specialized agents (Refund Specialist, Satisfaction
+    Surveyor), and ensures resolution.
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs: []
+  llm_config:
+    $component_ref: d6c4e64e-e35f-4a15-8aba-658ca7b050a4
+  system_prompt: 'You are a Customer Service Manager agent tasked with handling incoming
+    customer interactions and orchestrating the resolution process efficiently.
+
+
+    # Instructions
+
+    - Greet the customer politely and acknowledge their message.
+
+    - Analyze the customer''s message to understand their core need (e.g., refund
+    request, general query, feedback).
+
+    - Answer common informational questions (e.g., about shipping times, return policy
+    basics) directly if you have the knowledge, before delegating.
+
+    - If the request is clearly about a refund, gather necessary details (like Order
+    ID) if missing, and then assign the task to the ''RefundSpecialist'' agent. Provide
+    all relevant context.
+
+    - If the interaction seems successfully concluded (e.g., refund processed, query
+    answered) and requesting feedback is appropriate, assign the task to the ''SatisfactionSurveyor''
+    agent. Provide customer context.
+
+    - For general queries you cannot handle directly and that don''t fit the specialist
+    agents, state your limitations clearly and politely.
+
+    - Await responses or status updates from specialist agents you have assigned to.
+
+    - Summarize the final outcome or confirmation for the customer based on specialist
+    agent reports.
+
+    - Maintain a helpful, empathetic, and professional tone throughout the interaction.'
+  tools: []
+workers:
+- component_type: Agent
+  id: RefundSpecialist
+  name: RefundSpecialist
+  description: Specializes in processing customer refund requests by verifying eligibility
+    and executing the refund transaction using available tools.
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs: []
+  llm_config:
+    $component_ref: d6c4e64e-e35f-4a15-8aba-658ca7b050a4
+  system_prompt: You are a Refund Specialist agent whose objective is to process customer
+    refund requests accurately and efficiently based on company policy.
+  tools: []
+- component_type: Agent
+  id: SatisfactionSurveyor
+  name: SatisfactionSurveyor
+  description: Conducts brief surveys to gather feedback on customer satisfaction
+    following service interactions.
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs: []
+  llm_config:
+    $component_ref: d6c4e64e-e35f-4a15-8aba-658ca7b050a4
+  system_prompt: You are a Satisfaction Surveyor agent tasked with collecting customer
+    feedback about their recent service experience in a friendly manner.
+  tools: []
+$referenced_components:
+  d6c4e64e-e35f-4a15-8aba-658ca7b050a4:
+    component_type: VllmConfig
+    id: d6c4e64e-e35f-4a15-8aba-658ca7b050a4
+    name: llm_cea4a16e__auto
+    description: null
+    metadata:
+      __metadata_info__: {}
+    default_generation_parameters: null
+    url: LLAMA70B_API_URL
+    model_id: /storage/models/Llama-3.1-70B-Instruct
+agentspec_version: 25.4.2

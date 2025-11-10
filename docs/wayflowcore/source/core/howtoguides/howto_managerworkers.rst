@@ -29,7 +29,7 @@ Some notable examples include hierarchical structures, agent swarms, and mixture
 
 This guide demonstrates an example of a hierarchical multi-agent system (also known as manager-workers pattern) and will show you how to:
 
-- Build expert agents equipped with tools and an manager agent;
+- Build expert agents equipped with tools and a manager agent;
 - Test the expert agents individually;
 - Build a ManagerWorkers using the defined agents;
 - Execute the ManagerWorkers of agents;
@@ -243,19 +243,30 @@ This is demonstrated in the following example.
 Agent Spec Exporting/Loading
 ============================
 
-You can export the assistant configuration to its Agent Spec configuration using the ``AgentSpecExporter``
-and the ManagerWorkers plugin. Using the plugin ensures the proper serialization of
-the custom ManagerWorkers component.
+You can export the assistant configuration to its Agent Spec configuration using the ``AgentSpecExporter``.
 
 .. literalinclude:: ../code_examples/howto_managerworkers.py
     :language: python
     :start-after: .. start-##_Export_config_to_Agent_Spec
     :end-before: .. end-##_Export_config_to_Agent_Spec
 
-And load it back using the ``AgentSpecLoader``.
+Here is what the **Agent Spec representation will look like ↓**
 
-Similar to the serialization, use the Managerworkers deserialization plugin to ensure the proper deserialization of
-the custom ManagerWorkers component.
+.. collapse:: Click here to see the assistant configuration.
+
+   .. tabs::
+
+      .. tab:: JSON
+
+         .. literalinclude:: ../config_examples/howto_managerworkers.json
+            :language: json
+
+      .. tab:: YAML
+
+         .. literalinclude:: ../config_examples/howto_managerworkers.yaml
+            :language: yaml
+
+You can load it back using the ``AgentSpecLoader``.
 
 .. literalinclude:: ../code_examples/howto_managerworkers.py
     :language: python

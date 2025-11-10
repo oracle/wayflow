@@ -22,7 +22,7 @@ from wayflowcore.agentspec.components._pydantic_plugins import (
 @deprecated("PluginSwarm is deprecated, use Agent Spec Swarm instead.")
 class PluginSwarm(ComponentWithIO):
     """
-    .. deprecated:: 25.4
+    .. deprecated:: 26.1
         PluginSwarm is deprecated, use Agent Spec Swarm instead.
 
     Defines a ``Swarm`` conversational component.

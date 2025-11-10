@@ -1,0 +1,241 @@
+component_type: ManagerWorkers
+id: 92d09dcd-0eb4-43d7-8626-e9879a7e0ec2
+name: managerworkers_ec2b1679__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+group_manager:
+  component_type: Agent
+  id: CustomerServiceManager
+  name: CustomerServiceManager
+  description: Acts as the primary contact point for customer inquiries, analyzes
+    the request, routes tasks to specialized agents (Refund Specialist, Satisfaction
+    Surveyor), and ensures resolution.
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - description: '"customer_id" input variable for the template'
+    type: string
+    title: customer_id
+  - description: '"company_policy_info" input variable for the template'
+    type: string
+    title: company_policy_info
+  outputs: []
+  llm_config:
+    $component_ref: 6cc05856-534f-4684-bbd0-b9c98021ab8b
+  system_prompt: 'You are a Customer Service Manager agent tasked with handling incoming
+    customer interactions and orchestrating the resolution process efficiently.
+
+
+    # Instructions
+
+    - Greet the customer politely and acknowledge their message.
+
+    - Analyze the customer''s message to understand their core need (e.g., refund
+    request, general query, feedback).
+
+    - Answer common informational questions (e.g., about shipping times, return policy
+    basics) directly if you have the knowledge, before delegating.
+
+    - If the request is clearly about a refund, gather necessary details (like Order
+    ID) if missing, and then assign the task to the ''RefundSpecialist'' agent. Provide
+    all relevant context.
+
+    - If the interaction seems successfully concluded (e.g., refund processed, query
+    answered) and requesting feedback is appropriate, assign the task to the ''SatisfactionSurveyor''
+    agent. Provide customer context.
+
+    - For general queries you cannot handle directly and that don''t fit the specialist
+    agents, state your limitations clearly and politely.
+
+    - Await responses or status updates from specialist agents you have assigned to.
+
+    - Summarize the final outcome or confirmation for the customer based on specialist
+    agent reports.
+
+    - Maintain a helpful, empathetic, and professional tone throughout the interaction.
+
+
+    # Additional Context
+
+    Customer ID: {{customer_id}}
+
+    Company policies: {{company_policy_info}}'
+  tools: []
+workers:
+- component_type: Agent
+  id: RefundSpecialist
+  name: RefundSpecialist
+  description: Specializes in processing customer refund requests by verifying eligibility
+    and executing the refund transaction using available tools.
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs: []
+  llm_config:
+    $component_ref: 6cc05856-534f-4684-bbd0-b9c98021ab8b
+  system_prompt: 'You are a Refund Specialist agent whose objective is to process
+    customer refund requests accurately and efficiently based on company policy.
+
+
+    # Instructions
+
+    - Receive the refund request details (e.g., order ID, customer ID, reason) from
+    the ''CustomerServiceManager''.
+
+    - Use the `check_refund_eligibility` tool to verify if the request meets the refund
+    policy criteria using the provided order and customer IDs.
+
+    - If the check indicates eligibility, determine the correct refund amount (up
+    to the maximum allowed from the eligibility check).
+
+    - If eligible, use the `process_refund` tool to execute the refund for the determined
+    amount, providing order ID and reason.
+
+    - If ineligible based on the check, clearly note the reason provided by the tool.
+
+    - Report the final outcome (e.g., "Refund processed successfully, Refund ID: [ID],
+    Amount: [Amount]", or "Refund denied: [Reason from eligibility check]") back to
+    the ''CustomerServiceManager''.
+
+    - Do not engage in general conversation; focus solely on the refund process.'
+  tools:
+  - component_type: ServerTool
+    id: 7df19064-1b82-4e9e-9168-2edd052b07ad
+    name: check_refund_eligibility
+    description: "Checks if a given order is eligible for a refund based on company\
+      \ policy.\n\nReturns:\n    A dictionary containing eligibility status and details.\n\
+      \    Example: {\"eligible\": True, \"max_refundable_amount\": 50.00, \"reason\"\
+      : \"Within return window\"}\n             {\"eligible\": False, \"reason\":\
+      \ \"Order past 30-day return window\"}"
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: The unique identifier for the order.
+      type: string
+      title: order_id
+    - description: The unique identifier for the customer.
+      type: string
+      title: customer_id
+    outputs:
+    - type: object
+      additionalProperties:
+        anyOf:
+        - type: boolean
+        - type: number
+        - type: string
+      title: tool_output
+  - component_type: ServerTool
+    id: 4fe2caf8-eacf-40b6-853c-6763477748d3
+    name: process_refund
+    description: "Processes a refund for a specific order and amount.\n\nReturns:\n\
+      \    A dictionary confirming the refund status.\n    Example: {\"success\":\
+      \ True, \"refund_id\": \"REF_789XYZ\", \"message\": \"Refund processed successfully.\"\
+      }\n             {\"success\": False, \"message\": \"Refund processing failed\
+      \ due to payment gateway error.\"}"
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: The unique identifier for the order to be refunded.
+      type: string
+      title: order_id
+    - description: The amount to be refunded.
+      type: number
+      title: amount
+    - description: The reason for the refund.
+      type: string
+      title: reason
+    outputs:
+    - type: object
+      additionalProperties:
+        anyOf:
+        - type: boolean
+        - type: string
+      title: tool_output
+- component_type: Agent
+  id: SatisfactionSurveyor
+  name: SatisfactionSurveyor
+  description: Conducts brief surveys to gather feedback on customer satisfaction
+    following service interactions.
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs: []
+  llm_config:
+    $component_ref: 6cc05856-534f-4684-bbd0-b9c98021ab8b
+  system_prompt: 'You are a Satisfaction Surveyor agent tasked with collecting customer
+    feedback about their recent service experience in a friendly manner.
+
+
+    # Instructions
+
+    - Receive the trigger to conduct a survey from the ''CustomerServiceManager'',
+    including context like the customer ID and the nature of the interaction if provided.
+
+    - Politely ask the customer if they have a moment to provide feedback on their
+    recent interaction.
+
+    - If the customer agrees, ask 1-2 concise questions about their satisfaction (e.g.,
+    "On a scale of 1 to 5, where 5 is highly satisfied, how satisfied were you with
+    the resolution provided today?", "Is there anything else you''d like to share
+    about your experience?").
+
+    - Use the `record_survey_response` tool to log the customer''s feedback, including
+    the satisfaction score and any comments provided. Ensure you pass the correct
+    customer ID.
+
+    - If the customer declines to participate, thank them for their time anyway. Do
+    not pressure them. Use the `record_survey_response` tool to log the declination
+    if possible (e.g., score=None, comments="Declined survey").
+
+    - Thank the customer for their participation if they provided feedback.
+
+    - Report back to the ''CustomerServiceManager'' confirming that the survey was
+    attempted and whether it was completed or declined.'
+  tools:
+  - component_type: ServerTool
+    id: b25b7b4b-a880-47f2-af61-68cf232841a8
+    name: record_survey_response
+    description: "Records the customer's satisfaction survey response.\n\nReturns:\n\
+      \    A dictionary confirming the recording status.\n    Example: {\"success\"\
+      : True, \"message\": \"Survey response recorded.\"}\n             {\"success\"\
+      : False, \"message\": \"Failed to record survey response.\"}"
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: The unique identifier for the customer.
+      type: string
+      title: customer_id
+    - description: The customer's satisfaction rating (e.g., 1-5), if provided.
+      anyOf:
+      - type: integer
+      - type: 'null'
+      title: satisfaction_score
+      default: null
+    - description: Any additional comments provided by the customer, if provided.
+      anyOf:
+      - type: string
+      - type: 'null'
+      title: comments
+      default: null
+    outputs:
+    - type: object
+      additionalProperties:
+        anyOf:
+        - type: boolean
+        - type: string
+      title: tool_output
+$referenced_components:
+  6cc05856-534f-4684-bbd0-b9c98021ab8b:
+    component_type: VllmConfig
+    id: 6cc05856-534f-4684-bbd0-b9c98021ab8b
+    name: llm_9112faef__auto
+    description: null
+    metadata:
+      __metadata_info__: {}
+    default_generation_parameters: null
+    url: VLLM_HOST_PORT
+    model_id: model-id
+agentspec_version: 25.4.2

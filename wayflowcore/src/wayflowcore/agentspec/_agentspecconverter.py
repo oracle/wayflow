@@ -51,6 +51,7 @@ from pyagentspec.llms.openaicompatibleconfig import (
     OpenAiCompatibleConfig as AgentSpecOpenAiCompatibleConfig,
 )
 from pyagentspec.llms.vllmconfig import VllmConfig as AgentSpecVllmModel
+from pyagentspec.managerworkers import ManagerWorkers as AgentSpecManagerWorkers
 from pyagentspec.mcp import MCPToolBox as AgentSpecMCPToolBox
 from pyagentspec.mcp import MCPToolSpec as AgentSpecMCPToolSpec
 from pyagentspec.mcp.clienttransport import ClientTransport as AgentSpecClientTransport
@@ -139,9 +140,6 @@ from wayflowcore.agentspec.components.datastores.oracle_datastore import (
     PluginTlsOracleDatabaseConnectionConfig as AgentSpecPluginTlsOracleDatabaseConnectionConfig,
 )
 from wayflowcore.agentspec.components.flow import ExtendedFlow as AgentSpecExtendedFlow
-from wayflowcore.agentspec.components.managerworkers import (
-    PluginManagerWorkers as AgentSpecPluginManagerWorkers,
-)
 from wayflowcore.agentspec.components.mcp import (
     PluginSSEmTLSTransport as AgentSpecPluginSSEmTLSTransport,
 )
@@ -2060,10 +2058,10 @@ class RuntimeToAgentSpecConverter:
         self,
         runtime_managerworkers: RuntimeManagerWorkers,
         referenced_objects: Optional[Dict[str, Any]] = None,
-    ) -> AgentSpecPluginManagerWorkers:
+    ) -> AgentSpecManagerWorkers:
         metadata = _create_agentspec_metadata_from_runtime_component(runtime_managerworkers)
 
-        return AgentSpecPluginManagerWorkers(
+        return AgentSpecManagerWorkers(
             name=runtime_managerworkers.name
             or runtime_managerworkers.__metadata_info__.get("name", generate_id()),
             description=runtime_managerworkers.description
