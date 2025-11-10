@@ -48,6 +48,7 @@ from pyagentspec.llms.openaicompatibleconfig import (
 )
 from pyagentspec.llms.openaiconfig import OpenAiConfig as AgentSpecOpenAiConfig
 from pyagentspec.llms.vllmconfig import VllmConfig as AgentSpecVllmModel
+from pyagentspec.managerworkers import ManagerWorkers as AgentSpecManagerWorkers
 from pyagentspec.mcp.clienttransport import ClientTransport as AgentSpecClientTransport
 from pyagentspec.mcp.clienttransport import SSEmTLSTransport as AgentSpecSSEmTLSTransport
 from pyagentspec.mcp.clienttransport import SSETransport as AgentSpecSSETransport
@@ -1030,7 +1031,40 @@ class AgentSpecToRuntimeConverter:
                     id=agentspec_component.id,
                 )
             raise ValueError(f"Unexpected tool type provided in the tool_registry: {type(tool)}")
+        elif isinstance(agentspec_component, AgentSpecManagerWorkers):
+            for agent in [agentspec_component.group_manager] + agentspec_component.workers:  # type: ignore[assignment]
+                if not isinstance(agent, AgentSpecAgent):
+                    raise ValueError(
+                        f"WayFlow ManagerWorkers only supports agents of type `Agent`, "
+                        f"but received `{type(agent).__name__}` instead."
+                    )
+
+            return RuntimeManagerWorkers(
+                name=agentspec_component.name,
+                description=agentspec_component.description or "",
+                group_manager=self.convert(
+                    agentspec_component.group_manager, tool_registry, converted_components
+                ),
+                workers=[
+                    self.convert(worker, tool_registry, converted_components)
+                    for worker in agentspec_component.workers
+                ],
+                input_descriptors=[
+                    self._convert_property_to_runtime(input_property)
+                    for input_property in agentspec_component.inputs or []
+                ],
+                output_descriptors=[
+                    self._convert_property_to_runtime(output_property)
+                    for output_property in agentspec_component.outputs or []
+                ],
+                id=agentspec_component.id,
+                __metadata_info__=metadata_info,
+            )
         elif isinstance(agentspec_component, AgentSpecPluginManagerWorkers):
+            warnings.warn(
+                "PluginManagerWorkers is deprecated. Convert to Agent Spec ManagerWorkers instead.",
+                DeprecationWarning,
+            )
             return RuntimeManagerWorkers(
                 name=agentspec_component.name,
                 description=agentspec_component.description or "",

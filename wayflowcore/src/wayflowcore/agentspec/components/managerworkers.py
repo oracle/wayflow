@@ -6,6 +6,7 @@
 
 from typing import List, Union
 
+from deprecated import deprecated
 from pyagentspec.agent import Agent
 from pyagentspec.component import ComponentWithIO
 from pyagentspec.llms import LlmConfig
@@ -19,11 +20,16 @@ from wayflowcore.agentspec.components._pydantic_plugins import (
 )
 
 
+@deprecated("PluginManagerWorkers is deprecated, use Agent Spec ManagerWorkers instead.")
 class PluginManagerWorkers(ComponentWithIO):
     """
     Defines a ``ManagerWorkers`` conversation component.
+
     A ``ManagerWorkers`` is a multi-agent conversational component in which a group manager agent
         assign tasks to worker agents.
+
+    .. deprecated:: 26.1
+        PluginManagerWorkers is deprecated, use Agent Spec ManagerWorkers instead.
 
     Parameters
     ----------
