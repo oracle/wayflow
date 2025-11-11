@@ -6,8 +6,20 @@
 import logging
 import warnings
 from abc import abstractmethod
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, AsyncIterable, Callable, Dict, List, Optional, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncIterable,
+    Callable,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Sequence,
+)
 
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.component import DataclassComponent
@@ -34,6 +46,39 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 ContextProviderType = Callable[["Conversation"], Any]
+
+
+_ACTIVE_CONVERSATION_STACK: ContextVar[List["Conversation"]] = ContextVar(
+    "_ACTIVE_CONVERSATION_STACK", default=[]
+)
+"""Context var to hold the stack of currently active conversations."""
+
+
+def _get_active_conversations(return_copy: bool = True) -> List["Conversation"]:
+    from copy import copy
+
+    active_conversations = _ACTIVE_CONVERSATION_STACK.get()
+    return copy(active_conversations) if return_copy else active_conversations
+
+
+def _get_current_conversation_id() -> Optional[str]:
+    active_conversations = _get_active_conversations(return_copy=True)
+    if not active_conversations:
+        return None
+    return active_conversations[-1].id
+
+
+@contextmanager
+def _register_conversation(conversation: "Conversation") -> Generator[None, Any, None]:
+    try:
+        active_conversations = _get_active_conversations(return_copy=True)
+        active_conversations.append(conversation)
+        _ACTIVE_CONVERSATION_STACK.set(active_conversations)
+        yield
+    finally:
+        active_conversations = _get_active_conversations(return_copy=True)
+        active_conversations.pop()
+        _ACTIVE_CONVERSATION_STACK.set(active_conversations)
 
 
 @dataclass
@@ -91,8 +136,9 @@ class Conversation(DataclassComponent):
         # reset status
         self.status = None
 
-        self.status = await self.component.runner.execute_async(self, execution_interrupts)
-        return self.status
+        with _register_conversation(self):
+            self.status = await self.component.runner.execute_async(self, execution_interrupts)
+            return self.status
 
     @property
     @abstractmethod

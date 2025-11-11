@@ -127,6 +127,12 @@ Alternatively, run the agent interactively in a command-line loop:
     :start-after: # .. start-##_Running_with_an_execution_loop
     :end-before: # .. end-##_Running_with_an_execution_loop
 
+.. note::
+
+    WayFlow maintains MCP Client sessions between calls, which means that the client
+    does not need to re-authenticate at every call. After establishing a secure connection,
+    MCP servers can safely perform session recognition (e.g. for retrieving user information)
+
 
 Connecting a Flow to the MCP Server
 ===================================

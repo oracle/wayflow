@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional
 
 from exceptiongroup import ExceptionGroup
 from httpx import ConnectError
+from mcp import ClientSession
 from mcp import types as types
 
 from wayflowcore.exceptions import NoSuchToolFoundOnMCPServerError
@@ -84,44 +85,39 @@ def _catch_and_raise_mcp_connection_errors() -> Any:
 
 
 async def _invoke_mcp_tool_call_async(
-    client_transport: ClientTransport,
+    session: ClientSession,
     tool_name: str,
     tool_args: Dict[str, Any],
 ) -> str:
     with _catch_and_raise_mcp_connection_errors():
-        async with client_transport._connect_session() as session:
-            result: types.CallToolResult = await session.call_tool(tool_name, tool_args)
+        result: types.CallToolResult = await session.call_tool(tool_name, tool_args)
 
-            if len(result.content) == 0:
-                raise ValueError(f"No content was returned")
+        if len(result.content) == 0:
+            raise ValueError(f"No content was returned")
 
-            text_content = ""
-            for content in result.content:
-                if content.type == "text":
-                    text_content += content.text
-                else:
-                    raise ValueError(f"Only `text` content type is supported, was {content.type}")
-            return text_content
+        text_content = ""
+        for content in result.content:
+            if content.type == "text":
+                text_content += content.text
+            else:
+                raise ValueError(f"Only `text` content type is supported, was {content.type}")
+        return text_content
 
 
-async def _get_server_signatures_from_mcp_server(
-    client_transport: ClientTransport,
-) -> types.ListToolsResult:
+async def _get_server_signatures_from_mcp_server(session: ClientSession) -> types.ListToolsResult:
     with _catch_and_raise_mcp_connection_errors():
-        async with client_transport._connect_session() as session:
-            return await session.list_tools()
+        return await session.list_tools()
 
 
 async def get_server_tools_from_mcp_server(
-    client_transport: ClientTransport,
+    session: ClientSession,
     expected_signatures_by_name: Dict[str, Optional[Tool]],
+    client_transport: ClientTransport,
 ) -> List[ServerTool]:
     from wayflowcore.mcp.tools import MCPTool
 
     processed_tool_signatures: List[ServerTool] = []
-    remote_mcp_signature = await _get_server_signatures_from_mcp_server(
-        client_transport=client_transport
-    )
+    remote_mcp_signature = await _get_server_signatures_from_mcp_server(session)
 
     if missing_tool_name := next(
         (
@@ -189,10 +185,11 @@ async def get_server_tools_from_mcp_server(
     return processed_tool_signatures
 
 
-async def _get_tool_on_server(name: str, client_transport: ClientTransport) -> Tool:
-
+async def _get_tool_on_server(
+    session: ClientSession, name: str, client_transport: ClientTransport
+) -> Tool:
     try:
-        tools = await get_server_tools_from_mcp_server(client_transport, {name: None})
+        tools = await get_server_tools_from_mcp_server(session, {name: None}, client_transport)
     except NoSuchToolFoundOnMCPServerError as e:
         tools = []
     except Exception as e:

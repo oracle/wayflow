@@ -802,15 +802,14 @@ def anyio_backend():
     return "asyncio"
 
 
-# we add this fixture, so that in case there is a thread is
-# still open, logs will show it and we will be able to investigate
-@pytest.fixture(autouse=True, scope="session")
-def check_threads():
-    yield
-
+# This hook is called after whole test run finished, right before returning the exit status to the system.
+# see https://docs.pytest.org/en/stable/reference/reference.html#pytest.hookspec.pytest_sessionfinish
+# This check is added  so that in case there is a thread is still open,
+# logs will show it and we will be able to investigate.
+def pytest_sessionfinish(session, exitstatus):
     threads = [t for t in threading.enumerate() if t is not threading.main_thread()]
     if threads:
-        text = "Non-main threads still running at end of tests" + "\n".join(
+        text = "Non-main threads still running at end of tests\n" + "\n".join(
             f"{t.name}: {t.daemon}, {t.is_alive()}" for t in threads
         )
         raise ValueError(text)
