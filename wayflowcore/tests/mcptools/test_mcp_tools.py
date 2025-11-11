@@ -4,6 +4,10 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import logging
+import re
+from typing import Tuple, cast
+
 import anyio
 import pytest
 from anyio import to_thread
@@ -28,7 +32,9 @@ from wayflowcore.property import AnyProperty, IntegerProperty
 from wayflowcore.serialization import autodeserialize, serialize
 from wayflowcore.steps import MapStep, OutputMessageStep, ToolExecutionStep
 from wayflowcore.tools import Tool
+from wayflowcore.tools.tools import ToolRequest
 
+from ..testhelpers.patching import patch_llm
 from ..testhelpers.testhelpers import retry_test
 
 
@@ -389,3 +395,129 @@ def test_serde_agent_with_mcp_tool_and_toolbox(
     assert len(deserialized_agent.tools) == 2
     assert len(deserialized_agent._tools) == 1
     assert len(deserialized_agent._toolboxes) == 1
+
+
+def get_simple_mcp_agent_and_message_pattern(
+    mcp_fooza_toolbox: MCPToolBox, remotely_hosted_llm
+) -> Tuple[Agent, str]:
+    agent = Agent(
+        llm=remotely_hosted_llm,
+        custom_instruction=(
+            "Use the tool to generate a random string and return its result along "
+            "with the list of available tools."
+        ),
+        initial_message=None,
+        tools=[mcp_fooza_toolbox],
+    )
+    short_url = re.findall(
+        r"(https?://.*?)/sse", cast(SSETransport, mcp_fooza_toolbox.client_transport).url
+    )[0]
+    message_pattern = short_url + r'/messages/\?session_id=(.*?) "HTTP'
+    return agent, message_pattern
+
+
+def test_connection_persistence_with_agent_and_mcp_toolbox(
+    caplog: pytest.LogCaptureFixture, mcp_fooza_toolbox, remotely_hosted_llm
+) -> None:
+    agent, message_pattern = get_simple_mcp_agent_and_message_pattern(
+        mcp_fooza_toolbox, remotely_hosted_llm
+    )
+    logger = logging.getLogger("httpx")
+    logger.propagate = True  # necessary so that the caplog handler can capture logging messages
+    caplog.set_level(logging.INFO)
+    # ^ setting pytest to capture log messages of level INFO or above
+
+    with patch_llm(
+        llm=remotely_hosted_llm,
+        outputs=[
+            [ToolRequest(name="generate_random_string", args={})],
+            [ToolRequest(name="generate_random_string", args={})],
+            "random string is ...",
+        ],
+    ):
+        conv = agent.start_conversation()
+        _ = conv.execute()
+
+    all_session_ids = re.findall(message_pattern, caplog.text)
+    assert len(set(all_session_ids)) == 1
+
+
+@pytest.mark.anyio
+async def test_connection_persistence_with_agent_and_mcp_toolbox_async(
+    caplog: pytest.LogCaptureFixture, mcp_fooza_toolbox, remotely_hosted_llm
+) -> None:
+    agent, message_pattern = get_simple_mcp_agent_and_message_pattern(
+        mcp_fooza_toolbox, remotely_hosted_llm
+    )
+    logger = logging.getLogger("httpx")
+    logger.propagate = True  # necessary so that the caplog handler can capture logging messages
+    caplog.set_level(logging.INFO)
+    # ^ setting pytest to capture log messages of level INFO or above
+
+    with patch_llm(
+        llm=remotely_hosted_llm,
+        outputs=[
+            [ToolRequest(name="generate_random_string", args={})],
+            [ToolRequest(name="generate_random_string", args={})],
+            "random string is ...",
+        ],
+    ):
+        conv = agent.start_conversation()
+        _ = await conv.execute_async()
+
+    all_session_ids = re.findall(message_pattern, caplog.text)
+    assert len(set(all_session_ids)) == 1
+
+
+def get_simple_mcp_flow_and_message_pattern(mcp_fooza_tool: MCPTool) -> Tuple[Flow, str]:
+    flow = Flow.from_steps(
+        [
+            ToolExecutionStep(
+                name=f"tool_step_{i}",
+                tool=mcp_fooza_tool,
+                raise_exceptions=True,
+            )
+            for i in range(2)
+        ]
+    )
+    short_url = re.findall(
+        r"(https?://.*?)/sse", cast(SSETransport, mcp_fooza_tool.client_transport).url
+    )[0]
+    message_pattern = short_url + r'/messages/\?session_id=(.*?) "HTTP'
+    return flow, message_pattern
+
+
+def test_connection_persistence_with_flow_and_mcp_tool(
+    caplog: pytest.LogCaptureFixture, mcp_fooza_tool
+) -> None:
+    flow, message_pattern = get_simple_mcp_flow_and_message_pattern(mcp_fooza_tool)
+    logger = logging.getLogger("httpx")
+    logger.propagate = True  # necessary so that the caplog handler can capture logging messages
+    caplog.set_level(logging.INFO)
+    # ^ setting pytest to capture log messages of level INFO or above
+
+    conv = flow.start_conversation(inputs={"a": 1, "b": 1})
+    _ = conv.execute()
+
+    all_session_ids = re.findall(message_pattern, caplog.text)
+    assert len(set(all_session_ids)) == 1
+    # ^ note: There is actually one more for the initial fetch (no conversation) but it is not captured here
+
+
+@pytest.mark.anyio
+async def test_connection_persistence_with_flow_and_mcp_tool_async(
+    caplog: pytest.LogCaptureFixture,
+    mcp_fooza_tool,
+) -> None:
+    flow, message_pattern = get_simple_mcp_flow_and_message_pattern(mcp_fooza_tool)
+    logger = logging.getLogger("httpx")
+    logger.propagate = True  # necessary so that the caplog handler can capture logging messages
+    caplog.set_level(logging.INFO)
+    # ^ setting pytest to capture log messages of level INFO or above
+
+    conv = flow.start_conversation(inputs={"a": 1, "b": 1})
+    _ = await conv.execute_async()
+
+    all_session_ids = re.findall(message_pattern, caplog.text)
+    assert len(set(all_session_ids)) == 1
+    # ^ note: There is actually one more for the initial fetch (no conversation) but it is not captured here

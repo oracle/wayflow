@@ -19,6 +19,8 @@ from typing import Optional, Tuple
 import httpx
 import pytest
 
+from wayflowcore.mcp._session_persistence import shutdown_mcp_async_runtime
+
 _START_SERVER_FILE_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "start_mcp_server.py"
 )
@@ -225,7 +227,7 @@ def _start_mcp_server(
     client_key_path: Optional[str] = None,
     client_cert_path: Optional[str] = None,
     ready_timeout_s: float = 10.0,
-) -> Tuple[subprocess.Popen, str]:
+) -> Tuple[subprocess.Popen, str, LogTee]:
     process_args = [
         "python",
         "-u",  # unbuffered output
@@ -286,7 +288,7 @@ def _start_mcp_server(
                 url, client_key_path, client_cert_path, ca_cert_path, timeout_s=0.5
             ):
                 print("Server is up.", flush=True)
-                return process, url
+                return process, url, tee
             time.sleep(0.2)
 
         # Timed out
@@ -297,8 +299,6 @@ def _start_mcp_server(
     except Exception as e:
         _terminate_process_tree(process, timeout=5.0)
         raise e
-    finally:
-        tee.stop()
 
 
 def register_mcp_server_fixture(
@@ -309,11 +309,18 @@ def register_mcp_server_fixture(
         resolved = {name: request.getfixturevalue(name) for name in deps}
         kwargs = {**start_kwargs, **resolved}
 
-        process, url = _start_mcp_server(**kwargs)
+        process, url, tee = _start_mcp_server(**kwargs)
         try:
             yield f"{url}/{url_suffix.strip('/')}"
         finally:
+            shutdown_mcp_async_runtime()
+            # ^ The MCP sessions are closed before the servers are
+            # stopped to avoid sse_reader issues (solves the error:
+            # `peer closed connection without sending complete message body
+            # (incomplete chunked read)`)
             _terminate_process_tree(process, timeout=5.0)
+            tee.stop()  # this needs to be stopped after the
+            # MCP server so that the stdout is closed.
 
     return pytest.fixture(scope="session", name=name)(_fixture)
 

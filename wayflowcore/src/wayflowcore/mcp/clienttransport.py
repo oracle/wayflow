@@ -7,22 +7,23 @@
 import datetime
 import ssl
 from abc import ABC, abstractmethod
-from contextlib import asynccontextmanager
 from dataclasses import asdict, dataclass, field
-from typing import Any, AsyncIterator, Callable, ClassVar, Dict, List, Literal, Optional
+from typing import Any, Callable, ClassVar, Dict, List, Literal, Optional
 
 import httpx
-from mcp import ClientSession
 from mcp.client.auth import OAuthClientProvider
 from mcp.client.sse import sse_client
 from mcp.client.stdio import StdioServerParameters, stdio_client
 from mcp.client.streamable_http import streamablehttp_client
+from typing_extensions import TypeAlias
 
 from wayflowcore.serialization.serializer import (
     SerializableDataclass,
     SerializableDataclassMixin,
     SerializableObject,
 )
+
+ClientTransportContextManagerType: TypeAlias = Any
 
 
 @dataclass
@@ -53,9 +54,12 @@ class ClientTransport(SerializableObject, ABC):
     to an MCP server, and providing a ClientSession within an async context.
     """
 
+    session_parameters: SessionParameters = field(default_factory=SessionParameters)
+    """Arguments for the MCP session."""
+
     @abstractmethod
-    def _connect_session(self) -> ClientSession:
-        """Creates and return a client session"""
+    def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
+        """Return the client transport context manager"""
 
 
 class ClientTransportWithAuth(ClientTransport, ABC):
@@ -127,9 +131,8 @@ class StdioTransport(SerializableDataclass, ClientTransport):
     session_parameters: SessionParameters = field(default_factory=SessionParameters)
     """Arguments for the MCP session."""
 
-    @asynccontextmanager
-    async def _connect_session(self) -> AsyncIterator[ClientSession]:  # type: ignore
-        client = stdio_client(
+    def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
+        return stdio_client(
             server=StdioServerParameters(
                 command=self.command,
                 args=self.args,
@@ -139,8 +142,6 @@ class StdioTransport(SerializableDataclass, ClientTransport):
                 encoding_error_handler=self.encoding_error_handler,
             )
         )
-        async with _connect_mcp_session_with(client, self.session_parameters) as session:
-            yield session
 
 
 @dataclass
@@ -245,9 +246,8 @@ class SSETransport(RemoteBaseTransport, ClientTransportWithAuth, SerializableObj
 
     """
 
-    @asynccontextmanager
-    async def _connect_session(self) -> AsyncIterator[ClientSession]:  # type: ignore
-        client = sse_client(
+    def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
+        return sse_client(
             url=self.url,
             headers=self.headers,
             timeout=self.timeout,
@@ -257,8 +257,6 @@ class SSETransport(RemoteBaseTransport, ClientTransportWithAuth, SerializableObj
                 verify=False, follow_redirects=self.follow_redirects
             ),
         )
-        async with _connect_mcp_session_with(client, self.session_parameters) as session:
-            yield session
 
 
 @dataclass
@@ -319,9 +317,8 @@ class SSEmTLSTransport(HTTPmTLSBaseTransport, ClientTransportWithAuth, Serializa
 
     """
 
-    @asynccontextmanager
-    async def _connect_session(self) -> AsyncIterator[ClientSession]:  # type: ignore
-        client = sse_client(
+    def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
+        return sse_client(
             self.url,
             headers=self.headers,
             timeout=self.timeout,
@@ -335,8 +332,6 @@ class SSEmTLSTransport(HTTPmTLSBaseTransport, ClientTransportWithAuth, Serializa
                 follow_redirects=self.follow_redirects,
             ),
         )
-        async with _connect_mcp_session_with(client, self.session_parameters) as session:
-            yield session
 
 
 @dataclass
@@ -356,9 +351,8 @@ class StreamableHTTPTransport(RemoteBaseTransport, ClientTransportWithAuth, Seri
 
     """
 
-    @asynccontextmanager
-    async def _connect_session(self) -> AsyncIterator[ClientSession]:  # type: ignore
-        client = streamablehttp_client(
+    def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
+        return streamablehttp_client(
             url=self.url,
             headers=self.headers,
             timeout=datetime.timedelta(seconds=self.timeout),
@@ -368,8 +362,6 @@ class StreamableHTTPTransport(RemoteBaseTransport, ClientTransportWithAuth, Seri
                 verify=False, follow_redirects=self.follow_redirects
             ),
         )
-        async with _connect_mcp_session_with(client, self.session_parameters) as session:
-            yield session
 
 
 @dataclass
@@ -411,9 +403,8 @@ class StreamableHTTPmTLSTransport(
 
     """
 
-    @asynccontextmanager
-    async def _connect_session(self) -> AsyncIterator[ClientSession]:  # type: ignore
-        client = streamablehttp_client(
+    def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
+        return streamablehttp_client(
             url=self.url,
             headers=self.headers,
             timeout=datetime.timedelta(seconds=self.timeout),
@@ -427,18 +418,3 @@ class StreamableHTTPmTLSTransport(
                 follow_redirects=self.follow_redirects,
             ),
         )
-        async with _connect_mcp_session_with(client, self.session_parameters) as session:
-            yield session
-
-
-@asynccontextmanager
-async def _connect_mcp_session_with(
-    client: Any, session_parameters: SessionParameters
-) -> AsyncIterator[ClientSession]:
-    async with client as transport:
-        read_stream, write_stream = transport[0], transport[1]
-        async with ClientSession(
-            read_stream, write_stream, **session_parameters.to_dict()
-        ) as session:
-            await session.initialize()
-            yield session

@@ -4,6 +4,17 @@ Changelog
 WayFlow 26.1.0
 --------------
 
+Improvements
+^^^^^^^^^^^^
+
+* **Connection persistence for MCP servers:**
+
+  MCP client sessions are now reused which improves MCP calls latency and enables
+  uses where maintaining a session is required.
+
+  This does not require any change to existing assistants or execution loops.
+
+
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
