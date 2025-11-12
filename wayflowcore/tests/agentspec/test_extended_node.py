@@ -29,6 +29,7 @@ from wayflowcore.agentspec.components import (
     PluginOutputMessageNode,
     PluginReadVariableNode,
     PluginWriteVariableNode,
+    all_deserialization_plugin,
 )
 from wayflowcore.agentspec.components.datastores import (
     PluginOracleDatabaseConnectionConfig,
@@ -407,5 +408,7 @@ ALL_NODE_SUBCLASSES = sorted(list(ExtendedNode._get_all_subclasses()), key=lambd
     ],
 )
 def test_extended_node_can_be_partially_constructed_out_of_nothing(extended_node_cls) -> None:
-    partially_constructed_node = extended_node_cls.build_from_partial_config({"name": "node"})
+    partially_constructed_node = extended_node_cls.build_from_partial_config(
+        {"name": "node"}, plugins=all_deserialization_plugin
+    )
     assert isinstance(partially_constructed_node, extended_node_cls)
