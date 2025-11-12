@@ -1067,11 +1067,6 @@ class RuntimeToAgentSpecConverter:
 
         metadata = _create_agentspec_metadata_from_runtime_component(runtime_tool)
 
-        if runtime_tool.requires_confirmation:
-            raise NotImplementedError(
-                "Conversion of Tools requiring confirmation to AgentSpec is not supported yet"
-            )
-
         # We need to check the RemoteTool first, as it is also an instance of ServerTool
         if isinstance(runtime_tool, RuntimeRemoteTool):
 
@@ -1097,6 +1092,7 @@ class RuntimeToAgentSpecConverter:
                 headers=(
                     inner_api_step.headers if isinstance(inner_api_step.headers, dict) else dict()
                 ),
+                requires_confirmation=runtime_tool.requires_confirmation,
                 metadata=metadata,
                 id=runtime_tool.id,
             )
@@ -1117,6 +1113,7 @@ class RuntimeToAgentSpecConverter:
                 client_transport=self._mcp_clienttransport_convert_to_agentspec(
                     runtime_tool.client_transport, referenced_objects
                 ),
+                requires_confirmation=runtime_tool.requires_confirmation,
                 id=runtime_tool.id,
             )
         elif isinstance(runtime_tool, RuntimeServerTool):
@@ -1132,6 +1129,7 @@ class RuntimeToAgentSpecConverter:
                     _runtime_property_to_pyagentspec_property(output)
                     for output in runtime_tool.output_descriptors or []
                 ],
+                requires_confirmation=runtime_tool.requires_confirmation,
                 id=runtime_tool.id,
             )
         elif isinstance(runtime_tool, RuntimeClientTool):
@@ -1147,6 +1145,7 @@ class RuntimeToAgentSpecConverter:
                     _runtime_property_to_pyagentspec_property(output)
                     for output in runtime_tool.output_descriptors or []
                 ],
+                requires_confirmation=runtime_tool.requires_confirmation,
                 id=runtime_tool.id,
             )
         else:
@@ -1438,11 +1437,6 @@ class RuntimeToAgentSpecConverter:
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecMCPToolSpec:
 
-        if runtime_mcptoolspec.requires_confirmation:
-            raise NotImplementedError(
-                "Conversion of Tools requiring confirmation to AgentSpec is not supported yet"
-            )
-
         return AgentSpecMCPToolSpec(
             name=runtime_mcptoolspec.name,
             description=runtime_mcptoolspec.description,
@@ -1454,6 +1448,7 @@ class RuntimeToAgentSpecConverter:
                 _runtime_property_to_pyagentspec_property(output)
                 for output in runtime_mcptoolspec.output_descriptors or []
             ],
+            requires_confirmation=runtime_mcptoolspec.requires_confirmation,
             metadata=_create_agentspec_metadata_from_runtime_component(runtime_mcptoolspec),
         )
 

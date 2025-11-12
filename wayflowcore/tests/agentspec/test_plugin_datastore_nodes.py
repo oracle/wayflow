@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+from wayflowcore.agentspec.components import all_deserialization_plugin
 from wayflowcore.agentspec.components.datastores.nodes import PluginDatastoreCreateNode
 
 
@@ -13,6 +14,8 @@ def test_plugin_datastore_create_node_can_be_partially_constructed() -> None:
         "metadata": {"__studio__": {"expanded": True, "position_x": -1458.5, "position_y": -955.0}},
         "name": "fancy_name",
     }
-    plugin_component = PluginDatastoreCreateNode.build_from_partial_config(partial_config)
+    plugin_component = PluginDatastoreCreateNode.build_from_partial_config(
+        partial_config, plugins=all_deserialization_plugin
+    )
     assert isinstance(plugin_component, PluginDatastoreCreateNode)
     assert plugin_component.name == "fancy_name"

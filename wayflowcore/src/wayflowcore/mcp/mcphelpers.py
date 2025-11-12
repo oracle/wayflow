@@ -168,10 +168,12 @@ async def get_server_tools_from_mcp_server(
                     remote_input_descriptors,
                 )
             description = expected_tool_signature.description
+            requires_confirmation = expected_tool_signature.requires_confirmation
         else:
             # we use the ones exposed by the MCP server
             input_descriptors = remote_input_descriptors
             description = remote_description
+            requires_confirmation = False
 
         processed_tool_signatures.append(
             MCPTool(
@@ -180,6 +182,7 @@ async def get_server_tools_from_mcp_server(
                 input_descriptors=input_descriptors,
                 client_transport=client_transport,
                 _validate_tool_exist_on_server=False,
+                requires_confirmation=requires_confirmation,
             )
         )
     return processed_tool_signatures

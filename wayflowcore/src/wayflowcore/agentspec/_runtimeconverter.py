@@ -894,6 +894,7 @@ class AgentSpecToRuntimeConverter:
                     self._convert_property_to_runtime(output_property)
                     for output_property in agentspec_component.outputs or []
                 ],
+                requires_confirmation=agentspec_component.requires_confirmation,
                 id=agentspec_component.id,
                 _validate_server_exists=False,
                 _validate_tool_exist_on_server=False,
@@ -1028,6 +1029,7 @@ class AgentSpecToRuntimeConverter:
                         for output_property in agentspec_component.outputs or []
                     ],
                     func=tool,
+                    requires_confirmation=agentspec_component.requires_confirmation,
                     id=agentspec_component.id,
                 )
             raise ValueError(f"Unexpected tool type provided in the tool_registry: {type(tool)}")
@@ -1581,6 +1583,7 @@ class AgentSpecToRuntimeConverter:
                     agentspec_component.query_params if agentspec_component.query_params else None
                 ),
                 headers=agentspec_component.headers if agentspec_component.headers else None,
+                requires_confirmation=agentspec_component.requires_confirmation,
                 **self._get_component_arguments(agentspec_component),
             )
 
@@ -1594,6 +1597,7 @@ class AgentSpecToRuntimeConverter:
                     self._convert_property_to_runtime(output_property)
                     for output_property in agentspec_component.outputs or []
                 ],
+                requires_confirmation=agentspec_component.requires_confirmation,
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, (AgentSpecPluginMCPToolSpec, AgentSpecMCPToolSpec)):
@@ -1606,6 +1610,7 @@ class AgentSpecToRuntimeConverter:
                     self._convert_property_to_runtime(output_property)
                     for output_property in agentspec_component.outputs or []
                 ],
+                requires_confirmation=agentspec_component.requires_confirmation,
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(
