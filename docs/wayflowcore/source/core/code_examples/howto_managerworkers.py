@@ -128,6 +128,8 @@ refund_specialist_agent = Agent(
 )
 # .. end-##_Specialist_agent
 
+refund_specialist_agent.raise_exceptions = False # docs-skiprow
+
 # .. start-##_Specialist_test
 refund_conversation = refund_specialist_agent.start_conversation()
 refund_conversation.append_user_message(
@@ -203,6 +205,8 @@ surveyor_agent = Agent(
     agent_id="SatisfactionSurveyor",  # for the `print_messages` utility function
 )
 # .. end-##_Surveyor_agent
+
+surveyor_agent.raise_exceptions = False # docs-skiprow
 
 # .. start-##_Surveyor_test
 surveyor_conversation = surveyor_agent.start_conversation()

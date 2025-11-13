@@ -8,6 +8,7 @@ import logging
 import re
 import warnings
 from abc import ABC
+from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import cache
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Union
@@ -177,6 +178,51 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
         else:
             return param_type in VALID_JSON_TYPES
 
+    def _check_tool_outputs_copyable(self, tool_outputs: Any, raise_exceptions: bool) -> Any:
+        """
+        Ensure that the tool outputs can be safely deep-copied.
+
+        If any output value cannot be copied:
+        - Raises TypeError if `raise_exceptions` is True.
+        - Otherwise warns and converts the uncopyable value(s) to string.
+
+        Args:
+            tool_outputs: The output returned by a tool, either a single value or a dict of values.
+            raise_exceptions: Whether to raise an exception for uncopyable values.
+
+        Returns:
+            Copyable version of `tool_outputs` where uncopyable items are replaced with strings.
+        """
+
+        def handle_uncopyable(value: Any, key: Optional[str] = None) -> Any:
+            try:
+                deepcopy(value)
+                return value
+            except Exception as e:
+                name = f" for arg '{key}'" if key else ""
+                msg = f"Tool output is not copyable{name} ({type(value).__name__}: {e})."
+                if raise_exceptions:
+                    raise TypeError(
+                        msg + " This prevents the value from being passed as a message to the LLM."
+                    ) from e
+
+                warnings.warn(
+                    msg
+                    + " The value has been automatically converted to its string representation.",
+                    UserWarning,
+                )
+                return str(value)
+
+        # Multiple outputs (dict)
+        if len(self.output_descriptors) > 1 and isinstance(tool_outputs, dict):
+            safe_output: Dict[str, Any] = {}
+            for key, value in tool_outputs.items():
+                safe_output[key] = handle_uncopyable(value, key)
+            return safe_output
+
+        # Single output
+        return handle_uncopyable(tool_outputs, None)
+
     def _add_defaults_to_tool_outputs(self, tool_outputs: Any) -> Any:
         """
         In this method, in case we have multiple expected outputs we retrieve default values
@@ -200,6 +246,7 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
                             f"An output named {tool_descriptor.name} is expected, but no value with this name was returned. "
                             f"The names of the outputs returned by the tool are: {', '.join(tool_outputs.keys())}."
                         )
+
         return tool_outputs
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:

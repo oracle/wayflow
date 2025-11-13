@@ -832,6 +832,7 @@ class AgentSpecToRuntimeConverter:
                 extra_arguments["can_finish_conversation"] = (
                     agentspec_component.can_finish_conversation
                 )
+                extra_arguments["raise_exceptions"] = agentspec_component.raise_exceptions
                 extra_arguments["max_iterations"] = agentspec_component.max_iterations
                 extra_arguments["initial_message"] = agentspec_component.initial_message
                 extra_arguments["caller_input_mode"] = agentspec_component.caller_input_mode

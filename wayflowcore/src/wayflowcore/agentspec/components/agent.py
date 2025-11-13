@@ -31,6 +31,8 @@ class ExtendedAgent(Agent):
     """Context providers for jinja variables in the ``system_prompt``."""
     can_finish_conversation: bool = False
     """Whether the agent can decide to end the conversation or not."""
+    raise_exceptions: bool = False
+    """Whether exceptions from sub-executions (tool, sub-agent, or sub-flow execution) are raised or not."""
     max_iterations: int = 10
     """Maximum number of calls to the agent executor before yielding back to the user."""
     initial_message: Optional[str] = NOT_SET_INITIAL_MESSAGE

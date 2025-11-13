@@ -26,9 +26,10 @@ from wayflowcore.tools.toolhelpers import DescriptionMode, tool
 def get_wikipedia_page_content(topic: str) -> str:
     """Looks for information and sources on internet about a given topic."""
     url = "https://en.wikipedia.org/w/api.php"
+    headers = {"User-Agent": "MyApp/1.0 (https://example.com; myemail@example.com)"}
 
     response = httpx.get(
-        url, params={"action": "query", "format": "json", "list": "search", "srsearch": topic}
+        url, params={"action": "query", "format": "json", "list": "search", "srsearch": topic}, headers=headers,
     )
     # extract page id
     data = response.json()
@@ -47,6 +48,7 @@ def get_wikipedia_page_content(topic: str) -> str:
             "explaintext": True,
             "pageids": page_id,
         },
+        headers=headers,
     )
 
     # extract page content
