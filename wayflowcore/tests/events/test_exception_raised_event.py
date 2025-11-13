@@ -310,6 +310,7 @@ def test_event_is_triggered_only_once(
                                 agent=Agent(
                                     agent_id="a123",
                                     custom_instruction="Be polite",
+                                    raise_exceptions=True,
                                     llm=create_dummy_llm_with_next_output(
                                         {
                                             "Please use the tool": Message(

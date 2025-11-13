@@ -1050,3 +1050,41 @@ def test_tool_given_wrong_tool_result_format_raises():
     )
     with pytest.raises(ValueError, match="The tool `my_tool` did not return all expected outputs."):
         _ = conversation.execute()
+
+
+def flow_with_uncopyable_object(raise_exceptions: bool) -> Flow:
+    class UncopyableObject:
+        def __deepcopy__(self, memo):
+            raise TypeError("Cannot copy this object")
+
+    tool = ServerTool(
+        name="return_uncopyable_output",
+        description="Return object that cannot be copied",
+        input_descriptors=[],
+        output_descriptors=[
+            ObjectProperty(name="a", description="returned object"),
+        ],
+        func=(lambda: UncopyableObject()),
+    )
+
+    tool_step = ToolExecutionStep(tool=tool, raise_exceptions=raise_exceptions)
+
+    flow = Flow.from_steps([tool_step])
+
+    return flow
+
+
+def test_tool_step_raises_error_for_uncopyable_tool_result_with_raise_exceptions():
+    flow = flow_with_uncopyable_object(raise_exceptions=True)
+
+    conv = flow.start_conversation()
+    with pytest.raises(TypeError, match="Tool output is not copyable"):
+        conv.execute()
+
+
+def test_tool_step_warns_for_uncopyable_tool_result_without_raise_exceptions():
+    flow = flow_with_uncopyable_object(raise_exceptions=False)
+
+    conv = flow.start_conversation()
+    with pytest.raises(UserWarning, match="Tool output is not copyable"):
+        conv.execute()

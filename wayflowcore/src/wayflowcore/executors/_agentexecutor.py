@@ -432,22 +432,28 @@ class AgentConversationExecutor(ConversationExecutor):
         agent_inputs: Dict[str, Any],
         caller_request_message: Message,
     ) -> Tuple[Any, str, ExecutionStatus]:
-        sub_agent_conversation = (
-            AgentConversationExecutor._get_or_create_expert_agent_subconversation(
-                caller_config=config,
-                caller_conv=caller_conv,
-                caller_messages=messages,
-                expert_agent=expert_agent,
-                inputs=agent_inputs,
-                caller_request_message=caller_request_message,
+        agent_output: Any = None
+        try:
+            sub_agent_conversation = (
+                AgentConversationExecutor._get_or_create_expert_agent_subconversation(
+                    caller_config=config,
+                    caller_conv=caller_conv,
+                    caller_messages=messages,
+                    expert_agent=expert_agent,
+                    inputs=agent_inputs,
+                    caller_request_message=caller_request_message,
+                )
             )
-        )
-        caller_conv._set_sub_component_conversation(expert_agent, sub_agent_conversation)
-        subagent_execution_status = await sub_agent_conversation.execute_async()
+            caller_conv._set_sub_component_conversation(expert_agent, sub_agent_conversation)
+            subagent_execution_status = await sub_agent_conversation.execute_async()
 
-        last_message = sub_agent_conversation.get_last_message()
-        agent_output = last_message.content if last_message is not None else ""
-        serialized_output = _serialize_output(agent_output)
+            last_message = sub_agent_conversation.get_last_message()
+            agent_output = last_message.content if last_message is not None else ""
+            serialized_output = _serialize_output(agent_output)
+        except Exception as e:
+            agent_output = e
+            serialized_output = str(e)
+            subagent_execution_status = FinishedStatus(output_values={})
 
         if isinstance(subagent_execution_status, FinishedStatus):
             # reset state if agent finishes
@@ -467,34 +473,40 @@ class AgentConversationExecutor(ConversationExecutor):
         The outputs will always be None, unless the execution status is
         FinishedStatus.
         """
-        if state.current_flow_conversation is None:
-            state.current_flow_conversation = flow.start_conversation(
-                inputs=inputs,
-                messages=messages,
-            )
-            messages.append_message(
-                Message(
-                    content=_get_start_filtering_delimiter(state=state),
-                    message_type=MessageType.INTERNAL,
+        outputs: Any = None
+        try:
+            if state.current_flow_conversation is None:
+                state.current_flow_conversation = flow.start_conversation(
+                    inputs=inputs,
+                    messages=messages,
                 )
-            )
-        flow_conversation = state.current_flow_conversation
-        # We propagate the interrupts that work on flows, e.g., time limit and token limit
-        interrupts = [
-            interrupt
-            for interrupt in (state._get_execution_interrupts() or [])
-            if isinstance(interrupt, FlowExecutionInterrupt)
-        ]
-        status = await flow_conversation.execute_async(execution_interrupts=interrupts)
-        if not isinstance(status, FinishedStatus):
-            return None, "None", status
+                messages.append_message(
+                    Message(
+                        content=_get_start_filtering_delimiter(state=state),
+                        message_type=MessageType.INTERNAL,
+                    )
+                )
+            flow_conversation = state.current_flow_conversation
+            # We propagate the interrupts that work on flows, e.g., time limit and token limit
+            interrupts = [
+                interrupt
+                for interrupt in (state._get_execution_interrupts() or [])
+                if isinstance(interrupt, FlowExecutionInterrupt)
+            ]
+            status = await flow_conversation.execute_async(execution_interrupts=interrupts)
 
-        outputs = status.output_values
-        if len(outputs) == 1:
-            # if single output, just unwrap it
-            outputs = next(iter(outputs.values()))
+            if not isinstance(status, FinishedStatus):
+                return None, "None", status
+
+            outputs = status.output_values
+            if len(outputs) == 1:
+                # if single output, just unwrap it
+                outputs = next(iter(outputs.values()))
+        except Exception as e:
+            outputs = e
+            status = FinishedStatus(output_values={})
+
         state.current_flow_conversation = None
-
         messages.append_message(
             Message(
                 content=_get_end_filtering_delimiter(state=state),
@@ -650,6 +662,11 @@ class AgentConversationExecutor(ConversationExecutor):
             serialized_output,
             agent_execution_status,
         )
+
+        if isinstance(output, Exception) and config.raise_exceptions:
+            # Raise error in sub-agent execution
+            raise output
+
         if isinstance(agent_execution_status, (FinishedStatus, UserMessageRequestStatus)):
             messages.append_message(
                 AgentConversationExecutor._get_tool_response_message(
@@ -679,12 +696,18 @@ class AgentConversationExecutor(ConversationExecutor):
         output, serialized_output, flow_execution_status = (
             await AgentConversationExecutor._execute_flow(state, messages, flow, tool_request.args)
         )
+
         logger.debug(
             'Flow "%s" (id=%s) returned: %s',
             tool_request.name,
             tool_request.tool_request_id,
             serialized_output,
         )
+
+        if isinstance(output, Exception) and config.raise_exceptions:
+            # Raise error in sub-flow execution
+            raise output
+
         if isinstance(flow_execution_status, FinishedStatus):
             messages.append_message(
                 AgentConversationExecutor._get_tool_response_message(
@@ -809,12 +832,23 @@ class AgentConversationExecutor(ConversationExecutor):
                 span.record_end_span_event(
                     output=output,
                 )
+
             logger.debug(
                 'Tool "%s" (id=%s) returned: %s',
                 tool_request.name,
                 tool_request.tool_request_id,
                 serialized_output,
             )
+
+            if isinstance(output, Exception) and config.raise_exceptions:
+                # Raise error in tool execution
+                raise output
+
+            # Check if tool output is copyable
+            output = tool._check_tool_outputs_copyable(
+                output, raise_exceptions=config.raise_exceptions
+            )
+
             messages.append_message(
                 AgentConversationExecutor._get_tool_response_message(
                     output, tool_request.tool_request_id, config.agent_id
@@ -916,7 +950,6 @@ class AgentConversationExecutor(ConversationExecutor):
                 tool_request=tool_request,
                 messages=conversation.message_list,
             )
-
             if tool_execution_status and tool_execution_status._requires_yielding:
                 return tool_execution_status, True
 

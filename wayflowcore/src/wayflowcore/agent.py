@@ -72,6 +72,8 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
     """Context providers for variables present in the custom instructions of the agent"""
     can_finish_conversation: bool
     """Whether the agent can just exist the conversation when thinks it is done helping the user"""
+    raise_exceptions: bool
+    """Whether exceptions from sub-executions (tool, sub-agent, or sub-flow execution) are raised or not."""
     initial_message: Optional[str]
     """Initial hardcoded message the agent might post if it doesn't have any user message in the conversation"""
     caller_input_mode: CallerInputMode
@@ -116,6 +118,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         max_iterations: int = 10,
         context_providers: Optional[List["ContextProvider"]] = None,
         can_finish_conversation: bool = False,
+        raise_exceptions: bool = False,
         initial_message: Optional[str] = NOT_SET_INITIAL_MESSAGE,
         caller_input_mode: CallerInputMode = CallerInputMode.ALWAYS,
         input_descriptors: Optional[List["Property"]] = None,
@@ -188,12 +191,14 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             Context providers for jinja variables in the custom_instruction.
         can_finish_conversation
             Whether the agent can decide to end the conversation or not.
+        raise_exceptions
+            Whether exceptions from sub-executions (tool, sub-agent, or sub-flow execution) are raised or not.
         initial_message:
             Initial message the agent will post if no previous user message. It must be None for `CallerInputMode.NEVER`
             If None for `CallerInputMode.ALWAYS`, the LLM will generate it given the `custom_instruction`. Default to
             `Agent.DEFAULT_INITIAL_MESSAGE` for `CallerInputMode.ALWAYS` and None for `CallerInputMode.NEVER`.
         caller_input_mode:
-            whether the agent is allowed to ask the user questions (CallerInputMode.ALWAYS) or not (CallerInputMode.NEVER).
+            Whether the agent is allowed to ask the user questions (CallerInputMode.ALWAYS) or not (CallerInputMode.NEVER).
             If set to NEVER, the agent won't be able to yield.
         input_descriptors:
             Input descriptors of the agent. ``None`` means the agent will resolve the input descriptors automatically in a best effort manner.
@@ -305,6 +310,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self.max_iterations = max_iterations
         self.context_providers = context_providers or []
         self.can_finish_conversation = can_finish_conversation
+        self.raise_exceptions = raise_exceptions
         self.initial_message = initial_message
         self.caller_input_mode = caller_input_mode
         self._add_talk_to_user_tool = _add_talk_to_user_tool

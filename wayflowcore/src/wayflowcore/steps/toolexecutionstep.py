@@ -412,6 +412,9 @@ class ToolExecutionStep(Step):
             span.record_end_span_event(
                 output=tool_output,
             )
+
+        tool_output = tool._check_tool_outputs_copyable(tool_output, self.raise_exceptions)
+
         return StepResult(
             outputs=self._convert_tool_output_into_output_dict(
                 tool=tool,

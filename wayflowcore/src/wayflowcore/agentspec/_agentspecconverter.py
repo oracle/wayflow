@@ -1643,6 +1643,12 @@ class RuntimeToAgentSpecConverter:
                 )
             )
             or (
+                raise_exceptions := (
+                    runtime_agent.raise_exceptions
+                    != extended_agent_model_fields["raise_exceptions"].default
+                )
+            )
+            or (
                 maxiter_default := (
                     runtime_agent.max_iterations
                     != extended_agent_model_fields["max_iterations"].default
