@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 from wayflowcore._metadata import MetadataType
 
 from .llmgenerationconfig import LlmGenerationConfig
-from .openaicompatiblemodel import OpenAICompatibleModel
+from .openaicompatiblemodel import EMPTY_API_KEY, OpenAICompatibleModel
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +91,7 @@ class VllmModel(OpenAICompatibleModel):
             base_url=host_port,
             model_id=model_id,
             proxy=proxy,
+            api_key=EMPTY_API_KEY,
             generation_config=generation_config,
             supports_structured_generation=supports_structured_generation,
             supports_tool_calling=supports_tool_calling,

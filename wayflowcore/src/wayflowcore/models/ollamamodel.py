@@ -12,7 +12,7 @@ from wayflowcore.messagelist import Message, MessageType, TextContent
 
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import Prompt
-from .openaicompatiblemodel import OpenAICompatibleModel
+from .openaicompatiblemodel import EMPTY_API_KEY, OpenAICompatibleModel
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +101,7 @@ class OllamaModel(OpenAICompatibleModel):
             model_id=model_id,
             base_url=host_port,
             proxy=proxy,
+            api_key=EMPTY_API_KEY,
             generation_config=generation_config,
             supports_tool_calling=supports_tool_calling,
             supports_structured_generation=supports_structured_generation,
