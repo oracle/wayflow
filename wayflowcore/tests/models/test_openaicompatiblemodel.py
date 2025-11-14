@@ -3,10 +3,12 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+import os
 import time
 from contextlib import contextmanager, nullcontext
 from json import JSONDecodeError
 from typing import Any, Dict
+from unittest import mock
 from unittest.mock import Mock, patch
 
 import httpx
@@ -353,3 +355,36 @@ def test_model_returns_error_streaming(remote_gemma_llm):
     with pytest.raises(Exception, match="API streaming request failed with status code 400"):
         for chunk in remote_gemma_llm.stream_generate(prompt=ERRONEOUS_GEMMA_PROMPT):
             pass
+
+
+@pytest.mark.parametrize(
+    "base_url, expected",
+    [
+        ("https://www.example.com/v1/", "https://www.example.com/v1/chat/completions"),
+        (
+            "https://www.example.com/v1/chat/completions",
+            "https://www.example.com/v1/chat/completions",
+        ),
+        ("http://www.example.com", "http://www.example.com/v1/chat/completions"),
+        ("www.example.com/v1", "http://www.example.com/v1/chat/completions"),
+        ("127.0.0.1:8080", "http://127.0.0.1:8080/v1/chat/completions"),
+    ],
+    ids=["https", "https-full", "http", "no-scheme/v1", "localhost"],
+)
+def test_model_calls_correct_url(base_url, expected):
+    prompt = Prompt(messages=[Message(role="user", content="hello")])
+    payload = OpenAICompatibleModel(
+        model_id="my.model-id", base_url=base_url
+    )._generate_request_params(prompt)
+    assert payload["url"] == expected
+    if os.environ.get("OPENAI_API_KEY") is None:
+        assert payload.get("headers", {}).get("Authorization") is None  # no api_key was specified
+
+
+@mock.patch.dict(os.environ, {"OPENAI_API_KEY": "sk-012-MOCKED_KEY"})
+def test_model_has_correct_api_key():
+    prompt = Prompt(messages=[Message(role="user", content="hello")])
+    payload = OpenAICompatibleModel(
+        model_id="my.model-id", base_url="my_awesome_llm"
+    )._generate_request_params(prompt)
+    assert payload.get("headers", {}).get("Authorization") == "Bearer sk-012-MOCKED_KEY"
