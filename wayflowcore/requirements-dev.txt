@@ -17,7 +17,7 @@ sphinx_design==0.6.1
 psutil
 
 # install package
--c constraints/constraints.txt
+-c constraints/constraints_dev.txt
 -e .[oci,datastore]
 
 # For mypy type-checking stubs
