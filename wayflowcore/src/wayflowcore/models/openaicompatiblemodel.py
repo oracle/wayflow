@@ -5,6 +5,7 @@
 # 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
 import json
 import logging
+import os
 from typing import TYPE_CHECKING, Any, AsyncIterable, AsyncIterator, Callable, Dict, List, Optional
 
 from wayflowcore._metadata import MetadataType
@@ -30,6 +31,8 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+EMPTY_API_KEY = "<[EMPTY#KEY]>"
 
 
 class OpenAICompatibleModel(LlmModel):
@@ -61,8 +64,9 @@ class OpenAICompatibleModel(LlmModel):
         proxy:
             Proxy to use to connect to the remote LLM endpoint
         api_key:
-            API key to use for the request if needed. It will be formatted in the OpenAI format
+            API key to use for the request if needed. It will be formatted in the OpenAI format.
             (as "Bearer API_KEY" in the request header)
+            If not provided, will attempt to read from the environment variable OPENAI_API_KEY
         generation_config:
             default parameters for text generation with this model
         supports_structured_generation:
@@ -90,9 +94,9 @@ class OpenAICompatibleModel(LlmModel):
         ... )
 
         """
-        self.base_url = _add_leading_http_if_needed(base_url)
+        self.base_url = base_url
         self.proxy = proxy
-        self.api_key = api_key
+        self.api_key = _resolve_api_key(api_key)
         self._retry_strategy = _RetryStrategy()
         super().__init__(
             model_id=model_id,
@@ -106,13 +110,8 @@ class OpenAICompatibleModel(LlmModel):
         )
 
     def _generate_request_params(self, prompt: "Prompt") -> Dict[str, Any]:
-        url = (
-            self.base_url
-            if self.base_url.endswith("/completions")
-            else f"{self.base_url}/v1/chat/completions"
-        )
         return dict(
-            url=url,
+            url=self._build_request_url(),
             headers=self._get_headers(),
             json={
                 "model": self.model_id,
@@ -120,6 +119,27 @@ class OpenAICompatibleModel(LlmModel):
                 **self._convert_generation_params(prompt.generation_config),
             },
         )
+
+    def _build_request_url(self) -> str:
+        base = self.base_url.strip()
+
+        # Default scheme if missing
+        if not base.startswith(("http://", "https://")):
+            base = "http://" + base
+
+        # Normalize trailing slash for checks
+        base = base.rstrip("/")
+
+        # If already points to chat completions, keep as is
+        if base.endswith("/chat/completions"):
+            return base
+
+        # If already ends with /v1, just append chat/completions
+        if base.endswith("/v1"):
+            return f"{base}/chat/completions"
+
+        # Otherwise, append /v1/chat/completions
+        return f"{base}/v1/chat/completions"
 
     async def _generate_impl(
         self,
@@ -231,7 +251,9 @@ def _add_leading_http_if_needed(url: str) -> str:
     """
     if "://" in url:
         return url
-
+    logger.info(
+        f"The provided LLM API URL `{url}` does not start with http:// or https://, prepending http:// to it"
+    )
     return f"http://{url}"
 
 
@@ -460,3 +482,23 @@ def _convert_openai_completion_into_message(response: Any) -> "Message":
     else:
         message = Message(role="assistant", contents=[TextContent(extracted_message["content"])])
     return message
+
+
+def _resolve_api_key(provided_api_key: Optional[str]) -> Optional[str]:
+    from .openaimodel import OPEN_API_KEY
+
+    env_api_key = os.environ.get(OPEN_API_KEY)
+    if provided_api_key == EMPTY_API_KEY:
+        # Placeholder provided: use env var if available; otherwise None. No warning.
+        api_key = env_api_key or None
+    elif provided_api_key:
+        # Explicit api_key provided: prioritize it (do nothing).
+        api_key = provided_api_key
+    else:
+        # api_key not provided: fall back to env var, warn if still missing.
+        api_key = env_api_key or None
+        if not api_key:
+            logger.warning(
+                "No api_key provided. It might be OK if it is not necessary to access the model. If however the access requires it, either specify the api_key parameter, or set the OPENAI_API_KEY environment variable."
+            )
+    return api_key

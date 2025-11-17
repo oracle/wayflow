@@ -376,24 +376,6 @@ from wayflowcore.transforms import (
 from wayflowcore.variable import Variable as RuntimeVariable
 
 
-def _format_llm_url(url: str) -> str:
-    if url.startswith("http://"):
-        url = url.replace("http://", "", 1)
-    elif url.startswith("https://"):
-        url = url.replace("https://", "", 1)
-    if "/v1/chat/completions" in url:
-        url = url.replace(
-            "/v1/chat/completions",
-            "",
-        )
-    elif "/v1" in url:
-        url = url.replace(
-            "/v1",
-            "",
-        )
-    return url
-
-
 def _format_embedding_model_url(url: str) -> str:
     if url.startswith("http://"):
         url = url.replace("http://", "", 1)
@@ -701,7 +683,7 @@ class AgentSpecToRuntimeConverter:
             return RuntimeVllmModel(
                 model_id=agentspec_component.model_id,
                 # TODO enable more flexibility in base url
-                host_port=_format_llm_url(agentspec_component.url),
+                host_port=agentspec_component.url,
                 generation_config=generation_config,
                 **self._get_component_arguments(agentspec_component),
             )
@@ -724,7 +706,7 @@ class AgentSpecToRuntimeConverter:
         elif isinstance(agentspec_component, AgentSpecOllamaModel):
             return RuntimeOllamaModel(
                 model_id=agentspec_component.model_id,
-                host_port=_format_llm_url(agentspec_component.url),
+                host_port=agentspec_component.url,
                 generation_config=generation_config,
                 **self._get_component_arguments(agentspec_component),
             )
@@ -737,7 +719,7 @@ class AgentSpecToRuntimeConverter:
         elif isinstance(agentspec_component, AgentSpecOpenAiCompatibleConfig):
             return RuntimeOpenAICompatibleModel(
                 model_id=agentspec_component.model_id,
-                base_url=_format_llm_url(agentspec_component.url),
+                base_url=agentspec_component.url,
                 generation_config=generation_config,
                 **self._get_component_arguments(agentspec_component),
             )
