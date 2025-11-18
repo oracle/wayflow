@@ -17,6 +17,12 @@ Bug fixes
 
   Fixed a bug where API URLs (for LLMs) are sometimes not correctly used internally.
 
+* **Remove global import of oci package and remove unused dependencies**
+
+  Fixed an import bug where the ``oci`` optional dependency was treated as a mandatory, global dependency.
+  In this patch, ``oci`` is an optional dependency, which can be installed with ``wayflowcore[oci]``.
+  Other unused dependencies are also removed.
+
 
 WayFlow 25.4.1 — Initial release
 --------------------------------

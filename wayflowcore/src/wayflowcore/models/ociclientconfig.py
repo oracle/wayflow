@@ -11,13 +11,21 @@ from abc import ABC
 from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, ClassVar, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, Optional, Union
 
+from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.warnings import SecurityWarning
 
 logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    # Important: do not move this import out of the TYPE_CHECKING block so long as oci is an optional dependency.
+    # Otherwise, importing the module when they are not installed would lead to an import error.
+    import oci  # type: ignore
+else:
+    oci = LazyLoader("oci")
 
 
 class _OCIAuthType(str, Enum):
@@ -233,8 +241,6 @@ class OCIUserAuthenticationConfig:
         self.region = region
 
         # validate the config
-        import oci  # type: ignore
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=SecurityWarning)
             oci.config.validate_config(self._get_config())
@@ -292,8 +298,6 @@ class OCIClientConfigWithUserAuthentication(OCIClientConfig):
 
 
 def _client_config_to_oci_client_kwargs(client_config: OCIClientConfig) -> Dict[str, Any]:
-    import oci
-
     client_kwargs = dict(
         service_endpoint=client_config.service_endpoint,
         retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY,

@@ -168,14 +168,15 @@ def oci_client_config():
 
     return OCIClientConfigWithApiKey(
         service_endpoint="https://inference.generativeai.us-phoenix-1.oci.oraclecloud.com",
-        compartment_id="test_compartment",
     )
 
 
 def create_oci_embedding_model(request, model_id):
     """Factory function to create OCIGenAIEmbeddingModel instances."""
     config = request.getfixturevalue("oci_client_config")
-    return OCIGenAIEmbeddingModel(model_id=model_id, config=config)
+    return OCIGenAIEmbeddingModel(
+        model_id=model_id, config=config, compartment_id="test_compartment"
+    )
 
 
 @pytest.mark.parametrize(
@@ -600,21 +601,23 @@ def test_oci_genai_embedding_model_different_config_types(request, mock_oci_modu
     # Test with ApiKey config
     api_key_config = OCIClientConfigWithApiKey(
         service_endpoint="https://inference.generativeai.us-phoenix-1.oci.oraclecloud.com",
-        compartment_id="test_compartment",
     )
 
     api_key_model = OCIGenAIEmbeddingModel(
-        model_id="cohere.embed-english-light-v3.0", config=api_key_config
+        model_id="cohere.embed-english-light-v3.0",
+        config=api_key_config,
+        compartment_id="test_compartment",
     )
 
     # Test with InstancePrincipal config
     instance_principal_config = OCIClientConfigWithInstancePrincipal(
         service_endpoint="https://inference.generativeai.us-phoenix-1.oci.oraclecloud.com",
-        compartment_id="test_compartment",
     )
 
     instance_principal_model = OCIGenAIEmbeddingModel(
-        model_id="cohere.embed-english-light-v3.0", config=instance_principal_config
+        model_id="cohere.embed-english-light-v3.0",
+        config=instance_principal_config,
+        compartment_id="test_compartment",
     )
 
     # Test serialization with different configs
