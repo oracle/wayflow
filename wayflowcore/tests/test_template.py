@@ -20,6 +20,7 @@ from wayflowcore.templates import (
     REACT_AGENT_TEMPLATE,
     PromptTemplate,
 )
+from wayflowcore.templates.reacttemplates import ReactToolOutputParser
 from wayflowcore.templates.structuredgeneration import (
     adapt_prompt_template_for_json_structured_generation,
 )
@@ -706,3 +707,23 @@ def test_json_structured_generation_helper_function_errors():
         match="Prompt template is already configured to use non-native structured generation.",
     ):
         adapt_prompt_template_for_json_structured_generation(template)
+
+
+def test_react_template_parsing_works_with_no_whitespaces():
+    thought = """First, we need to get the altitude of 'ABC'. We will use the 'get_altitude' tool for this. After obtaining the altitude in metres, we will convert it into kilometres using the 'convert_m_to_km' tool."""
+    actions = """
+    {
+        "name": "get_altitude",
+        "parameters": {
+            "place": "ABC"
+        }
+    }
+    """
+    llm_output = f"""## Thought:{thought}\n## Action:\n```json{actions}```"""
+    react_output_parser = ReactToolOutputParser()
+    message = Message(content=llm_output)
+    output_message = react_output_parser.parse_output(message)
+    assert isinstance(output_message, Message)
+    assert output_message.content == thought + "\n"
+    assert output_message.tool_requests[0].name == "get_altitude"
+    assert output_message.tool_requests[0].args == {"place": "ABC"}

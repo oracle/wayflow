@@ -96,10 +96,11 @@ class ReactToolOutputParser(ToolOutputParser, SerializableObject):
         return parse_tool_call_using_json(raw_txt, parameter_key="parameters")
 
     def parse_thoughts_and_calls(self, raw_txt: str) -> Tuple[str, str]:
-        splits = raw_txt.split("## Action: ")
+        splits = raw_txt.split("## Action:")
         thoughts = ""
         if len(splits) == 2:
             thoughts, raw_txt = splits
+            thoughts = thoughts.lstrip("## Thought:")
         if "## Observation:" in raw_txt:
             raw_txt = raw_txt.split("## Observation:")[0]
         parsed_raw_txt = re.findall(r"```(?:json)?(.*?)```", raw_txt, flags=re.DOTALL)
