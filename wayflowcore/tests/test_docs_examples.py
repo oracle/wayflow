@@ -26,7 +26,7 @@ def mock_server():
     import threading
     import time
 
-    import requests
+    import httpx
     import uvicorn
     from starlette.applications import Starlette
     from starlette.exceptions import HTTPException
@@ -81,7 +81,7 @@ def mock_server():
 
     for _ in range(50):  # up to 5 seconds
         try:
-            r = requests.get(url, headers=headers, timeout=0.2)
+            r = httpx.get(url, headers=headers, timeout=0.2)
             if r.status_code in {400, 200, 401}:
                 break
         except Exception:
