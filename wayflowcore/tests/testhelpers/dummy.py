@@ -157,6 +157,7 @@ class DoNothingStep(Step):
         output_mapping: Optional[Dict[str, str]] = None,
         input_descriptors: Optional[List[Property]] = None,
         output_descriptors: Optional[List[Property]] = None,
+        name: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
         super().__init__(
@@ -166,6 +167,7 @@ class DoNothingStep(Step):
             step_static_configuration=dict(llm=llm),
             input_descriptors=input_descriptors,
             output_descriptors=output_descriptors,
+            name=name,
             __metadata_info__=__metadata_info__,
         )
 

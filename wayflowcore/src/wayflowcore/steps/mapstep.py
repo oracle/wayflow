@@ -46,6 +46,7 @@ class MapStep(Step):
         flow: "Flow",
         unpack_input: Optional[Dict[str, str]] = None,
         parallel_execution: bool = False,
+        max_workers: Optional[int] = None,
         input_descriptors: Optional[List[Property]] = None,
         output_descriptors: Optional[List[Property]] = None,
         input_mapping: Optional[Dict[str, str]] = None,
@@ -100,8 +101,13 @@ class MapStep(Step):
                 If the iterated input type is ``dict``, then the iterated items will be key/value pairs and you can access both using ``._key`` and ``._value`` as jq queries.
         parallel_execution:
             Executes the mapping operation in parallel. Cannot be set to true if the internal flow can yield. This feature is
-            in beta, be aware that flows might have side effects on one another. Each thread will use a different IO dict, but they will all share
-            the same message list.
+            in beta, be aware that flows might have side effects on one another, since they share most resources (e.g., conversation).
+            Parallel execution is performed through asynchronous task groups, it is not actual multi-threading nor multi-processing.
+        max_workers:
+            Maximum number of tasks executed in parallel if parallel execution is enabled.
+            If None, the number of workers set in the `initialize_threadpool` is used.
+            If `initialize_threadpool` was not called with an explicit number of threads, 20 is used as upper limit.
+
         input_descriptors:
             Input descriptors of the step. ``None`` means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.
 
@@ -136,19 +142,20 @@ class MapStep(Step):
         Examples
         --------
         >>> from wayflowcore.steps import MapStep, OutputMessageStep
-        >>> from wayflowcore.flowhelpers import create_single_step_flow
+        >>> from wayflowcore import Flow
         >>> from wayflowcore.property import DictProperty, AnyProperty, Property
 
         You can iterate in simple lists:
 
-        >>> sub_flow = create_single_step_flow(OutputMessageStep(message_template="username={{user}}"), step_name='step')
+        >>> sub_flow = Flow.from_steps([OutputMessageStep(message_template="username={{user}}", name='step')])
         >>> step = MapStep(
+        ...     name="step",
         ...     flow=sub_flow,
         ...     unpack_input={'user': '.'},
         ...     output_descriptors=[AnyProperty(name=OutputMessageStep.OUTPUT)],
         ... )
         >>> iterable = ["a", "b"]
-        >>> assistant = create_single_step_flow(step, 'step')
+        >>> assistant = Flow.from_steps([step])
         >>> conversation = assistant.start_conversation(inputs={MapStep.ITERATED_INPUT: iterable})
         >>> status = conversation.execute()
         >>> status.output_values
@@ -156,8 +163,11 @@ class MapStep(Step):
 
         You can also extract from list of elements:
 
-        >>> sub_flow=create_single_step_flow(OutputMessageStep(message_template="{{user}}:{{email}}"), step_name='step')
+        >>> sub_flow=Flow.from_steps([
+        ...     OutputMessageStep(message_template="{{user}}:{{email}}", name='step')
+        ... ])
         >>> step = MapStep(
+        ...     name="step",
         ...     flow=sub_flow,
         ...     unpack_input={
         ...        'user': '.username',
@@ -169,7 +179,7 @@ class MapStep(Step):
         ...     {"username": "a", "email": "a@oracle.com"},
         ...     {"username": "b", "email": "b@oracle.com"},
         ... ]
-        >>> assistant = create_single_step_flow(step, 'step')
+        >>> assistant = Flow.from_steps([step])
         >>> conversation = assistant.start_conversation(inputs={MapStep.ITERATED_INPUT: iterable})
         >>> status = conversation.execute()
         >>> status.output_values
@@ -177,8 +187,11 @@ class MapStep(Step):
 
         You can also iterate through dictionaries:
 
-        >>> sub_flow=create_single_step_flow(OutputMessageStep(message_template="{{user}}:{{email}}"), step_name='step')
+        >>> sub_flow=Flow.from_steps([
+        ...     OutputMessageStep(message_template="{{user}}:{{email}}", name='step')
+        ... ])
         >>> step = MapStep(
+        ...     name="step",
         ...     flow=sub_flow,
         ...     unpack_input={
         ...        'user': '._key',
@@ -191,15 +204,44 @@ class MapStep(Step):
         ...     'a': {"username": "a", "email": "a@oracle.com"},
         ...     'b': {"username": "b", "email": "b@oracle.com"},
         ... }
-        >>> assistant = create_single_step_flow(step, 'step')
+        >>> assistant = Flow.from_steps([step])
         >>> conversation = assistant.start_conversation(inputs={MapStep.ITERATED_INPUT: iterable})
         >>> status = conversation.execute()
         >>> status.output_values
         {'output_message': ['a:a@oracle.com', 'b:b@oracle.com']}
 
         """
+
+        output_descriptors = self._parse_output_descriptors(output_descriptors, output_mapping)
+
+        super().__init__(
+            input_mapping=input_mapping,
+            output_mapping=output_mapping,
+            step_static_configuration=dict(
+                flow=flow,
+                unpack_input=unpack_input,
+                parallel_execution=parallel_execution,
+                max_workers=max_workers,
+            ),
+            input_descriptors=input_descriptors,
+            output_descriptors=output_descriptors,
+            name=name,
+            __metadata_info__=__metadata_info__,
+        )
+
+        self.flow = flow
+        self.max_workers = max_workers
+        self.unpack_input = unpack_input or {}
+        self.unpack_jq_processors = {
+            var_name: jq.compile(query) for var_name, query in self.unpack_input.items()
+        }
+        self.parallel_execution = parallel_execution
+
+    def _parse_output_descriptors(
+        self, output_descriptors: Optional[List[Property]], output_mapping: Optional[Dict[str, str]]
+    ) -> Optional[List[Property]]:
         if isinstance(output_descriptors, list) and len(output_descriptors) > 0:
-            output_descriptors = [
+            return [
                 (
                     ListProperty(
                         name=(
@@ -214,27 +256,7 @@ class MapStep(Step):
                 )
                 for output in output_descriptors
             ]
-
-        super().__init__(
-            input_mapping=input_mapping,
-            output_mapping=output_mapping,
-            step_static_configuration=dict(
-                flow=flow,
-                unpack_input=unpack_input,
-                parallel_execution=parallel_execution,
-            ),
-            input_descriptors=input_descriptors,
-            output_descriptors=output_descriptors,
-            name=name,
-            __metadata_info__=__metadata_info__,
-        )
-
-        self.flow = flow
-        self.unpack_input = unpack_input or {}
-        self.unpack_jq_processors = {
-            var_name: jq.compile(query) for var_name, query in self.unpack_input.items()
-        }
-        self.parallel_execution = parallel_execution
+        return output_descriptors
 
     @staticmethod
     def _extract_iterated_descriptor(
@@ -321,8 +343,8 @@ messages may be posted in the order they are produced, in this case not determin
             if not isinstance(o, (ListProperty, AnyProperty)):
                 raise ValueError(f"Collected output {o} should be of type {ListProperty.__name__}")
 
-    def sub_flow(self) -> Optional["Flow"]:
-        return self.flow
+    def sub_flows(self) -> Optional[List["Flow"]]:
+        return [self.flow]
 
     @classmethod
     def _get_step_specific_static_configuration_descriptors(
@@ -338,6 +360,7 @@ messages may be posted in the order they are produced, in this case not determin
             "flow": Flow,
             "unpack_input": Optional[Dict[str, str]],
             "parallel_execution": bool,
+            "max_workers": Optional[int],
         }
 
     @classmethod
@@ -348,6 +371,7 @@ messages may be posted in the order they are produced, in this case not determin
         input_descriptors: Optional[List[Property]],
         output_descriptors: Optional[List[Property]],
         parallel_execution: bool,
+        max_workers: Optional[int],
     ) -> List[Property]:
         MapStep._validate_inputs(
             flow, unpack_input, input_descriptors, output_descriptors, parallel_execution
@@ -396,6 +420,7 @@ messages may be posted in the order they are produced, in this case not determin
         input_descriptors: Optional[List[Property]],
         output_descriptors: Optional[List[Property]],
         parallel_execution: bool,
+        max_workers: Optional[int],
     ) -> List[Property]:
         return output_descriptors or []
 
@@ -471,7 +496,11 @@ messages may be posted in the order they are produced, in this case not determin
 
             # for backward compatibility, we check whether a threadpool
             # was started manually, otherwise we use a default number of workers
-            max_workers = get_threadpool(start_threadpool=False).max_workers or _MAX_NUM_WORKERS
+            max_workers = (
+                self.max_workers
+                or get_threadpool(start_threadpool=False).max_workers
+                or _MAX_NUM_WORKERS
+            )
 
             all_outputs = await run_async_function_in_parallel(
                 func_async=execute_one_branch,
@@ -578,3 +607,256 @@ messages may be posted in the order they are produced, in this case not determin
             )
 
         return all_tools
+
+
+class ParallelMapStep(MapStep):
+
+    def __init__(
+        self,
+        flow: "Flow",
+        unpack_input: Optional[Dict[str, str]] = None,
+        max_workers: Optional[int] = None,
+        input_descriptors: Optional[List[Property]] = None,
+        output_descriptors: Optional[List[Property]] = None,
+        input_mapping: Optional[Dict[str, str]] = None,
+        output_mapping: Optional[Dict[str, str]] = None,
+        name: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
+    ):
+        """
+        Step to execute an inside flow on all the elements of an iterable in parallel.
+        The order in the iterable is guaranteed the same as order of execution.
+
+        Note
+        ----
+
+        A step has input and output descriptors, describing what values the step requires to run and what values it produces.
+
+        **Input descriptors**
+
+        By default, when ``input_descriptors`` is set to ``None``, this step will have several inputs descriptors.
+        One will be named ``ParallelMapStep.ITERATED_INPUT`` of type ``ListProperty`` will be the iterable on which the step
+        will iterate. The step will also expose all input descriptors of the ``flow`` it runs if their names
+        are not in the ``unpack_input`` mapping (if they are, these values are extracted from ``ParallelMapStep.ITERATED_INPUT``).
+        See :ref:`Flow <Flow>` to learn more about how flow input descriptors are resolved.
+
+        If you provide a list of input descriptors, each provided descriptor will automatically override the detected one,
+        in particular using the new type instead of the detected one. In particular, the type of
+        ``ParallelMapStep.ITERATED_INPUT`` will impact the way the step iterates on the iterable (see ``unpack_input``
+        parameter for more details).
+
+        If some of them are missing, an error will be thrown at instantiation of the step.
+
+        If you provide input descriptors for non-autodetected variables, a warning will be emitted, and
+        they won't be used during the execution of the step.
+
+        **Output descriptors**
+
+        By default, when ``output_descriptors`` is set to ``None``, this step will not have any output descriptor.
+
+        If you provide a list of output descriptors, their names much match with the names of the output
+        descriptors of the inside ``flow`` and their type should be ``ListProperty``.
+        This way. the step will collect the output of each iteration of the inside ``flow`` into these outputs.
+
+        Parameters
+        ----------
+        flow:
+            Flow that is being executed with each iteration of the input.
+        unpack_input:
+            Mapping to specify how to unpack when each iter item is a ``dict`` and we need to map its element to the inside flow inputs.
+
+            .. note::
+                Keys are names of input variables of the inside flow, while values are jq queries to extract a specific part of each iterated item (see https://jqlang.github.io/jq/ for more information on jq queries). Using the item as-is can be done with the ``.`` query.
+                If the iterated input type is ``dict``, then the iterated items will be key/value pairs and you can access both using ``._key`` and ``._value`` as jq queries.
+        max_workers:
+            Maximum number of tasks executed in parallel.
+            If None, the number of workers set in the `initialize_threadpool` is used.
+            If `initialize_threadpool` was not called with an explicit number of threads, 20 is used as upper limit.
+
+        input_descriptors:
+            Input descriptors of the step. ``None`` means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.
+
+            .. warning::
+                Setting this value to something else than ``None`` will change the behavior of the step. The step will
+                iterate differently depending on the type of the ``ParallelMapStep.ITERATED_INPUT`` descriptor and the
+                value of ``unpack_inputs``
+
+        output_descriptors:
+            Output descriptors of the step. ``None`` means the step will resolve them automatically using its static
+            configuration in a best effort manner.
+
+            .. warning::
+                Setting this value to something else than ``None`` will change the behavior of the step. It will try to collect
+                these output descriptors values from the outputs of each run of the inside ``flow``.
+
+        name:
+            Name of the step.
+
+        input_mapping:
+            Mapping between the name of the inputs this step expects and the name to get it from in the conversation input/output dictionary.
+
+        output_mapping:
+            Mapping between the name of the outputs this step expects and the name to get it from in the conversation input/output dictionary.
+
+        Notes
+        -----
+        If the mapping between iterated items and the inside
+        flow input is 1 to 1 (``unpack_input`` is a ``str``), then the ``iterated_input_type`` subtype will be inferred from the inside flow's input type.
+        Otherwise, it will be set to ``AnyType``.
+
+        Examples
+        --------
+        >>> from wayflowcore.steps import ParallelMapStep, OutputMessageStep
+        >>> from wayflowcore import Flow
+        >>> from wayflowcore.property import DictProperty, AnyProperty
+
+        You can iterate in simple lists:
+
+        >>> sub_flow = Flow.from_steps([
+        ...     OutputMessageStep(message_template="username={{user}}", name='step')
+        ... ])
+        >>> step = ParallelMapStep(
+        ...     name="step",
+        ...     flow=sub_flow,
+        ...     unpack_input={'user': '.'},
+        ...     output_descriptors=[AnyProperty(name=OutputMessageStep.OUTPUT)],
+        ... )
+        >>> iterable = ["a", "b"]
+        >>> assistant = Flow.from_steps([step])
+        >>> conversation = assistant.start_conversation(inputs={ParallelMapStep.ITERATED_INPUT: iterable})
+        >>> status = conversation.execute()
+        >>> status.output_values
+        {'output_message': ['username=a', 'username=b']}
+
+        You can also extract from list of elements:
+
+        >>> sub_flow=Flow.from_steps([
+        ...     OutputMessageStep(message_template="{{user}}:{{email}}", name='step')
+        ... ])
+        >>> step = ParallelMapStep(
+        ...     name="step",
+        ...     flow=sub_flow,
+        ...     unpack_input={
+        ...        'user': '.username',
+        ...        'email': '.email',
+        ...     },
+        ...     output_descriptors=[AnyProperty(name=OutputMessageStep.OUTPUT)],
+        ... )
+        >>> iterable = [
+        ...     {"username": "a", "email": "a@oracle.com"},
+        ...     {"username": "b", "email": "b@oracle.com"},
+        ... ]
+        >>> assistant = Flow.from_steps([step])
+        >>> conversation = assistant.start_conversation(inputs={ParallelMapStep.ITERATED_INPUT: iterable})
+        >>> status = conversation.execute()
+        >>> status.output_values
+        {'output_message': ['a:a@oracle.com', 'b:b@oracle.com']}
+
+        You can also iterate through dictionaries:
+
+        >>> sub_flow=Flow.from_steps([
+        ...     OutputMessageStep(message_template="{{user}}:{{email}}", name='step')
+        ... ])
+        >>> step = ParallelMapStep(
+        ...     name="step",
+        ...     flow=sub_flow,
+        ...     unpack_input={
+        ...        'user': '._key',
+        ...        'email': '._value.email',
+        ...     },
+        ...     input_descriptors=[DictProperty(name=ParallelMapStep.ITERATED_INPUT, value_type=AnyProperty('inner_value'))],
+        ...     output_descriptors=[AnyProperty(name=OutputMessageStep.OUTPUT)],
+        ... )
+        >>> iterable = {
+        ...     'a': {"username": "a", "email": "a@oracle.com"},
+        ...     'b': {"username": "b", "email": "b@oracle.com"},
+        ... }
+        >>> assistant = Flow.from_steps([step])
+        >>> conversation = assistant.start_conversation(inputs={ParallelMapStep.ITERATED_INPUT: iterable})
+        >>> status = conversation.execute()
+        >>> status.output_values
+        {'output_message': ['a:a@oracle.com', 'b:b@oracle.com']}
+
+        """
+        output_descriptors = self._parse_output_descriptors(output_descriptors, output_mapping)
+        Step.__init__(
+            self,
+            input_mapping=input_mapping,
+            output_mapping=output_mapping,
+            step_static_configuration=dict(
+                flow=flow,
+                unpack_input=unpack_input,
+                max_workers=max_workers,
+            ),
+            input_descriptors=input_descriptors,
+            output_descriptors=output_descriptors,
+            name=name,
+            __metadata_info__=__metadata_info__,
+        )
+        self.flow = flow
+        self.max_workers = max_workers
+        self.parallel_execution = True
+        self.unpack_input = unpack_input or {}
+        self.unpack_jq_processors = {
+            var_name: jq.compile(query) for var_name, query in self.unpack_input.items()
+        }
+
+    @classmethod
+    def _get_step_specific_static_configuration_descriptors(
+        cls,
+    ) -> Dict[str, Any]:
+        """
+        Returns a dictionary in which the keys are the names of the configuration items
+        and the values are a descriptor for the expected type
+        """
+        from wayflowcore.flow import Flow
+
+        return {
+            "flow": Flow,
+            "unpack_input": Optional[Dict[str, str]],
+            "max_workers": Optional[int],
+        }
+
+    @classmethod
+    def _compute_step_specific_input_descriptors_from_static_config(  # type: ignore
+        cls,
+        flow: "Flow",
+        unpack_input: Optional[Dict[str, str]],
+        input_descriptors: Optional[List[Property]],
+        output_descriptors: Optional[List[Property]],
+        max_workers: Optional[int],
+    ) -> List[Property]:
+        return MapStep._compute_step_specific_input_descriptors_from_static_config(
+            flow=flow,
+            unpack_input=unpack_input,
+            input_descriptors=input_descriptors,
+            output_descriptors=output_descriptors,
+            parallel_execution=True,
+            max_workers=max_workers,
+        )
+
+    @classmethod
+    def _compute_step_specific_output_descriptors_from_static_config(  # type: ignore
+        cls,
+        flow: "Flow",
+        unpack_input: Optional[Dict[str, str]],
+        input_descriptors: Optional[List[Property]],
+        output_descriptors: Optional[List[Property]],
+        max_workers: Optional[int],
+    ) -> List[Property]:
+        return MapStep._compute_step_specific_output_descriptors_from_static_config(
+            flow=flow,
+            unpack_input=unpack_input,
+            input_descriptors=input_descriptors,
+            output_descriptors=output_descriptors,
+            parallel_execution=True,
+            max_workers=max_workers,
+        )
+
+    async def _invoke_step_async(
+        self,
+        inputs: Dict[str, Any],
+        conversation: "FlowConversation",
+    ) -> StepResult:
+        # Need to implement this method even though it's the same as its parent, otherwise an exception is raised
+        return await super()._invoke_step_async(inputs=inputs, conversation=conversation)

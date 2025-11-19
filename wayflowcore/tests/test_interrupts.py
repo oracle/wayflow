@@ -30,7 +30,7 @@ from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
-from wayflowcore.steps import PromptExecutionStep
+from wayflowcore.steps import PromptExecutionStep, StartStep
 from wayflowcore.steps.step import Step
 from wayflowcore.tools import ToolRequest, tool
 
@@ -118,6 +118,38 @@ def basic_flow_assistant_with_outputs_in_subflow() -> Flow:
         message_type=MessageType.AGENT,
     )
     return Flow.from_steps([outer_step_0, outer_step_1, outer_step_2])
+
+
+@pytest.fixture
+def basic_flow_assistant_with_parallel_flow_step() -> Flow:
+
+    from wayflowcore.steps import OutputMessageStep, ParallelFlowExecutionStep
+
+    outer_step_0 = ParallelFlowExecutionStep(
+        name="ParallelFlowExecutionStep0",
+        flows=[
+            Flow.from_steps(
+                [StartStep(name="StartStep1"), DoNothingStep(name="DoNothing1")],
+                name="DoNothing1_Flow",
+            ),
+            Flow.from_steps(
+                [
+                    StartStep(name="StartStep2"),
+                    OutputMessageStep(
+                        name="OutputMessageStep",
+                        message_template="This is the outer agent message",
+                        message_type=MessageType.AGENT,
+                    ),
+                ],
+                name="OutputMessageStep_Flow",
+            ),
+            Flow.from_steps(
+                [StartStep(name="StartStep3"), DoNothingStep(name="DoNothing2")],
+                name="DoNothing2_Flow",
+            ),
+        ],
+    )
+    return Flow.from_steps([outer_step_0])
 
 
 def create_basic_agent(llm: VllmModel, **kwargs) -> Agent:
@@ -323,6 +355,83 @@ def test_flow_assistant_interrupts_are_triggered_on_event_and_correctly_continue
 
     # Check that the conversations with and without interrupts are equivalent
     assert_conversations_are_equivalent(conversation, conversation_with_interrupts)
+
+
+def test_flow_assistant_interrupts_are_triggered_in_parallel_subflow(
+    basic_flow_assistant_with_parallel_flow_step,
+):
+
+    class OnStepStartExecutionInterrupt(
+        _AllEventsInterruptMixin, FlexibleExecutionInterrupt, FlowExecutionInterrupt
+    ):
+
+        def __init__(self, step_name: str):
+            self.step_name = step_name
+            self.triggered = False
+            self.current_event = None
+            super().__init__()
+
+        def _return_status_if_condition_is_met(
+            self, state: ConversationExecutionState, conversation: Conversation
+        ) -> Optional[InterruptedExecutionStatus]:
+            if (
+                self.current_event is not None
+                and self.current_event.type == EventType.STEP_EXECUTION_START
+                and self.step_name == conversation.current_step_name
+                and not self.triggered
+            ):
+                self.triggered = True
+                return InterruptedExecutionStatus(
+                    interrupter=self,
+                    reason="Start " + self.step_name,
+                    _conversation_id=conversation.id,
+                )
+            return None
+
+        def on_event(
+            self, event: Event, state: ConversationExecutionState, conversation: Conversation
+        ) -> Optional[InterruptedExecutionStatus]:
+            # We implement it this way to check that the logic of the parent classes is correct
+            self.current_event = event
+            return super().on_event(event, state, conversation)
+
+        def _serialize_to_dict(
+            self, serialization_context: "SerializationContext"
+        ) -> Dict[str, Any]:
+            return {"step_name": self.step_name}
+
+        @classmethod
+        def _deserialize_from_dict(
+            cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
+        ) -> "SerializableObject":
+            return OnStepStartExecutionInterrupt(step_name=input_dict["step_name"])
+
+    # Do a full conversation with the assistant first, without interrupts
+    conversation = basic_flow_assistant_with_parallel_flow_step.start_conversation()
+    _ = conversation.execute(execution_interrupts=[])
+
+    subflow_steps = [
+        substep.name
+        for step in basic_flow_assistant_with_parallel_flow_step.steps.values()
+        for subflow in (step.sub_flows() or [])
+        for substep in (subflow.steps.values() if subflow else [])
+    ]
+
+    for step_name in subflow_steps:
+        # Run a conversation with the interrupt
+        execution_interrupts = [OnStepStartExecutionInterrupt(step_name=step_name)]
+        conversation_with_interrupts = (
+            basic_flow_assistant_with_parallel_flow_step.start_conversation()
+        )
+        execution_status = conversation_with_interrupts.execute(
+            execution_interrupts=execution_interrupts
+        )
+        assert isinstance(execution_status, InterruptedExecutionStatus)
+        assert execution_status.interrupter == execution_interrupts[0]
+        assert execution_status.reason == "Start " + step_name
+        _ = conversation_with_interrupts.execute(execution_interrupts=execution_interrupts)
+        # Check that the conversations with and without interrupts are equivalent
+        assert_conversations_are_equivalent(conversation, conversation_with_interrupts)
 
 
 def test_conversations_have_default_timeout_execution_interrupt(remotely_hosted_llm):

@@ -3,6 +3,7 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+
 from typing import Optional
 
 import pytest
@@ -148,7 +149,7 @@ def test_sequential_subflow_execution() -> None:
     s1 = FlowExecutionStep(flow=s1_subflow)
 
     # check that FlowExecutionStep reports the subflow
-    assert s1.sub_flow() == s1_subflow
+    assert s1.flow == s1_subflow
 
     assistant = Flow.from_steps(
         [

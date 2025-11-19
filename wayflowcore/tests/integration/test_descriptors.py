@@ -28,6 +28,7 @@ from wayflowcore.steps import (
     AgentExecutionStep,
     ChoiceSelectionStep,
     OutputMessageStep,
+    ParallelFlowExecutionStep,
     RegexExtractionStep,
     RetryStep,
 )
@@ -107,6 +108,7 @@ DEFAULT_CLASS_PARAMETER_VALUES: Dict[str, Dict[str, object]] = {
     DatastoreListStep.__name__: {"limit": 1},
     OutputMessageStep.__name__: {"message_type": MessageType.AGENT},
     RegexExtractionStep.__name__: {"regex_pattern": RegexPattern(pattern=".*")},
+    ParallelFlowExecutionStep.__name__: {"flows": [get_single_step_flow()]},
 }
 
 # Add step class names in this list if they are not meant to be actually tested

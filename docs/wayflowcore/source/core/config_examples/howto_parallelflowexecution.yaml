@@ -1,0 +1,965 @@
+component_type: Flow
+id: 9a1d50ff-401f-4eee-b757-4568f034da60
+name: flow_ba0ca7d7__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs:
+- type: string
+  title: username
+outputs:
+- description: the generated text
+  type: string
+  title: output
+- type: string
+  title: current_time
+- description: the message added to the messages list
+  type: string
+  title: output_message
+- type: array
+  items:
+    type: object
+    additionalProperties:
+      type: string
+    key_type:
+      type: string
+  title: user_purchases
+- type: object
+  additionalProperties:
+    type: string
+  key_type:
+    type: string
+  title: user_info
+- type: array
+  items:
+    type: object
+    additionalProperties:
+      type: string
+    key_type:
+      type: string
+  title: items_on_sale
+start_node:
+  $component_ref: 7ad04ec0-30e4-4f8d-b530-7c053a12d161
+nodes:
+- $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+- $component_ref: c9973ecb-029a-4302-adc1-0962dfdd4cf1
+- $component_ref: 16309b0f-cb5b-4bfc-999f-b083dd28bba2
+- $component_ref: 7ad04ec0-30e4-4f8d-b530-7c053a12d161
+- $component_ref: ec3a335f-c612-4c68-bd8d-e3c61aa20169
+control_flow_connections:
+- component_type: ControlFlowEdge
+  id: e9bd2c99-a5b3-4829-abfc-9ec93088f405
+  name: parallel_flow_step_to_prepare_marketing_message_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+  from_branch: null
+  to_node:
+    $component_ref: c9973ecb-029a-4302-adc1-0962dfdd4cf1
+- component_type: ControlFlowEdge
+  id: a3326936-b0a1-4260-8432-4f90da974729
+  name: prepare_marketing_message_to_output_message_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: c9973ecb-029a-4302-adc1-0962dfdd4cf1
+  from_branch: null
+  to_node:
+    $component_ref: 16309b0f-cb5b-4bfc-999f-b083dd28bba2
+- component_type: ControlFlowEdge
+  id: 36921d31-06e1-4274-9f79-21773bbf8fcd
+  name: __StartStep___to_parallel_flow_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 7ad04ec0-30e4-4f8d-b530-7c053a12d161
+  from_branch: null
+  to_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+- component_type: ControlFlowEdge
+  id: cc937bf8-8639-4b57-8a7a-3bc8a4c30119
+  name: output_message_step_to_None End node_control_flow_edge
+  description: null
+  metadata: {}
+  from_node:
+    $component_ref: 16309b0f-cb5b-4bfc-999f-b083dd28bba2
+  from_branch: null
+  to_node:
+    $component_ref: ec3a335f-c612-4c68-bd8d-e3c61aa20169
+data_flow_connections:
+- component_type: DataFlowEdge
+  id: 224b181b-6f21-4e83-bea5-3c2af09b68df
+  name: parallel_flow_step_user_info_to_prepare_marketing_message_user_info_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+  source_output: user_info
+  destination_node:
+    $component_ref: c9973ecb-029a-4302-adc1-0962dfdd4cf1
+  destination_input: user_info
+- component_type: DataFlowEdge
+  id: cf335795-fe15-4d11-996b-0b16197289dc
+  name: parallel_flow_step_current_time_to_prepare_marketing_message_current_time_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+  source_output: current_time
+  destination_node:
+    $component_ref: c9973ecb-029a-4302-adc1-0962dfdd4cf1
+  destination_input: current_time
+- component_type: DataFlowEdge
+  id: af7435c8-73e1-42c1-bbdb-79c02923c9cd
+  name: parallel_flow_step_user_purchases_to_prepare_marketing_message_user_purchases_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+  source_output: user_purchases
+  destination_node:
+    $component_ref: c9973ecb-029a-4302-adc1-0962dfdd4cf1
+  destination_input: user_purchases
+- component_type: DataFlowEdge
+  id: 95a14d48-fc86-4c97-86fe-4c57cf699fee
+  name: parallel_flow_step_items_on_sale_to_prepare_marketing_message_items_on_sale_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+  source_output: items_on_sale
+  destination_node:
+    $component_ref: c9973ecb-029a-4302-adc1-0962dfdd4cf1
+  destination_input: items_on_sale
+- component_type: DataFlowEdge
+  id: feade911-73eb-4ffc-9926-8c9bddd7a0e4
+  name: prepare_marketing_message_output_to_output_message_step_output_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: c9973ecb-029a-4302-adc1-0962dfdd4cf1
+  source_output: output
+  destination_node:
+    $component_ref: 16309b0f-cb5b-4bfc-999f-b083dd28bba2
+  destination_input: output
+- component_type: DataFlowEdge
+  id: 543bd23e-2bbf-4e42-b96d-8df96ff588c4
+  name: __StartStep___username_to_parallel_flow_step_username_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 7ad04ec0-30e4-4f8d-b530-7c053a12d161
+  source_output: username
+  destination_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+  destination_input: username
+- component_type: DataFlowEdge
+  id: 1e9aedc6-8b79-40f8-b873-88aceba21c07
+  name: prepare_marketing_message_output_to_None End node_output_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: c9973ecb-029a-4302-adc1-0962dfdd4cf1
+  source_output: output
+  destination_node:
+    $component_ref: ec3a335f-c612-4c68-bd8d-e3c61aa20169
+  destination_input: output
+- component_type: DataFlowEdge
+  id: 374db01e-8906-47d2-ad44-b0014ce0b5ea
+  name: parallel_flow_step_current_time_to_None End node_current_time_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+  source_output: current_time
+  destination_node:
+    $component_ref: ec3a335f-c612-4c68-bd8d-e3c61aa20169
+  destination_input: current_time
+- component_type: DataFlowEdge
+  id: 4814b63c-062d-4740-bc55-1b73b37fafe6
+  name: output_message_step_output_message_to_None End node_output_message_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 16309b0f-cb5b-4bfc-999f-b083dd28bba2
+  source_output: output_message
+  destination_node:
+    $component_ref: ec3a335f-c612-4c68-bd8d-e3c61aa20169
+  destination_input: output_message
+- component_type: DataFlowEdge
+  id: a58cb9bc-e326-4862-a7c0-e6301199f788
+  name: parallel_flow_step_user_purchases_to_None End node_user_purchases_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+  source_output: user_purchases
+  destination_node:
+    $component_ref: ec3a335f-c612-4c68-bd8d-e3c61aa20169
+  destination_input: user_purchases
+- component_type: DataFlowEdge
+  id: 38b9f912-d657-4e3e-9bfe-3c9db11fbd98
+  name: parallel_flow_step_user_info_to_None End node_user_info_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+  source_output: user_info
+  destination_node:
+    $component_ref: ec3a335f-c612-4c68-bd8d-e3c61aa20169
+  destination_input: user_info
+- component_type: DataFlowEdge
+  id: 15dd8804-63c5-4b42-be49-4052a7ef71f8
+  name: parallel_flow_step_items_on_sale_to_None End node_items_on_sale_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+  source_output: items_on_sale
+  destination_node:
+    $component_ref: ec3a335f-c612-4c68-bd8d-e3c61aa20169
+  destination_input: items_on_sale
+$referenced_components:
+  3c2162e5-fc1d-4517-99fc-d4e1719a1311:
+    component_type: ExtendedParallelFlowNode
+    id: 3c2162e5-fc1d-4517-99fc-d4e1719a1311
+    name: parallel_flow_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - type: string
+      title: username
+    outputs:
+    - type: string
+      title: current_time
+    - type: object
+      additionalProperties:
+        type: string
+      key_type:
+        type: string
+      title: user_info
+    - type: array
+      items:
+        type: object
+        additionalProperties:
+          type: string
+        key_type:
+          type: string
+      title: user_purchases
+    - type: array
+      items:
+        type: object
+        additionalProperties:
+          type: string
+        key_type:
+          type: string
+      title: items_on_sale
+    branches:
+    - next
+    input_mapping: {}
+    output_mapping: {}
+    flows:
+    - component_type: Flow
+      id: 830804f1-98aa-498e-97bb-f50693f65adc
+      name: flow_e65028d9__auto
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs: []
+      outputs:
+      - type: string
+        title: current_time
+      start_node:
+        $component_ref: 1372cf28-a4d5-4783-8e2e-17b3085b4b84
+      nodes:
+      - $component_ref: 1180cdb1-4e40-4c79-a656-efd445724ece
+      - $component_ref: 1372cf28-a4d5-4783-8e2e-17b3085b4b84
+      - $component_ref: 3439aa54-f922-4142-b73e-62701dc00420
+      control_flow_connections:
+      - component_type: ControlFlowEdge
+        id: f16f4ce1-d0ab-4287-b3d1-0f68eec10652
+        name: __StartStep___to_get_current_time_step_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: 1372cf28-a4d5-4783-8e2e-17b3085b4b84
+        from_branch: null
+        to_node:
+          $component_ref: 1180cdb1-4e40-4c79-a656-efd445724ece
+      - component_type: ControlFlowEdge
+        id: 38d4dac5-4b38-42fd-ba37-a42ee7207927
+        name: get_current_time_step_to_None End node_control_flow_edge
+        description: null
+        metadata: {}
+        from_node:
+          $component_ref: 1180cdb1-4e40-4c79-a656-efd445724ece
+        from_branch: null
+        to_node:
+          $component_ref: 3439aa54-f922-4142-b73e-62701dc00420
+      data_flow_connections:
+      - component_type: DataFlowEdge
+        id: 8be71bef-c2bd-4503-bb95-0c6d6785136f
+        name: get_current_time_step_current_time_to_None End node_current_time_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: 1180cdb1-4e40-4c79-a656-efd445724ece
+        source_output: current_time
+        destination_node:
+          $component_ref: 3439aa54-f922-4142-b73e-62701dc00420
+        destination_input: current_time
+      $referenced_components:
+        1180cdb1-4e40-4c79-a656-efd445724ece:
+          component_type: ToolNode
+          id: 1180cdb1-4e40-4c79-a656-efd445724ece
+          name: get_current_time_step
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs: []
+          outputs:
+          - type: string
+            title: current_time
+          branches:
+          - next
+          tool:
+            component_type: ServerTool
+            id: d5cf47f4-da0e-49f5-8d2f-6f4e3ce6ce09
+            name: get_current_time
+            description: Return current time
+            metadata:
+              __metadata_info__: {}
+            inputs: []
+            outputs:
+            - type: string
+              title: current_time
+            requires_confirmation: false
+        3439aa54-f922-4142-b73e-62701dc00420:
+          component_type: EndNode
+          id: 3439aa54-f922-4142-b73e-62701dc00420
+          name: None End node
+          description: End node representing all transitions to None in the WayFlow
+            flow
+          metadata: {}
+          inputs:
+          - type: string
+            title: current_time
+          outputs:
+          - type: string
+            title: current_time
+          branches: []
+          branch_name: next
+        1372cf28-a4d5-4783-8e2e-17b3085b4b84:
+          component_type: StartNode
+          id: 1372cf28-a4d5-4783-8e2e-17b3085b4b84
+          name: __StartStep__
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs: []
+          outputs: []
+          branches:
+          - next
+    - component_type: Flow
+      id: 756e38b4-96cd-4c2a-8a3b-563e2f5f4f79
+      name: flow_27983d79__auto
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - type: string
+        title: username
+      outputs:
+      - type: object
+        additionalProperties:
+          type: string
+        key_type:
+          type: string
+        title: user_info
+      start_node:
+        $component_ref: eb78a9c7-6a69-4f0c-b149-38fba2072de7
+      nodes:
+      - $component_ref: 2d6f3d55-12a2-44e6-a646-373c4008d889
+      - $component_ref: eb78a9c7-6a69-4f0c-b149-38fba2072de7
+      - $component_ref: b35aae7d-ceed-4726-8fc6-19a8541780be
+      control_flow_connections:
+      - component_type: ControlFlowEdge
+        id: 5a418667-d9a0-44a5-a5d9-c8205b1e7cb3
+        name: __StartStep___to_get_user_information_step_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: eb78a9c7-6a69-4f0c-b149-38fba2072de7
+        from_branch: null
+        to_node:
+          $component_ref: 2d6f3d55-12a2-44e6-a646-373c4008d889
+      - component_type: ControlFlowEdge
+        id: a108a7f7-75b0-4582-a187-6092aa0097bc
+        name: get_user_information_step_to_None End node_control_flow_edge
+        description: null
+        metadata: {}
+        from_node:
+          $component_ref: 2d6f3d55-12a2-44e6-a646-373c4008d889
+        from_branch: null
+        to_node:
+          $component_ref: b35aae7d-ceed-4726-8fc6-19a8541780be
+      data_flow_connections:
+      - component_type: DataFlowEdge
+        id: 073c7fb0-60f9-44ff-93d7-ab804b7e26a5
+        name: __StartStep___username_to_get_user_information_step_username_data_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        source_node:
+          $component_ref: eb78a9c7-6a69-4f0c-b149-38fba2072de7
+        source_output: username
+        destination_node:
+          $component_ref: 2d6f3d55-12a2-44e6-a646-373c4008d889
+        destination_input: username
+      - component_type: DataFlowEdge
+        id: 056f1436-7721-4249-b627-254468c70014
+        name: get_user_information_step_user_info_to_None End node_user_info_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: 2d6f3d55-12a2-44e6-a646-373c4008d889
+        source_output: user_info
+        destination_node:
+          $component_ref: b35aae7d-ceed-4726-8fc6-19a8541780be
+        destination_input: user_info
+      $referenced_components:
+        eb78a9c7-6a69-4f0c-b149-38fba2072de7:
+          component_type: StartNode
+          id: eb78a9c7-6a69-4f0c-b149-38fba2072de7
+          name: __StartStep__
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - type: string
+            title: username
+          outputs:
+          - type: string
+            title: username
+          branches:
+          - next
+        2d6f3d55-12a2-44e6-a646-373c4008d889:
+          component_type: ToolNode
+          id: 2d6f3d55-12a2-44e6-a646-373c4008d889
+          name: get_user_information_step
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - type: string
+            title: username
+          outputs:
+          - type: object
+            additionalProperties:
+              type: string
+            key_type:
+              type: string
+            title: user_info
+          branches:
+          - next
+          tool:
+            component_type: ServerTool
+            id: 63901325-0817-49d3-a75b-fc7caa904150
+            name: get_user_information
+            description: Retrieve information about a user
+            metadata:
+              __metadata_info__: {}
+            inputs:
+            - type: string
+              title: username
+            outputs:
+            - type: object
+              additionalProperties:
+                type: string
+              key_type:
+                type: string
+              title: user_info
+            requires_confirmation: false
+        b35aae7d-ceed-4726-8fc6-19a8541780be:
+          component_type: EndNode
+          id: b35aae7d-ceed-4726-8fc6-19a8541780be
+          name: None End node
+          description: End node representing all transitions to None in the WayFlow
+            flow
+          metadata: {}
+          inputs:
+          - type: object
+            additionalProperties:
+              type: string
+            key_type:
+              type: string
+            title: user_info
+          outputs:
+          - type: object
+            additionalProperties:
+              type: string
+            key_type:
+              type: string
+            title: user_info
+          branches: []
+          branch_name: next
+    - component_type: Flow
+      id: c493c674-aa35-47a5-8e23-d2c4a4c422e9
+      name: flow_caf4c68e__auto
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs:
+      - type: string
+        title: username
+      outputs:
+      - type: array
+        items:
+          type: object
+          additionalProperties:
+            type: string
+          key_type:
+            type: string
+        title: user_purchases
+      start_node:
+        $component_ref: 8e2d6a74-f4f3-4eda-9b41-89dd159cfc32
+      nodes:
+      - $component_ref: da051da6-84d4-462b-9361-3bdb82158996
+      - $component_ref: 8e2d6a74-f4f3-4eda-9b41-89dd159cfc32
+      - $component_ref: 72a32d3f-d122-4f5a-bea6-57a72d41b5cc
+      control_flow_connections:
+      - component_type: ControlFlowEdge
+        id: 7e3d5721-e733-46fe-8813-75c87757c5be
+        name: __StartStep___to_get_user_last_purchases_step_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: 8e2d6a74-f4f3-4eda-9b41-89dd159cfc32
+        from_branch: null
+        to_node:
+          $component_ref: da051da6-84d4-462b-9361-3bdb82158996
+      - component_type: ControlFlowEdge
+        id: 7098c560-8a6d-47e3-bccc-382610df834c
+        name: get_user_last_purchases_step_to_None End node_control_flow_edge
+        description: null
+        metadata: {}
+        from_node:
+          $component_ref: da051da6-84d4-462b-9361-3bdb82158996
+        from_branch: null
+        to_node:
+          $component_ref: 72a32d3f-d122-4f5a-bea6-57a72d41b5cc
+      data_flow_connections:
+      - component_type: DataFlowEdge
+        id: 100de096-d0bd-4b1e-92ca-1a14112b1a93
+        name: __StartStep___username_to_get_user_last_purchases_step_username_data_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        source_node:
+          $component_ref: 8e2d6a74-f4f3-4eda-9b41-89dd159cfc32
+        source_output: username
+        destination_node:
+          $component_ref: da051da6-84d4-462b-9361-3bdb82158996
+        destination_input: username
+      - component_type: DataFlowEdge
+        id: 7ce979c8-e90e-4c0e-a47a-b05fb1ca15e7
+        name: get_user_last_purchases_step_user_purchases_to_None End node_user_purchases_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: da051da6-84d4-462b-9361-3bdb82158996
+        source_output: user_purchases
+        destination_node:
+          $component_ref: 72a32d3f-d122-4f5a-bea6-57a72d41b5cc
+        destination_input: user_purchases
+      $referenced_components:
+        8e2d6a74-f4f3-4eda-9b41-89dd159cfc32:
+          component_type: StartNode
+          id: 8e2d6a74-f4f3-4eda-9b41-89dd159cfc32
+          name: __StartStep__
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - type: string
+            title: username
+          outputs:
+          - type: string
+            title: username
+          branches:
+          - next
+        da051da6-84d4-462b-9361-3bdb82158996:
+          component_type: ToolNode
+          id: da051da6-84d4-462b-9361-3bdb82158996
+          name: get_user_last_purchases_step
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs:
+          - type: string
+            title: username
+          outputs:
+          - type: array
+            items:
+              type: object
+              additionalProperties:
+                type: string
+              key_type:
+                type: string
+            title: user_purchases
+          branches:
+          - next
+          tool:
+            component_type: ServerTool
+            id: 5f7e2292-e5c3-43ed-a52a-bc44fc5a68f8
+            name: get_user_last_purchases
+            description: Retrieve the list of purchases made by a user
+            metadata:
+              __metadata_info__: {}
+            inputs:
+            - type: string
+              title: username
+            outputs:
+            - type: array
+              items:
+                type: object
+                additionalProperties:
+                  type: string
+                key_type:
+                  type: string
+              title: user_purchases
+            requires_confirmation: false
+        72a32d3f-d122-4f5a-bea6-57a72d41b5cc:
+          component_type: EndNode
+          id: 72a32d3f-d122-4f5a-bea6-57a72d41b5cc
+          name: None End node
+          description: End node representing all transitions to None in the WayFlow
+            flow
+          metadata: {}
+          inputs:
+          - type: array
+            items:
+              type: object
+              additionalProperties:
+                type: string
+              key_type:
+                type: string
+            title: user_purchases
+          outputs:
+          - type: array
+            items:
+              type: object
+              additionalProperties:
+                type: string
+              key_type:
+                type: string
+            title: user_purchases
+          branches: []
+          branch_name: next
+    - component_type: Flow
+      id: 0d53e3b4-cd79-4fce-8114-5a8cb1fd9668
+      name: flow_04bf21f9__auto
+      description: ''
+      metadata:
+        __metadata_info__: {}
+      inputs: []
+      outputs:
+      - type: array
+        items:
+          type: object
+          additionalProperties:
+            type: string
+          key_type:
+            type: string
+        title: items_on_sale
+      start_node:
+        $component_ref: eb9f223a-41de-478a-b0ff-0513fea6efcb
+      nodes:
+      - $component_ref: 8f29c168-e6af-4c5c-91cf-c59909dcf851
+      - $component_ref: eb9f223a-41de-478a-b0ff-0513fea6efcb
+      - $component_ref: 8bd01b94-27d4-46f4-8d13-d6f1663daca4
+      control_flow_connections:
+      - component_type: ControlFlowEdge
+        id: d58297bc-1064-436c-b1d6-769469ec5884
+        name: __StartStep___to_get_items_on_sale_steo_control_flow_edge
+        description: null
+        metadata:
+          __metadata_info__: {}
+        from_node:
+          $component_ref: eb9f223a-41de-478a-b0ff-0513fea6efcb
+        from_branch: null
+        to_node:
+          $component_ref: 8f29c168-e6af-4c5c-91cf-c59909dcf851
+      - component_type: ControlFlowEdge
+        id: 3b4ff4ce-9159-4544-a882-c11f7a9c0cd0
+        name: get_items_on_sale_steo_to_None End node_control_flow_edge
+        description: null
+        metadata: {}
+        from_node:
+          $component_ref: 8f29c168-e6af-4c5c-91cf-c59909dcf851
+        from_branch: null
+        to_node:
+          $component_ref: 8bd01b94-27d4-46f4-8d13-d6f1663daca4
+      data_flow_connections:
+      - component_type: DataFlowEdge
+        id: 5f22125b-1b81-4ab0-b21a-d1db6003bfe0
+        name: get_items_on_sale_steo_items_on_sale_to_None End node_items_on_sale_data_flow_edge
+        description: null
+        metadata: {}
+        source_node:
+          $component_ref: 8f29c168-e6af-4c5c-91cf-c59909dcf851
+        source_output: items_on_sale
+        destination_node:
+          $component_ref: 8bd01b94-27d4-46f4-8d13-d6f1663daca4
+        destination_input: items_on_sale
+      $referenced_components:
+        8f29c168-e6af-4c5c-91cf-c59909dcf851:
+          component_type: ToolNode
+          id: 8f29c168-e6af-4c5c-91cf-c59909dcf851
+          name: get_items_on_sale_steo
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs: []
+          outputs:
+          - type: array
+            items:
+              type: object
+              additionalProperties:
+                type: string
+              key_type:
+                type: string
+            title: items_on_sale
+          branches:
+          - next
+          tool:
+            component_type: ServerTool
+            id: a9692dfa-3310-4f80-adc3-71e294eeac5d
+            name: get_items_on_sale
+            description: Retrieve the list of items currently on sale
+            metadata:
+              __metadata_info__: {}
+            inputs: []
+            outputs:
+            - type: array
+              items:
+                type: object
+                additionalProperties:
+                  type: string
+                key_type:
+                  type: string
+              title: items_on_sale
+            requires_confirmation: false
+        8bd01b94-27d4-46f4-8d13-d6f1663daca4:
+          component_type: EndNode
+          id: 8bd01b94-27d4-46f4-8d13-d6f1663daca4
+          name: None End node
+          description: End node representing all transitions to None in the WayFlow
+            flow
+          metadata: {}
+          inputs:
+          - type: array
+            items:
+              type: object
+              additionalProperties:
+                type: string
+              key_type:
+                type: string
+            title: items_on_sale
+          outputs:
+          - type: array
+            items:
+              type: object
+              additionalProperties:
+                type: string
+              key_type:
+                type: string
+            title: items_on_sale
+          branches: []
+          branch_name: next
+        eb9f223a-41de-478a-b0ff-0513fea6efcb:
+          component_type: StartNode
+          id: eb9f223a-41de-478a-b0ff-0513fea6efcb
+          name: __StartStep__
+          description: ''
+          metadata:
+            __metadata_info__: {}
+          inputs: []
+          outputs: []
+          branches:
+          - next
+    max_workers: null
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 26.1.0.dev0
+  c9973ecb-029a-4302-adc1-0962dfdd4cf1:
+    component_type: LlmNode
+    id: c9973ecb-029a-4302-adc1-0962dfdd4cf1
+    name: prepare_marketing_message
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: '"user_info" input variable for the template'
+      type: string
+      title: user_info
+    - description: '"current_time" input variable for the template'
+      type: string
+      title: current_time
+    - description: '"user_purchases" input variable for the template'
+      type: string
+      title: user_purchases
+    - description: '"items_on_sale" input variable for the template'
+      type: string
+      title: items_on_sale
+    outputs:
+    - description: the generated text
+      type: string
+      title: output
+    branches:
+    - next
+    llm_config:
+      component_type: VllmConfig
+      id: c8de93e2-7b26-4894-96dc-534b8a6ed5a7
+      name: llm_01a5da8e__auto
+      description: null
+      metadata:
+        __metadata_info__: {}
+      default_generation_parameters: null
+      url: LLAMA_API_URL
+      model_id: LLAMA_MODEL_ID
+    prompt_template: "# Instructions\n\nYou are a marketing expert. You have to write\
+      \ a welcome message for a user.\n\nThe message must contain:\n- A first sentence\
+      \ of greetings, including user's name, and personalized in case it's user's\
+      \ birthday\n- A proposal containing something to buy\n \nThe purchase proposal\
+      \ must be:\n- aligned with user's purchase history\n- part of the list of items\
+      \ on sale\n\n# User information\n\n{{user_info}}\n\nNote that the current time\
+      \ to check the birthday is: {{current_time}}\n\nThe list of items purchased\
+      \ by the user is:\n{{user_purchases}}\n\n# Items on sale\n\n{{items_on_sale}}\n\
+      \nPlease write the welcome message for the user.\nDo not give me the instructions\
+      \ to do it, I want only the final message to send.  \n"
+  16309b0f-cb5b-4bfc-999f-b083dd28bba2:
+    component_type: PluginOutputMessageNode
+    id: 16309b0f-cb5b-4bfc-999f-b083dd28bba2
+    name: output_message_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: '"output" input variable for the template'
+      type: string
+      title: output
+    outputs:
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    branches:
+    - next
+    message: '{{output}}'
+    input_mapping: {}
+    output_mapping: {}
+    message_type: AGENT
+    rephrase: false
+    llm_config: null
+    expose_message_as_output: true
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 26.1.0.dev0
+  7ad04ec0-30e4-4f8d-b530-7c053a12d161:
+    component_type: StartNode
+    id: 7ad04ec0-30e4-4f8d-b530-7c053a12d161
+    name: __StartStep__
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - type: string
+      title: username
+    outputs:
+    - type: string
+      title: username
+    branches:
+    - next
+  ec3a335f-c612-4c68-bd8d-e3c61aa20169:
+    component_type: EndNode
+    id: ec3a335f-c612-4c68-bd8d-e3c61aa20169
+    name: None End node
+    description: End node representing all transitions to None in the WayFlow flow
+    metadata: {}
+    inputs:
+    - description: the generated text
+      type: string
+      title: output
+    - type: string
+      title: current_time
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    - type: array
+      items:
+        type: object
+        additionalProperties:
+          type: string
+        key_type:
+          type: string
+      title: user_purchases
+    - type: object
+      additionalProperties:
+        type: string
+      key_type:
+        type: string
+      title: user_info
+    - type: array
+      items:
+        type: object
+        additionalProperties:
+          type: string
+        key_type:
+          type: string
+      title: items_on_sale
+    outputs:
+    - description: the generated text
+      type: string
+      title: output
+    - type: string
+      title: current_time
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    - type: array
+      items:
+        type: object
+        additionalProperties:
+          type: string
+        key_type:
+          type: string
+      title: user_purchases
+    - type: object
+      additionalProperties:
+        type: string
+      key_type:
+        type: string
+      title: user_info
+    - type: array
+      items:
+        type: object
+        additionalProperties:
+          type: string
+        key_type:
+          type: string
+      title: items_on_sale
+    branches: []
+    branch_name: next
+agentspec_version: 25.4.2

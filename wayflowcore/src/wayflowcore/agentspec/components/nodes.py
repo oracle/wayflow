@@ -4,7 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 from copy import deepcopy
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, Union, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Set, Type, Union, cast
 
 from pyagentspec.agent import Agent
 from pyagentspec.component import SerializeAsEnum
@@ -25,6 +25,8 @@ from pyagentspec.property import (
     ListProperty,
     Property,
     StringProperty,
+    json_schemas_have_same_type,
+    properties_have_same_type,
 )
 from pyagentspec.templating import get_placeholder_properties_from_string
 from pyagentspec.validation_helpers import model_validator_with_error_accumulation
@@ -332,6 +334,8 @@ class ExtendedMapNode(ExtendedNode):
     """Executes the mapping operation in parallel. Cannot be set to true if the internal flow can yield.
     This feature is in beta, be aware that flows might have side effects on one another.
     Each thread will use a different IO dict, but they will all share the same message list."""
+    max_workers: Optional[int] = None
+    """The number of workers to use in case of parallel execution."""
 
     ITERATED_INPUT: ClassVar[str] = "iterated_input"
     """Input key for the iterable to use the ``MapStep`` on."""
@@ -670,6 +674,123 @@ class ExtendedAgentNode(ExtendedNode, AgentNode):
         )
 
 
+class ExtendedParallelFlowNode(ExtendedNode):
+    """Execute different flows in parallel."""
+
+    flows: List[SerializeAsAny[Flow]]
+    """Sub-flows to run in parallel"""
+    max_workers: Optional[int] = None
+    """The number of workers to use in case of parallel execution."""
+
+    def _get_non_mapped_inferred_inputs(self) -> List[Property]:
+        inputs_dict: Dict[str, Property] = {}
+        for flow in getattr(self, "flows", []):
+            for input_ in flow.inputs or []:
+                if input_.title not in inputs_dict:
+                    inputs_dict[input_.title] = input_
+                else:
+                    previous_input_descriptor = inputs_dict[input_.title]
+                    # Inputs with the same name must have the same type
+                    if not json_schemas_have_same_type(
+                        input_.json_schema,
+                        previous_input_descriptor.json_schema,
+                    ):
+                        raise ValueError(
+                            f"Two subflows in ExtendedParallelFlowNode have an input descriptor "
+                            f"with the same name but different types:\n"
+                            f"1) {input_}\n2) {previous_input_descriptor}"
+                        )
+        return list(inputs_dict.values())
+
+    def _get_non_mapped_inferred_outputs(self) -> List[Property]:
+        outputs_dict: Dict[str, Property] = {}
+        for flow in getattr(self, "flows", []):
+            for output in flow.outputs or []:
+                if output.title not in outputs_dict:
+                    outputs_dict[output.title] = output
+                else:
+                    raise ValueError(
+                        f"Found two outputs with the same title `{output.title}` in ExtendedParallelFlowNode subflows."
+                    )
+        return list(outputs_dict.values())
+
+    @model_validator_with_error_accumulation
+    def _validate_inputs_with_same_name_and_different_type_do_not_exist(self) -> Self:
+        """Check that there aren't inputs with the same name and different type"""
+        union_of_inputs: Dict[str, Property] = dict()
+        for input_property in getattr(self, "inputs", []):
+            if input_property.title not in union_of_inputs:
+                union_of_inputs[input_property.title] = input_property
+            elif not properties_have_same_type(
+                input_property, union_of_inputs[input_property.title]
+            ):
+                raise ValueError(
+                    f"Two subflows of ExtendedParallelFlowNode `{getattr(self, 'name', '')}` have inputs with "
+                    f"the same name `{input_property.title}`, but different types:\n"
+                    f"{union_of_inputs[input_property.title].json_schema}\n"
+                    f"{input_property.json_schema}\n"
+                )
+        return self
+
+    @model_validator_with_error_accumulation
+    def _validate_outputs_with_same_name_do_not_exist(self) -> Self:
+        """Check that there aren't outputs with the same name"""
+        union_of_outputs: Set[str] = set()
+        for output_property in getattr(self, "outputs", []):
+            if output_property.title in union_of_outputs:
+                raise ValueError(
+                    f"Two subflows of ExtendedParallelFlowNode `{getattr(self, 'name', '')}` have outputs with "
+                    f"the same name `{output_property.title}`."
+                )
+            union_of_outputs.add(output_property.title)
+        return self
+
+
+class ExtendedParallelMapNode(ExtendedNode):
+    """Extension of the Agent Spec ParallelMapNode. Enforces parallel execution."""
+
+    flow: Flow
+    """Flow that is being executed with each iteration of the input."""
+    unpack_input: Dict[str, str] = Field(default_factory=dict)
+    """Mapping to specify how to unpack when each iter item is a ``dict``
+    and we need to map its element to the inside flow inputs."""
+    max_workers: Optional[int] = None
+    """The number of workers to use in case of parallel execution."""
+
+    ITERATED_INPUT: ClassVar[str] = "iterated_input"
+    """Input key for the iterable to use the ``MapStep`` on."""
+
+    def _get_non_mapped_inferred_inputs(self) -> List[Property]:
+        unpack_input = getattr(self, "unpack_input", {})
+        if not unpack_input:
+            return []
+        iterated_input_names = set(unpack_input.keys())
+
+        # inputs that are not iterated
+        flow_inputs = getattr(self.flow, "inputs", []) if hasattr(self, "flow") else []
+        resolved_inputs = {
+            property_.title: property_.model_copy(update={"title": property_.title})
+            for property_ in flow_inputs
+            if property_.title not in iterated_input_names
+        }
+
+        # can take the inside flow var type
+        inside_var_name = next(iter(unpack_input))
+        item_value_type = next(
+            property_ for property_ in flow_inputs if property_.title == inside_var_name
+        )
+
+        resolved_inputs[self.ITERATED_INPUT] = ListProperty(
+            title=self.ITERATED_INPUT,
+            description="iterated input for the map step",
+            item_type=item_value_type,
+        )
+        return list(resolved_inputs.values())
+
+    def _get_non_mapped_inferred_outputs(self) -> List[Property]:
+        return getattr(self, "outputs", []) or []
+
+
 NODES_PLUGIN_NAME = "NodesPlugin"
 
 nodes_serialization_plugin = PydanticComponentSerializationPlugin(
@@ -691,6 +812,8 @@ nodes_serialization_plugin = PydanticComponentSerializationPlugin(
         PluginConstantValuesNode.__name__: PluginConstantValuesNode,
         PluginGetChatHistoryNode.__name__: PluginGetChatHistoryNode,
         PluginRetryNode.__name__: PluginRetryNode,
+        ExtendedParallelFlowNode.__name__: ExtendedParallelFlowNode,
+        ExtendedParallelMapNode.__name__: ExtendedParallelMapNode,
     },
 )
 nodes_deserialization_plugin = PydanticComponentDeserializationPlugin(
@@ -712,5 +835,7 @@ nodes_deserialization_plugin = PydanticComponentDeserializationPlugin(
         PluginConstantValuesNode.__name__: PluginConstantValuesNode,
         PluginGetChatHistoryNode.__name__: PluginGetChatHistoryNode,
         PluginRetryNode.__name__: PluginRetryNode,
+        ExtendedParallelFlowNode.__name__: ExtendedParallelFlowNode,
+        ExtendedParallelMapNode.__name__: ExtendedParallelMapNode,
     },
 )

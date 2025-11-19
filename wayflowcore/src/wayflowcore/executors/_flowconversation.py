@@ -94,14 +94,21 @@ class FlowConversation(Conversation):
         self._put_internal_context_key_value(key, sub_conversation)
 
     def _get_or_create_current_sub_conversation(
-        self, step: "Step", flow: "Flow", inputs: Dict[str, Any]
+        self,
+        step: "Step",
+        flow: "Flow",
+        inputs: Dict[str, Any],
+        sub_conversation_id: Optional[str] = None,
     ) -> "FlowConversation":
-        sub_conversation = self._get_current_sub_conversation(step)
+        sub_conversation = self._get_current_sub_conversation(
+            step=step, sub_conversation_id=sub_conversation_id
+        )
         if sub_conversation is None:
             sub_conversation = self._create_sub_conversation(
-                inputs=inputs,
+                inputs={k: v for k, v in inputs.items() if k in flow.input_descriptors_dict},
                 flow=flow,
                 step=step,
+                sub_conversation_id=sub_conversation_id,
             )
 
         if not isinstance(sub_conversation, FlowConversation):
@@ -116,6 +123,7 @@ class FlowConversation(Conversation):
         inputs: Dict[str, Any],
         flow: "Flow",
         step: "Step",
+        sub_conversation_id: Optional[str] = None,
     ) -> "FlowConversation":
         from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 
@@ -124,6 +132,7 @@ class FlowConversation(Conversation):
             inputs,
             flow,
             step,
+            sub_conversation_id,
         )
 
     def _cleanup_sub_conversation(

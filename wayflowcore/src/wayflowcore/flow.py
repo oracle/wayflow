@@ -1541,6 +1541,7 @@ class Flow(ConversationalComponent, SerializableObject):
             variables=self.variables,
             name=name,
             description=description,
+            flow_id=self.flow_id,
         )
 
     def as_client_tool(self) -> "ClientTool":

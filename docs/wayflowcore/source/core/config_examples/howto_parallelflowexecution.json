@@ -1,0 +1,1453 @@
+{
+  "component_type": "Flow",
+  "id": "54d4d398-5680-4ded-a594-bfd99790311a",
+  "name": "flow_d2c53e52__auto",
+  "description": "",
+  "metadata": {
+    "__metadata_info__": {}
+  },
+  "inputs": [
+    {
+      "type": "string",
+      "title": "username"
+    }
+  ],
+  "outputs": [
+    {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "key_type": {
+        "type": "string"
+      },
+      "title": "user_info"
+    },
+    {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        },
+        "key_type": {
+          "type": "string"
+        }
+      },
+      "title": "items_on_sale"
+    },
+    {
+      "description": "the message added to the messages list",
+      "type": "string",
+      "title": "output_message"
+    },
+    {
+      "type": "string",
+      "title": "current_time"
+    },
+    {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        },
+        "key_type": {
+          "type": "string"
+        }
+      },
+      "title": "user_purchases"
+    },
+    {
+      "description": "the generated text",
+      "type": "string",
+      "title": "output"
+    }
+  ],
+  "start_node": {
+    "$component_ref": "ddcf926c-bce7-4050-a5f0-0a3da2110b52"
+  },
+  "nodes": [
+    {
+      "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+    },
+    {
+      "$component_ref": "b3642f57-f4da-4023-96dd-3916bc931b68"
+    },
+    {
+      "$component_ref": "6594c3ef-67d2-4dfd-96a4-328a9fad8443"
+    },
+    {
+      "$component_ref": "ddcf926c-bce7-4050-a5f0-0a3da2110b52"
+    },
+    {
+      "$component_ref": "e8563485-edec-4ba2-ba13-4e2636e6de6c"
+    }
+  ],
+  "control_flow_connections": [
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "eae402fb-9859-412f-9b98-d62dade4b757",
+      "name": "parallel_flow_step_to_prepare_marketing_message_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "b3642f57-f4da-4023-96dd-3916bc931b68"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "229a2cb3-80b4-4a89-9824-2dd41a59e660",
+      "name": "prepare_marketing_message_to_output_message_step_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "b3642f57-f4da-4023-96dd-3916bc931b68"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "6594c3ef-67d2-4dfd-96a4-328a9fad8443"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "d9801199-6ace-42fb-b9c4-109413041047",
+      "name": "__StartStep___to_parallel_flow_step_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "ddcf926c-bce7-4050-a5f0-0a3da2110b52"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "9548adc6-82fb-4553-9cd9-6fd7367a93e7",
+      "name": "output_message_step_to_None End node_control_flow_edge",
+      "description": null,
+      "metadata": {},
+      "from_node": {
+        "$component_ref": "6594c3ef-67d2-4dfd-96a4-328a9fad8443"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "e8563485-edec-4ba2-ba13-4e2636e6de6c"
+      }
+    }
+  ],
+  "data_flow_connections": [
+    {
+      "component_type": "DataFlowEdge",
+      "id": "04675bc3-157f-48c8-bfba-2b2045153d33",
+      "name": "parallel_flow_step_user_info_to_prepare_marketing_message_user_info_data_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "source_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      },
+      "source_output": "user_info",
+      "destination_node": {
+        "$component_ref": "b3642f57-f4da-4023-96dd-3916bc931b68"
+      },
+      "destination_input": "user_info"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "785a09b7-2c39-48c7-a2ad-522ce7815ca7",
+      "name": "parallel_flow_step_current_time_to_prepare_marketing_message_current_time_data_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "source_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      },
+      "source_output": "current_time",
+      "destination_node": {
+        "$component_ref": "b3642f57-f4da-4023-96dd-3916bc931b68"
+      },
+      "destination_input": "current_time"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "52844a73-6b00-40b3-b714-f2f8790e0a08",
+      "name": "parallel_flow_step_user_purchases_to_prepare_marketing_message_user_purchases_data_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "source_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      },
+      "source_output": "user_purchases",
+      "destination_node": {
+        "$component_ref": "b3642f57-f4da-4023-96dd-3916bc931b68"
+      },
+      "destination_input": "user_purchases"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "3cd4824d-41bb-40a5-8f20-6e2aef9dcd25",
+      "name": "parallel_flow_step_items_on_sale_to_prepare_marketing_message_items_on_sale_data_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "source_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      },
+      "source_output": "items_on_sale",
+      "destination_node": {
+        "$component_ref": "b3642f57-f4da-4023-96dd-3916bc931b68"
+      },
+      "destination_input": "items_on_sale"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "f76e15fe-eb5c-47d6-b20d-de40bbd88991",
+      "name": "prepare_marketing_message_output_to_output_message_step_output_data_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "source_node": {
+        "$component_ref": "b3642f57-f4da-4023-96dd-3916bc931b68"
+      },
+      "source_output": "output",
+      "destination_node": {
+        "$component_ref": "6594c3ef-67d2-4dfd-96a4-328a9fad8443"
+      },
+      "destination_input": "output"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "d7b0f627-aee4-4135-8052-361e63f21037",
+      "name": "__StartStep___username_to_parallel_flow_step_username_data_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "source_node": {
+        "$component_ref": "ddcf926c-bce7-4050-a5f0-0a3da2110b52"
+      },
+      "source_output": "username",
+      "destination_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      },
+      "destination_input": "username"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "48b06c96-7dad-4da2-8a94-bace2d0cac7e",
+      "name": "parallel_flow_step_user_info_to_None End node_user_info_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      },
+      "source_output": "user_info",
+      "destination_node": {
+        "$component_ref": "e8563485-edec-4ba2-ba13-4e2636e6de6c"
+      },
+      "destination_input": "user_info"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "0c514ff2-ca9b-4f98-86e9-62d7dece421a",
+      "name": "parallel_flow_step_items_on_sale_to_None End node_items_on_sale_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      },
+      "source_output": "items_on_sale",
+      "destination_node": {
+        "$component_ref": "e8563485-edec-4ba2-ba13-4e2636e6de6c"
+      },
+      "destination_input": "items_on_sale"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "4fdd2b40-9078-4f30-92f6-c8103d406e01",
+      "name": "output_message_step_output_message_to_None End node_output_message_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "6594c3ef-67d2-4dfd-96a4-328a9fad8443"
+      },
+      "source_output": "output_message",
+      "destination_node": {
+        "$component_ref": "e8563485-edec-4ba2-ba13-4e2636e6de6c"
+      },
+      "destination_input": "output_message"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "aa31f23e-3ba0-41be-8214-dc32d9365401",
+      "name": "parallel_flow_step_current_time_to_None End node_current_time_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      },
+      "source_output": "current_time",
+      "destination_node": {
+        "$component_ref": "e8563485-edec-4ba2-ba13-4e2636e6de6c"
+      },
+      "destination_input": "current_time"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "bb699cc4-e9ae-423a-ac2e-fb4afc629b84",
+      "name": "parallel_flow_step_user_purchases_to_None End node_user_purchases_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "6ce9d589-6649-4d21-992d-b9f1e76e01fa"
+      },
+      "source_output": "user_purchases",
+      "destination_node": {
+        "$component_ref": "e8563485-edec-4ba2-ba13-4e2636e6de6c"
+      },
+      "destination_input": "user_purchases"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "56bef94f-fe6a-4f13-8587-8dec9e8498b6",
+      "name": "prepare_marketing_message_output_to_None End node_output_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "b3642f57-f4da-4023-96dd-3916bc931b68"
+      },
+      "source_output": "output",
+      "destination_node": {
+        "$component_ref": "e8563485-edec-4ba2-ba13-4e2636e6de6c"
+      },
+      "destination_input": "output"
+    }
+  ],
+  "$referenced_components": {
+    "6ce9d589-6649-4d21-992d-b9f1e76e01fa": {
+      "component_type": "ExtendedParallelFlowNode",
+      "id": "6ce9d589-6649-4d21-992d-b9f1e76e01fa",
+      "name": "parallel_flow_step",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [
+        {
+          "type": "string",
+          "title": "username"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "title": "current_time"
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "key_type": {
+            "type": "string"
+          },
+          "title": "user_info"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "key_type": {
+              "type": "string"
+            }
+          },
+          "title": "user_purchases"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "key_type": {
+              "type": "string"
+            }
+          },
+          "title": "items_on_sale"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "input_mapping": {},
+      "output_mapping": {},
+      "flows": [
+        {
+          "component_type": "Flow",
+          "id": "3e8130df-e277-4f19-918c-f6584d791d24",
+          "name": "flow_9eb7e208__auto",
+          "description": "",
+          "metadata": {
+            "__metadata_info__": {}
+          },
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "string",
+              "title": "current_time"
+            }
+          ],
+          "start_node": {
+            "$component_ref": "cddc1061-f534-4182-98a7-a265e9a24d58"
+          },
+          "nodes": [
+            {
+              "$component_ref": "0075a188-518a-48de-aa40-311e2b101db8"
+            },
+            {
+              "$component_ref": "cddc1061-f534-4182-98a7-a265e9a24d58"
+            },
+            {
+              "$component_ref": "6b29d2c5-02e4-405c-84fd-ab88df514c22"
+            }
+          ],
+          "control_flow_connections": [
+            {
+              "component_type": "ControlFlowEdge",
+              "id": "ab5b3f24-8caf-4de6-a4a9-059646aaa413",
+              "name": "__StartStep___to_get_current_time_step_control_flow_edge",
+              "description": null,
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "from_node": {
+                "$component_ref": "cddc1061-f534-4182-98a7-a265e9a24d58"
+              },
+              "from_branch": null,
+              "to_node": {
+                "$component_ref": "0075a188-518a-48de-aa40-311e2b101db8"
+              }
+            },
+            {
+              "component_type": "ControlFlowEdge",
+              "id": "eb8c4a33-49aa-43a8-a91a-fb42e45e3eb9",
+              "name": "get_current_time_step_to_None End node_control_flow_edge",
+              "description": null,
+              "metadata": {},
+              "from_node": {
+                "$component_ref": "0075a188-518a-48de-aa40-311e2b101db8"
+              },
+              "from_branch": null,
+              "to_node": {
+                "$component_ref": "6b29d2c5-02e4-405c-84fd-ab88df514c22"
+              }
+            }
+          ],
+          "data_flow_connections": [
+            {
+              "component_type": "DataFlowEdge",
+              "id": "6af5d6e0-a322-419a-adf6-e9aba36cca7c",
+              "name": "get_current_time_step_current_time_to_None End node_current_time_data_flow_edge",
+              "description": null,
+              "metadata": {},
+              "source_node": {
+                "$component_ref": "0075a188-518a-48de-aa40-311e2b101db8"
+              },
+              "source_output": "current_time",
+              "destination_node": {
+                "$component_ref": "6b29d2c5-02e4-405c-84fd-ab88df514c22"
+              },
+              "destination_input": "current_time"
+            }
+          ],
+          "$referenced_components": {
+            "0075a188-518a-48de-aa40-311e2b101db8": {
+              "component_type": "ToolNode",
+              "id": "0075a188-518a-48de-aa40-311e2b101db8",
+              "name": "get_current_time_step",
+              "description": "",
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "string",
+                  "title": "current_time"
+                }
+              ],
+              "branches": [
+                "next"
+              ],
+              "tool": {
+                "component_type": "ServerTool",
+                "id": "0cdd153f-4595-48f9-bfc0-7c11ecbda375",
+                "name": "get_current_time",
+                "description": "Return current time",
+                "metadata": {
+                  "__metadata_info__": {}
+                },
+                "inputs": [],
+                "outputs": [
+                  {
+                    "type": "string",
+                    "title": "current_time"
+                  }
+                ],
+                "requires_confirmation": false
+              }
+            },
+            "6b29d2c5-02e4-405c-84fd-ab88df514c22": {
+              "component_type": "EndNode",
+              "id": "6b29d2c5-02e4-405c-84fd-ab88df514c22",
+              "name": "None End node",
+              "description": "End node representing all transitions to None in the WayFlow flow",
+              "metadata": {},
+              "inputs": [
+                {
+                  "type": "string",
+                  "title": "current_time"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "string",
+                  "title": "current_time"
+                }
+              ],
+              "branches": [],
+              "branch_name": "next"
+            },
+            "cddc1061-f534-4182-98a7-a265e9a24d58": {
+              "component_type": "StartNode",
+              "id": "cddc1061-f534-4182-98a7-a265e9a24d58",
+              "name": "__StartStep__",
+              "description": "",
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "inputs": [],
+              "outputs": [],
+              "branches": [
+                "next"
+              ]
+            }
+          }
+        },
+        {
+          "component_type": "Flow",
+          "id": "25337c63-abcd-4361-baf9-bcaa66dcde86",
+          "name": "flow_55ed320e__auto",
+          "description": "",
+          "metadata": {
+            "__metadata_info__": {}
+          },
+          "inputs": [
+            {
+              "type": "string",
+              "title": "username"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "key_type": {
+                "type": "string"
+              },
+              "title": "user_info"
+            }
+          ],
+          "start_node": {
+            "$component_ref": "46f7b258-bc5e-4070-9efc-f25d51dfe3da"
+          },
+          "nodes": [
+            {
+              "$component_ref": "3ae0dda1-abcc-415c-8103-a07ae8e9bfa2"
+            },
+            {
+              "$component_ref": "46f7b258-bc5e-4070-9efc-f25d51dfe3da"
+            },
+            {
+              "$component_ref": "1fe576de-7456-49ad-965b-5965f6bffe24"
+            }
+          ],
+          "control_flow_connections": [
+            {
+              "component_type": "ControlFlowEdge",
+              "id": "0dfae366-ccfd-46ef-868b-cb5466ee2111",
+              "name": "__StartStep___to_get_user_information_step_control_flow_edge",
+              "description": null,
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "from_node": {
+                "$component_ref": "46f7b258-bc5e-4070-9efc-f25d51dfe3da"
+              },
+              "from_branch": null,
+              "to_node": {
+                "$component_ref": "3ae0dda1-abcc-415c-8103-a07ae8e9bfa2"
+              }
+            },
+            {
+              "component_type": "ControlFlowEdge",
+              "id": "c2f92a97-81c4-4b4c-9a01-d4b57a2ba3eb",
+              "name": "get_user_information_step_to_None End node_control_flow_edge",
+              "description": null,
+              "metadata": {},
+              "from_node": {
+                "$component_ref": "3ae0dda1-abcc-415c-8103-a07ae8e9bfa2"
+              },
+              "from_branch": null,
+              "to_node": {
+                "$component_ref": "1fe576de-7456-49ad-965b-5965f6bffe24"
+              }
+            }
+          ],
+          "data_flow_connections": [
+            {
+              "component_type": "DataFlowEdge",
+              "id": "e0584e50-3b3e-4efb-9749-0de208b9188b",
+              "name": "__StartStep___username_to_get_user_information_step_username_data_flow_edge",
+              "description": null,
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "source_node": {
+                "$component_ref": "46f7b258-bc5e-4070-9efc-f25d51dfe3da"
+              },
+              "source_output": "username",
+              "destination_node": {
+                "$component_ref": "3ae0dda1-abcc-415c-8103-a07ae8e9bfa2"
+              },
+              "destination_input": "username"
+            },
+            {
+              "component_type": "DataFlowEdge",
+              "id": "145d6cc4-f92e-4303-b5ed-0fc4b2fbfb20",
+              "name": "get_user_information_step_user_info_to_None End node_user_info_data_flow_edge",
+              "description": null,
+              "metadata": {},
+              "source_node": {
+                "$component_ref": "3ae0dda1-abcc-415c-8103-a07ae8e9bfa2"
+              },
+              "source_output": "user_info",
+              "destination_node": {
+                "$component_ref": "1fe576de-7456-49ad-965b-5965f6bffe24"
+              },
+              "destination_input": "user_info"
+            }
+          ],
+          "$referenced_components": {
+            "46f7b258-bc5e-4070-9efc-f25d51dfe3da": {
+              "component_type": "StartNode",
+              "id": "46f7b258-bc5e-4070-9efc-f25d51dfe3da",
+              "name": "__StartStep__",
+              "description": "",
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "inputs": [
+                {
+                  "type": "string",
+                  "title": "username"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "string",
+                  "title": "username"
+                }
+              ],
+              "branches": [
+                "next"
+              ]
+            },
+            "3ae0dda1-abcc-415c-8103-a07ae8e9bfa2": {
+              "component_type": "ToolNode",
+              "id": "3ae0dda1-abcc-415c-8103-a07ae8e9bfa2",
+              "name": "get_user_information_step",
+              "description": "",
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "inputs": [
+                {
+                  "type": "string",
+                  "title": "username"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "key_type": {
+                    "type": "string"
+                  },
+                  "title": "user_info"
+                }
+              ],
+              "branches": [
+                "next"
+              ],
+              "tool": {
+                "component_type": "ServerTool",
+                "id": "3faa1afa-e24b-47eb-a49d-4620c00943dc",
+                "name": "get_user_information",
+                "description": "Retrieve information about a user",
+                "metadata": {
+                  "__metadata_info__": {}
+                },
+                "inputs": [
+                  {
+                    "type": "string",
+                    "title": "username"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "key_type": {
+                      "type": "string"
+                    },
+                    "title": "user_info"
+                  }
+                ],
+                "requires_confirmation": false
+              }
+            },
+            "1fe576de-7456-49ad-965b-5965f6bffe24": {
+              "component_type": "EndNode",
+              "id": "1fe576de-7456-49ad-965b-5965f6bffe24",
+              "name": "None End node",
+              "description": "End node representing all transitions to None in the WayFlow flow",
+              "metadata": {},
+              "inputs": [
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "key_type": {
+                    "type": "string"
+                  },
+                  "title": "user_info"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "key_type": {
+                    "type": "string"
+                  },
+                  "title": "user_info"
+                }
+              ],
+              "branches": [],
+              "branch_name": "next"
+            }
+          }
+        },
+        {
+          "component_type": "Flow",
+          "id": "4a2b111b-4fd9-41c1-9f03-c597b24a1fff",
+          "name": "flow_10816cad__auto",
+          "description": "",
+          "metadata": {
+            "__metadata_info__": {}
+          },
+          "inputs": [
+            {
+              "type": "string",
+              "title": "username"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "key_type": {
+                  "type": "string"
+                }
+              },
+              "title": "user_purchases"
+            }
+          ],
+          "start_node": {
+            "$component_ref": "c9e389a4-0539-430e-b185-1183f6c4591a"
+          },
+          "nodes": [
+            {
+              "$component_ref": "829b22e1-ffbd-419e-a863-4edd780a830c"
+            },
+            {
+              "$component_ref": "c9e389a4-0539-430e-b185-1183f6c4591a"
+            },
+            {
+              "$component_ref": "9c866845-1800-4ea8-896f-c1347e21bc3d"
+            }
+          ],
+          "control_flow_connections": [
+            {
+              "component_type": "ControlFlowEdge",
+              "id": "98416c5b-5a24-4d4c-aef5-088c32ce6da0",
+              "name": "__StartStep___to_get_user_last_purchases_step_control_flow_edge",
+              "description": null,
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "from_node": {
+                "$component_ref": "c9e389a4-0539-430e-b185-1183f6c4591a"
+              },
+              "from_branch": null,
+              "to_node": {
+                "$component_ref": "829b22e1-ffbd-419e-a863-4edd780a830c"
+              }
+            },
+            {
+              "component_type": "ControlFlowEdge",
+              "id": "87a14198-b095-4c78-a10c-f85e6b796eb9",
+              "name": "get_user_last_purchases_step_to_None End node_control_flow_edge",
+              "description": null,
+              "metadata": {},
+              "from_node": {
+                "$component_ref": "829b22e1-ffbd-419e-a863-4edd780a830c"
+              },
+              "from_branch": null,
+              "to_node": {
+                "$component_ref": "9c866845-1800-4ea8-896f-c1347e21bc3d"
+              }
+            }
+          ],
+          "data_flow_connections": [
+            {
+              "component_type": "DataFlowEdge",
+              "id": "19d26e80-9ad0-4b47-9737-951f58ecf3ff",
+              "name": "__StartStep___username_to_get_user_last_purchases_step_username_data_flow_edge",
+              "description": null,
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "source_node": {
+                "$component_ref": "c9e389a4-0539-430e-b185-1183f6c4591a"
+              },
+              "source_output": "username",
+              "destination_node": {
+                "$component_ref": "829b22e1-ffbd-419e-a863-4edd780a830c"
+              },
+              "destination_input": "username"
+            },
+            {
+              "component_type": "DataFlowEdge",
+              "id": "6ec7412a-eab1-43ff-9059-7f9bd77bfe81",
+              "name": "get_user_last_purchases_step_user_purchases_to_None End node_user_purchases_data_flow_edge",
+              "description": null,
+              "metadata": {},
+              "source_node": {
+                "$component_ref": "829b22e1-ffbd-419e-a863-4edd780a830c"
+              },
+              "source_output": "user_purchases",
+              "destination_node": {
+                "$component_ref": "9c866845-1800-4ea8-896f-c1347e21bc3d"
+              },
+              "destination_input": "user_purchases"
+            }
+          ],
+          "$referenced_components": {
+            "c9e389a4-0539-430e-b185-1183f6c4591a": {
+              "component_type": "StartNode",
+              "id": "c9e389a4-0539-430e-b185-1183f6c4591a",
+              "name": "__StartStep__",
+              "description": "",
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "inputs": [
+                {
+                  "type": "string",
+                  "title": "username"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "string",
+                  "title": "username"
+                }
+              ],
+              "branches": [
+                "next"
+              ]
+            },
+            "829b22e1-ffbd-419e-a863-4edd780a830c": {
+              "component_type": "ToolNode",
+              "id": "829b22e1-ffbd-419e-a863-4edd780a830c",
+              "name": "get_user_last_purchases_step",
+              "description": "",
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "inputs": [
+                {
+                  "type": "string",
+                  "title": "username"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "key_type": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "user_purchases"
+                }
+              ],
+              "branches": [
+                "next"
+              ],
+              "tool": {
+                "component_type": "ServerTool",
+                "id": "2d39d486-e499-4b14-a8db-a869343afc48",
+                "name": "get_user_last_purchases",
+                "description": "Retrieve the list of purchases made by a user",
+                "metadata": {
+                  "__metadata_info__": {}
+                },
+                "inputs": [
+                  {
+                    "type": "string",
+                    "title": "username"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "key_type": {
+                        "type": "string"
+                      }
+                    },
+                    "title": "user_purchases"
+                  }
+                ],
+                "requires_confirmation": false
+              }
+            },
+            "9c866845-1800-4ea8-896f-c1347e21bc3d": {
+              "component_type": "EndNode",
+              "id": "9c866845-1800-4ea8-896f-c1347e21bc3d",
+              "name": "None End node",
+              "description": "End node representing all transitions to None in the WayFlow flow",
+              "metadata": {},
+              "inputs": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "key_type": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "user_purchases"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "key_type": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "user_purchases"
+                }
+              ],
+              "branches": [],
+              "branch_name": "next"
+            }
+          }
+        },
+        {
+          "component_type": "Flow",
+          "id": "9e4ce3d6-a70a-47c2-9a2e-a234dfffd8f0",
+          "name": "flow_f16c5a8b__auto",
+          "description": "",
+          "metadata": {
+            "__metadata_info__": {}
+          },
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "key_type": {
+                  "type": "string"
+                }
+              },
+              "title": "items_on_sale"
+            }
+          ],
+          "start_node": {
+            "$component_ref": "44a44892-848f-4b54-96e7-721950b0d849"
+          },
+          "nodes": [
+            {
+              "$component_ref": "3e5b0ee2-5a53-4911-b07b-6e10134b6f77"
+            },
+            {
+              "$component_ref": "44a44892-848f-4b54-96e7-721950b0d849"
+            },
+            {
+              "$component_ref": "b38ffcaf-ea0f-4852-8fea-4e82398e9c3b"
+            }
+          ],
+          "control_flow_connections": [
+            {
+              "component_type": "ControlFlowEdge",
+              "id": "5645365f-aa37-4848-9442-bdf25a8318f2",
+              "name": "__StartStep___to_get_items_on_sale_steo_control_flow_edge",
+              "description": null,
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "from_node": {
+                "$component_ref": "44a44892-848f-4b54-96e7-721950b0d849"
+              },
+              "from_branch": null,
+              "to_node": {
+                "$component_ref": "3e5b0ee2-5a53-4911-b07b-6e10134b6f77"
+              }
+            },
+            {
+              "component_type": "ControlFlowEdge",
+              "id": "2e82699e-cd5f-4df2-b2e5-998b17329078",
+              "name": "get_items_on_sale_steo_to_None End node_control_flow_edge",
+              "description": null,
+              "metadata": {},
+              "from_node": {
+                "$component_ref": "3e5b0ee2-5a53-4911-b07b-6e10134b6f77"
+              },
+              "from_branch": null,
+              "to_node": {
+                "$component_ref": "b38ffcaf-ea0f-4852-8fea-4e82398e9c3b"
+              }
+            }
+          ],
+          "data_flow_connections": [
+            {
+              "component_type": "DataFlowEdge",
+              "id": "1cb11a04-8b4a-4cda-83fe-0ceeab6474ea",
+              "name": "get_items_on_sale_steo_items_on_sale_to_None End node_items_on_sale_data_flow_edge",
+              "description": null,
+              "metadata": {},
+              "source_node": {
+                "$component_ref": "3e5b0ee2-5a53-4911-b07b-6e10134b6f77"
+              },
+              "source_output": "items_on_sale",
+              "destination_node": {
+                "$component_ref": "b38ffcaf-ea0f-4852-8fea-4e82398e9c3b"
+              },
+              "destination_input": "items_on_sale"
+            }
+          ],
+          "$referenced_components": {
+            "3e5b0ee2-5a53-4911-b07b-6e10134b6f77": {
+              "component_type": "ToolNode",
+              "id": "3e5b0ee2-5a53-4911-b07b-6e10134b6f77",
+              "name": "get_items_on_sale_steo",
+              "description": "",
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "key_type": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "items_on_sale"
+                }
+              ],
+              "branches": [
+                "next"
+              ],
+              "tool": {
+                "component_type": "ServerTool",
+                "id": "a316b69c-8e5d-4b09-bff2-35fccd48048a",
+                "name": "get_items_on_sale",
+                "description": "Retrieve the list of items currently on sale",
+                "metadata": {
+                  "__metadata_info__": {}
+                },
+                "inputs": [],
+                "outputs": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "key_type": {
+                        "type": "string"
+                      }
+                    },
+                    "title": "items_on_sale"
+                  }
+                ],
+                "requires_confirmation": false
+              }
+            },
+            "b38ffcaf-ea0f-4852-8fea-4e82398e9c3b": {
+              "component_type": "EndNode",
+              "id": "b38ffcaf-ea0f-4852-8fea-4e82398e9c3b",
+              "name": "None End node",
+              "description": "End node representing all transitions to None in the WayFlow flow",
+              "metadata": {},
+              "inputs": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "key_type": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "items_on_sale"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "key_type": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "items_on_sale"
+                }
+              ],
+              "branches": [],
+              "branch_name": "next"
+            },
+            "44a44892-848f-4b54-96e7-721950b0d849": {
+              "component_type": "StartNode",
+              "id": "44a44892-848f-4b54-96e7-721950b0d849",
+              "name": "__StartStep__",
+              "description": "",
+              "metadata": {
+                "__metadata_info__": {}
+              },
+              "inputs": [],
+              "outputs": [],
+              "branches": [
+                "next"
+              ]
+            }
+          }
+        }
+      ],
+      "max_workers": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "b3642f57-f4da-4023-96dd-3916bc931b68": {
+      "component_type": "LlmNode",
+      "id": "b3642f57-f4da-4023-96dd-3916bc931b68",
+      "name": "prepare_marketing_message",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [
+        {
+          "description": "\"user_info\" input variable for the template",
+          "type": "string",
+          "title": "user_info"
+        },
+        {
+          "description": "\"current_time\" input variable for the template",
+          "type": "string",
+          "title": "current_time"
+        },
+        {
+          "description": "\"user_purchases\" input variable for the template",
+          "type": "string",
+          "title": "user_purchases"
+        },
+        {
+          "description": "\"items_on_sale\" input variable for the template",
+          "type": "string",
+          "title": "items_on_sale"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "the generated text",
+          "type": "string",
+          "title": "output"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "llm_config": {
+        "component_type": "VllmConfig",
+        "id": "deb3fd81-b199-4611-925d-01e22192f5c7",
+        "name": "llm_c9adb3b0__auto",
+        "description": null,
+        "metadata": {
+          "__metadata_info__": {}
+        },
+        "default_generation_parameters": null,
+        "url": "LLAMA_API_URL",
+        "model_id": "LLAMA_MODEL_ID"
+      },
+      "prompt_template": "# Instructions\n\nYou are a marketing expert. You have to write a welcome message for a user.\n\nThe message must contain:\n- A first sentence of greetings, including user's name, and personalized in case it's user's birthday\n- A proposal containing something to buy\n \nThe purchase proposal must be:\n- aligned with user's purchase history\n- part of the list of items on sale\n\n# User information\n\n{{user_info}}\n\nNote that the current time to check the birthday is: {{current_time}}\n\nThe list of items purchased by the user is:\n{{user_purchases}}\n\n# Items on sale\n\n{{items_on_sale}}\n\nPlease write the welcome message for the user.\nDo not give me the instructions to do it, I want only the final message to send.  \n"
+    },
+    "6594c3ef-67d2-4dfd-96a4-328a9fad8443": {
+      "component_type": "PluginOutputMessageNode",
+      "id": "6594c3ef-67d2-4dfd-96a4-328a9fad8443",
+      "name": "output_message_step",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [
+        {
+          "description": "\"output\" input variable for the template",
+          "type": "string",
+          "title": "output"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "the message added to the messages list",
+          "type": "string",
+          "title": "output_message"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": "{{output}}",
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_type": "AGENT",
+      "rephrase": false,
+      "llm_config": null,
+      "expose_message_as_output": true,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "ddcf926c-bce7-4050-a5f0-0a3da2110b52": {
+      "component_type": "StartNode",
+      "id": "ddcf926c-bce7-4050-a5f0-0a3da2110b52",
+      "name": "__StartStep__",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [
+        {
+          "type": "string",
+          "title": "username"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "title": "username"
+        }
+      ],
+      "branches": [
+        "next"
+      ]
+    },
+    "e8563485-edec-4ba2-ba13-4e2636e6de6c": {
+      "component_type": "EndNode",
+      "id": "e8563485-edec-4ba2-ba13-4e2636e6de6c",
+      "name": "None End node",
+      "description": "End node representing all transitions to None in the WayFlow flow",
+      "metadata": {},
+      "inputs": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "key_type": {
+            "type": "string"
+          },
+          "title": "user_info"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "key_type": {
+              "type": "string"
+            }
+          },
+          "title": "items_on_sale"
+        },
+        {
+          "description": "the message added to the messages list",
+          "type": "string",
+          "title": "output_message"
+        },
+        {
+          "type": "string",
+          "title": "current_time"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "key_type": {
+              "type": "string"
+            }
+          },
+          "title": "user_purchases"
+        },
+        {
+          "description": "the generated text",
+          "type": "string",
+          "title": "output"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "key_type": {
+            "type": "string"
+          },
+          "title": "user_info"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "key_type": {
+              "type": "string"
+            }
+          },
+          "title": "items_on_sale"
+        },
+        {
+          "description": "the message added to the messages list",
+          "type": "string",
+          "title": "output_message"
+        },
+        {
+          "type": "string",
+          "title": "current_time"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "key_type": {
+              "type": "string"
+            }
+          },
+          "title": "user_purchases"
+        },
+        {
+          "description": "the generated text",
+          "type": "string",
+          "title": "output"
+        }
+      ],
+      "branches": [],
+      "branch_name": "next"
+    }
+  },
+  "agentspec_version": "25.4.2"
+}

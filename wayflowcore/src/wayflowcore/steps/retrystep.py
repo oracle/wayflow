@@ -182,8 +182,8 @@ class RetryStep(Step):
 
         self.executor = FlowConversationExecutor()
 
-    def sub_flow(self) -> Optional["Flow"]:
-        return self.flow
+    def sub_flows(self) -> Optional[List["Flow"]]:
+        return [self.flow]
 
     @classmethod
     def _get_step_specific_static_configuration_descriptors(

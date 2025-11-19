@@ -365,5 +365,5 @@ class ChoiceSelectionStep(Step):
     ) -> StepResult:
         return await self.subflow_step._invoke_step_async(inputs, conversation)
 
-    def sub_flow(self) -> Optional["Flow"]:
-        return self.subflow
+    def sub_flows(self) -> Optional[List["Flow"]]:
+        return [self.subflow]

@@ -27,7 +27,8 @@ from .agentexecutionstep import AgentExecutionStep
 from .apicallstep import ApiCallStep
 from .catchexceptionstep import CatchExceptionStep
 from .choiceselectionstep import ChoiceSelectionStep
-from .mapstep import MapStep
+from .mapstep import MapStep, ParallelMapStep
+from .parallelflowexecutionstep import ParallelFlowExecutionStep
 from .retrystep import RetryStep
 from .toolexecutionstep import ToolExecutionStep
 
@@ -53,4 +54,6 @@ __all__ = [
     "ToolExecutionStep",
     "ConstantValuesStep",
     "ApiCallStep",
+    "ParallelFlowExecutionStep",
+    "ParallelMapStep",
 ]

@@ -721,12 +721,18 @@ class Step(ComponentWithInputsOutputs, SerializableObject, metaclass=_StepRegist
         # not yielding
         return False
 
-    def sub_flow(self) -> Optional["Flow"]:
+    def sub_flows(self) -> Optional[List["Flow"]]:
         """
-        Returns the sub-flow this step implements, if it does.
-        (e.g. ``RetryStep`` does execute a sub-flow)
+        Returns the sub-flows this step uses, if it does.
         """
         return None
+
+    def sub_flow(self) -> Optional["Flow"]:
+        """
+        Returns the first sub-flow this step uses, if it does.
+        """
+        sub_flows = self.sub_flows()
+        return sub_flows[0] if sub_flows is not None and len(sub_flows) > 0 else None
 
     @property
     def supports_dict_io_with_non_str_keys(self) -> bool:

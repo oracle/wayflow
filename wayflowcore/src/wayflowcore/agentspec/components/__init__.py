@@ -44,6 +44,8 @@ from .messagelist import PluginImageContent, PluginMessage, PluginTextContent
 from .nodes import (
     ExtendedLlmNode,
     ExtendedMapNode,
+    ExtendedParallelFlowNode,
+    ExtendedParallelMapNode,
     ExtendedToolNode,
     PluginCatchExceptionNode,
     PluginChoiceNode,
@@ -162,6 +164,8 @@ __all__ = [
     "PluginConstantValuesNode",
     "PluginGetChatHistoryNode",
     "PluginRetryNode",
+    "ExtendedParallelFlowNode",
+    "ExtendedParallelMapNode",
     "nodes_serialization_plugin",
     "nodes_deserialization_plugin",
     "ExtendedFlow",
