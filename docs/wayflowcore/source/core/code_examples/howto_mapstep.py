@@ -148,6 +148,16 @@ conversation = flow.start_conversation(inputs={"articles": articles})
 status = conversation.execute()
 print(status.output_values)
 # .. end-##_Parallel_execution_of_map_reduce_operation
+# .. start-##_Parallel_execution_of_map_reduce_operation_with_ParallelMapStep
+from wayflowcore.steps import ParallelMapStep
+
+parallel_map_step = ParallelMapStep(
+    flow=summarize_flow,
+    unpack_input={"article": "."},
+    output_descriptors=[ListProperty(name="summary", item_type=StringProperty())],
+    input_descriptors=[ListProperty(MapStep.ITERATED_INPUT, item_type=StringProperty())],
+)
+# .. end-##_Parallel_execution_of_map_reduce_operation_with_ParallelMapStep
 # .. start-##_Export_config_to_Agent_Spec
 from wayflowcore.agentspec import AgentSpecExporter
 

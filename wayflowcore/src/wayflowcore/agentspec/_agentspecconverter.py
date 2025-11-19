@@ -78,6 +78,12 @@ from wayflowcore._metadata import METADATA_KEY
 from wayflowcore._utils._templating_helpers import MessageAsDictT as RuntimeMessageAsDictT
 from wayflowcore.agent import Agent as RuntimeAgent
 from wayflowcore.agent import CallerInputMode
+from wayflowcore.agentspec.components import (
+    ExtendedParallelFlowNode as AgentSpecExtendedParallelFlowNode,
+)
+from wayflowcore.agentspec.components import (
+    ExtendedParallelMapNode as AgentSpecExtendedParallelMapNode,
+)
 from wayflowcore.agentspec.components import PluginEmbeddingConfig as AgentSpecPluginEmbeddingConfig
 from wayflowcore.agentspec.components import (
     PluginOciGenAiEmbeddingConfig as AgentSpecPluginOciGenAiEmbeddingConfig,
@@ -353,6 +359,10 @@ from wayflowcore.steps.datastoresteps import DatastoreListStep as RuntimeDatasto
 from wayflowcore.steps.datastoresteps import DatastoreQueryStep as RuntimeDatastoreQueryStep
 from wayflowcore.steps.datastoresteps import DatastoreUpdateStep as RuntimeDatastoreUpdateStep
 from wayflowcore.steps.getchathistorystep import GetChatHistoryStep as RuntimeGetChatHistoryStep
+from wayflowcore.steps.mapstep import ParallelMapStep as RuntimeParallelMapStep
+from wayflowcore.steps.parallelflowexecutionstep import (
+    ParallelFlowExecutionStep as RuntimeParallelFlowExecutionStep,
+)
 from wayflowcore.steps.retrystep import RetryStep as RuntimeRetryStep
 from wayflowcore.steps.step import Step as RuntimeStep
 from wayflowcore.steps.variablesteps.variablereadstep import (
@@ -2315,6 +2325,28 @@ class RuntimeToAgentSpecConverter:
                 **step_args,
                 mapping=runtime_step.branch_name_mapping,
             )
+        elif runtime_step_type is RuntimeParallelFlowExecutionStep:
+            runtime_step = cast(RuntimeParallelFlowExecutionStep, runtime_step)
+            return AgentSpecExtendedParallelFlowNode(
+                **step_args,
+                flows=[
+                    self._flow_convert_to_agentspec(rt_flow, referenced_objects=referenced_objects)
+                    for rt_flow in runtime_step.flows
+                ],
+                max_workers=runtime_step.max_workers,
+                input_mapping=runtime_step.input_mapping,
+                output_mapping=runtime_step.output_mapping,
+            )
+        elif runtime_step_type is RuntimeParallelMapStep:
+            runtime_step = cast(RuntimeParallelMapStep, runtime_step)
+            return AgentSpecExtendedParallelMapNode(
+                **step_args,
+                flow=cast(AgentSpecFlow, self.convert(runtime_step.flow, referenced_objects)),
+                unpack_input=runtime_step.unpack_input,
+                max_workers=runtime_step.max_workers,
+                input_mapping=runtime_step.input_mapping,
+                output_mapping=runtime_step.output_mapping,
+            )
         elif runtime_step_type is RuntimeMapStep:
             runtime_step = cast(RuntimeMapStep, runtime_step)
             reducers: Dict[str, ReductionMethod] = {}
@@ -2324,6 +2356,7 @@ class RuntimeToAgentSpecConverter:
                     unpacked_input_jq != "."
                     for unpacked_input_jq in (runtime_step.unpack_input or {}).values()
                 )
+                or runtime_step.max_workers is not None
                 or runtime_step.input_mapping
                 or runtime_step.output_mapping
             ):
@@ -2333,6 +2366,7 @@ class RuntimeToAgentSpecConverter:
                     flow=cast(AgentSpecFlow, self.convert(runtime_step.flow, referenced_objects)),
                     unpack_input=runtime_step.unpack_input,
                     parallel_execution=runtime_step.parallel_execution,
+                    max_workers=runtime_step.max_workers,
                     input_mapping=runtime_step.input_mapping,
                     output_mapping=runtime_step.output_mapping,
                 )

@@ -202,8 +202,8 @@ class FlowExecutionStep(Step):
 
         self.flow: "Flow" = flow
 
-    def sub_flow(self) -> "Flow":
-        return self.flow
+    def sub_flows(self) -> Optional[List["Flow"]]:
+        return [self.flow]
 
     @classmethod
     def _get_step_specific_static_configuration_descriptors(

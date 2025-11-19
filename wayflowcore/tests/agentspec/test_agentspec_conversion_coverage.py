@@ -148,6 +148,13 @@ control_flow_edges = [
     ControlFlowEdge(source_step=start_step, destination_step=destination_step),
     ControlFlowEdge(source_step=destination_step, destination_step=CompleteStep(name="end_step")),
 ]
+flow = Flow(
+    id="123abc",
+    name="a",
+    begin_step=start_step,
+    control_flow_edges=control_flow_edges,
+    output_descriptors=[],
+)
 
 INIT_PARAMETER_DEFAULT_VALUES = {
     "messages": [Message(content="message content", role="user")],
@@ -197,7 +204,8 @@ INIT_PARAMETER_DEFAULT_VALUES = {
     "agent": main_agent,
     # properties
     "any_of": [StringProperty()],
-    "flow": Flow(begin_step=start_step, control_flow_edges=control_flow_edges),
+    "flow": flow,
+    "flows": [flow],
     "template": "",
     "message_template": "",
     "prompt_template": "",
@@ -235,6 +243,27 @@ SKIP_ELEMENTS: Dict[str, Dict[str, Any]] = {
 }
 
 
+def _is_equal(value_a: Any, value_b: Any) -> bool:
+    if type(value_a) != type(value_b):
+        return False
+    if isinstance(value_a, dict):
+        if set(value_a.keys()) != set(value_b.keys()):
+            return False
+        return all(_is_equal(value_a[key], value_b[key]) for key in value_a)
+    if isinstance(value_a, (set, list)):
+        if len(value_a) != len(value_b):
+            return False
+        return all(
+            any(_is_equal(value_a_item, value_b_item) for value_b_item in value_b)
+            for value_a_item in value_a
+        )
+    if isinstance(value_a, tuple):
+        if len(value_a) != len(value_b):
+            return False
+        return all(_is_equal(value_a[i], value_b[i]) for i in range(len(value_a)))
+    return value_a == value_b
+
+
 def prune_dict_inplace(d1: dict, d2: dict, checks_equality: bool = True) -> dict:
     """
     Recursively remove keys from d1 if they exist in d2.
@@ -258,7 +287,7 @@ def prune_dict_inplace(d1: dict, d2: dict, checks_equality: bool = True) -> dict
                 if not value:  # d1[key] became empty
                     keys_to_delete.append(key)
             else:
-                if (checks_equality and value == d2[key]) or (not checks_equality):
+                if (not checks_equality) or (checks_equality and _is_equal(value, d2[key])):
                     keys_to_delete.append(key)
                     pruned[key] = value
 
@@ -283,9 +312,10 @@ def _check_component_equality(comp1: SerializableObject, comp2: SerializableObje
 
     # # un-comment for easier debugging
     # print(dict_1)
+    # print("=======")
     # print(dict_2)
 
-    assert dict_1 == dict_2
+    assert _is_equal(dict_1, dict_2)
 
 
 def _validate_compatibility(obj):

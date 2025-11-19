@@ -98,6 +98,14 @@ In this context, you can just set the ``parallel_execution`` parameter to ``True
     :start-after: .. start-##_Parallel_execution_of_map_reduce_operation
     :end-before: .. end-##_Parallel_execution_of_map_reduce_operation
 
+The same can be achieved using the :ref:`ParallelMapStep <parallelmapstep>`.
+This step type is equivalent to the :ref:`MapStep <mapstep>`, the only difference is that parallelization is always enabled.
+
+.. literalinclude:: ../code_examples/howto_mapstep.py
+    :language: python
+    :start-after: .. start-##_Parallel_execution_of_map_reduce_operation_with_ParallelMapStep
+    :end-before: .. end-##_Parallel_execution_of_map_reduce_operation_with_ParallelMapStep
+
 .. note::
   The Global Interpreter Lock (GIL) in Python is not a problem for parallel remote requests
   because I/O-bound operations, such as network requests, release the GIL during their execution,

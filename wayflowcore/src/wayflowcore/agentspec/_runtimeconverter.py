@@ -165,6 +165,12 @@ from wayflowcore.agentspec.components.node import ExtendedNode as AgentSpecExten
 from wayflowcore.agentspec.components.nodes import ExtendedAgentNode as AgentSpecExtendedAgentNode
 from wayflowcore.agentspec.components.nodes import ExtendedLlmNode as AgentSpecExtendedLlmNode
 from wayflowcore.agentspec.components.nodes import ExtendedMapNode as AgentSpecExtendedMapNode
+from wayflowcore.agentspec.components.nodes import (
+    ExtendedParallelFlowNode as AgentSpecExtendedParallelFlowNode,
+)
+from wayflowcore.agentspec.components.nodes import (
+    ExtendedParallelMapNode as AgentSpecExtendedParallelMapNode,
+)
 from wayflowcore.agentspec.components.nodes import ExtendedToolNode as AgentSpecExtendedToolNode
 from wayflowcore.agentspec.components.nodes import (
     PluginCatchExceptionNode as AgentSpecPluginCatchExceptionNode,
@@ -327,6 +333,8 @@ from wayflowcore.steps import FlowExecutionStep as RuntimeFlowExecutionStep
 from wayflowcore.steps import InputMessageStep as RuntimeInputMessageStep
 from wayflowcore.steps import MapStep as RuntimeMapStep
 from wayflowcore.steps import OutputMessageStep as RuntimeOutputMessageStep
+from wayflowcore.steps import ParallelFlowExecutionStep as RuntimeParallelFlowExecutionStep
+from wayflowcore.steps import ParallelMapStep as RuntimeParallelMapStep
 from wayflowcore.steps import PromptExecutionStep as RuntimePromptExecutionStep
 from wayflowcore.steps import RegexExtractionStep as RuntimeRegexExtractionStep
 from wayflowcore.steps import StartStep as RuntimeStartStep
@@ -819,11 +827,11 @@ class AgentSpecToRuntimeConverter:
                 extra_arguments["initial_message"] = agentspec_component.initial_message
                 extra_arguments["caller_input_mode"] = agentspec_component.caller_input_mode
                 extra_arguments["agents"] = [
-                    self.convert(a, tool_registry, converted_components, described=True)
+                    self.convert(a, tool_registry, converted_components)
                     for a in agentspec_component.agents
                 ]
                 extra_arguments["flows"] = [
-                    self.convert(f, tool_registry, converted_components, described=True)
+                    self.convert(f, tool_registry, converted_components)
                     for f in agentspec_component.flows
                 ]
                 extra_arguments["agent_template"] = (
@@ -1297,6 +1305,14 @@ class AgentSpecToRuntimeConverter:
                 flow=self.convert(agentspec_component.flow, tool_registry, converted_components),
                 unpack_input=agentspec_component.unpack_input,
                 parallel_execution=agentspec_component.parallel_execution,
+                max_workers=agentspec_component.max_workers,
+                **self._get_rt_nodes_arguments(agentspec_component, metadata_info),
+            )
+        elif isinstance(agentspec_component, AgentSpecExtendedParallelMapNode):
+            return RuntimeParallelMapStep(
+                flow=self.convert(agentspec_component.flow, tool_registry, converted_components),
+                unpack_input=agentspec_component.unpack_input,
+                max_workers=agentspec_component.max_workers,
                 **self._get_rt_nodes_arguments(agentspec_component, metadata_info),
             )
         elif isinstance(agentspec_component, AgentSpecMapNode):
@@ -1304,6 +1320,15 @@ class AgentSpecToRuntimeConverter:
                 agentspec_component,
                 tool_registry=tool_registry,
                 converted_components=converted_components,
+            )
+        elif isinstance(agentspec_component, AgentSpecExtendedParallelFlowNode):
+            return RuntimeParallelFlowExecutionStep(
+                flows=[
+                    self._convert(subflow, tool_registry, converted_components)
+                    for subflow in agentspec_component.flows
+                ],
+                max_workers=agentspec_component.max_workers,
+                **self._get_rt_nodes_arguments(agentspec_component, metadata_info),
             )
         elif isinstance(agentspec_component, AgentSpecPluginReadVariableNode):
             return RuntimeVariableReadStep(

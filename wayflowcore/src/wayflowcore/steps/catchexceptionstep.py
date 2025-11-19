@@ -121,8 +121,8 @@ class CatchExceptionStep(Step):
         self.catch_all_exceptions = catch_all_exceptions
         self.flow_step = FlowExecutionStep(flow=flow)
 
-    def sub_flow(self) -> "Flow":
-        return self.flow
+    def sub_flows(self) -> Optional[List["Flow"]]:
+        return [self.flow]
 
     @classmethod
     def _get_step_specific_static_configuration_descriptors(

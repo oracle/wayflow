@@ -255,6 +255,7 @@ class FlowConversationExecutor(ConversationExecutor):
         inputs: Dict[str, Any],
         flow: "Flow",
         step: Step,
+        sub_conversation_id: Optional[str] = None,
     ) -> "FlowConversation":
         """
         Create a sub conversation for a given step.
@@ -268,6 +269,8 @@ class FlowConversationExecutor(ConversationExecutor):
                 Flow on which to start the sub-conversation
             step: Step
                 Step that is creating the sub-conversation. Needed so that step can find its own sub-conversation later
+            sub_conversation_id: str
+                A custom id to use for the sub-conversation. If None, a default suffix is used.
         """
         all_context_providers = conversation._get_all_context_providers_from_parent_conversations()
         all_context_provider_keys = {
@@ -288,8 +291,9 @@ class FlowConversationExecutor(ConversationExecutor):
             context_providers_from_parent_flow=all_context_provider_keys,
         )
 
-        key = FlowConversationExecutor._SUB_CONVERSATION_KEY
-        key = FlowConversationExecutor.make_key_for_step(step, key)
+        key = FlowConversationExecutor.make_key_for_step(
+            step, sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY
+        )
         conversation.state.internal_context_key_values[key] = sub_conversation
         sub_conversation._put_internal_context_key_value(
             FlowConversationExecutor._SUPER_CONVERSATION_KEY, conversation
@@ -822,6 +826,7 @@ class FlowConversationExecutor(ConversationExecutor):
                             )
                         # Do not return for ToolExecutionConfirmationStatus, because we need to prepare for the next step
                         if not isinstance(last_status, ToolExecutionConfirmationStatus):
+                            conversation.status = last_status
                             return last_status
 
                 next_step_name = FlowConversationExecutor.get_next_step_name_from_branch(

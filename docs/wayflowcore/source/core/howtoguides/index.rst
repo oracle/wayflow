@@ -46,6 +46,7 @@ These how-to guides demonstrate how to use the main features to create and custo
    Add User Confirmation to a Tool Call Request <howto_userconfirmation>
    Catch Exceptions in Flows <catching_exceptions>
    Do Map and Reduce Operations in Flows <howto_mapstep>
+   Run Multiple Flows in Parallel <howto_parallelflowexecution>
 
 .. toctree::
    :maxdepth: 1

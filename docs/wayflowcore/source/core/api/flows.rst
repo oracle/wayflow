@@ -124,8 +124,14 @@ Flow steps
 .. _flowexecutionstep:
 .. autoclass:: wayflowcore.steps.flowexecutionstep.FlowExecutionStep
 
+.. _parallelflowexecutionstep:
+.. autoclass:: wayflowcore.steps.parallelflowexecutionstep.ParallelFlowExecutionStep
+
 .. _mapstep:
 .. autoclass:: wayflowcore.steps.mapstep.MapStep
+
+.. _parallelmapstep:
+.. autoclass:: wayflowcore.steps.mapstep.ParallelMapStep
 
 .. _branchingstep:
 .. autoclass:: wayflowcore.steps.branchingstep.BranchingStep

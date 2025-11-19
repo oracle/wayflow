@@ -549,23 +549,21 @@ def _assert_flows_are_copies(
     # Recursive test over subflows
     if check_subflows:
         for step_name in flow_a.steps:
-            subflow = flow_a.steps[step_name].sub_flow()
-            if subflow is not None:
-                flow_b_subflow = flow_b.steps[step_name].sub_flow()
-                if flow_b_subflow is None:
-                    raise AssertionError(
-                        f"Flows are not copies of each other, asassistant_a has a subflow in {step_name} that assistant_b does not have."
-                    )
+            flow_a_subflows = flow_a.steps[step_name].sub_flows()
+            if flow_a_subflows is not None:
+                flow_b_subflows = flow_b.steps[step_name].sub_flows()
+                assert len(flow_b_subflows) == len(flow_a_subflows)
 
-                assert_flows_are_copies(
-                    subflow,
-                    flow_b_subflow,
-                    check_steps=check_steps,
-                    check_transitions=check_transitions,
-                    check_starting_node=check_starting_node,
-                    check_subflows=check_subflows,
-                    ignore_start_step=ignore_start_step,
-                )
+                for subflow_a, subflow_b in zip(flow_a_subflows, flow_b_subflows):
+                    assert_flows_are_copies(
+                        subflow_a,
+                        subflow_b,
+                        check_steps=check_steps,
+                        check_transitions=check_transitions,
+                        check_starting_node=check_starting_node,
+                        check_subflows=check_subflows,
+                        ignore_start_step=ignore_start_step,
+                    )
 
 
 def assert_flows_are_copies(
