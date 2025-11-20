@@ -18,7 +18,7 @@ from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import Message, MessageList
 from wayflowcore.models.llmmodel import LlmModel
-from wayflowcore.property import Property, _cast_value_into
+from wayflowcore.property import Property, _cast_value_into, _empty_default
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.tools import DescribedAgent, DescribedFlow, Tool, ToolBox
@@ -398,18 +398,31 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
 
+        required_input_names = [
+            input_descriptor.name
+            for input_descriptor in self.input_descriptors
+            if input_descriptor.default_value is _empty_default
+        ]
+
         if len(self.input_descriptors) > 0:
             if inputs is None:
-                raise ValueError(
-                    f"Agent has inputs (`{self.input_descriptors}`), but you did not pass any."
-                )
-            for input_value_description in self.input_descriptors:
-                if input_value_description.name not in inputs:
+                if required_input_names:
                     raise ValueError(
-                        f"The agent has an input `{input_value_description}`, but it was not passed in the input dictionary: `{inputs}`"
+                        f"Agent requires inputs (`{required_input_names}`), but you did not pass any."
                     )
-
-                input_value = inputs[input_value_description.name]
+                else:
+                    # We don't have inputs, but all the input descriptors have defaults
+                    inputs = {}
+            for input_value_description in self.input_descriptors:
+                # We retrieve inputs when available, otherwise get defaults if defined, if not defined, raise
+                if input_value_description.name in inputs:
+                    input_value = inputs[input_value_description.name]
+                elif input_value_description.default_value is not _empty_default:
+                    input_value = input_value_description.default_value
+                else:
+                    raise ValueError(
+                        f"The agent requires an input `{input_value_description.name}`, but it was not passed in the input dictionary: `{inputs}`"
+                    )
 
                 try:
                     casted_input_value = _cast_value_into(input_value, input_value_description)

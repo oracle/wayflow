@@ -2080,3 +2080,57 @@ def test_caller_input_mode_never_with_single_iteration(big_llama):
     status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert not status.output_values["haiku_submitted"]
+
+
+@retry_test(max_attempts=3)
+def test_agent_with_default_input_values_works(big_llama):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-19
+    Average success time:  2.81 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    agent = Agent(
+        llm=big_llama,
+        custom_instruction="You are a helpful agent. Here's what you know: {{context}}. Answer the user `{{username}}`.",
+        input_descriptors=[
+            StringProperty(name="context", default_value="Videogames"),
+            StringProperty(name="username"),
+        ],
+    )
+    conv = agent.start_conversation({"username": "john"})
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    status.submit_user_response("Who is the user?")
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    last_message = status.message
+    assert "john" in last_message.content.lower()
+    status.submit_user_response("What do you know?")
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    last_message = status.message
+    assert "videogame" in last_message.content.lower()
+
+
+def test_agent_with_missing_input_values_raises(big_llama):
+    agent = Agent(
+        llm=big_llama,
+        custom_instruction="You are a helpful agent. Here's what you know: {{context}}. But also {{additional_context}}. Answer the user.",
+        input_descriptors=[
+            StringProperty(name="context", default_value="Videogames"),
+            StringProperty(name="additional_context"),
+        ],
+    )
+    with pytest.raises(
+        ValueError,
+        match=r"Agent requires inputs \(`\['additional_context'\]`\), but you did not pass any.",
+    ):
+        _ = agent.start_conversation()
+    with pytest.raises(
+        ValueError,
+        match="The agent requires an input `additional_context`, but it was not passed in the input dictionary",
+    ):
+        _ = agent.start_conversation({})
