@@ -14,7 +14,7 @@ from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageReq
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
 from wayflowcore.models.vllmmodel import VllmModel
-from wayflowcore.property import IntegerProperty, Property
+from wayflowcore.property import IntegerProperty, Property, StringProperty
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep, CallerInputMode
 from wayflowcore.steps.outputmessagestep import OutputMessageStep
 from wayflowcore.tools import ClientTool, ToolRequest
@@ -495,3 +495,49 @@ def test_agent_step_uses_default_caller_input_mode_of_agent(remotely_hosted_llm)
     conv.append_user_message("What is the capital of Switzerland?")
     status = conv.execute()
     assert isinstance(status, FinishedStatus)
+
+
+@retry_test(max_attempts=3)
+def test_agent_step_that_uses_agent_with_default_input_values_works(big_llama):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-19
+    Average success time:  2.94 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    agent = Agent(
+        llm=big_llama,
+        custom_instruction="You are a helpful agent. Here's what you know: {{context}}. Answer the user `{{username}}`.",
+        input_descriptors=[
+            StringProperty(name="context", default_value="Videogames"),
+            StringProperty(name="username"),
+        ],
+    )
+
+    agent_step = AgentExecutionStep(
+        agent=agent,
+    )
+
+    flow = Flow.from_steps(steps=[agent_step])
+    assert len(flow.input_descriptors) == 2
+    assert {"context", "username"} == set(descriptor.name for descriptor in flow.input_descriptors)
+    context_input = next(
+        descriptor for descriptor in flow.input_descriptors if descriptor.name == "context"
+    )
+    assert context_input.default_value == "Videogames"
+
+    conv = flow.start_conversation({"username": "john"})
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    status.submit_user_response("Who is the user?")
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    last_message = status.message
+    assert "john" in last_message.content.lower()
+    status.submit_user_response("What do you know?")
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    last_message = status.message
+    assert "videogame" in last_message.content.lower()

@@ -39,6 +39,12 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+* **Default values in agents inputs were ignored:**
+
+  Fixed a bug where if agents had input descriptors with default values set, these defaults were ignored and not
+  used when starting a conversation. Now default values of input descriptors are used if they are set, and no
+  input entry with the descriptor name is passed to the ``start_conversation`` method.
+
 * **Default values in tools outputs were ignored:**
 
   Fixed a bug where if tools had multiple output descriptors with default values set for some of them, these defaults were ignored and not
