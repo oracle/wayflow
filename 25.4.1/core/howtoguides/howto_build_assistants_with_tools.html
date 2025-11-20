@@ -1,0 +1,1709 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>How to Build Assistants with Tools &#8212; wayflowcore 25.4.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_build_assistants_with_tools';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '25.4.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to Create Tools with Multiple Outputs" href="howto_multiple_output_tool.html" />
+    <link rel="prev" title="How to Build a Manager-Workers of Agents" href="howto_managerworkers.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.4" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 25.4.1 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 25.4.1 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">How to Evaluate WayFlow Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">How to Evaluate Assistant Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-to Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to Build Assistants with Tools</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="how-to-build-assistants-with-tools">
+<span id="tool-use"></span><h1>How to Build Assistants with Tools<a class="headerlink" href="#how-to-build-assistants-with-tools" title="Permalink to this heading">#</a></h1>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<p class="sd-card-text">Python script/notebook for this guide.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_tooluse.py"><span>Tool use how-to script</span></a></div>
+</div>
+</div>
+</div>
+<div class="admonition-prerequisites admonition">
+<p class="admonition-title">Prerequisites</p>
+<p>This guide assumes familiarity with:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../tutorials/basic_flow.html"><span class="doc">Flows</span></a></p></li>
+<li><p><a class="reference internal" href="../tutorials/basic_agent.html"><span class="doc">Agents</span></a></p></li>
+</ul>
+</div>
+<p>Equipping assistants with <a class="reference internal" href="../api/tools.html"><span class="doc">Tools</span></a> enhances their capabilities.
+In WayFlow, tools can be used in both conversational assistants (also known as Agents) as well as in Flows by using the <code class="docutils literal notranslate"><span class="pre">ToolExecutionStep</span></code> class.</p>
+<p>WayFlow supports <strong>server-side</strong>, <strong>client-side</strong> tools as well as <strong>remote-tools</strong>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>This guide focuses on using server/client tools. Read the <a class="reference internal" href="../api/tools.html#remotetool"><span class="std std-ref">API Documentation</span></a> to learn
+more about the <code class="docutils literal notranslate"><span class="pre">RemoteTool</span></code>.</p>
+</div>
+<a class="reference internal image-reference" href="../../_images/types_of_tools.svg"><img alt="../../_images/types_of_tools.svg" class="align-center" height="429" src="../../_images/types_of_tools.svg" width="446" /></a>
+<p>In this guide, you will build a <strong>PDF summarizer</strong> using the different types of supported tools, both within a flow and with an agent.</p>
+<section id="imports-and-llm-configuration">
+<h2>Imports and LLM configuration<a class="headerlink" href="#imports-and-llm-configuration" title="Permalink to this heading">#</a></h2>
+<p>To get started, first import the <code class="docutils literal notranslate"><span class="pre">PyPDF</span></code> library.
+First, install the PyPDF library:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pypdf
+</pre></div>
+</div>
+<p>Building LLM-powered assistants with tools in WayFlow requires the following imports.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FinishedStatus</span><span class="p">,</span>
+    <span class="n">ToolRequestStatus</span><span class="p">,</span>
+    <span class="n">UserMessageRequestStatus</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmmodelfactory</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanProperty</span><span class="p">,</span> <span class="n">StringProperty</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputMessageStep</span><span class="p">,</span> <span class="n">PromptExecutionStep</span><span class="p">,</span> <span class="n">ToolExecutionStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientTool</span><span class="p">,</span> <span class="n">ServerTool</span><span class="p">,</span> <span class="n">Tool</span><span class="p">,</span> <span class="n">ToolRequest</span><span class="p">,</span> <span class="n">ToolResult</span><span class="p">,</span> <span class="n">tool</span>
+</pre></div>
+</div>
+<p>In this guide, you will use an LLM.</p>
+<p>WayFlow supports several LLM API providers.
+Select an LLM from the options below:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+        <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;https://url-to-service-endpoint.com&quot;</span><span class="p">,</span>
+        <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
+        <span class="n">auth_type</span><span class="o">=</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;model-id&quot;</span><span class="p">,</span>
+    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;VLLM_HOST_PORT&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-2" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-2" name="0-2" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OllamaModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OllamaModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;model-id&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>API keys should not be stored anywhere in the code. Use environment variables or tools such as <a class="reference external" href="https://pypi.org/project/python-dotenv/">python-dotenv</a>.</p>
+</div>
+</section>
+<section id="helper-functions">
+<h2>Helper functions<a class="headerlink" href="#helper-functions" title="Permalink to this heading">#</a></h2>
+<p>The underlying tool used in this example is a PDF parser tool. The tool:</p>
+<ul class="simple">
+<li><p>loads a PDF file;</p></li>
+<li><p>reads the content of the pages;</p></li>
+<li><p>returns the extracted text.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">PyPDFLoader</span></code> API from the <a class="reference external" href="https://pypi.org/project/langchain-community/">langchain_community Python library</a> is used for this purpose.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_read_and_clean_pdf_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clean_pdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.document_loaders</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyPDFLoader</span>
+
+    <span class="n">loader</span> <span class="o">=</span> <span class="n">PyPDFLoader</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">page_content_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">loader</span><span class="o">.</span><span class="n">lazy_load</span><span class="p">():</span>
+        <span class="n">page_content_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">page_content</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clean_pdf</span><span class="p">:</span>
+        <span class="c1"># we remove the extras &quot;\n&quot;</span>
+        <span class="n">all_content</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">page_content</span> <span class="ow">in</span> <span class="n">page_content_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">page_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+                    <span class="n">all_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">all_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">all_content</span> <span class="o">=</span> <span class="n">page_content_list</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">page_content_list</span><span class="p">)</span>
+
+
+<span class="c1"># The path to the pdf file to be summarized</span>
+<span class="n">PDF_FILE_PATH</span> <span class="o">=</span> <span class="s2">&quot;path/to/example_document.pdf&quot;</span>
+</pre></div>
+</div>
+<details class="summary-click-to-see-the-pdf-content-used-in-this-example">
+<summary>Click to see the PDF content used in this example.</summary><div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gh"># Oracle Corporation</span>
+
+Oracle Corporation is an American multinational computer technology company headquartered in Austin, Texas. Co-founded in 1977 in Santa Clara, California, by Larry Ellison, who remains executive chairman, Oracle Corporation is the fourth-largest software company in the world by market capitalization as of 2025. Its market value was approximately US$614 billion in June 2025. The company&#39;s 2023 ranking in the Forbes Global 2000 was 80. The company sells database software, (particularly the Oracle Database), and cloud computing software and hardware. Oracle&#39;s core application software is a suite of enterprise software products, including enterprise resource planning (ERP), human capital management (HCM), customer relationship management (CRM), enterprise performance management (EPM), Customer Experience Commerce (CX Commerce) and supply chain management (SCM) software.
+</pre></div>
+</div>
+</details><p></p>
+</section>
+<section id="overview-of-the-types-of-tools">
+<span id="overview-of-tool-types"></span><h2>Overview of the types of tools<a class="headerlink" href="#overview-of-the-types-of-tools" title="Permalink to this heading">#</a></h2>
+<p>This section covers how to use the following tools:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&#64;tool</span></code> decorator - The simplest way to create server-side tools by decorating Python functions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ServerTool</span></code> - For tools to be executed on the server side. Use this for tools running within the WayFlow environment, including local execution.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ClientTool</span></code> - For tools to be executed on the client application.</p></li>
+</ul>
+<section id="using-the-tool-decorator">
+<h3>Using the &#64;tool Decorator<a class="headerlink" href="#using-the-tool-decorator" title="Permalink to this heading">#</a></h3>
+<p>WayFlow provides a convenient <code class="docutils literal notranslate"><span class="pre">&#64;tool</span></code> decorator that simplifies the creation of server-side tools. By decorating a Python function with <code class="docutils literal notranslate"><span class="pre">&#64;tool</span></code>, you automatically convert it into a <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code> object ready to be used in your Flows and Agents.</p>
+<p>The decorator automatically extracts information from the function:</p>
+<ul class="simple">
+<li><p>The function name becomes the tool name</p></li>
+<li><p>The function docstring becomes the tool description</p></li>
+<li><p>Type annotations and parameter docstrings define input parameters</p></li>
+<li><p>Return type annotations define the output type</p></li>
+</ul>
+<p>In the example below, we show a few options for how to create a server-side tool using the <code class="docutils literal notranslate"><span class="pre">&#64;tool</span></code> decorator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### Option 1 - Using typing.Annotated</span>
+<span class="nd">@tool</span><span class="p">(</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_pdf_server_tool</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">],</span>
+    <span class="n">clean_pdf</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reads a PDF file given a filepath.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_read_and_clean_pdf_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">clean_pdf</span><span class="p">)</span>
+
+<span class="c1">### Option 2 - Using only the docstring</span>
+<span class="nd">@tool</span><span class="p">(</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span> <span class="n">description_mode</span><span class="o">=</span><span class="s2">&quot;only_docstring&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_pdf_server_tool</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clean_pdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reads a PDF file given a filepath.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_read_and_clean_pdf_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">clean_pdf</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>In the above example, the decorated function <code class="docutils literal notranslate"><span class="pre">read_pdf_server_tool</span></code> is transformed into a <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code> object.
+The tool’s name is derived from the function name, the description from the docstring, and the input parameters and output type from the type annotations.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can set the <code class="docutils literal notranslate"><span class="pre">description_mode</span></code> parameter of the <code class="docutils literal notranslate"><span class="pre">&#64;tool</span></code> decorator to <code class="docutils literal notranslate"><span class="pre">only_docstring</span></code> to use the parameter signature information from
+the docstrings instead of having to manually define them using <code class="docutils literal notranslate"><span class="pre">Annotated[Type,</span> <span class="pre">&quot;description&quot;]</span></code>.</p>
+</div>
+</section>
+<section id="creating-a-servertool">
+<h3>Creating a ServerTool<a class="headerlink" href="#creating-a-servertool" title="Permalink to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code> is defined by specifying:</p>
+<ul class="simple">
+<li><p>A tool name</p></li>
+<li><p>A tool description</p></li>
+<li><p>Input parameters, including names, types, and optional default values.</p></li>
+<li><p>A Python callable, the function executed by the tool.</p></li>
+<li><p>The output type.</p></li>
+</ul>
+<p>In the example below, the tool takes two input parameters, one of which is optional, and returns a string.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### Option 1 - Using Properties</span>
+<span class="n">read_pdf_server_tool</span> <span class="o">=</span> <span class="n">ServerTool</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Reads a PDF file given a filepath&quot;</span><span class="p">,</span>
+    <span class="n">input_descriptors</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;file_path&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">),</span>
+        <span class="n">BooleanProperty</span><span class="p">(</span>
+            <span class="s2">&quot;clean_pdf&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">()],</span>
+    <span class="n">func</span><span class="o">=</span><span class="n">_read_and_clean_pdf_file</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">### Option 2 - Using JSON Schema</span>
+<span class="n">read_pdf_server_tool</span> <span class="o">=</span> <span class="n">ServerTool</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Reads a PDF file given a filepath&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;clean_pdf&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">func</span><span class="o">=</span><span class="n">_read_and_clean_pdf_file</span><span class="p">,</span>
+    <span class="n">output</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;tool_output&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-a-clienttool">
+<h3>Creating a ClientTool<a class="headerlink" href="#creating-a-clienttool" title="Permalink to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code> is defined similarly to a <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code>, except that it does not include a Python callable in its definition.
+When executed, a <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code> returns a <code class="docutils literal notranslate"><span class="pre">ToolRequest</span></code>, which must be executed on the client side.
+The client then sends the execution result back to the assistant.</p>
+<p>In the following example, the tool execution function is also defined.
+This function should be implemented based on the specific requirements of the assistant developer.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_execute_read_pdf_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">:</span> <span class="n">ToolRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">tool_request</span><span class="o">.</span><span class="n">args</span>
+    <span class="k">if</span> <span class="s2">&quot;file_path&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">or</span> <span class="s2">&quot;clean_pdf&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing arguments in tool request, args were </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;INVALID_REQUEST&quot;</span>
+    <span class="k">return</span> <span class="n">_read_and_clean_pdf_file</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;file_path&quot;</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="s2">&quot;clean_pdf&quot;</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">execute_tool_from_tool_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">:</span> <span class="n">ToolRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">tool_request</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;read_pdf&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_execute_read_pdf_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown tool in tool request: </span><span class="si">{</span><span class="n">tool_request</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="c1">### Option 1 - Using Properties</span>
+<span class="n">read_pdf_client_tool</span> <span class="o">=</span> <span class="n">ClientTool</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Reads a PDF file given a filepath&quot;</span><span class="p">,</span>
+    <span class="n">input_descriptors</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;file_path&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">),</span>
+        <span class="n">BooleanProperty</span><span class="p">(</span>
+            <span class="s2">&quot;clean_pdf&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">()],</span>
+<span class="p">)</span>
+
+<span class="c1">### Option 2 - Using JSON Schema</span>
+<span class="n">read_pdf_client_tool</span> <span class="o">=</span> <span class="n">ClientTool</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Reads a PDF file given a filepath&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;clean_pdf&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">output</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="building-flows-with-tools-using-the-toolexecutionstep">
+<h2>Building Flows with Tools using the <cite>ToolExecutionStep</cite><a class="headerlink" href="#building-flows-with-tools-using-the-toolexecutionstep" title="Permalink to this heading">#</a></h2>
+<p>Executing tools in Flows can be done using the <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a>.
+The step simply requires the user to specify the tool to execute when the step is invoked.</p>
+<p>Once the tool execution step is defined, the Flow can be constructed as usual.
+For more information, refer to the tutorial on <a class="reference internal" href="../tutorials/basic_flow.html"><span class="doc">Flows</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">build_flow</span><span class="p">(</span><span class="n">llm</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">,</span> <span class="n">tool</span><span class="p">:</span> <span class="n">Tool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
+    <span class="n">pdf_read_step</span> <span class="o">=</span> <span class="n">ToolExecutionStep</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pdf_read_step&quot;</span><span class="p">,</span>
+        <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">summarization_step</span> <span class="o">=</span> <span class="n">PromptExecutionStep</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;summarization_step&quot;</span><span class="p">,</span>
+        <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+        <span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;Please summarize the following PDF in 100 words or less. PDF:</span><span class="se">\n</span><span class="s2">{{pdf_content}}&quot;</span><span class="p">,</span>
+        <span class="n">input_mapping</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pdf_content&quot;</span><span class="p">:</span> <span class="n">ToolExecutionStep</span><span class="o">.</span><span class="n">TOOL_OUTPUT</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;output_step&quot;</span><span class="p">,</span>
+        <span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;Here is the summarized pdf:</span><span class="se">\n</span><span class="s2">{{summarized_pdf}}&quot;</span><span class="p">,</span>
+        <span class="n">input_mapping</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;summarized_pdf&quot;</span><span class="p">:</span> <span class="n">PromptExecutionStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span>
+        <span class="n">begin_step</span><span class="o">=</span><span class="n">pdf_read_step</span><span class="p">,</span>
+        <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">pdf_read_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">summarization_step</span><span class="p">),</span>
+            <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">summarization_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">output_step</span><span class="p">),</span>
+            <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">output_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<section id="executing-servertool-with-a-flow">
+<h3>Executing ServerTool with a Flow<a class="headerlink" href="#executing-servertool-with-a-flow" title="Permalink to this heading">#</a></h3>
+<p>When using the <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code>, the tool execution is performed on the server side.
+As a consequence, the flow can be executed end-to-end with a single <code class="docutils literal notranslate"><span class="pre">execute</span></code> instruction.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_flow</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_server_tool</span><span class="p">)</span>
+
+<span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="n">PDF_FILE_PATH</span><span class="p">,</span> <span class="s2">&quot;clean_pdf&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+    <span class="n">flow_outputs</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">output_values</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">Flow outputs &gt;&gt;&gt; </span><span class="si">{</span><span class="n">flow_outputs</span><span class="si">}</span><span class="se">\n</span><span class="s2">---&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<details class="summary-click-to-see-the-summarized-pdf-content">
+<summary>Click to see the summarized PDF content.</summary><p>Here is the summarized PDF:</p>
+<p>Oracle Corporation is an American multinational computer technology company headquartered
+in Austin, Texas. It sells database software, cloud computing software and hardware, and
+enterprise software products including ERP, HCM, CRM, and SCM software.</p>
+</details><p></p>
+</section>
+<section id="executing-clienttool-with-a-flow">
+<h3>Executing ClientTool with a Flow<a class="headerlink" href="#executing-clienttool-with-a-flow" title="Permalink to this heading">#</a></h3>
+<p>When using a <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code>, the tool execution is performed on the client side.
+Upon request, the assistant sends a <code class="docutils literal notranslate"><span class="pre">ToolRequest</span></code> to the client, which is responsible for executing the tool.
+Once completed, the client returns a <code class="docutils literal notranslate"><span class="pre">ToolResult</span></code> to the assistant, allowing it to continue execution until the task is complete.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_flow</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_client_tool</span><span class="p">)</span>
+
+<span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="n">PDF_FILE_PATH</span><span class="p">,</span> <span class="s2">&quot;clean_pdf&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="n">failed</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">ToolRequestStatus</span><span class="p">):</span>
+    <span class="c1"># Executing the request and sending it back to the assistant</span>
+    <span class="n">tool_request</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">tool_requests</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tool_result</span> <span class="o">=</span> <span class="n">execute_tool_from_tool_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">)</span>
+    <span class="n">conversation</span><span class="o">.</span><span class="n">append_tool_result</span><span class="p">(</span>
+        <span class="n">ToolResult</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">tool_result</span><span class="p">,</span> <span class="n">tool_request_id</span><span class="o">=</span><span class="n">tool_request</span><span class="o">.</span><span class="n">tool_request_id</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">failed</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected ToolRequestStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">failed</span><span class="p">:</span>
+    <span class="c1"># Continuing the conversation</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">failed</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+    <span class="n">flow_outputs</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">output_values</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">Flow outputs &gt;&gt;&gt; </span><span class="si">{</span><span class="n">flow_outputs</span><span class="si">}</span><span class="se">\n</span><span class="s2">---&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="ow">not</span> <span class="n">failed</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+</pre></div>
+</div>
+</section>
+</section>
+<section id="building-agents-with-tools">
+<h2>Building Agents with Tools<a class="headerlink" href="#building-agents-with-tools" title="Permalink to this heading">#</a></h2>
+<p>Agents can be equipped with tools by specifying the list of tools the agent can access.</p>
+<p>You do not need to mention the tools in the agent’s <code class="docutils literal notranslate"><span class="pre">custom_instruction</span></code>, as tool descriptions are automatically added internally.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">build_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">,</span> <span class="n">tool</span><span class="p">:</span> <span class="n">Tool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">dedent</span>
+
+    <span class="n">custom_instruction</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        You are helping to load and summarize a PDF file given a filepath.</span>
+<span class="sd">        ## Context</span>
+<span class="sd">        You will receive a filepath from the username which indicates the path to the</span>
+<span class="sd">        PDF file we want to summarize</span>
+<span class="sd">        ## Task</span>
+<span class="sd">        You will follow the next instructions:</span>
+<span class="sd">        1. Use the tool to load the PDF file (don&#39;t go to the next step unless the file content was received).</span>
+<span class="sd">           If the user does not specify anything, do not clean the PDF prior to summarizing it.</span>
+<span class="sd">        2. Summarize the given PDF content in 100 words or less.</span>
+<span class="sd">        ## Output Format</span>
+<span class="sd">        Return the summarized document as follows:</span>
+<span class="sd">        ```</span>
+<span class="sd">        Here is the summarized pdf:</span>
+<span class="sd">        [summarized pdf]</span>
+<span class="sd">        ```</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">Agent</span><span class="p">(</span>
+        <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+        <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">tool</span><span class="p">],</span>
+        <span class="n">custom_instruction</span><span class="o">=</span><span class="n">custom_instruction</span><span class="p">,</span>
+        <span class="n">max_iterations</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> can also be equipped with other flows and agents. This topic will be covered in a dedicated tutorial.</p>
+</div>
+<section id="executing-servertool-with-an-agent">
+<h3>Executing ServerTool with an Agent<a class="headerlink" href="#executing-servertool-with-an-agent" title="Permalink to this heading">#</a></h3>
+<p>Similar to executing a Flow with a <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code>, Agents can be executed end-to-end using a single <code class="docutils literal notranslate"><span class="pre">execute</span></code> instruction.
+The key difference is that the file path is provided as a conversation message rather than as a flow input.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_server_tool</span><span class="p">)</span>
+
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+
+<span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Please summarize my PDF document (can be found at </span><span class="si">{</span><span class="n">PDF_FILE_PATH</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="p">)</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">):</span>
+    <span class="n">assistant_reply</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">Assistant &gt;&gt;&gt; </span><span class="si">{</span><span class="n">assistant_reply</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="se">\n</span><span class="s2">---&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected UserMessageRequestStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>In this case, the LLM must correctly generate the tool call with the file path as an input parameter. Smaller LLMs may struggle to reproduce the path accurately.
+In general, assistant developers should try to avoid having LLMs to manipulate complex strings.</p>
+</div>
+</section>
+<section id="executing-clienttool-with-an-agent">
+<h3>Executing ClientTool with an Agent<a class="headerlink" href="#executing-clienttool-with-an-agent" title="Permalink to this heading">#</a></h3>
+<p>Similar to executing a Flow with a <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code>, the tool request must be handled on the client side.
+The only difference is that the file path is provided as a conversation message instead of as a flow input.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_client_tool</span><span class="p">)</span>
+
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Please summarize my PDF document (can be found at </span><span class="si">{</span><span class="n">PDF_FILE_PATH</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="p">)</span>
+
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="c1"># Executing the request and sending it back to the assistant</span>
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">ToolRequestStatus</span><span class="p">):</span>
+    <span class="n">tool_request</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">tool_requests</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tool_result</span> <span class="o">=</span> <span class="n">execute_tool_from_tool_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">)</span>
+    <span class="n">conversation</span><span class="o">.</span><span class="n">append_tool_result</span><span class="p">(</span>
+        <span class="n">ToolResult</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">tool_result</span><span class="p">,</span> <span class="n">tool_request_id</span><span class="o">=</span><span class="n">tool_request</span><span class="o">.</span><span class="n">tool_request_id</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">failed</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected ToolRequestStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">failed</span><span class="p">:</span>
+    <span class="c1"># Continuing the conversation</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">failed</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">):</span>
+    <span class="n">assistant_reply</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">Assistant &gt;&gt;&gt; </span><span class="si">{</span><span class="n">assistant_reply</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="se">\n</span><span class="s2">---&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="ow">not</span> <span class="n">failed</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected UserMessageRequestStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+</pre></div>
+</div>
+</section>
+</section>
+<section id="agent-spec-exporting-loading">
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+
+<span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is what the <strong>Agent Spec representation will look like ↓</strong></p>
+<details class="summary-click-here-to-see-the-assistant-configuration">
+<summary>Click here to see the assistant configuration.</summary><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">JSON</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">YAML</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExtendedAgent&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;382a74eb-fd01-4725-abe1-4ad2da5805de&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;agent_74b004c2&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;agent_74b004c2&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;llm_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VllmConfig&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dbe50cdc-1a2d-4b4a-8c20-09cba28c21f6&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LLAMA_MODEL_ID&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;default_generation_parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LLAMA_API_URL&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;model_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LLAMA_MODEL_ID&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;system_prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;You are helping to load and summarize a PDF file given a filepath.\n## Context\nYou will receive a filepath from the username which indicates the path to the\nPDF file we want to summarize\n## Task\nYou will follow the next instructions:\n1. Use the tool to load the PDF file (don&#39;t go to the next step unless the file content was received).\n   If the user does not specify anything, do not clean the PDF prior to summarizing it.\n2. Summarize the given PDF content in 100 words or less.\n## Output Format\nReturn the summarized document as follows:\n```\nHere is the summarized pdf:\n[summarized pdf]\n```&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ClientTool&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4b1a808b-473f-4e00-b413-23fd7143baf6&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Reads a PDF file given a filepath&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_path&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;clean_pdf&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tool_output&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;toolboxes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;context_providers&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;can_finish_conversation&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;max_iterations&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;initial_message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hi! How can I help you?&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;caller_input_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;always&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;agents&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;flows&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;agent_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PluginPromptTemplate&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;95b539ce-0908-4a45-9ab0-cd6fa1b346d7&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;messages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;system&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;contents&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{% if custom_instruction %}{{custom_instruction}}{% endif %}&quot;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;tool_requests&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tool_result&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;display_only&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;sender&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;recipients&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;time_created&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-02T15:52:22.014400+00:00&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;time_updated&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-02T15:52:22.014401+00:00&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;contents&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;tool_requests&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tool_result&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;display_only&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;sender&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;recipients&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;time_created&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-02T15:52:22.008803+00:00&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;time_updated&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-02T15:52:22.010218+00:00&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;system&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;contents&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{% if __PLAN__ %}The current plan you should follow is the following: \n{{__PLAN__}}{% endif %}&quot;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;tool_requests&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tool_result&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;display_only&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;sender&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;recipients&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;time_created&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-02T15:52:22.014421+00:00&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;time_updated&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-02T15:52:22.014421+00:00&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;output_parser&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;\&quot;custom_instruction\&quot; input variable for the template&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;custom_instruction&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;\&quot;__PLAN__\&quot; input variable for the template&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;__PLAN__&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;__CHAT_HISTORY__&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;pre_rendering_transforms&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;post_rendering_transforms&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;component_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PluginRemoveEmptyNonUserMessageTransform&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;372d6f16-b945-4b10-b1c8-adc143ddab9d&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;removeemptynonusermessage_messagetransform&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;__metadata_info__&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;component_plugin_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MessageTransformPlugin&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;component_plugin_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25.4.0.dev0&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;native_tool_calling&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;response_format&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;native_structured_generation&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;generation_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;component_plugin_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PromptTemplatePlugin&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;component_plugin_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25.4.0.dev0&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;component_plugin_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AgentPlugin&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;component_plugin_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25.4.0.dev0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;agentspec_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;25.4.1&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ExtendedAgent</span>
+<span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">382a74eb-fd01-4725-abe1-4ad2da5805de</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agent_74b004c2</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">__metadata_info__</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agent_74b004c2</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="nt">inputs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">outputs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">llm_config</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VllmConfig</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dbe50cdc-1a2d-4b4a-8c20-09cba28c21f6</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LLAMA_MODEL_ID</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">default_generation_parameters</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LLAMA_API_URL</span>
+<span class="w">  </span><span class="nt">model_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LLAMA_MODEL_ID</span>
+<span class="nt">system_prompt</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;You</span><span class="nv"> </span><span class="s">are</span><span class="nv"> </span><span class="s">helping</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">load</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">summarize</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">PDF</span><span class="nv"> </span><span class="s">file</span><span class="nv"> </span><span class="s">given</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">filepath.\n\</span>
+<span class="w">  </span><span class="s">##</span><span class="nv"> </span><span class="s">Context\nYou</span><span class="nv"> </span><span class="s">will</span><span class="nv"> </span><span class="s">receive</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">filepath</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">username</span><span class="nv"> </span><span class="s">which</span><span class="nv"> </span><span class="s">indicates</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">path\</span>
+<span class="w">  </span><span class="s">\ to</span><span class="nv"> </span><span class="s">the\nPDF</span><span class="nv"> </span><span class="s">file</span><span class="nv"> </span><span class="s">we</span><span class="nv"> </span><span class="s">want</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">summarize\n##</span><span class="nv"> </span><span class="s">Task\nYou</span><span class="nv"> </span><span class="s">will</span><span class="nv"> </span><span class="s">follow</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">next</span><span class="nv"> </span><span class="s">instructions:\n\</span>
+<span class="w">  </span><span class="s">1.</span><span class="nv"> </span><span class="s">Use</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">tool</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">load</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">PDF</span><span class="nv"> </span><span class="s">file</span><span class="nv"> </span><span class="s">(don&#39;t</span><span class="nv"> </span><span class="s">go</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">next</span><span class="nv"> </span><span class="s">step</span><span class="nv"> </span><span class="s">unless</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">file\</span>
+<span class="w">  </span><span class="s">\ content</span><span class="nv"> </span><span class="s">was</span><span class="nv"> </span><span class="s">received).\n</span><span class="nv">   </span><span class="s">If</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">user</span><span class="nv"> </span><span class="s">does</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">specify</span><span class="nv"> </span><span class="s">anything,</span><span class="nv"> </span><span class="s">do</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">clean\</span>
+<span class="w">  </span><span class="s">\ the</span><span class="nv"> </span><span class="s">PDF</span><span class="nv"> </span><span class="s">prior</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">summarizing</span><span class="nv"> </span><span class="s">it.\n2.</span><span class="nv"> </span><span class="s">Summarize</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">given</span><span class="nv"> </span><span class="s">PDF</span><span class="nv"> </span><span class="s">content</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">100</span><span class="nv"> </span><span class="s">words\</span>
+<span class="w">  </span><span class="s">\ or</span><span class="nv"> </span><span class="s">less.\n##</span><span class="nv"> </span><span class="s">Output</span><span class="nv"> </span><span class="s">Format\nReturn</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">summarized</span><span class="nv"> </span><span class="s">document</span><span class="nv"> </span><span class="s">as</span><span class="nv"> </span><span class="s">follows:\n```\n\</span>
+<span class="w">  </span><span class="s">Here</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">summarized</span><span class="nv"> </span><span class="s">pdf:\n[summarized</span><span class="nv"> </span><span class="s">pdf]\n```&quot;</span>
+<span class="nt">tools</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClientTool</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4b1a808b-473f-4e00-b413-23fd7143baf6</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read_pdf</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reads a PDF file given a filepath</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Path to the pdf file</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file_path</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cleans and reformat the pdf pages</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">boolean</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clean_pdf</span>
+<span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tool_output</span>
+<span class="nt">toolboxes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">context_providers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="nt">can_finish_conversation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">max_iterations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">initial_message</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Hi! How can I help you?</span>
+<span class="nt">caller_input_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
+<span class="nt">agents</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">flows</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">agent_template</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PluginPromptTemplate</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">95b539ce-0908-4a45-9ab0-cd6fa1b346d7</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">messages</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system</span>
+<span class="w">    </span><span class="nt">contents</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text</span>
+<span class="w">      </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{%</span><span class="nv"> </span><span class="s">if</span><span class="nv"> </span><span class="s">custom_instruction</span><span class="nv"> </span><span class="s">%}{{custom_instruction}}{%</span><span class="nv"> </span><span class="s">endif</span><span class="nv"> </span><span class="s">%}&#39;</span>
+<span class="w">    </span><span class="nt">tool_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">tool_result</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">display_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">sender</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">recipients</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">time_created</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2025-09-02T15:52:22.014400+00:00&#39;</span>
+<span class="w">    </span><span class="nt">time_updated</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2025-09-02T15:52:22.014401+00:00&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user</span>
+<span class="w">    </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">tool_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">tool_result</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">display_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">sender</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">recipients</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">time_created</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2025-09-02T15:52:22.008803+00:00&#39;</span>
+<span class="w">    </span><span class="nt">time_updated</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2025-09-02T15:52:22.010218+00:00&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system</span>
+<span class="w">    </span><span class="nt">contents</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text</span>
+<span class="w">      </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{%</span><span class="nv"> </span><span class="s">if</span><span class="nv"> </span><span class="s">__PLAN__</span><span class="nv"> </span><span class="s">%}The</span><span class="nv"> </span><span class="s">current</span><span class="nv"> </span><span class="s">plan</span><span class="nv"> </span><span class="s">you</span><span class="nv"> </span><span class="s">should</span><span class="nv"> </span><span class="s">follow</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">following:\</span>
+<span class="w">        </span><span class="s">\ \n{{__PLAN__}}{%</span><span class="nv"> </span><span class="s">endif</span><span class="nv"> </span><span class="s">%}&quot;</span>
+<span class="w">    </span><span class="nt">tool_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">tool_result</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">display_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">sender</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">recipients</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">time_created</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2025-09-02T15:52:22.014421+00:00&#39;</span>
+<span class="w">    </span><span class="nt">time_updated</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2025-09-02T15:52:22.014421+00:00&#39;</span>
+<span class="w">  </span><span class="nt">output_parser</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&quot;custom_instruction&quot;</span><span class="nv"> </span><span class="s">input</span><span class="nv"> </span><span class="s">variable</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">template&#39;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">custom_instruction</span>
+<span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&quot;__PLAN__&quot;</span><span class="nv"> </span><span class="s">input</span><span class="nv"> </span><span class="s">variable</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">template&#39;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">__PLAN__</span>
+<span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span>
+<span class="w">    </span><span class="nt">items</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">__CHAT_HISTORY__</span>
+<span class="w">  </span><span class="nt">pre_rendering_transforms</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">post_rendering_transforms</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">component_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PluginRemoveEmptyNonUserMessageTransform</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">372d6f16-b945-4b10-b1c8-adc143ddab9d</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">removeemptynonusermessage_messagetransform</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">__metadata_info__</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">    </span><span class="nt">component_plugin_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MessageTransformPlugin</span>
+<span class="w">    </span><span class="nt">component_plugin_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.4.0.dev0</span>
+<span class="w">  </span><span class="nt">tools</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">native_tool_calling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">response_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">native_structured_generation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">generation_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">component_plugin_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PromptTemplatePlugin</span>
+<span class="w">  </span><span class="nt">component_plugin_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.4.0.dev0</span>
+<span class="nt">component_plugin_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AgentPlugin</span>
+<span class="nt">component_plugin_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.4.0.dev0</span>
+<span class="nt">agentspec_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.4.1</span>
+</pre></div>
+</div>
+</div></div>
+</details><p>You can then load the configuration back to an assistant using the <code class="docutils literal notranslate"><span class="pre">AgentSpecLoader</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+
+<span class="n">TOOL_REGISTRY</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">:</span> <span class="n">read_pdf_server_tool</span><span class="p">}</span>
+<span class="n">assistant</span><span class="p">:</span> <span class="n">Agent</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span>
+    <span class="n">tool_registry</span><span class="o">=</span><span class="n">TOOL_REGISTRY</span>
+<span class="p">)</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This guide uses the following extension/plugin Agent Spec components:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PluginPromptTemplate</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PluginRemoveEmptyNonUserMessageTransform</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ExtendedAgent</span></code></p></li>
+</ul>
+<p>See the list of available Agent Spec extension/plugin components in the <a class="reference internal" href="../api/agentspec.html"><span class="doc">API Reference</span></a></p>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<p>Having learned how to use <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code> and <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code> with assistants in WayFlow, you may now proceed to:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="howto_multiple_output_tool.html"><span class="doc">How to Create Tools with Multiple Outputs</span></a></p></li>
+<li><p><a class="reference internal" href="installing_ollama.html"><span class="doc">How to Install and Use Ollama</span></a></p></li>
+<li><p><a class="reference internal" href="howto_datastores.html"><span class="doc">How to Connect Assistants to Data</span></a>.</p></li>
+</ul>
+</section>
+<section id="full-code">
+<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<p>Click on the card at the <a class="reference internal" href="#tool-use"><span class="std std-ref">top of this page</span></a> to download the full code for this guide or copy the code below.</p>
+<p>download the full code for this guide or copy the code below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
+<span class="linenos">  2</span><span class="c1">#</span>
+<span class="linenos">  3</span><span class="c1"># This software is under the Universal Permissive License</span>
+<span class="linenos">  4</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">  5</span><span class="c1"># Code Example - How to Build Assistants with Tools</span>
+<span class="linenos">  6</span><span class="c1"># -------------------------------------------------</span>
+<span class="linenos">  7</span>
+<span class="linenos">  8</span><span class="c1"># How to use:</span>
+<span class="linenos">  9</span><span class="c1"># Create a new Python virtual environment and install the latest WayFlow version.</span>
+<span class="linenos"> 10</span><span class="c1"># ```bash</span>
+<span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
+<span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
+<span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==25.4&quot; </span>
+<span class="linenos"> 15</span><span class="c1"># ```</span>
+<span class="linenos"> 16</span>
+<span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
+<span class="linenos"> 18</span><span class="c1"># 1. As a Python file:</span>
+<span class="linenos"> 19</span><span class="c1"># ```bash</span>
+<span class="linenos"> 20</span><span class="c1"># python howto_tooluse.py</span>
+<span class="linenos"> 21</span><span class="c1"># ```</span>
+<span class="linenos"> 22</span><span class="c1"># 2. As a Notebook (in VSCode):</span>
+<span class="linenos"> 23</span><span class="c1"># When viewing the file,</span>
+<span class="linenos"> 24</span><span class="c1">#  - press the keys Ctrl + Enter to run the selected cell</span>
+<span class="linenos"> 25</span><span class="c1">#  - or Shift + Enter to run the selected cell and move to the cell below# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License</span>
+<span class="linenos"> 26</span><span class="c1"># 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.</span>
+<span class="linenos"> 27</span>
+<span class="linenos"> 28</span>
+<span class="linenos"> 29</span>
+<span class="linenos"> 30</span>
+<span class="linenos"> 31</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 32</span><span class="c1">## Imports for this guide</span>
+<span class="linenos"> 33</span>
+<span class="linenos"> 34</span><span class="c1"># %%</span>
+<span class="linenos"> 35</span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+<span class="linenos"> 36</span>
+<span class="linenos"> 37</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="linenos"> 38</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="linenos"> 39</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="linenos"> 40</span>    <span class="n">FinishedStatus</span><span class="p">,</span>
+<span class="linenos"> 41</span>    <span class="n">ToolRequestStatus</span><span class="p">,</span>
+<span class="linenos"> 42</span>    <span class="n">UserMessageRequestStatus</span><span class="p">,</span>
+<span class="linenos"> 43</span><span class="p">)</span>
+<span class="linenos"> 44</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="linenos"> 45</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmmodelfactory</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmModel</span>
+<span class="linenos"> 46</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanProperty</span><span class="p">,</span> <span class="n">StringProperty</span>
+<span class="linenos"> 47</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputMessageStep</span><span class="p">,</span> <span class="n">PromptExecutionStep</span><span class="p">,</span> <span class="n">ToolExecutionStep</span>
+<span class="linenos"> 48</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientTool</span><span class="p">,</span> <span class="n">ServerTool</span><span class="p">,</span> <span class="n">Tool</span><span class="p">,</span> <span class="n">ToolRequest</span><span class="p">,</span> <span class="n">ToolResult</span><span class="p">,</span> <span class="n">tool</span>
+<span class="linenos"> 49</span>
+<span class="linenos"> 50</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 51</span><span class="c1">## Configure your LLM</span>
+<span class="linenos"> 52</span>
+<span class="linenos"> 53</span><span class="c1"># %%</span>
+<span class="linenos"> 54</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.vllmmodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+<span class="linenos"> 55</span>
+<span class="linenos"> 56</span><span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+<span class="linenos"> 57</span>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;LLAMA_MODEL_ID&quot;</span><span class="p">,</span>
+<span class="linenos"> 58</span>    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;LLAMA_API_URL&quot;</span><span class="p">,</span>
+<span class="linenos"> 59</span><span class="p">)</span>
+<span class="linenos"> 60</span>
+<span class="linenos"> 61</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 62</span><span class="c1">## Defining some helper functions</span>
+<span class="linenos"> 63</span>
+<span class="linenos"> 64</span><span class="c1"># %%</span>
+<span class="linenos"> 65</span><span class="k">def</span><span class="w"> </span><span class="nf">_read_and_clean_pdf_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clean_pdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="linenos"> 66</span>    <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_community.document_loaders</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyPDFLoader</span>
+<span class="linenos"> 67</span>
+<span class="linenos"> 68</span>    <span class="n">loader</span> <span class="o">=</span> <span class="n">PyPDFLoader</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
+<span class="linenos"> 69</span>    <span class="n">page_content_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 70</span>    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">loader</span><span class="o">.</span><span class="n">lazy_load</span><span class="p">():</span>
+<span class="linenos"> 71</span>        <span class="n">page_content_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">page_content</span><span class="p">)</span>
+<span class="linenos"> 72</span>    <span class="k">if</span> <span class="n">clean_pdf</span><span class="p">:</span>
+<span class="linenos"> 73</span>        <span class="c1"># we remove the extras &quot;\n&quot;</span>
+<span class="linenos"> 74</span>        <span class="n">all_content</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 75</span>        <span class="k">for</span> <span class="n">page_content</span> <span class="ow">in</span> <span class="n">page_content_list</span><span class="p">:</span>
+<span class="linenos"> 76</span>            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">page_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+<span class="linenos"> 77</span>                <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+<span class="linenos"> 78</span>                    <span class="n">all_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<span class="linenos"> 79</span>                <span class="k">else</span><span class="p">:</span>
+<span class="linenos"> 80</span>                    <span class="n">all_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos"> 81</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos"> 82</span>        <span class="n">all_content</span> <span class="o">=</span> <span class="n">page_content_list</span>
+<span class="linenos"> 83</span>    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">page_content_list</span><span class="p">)</span>
+<span class="linenos"> 84</span>
+<span class="linenos"> 85</span>
+<span class="linenos"> 86</span><span class="c1"># The path to the pdf file to be summarized</span>
+<span class="linenos"> 87</span><span class="n">PDF_FILE_PATH</span> <span class="o">=</span> <span class="s2">&quot;path/to/example_document.pdf&quot;</span>
+<span class="linenos"> 88</span>
+<span class="linenos"> 89</span>
+<span class="linenos"> 90</span>
+<span class="linenos"> 91</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 92</span><span class="c1">## Defining a tool using the tool decorator</span>
+<span class="linenos"> 93</span>
+<span class="linenos"> 94</span><span class="c1"># %%</span>
+<span class="linenos"> 95</span><span class="c1">### Option 1 - Using typing.Annotated</span>
+<span class="linenos"> 96</span><span class="nd">@tool</span><span class="p">(</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">)</span>
+<span class="linenos"> 97</span><span class="k">def</span><span class="w"> </span><span class="nf">read_pdf_server_tool</span><span class="p">(</span>
+<span class="linenos"> 98</span>    <span class="n">file_path</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">],</span>
+<span class="linenos"> 99</span>    <span class="n">clean_pdf</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="linenos">100</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="linenos">101</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Reads a PDF file given a filepath.&quot;&quot;&quot;</span>
+<span class="linenos">102</span>    <span class="k">return</span> <span class="n">_read_and_clean_pdf_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">clean_pdf</span><span class="p">)</span>
+<span class="linenos">103</span>
+<span class="linenos">104</span><span class="c1">### Option 2 - Using only the docstring</span>
+<span class="linenos">105</span><span class="nd">@tool</span><span class="p">(</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span> <span class="n">description_mode</span><span class="o">=</span><span class="s2">&quot;only_docstring&quot;</span><span class="p">)</span>
+<span class="linenos">106</span><span class="k">def</span><span class="w"> </span><span class="nf">read_pdf_server_tool</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clean_pdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="linenos">107</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Reads a PDF file given a filepath.&quot;&quot;&quot;</span>
+<span class="linenos">108</span>    <span class="k">return</span> <span class="n">_read_and_clean_pdf_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">clean_pdf</span><span class="p">)</span>
+<span class="linenos">109</span>
+<span class="linenos">110</span>
+<span class="linenos">111</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">112</span><span class="c1">## Defining a tool using the ServerTool</span>
+<span class="linenos">113</span>
+<span class="linenos">114</span><span class="c1"># %%</span>
+<span class="linenos">115</span><span class="c1">### Option 1 - Using Properties</span>
+<span class="linenos">116</span><span class="n">read_pdf_server_tool</span> <span class="o">=</span> <span class="n">ServerTool</span><span class="p">(</span>
+<span class="linenos">117</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span>
+<span class="linenos">118</span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Reads a PDF file given a filepath&quot;</span><span class="p">,</span>
+<span class="linenos">119</span>    <span class="n">input_descriptors</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">120</span>        <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;file_path&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">),</span>
+<span class="linenos">121</span>        <span class="n">BooleanProperty</span><span class="p">(</span>
+<span class="linenos">122</span>            <span class="s2">&quot;clean_pdf&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span>
+<span class="linenos">123</span>        <span class="p">),</span>
+<span class="linenos">124</span>    <span class="p">],</span>
+<span class="linenos">125</span>    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">()],</span>
+<span class="linenos">126</span>    <span class="n">func</span><span class="o">=</span><span class="n">_read_and_clean_pdf_file</span><span class="p">,</span>
+<span class="linenos">127</span><span class="p">)</span>
+<span class="linenos">128</span>
+<span class="linenos">129</span><span class="c1">### Option 2 - Using JSON Schema</span>
+<span class="linenos">130</span><span class="n">read_pdf_server_tool</span> <span class="o">=</span> <span class="n">ServerTool</span><span class="p">(</span>
+<span class="linenos">131</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span>
+<span class="linenos">132</span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Reads a PDF file given a filepath&quot;</span><span class="p">,</span>
+<span class="linenos">133</span>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">134</span>        <span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">135</span>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="linenos">136</span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">,</span>
+<span class="linenos">137</span>        <span class="p">},</span>
+<span class="linenos">138</span>        <span class="s2">&quot;clean_pdf&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">139</span>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+<span class="linenos">140</span>            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="linenos">141</span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">,</span>
+<span class="linenos">142</span>        <span class="p">},</span>
+<span class="linenos">143</span>    <span class="p">},</span>
+<span class="linenos">144</span>    <span class="n">func</span><span class="o">=</span><span class="n">_read_and_clean_pdf_file</span><span class="p">,</span>
+<span class="linenos">145</span>    <span class="n">output</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;tool_output&quot;</span><span class="p">},</span>
+<span class="linenos">146</span><span class="p">)</span>
+<span class="linenos">147</span>
+<span class="linenos">148</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">149</span><span class="c1">## Defining a build flow helper function</span>
+<span class="linenos">150</span>
+<span class="linenos">151</span><span class="c1"># %%</span>
+<span class="linenos">152</span><span class="k">def</span><span class="w"> </span><span class="nf">build_flow</span><span class="p">(</span><span class="n">llm</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">,</span> <span class="n">tool</span><span class="p">:</span> <span class="n">Tool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
+<span class="linenos">153</span>    <span class="n">pdf_read_step</span> <span class="o">=</span> <span class="n">ToolExecutionStep</span><span class="p">(</span>
+<span class="linenos">154</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pdf_read_step&quot;</span><span class="p">,</span>
+<span class="linenos">155</span>        <span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span>
+<span class="linenos">156</span>    <span class="p">)</span>
+<span class="linenos">157</span>    <span class="n">summarization_step</span> <span class="o">=</span> <span class="n">PromptExecutionStep</span><span class="p">(</span>
+<span class="linenos">158</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;summarization_step&quot;</span><span class="p">,</span>
+<span class="linenos">159</span>        <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+<span class="linenos">160</span>        <span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;Please summarize the following PDF in 100 words or less. PDF:</span><span class="se">\n</span><span class="s2">{{pdf_content}}&quot;</span><span class="p">,</span>
+<span class="linenos">161</span>        <span class="n">input_mapping</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pdf_content&quot;</span><span class="p">:</span> <span class="n">ToolExecutionStep</span><span class="o">.</span><span class="n">TOOL_OUTPUT</span><span class="p">},</span>
+<span class="linenos">162</span>    <span class="p">)</span>
+<span class="linenos">163</span>    <span class="n">output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span>
+<span class="linenos">164</span>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;output_step&quot;</span><span class="p">,</span>
+<span class="linenos">165</span>        <span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;Here is the summarized pdf:</span><span class="se">\n</span><span class="s2">{{summarized_pdf}}&quot;</span><span class="p">,</span>
+<span class="linenos">166</span>        <span class="n">input_mapping</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;summarized_pdf&quot;</span><span class="p">:</span> <span class="n">PromptExecutionStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">},</span>
+<span class="linenos">167</span>    <span class="p">)</span>
+<span class="linenos">168</span>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span>
+<span class="linenos">169</span>        <span class="n">begin_step</span><span class="o">=</span><span class="n">pdf_read_step</span><span class="p">,</span>
+<span class="linenos">170</span>        <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">171</span>            <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">pdf_read_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">summarization_step</span><span class="p">),</span>
+<span class="linenos">172</span>            <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">summarization_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">output_step</span><span class="p">),</span>
+<span class="linenos">173</span>            <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">output_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="linenos">174</span>        <span class="p">],</span>
+<span class="linenos">175</span>    <span class="p">)</span>
+<span class="linenos">176</span>
+<span class="linenos">177</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">178</span><span class="c1">## Creating and running a flow with a server tool</span>
+<span class="linenos">179</span>
+<span class="linenos">180</span><span class="c1"># %%</span>
+<span class="linenos">181</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_flow</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_server_tool</span><span class="p">)</span>
+<span class="linenos">182</span>
+<span class="linenos">183</span><span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="n">PDF_FILE_PATH</span><span class="p">,</span> <span class="s2">&quot;clean_pdf&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+<span class="linenos">184</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+<span class="linenos">185</span>
+<span class="linenos">186</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">187</span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+<span class="linenos">188</span>    <span class="n">flow_outputs</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">output_values</span>
+<span class="linenos">189</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">Flow outputs &gt;&gt;&gt; </span><span class="si">{</span><span class="n">flow_outputs</span><span class="si">}</span><span class="se">\n</span><span class="s2">---&quot;</span><span class="p">)</span>
+<span class="linenos">190</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos">191</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">192</span>
+<span class="linenos">193</span>
+<span class="linenos">194</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">195</span><span class="c1">## Defining a build agent helper function</span>
+<span class="linenos">196</span>
+<span class="linenos">197</span><span class="c1"># %%</span>
+<span class="linenos">198</span><span class="k">def</span><span class="w"> </span><span class="nf">build_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">,</span> <span class="n">tool</span><span class="p">:</span> <span class="n">Tool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
+<span class="linenos">199</span>    <span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">dedent</span>
+<span class="linenos">200</span>
+<span class="linenos">201</span>    <span class="n">custom_instruction</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span>
+<span class="linenos">202</span><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">203</span><span class="sd">        You are helping to load and summarize a PDF file given a filepath.</span>
+<span class="linenos">204</span><span class="sd">        ## Context</span>
+<span class="linenos">205</span><span class="sd">        You will receive a filepath from the username which indicates the path to the</span>
+<span class="linenos">206</span><span class="sd">        PDF file we want to summarize</span>
+<span class="linenos">207</span><span class="sd">        ## Task</span>
+<span class="linenos">208</span><span class="sd">        You will follow the next instructions:</span>
+<span class="linenos">209</span><span class="sd">        1. Use the tool to load the PDF file (don&#39;t go to the next step unless the file content was received).</span>
+<span class="linenos">210</span><span class="sd">           If the user does not specify anything, do not clean the PDF prior to summarizing it.</span>
+<span class="linenos">211</span><span class="sd">        2. Summarize the given PDF content in 100 words or less.</span>
+<span class="linenos">212</span><span class="sd">        ## Output Format</span>
+<span class="linenos">213</span><span class="sd">        Return the summarized document as follows:</span>
+<span class="linenos">214</span><span class="sd">        ```</span>
+<span class="linenos">215</span><span class="sd">        Here is the summarized pdf:</span>
+<span class="linenos">216</span><span class="sd">        [summarized pdf]</span>
+<span class="linenos">217</span><span class="sd">        ```</span>
+<span class="linenos">218</span><span class="sd">        &quot;&quot;&quot;</span>
+<span class="linenos">219</span>    <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="linenos">220</span>
+<span class="linenos">221</span>    <span class="k">return</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos">222</span>        <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+<span class="linenos">223</span>        <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">tool</span><span class="p">],</span>
+<span class="linenos">224</span>        <span class="n">custom_instruction</span><span class="o">=</span><span class="n">custom_instruction</span><span class="p">,</span>
+<span class="linenos">225</span>        <span class="n">max_iterations</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="linenos">226</span>    <span class="p">)</span>
+<span class="linenos">227</span>
+<span class="linenos">228</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">229</span><span class="c1">## Creating and running an agent with a server tool</span>
+<span class="linenos">230</span>
+<span class="linenos">231</span><span class="c1"># %%</span>
+<span class="linenos">232</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_server_tool</span><span class="p">)</span>
+<span class="linenos">233</span>
+<span class="linenos">234</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="linenos">235</span>
+<span class="linenos">236</span><span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+<span class="linenos">237</span>    <span class="sa">f</span><span class="s2">&quot;Please summarize my PDF document (can be found at </span><span class="si">{</span><span class="n">PDF_FILE_PATH</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="linenos">238</span><span class="p">)</span>
+<span class="linenos">239</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">240</span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">):</span>
+<span class="linenos">241</span>    <span class="n">assistant_reply</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+<span class="linenos">242</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">Assistant &gt;&gt;&gt; </span><span class="si">{</span><span class="n">assistant_reply</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="se">\n</span><span class="s2">---&quot;</span><span class="p">)</span>
+<span class="linenos">243</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos">244</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected UserMessageRequestStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">245</span>
+<span class="linenos">246</span>
+<span class="linenos">247</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">248</span><span class="c1">## Defining a tool using the ClientTool</span>
+<span class="linenos">249</span>
+<span class="linenos">250</span><span class="c1"># %%</span>
+<span class="linenos">251</span><span class="k">def</span><span class="w"> </span><span class="nf">_execute_read_pdf_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">:</span> <span class="n">ToolRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="linenos">252</span>    <span class="n">args</span> <span class="o">=</span> <span class="n">tool_request</span><span class="o">.</span><span class="n">args</span>
+<span class="linenos">253</span>    <span class="k">if</span> <span class="s2">&quot;file_path&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">or</span> <span class="s2">&quot;clean_pdf&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+<span class="linenos">254</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing arguments in tool request, args were </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">255</span>        <span class="k">return</span> <span class="s2">&quot;INVALID_REQUEST&quot;</span>
+<span class="linenos">256</span>    <span class="k">return</span> <span class="n">_read_and_clean_pdf_file</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;file_path&quot;</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="s2">&quot;clean_pdf&quot;</span><span class="p">])</span>
+<span class="linenos">257</span>
+<span class="linenos">258</span>
+<span class="linenos">259</span><span class="k">def</span><span class="w"> </span><span class="nf">execute_tool_from_tool_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">:</span> <span class="n">ToolRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="linenos">260</span>    <span class="k">if</span> <span class="n">tool_request</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;read_pdf&quot;</span><span class="p">:</span>
+<span class="linenos">261</span>        <span class="k">return</span> <span class="n">_execute_read_pdf_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">)</span>
+<span class="linenos">262</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos">263</span>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown tool in tool request: </span><span class="si">{</span><span class="n">tool_request</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">264</span>
+<span class="linenos">265</span>
+<span class="linenos">266</span><span class="c1">### Option 1 - Using Properties</span>
+<span class="linenos">267</span><span class="n">read_pdf_client_tool</span> <span class="o">=</span> <span class="n">ClientTool</span><span class="p">(</span>
+<span class="linenos">268</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span>
+<span class="linenos">269</span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Reads a PDF file given a filepath&quot;</span><span class="p">,</span>
+<span class="linenos">270</span>    <span class="n">input_descriptors</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">271</span>        <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;file_path&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">),</span>
+<span class="linenos">272</span>        <span class="n">BooleanProperty</span><span class="p">(</span>
+<span class="linenos">273</span>            <span class="s2">&quot;clean_pdf&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span>
+<span class="linenos">274</span>        <span class="p">),</span>
+<span class="linenos">275</span>    <span class="p">],</span>
+<span class="linenos">276</span>    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">()],</span>
+<span class="linenos">277</span><span class="p">)</span>
+<span class="linenos">278</span>
+<span class="linenos">279</span><span class="c1">### Option 2 - Using JSON Schema</span>
+<span class="linenos">280</span><span class="n">read_pdf_client_tool</span> <span class="o">=</span> <span class="n">ClientTool</span><span class="p">(</span>
+<span class="linenos">281</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">,</span>
+<span class="linenos">282</span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Reads a PDF file given a filepath&quot;</span><span class="p">,</span>
+<span class="linenos">283</span>    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">284</span>        <span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">285</span>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="linenos">286</span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Path to the pdf file&quot;</span><span class="p">,</span>
+<span class="linenos">287</span>        <span class="p">},</span>
+<span class="linenos">288</span>        <span class="s2">&quot;clean_pdf&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">289</span>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+<span class="linenos">290</span>            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="linenos">291</span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cleans and reformat the pdf pages&quot;</span><span class="p">,</span>
+<span class="linenos">292</span>        <span class="p">},</span>
+<span class="linenos">293</span>    <span class="p">},</span>
+<span class="linenos">294</span>    <span class="n">output</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="linenos">295</span><span class="p">)</span>
+<span class="linenos">296</span>
+<span class="linenos">297</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">298</span><span class="c1">## Creating and running a flow with a client tool</span>
+<span class="linenos">299</span>
+<span class="linenos">300</span><span class="c1"># %%</span>
+<span class="linenos">301</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_flow</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_client_tool</span><span class="p">)</span>
+<span class="linenos">302</span>
+<span class="linenos">303</span><span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="n">PDF_FILE_PATH</span><span class="p">,</span> <span class="s2">&quot;clean_pdf&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+<span class="linenos">304</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+<span class="linenos">305</span>
+<span class="linenos">306</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">307</span>
+<span class="linenos">308</span><span class="n">failed</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="linenos">309</span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">ToolRequestStatus</span><span class="p">):</span>
+<span class="linenos">310</span>    <span class="c1"># Executing the request and sending it back to the assistant</span>
+<span class="linenos">311</span>    <span class="n">tool_request</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">tool_requests</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="linenos">312</span>    <span class="n">tool_result</span> <span class="o">=</span> <span class="n">execute_tool_from_tool_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">)</span>
+<span class="linenos">313</span>    <span class="n">conversation</span><span class="o">.</span><span class="n">append_tool_result</span><span class="p">(</span>
+<span class="linenos">314</span>        <span class="n">ToolResult</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">tool_result</span><span class="p">,</span> <span class="n">tool_request_id</span><span class="o">=</span><span class="n">tool_request</span><span class="o">.</span><span class="n">tool_request_id</span><span class="p">)</span>
+<span class="linenos">315</span>    <span class="p">)</span>
+<span class="linenos">316</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos">317</span>    <span class="n">failed</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="linenos">318</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected ToolRequestStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">319</span>
+<span class="linenos">320</span><span class="k">if</span> <span class="ow">not</span> <span class="n">failed</span><span class="p">:</span>
+<span class="linenos">321</span>    <span class="c1"># Continuing the conversation</span>
+<span class="linenos">322</span>    <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">323</span>
+<span class="linenos">324</span><span class="k">if</span> <span class="ow">not</span> <span class="n">failed</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+<span class="linenos">325</span>    <span class="n">flow_outputs</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">output_values</span>
+<span class="linenos">326</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">Flow outputs &gt;&gt;&gt; </span><span class="si">{</span><span class="n">flow_outputs</span><span class="si">}</span><span class="se">\n</span><span class="s2">---&quot;</span><span class="p">)</span>
+<span class="linenos">327</span><span class="k">elif</span> <span class="ow">not</span> <span class="n">failed</span><span class="p">:</span>
+<span class="linenos">328</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">329</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos">330</span>    <span class="k">pass</span>
+<span class="linenos">331</span>
+<span class="linenos">332</span>
+<span class="linenos">333</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">334</span><span class="c1">## Creating and running an agent with a client tool</span>
+<span class="linenos">335</span>
+<span class="linenos">336</span><span class="c1"># %%</span>
+<span class="linenos">337</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_client_tool</span><span class="p">)</span>
+<span class="linenos">338</span>
+<span class="linenos">339</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="linenos">340</span><span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+<span class="linenos">341</span>    <span class="sa">f</span><span class="s2">&quot;Please summarize my PDF document (can be found at </span><span class="si">{</span><span class="n">PDF_FILE_PATH</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="linenos">342</span><span class="p">)</span>
+<span class="linenos">343</span>
+<span class="linenos">344</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">345</span>
+<span class="linenos">346</span><span class="c1"># Executing the request and sending it back to the assistant</span>
+<span class="linenos">347</span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">ToolRequestStatus</span><span class="p">):</span>
+<span class="linenos">348</span>    <span class="n">tool_request</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">tool_requests</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="linenos">349</span>    <span class="n">tool_result</span> <span class="o">=</span> <span class="n">execute_tool_from_tool_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">)</span>
+<span class="linenos">350</span>    <span class="n">conversation</span><span class="o">.</span><span class="n">append_tool_result</span><span class="p">(</span>
+<span class="linenos">351</span>        <span class="n">ToolResult</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">tool_result</span><span class="p">,</span> <span class="n">tool_request_id</span><span class="o">=</span><span class="n">tool_request</span><span class="o">.</span><span class="n">tool_request_id</span><span class="p">)</span>
+<span class="linenos">352</span>    <span class="p">)</span>
+<span class="linenos">353</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos">354</span>    <span class="n">failed</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="linenos">355</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected ToolRequestStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">356</span>
+<span class="linenos">357</span><span class="k">if</span> <span class="ow">not</span> <span class="n">failed</span><span class="p">:</span>
+<span class="linenos">358</span>    <span class="c1"># Continuing the conversation</span>
+<span class="linenos">359</span>    <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">360</span>
+<span class="linenos">361</span><span class="k">if</span> <span class="ow">not</span> <span class="n">failed</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">):</span>
+<span class="linenos">362</span>    <span class="n">assistant_reply</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+<span class="linenos">363</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">Assistant &gt;&gt;&gt; </span><span class="si">{</span><span class="n">assistant_reply</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="se">\n</span><span class="s2">---&quot;</span><span class="p">)</span>
+<span class="linenos">364</span><span class="k">elif</span> <span class="ow">not</span> <span class="n">failed</span><span class="p">:</span>
+<span class="linenos">365</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected UserMessageRequestStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">366</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos">367</span>    <span class="k">pass</span>
+<span class="linenos">368</span>
+<span class="linenos">369</span>
+<span class="linenos">370</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">371</span><span class="c1">## Export config to Agent Spec</span>
+<span class="linenos">372</span>
+<span class="linenos">373</span><span class="c1"># %%</span>
+<span class="linenos">374</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+<span class="linenos">375</span>
+<span class="linenos">376</span><span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
+<span class="linenos">377</span>
+<span class="linenos">378</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">379</span><span class="c1">## Load Agent Spec config</span>
+<span class="linenos">380</span>
+<span class="linenos">381</span><span class="c1"># %%</span>
+<span class="linenos">382</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+<span class="linenos">383</span>
+<span class="linenos">384</span><span class="n">TOOL_REGISTRY</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;read_pdf&quot;</span><span class="p">:</span> <span class="n">read_pdf_server_tool</span><span class="p">}</span>
+<span class="linenos">385</span><span class="n">assistant</span><span class="p">:</span> <span class="n">Agent</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span>
+<span class="linenos">386</span>    <span class="n">tool_registry</span><span class="o">=</span><span class="n">TOOL_REGISTRY</span>
+<span class="linenos">387</span><span class="p">)</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-and-llm-configuration">Imports and LLM configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helper-functions">Helper functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview-of-the-types-of-tools">Overview of the types of tools</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-tool-decorator">Using the @tool Decorator</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-servertool">Creating a ServerTool</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-clienttool">Creating a ClientTool</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-flows-with-tools-using-the-toolexecutionstep">Building Flows with Tools using the <cite>ToolExecutionStep</cite></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#executing-servertool-with-a-flow">Executing ServerTool with a Flow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#executing-clienttool-with-a-flow">Executing ClientTool with a Flow</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-agents-with-tools">Building Agents with Tools</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#executing-servertool-with-an-agent">Executing ServerTool with an Agent</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#executing-clienttool-with-an-agent">Executing ClientTool with an Agent</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agent-spec-exporting-loading">Agent Spec Exporting/Loading</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-code">Full code</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1191 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>PromptTemplate &#8212; wayflowcore 25.4.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/prompttemplate';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '25.4.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Serialization / Deserialization" href="serialization.html" />
+    <link rel="prev" title="Execution Interrupts" href="interrupts.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.4" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 25.4.1 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 25.4.1 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">How to Evaluate WayFlow Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">How to Evaluate Assistant Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PromptTemplate</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="prompttemplate">
+<h1>PromptTemplate<a class="headerlink" href="#prompttemplate" title="Permalink to this heading">#</a></h1>
+<p>This page presents all APIs and classes related to prompt Templates.</p>
+<span class="target" id="id1"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.templates.template.</span></span><span class="sig-name descname"><span class="pre">PromptTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_parser=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_descriptors=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_rendering_transforms=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_rendering_transforms=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tools=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_tool_calling=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_format=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_structured_generation=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_config=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_partial_values=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate" title="Permalink to this definition">#</a></dt>
+<dd><p>Represents a flexible and extensible template for constructing prompts to be sent to large language models (LLMs).</p>
+<p>The PromptTemplate class enables the definition of prompt messages with variable placeholders, supports both
+native and custom tool calling, and allows for structured output generation.
+It manages input descriptors, message transforms (pre- and post chat_history rendering), and partial formatting
+for efficiency.
+The class also integrates with output parsers, tools and llm generation configurations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>messages</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em> | </em><em>MessageAsDictT</em><em>]</em>) – </p></li>
+<li><p><strong>output_parser</strong> (<a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>pre_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>post_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>tools</strong> (<em>List</em><em>[</em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>native_tool_calling</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>response_format</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>native_structured_generation</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>generation_config</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>_partial_values</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER">
+<span class="sig-name descname"><span class="pre">CHAT_HISTORY_PLACEHOLDER</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><span class="pre">Message</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Message(id='ecf61bdf-17b7-4545-accf-8130be5efa08',</span> <span class="pre">__metadata_info__={},</span> <span class="pre">role='system',</span> <span class="pre">contents=[TextContent(content='$$__CHAT_HISTORY_PLACEHOLDER__$$')],</span> <span class="pre">tool_requests=None,</span> <span class="pre">tool_result=None,</span> <span class="pre">display_only=False,</span> <span class="pre">sender=None,</span> <span class="pre">recipients=set())</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER" title="Permalink to this definition">#</a></dt>
+<dd><p>Message placeholder in case the chat history is formatted as a chat.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME">
+<span class="sig-name descname"><span class="pre">CHAT_HISTORY_PLACEHOLDER_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__CHAT_HISTORY__'</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME" title="Permalink to this definition">#</a></dt>
+<dd><p>Reserved name of the placeholder for the chat history, if rendered in one message.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.RESPONSE_FORMAT_PLACEHOLDER_NAME">
+<span class="sig-name descname"><span class="pre">RESPONSE_FORMAT_PLACEHOLDER_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__RESPONSE_FORMAT__'</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.RESPONSE_FORMAT_PLACEHOLDER_NAME" title="Permalink to this definition">#</a></dt>
+<dd><p>Reserved name of the placeholder for the expected output format. Only used if non-native structured
+generation, to be able to specify the JSON format anywhere in the prompt.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.TOOL_PLACEHOLDER_NAME">
+<span class="sig-name descname"><span class="pre">TOOL_PLACEHOLDER_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__TOOLS__'</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.TOOL_PLACEHOLDER_NAME" title="Permalink to this definition">#</a></dt>
+<dd><p>Reserved name of the placeholder for tools.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.copy" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a copy of the template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.format">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.format" title="Permalink to this definition">#</a></dt>
+<dd><p>Formats the prompt into a list of messages to pass to the LLM</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Prompt</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.from_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_parser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_descriptors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_rendering_transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_rendering_transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tools</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_tool_calling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_structured_generation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.from_string" title="Permalink to this definition">#</a></dt>
+<dd><p>Creates a prompt template from a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>template</strong> (<em>str</em>) – </p></li>
+<li><p><strong>output_parser</strong> (<a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>pre_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>post_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>tools</strong> (<em>List</em><em>[</em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>native_tool_calling</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>response_format</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>native_structured_generation</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>generation_config</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.generation_config">
+<span class="sig-name descname"><span class="pre">generation_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><span class="pre">LlmGenerationConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.generation_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Parameters to configure the generation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.input_descriptors">
+<span class="sig-name descname"><span class="pre">input_descriptors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><span class="pre">Property</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.input_descriptors" title="Permalink to this definition">#</a></dt>
+<dd><p>Input descriptors that will be picked up by PromptExecutionStep or AgentExecutionStep.
+Resolved by default from the variables present in the messages.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.messages">
+<span class="sig-name descname"><span class="pre">messages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><span class="pre">Message</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MessageAsDictT</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.messages" title="Permalink to this definition">#</a></dt>
+<dd><p>List of messages for the prompt.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.native_structured_generation">
+<span class="sig-name descname"><span class="pre">native_structured_generation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.native_structured_generation" title="Permalink to this definition">#</a></dt>
+<dd><p>Whether to use native structured generation or not. All llm providers might not support it.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.native_tool_calling">
+<span class="sig-name descname"><span class="pre">native_tool_calling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.native_tool_calling" title="Permalink to this definition">#</a></dt>
+<dd><p>Whether to use the native tool calling of the model or not. All llm providers might not support it.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.output_parser">
+<span class="sig-name descname"><span class="pre">output_parser</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><span class="pre">OutputParser</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><span class="pre">OutputParser</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.output_parser" title="Permalink to this definition">#</a></dt>
+<dd><p>Post-processing applied on the raw output of the LLM.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.post_rendering_transforms">
+<span class="sig-name descname"><span class="pre">post_rendering_transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><span class="pre">MessageTransform</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.post_rendering_transforms" title="Permalink to this definition">#</a></dt>
+<dd><p>Message transform applied on the rendered list of messages.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.pre_rendering_transforms">
+<span class="sig-name descname"><span class="pre">pre_rendering_transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><span class="pre">MessageTransform</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.pre_rendering_transforms" title="Permalink to this definition">#</a></dt>
+<dd><p>Message transform applied before rendering the list of messages into the template.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.response_format">
+<span class="sig-name descname"><span class="pre">response_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><span class="pre">Property</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.response_format" title="Permalink to this definition">#</a></dt>
+<dd><p>Specific format the llm answer should follow.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.tools">
+<span class="sig-name descname"><span class="pre">tools</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.tools" title="Permalink to this definition">#</a></dt>
+<dd><p>Tools to use in the prompt.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.with_additional_post_rendering_transform">
+<span class="sig-name descname"><span class="pre">with_additional_post_rendering_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transform</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_additional_post_rendering_transform" title="Permalink to this definition">#</a></dt>
+<dd><p>Appends an additional post rendering transform to this template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>transform</strong> (<a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.with_generation_config">
+<span class="sig-name descname"><span class="pre">with_generation_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generation_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_generation_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Override: Whether the template config should be overridden or should overridden this config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>generation_config</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>override</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.with_output_parser">
+<span class="sig-name descname"><span class="pre">with_output_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_parser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_output_parser" title="Permalink to this definition">#</a></dt>
+<dd><p>Replaces the output parser of this template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>output_parser</strong> (<a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.with_partial">
+<span class="sig-name descname"><span class="pre">with_partial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_partial" title="Permalink to this definition">#</a></dt>
+<dd><p>Partially formats the prompt with the given inputs (to avoid formatting everything at each call, if some
+inputs do not change). These inputs are not rendered directly, but stored for a later call to <cite>format()</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.with_response_format">
+<span class="sig-name descname"><span class="pre">with_response_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_format</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_response_format" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a copy of the template equipped with a given response format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>response_format</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em> | </em><em>None</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.with_tools">
+<span class="sig-name descname"><span class="pre">with_tools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tools</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_tools" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a copy of the template equipped with the given tools.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tools</strong> (<em>List</em><em>[</em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<section id="outputparser">
+<h2>OutputParser<a class="headerlink" href="#outputparser" title="Permalink to this heading">#</a></h2>
+<span class="target" id="id2"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.OutputParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.outputparser.</span></span><span class="sig-name descname"><span class="pre">OutputParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.OutputParser" title="Permalink to this definition">#</a></dt>
+<dd><p>Abstract base class for output parsers that process LLM outputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.OutputParser.parse_output">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.OutputParser.parse_output" title="Permalink to this definition">#</a></dt>
+<dd><p>Parses the LLM raw output</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.OutputParser.parse_output_streaming">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_output_streaming</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.OutputParser.parse_output_streaming" title="Permalink to this definition">#</a></dt>
+<dd><p>Can parse the result returned by streaming
+By default does nothing until the message has been completely generated, but can implement specific stream methods if we want to stream something specific</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="regexoutputparser"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.RegexOutputParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.outputparser.</span></span><span class="sig-name descname"><span class="pre">RegexOutputParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regex_pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.RegexOutputParser" title="Permalink to this definition">#</a></dt>
+<dd><p>Parses some text with Regex, potentially several regex to fill a dict</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.messagelist</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.outputparser</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegexOutputParser</span><span class="p">,</span> <span class="n">RegexPattern</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">RegexOutputParser</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">regex_pattern</span><span class="o">=</span><span class="n">RegexPattern</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;Solution is: (.*)&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">parse_output</span><span class="p">(</span><span class="n">Message</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;Solution is: Bern is the capital of Switzerland&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">content</span>
+<span class="go">&#39;Bern is the capital of Switzerland&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">RegexOutputParser</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">regex_pattern</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">&#39;thought&#39;</span><span class="p">:</span> <span class="s2">&quot;THOUGHT: (.*) ACTION:&quot;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s2">&quot;ACTION: (.*)&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">parse_output</span><span class="p">(</span><span class="n">Message</span><span class="p">(</span><span class="s2">&quot;THOUGHT: blahblah ACTION: doing&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">content</span>
+<span class="go">&#39;{&quot;thought&quot;: &quot;blahblah&quot;, &quot;action&quot;: &quot;doing&quot;}&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>regex_pattern</strong> (<em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><em>RegexPattern</em></a><em> | </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><em>RegexPattern</em></a><em>]</em>) – </p></li>
+<li><p><strong>strict</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.RegexOutputParser.parse_output">
+<span class="sig-name descname"><span class="pre">parse_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.RegexOutputParser.parse_output" title="Permalink to this definition">#</a></dt>
+<dd><p>Parses the LLM raw output</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.RegexOutputParser.parse_output_streaming">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_output_streaming</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.RegexOutputParser.parse_output_streaming" title="Permalink to this definition">#</a></dt>
+<dd><p>Can parse the result returned by streaming
+By default does nothing until the message has been completely generated, but can implement specific stream methods if we want to stream something specific</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.RegexOutputParser.regex_pattern">
+<span class="sig-name descname"><span class="pre">regex_pattern</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><span class="pre">RegexPattern</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><span class="pre">RegexPattern</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexOutputParser.regex_pattern" title="Permalink to this definition">#</a></dt>
+<dd><p>Regex pattern to use</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.RegexOutputParser.strict">
+<span class="sig-name descname"><span class="pre">strict</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexOutputParser.strict" title="Permalink to this definition">#</a></dt>
+<dd><p>Whether to return empty string if no match is found or return the raw text</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="regexpattern"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.RegexPattern">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.outputparser.</span></span><span class="sig-name descname"><span class="pre">RegexPattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'first'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern" title="Permalink to this definition">#</a></dt>
+<dd><p>Represents a regex pattern and matching options for output parsing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pattern</strong> (<em>str</em>) – </p></li>
+<li><p><strong>match</strong> (<em>Literal</em><em>[</em><em>'first'</em><em>, </em><em>'last'</em><em>]</em>) – </p></li>
+<li><p><strong>flags</strong> (<em>int</em><em> | </em><em>RegexFlag</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.RegexPattern.flags">
+<span class="sig-name descname"><span class="pre">flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RegexFlag</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.flags" title="Permalink to this definition">#</a></dt>
+<dd><p>Potential regex flags to use (re.DOTALL for multiline matching for example)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.RegexPattern.from_str">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">RegexFlag.DOTALL</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.from_str" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pattern</strong> (<em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><em>RegexPattern</em></a>) – </p></li>
+<li><p><strong>flags</strong> (<em>int</em><em> | </em><em>RegexFlag</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><em>RegexPattern</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.RegexPattern.match">
+<span class="sig-name descname"><span class="pre">match</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'first'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'last'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'first'</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.match" title="Permalink to this definition">#</a></dt>
+<dd><p>Whether to take the first match or the last match</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.RegexPattern.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.pattern" title="Permalink to this definition">#</a></dt>
+<dd><p>Regex pattern to match</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="jsonoutputparser"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.JsonOutputParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.outputparser.</span></span><span class="sig-name descname"><span class="pre">JsonOutputParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.JsonOutputParser" title="Permalink to this definition">#</a></dt>
+<dd><p>Parses output as JSON, repairing and serializing as needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>properties</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.JsonOutputParser.parse_output">
+<span class="sig-name descname"><span class="pre">parse_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.JsonOutputParser.parse_output" title="Permalink to this definition">#</a></dt>
+<dd><p>Parses the LLM raw output</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.JsonOutputParser.parse_output_streaming">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_output_streaming</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.JsonOutputParser.parse_output_streaming" title="Permalink to this definition">#</a></dt>
+<dd><p>Can parse the result returned by streaming
+By default does nothing until the message has been completely generated, but can implement specific stream methods if we want to stream something specific</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.JsonOutputParser.properties">
+<span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.outputparser.JsonOutputParser.properties" title="Permalink to this definition">#</a></dt>
+<dd><p>Dictionary of property names and jq queries to manipulate the loaded JSON</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="tooloutputparser"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.ToolOutputParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.outputparser.</span></span><span class="sig-name descname"><span class="pre">ToolOutputParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tools=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser" title="Permalink to this definition">#</a></dt>
+<dd><p>Base parser for tool requests</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tools</strong> (<em>List</em><em>[</em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.ToolOutputParser.parse_output">
+<span class="sig-name descname"><span class="pre">parse_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.parse_output" title="Permalink to this definition">#</a></dt>
+<dd><p>Separates the raw output into thoughts and calls, and then parses the calls into ToolRequests</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.ToolOutputParser.parse_output_streaming">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_output_streaming</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.parse_output_streaming" title="Permalink to this definition">#</a></dt>
+<dd><p>Can parse the result returned by streaming
+By default does nothing until the message has been completely generated, but can implement specific stream methods if we want to stream something specific</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>content</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.ToolOutputParser.parse_thoughts_and_calls">
+<span class="sig-name descname"><span class="pre">parse_thoughts_and_calls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_txt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.parse_thoughts_and_calls" title="Permalink to this definition">#</a></dt>
+<dd><p>Default function to separate thoughts and tool calls</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>raw_txt</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tuple</em>[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.ToolOutputParser.parse_tool_request_from_str">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_tool_request_from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_txt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.parse_tool_request_from_str" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>raw_txt</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>List</em>[<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.ToolOutputParser.tools">
+<span class="sig-name descname"><span class="pre">tools</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.tools" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.outputparser.ToolOutputParser.with_tools">
+<span class="sig-name descname"><span class="pre">with_tools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tools</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.with_tools" title="Permalink to this definition">#</a></dt>
+<dd><p>Enhances the tool parser with some validation of the parsed tool calls according to specific tools</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tools</strong> (<em>List</em><em>[</em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.outputparser.ToolOutputParser" title="wayflowcore.outputparser.ToolOutputParser"><em>ToolOutputParser</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="message-transforms">
+<h2>Message transforms<a class="headerlink" href="#message-transforms" title="Permalink to this heading">#</a></h2>
+<span class="target" id="messagetransform"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.transforms.MessageTransform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.transforms.</span></span><span class="sig-name descname"><span class="pre">MessageTransform</span></span><a class="headerlink" href="#wayflowcore.transforms.MessageTransform" title="Permalink to this definition">#</a></dt>
+<dd><p>Abstract base class for message transforms.</p>
+<p>Subclasses should implement the __call__ method to transform a list of Message objects
+and return a new list of Message objects, typically for preprocessing or postprocessing
+message flows in the system.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.transforms.CoalesceSystemMessagesTransform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.transforms.</span></span><span class="sig-name descname"><span class="pre">CoalesceSystemMessagesTransform</span></span><a class="headerlink" href="#wayflowcore.transforms.CoalesceSystemMessagesTransform" title="Permalink to this definition">#</a></dt>
+<dd><p>Transform that merges consecutive system messages at the start of a message list
+into a single system message. This is useful for reducing redundancy and ensuring
+that only one system message appears at the beginning of the conversation.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.transforms.RemoveEmptyNonUserMessageTransform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.transforms.</span></span><span class="sig-name descname"><span class="pre">RemoveEmptyNonUserMessageTransform</span></span><a class="headerlink" href="#wayflowcore.transforms.RemoveEmptyNonUserMessageTransform" title="Permalink to this definition">#</a></dt>
+<dd><p>Transform that removes messages which are empty and not from the user.</p>
+<p>Any message with empty content and no tool requests, except for user messages,
+will be filtered out from the message list.</p>
+<p>This is useful in case the template contains optional messages, which will be discarded if their
+content is empty (with a string template such as “{% if __PLAN__ %}{{ __PLAN__ }}{% endif %}”).</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.transforms.AppendTrailingSystemMessageToUserMessageTransform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.transforms.</span></span><span class="sig-name descname"><span class="pre">AppendTrailingSystemMessageToUserMessageTransform</span></span><a class="headerlink" href="#wayflowcore.transforms.AppendTrailingSystemMessageToUserMessageTransform" title="Permalink to this definition">#</a></dt>
+<dd><p>Transform that appends the content of a trailing system message to the previous user message.</p>
+<p>If the last message in the list is a system message and the one before it is a user message,
+this transform merges the system message content into the user message, reducing message clutter.</p>
+<p>This is useful if the underlying LLM does not support system messages at the end.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</section>
+<section id="helpers">
+<h2>Helpers<a class="headerlink" href="#helpers" title="Permalink to this heading">#</a></h2>
+<span class="target" id="prompttemplatehelpers"></span><dl class="py function">
+<dt class="sig sig-object py" id="wayflowcore.templates.structuredgeneration.adapt_prompt_template_for_json_structured_generation">
+<span class="sig-prename descclassname"><span class="pre">wayflowcore.templates.structuredgeneration.</span></span><span class="sig-name descname"><span class="pre">adapt_prompt_template_for_json_structured_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.structuredgeneration.adapt_prompt_template_for_json_structured_generation" title="Permalink to this definition">#</a></dt>
+<dd><p>Adapts a prompt template for native structured generation to one
+that leverages a special system prompt and a JSON Output Parser.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prompt_template</strong> (<a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a>) – The prompt template to adapt</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The new prompt template, with the special system prompt and
+output parsers configured</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate">PromptTemplate</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the prompt template is already configured to use non-native structured generation,
+    or the prompt template has no response format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate"><code class="docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.CHAT_HISTORY_PLACEHOLDER</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.RESPONSE_FORMAT_PLACEHOLDER_NAME"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.RESPONSE_FORMAT_PLACEHOLDER_NAME</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.TOOL_PLACEHOLDER_NAME"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.TOOL_PLACEHOLDER_NAME</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.copy"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.copy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.format"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.format()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.from_string"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.from_string()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.generation_config"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.generation_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.input_descriptors"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.input_descriptors</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.messages"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.messages</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.native_structured_generation"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.native_structured_generation</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.native_tool_calling"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.native_tool_calling</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.output_parser"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.output_parser</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.post_rendering_transforms"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.post_rendering_transforms</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.pre_rendering_transforms"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.pre_rendering_transforms</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.response_format"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.response_format</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.tools"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.tools</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.with_additional_post_rendering_transform"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.with_additional_post_rendering_transform()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.with_generation_config"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.with_generation_config()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.with_output_parser"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.with_output_parser()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.with_partial"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.with_partial()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.with_response_format"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.with_response_format()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.template.PromptTemplate.with_tools"><code class="docutils literal notranslate"><span class="pre">PromptTemplate.with_tools()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#outputparser">OutputParser</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.OutputParser"><code class="docutils literal notranslate"><span class="pre">OutputParser</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.OutputParser.parse_output"><code class="docutils literal notranslate"><span class="pre">OutputParser.parse_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.OutputParser.parse_output_streaming"><code class="docutils literal notranslate"><span class="pre">OutputParser.parse_output_streaming()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.RegexOutputParser"><code class="docutils literal notranslate"><span class="pre">RegexOutputParser</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.RegexOutputParser.parse_output"><code class="docutils literal notranslate"><span class="pre">RegexOutputParser.parse_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.RegexOutputParser.parse_output_streaming"><code class="docutils literal notranslate"><span class="pre">RegexOutputParser.parse_output_streaming()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.RegexOutputParser.regex_pattern"><code class="docutils literal notranslate"><span class="pre">RegexOutputParser.regex_pattern</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.RegexOutputParser.strict"><code class="docutils literal notranslate"><span class="pre">RegexOutputParser.strict</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.RegexPattern"><code class="docutils literal notranslate"><span class="pre">RegexPattern</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.RegexPattern.flags"><code class="docutils literal notranslate"><span class="pre">RegexPattern.flags</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.RegexPattern.from_str"><code class="docutils literal notranslate"><span class="pre">RegexPattern.from_str()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.RegexPattern.match"><code class="docutils literal notranslate"><span class="pre">RegexPattern.match</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.RegexPattern.pattern"><code class="docutils literal notranslate"><span class="pre">RegexPattern.pattern</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.JsonOutputParser"><code class="docutils literal notranslate"><span class="pre">JsonOutputParser</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.JsonOutputParser.parse_output"><code class="docutils literal notranslate"><span class="pre">JsonOutputParser.parse_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.JsonOutputParser.parse_output_streaming"><code class="docutils literal notranslate"><span class="pre">JsonOutputParser.parse_output_streaming()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.JsonOutputParser.properties"><code class="docutils literal notranslate"><span class="pre">JsonOutputParser.properties</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.ToolOutputParser"><code class="docutils literal notranslate"><span class="pre">ToolOutputParser</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.ToolOutputParser.parse_output"><code class="docutils literal notranslate"><span class="pre">ToolOutputParser.parse_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.ToolOutputParser.parse_output_streaming"><code class="docutils literal notranslate"><span class="pre">ToolOutputParser.parse_output_streaming()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.ToolOutputParser.parse_thoughts_and_calls"><code class="docutils literal notranslate"><span class="pre">ToolOutputParser.parse_thoughts_and_calls()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.ToolOutputParser.parse_tool_request_from_str"><code class="docutils literal notranslate"><span class="pre">ToolOutputParser.parse_tool_request_from_str()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.ToolOutputParser.tools"><code class="docutils literal notranslate"><span class="pre">ToolOutputParser.tools</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.outputparser.ToolOutputParser.with_tools"><code class="docutils literal notranslate"><span class="pre">ToolOutputParser.with_tools()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#message-transforms">Message transforms</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.MessageTransform"><code class="docutils literal notranslate"><span class="pre">MessageTransform</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.CoalesceSystemMessagesTransform"><code class="docutils literal notranslate"><span class="pre">CoalesceSystemMessagesTransform</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.RemoveEmptyNonUserMessageTransform"><code class="docutils literal notranslate"><span class="pre">RemoveEmptyNonUserMessageTransform</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.AppendTrailingSystemMessageToUserMessageTransform"><code class="docutils literal notranslate"><span class="pre">AppendTrailingSystemMessageToUserMessageTransform</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helpers">Helpers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.structuredgeneration.adapt_prompt_template_for_json_structured_generation"><code class="docutils literal notranslate"><span class="pre">adapt_prompt_template_for_json_structured_generation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

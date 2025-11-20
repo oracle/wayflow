@@ -1,0 +1,924 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>How to Use LLMs from Different LLM Providers &#8212; wayflowcore 25.4.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/llm_from_different_providers';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '25.4.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to Install and Use Ollama" href="installing_ollama.html" />
+    <link rel="prev" title="How to Specify the Generation Configuration when Using LLMs" href="generation_config.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.4" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 25.4.1 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 25.4.1 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">How to Evaluate WayFlow Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">How to Evaluate Assistant Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-to Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to Use LLMs from Different LLM Providers</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="how-to-use-llms-from-different-llm-providers">
+<h1>How to Use LLMs from Different LLM Providers<a class="headerlink" href="#how-to-use-llms-from-different-llm-providers" title="Permalink to this heading">#</a></h1>
+<p>WayFlow supports several LLM API providers. The available LLMs are:</p>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenAIModel</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenAICompatibleModel</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OCIGenAIModel</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">VllmModel</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OllamaModel</span></code></p></li>
+</ul>
+<p>Their configuration is specified directly to their respective class constructor.
+This guide will show you how to configure LLMs from different LLM providers with examples and notes on usage.</p>
+<section id="basic-implementation">
+<h2>Basic implementation<a class="headerlink" href="#basic-implementation" title="Permalink to this heading">#</a></h2>
+<p>Currently, defining a configuration dictionary and passing it to the <a class="reference internal" href="../api/llmmodels.html#wayflowcore.models.llmmodelfactory.LlmModelFactory.from_config" title="wayflowcore.models.llmmodelfactory.LlmModelFactory.from_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LlmModelFactory.from_config()</span></code></a> method is a convenient way to instantiate a particular LLM model in WayFlow.
+However, you can also achieve this by directly instantiating the model classes, providing flexibility for more customized setups.</p>
+<p>You can find a detailed description of each supported model type in this guide, demonstrating both methods — using the configuration dictionary and direct instantiation — for each model.</p>
+</section>
+<section id="oci-genai-model">
+<h2>OCI GenAI Model<a class="headerlink" href="#oci-genai-model" title="Permalink to this heading">#</a></h2>
+<p><a class="reference external" href="https://docs.oracle.com/iaas/Content/generative-ai/overview.htm">OCI GenAI Model</a> is powered by <a class="reference external" href="https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/">OCI Generative AI</a>.</p>
+<p><strong>Parameters</strong></p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-model_id">
+<span id="cmdoption-arg-model-id"></span><span class="sig-name descname"><span class="pre">model_id:</span></span><span class="sig-prename descclassname"> <span class="pre">str</span></span><a class="headerlink" href="#cmdoption-arg-model_id" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the model to use. A list of the available models is given in
+<a class="reference external" href="https://docs.oracle.com/en-us/iaas/Content/generative-ai/deprecating.htm#">Oracle OCI Documentation</a>
+under the Model Retirement Dates (On-Demand Mode) section.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-generation_config">
+<span id="cmdoption-arg-generation-config"></span><span id="cmdoption-arg-optional"></span><span class="sig-name descname"><span class="pre">generation_config:</span></span><span class="sig-prename descclassname"> <span class="pre">dict</span></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">optional</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-arg-generation_config" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-arg-Default">
+<span id="cmdoption-arg-default"></span><span class="sig-name descname"><span class="pre">Default</span></span><span class="sig-prename descclassname"> <span class="pre">parameters</span> <span class="pre">for</span> <span class="pre">text</span> <span class="pre">generation</span> <span class="pre">with</span> <span class="pre">this</span> <span class="pre">model.</span></span><a class="headerlink" href="#cmdoption-arg-Default" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-arg-Example">
+<span id="cmdoption-arg-example"></span><span class="sig-name descname"><span class="pre">Example:</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-arg-Example" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-arg-..">
+<span id="cmdoption-arg"></span><span class="sig-name descname"><span class="pre">..</span></span><span class="sig-prename descclassname"> <span class="pre">code-block::</span> <span class="pre">python</span></span><a class="headerlink" href="#cmdoption-arg-.." title="Permalink to this definition">#</a></dt>
+<dd><blockquote>
+<div><p>generation_config = LlmGenerationConfig(max_tokens=256, temperature=0.8, top_p=0.95)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-client_config">
+<span id="cmdoption-arg-client-config"></span><span id="cmdoption-arg-0"></span><span class="sig-name descname"><span class="pre">client_config:</span></span><span class="sig-prename descclassname"> <span class="pre">OCIClientConfig</span></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">optional</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-arg-client_config" title="Permalink to this definition">#</a></dt>
+<dd><p>OCI client config to authenticate the OCI service.
+See the below examples and <a class="reference internal" href="../api/llmmodels.html#ociclientconfigclassesforauthentication"><span class="std std-ref">OCI Client Config Classes for Authentication</span></a> for the usage and more information.</p>
+</dd></dl>
+
+<p><strong>Examples</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmgenerationconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmGenerationConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmmodelfactory</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmModelFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.ociclientconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIClientConfigWithApiKey</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Get the list of available models from:</span>
+    <span class="c1"># https://docs.oracle.com/en-us/iaas/Content/generative-ai/deprecating.htm#</span>
+    <span class="c1"># under the &quot;Model Retirement Dates (On-Demand Mode)&quot; section.</span>
+    <span class="n">OCIGENAI_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;cohere.command-r-plus-08-2024&quot;</span>
+    <span class="c1"># e.g. &lt;oci region&gt; can be &quot;us-chicago-1&quot; and can also be found in your ~/.oci/config file</span>
+    <span class="n">OCIGENAI_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;https://inference.generativeai.&lt;oci region&gt;.oci.oraclecloud.com&quot;</span>
+    <span class="c1"># &lt;compartment_id&gt; can be obtained from your personal OCI account (not the key config file).</span>
+    <span class="c1"># Please find it under &quot;Identity &gt; Compartments&quot; on the OCI console website after logging in to your user account.</span>
+    <span class="n">COMPARTMENT_ID</span> <span class="o">=</span> <span class="n">compartment_id</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ocid1.compartment.oc1..&lt;compartment_id&gt;&quot;</span><span class="p">,)</span>
+
+    <span class="n">generation_config</span> <span class="o">=</span> <span class="n">LlmGenerationConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OCIGENAI_MODEL_ID</span><span class="p">,</span>
+        <span class="n">client_config</span><span class="o">=</span><span class="n">OCIClientConfigWithApiKey</span><span class="p">(</span>
+            <span class="n">service_endpoint</span><span class="o">=</span><span class="n">OCIGENAI_ENDPOINT</span><span class="p">,</span>
+            <span class="n">compartment_id</span><span class="o">=</span><span class="n">COMPARTMENT_ID</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<details class="summary-equivalent-code-example-utilizing-the-llmmodelfactory-class">
+<summary>Equivalent code example utilizing the LlmModelFactory class.</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">COHERE_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;model_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ocigenai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="n">OCIGENAI_MODEL_ID</span><span class="p">,</span>
+        <span class="s2">&quot;client_config&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;service_endpoint&quot;</span><span class="p">:</span> <span class="n">OCIGENAI_ENDPOINT</span><span class="p">,</span>
+            <span class="s2">&quot;compartment_id&quot;</span><span class="p">:</span> <span class="n">COMPARTMENT_ID</span><span class="p">,</span>
+            <span class="s2">&quot;auth_type&quot;</span><span class="p">:</span> <span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">LlmModelFactory</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">COHERE_CONFIG</span><span class="p">)</span>
+</pre></div>
+</div>
+</details><details class="summary-equivalent-code-example-utilizing-the-ociuserauthenticationconfig-class-api-key-authentication-without-config-key-files">
+<summary>Equivalent code example utilizing the OCIUserAuthenticationConfig class (API_KEY authentication without config/key files).</summary><p>WayFlow allows users to authenticate OCI GenAI service using a user API key without relying on a local config file and a key file.</p>
+<blockquote>
+<div><p>Instead of using a config file, the values of config parameters can be specified in the <a class="reference internal" href="../api/llmmodels.html#ociuserauthenticationconfig"><span class="std std-ref">OCIUserAuthenticationConfig</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.ociclientconfig</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">OCIClientConfigWithUserAuthentication</span><span class="p">,</span>
+    <span class="n">OCIUserAuthenticationConfig</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Assume we have an API to get credentials</span>
+<span class="n">oci_genai_cred</span> <span class="o">=</span> <span class="n">get_oci_genai_credentials</span><span class="p">()</span>
+
+<span class="n">user_config</span> <span class="o">=</span> <span class="n">OCIUserAuthenticationConfig</span><span class="p">(</span>
+    <span class="n">user</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">],</span>
+    <span class="n">key_content</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;key_content&quot;</span><span class="p">],</span>
+    <span class="n">fingerprint</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;fingerprint&quot;</span><span class="p">],</span>
+    <span class="n">tenancy</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;tenancy&quot;</span><span class="p">],</span>
+    <span class="n">region</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The user authentication config parameters are sensitive information. This information will not be included when serializing a flow (there will be just an empty dictionary instead).</p>
+</div>
+<p>You can create a client configuration with the user authentication configuration.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client_config</span> <span class="o">=</span> <span class="n">OCIClientConfigWithUserAuthentication</span><span class="p">(</span>
+    <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;my_service_endpoint&quot;</span><span class="p">,</span>  <span class="c1"># replace it with your endpoint</span>
+    <span class="n">compartment_id</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;compartment_id&quot;</span><span class="p">],</span>
+    <span class="n">user_config</span><span class="o">=</span><span class="n">user_config</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Then create an <code class="docutils literal notranslate"><span class="pre">OCIGenAIModel</span></code> object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.ocigenaimodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;cohere.command-r-plus-08-2024&quot;</span><span class="p">,</span>
+    <span class="n">client_config</span><span class="o">=</span><span class="n">client_config</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternatively, you can use the <a class="reference internal" href="../api/llmmodels.html#wayflowcore.models.llmmodelfactory.LlmModelFactory.from_config" title="wayflowcore.models.llmmodelfactory.LlmModelFactory.from_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LlmModelFactory.from_config()</span></code></a> to create an <code class="docutils literal notranslate"><span class="pre">OCIGenAIModel</span></code> object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmModelFactory</span>
+
+<span class="n">COHERE_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;model_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ocigenai&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="s2">&quot;cohere.command-r-plus-08-2024&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;client_config&quot;</span><span class="p">:</span> <span class="n">client_config</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">LlmModelFactory</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">COHERE_CONFIG</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</details><p><strong>Notes</strong></p>
+<ul>
+<li><p>Make sure to properly set up authentication configuration.</p></li>
+<li><p>Make sure that you have the <code class="docutils literal notranslate"><span class="pre">oci&gt;=2.134.0</span></code> package installed. With your WayFlow environment activated, you can install the package as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>oci&gt;<span class="o">=</span><span class="m">2</span>.134.0
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We recommend to encapsulate your code with <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code> to avoid any unexpected issues.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If, when using the <code class="docutils literal notranslate"><span class="pre">INSTANCE_PRINCIPAL</span></code>, the response of the model returns a <code class="docutils literal notranslate"><span class="pre">404</span></code> error,
+check if your instance is listed in the dynamic group and has the right privileges.
+Otherwise, ask someone with administrative privileges to grant your OCI Compute instance the ability to authenticate as an Instance Principal.
+You need to have a Dynamic Group that includes the instance and a policy that allows this dynamic group to manage OCI GenAI services.</p>
+</div>
+<section id="using-the-api-key-authentication-method">
+<span id="subsection-api-key-gen"></span><h3>Using the API_KEY authentication method<a class="headerlink" href="#using-the-api-key-authentication-method" title="Permalink to this heading">#</a></h3>
+<p>In order to use the <code class="docutils literal notranslate"><span class="pre">API_KEY</span></code> authentication method, generating and setting a new <code class="docutils literal notranslate"><span class="pre">.pem</span></code> OCI key is necessary.
+The following steps will guide you through the generation and setup process:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Login to the OCI console.</p></li>
+<li><p>In the navigation bar, select the <strong>Profile</strong> menu and then navigate to <strong>User settings</strong> or <strong>My profile</strong>, depending on the option that you see.</p></li>
+<li><p>Under <strong>Resources</strong>, select <strong>API Keys</strong>, and then select <strong>Add API Key</strong>.</p></li>
+<li><p>Select <strong>Generate API Key Pair</strong> in the Add API Key dialog.</p></li>
+<li><p>Select <strong>Download Private Key</strong> and save the private key file (the <em>.pem</em> file) in the <em>~/.oci/config</em> directory. (If the <em>~/.oci/config</em> directory does not exist, create it now).</p></li>
+<li><p>Select <strong>Add</strong> to add the new API signing key to your user settings. The Configuration File Preview dialog is displayed, containing a configuration file snippet with basic authentication information for the profile named <code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code> (including the fingerprint of the API signing key you just created).</p></li>
+<li><p>Copy the configuration file snippet shown in the text box, and close the Configuration File Preview dialog.</p></li>
+<li><p>In a text editor, open the <em>~/.oci/config</em> file and paste the snippet into the file. (If the <em>~/.oci/config</em> does not exist, create it now).</p></li>
+<li><p>In the text editor, change the value of the <code class="docutils literal notranslate"><span class="pre">key_file</span></code> parameter of the profile to specify the path of the private key file (the <em>.pem</em> file you downloaded earlier).</p></li>
+<li><p>Save the changes you have made to the <em>~/.oci/config</em> file, and close the text editor.</p></li>
+<li><p>In a terminal window, change permissions on the private key file (the <em>.pem</em> file) to ensure that only you can read it, by entering:
+<code class="docutils literal notranslate"><span class="pre">chmod</span> <span class="pre">go-rwx</span> <span class="pre">~/.oci/&lt;private-key-file-name&gt;.pem</span></code></p></li>
+</ol>
+</div></blockquote>
+<dl>
+<dt>Example of defining the model parameters:</dt><dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+  <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;&lt;model ID attained from the Model Retirement Dates (On-Demand Mode) list in the OCI console website&gt;&quot;</span><span class="p">,</span>
+  <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;https://inference.generativeai.&lt;oci region&gt;.oci.oraclecloud.com&quot;</span><span class="p">,</span>
+  <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;ocid1.compartment.oc1..&lt;compartment_id ID obtained from your personal OCI account (not the key config). The ID can be obtained under Identity &gt; Compartments in the OCI console website.&gt;&quot;</span><span class="p">,</span>
+  <span class="n">auth_type</span><span class="o">=</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span>
+  <span class="n">auth_profile</span><span class="o">=</span><span class="s2">&quot;DEFAULT&quot;</span><span class="p">,</span>
+  <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>Example of the key configuration in <em>.oci/config</em>:</dt><dd><div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[DEFAULT]</span>
+<span class="na">user</span><span class="o">=</span><span class="s">ocid1.user.oc1..&lt;given in step 7&gt;</span>
+<span class="na">fingerprint</span><span class="o">=</span><span class="s">&lt;given in step 7&gt;</span>
+<span class="na">tenancy</span><span class="o">=</span><span class="s">ocid1.tenancy.oc1..&lt;given in step 7&gt;</span>
+<span class="na">region</span><span class="o">=</span><span class="s">&lt;given in step 7 (region where you created your key in step 4)&gt;</span>
+<span class="na">key_file</span><span class="o">=</span><span class="s">&lt;path of the downloaded key in step 5 (for convenience, store the key in the .oci directory and ensure it has a .pem suffix.)&gt;</span>
+</pre></div>
+</div>
+<p>This file is automatically generated and can be downloaded in step 7.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="openai-model">
+<h2>OpenAI Model<a class="headerlink" href="#openai-model" title="Permalink to this heading">#</a></h2>
+<p>OpenAI Model is powered by <a class="reference external" href="https://platform.openai.com/docs/models">OpenAI</a>.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><strong>model_id</strong> : str
+Name of the model to use. Current supported models: <code class="docutils literal notranslate"><span class="pre">gpt-4o</span></code> and <code class="docutils literal notranslate"><span class="pre">gpt-4o-mini</span></code>.</p></li>
+<li><p><strong>generation_config</strong> : dict, optional
+Default parameters for text generation with this model.</p></li>
+<li><p><strong>proxy</strong> : str, optional
+Proxy settings to access the remote model.</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Ensure that the <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> is set beforehand
+to access this model. A list of available OpenAI models can be found at
+the following link: <a class="reference external" href="https://platform.openai.com/docs/models">OpenAI Models</a>.
+Among these, the supported models include <code class="docutils literal notranslate"><span class="pre">gpt-4o</span></code> and <code class="docutils literal notranslate"><span class="pre">gpt-4o-mini</span></code>.
+Note that the <code class="docutils literal notranslate"><span class="pre">gpt-o1</span></code> and <code class="docutils literal notranslate"><span class="pre">gpt-o3</span></code> models are not currently supported.</p>
+</div>
+<p><strong>Examples</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIModel</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;DUMMY_OPENAI_KEY&quot;</span><span class="p">)</span>
+
+    <span class="c1"># supported models &quot;gpt-4o&quot;, &quot;gpt-4o-mini&quot;.</span>
+    <span class="c1"># We currently do not support gpt-o1 and gpt-o3 models.</span>
+    <span class="n">OPENAI_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span>
+
+    <span class="n">generation_config</span> <span class="o">=</span> <span class="n">LlmGenerationConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAIModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OPENAI_MODEL_ID</span><span class="p">,</span>
+        <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<details class="summary-equivalent-code-example-utilizing-the-llmmodelfactory-class">
+<summary>Equivalent code example utilizing the LlmModelFactory class.</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">OPENAI_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;model_type&quot;</span><span class="p">:</span> <span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="n">OPENAI_MODEL_ID</span><span class="p">,</span>
+        <span class="s2">&quot;generation_config&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;max_tokens&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s2">&quot;top_p&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">LlmModelFactory</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">OPENAI_CONFIG</span><span class="p">)</span>
+</pre></div>
+</div>
+</details></section>
+<section id="vllm-model">
+<h2>vLLM Model<a class="headerlink" href="#vllm-model" title="Permalink to this heading">#</a></h2>
+<p><a class="reference external" href="https://docs.vllm.ai/en/latest/models/supported_models.html">vLLM Model</a> is a model hosted with a vLLM server.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><strong>model_id</strong> : str
+Name of the model to use.</p></li>
+<li><p><strong>host_port</strong> : str
+Hostname and port of the vLLM server where the model is hosted.</p></li>
+<li><p><strong>generation_config</strong> : dict, optional
+Default parameters for text generation with this model.</p></li>
+</ul>
+<p><strong>Examples</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">VLLM_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;/storage/models/Llama-3.1-70B-Instruct&quot;</span>
+
+    <span class="n">generation_config</span> <span class="o">=</span> <span class="n">LlmGenerationConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">VLLM_MODEL_ID</span><span class="p">,</span>
+        <span class="n">host_port</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;VLLM_HOST_PORT&quot;</span><span class="p">],</span>
+        <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<details class="summary-equivalent-code-example-utilizing-the-llmmodelfactory-class">
+<summary>Equivalent code example utilizing the LlmModelFactory class.</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">VLLM_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;model_type&quot;</span><span class="p">:</span> <span class="s2">&quot;vllm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;host_port&quot;</span><span class="p">:</span> <span class="n">VLLM_HOST_PORT</span><span class="p">,</span>
+        <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="n">VLLM_MODEL_ID</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">LlmModelFactory</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">VLLM_CONFIG</span><span class="p">)</span>
+</pre></div>
+</div>
+</details><p><strong>Notes</strong></p>
+<p>Usually, vLLM models do not support tools calling.
+To enable this functionality, WayFlow modifies the prompt by prepending and appending specific ReAct templates and formats tools accordingly when:</p>
+<ul class="simple">
+<li><p>The model is required to utilize tools.</p></li>
+<li><p>The list of messages contains some <code class="docutils literal notranslate"><span class="pre">tool_requests</span></code> or <code class="docutils literal notranslate"><span class="pre">tool_results</span></code>.</p></li>
+</ul>
+<p>Be aware of this when you generate with tools or tool calls.
+To disable this behavior, set <code class="docutils literal notranslate"><span class="pre">use_tools</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code> and ensure the prompt does not contain
+<code class="docutils literal notranslate"><span class="pre">tool_call</span></code> and <code class="docutils literal notranslate"><span class="pre">tool_result</span></code> messages.
+See <a class="reference external" href="https://arxiv.org/abs/2210.03629">this documentation</a> for more details on the ReAct prompting technique.</p>
+</section>
+<section id="ollama-model">
+<h2>Ollama Model<a class="headerlink" href="#ollama-model" title="Permalink to this heading">#</a></h2>
+<p><a class="reference external" href="https://ollama.com/">Ollama Model</a> is powered by a locally hosted Ollama server.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><strong>model_id</strong> : str
+Name of the model to use. A list of model names can be found <a class="reference external" href="https://ollama.com/search">here</a>.</p></li>
+<li><p><strong>host_port</strong> : str
+Hostname and port of the Ollama server where the model is hosted.
+By default Ollama binds port 11434.</p></li>
+<li><p><strong>generation_config</strong> : dict, optional
+Default parameters for text generation with this model.</p></li>
+</ul>
+<p><strong>Examples</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OllamaModel</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">OLLAMA_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;llama2-7b&quot;</span>
+    <span class="n">OLLAMA_HOST_PORT</span> <span class="o">=</span> <span class="s2">&quot;localhost:11434&quot;</span>  <span class="c1"># default is 11434 if omitted</span>
+
+    <span class="n">generation_config</span> <span class="o">=</span> <span class="n">LlmGenerationConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OllamaModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OLLAMA_MODEL_ID</span><span class="p">,</span> <span class="n">host_port</span><span class="o">=</span><span class="n">OLLAMA_HOST_PORT</span><span class="p">,</span> <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<details class="summary-equivalent-code-example-utilizing-the-llmmodelfactory-class">
+<summary>Equivalent code example utilizing the LlmModelFactory class.</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">OLLAMA_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;model_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ollama&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="n">OLLAMA_MODEL_ID</span><span class="p">,</span>
+        <span class="s2">&quot;host_port&quot;</span><span class="p">:</span> <span class="n">OLLAMA_HOST_PORT</span><span class="p">,</span>
+        <span class="s2">&quot;generation_config&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;max_tokens&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span> <span class="s2">&quot;top_p&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">LlmModelFactory</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">OLLAMA_CONFIG</span><span class="p">)</span>
+</pre></div>
+</div>
+</details><p><strong>Notes</strong></p>
+<p>As of November 2024, Ollama does not support tools calling with token streaming.
+To enable this functionality, WayFlow modifies the prompt by prepending and appending specific ReAct templates and formats tools accordingly when:</p>
+<ul class="simple">
+<li><p>The model is required to utilize tools.</p></li>
+<li><p>The list of messages contains some <code class="docutils literal notranslate"><span class="pre">tool_requests</span></code> or <code class="docutils literal notranslate"><span class="pre">tool_results</span></code>.</p></li>
+</ul>
+<p>Be aware of that when you generate with tools or tool calls.
+To disable this behavior, set <code class="docutils literal notranslate"><span class="pre">use_tools</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code> and ensure the prompt does not contain
+<code class="docutils literal notranslate"><span class="pre">tool_call</span></code> and <code class="docutils literal notranslate"><span class="pre">tool_result</span></code> messages.
+See <a class="reference external" href="https://arxiv.org/abs/2210.03629">this documentation</a> for more details on the ReAct prompting technique.</p>
+</section>
+<section id="recap">
+<h2>Recap<a class="headerlink" href="#recap" title="Permalink to this heading">#</a></h2>
+<p>This guide provides detailed descriptions of each model type supported by WayFlow, demonstrating how to use both the configuration dictionary and direct instantiation methods for each model.</p>
+<details class="summary-below-is-the-complete-code-from-this-guide">
+<summary>Below is the complete code from this guide.</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span><span class="p">,</span> <span class="n">OllamaModel</span><span class="p">,</span> <span class="n">OpenAIModel</span><span class="p">,</span> <span class="n">VllmModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmgenerationconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmGenerationConfig</span>
+
+<span class="n">OCIGENAI_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;cohere.command-r-plus&quot;</span>
+<span class="n">OCIGENAI_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;&lt;YOUR_SERVICE_ENDPOINT&gt;&quot;</span>
+<span class="n">COMPARTMENT_ID</span> <span class="o">=</span> <span class="s2">&quot;&lt;YOUR_COMPARTMENT_ID&gt;&quot;</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">generation_config</span> <span class="o">=</span> <span class="n">LlmGenerationConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OCIGENAI_MODEL_ID</span><span class="p">,</span>
+        <span class="n">client_config</span><span class="o">=</span><span class="n">OCIClientConfigWithApiKey</span><span class="p">(</span>
+            <span class="n">service_endpoint</span><span class="o">=</span><span class="n">OCIGENAI_ENDPOINT</span><span class="p">,</span>
+            <span class="n">compartment_id</span><span class="o">=</span><span class="n">COMPARTMENT_ID</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">VLLM_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;/storage/models/Llama-3.1-70B-Instruct&quot;</span>
+    <span class="n">VLLM_HOST_PORT</span> <span class="o">=</span> <span class="s2">&quot;lVLLM_HOST_PORT&quot;</span>
+
+    <span class="n">generation_config</span> <span class="o">=</span> <span class="n">LlmGenerationConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">VLLM_MODEL_ID</span><span class="p">,</span>
+        <span class="n">host_port</span><span class="o">=</span><span class="n">VLLM_HOST_PORT</span><span class="p">,</span>
+        <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># export OPENAI_API_KEY=&lt;a_valid_open_ai_key&gt;</span>
+    <span class="c1"># supported models &quot;gpt-4o&quot;, &quot;gpt-4o-mini&quot;.</span>
+    <span class="c1"># We currently do not support gpt-o1 and gpt-o3 models.</span>
+    <span class="n">OPENAI_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;gpt-4o&quot;</span>
+
+    <span class="n">generation_config</span> <span class="o">=</span> <span class="n">LlmGenerationConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OpenAIModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OPENAI_MODEL_ID</span><span class="p">,</span>
+        <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">OLLAMA_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;llama2-7b&quot;</span>
+    <span class="n">OLLAMA_HOST_PORT</span> <span class="o">=</span> <span class="s2">&quot;localhost:11434&quot;</span>  <span class="c1"># default is 11434 if omitted</span>
+
+    <span class="n">generation_config</span> <span class="o">=</span> <span class="n">LlmGenerationConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OllamaModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OLLAMA_MODEL_ID</span><span class="p">,</span> <span class="n">host_port</span><span class="o">=</span><span class="n">OLLAMA_HOST_PORT</span><span class="p">,</span> <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</details></section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<p>Having learned how to configure and initialize LLMs from different providers, you may now proceed to:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generation_config.html"><span class="doc">Config Generation</span></a></p></li>
+<li><p><a class="reference internal" href="howto_build_assistants_with_tools.html"><span class="doc">How to Build Assistants with Tools</span></a></p></li>
+</ul>
+<p>Some additional resources we recommend are:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://huggingface.co/docs/transformers/llm_tutorial">HuggingFace - Generation with LLMs</a></p></li>
+<li><p><a class="reference external" href="https://huggingface.co/docs/transformers/generation_strategies">HuggingFace - Text generation strategies</a></p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-implementation">Basic implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#oci-genai-model">OCI GenAI Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-api-key-authentication-method">Using the API_KEY authentication method</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openai-model">OpenAI Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vllm-model">vLLM Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ollama-model">Ollama Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap">Recap</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

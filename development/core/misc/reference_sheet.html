@@ -1,0 +1,1513 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>WayFlow Reference Sheet &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/misc/reference_sheet';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="WayFlow Glossary" href="glossary.html" />
+    <link rel="prev" title="Evaluation APIs" href="../api/evaluation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="26.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">Evaluate Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">Evaluate Conversations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">WayFlow Reference Sheet</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="wayflow-reference-sheet">
+<span id="core-ref-sheet"></span><h1>WayFlow Reference Sheet<a class="headerlink" href="#wayflow-reference-sheet" title="Permalink to this heading">#</a></h1>
+<p>This reference sheet provides a single-page overview of basic code snippets covering the core concepts used in WayFlow.</p>
+<p>Each section includes links to additional tutorials and guides for deeper learning.</p>
+<section id="llms">
+<h2>LLMs<a class="headerlink" href="#llms" title="Permalink to this heading">#</a></h2>
+<p>WayFlow Agents and Flows may require the use of Large Language Models (LLMs).
+This section shows how to initialize an LLM and perform quick tests.</p>
+<section id="loading-an-llm-instance">
+<h3>Loading an LLM instance<a class="headerlink" href="#loading-an-llm-instance" title="Permalink to this heading">#</a></h3>
+<p>WayFlow supports several LLM API providers.
+For an overview of supported LLMs, see the guide
+<a class="reference internal" href="../howtoguides/llm_from_different_providers.html"><span class="doc">How to Use LLMs from Different Providers</span></a>.</p>
+<p>Start by selecting an LLM from one of the available providers:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+        <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;https://url-to-service-endpoint.com&quot;</span><span class="p">,</span>
+        <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
+        <span class="n">auth_type</span><span class="o">=</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;model-id&quot;</span><span class="p">,</span>
+    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;VLLM_HOST_PORT&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-2" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-2" name="0-2" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OllamaModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OllamaModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;model-id&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+<p>Read more about the LLMs support in the <a class="reference internal" href="../api/llmmodels.html#id1"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="testing-inference-with-llms">
+<h3>Testing inference with LLMs<a class="headerlink" href="#testing-inference-with-llms" title="Permalink to this heading">#</a></h3>
+<section id="single-prompt-generation">
+<h4>Single prompt generation<a class="headerlink" href="#single-prompt-generation" title="Permalink to this heading">#</a></h4>
+<p>Use a simple <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a> to test an LLM.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span><span class="p">,</span> <span class="n">run_flow_and_return_outputs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptExecutionStep</span>
+
+<span class="n">flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span><span class="n">PromptExecutionStep</span><span class="p">(</span><span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;{{prompt}}&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">))</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;Write a simple Python function to sum two numbers&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">run_flow_and_return_outputs</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">})[</span><span class="n">PromptExecutionStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>  <span class="c1"># Here&#39;s a simple Python function...</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a></p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use the helper methods <code class="docutils literal notranslate"><span class="pre">create_single_step_flow</span></code> and <code class="docutils literal notranslate"><span class="pre">run_flow_and_return_outputs</span></code> for quick prototyping.</p>
+</div>
+</section>
+<section id="parallel-generation">
+<h4>Parallel generation<a class="headerlink" href="#parallel-generation" title="Permalink to this heading">#</a></h4>
+<p>Add a <a class="reference internal" href="../api/flows.html#mapstep"><span class="std std-ref">MapStep</span></a> to perform inference on a batch of inputs (parallel generation).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span><span class="p">,</span> <span class="n">run_flow_and_return_outputs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListProperty</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapStep</span><span class="p">,</span> <span class="n">PromptExecutionStep</span>
+
+<span class="n">flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span>
+    <span class="n">MapStep</span><span class="p">(</span>
+        <span class="n">create_single_step_flow</span><span class="p">(</span><span class="n">PromptExecutionStep</span><span class="p">(</span><span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;{{prompt}}&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)),</span>
+        <span class="n">parallel_execution</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">unpack_input</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;.&quot;</span><span class="p">},</span>
+        <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">ListProperty</span><span class="p">(</span><span class="n">PromptExecutionStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">)],</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">NUM_RESPONSES</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;Write a simple Python function to sum two numbers&quot;</span>
+<span class="n">prompt_batch</span> <span class="o">=</span> <span class="p">[</span><span class="n">prompt</span><span class="p">]</span> <span class="o">*</span> <span class="n">NUM_RESPONSES</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">run_flow_and_return_outputs</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="p">{</span><span class="n">MapStep</span><span class="o">.</span><span class="n">ITERATED_INPUT</span><span class="p">:</span> <span class="n">prompt_batch</span><span class="p">})[</span>
+    <span class="n">PromptExecutionStep</span><span class="o">.</span><span class="n">OUTPUT</span>
+<span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">response</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#listproperty"><span class="std std-ref">ListProperty</span></a> | <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a> | <a class="reference internal" href="../api/flows.html#mapstep"><span class="std std-ref">MapStep</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note the use of a <a class="reference internal" href="../api/flows.html#listproperty"><span class="std std-ref">ListProperty</span></a> to specify the output of the <a class="reference internal" href="../api/flows.html#mapstep"><span class="std std-ref">MapStep</span></a>.</p>
+</div>
+</section>
+<section id="structured-generation">
+<h4>Structured generation<a class="headerlink" href="#structured-generation" title="Permalink to this heading">#</a></h4>
+<p>WayFlow supports <a class="reference internal" href="glossary.html#defstructuredgeneration"><span class="std std-ref">structured generation</span></a> (such as controlling LLM outputs to conform to specific formats, schemas, or patterns, for example, Json Schema).</p>
+<p>Structured generation can be achieved by specifying the output descriptors of the <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span><span class="p">,</span> <span class="n">run_flow_and_return_outputs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListProperty</span><span class="p">,</span> <span class="n">StringProperty</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptExecutionStep</span>
+
+<span class="n">product_name</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;product_name&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;name of the product&quot;</span><span class="p">,</span>
+    <span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">product_description</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;product_description&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;One sentence description of the product.&quot;</span><span class="p">,</span>
+    <span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">functionalities</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;functionalities&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of functionalities of the product&quot;</span><span class="p">,</span>
+    <span class="n">item_type</span><span class="o">=</span><span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;functionality&quot;</span><span class="p">),</span>
+    <span class="n">default_value</span><span class="o">=</span><span class="p">[],</span>
+<span class="p">)</span>
+
+<span class="n">flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span>
+    <span class="n">PromptExecutionStep</span><span class="p">(</span>
+        <span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;{{prompt}}&quot;</span><span class="p">,</span>
+        <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+        <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">product_name</span><span class="p">,</span> <span class="n">product_description</span><span class="p">,</span> <span class="n">functionalities</span><span class="p">],</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;Create a simple product for students.&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">run_flow_and_return_outputs</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">})</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;product_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;Description: </span><span class="si">{</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;product_description&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;Functionalities:</span><span class="se">\n</span><span class="si">{</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;functionalities&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#stringproperty"><span class="std std-ref">StringProperty</span></a> | <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a></p>
+<p>Read the guide on <a class="reference internal" href="../howtoguides/howto_promptexecutionstep.html"><span class="doc">How to Perform Structured Generation</span></a> for more information.</p>
+</section>
+</section>
+</section>
+<section id="tools">
+<h2>Tools<a class="headerlink" href="#tools" title="Permalink to this heading">#</a></h2>
+<p>Tools are essential for building powerful Agents and Flows.
+WayFlow supports the use of <a class="reference internal" href="../api/tools.html#servertool"><span class="std std-ref">ServerTool</span></a> (which can be simply built with the <a class="reference internal" href="../api/tools.html#tooldecorator"><span class="std std-ref">tool</span></a> decorator), the <a class="reference internal" href="../api/tools.html#remotetool"><span class="std std-ref">RemoteTool</span></a> as well as
+the <a class="reference internal" href="../api/tools.html#clienttool"><span class="std std-ref">ClientTool</span></a>.</p>
+<a class="reference internal image-reference" href="../../_images/types_of_tools.svg"><img alt="../../_images/types_of_tools.svg" class="align-center" height="322" src="../../_images/types_of_tools.svg" width="334" /></a>
+<p><strong>Figure:</strong> The different tools in WayFlow.</p>
+<section id="creating-a-simple-tool">
+<h3>Creating a simple tool<a class="headerlink" href="#creating-a-simple-tool" title="Permalink to this heading">#</a></h3>
+<p>The simplest way to create a tool in WayFlow is by using the <a class="reference internal" href="../api/tools.html#tooldecorator"><span class="std std-ref">tool</span></a> decorator, which creates a <a class="reference internal" href="../api/tools.html#servertool"><span class="std std-ref">ServerTool</span></a> (see definition <a class="reference internal" href="glossary.html#defservertool"><span class="std std-ref">in the glossary</span></a>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">days_between_dates</span><span class="p">(</span>
+    <span class="n">date1</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;First date in &#39;dd/mm/yyyy&#39; format.&quot;</span><span class="p">],</span>
+    <span class="n">date2</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;Second date in &#39;dd/mm/yyyy&#39; format.&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;Absolute difference in days between the two dates.&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the absolute difference in days between two dates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">((</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date2</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date1</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">days</span><span class="p">)</span>
+
+
+<span class="c1"># days_between_dates is not a callable anymore, it is a `ServerTool`</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">days_between_dates</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="s2">&quot;01/01/2020&quot;</span><span class="p">,</span> <span class="s2">&quot;31/12/2020&quot;</span><span class="p">))</span>  <span class="c1"># 365</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/tools.html#tooldecorator"><span class="std std-ref">tool</span></a></p>
+<p>For more information, read the guide on <a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html"><span class="doc">How to Build Assistants with Tools</span></a> or read
+the <a class="reference internal" href="../api/tools.html"><span class="doc">API reference</span></a> to learn about the available types of tools in WayFlow.</p>
+</section>
+<section id="creating-a-stateful-tool">
+<h3>Creating a stateful tool<a class="headerlink" href="#creating-a-stateful-tool" title="Permalink to this heading">#</a></h3>
+<p>To build stateful tools, simply use the <a class="reference internal" href="../api/tools.html#tooldecorator"><span class="std std-ref">tool</span></a> helper as a wrapper to the method of an instantiated class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Counter</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">increment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Increment the counter&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;The updated count is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="n">counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+<span class="n">counter_tool</span> <span class="o">=</span> <span class="n">tool</span><span class="p">(</span><span class="s2">&quot;increment_counter&quot;</span><span class="p">,</span> <span class="n">counter</span><span class="o">.</span><span class="n">increment</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">counter_tool</span><span class="o">.</span><span class="n">func</span><span class="p">())</span>  <span class="c1"># The updated count is 1</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/tools.html#tooldecorator"><span class="std std-ref">tool</span></a></p>
+</section>
+<section id="creating-and-using-a-client-tool">
+<h3>Creating and using a Client tool<a class="headerlink" href="#creating-and-using-a-client-tool" title="Permalink to this heading">#</a></h3>
+<p>Use the <a class="reference internal" href="../api/tools.html#clienttool"><span class="std std-ref">ClientTool</span></a> to create tools that are meant to be executed on the client side (see <a class="reference internal" href="glossary.html#defclienttool"><span class="std std-ref">definition in the glossary</span></a>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRequestStatus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolExecutionStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientTool</span><span class="p">,</span> <span class="n">ToolRequest</span><span class="p">,</span> <span class="n">ToolResult</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_days_between_dates</span><span class="p">(</span><span class="n">date1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">date2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">((</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date2</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date1</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">days</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">execute_client_tool_from_tool_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">:</span> <span class="n">ToolRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">tool_request</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;days_between_dates&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_days_between_dates</span><span class="p">(</span><span class="o">**</span><span class="n">tool_request</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool name </span><span class="si">{</span><span class="n">tool_request</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not recognized&quot;</span><span class="p">)</span>
+
+
+<span class="n">days_client_tools</span> <span class="o">=</span> <span class="n">ClientTool</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;days_between_dates&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Calculate the absolute difference in days between two dates.&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;date1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;First date in &#39;dd/mm/yyyy&#39; format.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;date2&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Second date in &#39;dd/mm/yyyy&#39; format.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">output</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Absolute difference in days between the two dates.&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span><span class="n">ToolExecutionStep</span><span class="p">(</span><span class="n">days_client_tools</span><span class="p">))</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">({</span><span class="s2">&quot;date1&quot;</span><span class="p">:</span> <span class="s2">&quot;01/01/2020&quot;</span><span class="p">,</span> <span class="s2">&quot;date2&quot;</span><span class="p">:</span> <span class="s2">&quot;31/12/2020&quot;</span><span class="p">})</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">ToolRequestStatus</span><span class="p">)</span>
+<span class="n">tool_request</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">tool_requests</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">tool_execution_content</span> <span class="o">=</span> <span class="n">execute_client_tool_from_tool_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">)</span>
+
+<span class="n">status</span><span class="o">.</span><span class="n">submit_tool_result</span><span class="p">(</span><span class="n">ToolResult</span><span class="p">(</span><span class="n">tool_execution_content</span><span class="p">,</span> <span class="n">tool_request</span><span class="o">.</span><span class="n">tool_request_id</span><span class="p">))</span>
+<span class="c1"># conversation.execute() # continue the execution of the Flow</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/tools.html#clienttool"><span class="std std-ref">ClientTool</span></a> | <a class="reference internal" href="../api/tools.html#toolrequest"><span class="std std-ref">ToolRequest</span></a> | <a class="reference internal" href="../api/tools.html#toolresult"><span class="std std-ref">ToolResult</span></a> | <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a> | <a class="reference internal" href="../api/conversation.html#toolrequestexecutionstatus"><span class="std std-ref">ToolRequestStatus</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a></p>
+<p>Learn more about tools by reading <a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html"><span class="doc">How to Build Assistants with Tools</span></a>, and the <a class="reference internal" href="../api/tools.html"><span class="doc">Tools API reference</span></a>.</p>
+</section>
+</section>
+<section id="execution-loop-and-statuses">
+<span id="refsheet-executionloop"></span><h2>Execution loop and statuses<a class="headerlink" href="#execution-loop-and-statuses" title="Permalink to this heading">#</a></h2>
+<p>This section illustrates a basic execution loop for WayFlow assistants (Agents and Flows).</p>
+<ol class="arabic simple">
+<li><p>A new conversation is created.</p></li>
+<li><p>The assistant is executed on the conversation.</p></li>
+<li><p>Based on the status returned from the assistant execution:
+* The loop exits if the status is <code class="docutils literal notranslate"><span class="pre">FinishedStatus</span></code>.
+* The user is prompted for input if the status is <code class="docutils literal notranslate"><span class="pre">UserMessageRequestStatus</span></code>.
+* A <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code> is executed if the status is <code class="docutils literal notranslate"><span class="pre">ToolRequestStatus</span></code>.</p></li>
+</ol>
+<p>The loop continues until the assistant returns a <code class="docutils literal notranslate"><span class="pre">FinishedStatus</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.messagelist</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span><span class="p">,</span> <span class="n">MessageType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+   <span class="n">FinishedStatus</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">,</span> <span class="n">ToolRequestStatus</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolRequest</span><span class="p">,</span> <span class="n">ToolResult</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">execute_client_tool_from_tool_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">:</span> <span class="n">ToolRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+   <span class="k">if</span> <span class="n">tool_request</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;my_tool_name&quot;</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">_my_tool_callable</span><span class="p">(</span><span class="o">**</span><span class="n">tool_request</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+   <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool name </span><span class="si">{</span><span class="n">tool_request</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not recognized&quot;</span><span class="p">)</span>
+
+<span class="n">conversation_inputs</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">conversation_inputs</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+   <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+   <span class="n">assistant_reply</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+   <span class="k">if</span> <span class="n">assistant_reply</span><span class="p">:</span>
+      <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Assistant&gt;&gt;&gt; </span><span class="si">{</span><span class="n">assistant_reply</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+   <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+      <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Finished assistant execution. Output values:</span><span class="se">\n</span><span class="si">{</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,)</span>
+      <span class="k">break</span>
+   <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">):</span>
+      <span class="n">user_input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;User&gt;&gt;&gt; &quot;</span><span class="p">)</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+      <span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="n">user_input</span><span class="p">)</span>
+   <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">ToolRequestStatus</span><span class="p">):</span>
+      <span class="n">tool_request</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">tool_requests</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="n">tool_result</span> <span class="o">=</span> <span class="n">execute_client_tool_from_tool_request</span><span class="p">(</span><span class="n">tool_request</span><span class="p">)</span>
+      <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tool_result</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+      <span class="n">conversation</span><span class="o">.</span><span class="n">append_message</span><span class="p">(</span>
+            <span class="n">Message</span><span class="p">(</span>
+               <span class="n">tool_result</span><span class="o">=</span><span class="n">ToolResult</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">tool_result</span><span class="p">,</span> <span class="n">tool_request_id</span><span class="o">=</span><span class="n">tool_request</span><span class="o">.</span><span class="n">tool_request_id</span><span class="p">),</span>
+               <span class="n">message_type</span><span class="o">=</span><span class="n">MessageType</span><span class="o">.</span><span class="n">TOOL_RESULT</span><span class="p">,</span>
+            <span class="p">)</span>
+      <span class="p">)</span>
+   <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported execution status: &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Learn more about execution loops by reading the <a class="reference internal" href="../api/conversation.html#id1"><span class="std std-ref">Execution Status API reference</span></a>.</p>
+</section>
+<section id="agents">
+<h2>Agents<a class="headerlink" href="#agents" title="Permalink to this heading">#</a></h2>
+<p>WayFlow <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> are LLM-powered assistants that can interact with users, leverage external tools, and interact with other WayFlow assistants to take specific actions
+in order to solve user requests through conversational interfaces.</p>
+<section id="creating-a-simple-agent">
+<h3>Creating a simple Agent<a class="headerlink" href="#creating-a-simple-agent" title="Permalink to this heading">#</a></h3>
+<p>Creating an <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a> only requires an LLM and optional instructions to guide the agent behavior.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="p">,</span> <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant, please answer the user requests.&quot;</span>
+<span class="p">)</span>
+
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="s2">&quot;Please write a simple Python function to compute the sum of 2 numbers.&quot;</span><span class="p">)</span>
+<span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+<span class="c1"># Here&#39;s a simple Python function that...</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a></p>
+<p>Learn more about Agents by reading the tutorial <a class="reference internal" href="../tutorials/basic_agent.html"><span class="doc">Build a Simple Conversational Assistant with Agents</span></a>
+and the <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent API reference</span></a>.</p>
+</section>
+<section id="creating-a-agent-with-tools">
+<h3>Creating a Agent with tools<a class="headerlink" href="#creating-a-agent-with-tools" title="Permalink to this heading">#</a></h3>
+<p>You can simply equip <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> with tools using the <code class="docutils literal notranslate"><span class="pre">tools</span></code> attribute of the agent.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">days_between_dates</span><span class="p">(</span>
+    <span class="n">date1</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;First date in &#39;dd/mm/yyyy&#39; format.&quot;</span><span class="p">],</span>
+    <span class="n">date2</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;Second date in &#39;dd/mm/yyyy&#39; format.&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;Absolute difference in days between the two dates.&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the absolute difference in days between two dates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">((</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date2</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date1</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">days</span><span class="p">)</span>
+
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">days_between_dates</span><span class="p">])</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="s2">&quot;How many days are there between 01/01/2020 and 31/12/2020?&quot;</span><span class="p">)</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+<span class="c1"># There are 365 days between 01/01/2020 and 31/12/2020.</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a> | <a class="reference internal" href="../api/tools.html#tooldecorator"><span class="std std-ref">tool</span></a></p>
+</section>
+</section>
+<section id="flows">
+<h2>Flows<a class="headerlink" href="#flows" title="Permalink to this heading">#</a></h2>
+<p>WayFlow <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a> are LLM-powered structured assistants composed of individual steps that are connected to form a coherent sequence of actions.
+Each step in a <code class="docutils literal notranslate"><span class="pre">Flow</span></code> is designed to perform a specific function, similar to functions in programming.</p>
+<section id="creating-a-simple-flow">
+<h3>Creating a simple Flow<a class="headerlink" href="#creating-a-simple-flow" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputMessageStep</span>
+
+<span class="n">opening_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;Opening session&quot;</span><span class="p">)</span>
+<span class="n">closing_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s1">&#39;Closing session&quot;&#39;</span><span class="p">)</span>
+<span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+    <span class="n">begin_step</span><span class="o">=</span><span class="n">opening_step</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;open_step&quot;</span><span class="p">:</span> <span class="n">opening_step</span><span class="p">,</span>
+        <span class="s2">&quot;close_step&quot;</span><span class="p">:</span> <span class="n">closing_step</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">opening_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">closing_step</span><span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">closing_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#controlflowedge"><span class="std std-ref">ControlFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a></p>
+<p>Learn more about Flows by reading the tutorial <a class="reference internal" href="../tutorials/basic_flow.html"><span class="doc">Build a Simple Fixed-Flow Assistant with Flows</span></a> and the <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow API reference</span></a>.</p>
+</section>
+<section id="creating-flow-with-explicit-data-connection">
+<h3>Creating Flow with explicit data connection<a class="headerlink" href="#creating-flow-with-explicit-data-connection" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputMessageStep</span>
+
+<span class="n">MOCK_PROCESSING_STEP</span> <span class="o">=</span> <span class="s2">&quot;processing_step&quot;</span>
+<span class="n">OUTPUT_STEP</span> <span class="o">=</span> <span class="s2">&quot;output_step&quot;</span>
+<span class="n">mock_processing_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;Successfully processed username {{username}}&quot;</span><span class="p">)</span>
+<span class="n">output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s1">&#39;{{session_id}}: Received message &quot;{{processing_message}}&quot;&#39;</span><span class="p">)</span>
+<span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+    <span class="n">begin_step</span><span class="o">=</span><span class="n">mock_processing_step</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
+        <span class="n">MOCK_PROCESSING_STEP</span><span class="p">:</span> <span class="n">mock_processing_step</span><span class="p">,</span>
+        <span class="n">OUTPUT_STEP</span><span class="p">:</span> <span class="n">output_step</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">mock_processing_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">output_step</span><span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">output_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">DataFlowEdge</span><span class="p">(</span>
+            <span class="n">mock_processing_step</span><span class="p">,</span> <span class="n">OutputMessageStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">,</span> <span class="n">output_step</span><span class="p">,</span> <span class="s2">&quot;processing_message&quot;</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;Username#123&quot;</span><span class="p">,</span> <span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="s2">&quot;Session#456&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">last_message</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">message</span>
+<span class="c1"># last_message.content</span>
+<span class="c1"># Session#456: Received message &quot;Successfully processed username Username#123&quot;</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#controlflowedge"><span class="std std-ref">ControlFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">DataFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a></p>
+<p>Learn more about data flow edges in the <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">Data Flow Edges API reference</span></a>.</p>
+</section>
+<section id="executing-a-sub-flow-to-an-iterable-with-the-mapstep">
+<h3>Executing a sub-flow to an iterable with the MapStep<a class="headerlink" href="#executing-a-sub-flow-to-an-iterable-with-the-mapstep" title="Permalink to this heading">#</a></h3>
+<p>Applying or executing a sub-flow to an iterable is a common pattern and can be achieved in WayFlow using the <a class="reference internal" href="../api/flows.html#mapstep"><span class="std std-ref">MapStep</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnyProperty</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapStep</span><span class="p">,</span> <span class="n">OutputMessageStep</span>
+
+<span class="n">sub_flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span>
+    <span class="n">OutputMessageStep</span><span class="p">(</span><span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;username={{user}}&quot;</span><span class="p">),</span> <span class="n">step_name</span><span class="o">=</span><span class="s2">&quot;step&quot;</span>
+<span class="p">)</span>
+<span class="n">step</span> <span class="o">=</span> <span class="n">MapStep</span><span class="p">(</span>
+    <span class="n">flow</span><span class="o">=</span><span class="n">sub_flow</span><span class="p">,</span>
+    <span class="n">unpack_input</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;.&quot;</span><span class="p">},</span>
+    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">AnyProperty</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">OutputMessageStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">)],</span>
+<span class="p">)</span>
+<span class="n">iterable</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">]</span>
+<span class="n">assistant</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s2">&quot;step&quot;</span><span class="p">)</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="n">MapStep</span><span class="o">.</span><span class="n">ITERATED_INPUT</span><span class="p">:</span> <span class="n">iterable</span><span class="p">})</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">status</span><span class="o">.</span><span class="n">output_values</span>  <span class="c1"># {&#39;output_message&#39;: [&#39;username=a&#39;, &#39;username=b&#39;]}</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#mapstep"><span class="std std-ref">MapStep</span></a> | <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a> | <a class="reference internal" href="../api/flows.html#anyproperty"><span class="std std-ref">AnyProperty</span></a></p>
+<p>Learn more about MapSteps by reading <a class="reference internal" href="../howtoguides/howto_mapstep.html"><span class="doc">How to Do Map and Reduce Operations in Flows</span></a> and the <a class="reference internal" href="../api/flows.html#mapstep"><span class="std std-ref">MapStep API reference</span></a>.</p>
+</section>
+<section id="adding-conditional-branching-to-flows-with-the-branchingstep">
+<h3>Adding conditional branching to Flows with the BranchingStep<a class="headerlink" href="#adding-conditional-branching-to-flows-with-the-branchingstep" title="Permalink to this heading">#</a></h3>
+<p>It is also frequent to want to transition in a <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> depending on a condition, and this can be achieved in WayFlow with the <a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep</span></a>.</p>
+<a class="reference internal image-reference" href="../../_images/branchingstep.svg"><img alt="Flow diagram of a simple branching step" class="align-center" height="192" src="../../_images/branchingstep.svg" width="415" /></a>
+<p><strong>Figure:</strong> An example of a <code class="docutils literal notranslate"><span class="pre">Flow</span></code> using a <code class="docutils literal notranslate"><span class="pre">BranchingStep</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">BranchingStep</span><span class="p">,</span> <span class="n">OutputMessageStep</span>
+
+<span class="n">NEXT_STEP_NAME_IO</span> <span class="o">=</span> <span class="s2">&quot;$next_step_name&quot;</span>
+<span class="n">branching_step</span> <span class="o">=</span> <span class="n">BranchingStep</span><span class="p">(</span>
+    <span class="n">branch_name_mapping</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;yes&quot;</span><span class="p">:</span> <span class="s2">&quot;access_is_granted&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">:</span> <span class="s2">&quot;access_is_denied&quot;</span><span class="p">},</span>
+    <span class="n">input_mapping</span><span class="o">=</span><span class="p">{</span><span class="n">BranchingStep</span><span class="o">.</span><span class="n">NEXT_BRANCH_NAME</span><span class="p">:</span> <span class="n">NEXT_STEP_NAME_IO</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">access_granted_output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;Access granted. Press any key to continue...&quot;</span><span class="p">)</span>
+<span class="n">access_denied_output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;Access denied. Please exit the conversation.&quot;</span><span class="p">)</span>
+<span class="n">assistant</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+    <span class="n">begin_step</span><span class="o">=</span><span class="n">branching_step</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;branching_step&quot;</span><span class="p">:</span> <span class="n">branching_step</span><span class="p">,</span>
+        <span class="s2">&quot;access_granted_output_step&quot;</span><span class="p">:</span> <span class="n">access_granted_output_step</span><span class="p">,</span>
+        <span class="s2">&quot;access_denied_output_step&quot;</span><span class="p">:</span> <span class="n">access_denied_output_step</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span>
+            <span class="n">branching_step</span><span class="p">,</span> <span class="n">access_granted_output_step</span><span class="p">,</span> <span class="n">source_branch</span><span class="o">=</span><span class="s2">&quot;access_is_granted&quot;</span>
+        <span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span>
+            <span class="n">branching_step</span><span class="p">,</span> <span class="n">access_denied_output_step</span><span class="p">,</span> <span class="n">source_branch</span><span class="o">=</span><span class="s2">&quot;access_is_denied&quot;</span>
+        <span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span>
+            <span class="n">branching_step</span><span class="p">,</span> <span class="n">access_denied_output_step</span><span class="p">,</span> <span class="n">source_branch</span><span class="o">=</span><span class="n">branching_step</span><span class="o">.</span><span class="n">BRANCH_DEFAULT</span>
+        <span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">access_granted_output_step</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">access_denied_output_step</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="n">NEXT_STEP_NAME_IO</span><span class="p">:</span> <span class="s2">&quot;yes&quot;</span><span class="p">})</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="c1"># status.message.content</span>
+<span class="c1"># Access granted. Press any key to continue...</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep</span></a> | <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a></p>
+<p>Learn more about branching steps by reading <a class="reference internal" href="../howtoguides/conditional_flows.html"><span class="doc">How to Create Conditional Transitions in Flows</span></a> and
+the <a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep API reference</span></a>.</p>
+</section>
+<section id="adding-tools-to-flows-with-the-toolexecutionstep">
+<h3>Adding tools to Flows with the ToolExecutionStep<a class="headerlink" href="#adding-tools-to-flows-with-the-toolexecutionstep" title="Permalink to this heading">#</a></h3>
+<p>To use tools in <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a>, use the <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolExecutionStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_square_root</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;input number to square&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the square root of a number&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">**</span><span class="mf">0.5</span>
+
+<span class="n">step</span> <span class="o">=</span> <span class="n">ToolExecutionStep</span><span class="p">(</span><span class="n">tool</span><span class="o">=</span><span class="n">compute_square_root</span><span class="p">)</span>
+<span class="n">assistant</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mf">123456789.0</span><span class="p">})</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a> | <a class="reference internal" href="../api/tools.html#servertool"><span class="std std-ref">ServerTool</span></a></p>
+<p>Learn more about <code class="docutils literal notranslate"><span class="pre">ToolexecutionSteps</span></code> by reading <a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html"><span class="doc">How to Build Assistants with Tools</span></a>
+and the <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolexecutionSteps API reference</span></a>.</p>
+</section>
+</section>
+<section id="agentic-composition-patterns">
+<h2>Agentic composition patterns<a class="headerlink" href="#agentic-composition-patterns" title="Permalink to this heading">#</a></h2>
+<p>There are four majors agentic composition patterns supported in WayFlow:</p>
+<ul class="simple">
+<li><p>Calling Agents in Flows</p></li>
+<li><p>Calling Agents in Agents</p></li>
+<li><p>Calling Flows in Agents</p></li>
+<li><p>Calling Flows in Flows</p></li>
+</ul>
+<section id="using-an-agent-in-a-flow">
+<h3>Using an Agent in a Flow<a class="headerlink" href="#using-an-agent-in-a-flow" title="Permalink to this heading">#</a></h3>
+<p>To use <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> in <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a>, you can use the <a class="reference internal" href="../api/flows.html#agentexecutionstep"><span class="std std-ref">AgentExecutionStep</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentExecutionStep</span>
+
+<span class="n">code_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;Please assist the user by answering their code-related questions&quot;</span>
+<span class="p">)</span>
+
+<span class="n">flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span><span class="n">AgentExecutionStep</span><span class="p">(</span><span class="n">code_agent</span><span class="p">))</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># Hi! How can I help you?</span>
+<span class="n">status</span><span class="o">.</span><span class="n">submit_user_response</span><span class="p">(</span><span class="s2">&quot;Write a simple Python function to sum two numbers&quot;</span><span class="p">)</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># Here&#39;s a simple Python function that ...</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a> | <a class="reference internal" href="../api/flows.html#agentexecutionstep"><span class="std std-ref">AgentExecutionStep</span></a></p>
+<p>Learn more about Agents in Flows by reading <a class="reference internal" href="../howtoguides/howto_agents_in_flows.html"><span class="doc">How to Use Agents in Flows</span></a>
+and the <a class="reference internal" href="../api/flows.html#agentexecutionstep"><span class="std std-ref">Agent Execution Step API reference</span></a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">AgentExecutionStep</span></code> is currently in beta and may undergo significant changes.
+The API and behaviour are not guaranteed to be stable and may change in future versions.</p>
+</div>
+</section>
+<section id="multi-level-agent-workflows">
+<h3>Multi-Level Agent Workflows<a class="headerlink" href="#multi-level-agent-workflows" title="Permalink to this heading">#</a></h3>
+<p>WayFlow supports hierarchical multi-agent systems, by using expert <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> with a master / manager agent.
+This can be achieved by using a <a class="reference internal" href="../api/agent.html#describedassistant"><span class="std std-ref">DescribedAgent</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">code_expert_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;Please assist the user by answering their code-related questions&quot;</span><span class="p">,</span>
+    <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;code_expert_subagent&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;code_expert&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Expert agent that can assist with code questions&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;Please assist the user by answering their questions. Call the expert agents at your disposal when needed.&quot;</span><span class="p">,</span>
+    <span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">code_expert_agent</span><span class="p">],</span>
+    <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;main_agent&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># Hi! How can I help you?</span>
+<span class="n">status</span><span class="o">.</span><span class="n">submit_user_response</span><span class="p">(</span><span class="s2">&quot;Write a simple Python function to sum two numbers&quot;</span><span class="p">)</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># Here&#39;s a simple Python function that ...</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a> | <a class="reference internal" href="../api/agent.html#describedassistant"><span class="std std-ref">DescribedAgent</span></a></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The use of expert agents is currently in beta and may undergo significant changes.
+The API and behaviour are not guaranteed to be stable and may change in future versions.</p>
+</div>
+</section>
+<section id="using-flows-within-agents">
+<h3>Using Flows Within Agents<a class="headerlink" href="#using-flows-within-agents" title="Permalink to this heading">#</a></h3>
+<p>To use <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a> in <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a>, use the <a class="reference internal" href="../api/agent.html#id1"><span class="std std-ref">DescribedFlow</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptExecutionStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">DescribedFlow</span>
+
+<span class="n">code_reviewing_flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span>
+    <span class="n">PromptExecutionStep</span><span class="p">(</span>
+        <span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;Here is some code:</span><span class="se">\n</span><span class="s2">{{input_code}}</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">Please check for potential bugs in the code&quot;</span><span class="p">,</span>
+        <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;Please assist the user by answering their code questions. When creating code, use the code reviewing tool to ensure the code validity before answering the user.&quot;</span><span class="p">,</span>
+    <span class="n">flows</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">DescribedFlow</span><span class="p">(</span>
+            <span class="n">flow</span><span class="o">=</span><span class="n">code_reviewing_flow</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reviewing_tool&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Tool to check for potential bugs in a given code&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># Hi! How can I help you?</span>
+<span class="n">status</span><span class="o">.</span><span class="n">submit_user_response</span><span class="p">(</span><span class="s2">&quot;Write a simple Python function to sum two numbers&quot;</span><span class="p">)</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># Here&#39;s a simple Python function that ...</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#controlflowedge"><span class="std std-ref">ControlFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">DataFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a> | <a class="reference internal" href="../api/agent.html#id1"><span class="std std-ref">DescribedFlow</span></a></p>
+<p>Learn more about the use of <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a> in <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> in the <a class="reference internal" href="../api/agent.html#id1"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="using-sub-flows-within-flows">
+<h3>Using Sub-Flows Within Flows<a class="headerlink" href="#using-sub-flows-within-flows" title="Permalink to this heading">#</a></h3>
+<p>To use sub-flows in <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a>, use the <a class="reference internal" href="../api/flows.html#flowexecutionstep"><span class="std std-ref">FlowExecutionStep</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlowExecutionStep</span><span class="p">,</span> <span class="n">OutputMessageStep</span><span class="p">,</span> <span class="n">PromptExecutionStep</span>
+
+<span class="n">code_generation_subflow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span>
+    <span class="n">PromptExecutionStep</span><span class="p">(</span>
+        <span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;Please answer the following user question:</span><span class="se">\n</span><span class="s2">{{user_input}}&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">code_reviewing_subflow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span>
+    <span class="n">PromptExecutionStep</span><span class="p">(</span>
+        <span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;Here is some code:</span><span class="se">\n</span><span class="s2">{{code_input}}</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">Please check for potential bugs in the code and propose an improved version of the code&quot;</span><span class="p">,</span>
+        <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">code_generation_step</span> <span class="o">=</span> <span class="n">FlowExecutionStep</span><span class="p">(</span><span class="n">code_generation_subflow</span><span class="p">)</span>
+<span class="n">code_reviewing_step</span> <span class="o">=</span> <span class="n">FlowExecutionStep</span><span class="p">(</span><span class="n">code_reviewing_subflow</span><span class="p">)</span>
+<span class="n">output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;{{output_content}}&quot;</span><span class="p">)</span>
+<span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+    <span class="n">begin_step</span><span class="o">=</span><span class="n">code_generation_step</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;code_generation&quot;</span><span class="p">:</span> <span class="n">code_generation_step</span><span class="p">,</span>
+        <span class="s2">&quot;code_reviewing&quot;</span><span class="p">:</span> <span class="n">code_reviewing_step</span><span class="p">,</span>
+        <span class="s2">&quot;display_output&quot;</span><span class="p">:</span> <span class="n">output_step</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">code_generation_step</span><span class="p">,</span> <span class="n">code_reviewing_step</span><span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">code_reviewing_step</span><span class="p">,</span> <span class="n">output_step</span><span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">output_step</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">DataFlowEdge</span><span class="p">(</span>
+            <span class="n">code_generation_step</span><span class="p">,</span> <span class="n">PromptExecutionStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">,</span> <span class="n">code_reviewing_step</span><span class="p">,</span> <span class="s2">&quot;code_input&quot;</span>
+        <span class="p">),</span>
+        <span class="n">DataFlowEdge</span><span class="p">(</span>
+            <span class="n">code_reviewing_step</span><span class="p">,</span> <span class="n">PromptExecutionStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">,</span> <span class="n">output_step</span><span class="p">,</span> <span class="s2">&quot;output_content&quot;</span>
+        <span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;user_input&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a simple Python function to sum two numbers&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#controlflowedge"><span class="std std-ref">ControlFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">DataFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#flowexecutionstep"><span class="std std-ref">FlowExecutionStep</span></a> | <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a> | <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a></p>
+<p>Learn more about the use of sub-flows in <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a> by reading the <a class="reference internal" href="../api/flows.html#flowexecutionstep"><span class="std std-ref">FlowExecutionStep API reference</span></a>.</p>
+</section>
+</section>
+<section id="saving-and-loading-wayflow-assistants">
+<h2>Saving and loading WayFlow assistants<a class="headerlink" href="#saving-and-loading-wayflow-assistants" title="Permalink to this heading">#</a></h2>
+<a class="reference internal image-reference" href="../../_images/ser_deser.svg"><img alt="Serialization/deserialization of Agents and Flows in WayFlow" class="align-center" height="375" src="../../_images/ser_deser.svg" width="888" /></a>
+<p><strong>Figure:</strong> How serialization works in WayFlow.</p>
+<section id="saving-and-loading-simple-assistants">
+<h3>Saving and loading simple assistants<a class="headerlink" href="#saving-and-loading-simple-assistants" title="Permalink to this heading">#</a></h3>
+<p>Save and load WayFlow assistants using the <a class="reference internal" href="../api/serialization.html#serialize"><span class="std std-ref">serialize</span></a> and <a class="reference internal" href="../api/serialization.html#autodeserialize"><span class="std std-ref">autodeserialize</span></a> helper functions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">autodeserialize</span><span class="p">,</span> <span class="n">serialize</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="p">,</span> <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant, please answer the user requests.&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># saving an assistant to its serialized form</span>
+<span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">serialize</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
+
+<span class="c1"># with open(&quot;path/to/agent_config.yaml&quot;, &quot;w&quot;) as f:</span>
+<span class="c1">#     f.write(serialized_assistant)</span>
+
+<span class="c1"># loading an assistant from its serialized form</span>
+<span class="c1"># with open(&quot;path/to/agent_config.yaml&quot;) as f:</span>
+<span class="c1">#     serialized_assistant = f.read()</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">autodeserialize</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a> | <a class="reference internal" href="../api/serialization.html#serialize"><span class="std std-ref">serialize</span></a> | <a class="reference internal" href="../api/serialization.html#autodeserialize"><span class="std std-ref">autodeserialize</span></a></p>
+<p>Learn more about Serialisation by reading <a class="reference internal" href="../howtoguides/howto_serdeser.html"><span class="doc">How to Serialize and Deserialize Flows and Agents</span></a>
+and the <a class="reference internal" href="../api/serialization.html#serialization"><span class="std std-ref">Serialisation API reference</span></a>.</p>
+</section>
+<section id="saving-and-loading-assistants-with-tools">
+<h3>Saving and loading assistants with tools<a class="headerlink" href="#saving-and-loading-assistants-with-tools" title="Permalink to this heading">#</a></h3>
+<p>Register tools to a <code class="docutils literal notranslate"><span class="pre">DeserializationContext</span></code> to load assistants using tools.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">autodeserialize</span><span class="p">,</span> <span class="n">serialize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.serialization.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeserializationContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_server_tool</span><span class="p">,</span> <span class="n">tool</span>
+
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">say_hello</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Say hello&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;hello&quot;</span>
+
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">say_hello</span><span class="p">],</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant, please answer the user requests.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># saving an assistant to its serialized form</span>
+<span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">serialize</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
+
+<span class="c1"># with open(&quot;path/to/agent_config.yaml&quot;, &quot;w&quot;) as f:</span>
+<span class="c1">#     f.write(serialized_assistant)</span>
+
+<span class="c1"># loading an assistant from its serialized form</span>
+<span class="c1"># with open(&quot;path/to/agent_config.yaml&quot;) as f:</span>
+<span class="c1">#     serialized_assistant = f.read()</span>
+
+<span class="n">deserialization_context</span> <span class="o">=</span> <span class="n">DeserializationContext</span><span class="p">()</span>
+<span class="n">register_server_tool</span><span class="p">(</span><span class="n">say_hello</span><span class="p">,</span> <span class="n">deserialization_context</span><span class="o">.</span><span class="n">registered_tools</span><span class="p">)</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">autodeserialize</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">,</span> <span class="n">deserialization_context</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a> | <a class="reference internal" href="../api/serialization.html#serialize"><span class="std std-ref">serialize</span></a> | <a class="reference internal" href="../api/serialization.html#autodeserialize"><span class="std std-ref">autodeserialize</span></a> | <a class="reference internal" href="../api/tools.html#tooldecorator"><span class="std std-ref">tool</span></a></p>
+<p>Learn more about Serialisation by reading <a class="reference internal" href="../howtoguides/howto_serdeser.html"><span class="doc">How to Serialize and Deserialize Flows and Agents</span></a>
+and the <a class="reference internal" href="../api/serialization.html#serialization"><span class="std std-ref">Serialisation API reference</span></a>.</p>
+</section>
+</section>
+<section id="providing-context-to-assistants">
+<h2>Providing context to assistants<a class="headerlink" href="#providing-context-to-assistants" title="Permalink to this heading">#</a></h2>
+<p>Passing contextual information to assistants can be done in several ways, including:</p>
+<ul class="simple">
+<li><p>By specifying input values when creating the <a class="reference internal" href="../api/conversation.html#conversation"><span class="std std-ref">Conversation</span></a>.</p></li>
+<li><p>By using <a class="reference internal" href="../api/contextproviders.html#contextprovider"><span class="std std-ref">ContextProviders</span></a>.</p></li>
+<li><p>By using <a class="reference internal" href="../api/variables.html#variable"><span class="std std-ref">Variables</span></a>.</p></li>
+</ul>
+<section id="providing-context-with-inputs">
+<h3>Providing context with inputs<a class="headerlink" href="#providing-context-with-inputs" title="Permalink to this heading">#</a></h3>
+<p>You can pass static inputs when creating a new <a class="reference internal" href="../api/conversation.html#conversation"><span class="std std-ref">Conversation</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputMessageStep</span>
+
+<span class="n">output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;{{message_content}}&quot;</span><span class="p">)</span>
+<span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+    <span class="n">begin_step</span><span class="o">=</span><span class="n">output_step</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;output_step&quot;</span><span class="p">:</span> <span class="n">output_step</span><span class="p">},</span>
+    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span><span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">output_step</span><span class="p">,</span> <span class="kc">None</span><span class="p">)],</span>
+<span class="p">)</span>
+
+<span class="n">input_context</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message_content&quot;</span><span class="p">:</span> <span class="s2">&quot;Here is my input context&quot;</span><span class="p">}</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">input_context</span><span class="p">)</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#controlflowedge"><span class="std std-ref">ControlFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a></p>
+<p>Learn more about passing static inputs in the <a class="reference internal" href="../api/conversation.html#conversation"><span class="std std-ref">Conversation API reference</span></a>.</p>
+</section>
+<section id="providing-dynamic-inputs-with-contextproviders">
+<h3>Providing dynamic inputs with ContextProviders<a class="headerlink" href="#providing-dynamic-inputs-with-contextproviders" title="Permalink to this heading">#</a></h3>
+<p><a class="reference internal" href="../api/contextproviders.html#contextprovider"><span class="std std-ref">ContextProviders</span></a> can be used to provide dynamic information to WayFlow assistants.</p>
+<section id="using-the-toolcontextprovider">
+<h4>Using the ToolContextProvider<a class="headerlink" href="#using-the-toolcontextprovider" title="Permalink to this heading">#</a></h4>
+<p>Use the <a class="reference internal" href="../api/contextproviders.html#toolcontextprovider"><span class="std std-ref">ToolContextProvider</span></a> to provide information to an assistant with a tool.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.contextproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolContextProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputMessageStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">current_time</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the current time&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+
+
+<span class="n">current_time_contextprovider</span> <span class="o">=</span> <span class="n">ToolContextProvider</span><span class="p">(</span><span class="n">current_time</span><span class="p">,</span> <span class="s2">&quot;current_time&quot;</span><span class="p">)</span>
+<span class="n">output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;Current time: {{time}}</span><span class="se">\n</span><span class="s2">Message content: {{message_content}}&quot;</span><span class="p">)</span>
+<span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+    <span class="n">begin_step</span><span class="o">=</span><span class="n">output_step</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;output_step&quot;</span><span class="p">:</span> <span class="n">output_step</span><span class="p">},</span>
+    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span><span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">output_step</span><span class="p">,</span> <span class="kc">None</span><span class="p">)],</span>
+    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">current_time_contextprovider</span><span class="p">,</span> <span class="s2">&quot;current_time&quot;</span><span class="p">,</span> <span class="n">output_step</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="p">],</span>
+    <span class="n">context_providers</span><span class="o">=</span><span class="p">[</span><span class="n">current_time_contextprovider</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">input_context</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message_content&quot;</span><span class="p">:</span> <span class="s2">&quot;Here is my input context&quot;</span><span class="p">}</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">input_context</span><span class="p">)</span>
+<span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#controlflowedge"><span class="std std-ref">ControlFlowEdge</span></a> | <a class="reference internal" href="../api/contextproviders.html#toolcontextprovider"><span class="std std-ref">ToolContextProvider</span></a> | <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">DataFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/tools.html#tooldecorator"><span class="std std-ref">tool</span></a> | <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a></p>
+<p>Learn more by reading the <a class="reference internal" href="../api/contextproviders.html#toolcontextprovider"><span class="std std-ref">ToolContextProvider API reference</span></a>.</p>
+</section>
+<section id="using-the-flowcontextprovider">
+<h4>Using the FlowContextProvider<a class="headerlink" href="#using-the-flowcontextprovider" title="Permalink to this heading">#</a></h4>
+<p>Use the <a class="reference internal" href="../api/contextproviders.html#flowcontextprovider"><span class="std std-ref">FlowContextProvider</span></a> to provide information to an assistant with a <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.contextproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlowContextProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputMessageStep</span>
+
+<span class="n">contextual_flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span>
+    <span class="n">OutputMessageStep</span><span class="p">(</span>
+        <span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;The current time is 2pm.&quot;</span><span class="p">,</span>
+        <span class="n">output_mapping</span><span class="o">=</span><span class="p">{</span><span class="n">OutputMessageStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">:</span> <span class="s2">&quot;time_output&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">context_provider</span> <span class="o">=</span> <span class="n">FlowContextProvider</span><span class="p">(</span><span class="n">contextual_flow</span><span class="p">,</span> <span class="n">flow_output_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time_output&quot;</span><span class="p">])</span>
+<span class="n">output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;Last time message: {{time_output_io}}&quot;</span><span class="p">)</span>
+<span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+    <span class="n">begin_step</span><span class="o">=</span><span class="n">output_step</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;output_step&quot;</span><span class="p">:</span> <span class="n">output_step</span><span class="p">},</span>
+    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span><span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">output_step</span><span class="p">,</span> <span class="kc">None</span><span class="p">)],</span>
+    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span><span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">context_provider</span><span class="p">,</span> <span class="s2">&quot;time_output&quot;</span><span class="p">,</span> <span class="n">output_step</span><span class="p">,</span> <span class="s2">&quot;time_output_io&quot;</span><span class="p">)],</span>
+    <span class="n">context_providers</span><span class="o">=</span><span class="p">[</span><span class="n">context_provider</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">execution_status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">execution_status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">execution_status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># Last time message: The current time is 2pm.</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/contextproviders.html#flowcontextprovider"><span class="std std-ref">FlowContextProvider</span></a> | <a class="reference internal" href="../api/flows.html#controlflowedge"><span class="std std-ref">ControlFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">DataFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a></p>
+<p>Learn more by reading the <a class="reference internal" href="../api/contextproviders.html#flowcontextprovider"><span class="std std-ref">FlowContextProvider API reference</span></a>.</p>
+</section>
+</section>
+<section id="using-variables-to-provide-context">
+<h3>Using Variables to provide context<a class="headerlink" href="#using-variables-to-provide-context" title="Permalink to this heading">#</a></h3>
+<p>You can use <a class="reference internal" href="../api/variables.html#variable"><span class="std std-ref">Variables</span></a> as an alternative way to manage context (or shared state) in <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a>.
+They let you store and reuse information across different steps in Flows.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatProperty</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputMessageStep</span><span class="p">,</span> <span class="n">VariableReadStep</span><span class="p">,</span> <span class="n">ToolExecutionStep</span><span class="p">,</span> <span class="n">VariableWriteStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.variable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+<span class="n">float_variable</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;float_variable&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">FloatProperty</span><span class="p">(),</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;a float variable&quot;</span><span class="p">,</span>
+    <span class="n">default_value</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">read_step_1</span> <span class="o">=</span> <span class="n">VariableReadStep</span><span class="p">(</span><span class="n">variable</span><span class="o">=</span><span class="n">float_variable</span><span class="p">)</span>
+
+
+<span class="nd">@tool</span><span class="p">(</span><span class="n">description_mode</span><span class="o">=</span><span class="s2">&quot;only_docstring&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">triple_number</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="s2">&quot;Tool that triples a number&quot;</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">*</span><span class="mi">3</span>
+
+<span class="n">triple_step</span> <span class="o">=</span> <span class="n">ToolExecutionStep</span><span class="p">(</span><span class="n">tool</span><span class="o">=</span><span class="n">triple_number</span><span class="p">)</span>
+
+<span class="n">write_step</span> <span class="o">=</span> <span class="n">VariableWriteStep</span><span class="p">(</span><span class="n">variable</span><span class="o">=</span><span class="n">float_variable</span><span class="p">)</span>
+<span class="n">read_step_2</span> <span class="o">=</span> <span class="n">VariableReadStep</span><span class="p">(</span><span class="n">variable</span><span class="o">=</span><span class="n">float_variable</span><span class="p">)</span>
+<span class="n">output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;The variable is {{ variable }}&quot;</span><span class="p">)</span>
+
+<span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+    <span class="n">begin_step</span><span class="o">=</span><span class="n">read_step_1</span><span class="p">,</span>
+    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">read_step_1</span><span class="p">,</span> <span class="n">triple_step</span><span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">triple_step</span><span class="p">,</span> <span class="n">write_step</span><span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">write_step</span><span class="p">,</span> <span class="n">read_step_2</span><span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">read_step_2</span><span class="p">,</span> <span class="n">output_step</span><span class="p">),</span>
+        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">output_step</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">read_step_1</span><span class="p">,</span> <span class="n">VariableReadStep</span><span class="o">.</span><span class="n">VALUE</span><span class="p">,</span> <span class="n">triple_step</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">),</span>
+        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">triple_step</span><span class="p">,</span> <span class="n">ToolExecutionStep</span><span class="o">.</span><span class="n">TOOL_OUTPUT</span><span class="p">,</span> <span class="n">write_step</span><span class="p">,</span> <span class="n">VariableWriteStep</span><span class="o">.</span><span class="n">VALUE</span><span class="p">),</span>
+        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">read_step_2</span><span class="p">,</span> <span class="n">VariableReadStep</span><span class="o">.</span><span class="n">VALUE</span><span class="p">,</span> <span class="n">output_step</span><span class="p">,</span> <span class="s2">&quot;variable&quot;</span><span class="p">)</span>
+    <span class="p">],</span>
+    <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="n">float_variable</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#controlflowedge"><span class="std std-ref">ControlFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">DataFlowEdge</span></a> | <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#listproperty"><span class="std std-ref">ListProperty</span></a> | <a class="reference internal" href="../api/flows.html#floatproperty"><span class="std std-ref">FloatProperty</span></a> | <a class="reference internal" href="../api/flows.html#variablereadstep"><span class="std std-ref">VariableReadStep</span></a> | <a class="reference internal" href="../api/flows.html#variablewritestep"><span class="std std-ref">VariableWriteStep</span></a> | <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a> | <a class="reference internal" href="../api/variables.html#variable"><span class="std std-ref">Variable</span></a></p>
+<p>Learn more by reading the <a class="reference internal" href="../api/variables.html#variable"><span class="std std-ref">Variables API reference</span></a>.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#llms">LLMs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-an-llm-instance">Loading an LLM instance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-inference-with-llms">Testing inference with LLMs</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#single-prompt-generation">Single prompt generation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#parallel-generation">Parallel generation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#structured-generation">Structured generation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tools">Tools</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-simple-tool">Creating a simple tool</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-stateful-tool">Creating a stateful tool</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-and-using-a-client-tool">Creating and using a Client tool</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#execution-loop-and-statuses">Execution loop and statuses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agents">Agents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-simple-agent">Creating a simple Agent</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-agent-with-tools">Creating a Agent with tools</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flows">Flows</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-simple-flow">Creating a simple Flow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-flow-with-explicit-data-connection">Creating Flow with explicit data connection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#executing-a-sub-flow-to-an-iterable-with-the-mapstep">Executing a sub-flow to an iterable with the MapStep</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-conditional-branching-to-flows-with-the-branchingstep">Adding conditional branching to Flows with the BranchingStep</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-tools-to-flows-with-the-toolexecutionstep">Adding tools to Flows with the ToolExecutionStep</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agentic-composition-patterns">Agentic composition patterns</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-an-agent-in-a-flow">Using an Agent in a Flow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-level-agent-workflows">Multi-Level Agent Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-flows-within-agents">Using Flows Within Agents</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-sub-flows-within-flows">Using Sub-Flows Within Flows</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-and-loading-wayflow-assistants">Saving and loading WayFlow assistants</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-and-loading-simple-assistants">Saving and loading simple assistants</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-and-loading-assistants-with-tools">Saving and loading assistants with tools</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#providing-context-to-assistants">Providing context to assistants</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#providing-context-with-inputs">Providing context with inputs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#providing-dynamic-inputs-with-contextproviders">Providing dynamic inputs with ContextProviders</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-toolcontextprovider">Using the ToolContextProvider</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-flowcontextprovider">Using the FlowContextProvider</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-variables-to-provide-context">Using Variables to provide context</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
