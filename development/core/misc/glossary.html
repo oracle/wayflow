@@ -1,0 +1,826 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>WayFlow Glossary &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/misc/glossary';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Security Considerations" href="../security.html" />
+    <link rel="prev" title="WayFlow Reference Sheet" href="reference_sheet.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="26.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">Evaluate Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">Evaluate Conversations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">WayFlow Glossary</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="wayflow-glossary">
+<span id="core-ref-glossary"></span><h1>WayFlow Glossary<a class="headerlink" href="#wayflow-glossary" title="Permalink to this heading">#</a></h1>
+<p>This glossary introduces the key terms and concepts used across the WayFlow library.</p>
+<section id="assistant">
+<h2>Assistant<a class="headerlink" href="#assistant" title="Permalink to this heading">#</a></h2>
+<p>WayFlow enables the creation of <strong>AI-powered assistants</strong> including:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a> which are structured assistants that follow a pre-defined task completion process;</p></li>
+<li><p><a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> which are conversational assistants that can autonomously plan, think, act, and execute tools to complete tasks in a flexible manner.</p></li>
+</ul>
+<p>WayFlow assistants can be composed together and configured to solve complex tasks with varying degrees of autonomy, ranging from fully self-directed
+to highly prescriptive, allowing for a spectrum of flexibility in task completion.</p>
+<p>See the <a class="reference internal" href="../tutorials/index.html"><span class="doc">Tutorials and Use-Case Examples</span></a> to learn to build WayFlow assistants.</p>
+</section>
+<section id="agent">
+<h2>Agent<a class="headerlink" href="#agent" title="Permalink to this heading">#</a></h2>
+<p>An <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a> is a type of LLM-powered assistant that can interact with users, leverage external tools, and interact with other WayFlow assistants
+to take specific actions in order to solve user requests through conversational interfaces.</p>
+<p>A simple agentic system may involve a single Agent interacting with a human user. More advanced assistants may also involve the use of multiple agents.
+Finally, Agents can be integrated in Flows with the <a class="reference internal" href="../api/flows.html#agentexecutionstep"><span class="std std-ref">AgentExecutionStep</span></a>.</p>
+<p>To learn more about Agents, see the tutorial <a class="reference internal" href="../tutorials/basic_agent.html"><span class="doc">Build a Simple Conversational Assistant with Agents</span></a>, or read the <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="branching">
+<h2>Branching<a class="headerlink" href="#branching" title="Permalink to this heading">#</a></h2>
+<p>Branching is the ability of a <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> to conditionally transition between different steps based on specific input values or conditions.
+Developers can then create more dynamic and adaptive workflows that respond to varying scenarios. Branching is achieved through the use of the
+<a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep</span></a>, which defines multiple possible branches and maps input values to specific steps.</p>
+<p>Read the guide <a class="reference internal" href="../howtoguides/conditional_flows.html"><span class="doc">How to Create Conditional Transitions in Flows</span></a> for how to use branching. For more information, read the <a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="client-tool">
+<span id="defclienttool"></span><h2>Client Tool<a class="headerlink" href="#client-tool" title="Permalink to this heading">#</a></h2>
+<p>See <a class="reference internal" href="#tools-section"><span class="std std-ref">tools</span></a></p>
+</section>
+<section id="context-provider">
+<span id="context-section"></span><h2>Context Provider<a class="headerlink" href="#context-provider" title="Permalink to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/contextproviders.html#contextprovider"><span class="std std-ref">Context providers</span></a> are callable components that are used to provide dynamic contextual information to WayFlow assistants.
+They are useful to connect external datasources to an assistant.</p>
+<p>For instance, giving the current time of the day to an assistant can be achieved with a context provider.</p>
+<p>Read about the different types of context providers in the <a class="reference internal" href="../api/contextproviders.html#contextprovider"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="control-flow-edge">
+<h2>Control Flow Edge<a class="headerlink" href="#control-flow-edge" title="Permalink to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/flows.html#controlflowedge"><span class="std std-ref">Control Flow Edge</span></a> is a connector that represents a directional link between two steps in a <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a>.
+It specifies a possible transition between a specific branch of a source step and a destination step.</p>
+<p>This concept enables assistant developers to explicitly define the expected transitions that can occur within a Flow.</p>
+<p>Read more about control flow edges in the <a class="reference internal" href="../api/flows.html#controlflowedge"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="composability">
+<h2>Composability<a class="headerlink" href="#composability" title="Permalink to this heading">#</a></h2>
+<p>Composability refers to the ability of WayFlow assistants to be decomposed into smaller components, combined with other components, and rearranged
+to form new assistants that can solve a wide range of tasks. By supporting composability, you can create complex agentic systems
+from simpler building blocks.</p>
+<p>WayFlow supports four types of agentic patterns:</p>
+<ul class="simple">
+<li><p>Calling <a class="reference internal" href="../howtoguides/howto_agents_in_flows.html"><span class="doc">Agents in Flows</span></a>: Integrate conversational capabilities into structured workflows.</p></li>
+<li><p>Calling <a class="reference internal" href="../api/agent.html#describedassistant"><span class="std std-ref">Agents in Agents</span></a>: Combine multiple agents to execute complex tasks autonomously.</p></li>
+<li><p>Calling <a class="reference internal" href="../api/agent.html#id1"><span class="std std-ref">Flows in Agents</span></a>: Use structured workflows as tools within conversational agents.</p></li>
+<li><p>Calling <a class="reference internal" href="../api/flows.html#flowexecutionstep"><span class="std std-ref">Flows in Flows</span></a>: Create nested workflows to model complex business processes.</p></li>
+</ul>
+</section>
+<section id="conversation">
+<h2>Conversation<a class="headerlink" href="#conversation" title="Permalink to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/conversation.html#conversation"><span class="std std-ref">Conversation</span></a> is a stateful object that represents the execution state of a WayFlow assistant.
+It stores the list of <a class="reference internal" href="../api/conversation.html#message"><span class="std std-ref">messages</span></a> as well as information produced during the assistant execution (for example, tool calls, inputs/outputs produced by steps in a flow).</p>
+<p>The conversation object can be modified by the assistant through the <code class="docutils literal notranslate"><span class="pre">execute</span></code> method which updates the conversation state based on the assistant’s logic.
+It also serves as the interface from which end users can interact with WayFlow assistants (for example, by getting the current list of messages, appending a user message, and so on).</p>
+<p>The usual code flow when executing WayFlow assistants would be as follows:</p>
+<ol class="arabic simple">
+<li><p>A new conversation is created using the <code class="docutils literal notranslate"><span class="pre">start_conversation</span></code> method from <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a> and <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a>, with optional inputs.</p></li>
+<li><p>Then in the main execution loop:</p>
+<ul class="simple">
+<li><p>The user may interact with the assistant (for example, by adding a new message).</p></li>
+<li><p>The assistant execution is started/resumed with the <code class="docutils literal notranslate"><span class="pre">execute</span></code> method.</p></li>
+</ul>
+</li>
+</ol>
+<p>For more information about how the Conversation is used, see the <a class="reference internal" href="../tutorials/index.html"><span class="doc">Tutorials</span></a>, or read the <a class="reference internal" href="../api/conversation.html#conversation"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="data-flow-edge">
+<h2>Data Flow Edge<a class="headerlink" href="#data-flow-edge" title="Permalink to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">Data Flow Edge</span></a> is a connector that represents a logical link between steps or context providers within a <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a>.
+It defines how data is propagated from the output of one step, or context provider, to the input of another step.</p>
+<p>This concept enables assistant developers to explicitly define the expected orchestration of data flows within Flows.</p>
+<p>Read more about data flow edges in the <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="execution-interrupts">
+<h2>Execution Interrupts<a class="headerlink" href="#execution-interrupts" title="Permalink to this heading">#</a></h2>
+<p>An <a class="reference internal" href="../api/interrupts.html#executioninterrupt"><span class="std std-ref">ExecutionInterrupt</span></a> is a mechanism that allows assistant developers to intervene in the standard execution of an assistant,
+providing the ability to stop or pause the execution when specific events or conditions are met, and execute a custom callback function in response.</p>
+<p>For example, the execution can be interrupted when a <a class="reference internal" href="../api/interrupts.html#softtimeoutexecutioninterrupt"><span class="std std-ref">time limit is reached</span></a> or when a
+<a class="reference internal" href="../api/interrupts.html#softtokenlimitexecutioninterrupt"><span class="std std-ref">maximum number of tokens is exceeded</span></a>, triggering a callback to handle the interruption.</p>
+<p>Read more about execution interrupts in the <a class="reference internal" href="../api/interrupts.html#executioninterrupt"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="execution-status">
+<h2>Execution Status<a class="headerlink" href="#execution-status" title="Permalink to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../api/conversation.html#id1"><span class="std std-ref">ExecutionStatus</span></a> is a runtime indicator of an assistant’s execution state in WayFlow.
+This status provides information about the assistant’s current activity, such as whether it has finished its execution,
+is waiting for user input, or is waiting on a tool execution result from a <a class="reference internal" href="../api/tools.html#clienttool"><span class="std std-ref">Client tool</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ExecutionStatus</span></code> is used in execution loops of <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> and <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a> to properly manage the conversation with the assistant.</p>
+<p>Read more about the types of execution statuses and their use in the <a class="reference internal" href="../api/conversation.html#id1"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="flow">
+<h2>Flow<a class="headerlink" href="#flow" title="Permalink to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> is a type of structured assistant composed of individual <a class="reference internal" href="../api/flows.html#presentstep"><span class="std std-ref">steps</span></a> that are connected to form a coherent sequence of actions.
+Each step in a Flow is designed to perform a specific function, similar to functions in programming.</p>
+<p>Flows can have loops, <a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">conditional transitions</span></a>, and multiple end points. Flows can also <a class="reference internal" href="../api/flows.html#flowexecutionstep"><span class="std std-ref">integrate sub-flows</span></a> and
+<a class="reference internal" href="../api/flows.html#agentexecutionstep"><span class="std std-ref">Agents</span></a> to enable more complex capabilities.</p>
+<p>A Flow can be used to tackle a wide range of business processes and other tasks in a controllable and efficient way.</p>
+<p>Read the tutorial how to <a class="reference internal" href="../tutorials/basic_flow.html"><span class="doc">Build a Simple Fixed-Flow Assistant with Flows</span></a>, or see the available <a class="reference internal" href="../howtoguides/index.html"><span class="doc">How-to Guides</span></a> about Flows.
+Also, check the <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="generation-config">
+<h2>Generation Config<a class="headerlink" href="#generation-config" title="Permalink to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../api/llmmodels.html#llmgenerationconfig"><span class="std std-ref">LLM generation config</span></a> is the set of parameters that control the output of a <a class="reference internal" href="../api/llmmodels.html#id1"><span class="std std-ref">Large Language Model (LLM)</span></a> in WayFlow.
+These parameters include the maximum number of tokens to generate (<code class="docutils literal notranslate"><span class="pre">max_tokens</span></code>), the sampling <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, and the probability threshold for nucleus sampling (<code class="docutils literal notranslate"><span class="pre">top_p</span></code>).</p>
+<p>Learn more about the LLM generation config in the <a class="reference internal" href="../howtoguides/generation_config.html"><span class="doc">How to Specify the Generation Configuration when Using LLMs</span></a>
+or read the <a class="reference internal" href="../api/llmmodels.html#llmgenerationconfig"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="large-language-model-llm">
+<span id="llms-section"></span><h2>Large Language Model (LLM)<a class="headerlink" href="#large-language-model-llm" title="Permalink to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/llmmodels.html#id1"><span class="std std-ref">Large Language Model</span></a> is a type deep neural network trained on vast amounts of text data that can understand, generate,
+and manipulate human language through pattern recognition and statistical relationships. It processes input text through multiple layers of neural networks,
+using specific mechanisms to understand context and relationships between words.</p>
+<p>Modern LLMs contain billions of parameters and often require dedicated hardware for both training and inference.
+As such, they are typically hosted through APIs by their respective providers, allowing for ease of integration and access.</p>
+<p>Notably, WayFlow does not handle the inference of LLMs on its server, instead relying on these external APIs to leverage the power of LLMs.
+This approach allows WayFlow to remain lightweight while still providing access to the capabilities of these powerful models.</p>
+<p>Read our guide <a class="reference internal" href="../howtoguides/llm_from_different_providers.html"><span class="doc">How to Use LLMs from Different LLM Providers</span></a>, or see the <a class="reference internal" href="../api/llmmodels.html#id1"><span class="std std-ref">API reference</span></a>
+for the list of supported models.</p>
+</section>
+<section id="message">
+<h2>Message<a class="headerlink" href="#message" title="Permalink to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/conversation.html#message"><span class="std std-ref">Message</span></a> is a core concept in WayFlow, representing a unit of communication between users and assistants. It provides a structured
+way to hold information and can contain various types of data including text, <a class="reference internal" href="../api/tools.html#toolrequest"><span class="std std-ref">tool requests</span></a>, <a class="reference internal" href="../api/tools.html#toolresult"><span class="std std-ref">results</span></a>, as well as other metadata.</p>
+<p>Messages are used throughout the library to hold information and facilitate communication between different components.
+The list of messages generated during an assistant execution can be accessed directly from a <a class="reference internal" href="../api/conversation.html#conversation"><span class="std std-ref">Conversation</span></a>.</p>
+<p>Read more about messages in the <a class="reference internal" href="../api/conversation.html#message"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="prompt-engineering-and-optimization">
+<span id="prompt-engineering-section"></span><h2>Prompt Engineering and Optimization<a class="headerlink" href="#prompt-engineering-and-optimization" title="Permalink to this heading">#</a></h2>
+<p>Prompt engineering and optimization is the systematic process of designing, refining, and improving prompts to achieve more accurate,
+reliable, and desired outputs from language models. It involves iterative testing and refinement of prompt structures, careful consideration of
+context windows, and strategic use of examples and formatting.</p>
+<p>Methods such as Automated Prompt Engineering can help improve prompts by using algorithms to optimize the prompt performance on a specific metric.</p>
+<section id="prompt-engineering-styles">
+<h3>Prompt Engineering Styles<a class="headerlink" href="#prompt-engineering-styles" title="Permalink to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 27.3%" />
+<col style="width: 27.3%" />
+<col style="width: 45.5%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Technique</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Zero-shot</p></td>
+<td><p>No example, just task</p></td>
+<td><p>“Summarize this article.”</p></td>
+</tr>
+<tr class="row-odd"><td><p>Few-shot</p></td>
+<td><p>Provide examples</p></td>
+<td><p>“Q: What is 2+2? A: 4…”</p></td>
+</tr>
+<tr class="row-even"><td><p>Chain-of-thought</p></td>
+<td><p>Encourage step-by-step thinking</p></td>
+<td><p>“Let’s think step-by-step…”</p></td>
+</tr>
+<tr class="row-odd"><td><p>Role prompting</p></td>
+<td><p>Assign a persona</p></td>
+<td><p>“You are an expert lawyer…”</p></td>
+</tr>
+<tr class="row-even"><td><p>Constraint-based</p></td>
+<td><p>Set strict formats or word limits</p></td>
+<td><p>Answer in JSON with keys ‘title’…”</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="prompt-template">
+<h2>Prompt Template<a class="headerlink" href="#prompt-template" title="Permalink to this heading">#</a></h2>
+<p>A prompt template is a standardized prompt structure with placeholders for variable inputs, designed to maintain consistency across similar queries
+while allowing for customization. WayFlow uses jinja-style placeholders to specify the input variables to the prompt (for more information check
+the <a class="reference external" href="https://jinja.palletsprojects.com/en/stable/templates">reference of jinja2</a>).</p>
+<p>See the <a class="reference internal" href="../tutorials/index.html"><span class="doc">Tutorials and Use-Case Examples</span></a> for concrete examples, or check the
+<a class="reference internal" href="../api/flows.html#templaterenderingstep"><span class="std std-ref">TemplateRenderingStep API reference</span></a>.</p>
+<p>Prompt templates can be used in WayFlow components that use LLMs, such as <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> and the <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a>.</p>
+</section>
+<section id="properties">
+<h2>Properties<a class="headerlink" href="#properties" title="Permalink to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/flows.html#property"><span class="std std-ref">Property</span></a> is a metadata descriptor that provides information about an input/output value of a component (<a class="reference internal" href="../api/tools.html"><span class="doc">Tools</span></a>,
+<a class="reference internal" href="../api/flows.html#presentstep"><span class="std std-ref">Steps</span></a>, <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flows</span></a>, and <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a>) in a WayFlow assistant. Properties can represent various data types such as
+<a class="reference internal" href="../api/flows.html#booleanproperty"><span class="std std-ref">boolean</span></a>, <a class="reference internal" href="../api/flows.html#floatproperty"><span class="std std-ref">float</span></a>, <a class="reference internal" href="../api/flows.html#integerproperty"><span class="std std-ref">integer</span></a>, <a class="reference internal" href="../api/flows.html#stringproperty"><span class="std std-ref">string</span></a>,
+as well as nested types such as <a class="reference internal" href="../api/flows.html#listproperty"><span class="std std-ref">list</span></a>, <a class="reference internal" href="../api/flows.html#dictproperty"><span class="std std-ref">dict</span></a>, or <a class="reference internal" href="../api/flows.html#objectproperty"><span class="std std-ref">object</span></a>.</p>
+<p>Properties include attributes such as name, description, and default value, which help to clarify the purpose and behavior of the component,
+making it easier to understand and interact with the component.</p>
+<p>To learn more about the use of properties, read the guide <a class="reference internal" href="../howtoguides/io_descriptors.html"><span class="doc">How to Change Input and Output Descriptors of Components</span></a>,
+and check the <a class="reference internal" href="../api/flows.html#property"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="remote-tool">
+<h2>Remote Tool<a class="headerlink" href="#remote-tool" title="Permalink to this heading">#</a></h2>
+<p>See <a class="reference internal" href="#tools-section"><span class="std std-ref">tools</span></a></p>
+</section>
+<section id="retrieval-augmented-generation-rag">
+<h2>Retrieval Augmented Generation (RAG)<a class="headerlink" href="#retrieval-augmented-generation-rag" title="Permalink to this heading">#</a></h2>
+<p>Retrieval Augmented Generation  (RAG) is a technique to enhance LLM outputs by first retrieving relevant information from a knowledge base and then incorporating
+it into the generation process. This approach enhances the model’s ability to access and utilize specific information beyond its training data.</p>
+<p>RAG systems typically involves a retrieval component that searches for relevant information and a generation component that incorporates this
+information into the final output.</p>
+</section>
+<section id="serialization">
+<h2>Serialization<a class="headerlink" href="#serialization" title="Permalink to this heading">#</a></h2>
+<p id="defserialization">In WayFlow, serialization refers to the ability to capture the current configuration of an assistant and represent it in a compact, human-readable form.
+This allows assistants to be easily shared, stored, or deployed across different environments, while maintaining their functionality and consistency.</p>
+<p>Read the guide <a class="reference internal" href="../howtoguides/howto_serdeser.html"><span class="doc">How to Serialize and Deserialize Flows and Agents</span></a> or check the <a class="reference internal" href="../api/serialization.html#serialization"><span class="std std-ref">API reference</span></a> for more information.</p>
+</section>
+<section id="server-tool">
+<span id="defservertool"></span><h2>Server Tool<a class="headerlink" href="#server-tool" title="Permalink to this heading">#</a></h2>
+<p>See <a class="reference internal" href="#tools-section"><span class="std std-ref">tools</span></a></p>
+</section>
+<section id="step">
+<h2>Step<a class="headerlink" href="#step" title="Permalink to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/flows.html#presentstep"><span class="std std-ref">Step</span></a> is an atomic element of a <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> that encapsulates a specific piece of logic or functionality.
+WayFlow proposes a variety of steps with functionalities ranging from <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">LLM generation</span></a> and <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">tool use</span></a>
+to <a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">branching</span></a>, <a class="reference internal" href="../api/flows.html#extractvaluefromjsonstep"><span class="std std-ref">data extraction</span></a>, and <a class="reference internal" href="../api/flows.html#presentstep"><span class="std std-ref">much more</span></a>. By composing the steps together, WayFlow enables
+the creation of powerful structured assistants to solve diverse use cases efficiently and reliably.</p>
+<p>Check the list of available steps in the <a class="reference internal" href="../api/flows.html#presentstep"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="structured-generation">
+<span id="defstructuredgeneration"></span><h2>Structured Generation<a class="headerlink" href="#structured-generation" title="Permalink to this heading">#</a></h2>
+<p>Structured generation is the process of controlling LLM outputs to conform to specific formats, schemas, or patterns, ensuring consistency and
+machine-readability of generated content. It involves techniques for guiding the model to produce outputs that follow predetermined structures
+while maintaining natural language fluency.</p>
+<p>This approach is particularly valuable for generating data in formats like JSON, XML, or other structured representations.</p>
+<p>For more information, see the guide <a class="reference internal" href="../howtoguides/howto_promptexecutionstep.html"><span class="doc">How to Do Structured LLM Generation in Flows</span></a>.</p>
+</section>
+<section id="tools">
+<span id="tools-section"></span><h2>Tools<a class="headerlink" href="#tools" title="Permalink to this heading">#</a></h2>
+<a class="reference internal image-reference" href="../../_images/types_of_tools.svg"><img alt="Types of tools" class="align-center" height="537" src="../../_images/types_of_tools.svg" width="558" /></a>
+<p>WayFlow support three types of tools:</p>
+<section id="id1">
+<h3>Server Tool<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<p>A <a class="reference internal" href="../api/tools.html#servertool"><span class="std std-ref">Server Tool</span></a> is the simplest type of tool available in WayFlow. It is simply defined with the signature of the tool to execute including:</p>
+<ul class="simple">
+<li><p>A tool name.</p></li>
+<li><p>A tool description.</p></li>
+<li><p>The names, types, and optional default values for the input parameters of the tool.</p></li>
+<li><p>A Python callable, which is the callable to invoke upon the tool execution.</p></li>
+<li><p>The output type.</p></li>
+</ul>
+<p>See the guide <a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html"><span class="doc">How to Build Assistants with Tools</span></a> for how to use Server tools.
+For more information about the <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code>, read the <a class="reference internal" href="../api/tools.html#servertool"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="id2">
+<h3>Client Tool<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<p>A <a class="reference internal" href="../api/tools.html#clienttool"><span class="std std-ref">Client tool</span></a> is a type of tool that can be built in WayFlow. Contrary to the <a class="reference internal" href="../api/tools.html#servertool"><span class="std std-ref">Server Tool</span></a> which is directly executed on the server side,
+upon execution the client tool returns a <a class="reference internal" href="../api/tools.html#toolrequest"><span class="std std-ref">ToolRequest</span></a> to be executed on the client side, which then sends the execution result back to the assistant.</p>
+<p>See the guide <a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html"><span class="doc">How to Build Assistants with Tools</span></a>. For more information about the <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code>, read the <a class="reference internal" href="../api/tools.html#clienttool"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+<section id="id3">
+<h3>Remote Tool<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<p>A <a class="reference internal" href="../api/tools.html#remotetool"><span class="std std-ref">Remote tool</span></a> is a type of tool that can be used in WayFlow to perform API calls.</p>
+<p>For more information about the <code class="docutils literal notranslate"><span class="pre">RemoteTool</span></code>, read the <a class="reference internal" href="../api/tools.html#remotetool"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+</section>
+<section id="tokens">
+<h2>Tokens<a class="headerlink" href="#tokens" title="Permalink to this heading">#</a></h2>
+<p>Tokens are the fundamental units of text processing in LLMs, representing words, parts of words, or characters that the model uses to understand and generate language.</p>
+<p>They form the basis for the model’s context window size and directly impact processing costs and performance.</p>
+<p>It is worth noting that there are two types of tokens relevant to LLMs: input tokens and output tokens.
+Input tokens refer to the tokens that are fed into the model as input, whereas output tokens are the tokens generated by the model as output.
+In general, output tokens are more expensive than input tokens. An example of pricing can be $3 per 1M input tokens, and $10 per 1M output tokens.</p>
+</section>
+<section id="variable">
+<span id="variables-section"></span><h2>Variable<a class="headerlink" href="#variable" title="Permalink to this heading">#</a></h2>
+<p>A <a class="reference internal" href="../api/variables.html#variable"><span class="std std-ref">Variable</span></a> is a flow-scoped data container that enables the storage and retrieval of data throughout a <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a>.
+Variables act as the shared state or context of a Flow (often referred to as <cite>state</cite> in other frameworks),
+providing a way to decouple data from specific steps and make it available for use within multiple parts of the Flow.
+They can be accessed and modified throughout a Flow using <a class="reference internal" href="../api/flows.html#variablereadstep"><span class="std std-ref">VariableReadStep</span></a> and <a class="reference internal" href="../api/flows.html#variablewritestep"><span class="std std-ref">VariableWriteStep</span></a> operations.</p>
+<p>Note that Variables are complementary to the value stored in the input/output dictionary which is specific to the steps execution.</p>
+<p>Learn more about Variables in the <a class="reference internal" href="../api/variables.html#variable"><span class="std std-ref">API reference</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assistant">Assistant</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agent">Agent</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#branching">Branching</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#client-tool">Client Tool</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#context-provider">Context Provider</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#control-flow-edge">Control Flow Edge</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#composability">Composability</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conversation">Conversation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-flow-edge">Data Flow Edge</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#execution-interrupts">Execution Interrupts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#execution-status">Execution Status</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flow">Flow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generation-config">Generation Config</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#large-language-model-llm">Large Language Model (LLM)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#message">Message</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt-engineering-and-optimization">Prompt Engineering and Optimization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt-engineering-styles">Prompt Engineering Styles</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt-template">Prompt Template</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#properties">Properties</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#remote-tool">Remote Tool</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#retrieval-augmented-generation-rag">Retrieval Augmented Generation (RAG)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#serialization">Serialization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#server-tool">Server Tool</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step">Step</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#structured-generation">Structured Generation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tools">Tools</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Server Tool</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Client Tool</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Remote Tool</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tokens">Tokens</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variable">Variable</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

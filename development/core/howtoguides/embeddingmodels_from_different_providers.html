@@ -1,0 +1,835 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>How to Use Embedding Models from Different Providers &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/embeddingmodels_from_different_providers';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to Use Variables for Shared State in Flows" href="howto_variable.html" />
+    <link rel="prev" title="How to Connect Assistants to Your Data" href="howto_datastores.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="26.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">Evaluate Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">Evaluate Conversations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-to Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to Use Embedding Models from Different Providers</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="how-to-use-embedding-models-from-different-providers">
+<h1>How to Use Embedding Models from Different Providers<a class="headerlink" href="#how-to-use-embedding-models-from-different-providers" title="Permalink to this heading">#</a></h1>
+<p>WayFlow supports several embedding model providers. The available embedding models are:</p>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OCIGenAIEmbeddingModel</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenAIEmbeddingModel</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">VllmEmbeddingModel</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OllamaEmbeddingModel</span></code></p></li>
+</ul>
+<p>Their configuration is specified directly to their respective class constructor.
+This guide will show you how to configure embedding models from different providers with examples and notes on usage.</p>
+<section id="basic-implementation">
+<h2>Basic Implementation<a class="headerlink" href="#basic-implementation" title="Permalink to this heading">#</a></h2>
+<p>WayFlow provides multiple ways to work with embedding models. You can directly instantiate embedding model classes for maximum flexibility and control, which is the approach demonstrated in this guide. Each embedding model class extends the abstract <code class="docutils literal notranslate"><span class="pre">EmbeddingModel</span></code> base class and implements the required <cite>embed</cite> method.</p>
+<p>For the embedding models shown in this guide:</p>
+<ul class="simple">
+<li><p>All models implement a consistent interface through the abstract <code class="docutils literal notranslate"><span class="pre">EmbeddingModel</span></code> base class</p></li>
+<li><p>Models generally require provider-specific configuration for authentication and endpoint access</p></li>
+<li><p>Security best practices are followed, with sensitive authentication data never being serialized</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">SerializableObject</span></code> interface allows for saving and loading model configurations</p></li>
+</ul>
+<p>The following sections provide detailed information about each supported embedding model type, with examples showing how to instantiate and use them.</p>
+</section>
+<section id="oci-genai-embedding-model">
+<h2>OCI GenAI Embedding Model<a class="headerlink" href="#oci-genai-embedding-model" title="Permalink to this heading">#</a></h2>
+<p><a class="reference external" href="https://docs.oracle.com/iaas/Content/generative-ai/overview.htm">OCI GenAI Embedding Model</a> is powered by <a class="reference external" href="https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/">OCI Generative AI</a>.</p>
+<p><strong>Parameters</strong></p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-model_id">
+<span id="cmdoption-arg-model-id"></span><span class="sig-name descname"><span class="pre">model_id:</span></span><span class="sig-prename descclassname"> <span class="pre">str</span></span><a class="headerlink" href="#cmdoption-arg-model_id" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the model to use. A list of the available models is given in
+<a class="reference external" href="https://docs.oracle.com/en-us/iaas/Content/generative-ai/deprecating.htm#">Oracle OCI Documentation</a>
+under the Model Retirement Dates (Embedding Models) section.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-config">
+<span class="sig-name descname"><span class="pre">config:</span></span><span class="sig-prename descclassname"> <span class="pre">OCIClientConfig</span></span><a class="headerlink" href="#cmdoption-arg-config" title="Permalink to this definition">#</a></dt>
+<dd><p>OCI client config to authenticate the OCI service.
+See the below examples and <a class="reference internal" href="../api/llmmodels.html#ociclientconfigclassesforauthentication"><span class="std std-ref">OCI Client Config Classes for Authentication</span></a> for the usage and more information.</p>
+</dd></dl>
+
+<p><strong>Examples</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.embeddingmodels</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIEmbeddingModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.ociclientconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIClientConfigWithApiKey</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Get the list of available embedding models from OCI documentation</span>
+    <span class="n">OCIGENAI_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;cohere.embed-english-light-v3.0&quot;</span>
+    <span class="c1"># e.g. &lt;oci region&gt; can be &quot;us-phoenix-1&quot; and can also be found in your ~/.oci/config file</span>
+    <span class="n">OCIGENAI_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;https://path.to.your.ocigenai.endpoint.com&quot;</span>
+    <span class="c1"># &lt;compartment_id&gt; can be obtained from your personal OCI account (not the key config file).</span>
+    <span class="c1"># Please find it under &quot;Identity &gt; Compartments&quot; on the OCI console website after logging in to your user account.</span>
+    <span class="n">COMPARTMENT_ID</span> <span class="o">=</span> <span class="s2">&quot;ocid1.compartment.oc1..example&quot;</span>
+
+    <span class="n">oci_embedding_model</span> <span class="o">=</span> <span class="n">OCIGenAIEmbeddingModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OCIGENAI_MODEL_ID</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">OCIClientConfigWithApiKey</span><span class="p">(</span>
+            <span class="n">service_endpoint</span><span class="o">=</span><span class="n">OCIGENAI_ENDPOINT</span><span class="p">,</span>
+            <span class="n">compartment_id</span><span class="o">=</span><span class="n">COMPARTMENT_ID</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Generate embeddings</span>
+    <span class="n">text_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;WayFlow is a powerful, intuitive Python library for building sophisticated AI-powered assistants.&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># embeddings = oci_embedding_model.embed(text_list)</span>
+    <span class="c1"># print(f&quot;OCI GenAI embeddings dimension: {len(embeddings[0])}&quot;)</span>
+</pre></div>
+</div>
+<details class="summary-equivalent-code-example-utilizing-the-ociuserauthenticationconfig-class-api-key-authentication-without-config-key-files">
+<summary>Equivalent code example utilizing the OCIUserAuthenticationConfig class (API_KEY authentication without config/key files).</summary><p>WayFlow allows users to authenticate OCI GenAI service using a user API key without relying on a local config file and a key file.</p>
+<blockquote>
+<div><p>Instead of using a config file, the values of config parameters can be specified in the <a class="reference internal" href="../api/llmmodels.html#ociuserauthenticationconfig"><span class="std std-ref">OCIUserAuthenticationConfig</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume we have an API to get credentials</span>
+<span class="n">oci_genai_cred</span> <span class="o">=</span> <span class="n">get_oci_genai_credentials</span><span class="p">()</span>
+
+<span class="n">user_config</span> <span class="o">=</span> <span class="n">OCIUserAuthenticationConfig</span><span class="p">(</span>
+    <span class="n">user</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">],</span>
+    <span class="n">key_content</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;key_content&quot;</span><span class="p">],</span>
+    <span class="n">fingerprint</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;fingerprint&quot;</span><span class="p">],</span>
+    <span class="n">tenancy</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;tenancy&quot;</span><span class="p">],</span>
+    <span class="n">region</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The user authentication config parameters are sensitive information. This information will not be included when serializing a flow (there will be just an empty dictionary instead).</p>
+</div>
+<p>You can create a client configuration with the user authentication configuration.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create client configuration with user authentication</span>
+<span class="n">client_config</span> <span class="o">=</span> <span class="n">OCIClientConfigWithUserAuthentication</span><span class="p">(</span>
+    <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;my_service_endpoint&quot;</span><span class="p">,</span>  <span class="c1"># replace it with your endpoint</span>
+    <span class="n">compartment_id</span><span class="o">=</span><span class="n">oci_genai_cred</span><span class="p">[</span><span class="s2">&quot;compartment_id&quot;</span><span class="p">],</span>
+    <span class="n">user_config</span><span class="o">=</span><span class="n">user_config</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Then create an <code class="docutils literal notranslate"><span class="pre">OCIGenAIEmbeddingModel</span></code> object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create the OCIGenAIEmbeddingModel with the client configuration</span>
+<span class="n">oci_embedding_model</span> <span class="o">=</span> <span class="n">OCIGenAIEmbeddingModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;cohere.embed-english-light-v3.0&quot;</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">client_config</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Generate embeddings</span>
+<span class="n">text_list</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;WayFlow is a powerful, intuitive Python library for building sophisticated AI-powered assistants.&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="c1"># embeddings = oci_embedding_model.embed(text_list)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</details><p><strong>Notes</strong></p>
+<ul>
+<li><p>Make sure to properly set up authentication configuration.</p></li>
+<li><p>Make sure that you have the <code class="docutils literal notranslate"><span class="pre">oci&gt;=2.134.0</span></code> package installed. With your WayFlow environment activated, you can install the package as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>oci&gt;<span class="o">=</span><span class="m">2</span>.134.0
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If, when using the <code class="docutils literal notranslate"><span class="pre">INSTANCE_PRINCIPAL</span></code>, the response of the model returns a <code class="docutils literal notranslate"><span class="pre">404</span></code> error,
+check if your instance is listed in the dynamic group and has the right privileges.
+Otherwise, ask someone with administrative privileges to grant your OCI Compute instance the ability to authenticate as an Instance Principal.
+You need to have a Dynamic Group that includes the instance and a policy that allows this dynamic group to manage OCI GenAI services.</p>
+</div>
+</section>
+<section id="openai-embedding-model">
+<h2>OpenAI Embedding Model<a class="headerlink" href="#openai-embedding-model" title="Permalink to this heading">#</a></h2>
+<p>OpenAI Embedding Model is powered by <a class="reference external" href="https://platform.openai.com/docs/guides/embeddings">OpenAI</a>.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><strong>model_id</strong> : str
+Name of the model to use. Current supported models: <code class="docutils literal notranslate"><span class="pre">text-embedding-3-small</span></code>, <code class="docutils literal notranslate"><span class="pre">text-embedding-3-large</span></code>, and <code class="docutils literal notranslate"><span class="pre">text-embedding-ada-002</span></code>
+(legacy model).</p></li>
+<li><p><strong>api_key</strong> : str, optional
+The API key for authentication with OpenAI. If not provided, the value of the
+<code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> environment variable will be used, if set.</p></li>
+</ul>
+<p><strong>Examples</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.embeddingmodels</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIEmbeddingModel</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># For the sake of this example, we set the API key in the environment</span>
+    <span class="c1"># In production, use a secure method to store and access the key</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;DUMMY_OPENAI_KEY&quot;</span><span class="p">)</span>
+
+    <span class="n">OPENAI_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;text-embedding-3-small&quot;</span>
+
+    <span class="n">openai_embedding_model</span> <span class="o">=</span> <span class="n">OpenAIEmbeddingModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OPENAI_MODEL_ID</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Generate embeddings</span>
+    <span class="n">text_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;WayFlow is a powerful, intuitive Python library for building sophisticated AI-powered assistants.&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># embeddings = openai_embedding_model.embed(text_list)</span>
+    <span class="c1"># print(f&quot;OpenAI embeddings dimension: {len(embeddings[0])}&quot;)</span>
+</pre></div>
+</div>
+</section>
+<section id="vllm-embedding-model">
+<h2>vLLM Embedding Model<a class="headerlink" href="#vllm-embedding-model" title="Permalink to this heading">#</a></h2>
+<p><a class="reference external" href="https://docs.vllm.ai/en/latest/models/supported_models.html">vLLM Embedding Model</a> is a model hosted with a vLLM server.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><strong>url</strong> : str
+The complete URL of the vLLM server where the model is hosted (e.g., “<a class="reference external" href="http://localhost:8000">http://localhost:8000</a>” or “<a class="reference external" href="https://secure-vllm.example.com">https://secure-vllm.example.com</a>”).
+Both HTTP and HTTPS protocols are supported.</p></li>
+<li><p><strong>model_id</strong> : str
+Name of the model to use.</p></li>
+</ul>
+<p><strong>Examples</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.embeddingmodels</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmEmbeddingModel</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">VLLM_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;mistralai/mistral-embed&quot;</span>
+    <span class="n">VLLM_BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;http://your.ip:port&quot;</span>
+
+    <span class="n">vllm_embedding_model</span> <span class="o">=</span> <span class="n">VllmEmbeddingModel</span><span class="p">(</span>
+        <span class="n">base_url</span><span class="o">=</span><span class="n">VLLM_BASE_URL</span><span class="p">,</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">VLLM_MODEL_ID</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Generate embeddings</span>
+    <span class="n">text_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;WayFlow is a powerful, intuitive Python library for building sophisticated AI-powered assistants.&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># embeddings = vllm_embedding_model.embed(text_list)</span>
+    <span class="c1"># print(f&quot;vLLM embeddings dimension: {len(embeddings[0])}&quot;)</span>
+</pre></div>
+</div>
+<p><strong>Notes</strong></p>
+<p>The vLLM embedding model makes HTTP/HTTPS POST requests to the /v1/embeddings endpoint of the specified URL,
+following the OpenAI API format. When using HTTPS, certificate verification is performed by default.
+For self-signed certificates, additional configuration may be needed at the application level.</p>
+</section>
+<section id="ollama-embedding-model">
+<h2>Ollama Embedding Model<a class="headerlink" href="#ollama-embedding-model" title="Permalink to this heading">#</a></h2>
+<p><a class="reference external" href="https://ollama.com/">Ollama Embedding Model</a> is powered by a locally hosted Ollama server.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><p><strong>url</strong> : str
+The complete URL of the Ollama server where the model is hosted (e.g., “<a class="reference external" href="http://localhost:11434">http://localhost:11434</a>” or “<a class="reference external" href="https://ollama.example.com">https://ollama.example.com</a>”).
+Both HTTP and HTTPS protocols are supported.</p></li>
+<li><p><strong>model_id</strong> : str
+Name of the model to use. A list of model names can be found <a class="reference external" href="https://ollama.com/search">here</a>.</p></li>
+</ul>
+<p><strong>Examples</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.embeddingmodels</span><span class="w"> </span><span class="kn">import</span> <span class="n">OllamaEmbeddingModel</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">OLLAMA_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;nomic-embed-text&quot;</span>
+    <span class="n">OLLAMA_BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;http://your.ip:port&quot;</span>
+
+    <span class="n">ollama_embedding_model</span> <span class="o">=</span> <span class="n">OllamaEmbeddingModel</span><span class="p">(</span>
+        <span class="n">base_url</span><span class="o">=</span><span class="n">OLLAMA_BASE_URL</span><span class="p">,</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OLLAMA_MODEL_ID</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Generate embeddings</span>
+    <span class="n">text_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;WayFlow is a powerful, intuitive Python library for building sophisticated AI-powered assistants.&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># embeddings = ollama_embedding_model.embed(text_list)</span>
+    <span class="c1"># print(f&quot;Ollama embeddings dimension: {len(embeddings[0])}&quot;)</span>
+</pre></div>
+</div>
+<p><strong>Notes</strong></p>
+<p>The Ollama embedding model makes HTTP/HTTPS POST requests to the /v1/embeddings endpoint of the specified URL,
+following the OpenAI API format. Ensure your Ollama server is properly configured with models that support embedding generation.
+When using HTTPS, certificate verification is performed by default. For self-signed certificates,
+additional configuration may be needed at the application level.</p>
+</section>
+<section id="recap">
+<h2>Recap<a class="headerlink" href="#recap" title="Permalink to this heading">#</a></h2>
+<p>This guide provides detailed descriptions of each embedding model type supported by WayFlow, demonstrating how to use both the configuration dictionary and direct instantiation methods for each model.
+You can find below the complete code example presented in this guide:</p>
+<details class="summary-full-code">
+<summary>Full Code</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.embeddingmodels</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">OCIGenAIEmbeddingModel</span><span class="p">,</span>
+    <span class="n">OllamaEmbeddingModel</span><span class="p">,</span>
+    <span class="n">OpenAIEmbeddingModel</span><span class="p">,</span>
+    <span class="n">VllmEmbeddingModel</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.ociclientconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIClientConfigWithApiKey</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">text_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;WayFlow is a powerful, intuitive Python library for building sophisticated AI-powered assistants.&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># OCI GenAI Embedding Model</span>
+    <span class="n">OCIGENAI_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;cohere.embed-english-light-v3.0&quot;</span>
+    <span class="n">OCIGENAI_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;https://path.to.your.ocigenai.endpoint.com&quot;</span>
+    <span class="n">COMPARTMENT_ID</span> <span class="o">=</span> <span class="s2">&quot;ocid1.compartment.oc1..example&quot;</span>
+
+    <span class="n">oci_embedding_model</span> <span class="o">=</span> <span class="n">OCIGenAIEmbeddingModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OCIGENAI_MODEL_ID</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">OCIClientConfigWithApiKey</span><span class="p">(</span>
+            <span class="n">service_endpoint</span><span class="o">=</span><span class="n">OCIGENAI_ENDPOINT</span><span class="p">,</span>
+            <span class="n">compartment_id</span><span class="o">=</span><span class="n">COMPARTMENT_ID</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="c1"># oci_embeddings = oci_embedding_model.embed(text_list)</span>
+    <span class="c1"># print(f&quot;OCI GenAI embeddings dimension: {len(oci_embeddings[0])}&quot;)</span>
+
+    <span class="c1"># OpenAI Embedding Model</span>
+    <span class="n">OPENAI_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;text-embedding-3-small&quot;</span>
+
+    <span class="n">openai_embedding_model</span> <span class="o">=</span> <span class="n">OpenAIEmbeddingModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OPENAI_MODEL_ID</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># openai_embeddings = openai_embedding_model.embed(text_list)</span>
+    <span class="c1"># print(f&quot;OpenAI embeddings dimension: {len(openai_embeddings[0])}&quot;)</span>
+
+    <span class="c1"># vLLM Embedding Model</span>
+    <span class="n">VLLM_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;mistralai/mistral-embed&quot;</span>
+    <span class="n">VLLM_BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;http://your.ip:port&quot;</span>
+
+    <span class="n">vllm_embedding_model</span> <span class="o">=</span> <span class="n">VllmEmbeddingModel</span><span class="p">(</span>
+        <span class="n">base_url</span><span class="o">=</span><span class="n">VLLM_BASE_URL</span><span class="p">,</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">VLLM_MODEL_ID</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># vllm_embeddings = vllm_embedding_model.embed(text_list)</span>
+    <span class="c1"># print(f&quot;vLLM embeddings dimension: {len(vllm_embeddings[0])}&quot;)</span>
+
+    <span class="c1"># Ollama Embedding Model</span>
+    <span class="n">OLLAMA_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;nomic-embed-text&quot;</span>
+    <span class="n">OLLAMA_BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;http://your.ip:port&quot;</span>
+
+    <span class="n">ollama_embedding_model</span> <span class="o">=</span> <span class="n">OllamaEmbeddingModel</span><span class="p">(</span>
+        <span class="n">base_url</span><span class="o">=</span><span class="n">OLLAMA_BASE_URL</span><span class="p">,</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">OLLAMA_MODEL_ID</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ollama_embeddings = ollama_embedding_model.embed(text_list)</span>
+    <span class="c1"># print(f&quot;Ollama embeddings dimension: {len(ollama_embeddings[0])}&quot;)</span>
+</pre></div>
+</div>
+</details></section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<p>Having learned how to configure and initialize embedding models from different providers, you may now proceed to:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="howto_datastores.html"><span class="doc">Datastores</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-implementation">Basic Implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#oci-genai-embedding-model">OCI GenAI Embedding Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openai-embedding-model">OpenAI Embedding Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vllm-embedding-model">vLLM Embedding Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ollama-embedding-model">Ollama Embedding Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap">Recap</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

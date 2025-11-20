@@ -1,0 +1,5 @@
+[
+  { "version": "development", "url": "https://oracle.github.io/wayflow/development/" },
+  { "version": "25.4.2", "url": "https://oracle.github.io/wayflow/25.4.2/" },
+  { "version": "25.4.1", "url": "https://oracle.github.io/wayflow/25.4.1/" }
+]
