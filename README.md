@@ -41,10 +41,10 @@ Initialize a Large Language Model (LLM) of your choice:
 | <pre>from wayflowcore.models import OCIGenAIModel<br><br>llm = OCIGenAIModel(<br>   model_id="provider.model-id",<br>   service_endpoint="https://url-to-service-endpoint.com",<br>   compartment_id="compartment-id",<br>   auth_type="API_KEY",<br>)</pre> | <pre>from wayflowcore.models import OpenAIModel<br><br>llm = OpenAIModel(<br>   model_id="model-id",<br>)</pre> | <pre>from wayflowcore.models import OllamaModel<br><br>llm = OllamaModel(<br>   model_id="model-id",<br>)</pre> |
 
 
-> See the list of supported LLMs in the [WayFlow documentation](https://oracle.github.io/wayflow/core/howtoguides/llm_from_different_providers.html).
+> See the list of supported LLMs in the [WayFlow documentation](https://oracle.github.io/wayflow/development/core/howtoguides/llm_from_different_providers.html).
 
 
-Then, create an agent using a [WayFlow Agent](https://oracle.github.io/wayflow/core/api/agent.html#wayflowcore.agent.Agent):
+Then, create an agent using a [WayFlow Agent](https://oracle.github.io/wayflow/development/core/api/agent.html#wayflowcore.agent.Agent):
 
 ```python
 from wayflowcore.agent import Agent
@@ -61,7 +61,7 @@ assistant_answer.content
 # I'd be happy to help with your SQL query...
 ```
 
-For more information on how to build flexible Agents, structured Flows and multi-agent patterns, read the [WayFlow Tutorials](https://oracle.github.io/wayflow/core/tutorials/index.html)
+For more information on how to build flexible Agents, structured Flows and multi-agent patterns, read the [WayFlow Tutorials](https://oracle.github.io/wayflow/development/core/tutorials/index.html)
 
 
 ## Why WayFlow?
@@ -87,9 +87,9 @@ Explore practical examples for working with WayFlow.
 
 Name         | Description
 ------------ | -------------
-[Build a Simple Conversational Assistant with Agents](https://oracle.github.io/wayflow/core/tutorials/basic_agent.html) | A demo using dummy HR data to answer employee-related questions with an agent.
-[Build a Simple Fixed-Flow Assistant with Flows](https://oracle.github.io/wayflow/core/tutorials/basic_flow.html) | A basic HR chatbot built as a fixed-flow assistant to answer employee questions.
-[Build a Simple Code Review Assistant](https://oracle.github.io/wayflow/core/tutorials/usecase_prbot.html) | An advanced assistant using Flows to automate Python pull request reviews.
+[Build a Simple Conversational Assistant with Agents](https://oracle.github.io/wayflow/development/core/tutorials/basic_agent.html) | A demo using dummy HR data to answer employee-related questions with an agent.
+[Build a Simple Fixed-Flow Assistant with Flows](https://oracle.github.io/wayflow/development/core/tutorials/basic_flow.html) | A basic HR chatbot built as a fixed-flow assistant to answer employee questions.
+[Build a Simple Code Review Assistant](https://oracle.github.io/wayflow/development/core/tutorials/usecase_prbot.html) | An advanced assistant using Flows to automate Python pull request reviews.
 
 ## Get Support
 
@@ -116,12 +116,12 @@ This software is under the Apache License 2.0 (LICENSE-APACHE or [http://www.apa
 [badge-docs]: https://img.shields.io/badge/documentation-WayFlow-orange
 [badge-license]: https://img.shields.io/badge/license-apache_2.0+UPL_1.0-green
 [badge-reference-sheet]: https://img.shields.io/badge/reference%20sheet-read-red
-[contributors]: https://oracle.github.io/wayflow/core/contributing.html
+[contributors]: https://oracle.github.io/wayflow/development/core/contributing.html
 [docs]: https://oracle.github.io/wayflow/index.html
-[downloads]: https://oracle.github.io/wayflow/core/installation.html
-[getting-started]: https://oracle.github.io/wayflow/core/index.html
+[downloads]: https://oracle.github.io/wayflow/development/core/installation.html
+[getting-started]: https://oracle.github.io/wayflow/development/core/index.html
 [issues]: https://github.com/oracle/wayflow/issues
-[reference-sheet]: https://oracle.github.io/wayflow/core/misc/reference_sheet.html
+[reference-sheet]: https://oracle.github.io/wayflow/development/core/misc/reference_sheet.html
 [reporting-vulnerabilities]: https://www.oracle.com/corporate/security-practices/assurance/vulnerability/reporting.html
 [website-wayflow]: https://oracle.github.io/wayflow/
 [website-agentspec]: https://oracle.github.io/agent-spec/
