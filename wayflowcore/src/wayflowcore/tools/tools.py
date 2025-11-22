@@ -68,6 +68,10 @@ class ToolRequest(SerializableDataclassMixin, SerializableObject):
     name: str
     args: Dict[str, Any]
     tool_request_id: str = field(default_factory=IdGenerator.get_or_generate_id)
+    # We use any here for loose typechecking, which works so long as we don't
+    # expect to process the extra_content (which is the case with the
+    # thought_signature in Google models)
+    extra_content: Optional[Any] = None
     _requires_confirmation: bool = False
     _tool_execution_confirmed: Optional[bool] = None
     _tool_rejection_reason: Optional[str] = None
