@@ -332,6 +332,8 @@ def _convert_message_into_openai_message_dict(m: "Message") -> List[Dict[str, An
             "role": "assistant",
             "tool_calls": [],
         }
+        if m.extra_content is not None:
+            openai_message["extra_content"] = m.extra_content
         for tc in m.tool_requests or []:
             tool_call = {
                 "id": tc.tool_request_id,
@@ -368,8 +370,10 @@ def _convert_message_into_openai_message_dict(m: "Message") -> List[Dict[str, An
                 all_contents.append({"type": "text", "text": content.content})
             else:
                 raise RuntimeError(f"Unsupported content type: {content.__class__.__name__}")
-
-    return [{"role": role, "content": all_contents if len(all_contents) else ""}]
+        message = {"role": role, "content": all_contents if len(all_contents) else ""}
+        if m.extra_content is not None:
+            message["extra_content"] = m.extra_content
+        return [message]
 
 
 def _convert_generation_config_into_openai_arguments(
@@ -476,9 +480,14 @@ def _convert_openai_completion_into_message(response: Any) -> "Message":
                 for tc in extracted_message["tool_calls"]
             ],
             role="assistant",
+            extra_content=extracted_message.get("extra_content"),
         )
     else:
-        message = Message(role="assistant", contents=[TextContent(extracted_message["content"])])
+        message = Message(
+            role="assistant",
+            contents=[TextContent(extracted_message["content"])],
+            extra_content=extracted_message.get("extra_content"),
+        )
     return message
 
 

@@ -712,3 +712,13 @@ def test_thought_signature():
 
     llm_completion = llm.generate(prompt)
     assert len(llm_completion.message.content) > 1
+
+    prompt = Prompt(
+        messages=[
+            Message("You are very good at following instructions", message_type=MessageType.SYSTEM),
+            Message("What is the meaning of life?", message_type=MessageType.USER),
+        ],
+        tools=[create_dummy_server_tool()],
+    )
+    llm_completion = llm.generate(prompt)
+    assert llm_completion.message.extra_content is not None
