@@ -107,6 +107,14 @@ Improvements
 
   This significantly reduces token usage and improves execution speed.
 
+
+* **Added support for ``extra_content`` in OpenAI compatible models**
+
+  The ``extra_content`` returned by some OpenAI-compatible APIs is now tracked
+  as part of messages and tool_requests. Some models may see improved performance
+  from having access to this additional information in the conversation.
+
+
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
