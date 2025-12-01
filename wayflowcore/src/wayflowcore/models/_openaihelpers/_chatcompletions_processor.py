@@ -49,7 +49,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
         self, m: "Message", supports_tool_role: bool
     ) -> List[Dict[str, Any]]:
         if m.tool_requests:
-            if any(not isinstance(content, TextContent) for content in m.contents):
+            if any([not isinstance(content, TextContent) for content in m.contents]):
                 raise ValueError(
                     "Invalid tool request. A tool request message should only contain text contents"
                 )
@@ -60,6 +60,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                         "id": tc.tool_request_id,
                         "type": "function",
                         "function": {"name": tc.name, "arguments": json.dumps(tc.args)},
+                        "extra_content": tc.extra_content
                     }
                     for tc in (m.tool_requests or [])
                 ],
@@ -136,8 +137,6 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
         return kwargs
 
     def _convert_openai_response_into_message(self, response: Any) -> "Message":
-        from wayflowcore.messagelist import Message
-
         extracted_message = response["choices"][0]["message"]
         if len(extracted_message.get("tool_calls") or []) > 0:
             message = Message(
@@ -146,6 +145,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                         name=tc["function"]["name"],
                         args=_safe_json_loads(tc["function"]["arguments"]),
                         tool_request_id=tc["id"],
+                        extra_content=tc.get("extra_content"),
                     )
                     for tc in extracted_message["tool_calls"]
                 ],
@@ -262,12 +262,14 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                     tool_requests_dict[index]["name"] += func["name"]
                 if "arguments" in func:
                     tool_requests_dict[index]["arguments"] += func["arguments"]
-
+            if "extra_content" in delta:
+                tool_requests_dict[index]["extra_content"] = delta["extra_content"]
         return [
             ToolRequest(
                 name=s["name"],
                 tool_request_id=s["tool_request_id"],
                 args=_safe_json_loads(s["arguments"]),
+                extra_content=s.get("extra_content"),
             )
             for s in tool_requests_dict.values()
         ]
