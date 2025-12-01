@@ -64,7 +64,7 @@ setup(
         "mcp>=1.12.0,<1.18.0",
         # 4rth party dependencies version bounds, for CVE patching
         "annotated-types>=0.6.0",
-        "anyio>=4.10.0",
+        "anyio>=4.10.0,<4.12.0",
         "certifi>=2025.4.26",
         "click>=7.0",
         "h11>=0.16",
