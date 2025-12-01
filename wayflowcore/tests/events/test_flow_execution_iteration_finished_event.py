@@ -15,7 +15,7 @@ from wayflowcore.executors._flowexecutor import FlowConversationExecutionState
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.serialization.context import SerializationContext
-from wayflowcore.serialization.serializer import serialize_any_to_dict
+from wayflowcore.serialization.serializer import serialize_any_to_dict_or_stringify
 from wayflowcore.steps import (
     FlowExecutionStep,
     InputMessageStep,
@@ -124,17 +124,44 @@ def test_correct_event_serialization_to_tracing_format(
                 if mask_sensitive_information:
                     assert _MASKING_TOKEN == serialized_event[f"execution_state.{attribute_name}"]
                 else:
-                    assert (
-                        serialize_any_to_dict(
-                            getattr(event.execution_state, attribute_name), serialization_context
-                        )
-                        == serialized_event[f"execution_state.{attribute_name}"]
+                    serialized_value = serialize_any_to_dict_or_stringify(
+                        getattr(event.execution_state, attribute_name), serialization_context
                     )
+                    assert serialized_value == serialized_event[f"execution_state.{attribute_name}"]
             else:
                 assert (
                     getattr(event.execution_state, attribute_name)
                     == serialized_event[f"execution_state.{attribute_name}"]
                 )
+
+
+def test_tracing_info_stringifies_unserializable_values() -> None:
+    class Unserializable:
+        def __init__(self, label: str) -> None:
+            self.label = label
+
+        def __str__(self) -> str:
+            return f"unserializable({self.label})"
+
+    flow = create_single_step_flow(step=OutputMessageStep("Hello"))
+    execution_state = FlowConversationExecutionState(
+        flow=flow,
+        current_step_name="output_hello_message_step",
+        input_output_key_values={("step_a", "result"): Unserializable("io")},
+        internal_context_key_values={"debug": Unserializable("ctx")},
+    )
+    event = FlowExecutionIterationFinishedEvent(execution_state=execution_state)
+
+    serialized_event = event.to_tracing_info(mask_sensitive_information=False)
+
+    assert (
+        serialized_event["execution_state.input_output_key_values"][("step_a", "result")]
+        == "unserializable(io)"
+    )
+    assert (
+        serialized_event["execution_state.internal_context_key_values"]["debug"]
+        == "unserializable(ctx)"
+    )
 
 
 def test_event_is_triggered_with_flow_with_yielding_steps() -> None:

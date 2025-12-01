@@ -717,6 +717,33 @@ def serialize_any_to_dict(obj: Any, serialization_context: SerializationContext)
     )
 
 
+def serialize_any_to_dict_or_stringify(
+    obj: Any, serialization_context: SerializationContext
+) -> Any:
+    """
+    Attempt to serialize any object using the standard serializer; fall back to ``str(obj)``
+    when the object cannot be serialized, while preserving native container structures.
+    """
+
+    try:
+        return serialize_any_to_dict(obj, serialization_context)
+    except (TypeError, ValueError):
+        if isinstance(obj, dict):
+            return {
+                k: serialize_any_to_dict_or_stringify(v, serialization_context)
+                for k, v in obj.items()
+            }
+        if isinstance(obj, list):
+            return [serialize_any_to_dict_or_stringify(v, serialization_context) for v in obj]
+        if isinstance(obj, tuple):
+            return tuple(serialize_any_to_dict_or_stringify(v, serialization_context) for v in obj)
+        if isinstance(obj, set):
+            return {serialize_any_to_dict_or_stringify(v, serialization_context) for v in obj}
+        if isinstance(obj, (float, int, str, bool)):
+            return obj
+        return str(obj)
+
+
 def autodeserialize_any_from_dict(obj: Any, deserialization_context: DeserializationContext) -> Any:
     # ensure all classes are registered
     _import_all_submodules("wayflowcore")

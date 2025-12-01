@@ -14,7 +14,10 @@ from wayflowcore._utils.dataclass_utils import _required_attribute
 from wayflowcore._utils.formatting import stringify
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.serialization.context import SerializationContext
-from wayflowcore.serialization.serializer import serialize_any_to_dict, serialize_to_dict
+from wayflowcore.serialization.serializer import (
+    serialize_any_to_dict_or_stringify,
+    serialize_to_dict,
+)
 from wayflowcore.steps.step import Step, StepResult
 from wayflowcore.tools.tools import Tool, ToolRequest, ToolResult
 
@@ -555,21 +558,23 @@ class FlowExecutionIterationStartedEvent(Event):
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "execution_state.current_step_name": self.execution_state.current_step_name,
             "execution_state.input_output_key_values": (
-                serialize_any_to_dict(
+                serialize_any_to_dict_or_stringify(
                     self.execution_state.input_output_key_values, serialization_context
                 )
                 if not mask_sensitive_information
                 else _MASKING_TOKEN
             ),
             "execution_state.variable_store": (
-                serialize_any_to_dict(self.execution_state.variable_store, serialization_context)
+                serialize_any_to_dict_or_stringify(
+                    self.execution_state.variable_store, serialization_context
+                )
                 if not mask_sensitive_information
                 else _MASKING_TOKEN
             ),
             "execution_state.step_history": self.execution_state.step_history,
             "execution_state.nesting_level": self.execution_state.nesting_level,
             "execution_state.internal_context_key_values": (
-                serialize_any_to_dict(
+                serialize_any_to_dict_or_stringify(
                     self.execution_state.internal_context_key_values, serialization_context
                 )
                 if not mask_sensitive_information
@@ -595,21 +600,23 @@ class FlowExecutionIterationFinishedEvent(Event):
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "execution_state.current_step_name": self.execution_state.current_step_name,
             "execution_state.input_output_key_values": (
-                serialize_any_to_dict(
+                serialize_any_to_dict_or_stringify(
                     self.execution_state.input_output_key_values, serialization_context
                 )
                 if not mask_sensitive_information
                 else _MASKING_TOKEN
             ),
             "execution_state.variable_store": (
-                serialize_any_to_dict(self.execution_state.variable_store, serialization_context)
+                serialize_any_to_dict_or_stringify(
+                    self.execution_state.variable_store, serialization_context
+                )
                 if not mask_sensitive_information
                 else _MASKING_TOKEN
             ),
             "execution_state.step_history": self.execution_state.step_history,
             "execution_state.nesting_level": self.execution_state.nesting_level,
             "execution_state.internal_context_key_values": (
-                serialize_any_to_dict(
+                serialize_any_to_dict_or_stringify(
                     self.execution_state.internal_context_key_values, serialization_context
                 )
                 if not mask_sensitive_information
