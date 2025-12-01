@@ -9,7 +9,7 @@ import pytest
 
 from wayflowcore import Flow
 from wayflowcore.agent import Agent
-from wayflowcore.events.event import _MASKING_TOKEN, ConversationMessageStreamChunkEvent
+from wayflowcore.events.event import _PII_TEXT_MASK, ConversationMessageStreamChunkEvent
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.steps import PromptExecutionStep
 
@@ -42,7 +42,7 @@ def test_correct_event_serialization_to_tracing_format(
     assert (
         serialized_event["chunk"] == event.chunk
         if not mask_sensitive_information
-        else _MASKING_TOKEN
+        else _PII_TEXT_MASK
     )
 
 

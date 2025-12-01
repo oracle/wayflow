@@ -41,7 +41,7 @@ if TYPE_CHECKING:
         ToolExecutionSpan,
     )
 
-_MASKING_TOKEN = "** MASKED **"  # nosec
+_PII_TEXT_MASK = "** MASKED **"
 SpanType = TypeVar("SpanType", bound="Span")
 
 
@@ -135,7 +135,7 @@ class LlmGenerationRequestEvent(StartSpanEvent["LlmGenerationSpan"]):
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "prompt": (
-                serialize_to_dict(self.prompt) if not mask_sensitive_information else _MASKING_TOKEN
+                serialize_to_dict(self.prompt) if not mask_sensitive_information else _PII_TEXT_MASK
             ),
         }
 
@@ -159,7 +159,7 @@ class LlmGenerationResponseEvent(EndSpanEvent["LlmGenerationSpan"]):
             "completion": (
                 serialize_to_dict(self.completion)
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
         }
 
@@ -267,12 +267,12 @@ class ConversationCreatedEvent(Event):
             "inputs": (
                 {key: stringify(value) for key, value in (self.inputs or {}).items()}
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "messages": (
                 [serialize_to_dict(message) for message in (messages or [])]
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "conversation_id": self.conversation_id,
             "nesting_level": self.nesting_level,
@@ -296,7 +296,7 @@ class ConversationMessageAddedEvent(Event):
             "message": (
                 serialize_to_dict(self.message)
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "streamed": self.streamed,
         }
@@ -317,7 +317,7 @@ class ConversationMessageStreamStartedEvent(Event):
             "message": (
                 serialize_to_dict(self.message)
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
         }
 
@@ -334,7 +334,7 @@ class ConversationMessageStreamChunkEvent(Event):
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
-            "chunk": self.chunk if not mask_sensitive_information else _MASKING_TOKEN,
+            "chunk": self.chunk if not mask_sensitive_information else _PII_TEXT_MASK,
         }
 
 
@@ -353,7 +353,7 @@ class ConversationMessageStreamEndedEvent(Event):
             "message": (
                 serialize_to_dict(self.message)
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
         }
 
@@ -377,7 +377,7 @@ class ToolExecutionStartEvent(StartSpanEvent["ToolExecutionSpan"]):
             "tool_request.inputs": (
                 {key: stringify(value) for key, value in self.tool_request.args.items()}
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "tool_request.id": self.tool_request.tool_request_id,
         }
@@ -400,7 +400,7 @@ class ToolExecutionResultEvent(EndSpanEvent["ToolExecutionSpan"]):
             "tool_result.output": (
                 stringify(self.tool_result.content)
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "tool_result.tool_request_id": self.tool_result.tool_request_id,
         }
@@ -425,7 +425,7 @@ class ToolConfirmationRequestStartEvent(StartSpanEvent["ToolExecutionSpan"]):
             "tool_request.inputs": (
                 {key: stringify(value) for key, value in self.tool_request.args.items()}
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "tool_request.id": self.tool_request.tool_request_id,
         }
@@ -450,7 +450,7 @@ class ToolConfirmationRequestEndEvent(EndSpanEvent["ToolExecutionSpan"]):
             "tool_request.inputs": (
                 {key: stringify(value) for key, value in self.tool_request.args.items()}
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "tool_request.id": self.tool_request.tool_request_id,
             "tool_request.tool_execution_confirmed": stringify(
@@ -479,7 +479,7 @@ class StepInvocationStartEvent(StartSpanEvent["StepInvocationSpan"]):
             "inputs": (
                 {key: stringify(value) for key, value in self.inputs.items()}
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
         }
 
@@ -502,7 +502,7 @@ class StepInvocationResultEvent(EndSpanEvent["StepInvocationSpan"]):
             "step_result.outputs": (
                 {key: stringify(value) for key, value in self.step_result.outputs.items()}
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "step_result.branch_name": self.step_result.branch_name,
             "step_result.step_type": self.step_result.step_type,
@@ -537,7 +537,7 @@ class ContextProviderExecutionResultEvent(EndSpanEvent["ContextProviderExecution
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
-            "output": stringify(self.output) if not mask_sensitive_information else _MASKING_TOKEN,
+            "output": stringify(self.output) if not mask_sensitive_information else _PII_TEXT_MASK,
         }
 
 
@@ -562,14 +562,14 @@ class FlowExecutionIterationStartedEvent(Event):
                     self.execution_state.input_output_key_values, serialization_context
                 )
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "execution_state.variable_store": (
                 serialize_any_to_dict_or_stringify(
                     self.execution_state.variable_store, serialization_context
                 )
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "execution_state.step_history": self.execution_state.step_history,
             "execution_state.nesting_level": self.execution_state.nesting_level,
@@ -578,7 +578,7 @@ class FlowExecutionIterationStartedEvent(Event):
                     self.execution_state.internal_context_key_values, serialization_context
                 )
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
         }
 
@@ -604,14 +604,14 @@ class FlowExecutionIterationFinishedEvent(Event):
                     self.execution_state.input_output_key_values, serialization_context
                 )
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "execution_state.variable_store": (
                 serialize_any_to_dict_or_stringify(
                     self.execution_state.variable_store, serialization_context
                 )
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "execution_state.step_history": self.execution_state.step_history,
             "execution_state.nesting_level": self.execution_state.nesting_level,
@@ -620,7 +620,7 @@ class FlowExecutionIterationFinishedEvent(Event):
                     self.execution_state.internal_context_key_values, serialization_context
                 )
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
         }
 
@@ -646,12 +646,12 @@ class AgentExecutionIterationStartedEvent(Event):
                     else {}
                 )
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "execution_state.plan": (
                 stringify(self.execution_state.plan)
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "execution_state.tool_call_queue": [
                 _serialize_tool_request(tool_request, mask_sensitive_information)
@@ -667,7 +667,7 @@ class AgentExecutionIterationStartedEvent(Event):
                     else None
                 )
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "execution_state.has_confirmed_conversation_exit": self.execution_state.has_confirmed_conversation_exit,
             "execution_state.current_retrieved_tools": [
@@ -698,12 +698,12 @@ class AgentExecutionIterationFinishedEvent(Event):
                     else {}
                 )
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "execution_state.plan": (
                 stringify(self.execution_state.plan)
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "execution_state.tool_call_queue": [
                 _serialize_tool_request(tool_request, mask_sensitive_information)
@@ -719,7 +719,7 @@ class AgentExecutionIterationFinishedEvent(Event):
                     else None
                 )
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "execution_state.has_confirmed_conversation_exit": self.execution_state.has_confirmed_conversation_exit,
             "execution_state.current_retrieved_tools": [
@@ -743,10 +743,10 @@ class ExceptionRaisedEvent(Event):
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "exception.type": self.exception.__class__.__name__,
             "exception.message": (
-                stringify(self.exception) if not mask_sensitive_information else _MASKING_TOKEN
+                stringify(self.exception) if not mask_sensitive_information else _PII_TEXT_MASK
             ),
             "exception.traceback": (
-                self.exception.__traceback__ if not mask_sensitive_information else _MASKING_TOKEN
+                self.exception.__traceback__ if not mask_sensitive_information else _PII_TEXT_MASK
             ),
         }
 

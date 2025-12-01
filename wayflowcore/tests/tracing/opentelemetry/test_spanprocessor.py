@@ -14,10 +14,10 @@ from opentelemetry.sdk.trace import ReadableSpan as OtelSdkReadableSpan
 from opentelemetry.sdk.trace.export import SpanExporter as OtelSdkSpanExporter
 from opentelemetry.sdk.trace.export import SpanExportResult as OtelSdkSpanExportResult
 
-from wayflowcore.events.event import _MASKING_TOKEN as EVENT_MASKING_TOKEN
+from wayflowcore.events.event import _PII_TEXT_MASK as EVENT_MASKING_TOKEN
 from wayflowcore.events.event import EndSpanEvent
 from wayflowcore.tracing.opentelemetry import OtelBatchSpanProcessor, OtelSimpleSpanProcessor
-from wayflowcore.tracing.span import _MASKING_TOKEN as SPAN_MASKING_TOKEN
+from wayflowcore.tracing.span import _PII_TEXT_MASK as SPAN_MASKING_TOKEN
 from wayflowcore.tracing.span import record_event
 from wayflowcore.tracing.trace import Trace
 

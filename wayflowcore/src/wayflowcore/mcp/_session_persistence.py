@@ -164,16 +164,13 @@ class AsyncRuntime(metaclass=Singleton):
                         await send_chan.send(session)
                         # keep task alive until asked to stop
                         await cancel_evt.wait()
-            except BaseException as e:
+            except Exception as e:
                 if not sent_first:
                     # Shield sending the error so it isn’t cancelled
                     with anyio.CancelScope(shield=True):
-                        try:
-                            await send_chan.send(e)
-                        except Exception:
-                            pass
+                        await send_chan.send(e)
                 # Re-raise to surface in logs/monitoring
-                raise
+                raise e
 
         # start the long-lived task
         if not self._portal:
@@ -232,21 +229,36 @@ class AsyncRuntime(metaclass=Singleton):
     def _finalize(self_ref: "AsyncRuntime") -> None:
         try:
             self_ref._close()
-        except Exception:
+        except (
+            Exception
+        ):  # nosec0003 # finalizers must not raise; we ignore normal cleanup errors during shutdown/garbage collection on purpose
             pass
+
+
+# need a reference here, otherwise weakref might delete the connection object
+# once not use for a while
+# async runtime is lazily initialized using `.initialize()`
+_RUNTIME = AsyncRuntime()
+_RUNTIME_INIT_LOCK = threading.Lock()
 
 
 def get_mcp_async_runtime() -> AsyncRuntime:
     """Gets the current unique MCP Async Runtime."""
-    runtime = AsyncRuntime()
-    if not runtime.is_live:
-        runtime.initialize()
-    return runtime
+    if _RUNTIME.is_live:
+        return _RUNTIME
+
+    with _RUNTIME_INIT_LOCK:
+        if not _RUNTIME.is_live:
+            _RUNTIME.initialize()
+
+    return _RUNTIME
 
 
 def shutdown_mcp_async_runtime() -> None:
     """Shuts down the current unique MCP Async Runtime."""
-    runtime = AsyncRuntime()
-    if not runtime.is_live:
-        return  # nothing to shutdown
-    runtime.shutdown()
+    if not _RUNTIME.is_live:
+        return  # nothing to shut down
+
+    with _RUNTIME_INIT_LOCK:
+        if _RUNTIME.is_live:
+            _RUNTIME.shutdown()

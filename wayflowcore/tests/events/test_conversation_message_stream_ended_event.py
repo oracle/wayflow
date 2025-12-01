@@ -9,7 +9,7 @@ import pytest
 
 from wayflowcore import Flow, Message
 from wayflowcore.agent import Agent
-from wayflowcore.events.event import _MASKING_TOKEN, ConversationMessageStreamEndedEvent
+from wayflowcore.events.event import _PII_TEXT_MASK, ConversationMessageStreamEndedEvent
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.serialization import serialize_to_dict
 from wayflowcore.steps import PromptExecutionStep
@@ -41,7 +41,7 @@ def test_correct_event_serialization_to_tracing_format(
     assert (
         serialized_event["message"] == serialize_to_dict(event.message)
         if not mask_sensitive_information
-        else _MASKING_TOKEN
+        else _PII_TEXT_MASK
     )
 
 

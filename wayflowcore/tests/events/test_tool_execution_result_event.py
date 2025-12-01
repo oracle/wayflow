@@ -8,7 +8,7 @@ from typing import Any, Dict, List
 import pytest
 
 from wayflowcore.agent import Agent
-from wayflowcore.events.event import _MASKING_TOKEN, ToolExecutionResultEvent
+from wayflowcore.events.event import _PII_TEXT_MASK, ToolExecutionResultEvent
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors.executionstatus import ToolRequestStatus
 from wayflowcore.flowhelpers import (
@@ -69,7 +69,7 @@ def test_correct_event_serialization_to_tracing_format(
                 event.tool_result.tool_request_id == serialized_event["tool_result.tool_request_id"]
             )
             if mask_sensitive_information:
-                assert _MASKING_TOKEN == serialized_event["tool_result.output"]
+                assert _PII_TEXT_MASK == serialized_event["tool_result.output"]
             else:
                 assert event.tool_result.content == serialized_event["tool_result.output"]
         else:

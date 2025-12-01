@@ -1,0 +1,4 @@
+nosec_statement_id,code,ignore_explanation
+nosec0001,B105,the reported issue by pybandit that variables should not be named token is hard to comply with in this context as the variable refers to the usage report of a LLM that is counted in number of tokens
+nosec0002,B105,the reported issue by pybandit that variables should not be named token is hard to comply with in this context as the variable refers to the token-based authentication method for the OCI service
+nosec0003,B110,finalizers must not raise; we ignore normal cleanup errors during shutdown/garbage collection on purpose

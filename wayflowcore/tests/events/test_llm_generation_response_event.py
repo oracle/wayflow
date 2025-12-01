@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 
 import pytest
 
-from wayflowcore.events.event import _MASKING_TOKEN, LlmGenerationResponseEvent
+from wayflowcore.events.event import _PII_TEXT_MASK, LlmGenerationResponseEvent
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.messagelist import Message
 from wayflowcore.models import LlmCompletion, Prompt
@@ -57,7 +57,7 @@ def test_correct_event_serialization_to_tracing_format(
     for attribute_name, _ in event_info.items():
         if attribute_name == "completion":
             if mask_sensitive_information:
-                assert _MASKING_TOKEN == serialized_event[attribute_name]
+                assert _PII_TEXT_MASK == serialized_event[attribute_name]
             else:
                 assert (
                     serialize_to_dict(getattr(event, attribute_name))

@@ -17,8 +17,13 @@ from typing_extensions import Self
 
 from wayflowcore._utils.dataclass_utils import _required_attribute
 from wayflowcore.conversation import Conversation
-from wayflowcore.events import Event, EventListener, record_event
-from wayflowcore.events.eventlistener import _register_event_listeners, get_event_listeners
+from wayflowcore.events.event import _PII_TEXT_MASK, Event
+from wayflowcore.events.eventlistener import (
+    EventListener,
+    _register_event_listeners,
+    get_event_listeners,
+    record_event,
+)
 from wayflowcore.messagelist import Message, MessageList
 from wayflowcore.serialization import serialize_to_dict
 from wayflowcore.steps.step import Step, StepResult
@@ -35,7 +40,6 @@ if TYPE_CHECKING:
     from wayflowcore.tracing.trace import Trace
 
 
-_MASKING_TOKEN = "** MASKED **"  # nosec
 _ACTIVE_SPAN_STACK: ContextVar[List["Span"]] = ContextVar("_ACTIVE_SPAN_STACK", default=[])
 
 # setting it will ensure it's seen by `contextvars.copy_context()`
@@ -403,12 +407,12 @@ class AgentExecutionSpan(ConversationalComponentExecutionSpan):
             "agents": [agent.id for agent in agent.agents],
             "context_providers": [cp.name for cp in agent.context_providers],
             "custom_instruction": (
-                agent.custom_instruction if not mask_sensitive_information else _MASKING_TOKEN
+                agent.custom_instruction if not mask_sensitive_information else _PII_TEXT_MASK
             ),
             "max_iterations": agent.max_iterations,
             "can_finish_conversation": agent.can_finish_conversation,
             "initial_message": (
-                agent.initial_message if not mask_sensitive_information else _MASKING_TOKEN
+                agent.initial_message if not mask_sensitive_information else _PII_TEXT_MASK
             ),
             "caller_input_mode": agent.caller_input_mode.value,
         }
@@ -541,7 +545,7 @@ class ConversationSpan(Span):
             "conversational_component.type": self.conversation.component.__class__.__name__,
             "conversational_component.id": self.conversation.component.id,
             "conversation.inputs": (
-                self.conversation.inputs if not mask_sensitive_information else _MASKING_TOKEN
+                self.conversation.inputs if not mask_sensitive_information else _PII_TEXT_MASK
             ),
         }
 
@@ -627,7 +631,7 @@ class StepInvocationSpan(Span):
             "step.static_configuration": (
                 self.step._step_static_configuration
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
             "step.input_mapping": self.step.input_mapping,
             "step.output_mapping": self.step.output_mapping,
@@ -714,7 +718,7 @@ class ConversationMessageStreamSpan(Span):
             "initial_message": (
                 serialize_to_dict(self.initial_message)
                 if not mask_sensitive_information
-                else _MASKING_TOKEN
+                else _PII_TEXT_MASK
             ),
         }
 

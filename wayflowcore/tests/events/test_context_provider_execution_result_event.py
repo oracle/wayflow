@@ -14,7 +14,7 @@ from wayflowcore.contextproviders.flowcontextprovider import FlowContextProvider
 from wayflowcore.contextproviders.toolcontextprovider import ToolContextProvider
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
-from wayflowcore.events.event import _MASKING_TOKEN, ContextProviderExecutionResultEvent
+from wayflowcore.events.event import _PII_TEXT_MASK, ContextProviderExecutionResultEvent
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
@@ -87,7 +87,7 @@ def test_correct_event_serialization_to_tracing_format(
         attr = getattr(event, attribute_name)
         if attribute_name == "output":
             if mask_sensitive_information:
-                assert _MASKING_TOKEN == serialized_event[attribute_name]
+                assert _PII_TEXT_MASK == serialized_event[attribute_name]
             else:
                 assert stringify(attr) == serialized_event[attribute_name]
         else:

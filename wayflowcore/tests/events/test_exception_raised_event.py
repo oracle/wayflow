@@ -10,7 +10,7 @@ from typing import Any, Dict, List
 import pytest
 
 from wayflowcore.agent import Agent
-from wayflowcore.events.event import _MASKING_TOKEN, ExceptionRaisedEvent
+from wayflowcore.events.event import _PII_TEXT_MASK, ExceptionRaisedEvent
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
@@ -76,8 +76,8 @@ def test_correct_event_serialization_to_tracing_format(
         if attribute_name == "exception":
             assert str(event.exception) == serialized_event["exception.message"]
             if mask_sensitive_information:
-                assert _MASKING_TOKEN == serialized_event["exception.message"]
-                assert _MASKING_TOKEN == serialized_event["exception.traceback"]
+                assert _PII_TEXT_MASK == serialized_event["exception.message"]
+                assert _PII_TEXT_MASK == serialized_event["exception.traceback"]
             else:
                 assert str(event.exception) == serialized_event["exception.message"]
                 assert event.exception.__traceback__ == serialized_event["exception.traceback"]
