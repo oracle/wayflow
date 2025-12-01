@@ -201,3 +201,4 @@ Thumbs.db
 
 *.pklz
 *.sqlite
+.env

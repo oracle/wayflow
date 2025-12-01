@@ -1,0 +1,26 @@
+component_type: A2AAgent
+id: 220bf277-4e63-4431-9008-df59c00440f2
+name: Remote A2A Agent
+description: A client for connecting a remote agent using A2A
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+agent_url: http://<URL>
+connection_config:
+  component_type: A2AConnectionConfig
+  id: f6559597-b0b4-45b8-a9bc-b6aa33612819
+  name: connection_config
+  description: null
+  metadata: {}
+  timeout: 600.0
+  headers: null
+  verify: false
+  key_file: null
+  cert_file: null
+  ssl_ca_cert: null
+session_parameters:
+  timeout: 60.0
+  poll_interval: 2.0
+  max_retries: 5
+agentspec_version: 25.4.2

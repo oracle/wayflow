@@ -40,6 +40,13 @@ OCI Agent class
 .. autoclass:: wayflowcore.ociagent.OciAgent
     :exclude-members: execute
 
+A2A Agent class
+~~~~~~~~~~~~~~~
+
+.. _a2aagent:
+.. autoclass:: wayflowcore.a2a.a2aagent.A2AAgent
+    :exclude-members: execute
+
 DescribedFlow
 ~~~~~~~~~~~~~
 

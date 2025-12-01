@@ -18,7 +18,7 @@ psutil
 
 # install package
 -c constraints/constraints_dev.txt
--e .[oci,datastore]
+-e .[oci,datastore,a2a]
 
 # For mypy type-checking stubs
 pandas-stubs

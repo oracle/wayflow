@@ -93,5 +93,6 @@ setup(
     extras_require={
         "oci": ["oci>=2.158.2"],
         "datastore": ["sqlalchemy>=2.0.40", "oracledb>=2.2.0"],
+        "a2a": ["fasta2a>=0.6.0"],
     },
 )

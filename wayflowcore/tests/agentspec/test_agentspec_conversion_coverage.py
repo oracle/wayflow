@@ -10,6 +10,7 @@ from typing import Any, Dict
 import pytest
 
 from wayflowcore import Agent, Flow, Message, Step, Tool
+from wayflowcore.a2a.a2aagent import A2AConnectionConfig
 from wayflowcore.component import Component
 from wayflowcore.contextproviders import ContextProvider
 from wayflowcore.controlconnection import ControlFlowEdge
@@ -83,6 +84,8 @@ EXCLUDED_COMPONENTS = {
     "ManagerWorkersConversationExecutionState",
     "OciAgentState",
     "PromptBenchmarkerPlaceholder",
+    "A2AAgentConversation",
+    "A2AAgentState",
     # test classes
     "DummyModel",
     "SleepStep",
@@ -229,6 +232,8 @@ INIT_PARAMETER_DEFAULT_VALUES = {
     "collection_name": "products",
     "where": {"title": "{{user_requested_product}}"},
     "query": "SELECT *",
+    "agent_url": "http://<URL>",
+    "connection_config": A2AConnectionConfig(verify=False),
 }
 
 CLASS_SPECIFIC_INPUTS = {
