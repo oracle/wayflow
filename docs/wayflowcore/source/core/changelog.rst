@@ -52,6 +52,13 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+* **Fixed several issues related to event tracing serialization when containing execution state:**
+
+  Fixed an issue where ``FlowExecutionIterationStartedEvent`` and
+  ``FlowExecutionIterationFinishedEvent`` could raise when the execution state contained values that
+  are not supported by the serializer. The tracing helpers now fall back to stringifying those
+  values while preserving container structures.
+
 * **Default values in agents inputs were ignored:**
 
   Fixed a bug where if agents had input descriptors with default values set, these defaults were ignored and not
