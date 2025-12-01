@@ -27,7 +27,7 @@ from wayflowcore.steps.inputmessagestep import InputMessageStep
 from wayflowcore.steps.outputmessagestep import OutputMessageStep
 from wayflowcore.steps.toolexecutionstep import ToolExecutionStep
 from wayflowcore.tools.tools import ToolResult
-from wayflowcore.tracing.span import _MASKING_TOKEN, ConversationSpan
+from wayflowcore.tracing.span import _PII_TEXT_MASK, ConversationSpan
 from wayflowcore.tracing.spanprocessor import SpanProcessor
 from wayflowcore.tracing.trace import Trace
 
@@ -102,7 +102,7 @@ def test_span_serialization_format(
         conversational_component_id = span.conversation.component.id
         assert serialized_span["conversational_component.id"] == conversational_component_id
         if mask_sensitive_information:
-            assert serialized_span["conversation.inputs"] == _MASKING_TOKEN
+            assert serialized_span["conversation.inputs"] == _PII_TEXT_MASK
         else:
             assert serialized_span["conversation.inputs"] == span.conversation.inputs
 

@@ -18,7 +18,7 @@ from wayflowcore.events.eventlistener import record_event, register_event_listen
 from wayflowcore.flowhelpers import _run_flow_and_return_status
 from wayflowcore.serialization import serialize_to_dict
 from wayflowcore.steps import PromptExecutionStep
-from wayflowcore.tracing.span import _MASKING_TOKEN, ConversationMessageStreamSpan
+from wayflowcore.tracing.span import _PII_TEXT_MASK, ConversationMessageStreamSpan
 from wayflowcore.tracing.spanprocessor import SpanProcessor
 from wayflowcore.tracing.trace import Trace
 
@@ -73,7 +73,7 @@ def test_span_serialization_format(
         assert serialized_span["initial_message"] == (
             serialize_to_dict(span_info["initial_message"])
             if not mask_sensitive_information
-            else _MASKING_TOKEN
+            else _PII_TEXT_MASK
         )
         assert serialized_span["messages.id"] == span_info["message_list"].id
 

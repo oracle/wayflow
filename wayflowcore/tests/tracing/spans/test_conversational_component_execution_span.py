@@ -26,7 +26,7 @@ from wayflowcore.steps.agentexecutionstep import AgentExecutionStep
 from wayflowcore.steps.flowexecutionstep import FlowExecutionStep
 from wayflowcore.tools import ToolRequest
 from wayflowcore.tracing.span import (
-    _MASKING_TOKEN,
+    _PII_TEXT_MASK,
     AgentExecutionSpan,
     ConversationalComponentExecutionSpan,
     FlowExecutionSpan,
@@ -180,7 +180,7 @@ def test_span_serialization_format(
                     "custom_instruction",
                     "initial_message",
                 }:
-                    assert conversational_component_attributes[parameter] == _MASKING_TOKEN
+                    assert conversational_component_attributes[parameter] == _PII_TEXT_MASK
                 else:
                     assert conversational_component_attributes[parameter] == getattr(
                         agent, parameter

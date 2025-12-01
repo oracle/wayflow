@@ -10,7 +10,7 @@ import pytest
 
 from wayflowcore import Message, MessageType
 from wayflowcore.agent import Agent
-from wayflowcore.events.event import _MASKING_TOKEN, ConversationMessageAddedEvent
+from wayflowcore.events.event import _PII_TEXT_MASK, ConversationMessageAddedEvent
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors._agentexecutor import EXIT_CONVERSATION_TOOL_NAME
 from wayflowcore.executors.executionstatus import UserMessageRequestStatus
@@ -84,7 +84,7 @@ def test_correct_event_serialization_to_tracing_format(
     assert serialized_event["event_type"] == str(event.__class__.__name__)
     for attribute_name in attributes_to_check:
         if mask_sensitive_information and attribute_name == "message":
-            assert _MASKING_TOKEN == serialized_event[attribute_name]
+            assert _PII_TEXT_MASK == serialized_event[attribute_name]
         else:
             assert getattr(event, attribute_name) == serialized_event[attribute_name]
 
