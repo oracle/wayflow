@@ -53,6 +53,13 @@ Parameters for LLM generation (``max_tokens``, ``temperature``, ``top_p``).
 .. _llmgenerationconfig:
 .. autoclass:: wayflowcore.models.llmgenerationconfig.LlmGenerationConfig
 
+API Type
+-----------
+
+Class that is used to select the OpenAI API Type to use.
+
+.. _openaiapitype:
+.. autoclass:: wayflowcore.models.openaiapitype.OpenAIAPIType
 
 .. _allllms:
 

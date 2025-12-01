@@ -85,7 +85,7 @@ if __name__ == "__main__":
 import os
 
 # .. openai-start
-from wayflowcore.models import OpenAIModel
+from wayflowcore.models import OpenAIModel, OpenAIAPIType
 
 if __name__ == "__main__":
 
@@ -93,13 +93,16 @@ if __name__ == "__main__":
 
     # supported models "gpt-4o", "gpt-4o-mini".
     # We currently do not support gpt-o1 and gpt-o3 models.
-    OPENAI_MODEL_ID = "gpt-4o"
+    OPENAI_MODEL_ID = "gpt-5"
 
     generation_config = LlmGenerationConfig(max_tokens=256, temperature=0.7, top_p=0.9)
+
+    api_type = OpenAIAPIType.RESPONSES
 
     llm = OpenAIModel(
         model_id=OPENAI_MODEL_ID,
         generation_config=generation_config,
+        api_type=api_type,
     )
 # .. openai-end
 

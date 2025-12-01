@@ -13,9 +13,9 @@ import yaml
 
 from wayflowcore.embeddingmodels.ocigenaimodel import OCIGenAIEmbeddingModel
 from wayflowcore.embeddingmodels.ollamamodel import OllamaEmbeddingModel
+from wayflowcore.embeddingmodels.openaicompatiblemodel import _add_leading_http_if_needed
 from wayflowcore.embeddingmodels.openaimodel import OpenAIEmbeddingModel
 from wayflowcore.embeddingmodels.vllmmodel import VllmEmbeddingModel
-from wayflowcore.models.openaicompatiblemodel import _add_leading_http_if_needed
 from wayflowcore.serialization.serializer import autodeserialize, serialize, serialize_to_dict
 
 from .conftest import e5large_api_url, ollama_embedding_api_url

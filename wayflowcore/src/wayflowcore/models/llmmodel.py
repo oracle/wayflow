@@ -19,7 +19,6 @@ from wayflowcore.property import Property
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.tokenusage import TokenUsage
-from wayflowcore.tools import Tool
 
 from ._requesthelpers import (
     StreamChunkType,
@@ -28,6 +27,7 @@ from ._requesthelpers import (
 )
 from .llmgenerationconfig import LlmGenerationConfig
 from .tokenusagehelpers import (
+    _get_approximate_num_reasoning_tokens_from_wayflowcore_message,
     _get_approximate_num_token_from_wayflowcore_list_of_messages,
     _get_approximate_num_token_from_wayflowcore_message,
 )
@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from wayflowcore.messagelist import Message
     from wayflowcore.outputparser import OutputParser
     from wayflowcore.templates import PromptTemplate
+    from wayflowcore.tools import Tool
 
 
 logger = logging.getLogger("wayflowcore")
@@ -56,7 +57,7 @@ class Prompt(SerializableDataclassMixin, SerializableObject):
 
     messages: List["Message"]
     """List of messages to use for chat generation."""
-    tools: Optional[List[Tool]] = None
+    tools: Optional[List["Tool"]] = None
     """Optional tools to use for native tool calling."""
     response_format: Optional[Property] = None
     """Optional response format to use for structured generation."""
@@ -302,6 +303,7 @@ class LlmModel(Component, SerializableObject, ABC):
         prompt: Prompt,
         completion: LlmCompletion,
     ) -> None:
+
         if completion.token_usage is None:
             num_prompt_tokens = _get_approximate_num_token_from_wayflowcore_list_of_messages(
                 prompt.messages, prompt.tools
@@ -309,10 +311,14 @@ class LlmModel(Component, SerializableObject, ABC):
             num_completion_tokens = _get_approximate_num_token_from_wayflowcore_message(
                 completion.message
             )
+            num_reasoning_tokens = _get_approximate_num_reasoning_tokens_from_wayflowcore_message(
+                completion.message
+            )
             completion.token_usage = TokenUsage(
                 input_tokens=num_prompt_tokens,
                 output_tokens=num_completion_tokens,
                 total_tokens=num_prompt_tokens + num_completion_tokens,
+                reasoning_tokens=num_reasoning_tokens,
                 exact_count=False,
             )
 

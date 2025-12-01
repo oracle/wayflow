@@ -41,8 +41,34 @@ class LlmGenerationConfig(SerializableDataclass):
     frequency_penalty:
         float between -2.0 and 2.0 that penalizes new tokens based on their frequency in the generated text so far.
         Values > 0 encourage the model to use new tokens, while values < 0 encourage the model to repeat tokens.
+
     extra_args:
         dictionary of extra arguments that can be used by specific model providers
+
+        For OpenAI Responses API:
+
+        max_tool_calls:
+            The maximum number of total calls to built-in tools that can be processed in a response.
+            This maximum number applies across all built-in tool calls, not per individual tool.
+            Any further attempts to call a tool by the model will be ignored.
+
+        reasoning:
+            gpt-5 and o-series models only.
+
+            If the config contains "reasoning", adds the "reasoning.encrypted_content" key in "include" automatically to preserve reasoning traces.
+            (https://platform.openai.com/docs/api-reference/responses/create#responses_create-include)
+
+            effort:
+                Constrains effort on reasoning for reasoning models. Currently supported values are "minimal", "low", "medium", and "high".
+                Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
+
+            summary:
+                A summary of the reasoning performed by the model. This can be useful for debugging and understanding the model's reasoning process. One of "auto", "concise", or "detailed".
+                If the config contains "reasoning" and the "summary" parameter is not set, defaults to "auto".
+
+
+        The full list of parameters for Responses API can be found here:
+        https://platform.openai.com/docs/api-reference/responses/create
 
         .. note::
             The extra parameters should never include sensitive information.

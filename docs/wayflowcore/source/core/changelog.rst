@@ -4,6 +4,19 @@ Changelog
 WayFlow 26.1.0
 --------------
 
+New features
+^^^^^^^^^^^^
+
+* **OpenAI Responses API Support:**
+
+  :ref:`OpenAICompatibleModel<openaicompatiblemodel>` now supports OpenAI Responses API, which can be configured
+  using the ``api_type`` parameter, which accepts values from :ref:`OpenAIAPIType<openaiapitype>`.
+
+  This enhancement allows recent OpenAI models to better leverage advanced reasoning capabilities, resulting in significant performance improvements for Wayflow-powered workflows.
+
+  For more information check out :doc:`the how-to guide on LLMs from different providers <howtoguides/llm_from_different_providers>`.
+
+
 Improvements
 ^^^^^^^^^^^^
 

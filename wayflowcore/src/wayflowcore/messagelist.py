@@ -29,11 +29,9 @@ from typing import (
 )
 
 from deprecated import deprecated
+from typing_extensions import TypeAlias
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore._utils.formatting import (  # context_providers: Optional[List[ContextProvider]] = None,
-    stringify,
-)
 from wayflowcore._utils.hash import fast_stable_hash
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import (
@@ -49,6 +47,8 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+_ReasoningContent: TypeAlias = Dict[str, Any]
 
 
 class MessageType(str, Enum):
@@ -204,6 +204,10 @@ class Message(SerializableDataclass):
     tool_requests: Optional[List["ToolRequest"]] = None
     tool_result: Optional["ToolResult"] = None
     display_only: bool = False
+    _prompt_cache_key: Optional[str] = (
+        None  # Works for both OpenAI Responses and Chat Completions API
+    )
+    _reasoning_content: Optional[_ReasoningContent] = None  # Only for OpenAI Responses API
 
     _can_be_referenced: ClassVar[bool] = False
 
@@ -227,6 +231,8 @@ class Message(SerializableDataclass):
         time_updated: Optional[datetime] = None,
         contents: Optional[List[MessageContent]] = None,
         role: Optional[Literal["user", "system", "assistant"]] = None,
+        _prompt_cache_key: Optional[str] = None,  # Only for OpenAI Responses API
+        _reasoning_content: Optional[_ReasoningContent] = None,  # Only for OpenAI Responses API
         __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
         if __metadata_info__ is None:
@@ -284,6 +290,8 @@ class Message(SerializableDataclass):
         self.contents = contents
         self.sender = sender
         self.recipients = recipients
+        self._reasoning_content = _reasoning_content
+        self._prompt_cache_key = _prompt_cache_key
         self.time_created = time_created
         self.time_updated = time_updated
         self._validate()
@@ -353,6 +361,9 @@ class Message(SerializableDataclass):
     @property
     def content(self) -> str:
         """Text content getter"""
+
+        from wayflowcore._utils.formatting import stringify
+
         txt_chunks = [c.content for c in self.contents if isinstance(c, TextContent)]
         if txt_chunks:
             return "\n".join(txt_chunks)

@@ -10,9 +10,8 @@ from typing import Any, Dict, Optional
 from wayflowcore._metadata import MetadataType
 
 from .llmgenerationconfig import LlmGenerationConfig
-from .openaicompatiblemodel import OpenAICompatibleModel
-
-OPEN_API_KEY = "OPENAI_API_KEY"
+from .openaiapitype import OpenAIAPIType
+from .openaicompatiblemodel import OPEN_API_KEY, OpenAICompatibleModel
 
 
 class OpenAIModel(OpenAICompatibleModel):
@@ -22,6 +21,7 @@ class OpenAIModel(OpenAICompatibleModel):
         api_key: Optional[str] = None,
         generation_config: Optional[LlmGenerationConfig] = None,
         proxy: Optional[str] = None,
+        api_type: OpenAIAPIType = OpenAIAPIType.CHAT_COMPLETIONS,
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
@@ -40,6 +40,9 @@ class OpenAIModel(OpenAICompatibleModel):
             default parameters for text generation with this model
         proxy:
             proxy to access the remote model under VPN
+        api_type:
+            OpenAI API type to use. Currently supports Responses and Chat Completions API.
+            Uses Completions API if not specified
         id:
             ID of the component.
         name:
@@ -86,6 +89,7 @@ class OpenAIModel(OpenAICompatibleModel):
             generation_config=generation_config,
             supports_structured_generation=True,
             supports_tool_calling=True,
+            api_type=api_type,
             id=id,
             __metadata_info__=__metadata_info__,
             name=name,

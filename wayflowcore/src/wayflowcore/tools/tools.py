@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:
+    from wayflowcore.models.openaiapitype import OpenAIAPIType
     from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 
 VALID_JSON_TYPES = {"boolean", "number", "integer", "string", "bool", "object", "array", "null"}
@@ -269,10 +270,14 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
             **({"parameters": self.parameters} if self.parameters else {}),
         }
 
-    def to_openai_format(self) -> Dict[str, Any]:
+    def to_openai_format(self, api_type: Optional["OpenAIAPIType"] = None) -> Dict[str, Any]:
         from wayflowcore._utils.formatting import _to_openai_function_dict
+        from wayflowcore.models.openaiapitype import OpenAIAPIType
 
-        return _to_openai_function_dict(self)
+        if not api_type:
+            api_type = OpenAIAPIType.CHAT_COMPLETIONS
+
+        return _to_openai_function_dict(self, api_type=api_type)
 
     def _to_simple_json_format(self) -> Dict[str, Any]:
         """

@@ -239,30 +239,3 @@ R = TypeVar("R")
 async def map_iterator(iterator: AsyncIterable[S], map_func: Callable[[S], R]) -> AsyncIterable[R]:
     async for elem in iterator:
         yield map_func(elem)
-
-
-async def json_iterator_from_stream_of_completion_str(
-    line_iterator: AsyncIterable[str],
-) -> AsyncIterable[Dict[str, Any]]:
-    """
-    Transforms an iterator of lines (following the `completions` API
-    https://platform.openai.com/docs/api-reference/completions/create#completions_create-stream
-    into an iterator of json objects.
-    """
-    async for line in line_iterator:
-        if not line:
-            continue
-
-        if not line.startswith("data: "):
-            logger.info("Received unexpected chunk from remote: %r", line)
-            continue
-
-        content = line.lstrip("data: ")
-
-        if content == "[DONE]":
-            break
-
-        if content == "":
-            continue
-
-        yield json.loads(content)

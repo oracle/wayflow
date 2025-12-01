@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 from wayflowcore._metadata import MetadataType
 
 from .llmgenerationconfig import LlmGenerationConfig
+from .openaiapitype import OpenAIAPIType
 from .openaicompatiblemodel import EMPTY_API_KEY, OpenAICompatibleModel
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ class VllmModel(OpenAICompatibleModel):
         generation_config: Optional[LlmGenerationConfig] = None,
         supports_structured_generation: Optional[bool] = True,
         supports_tool_calling: Optional[bool] = True,
+        api_type: OpenAIAPIType = OpenAIAPIType.CHAT_COMPLETIONS,
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
@@ -52,6 +54,11 @@ class VllmModel(OpenAICompatibleModel):
             Whether the model supports tool calling or not. When set to `None`,
             the model will be prompted with a tool and it will check it can use
             the tool.
+        api_type:
+            OpenAI API type to use. Currently supports Responses and Chat Completions API.
+            Uses Completions API if not specified.
+            As of November 2025, Reponses support with VLLM is limited for certain models.
+            Responses API has been tested on vLLM with OpenAI GPT-OSS.
         id:
             ID of the component.
         name:
@@ -95,6 +102,7 @@ class VllmModel(OpenAICompatibleModel):
             generation_config=generation_config,
             supports_structured_generation=supports_structured_generation,
             supports_tool_calling=supports_tool_calling,
+            api_type=api_type,
             __metadata_info__=__metadata_info__,
             id=id,
             name=name,

@@ -14,6 +14,7 @@ from .llmmodel import LlmCompletion, LlmModel, Prompt
 from .llmmodelfactory import LlmModelFactory
 from .ocigenaimodel import OCIGenAIModel
 from .ollamamodel import OllamaModel
+from .openaiapitype import OpenAIAPIType
 from .openaicompatiblemodel import OpenAICompatibleModel
 from .openaimodel import OpenAIModel
 from .vllmmodel import VllmModel
@@ -26,6 +27,7 @@ __all__ = [
     "OCIGenAIModel",
     "OllamaModel",
     "OpenAICompatibleModel",
+    "OpenAIAPIType",
     "OpenAIModel",
     "Prompt",
     "StreamChunkType",
