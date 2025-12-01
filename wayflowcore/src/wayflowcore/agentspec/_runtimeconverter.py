@@ -8,6 +8,8 @@ import urllib.parse
 import warnings
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypedDict, Union, cast
 
+from pyagentspec.a2aagent import A2AAgent as AgentSpecA2AAgent
+from pyagentspec.a2aagent import A2AConnectionConfig as AgentSpecA2AConnectionConfig
 from pyagentspec.agent import Agent as AgentSpecAgent
 from pyagentspec.component import Component as AgentSpecComponent
 from pyagentspec.flows.edges import ControlFlowEdge as AgentSpecControlFlowEdge
@@ -71,6 +73,9 @@ from pyagentspec.tools.remotetool import RemoteTool as AgentSpecRemoteTool
 from pyagentspec.tools.servertool import ServerTool as AgentSpecServerTool
 
 from wayflowcore._metadata import METADATA_ID_KEY
+from wayflowcore.a2a.a2aagent import A2AAgent as RuntimeA2AAgent
+from wayflowcore.a2a.a2aagent import A2AConnectionConfig as RuntimeA2AConnectionConfig
+from wayflowcore.a2a.a2aagent import A2ASessionParameters as RuntimeA2ASessionParameters
 from wayflowcore.agent import Agent as RuntimeAgent
 from wayflowcore.agentspec.components import (
     PluginOciGenAiEmbeddingConfig as AgentSpecPluginOciGenAiEmbeddingConfig,
@@ -478,7 +483,7 @@ class AgentSpecToRuntimeConverter:
         self, agentspec_generationconfig: AgentSpecLlmGenerationConfig
     ) -> RuntimeLlmGenerationConfig:
         parameters: Dict[str, Any] = {}
-        agentspec_generationconfig_dict: Dict[str, Any] = agentspec_generationconfig.model_dump()  # type: ignore
+        agentspec_generationconfig_dict: Dict[str, Any] = agentspec_generationconfig.model_dump()
         for parameter in ["max_tokens", "temperature", "top_p", "stop", "frequency_penalty"]:
             parameters[parameter] = agentspec_generationconfig_dict.pop(parameter, None)
         parameters["extra_args"] = agentspec_generationconfig_dict
@@ -789,6 +794,35 @@ class AgentSpecToRuntimeConverter:
                 id=agentspec_component.id,
                 agent_endpoint_id=agentspec_component.agent_endpoint_id,
                 client_config=client_config,
+                __metadata_info__=metadata_info,
+            )
+        elif isinstance(agentspec_component, AgentSpecA2AConnectionConfig):
+            return RuntimeA2AConnectionConfig(
+                timeout=agentspec_component.timeout,
+                headers=agentspec_component.headers,
+                verify=agentspec_component.verify,
+                key_file=agentspec_component.key_file,
+                cert_file=agentspec_component.cert_file,
+                ssl_ca_cert=agentspec_component.ssl_ca_cert,
+                id=agentspec_component.id,
+                __metadata_info__=agentspec_component.metadata or {},
+                name=agentspec_component.name,
+                description=agentspec_component.description,
+            )
+        elif isinstance(agentspec_component, AgentSpecA2AAgent):
+            return RuntimeA2AAgent(
+                name=agentspec_component.name,
+                description=agentspec_component.description or "",
+                id=agentspec_component.id,
+                agent_url=agentspec_component.agent_url,
+                connection_config=self.convert(
+                    agentspec_component.connection_config, tool_registry, converted_components
+                ),
+                session_parameters=RuntimeA2ASessionParameters(
+                    timeout=agentspec_component.session_parameters.timeout,
+                    poll_interval=agentspec_component.session_parameters.poll_interval,
+                    max_retries=agentspec_component.session_parameters.max_retries,
+                ),
                 __metadata_info__=metadata_info,
             )
         elif isinstance(agentspec_component, AgentSpecAgent):

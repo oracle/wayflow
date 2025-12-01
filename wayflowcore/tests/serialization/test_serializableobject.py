@@ -10,6 +10,11 @@ _import_all_submodules("wayflowcore")
 
 
 ALL_SERIALIZABLE_CLASSES = {
+    "A2AAgent",
+    "A2AAgentConversation",
+    "A2AAgentState",
+    "A2AConnectionConfig",
+    "A2ASessionParameters",
     "Agent",
     "AgentConversation",
     "AgentConversationExecutionState",

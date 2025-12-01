@@ -33,6 +33,7 @@ These how-to guides demonstrate how to use the main features to create and custo
    Create a ReAct Agent <agents>
    How to Send Images to LLMs and Agents <howto_imagecontent>
    Use OCI Generative AI Agents <howto_ociagent>
+   How to build A2A Agents <howto_a2aagent>
    Use Templates for Advanced Prompting Techniques <howto_prompttemplate>
 
 

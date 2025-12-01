@@ -70,6 +70,7 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
         ),
         ("mcp_agent.yaml", {}),
         ("ociagent_1.yaml", {}),
+        ("a2aagent_1.yaml", {}),
         ("swarm.yaml", {}),
         ("managerworkers.yaml", {}),
     ],

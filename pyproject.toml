@@ -28,6 +28,7 @@ module = [
     'jq.*',
     'IPython.*',
     'sentence_transformers.*',
+    'fasta2a.*',
 ]
 ignore_missing_imports = true
 

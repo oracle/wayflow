@@ -14,6 +14,8 @@ from typing import Any, Dict, List, Tuple
 
 import pytest
 
+from .a2a.conftest import a2a_server_fixture  # noqa
+from .a2a.test_a2aagent import a2a_agent, connection_config_no_verify  # noqa
 from .mcptools.conftest import sse_mcp_server_http  # noqa
 from .mcptools.test_mcp_tools import MCP_USER_QUERY
 from .test_ociagent import agent as oci_agent  # noqa
@@ -116,6 +118,8 @@ def make_update_globals(test_globs: Dict[str, Any], pytest_request):
         replacements = copy.copy(test_globs)
         if "oci_agent" in varnames_to_update:
             replacements["oci_agent"] = pytest_request.getfixturevalue("oci_agent")
+        if "a2a_agent" in varnames_to_update:
+            replacements["a2a_agent"] = pytest_request.getfixturevalue("a2a_agent")
         elif "sse_mcp_server" in varnames_to_update:
             replacements["sse_mcp_server"] = pytest_request.getfixturevalue("sse_mcp_server_http")
 

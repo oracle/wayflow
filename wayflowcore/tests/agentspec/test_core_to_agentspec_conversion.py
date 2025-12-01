@@ -12,6 +12,7 @@ from typing import Dict, Union, cast
 import pytest
 import yaml
 
+from wayflowcore.a2a.a2aagent import A2AAgent as RuntimeA2AAgent
 from wayflowcore.agent import Agent as RuntimeAgent
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
 from wayflowcore.flow import Flow as RuntimeFlow
@@ -65,6 +66,7 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
             },
         ),
         ("ociagent_1.yaml", {}),
+        ("a2aagent_1.yaml", {}),
         ("swarm.yaml", {}),
         ("managerworkers.yaml", {}),
     ],
@@ -82,6 +84,7 @@ def test_agentspec_config_can_be_converted_to_core_then_back_to_agentspec(
         or "component_type: Flow" in agentspec_yaml
         or "component_type: ExtendedFlow" in agentspec_yaml
         or "component_type: OciAgent" in agentspec_yaml
+        or "component_type: A2AAgent" in agentspec_yaml
     )
     assert "inputs:" in agentspec_yaml
     assert "outputs:" in agentspec_yaml
@@ -92,6 +95,7 @@ def test_agentspec_config_can_be_converted_to_core_then_back_to_agentspec(
         or '"component_type": "Flow"' in agentspec_json
         or '"component_type": "ExtendedFlow"' in agentspec_json
         or '"component_type": "OciAgent"' in agentspec_json
+        or '"component_type": "A2AAgent"' in agentspec_json
     )
     assert '"inputs":' in agentspec_json
     assert '"outputs":' in agentspec_json
@@ -131,6 +135,7 @@ def test_agentspec_config_can_be_converted_to_core_then_back_to_agentspec(
             },
         ),
         ("ociagent_1.yaml", {}),
+        ("a2aagent_1.yaml", {}),
         ("swarm.yaml", {}),
     ],
 )
@@ -161,6 +166,19 @@ def test_agentspec_json_and_yaml_import_are_equal(
         assert isinstance(
             deserialized_yaml_assistant.client_config,
             type(deserialized_json_assistant.client_config),
+        )
+    elif isinstance(assistant, RuntimeA2AAgent):
+        assert deserialized_yaml_assistant.id == deserialized_json_assistant.id
+        assert deserialized_yaml_assistant.name == deserialized_json_assistant.name
+        assert deserialized_yaml_assistant.description == deserialized_json_assistant.description
+        assert deserialized_yaml_assistant.agent_url == deserialized_json_assistant.agent_url
+        assert (
+            deserialized_yaml_assistant.connection_config
+            == deserialized_json_assistant.connection_config
+        )
+        assert (
+            deserialized_yaml_assistant.session_parameters
+            == deserialized_json_assistant.session_parameters
         )
     elif isinstance(assistant, RuntimeFlow):
         assert_flows_are_copies(deserialized_yaml_assistant, deserialized_json_assistant)

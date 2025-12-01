@@ -9,6 +9,9 @@ from dataclasses import MISSING, fields, is_dataclass
 from typing import Any, Dict, List, Optional, Union, cast
 from warnings import warn
 
+from pyagentspec.a2aagent import A2AAgent as AgentSpecA2AAgent
+from pyagentspec.a2aagent import A2AConnectionConfig as AgentSpecA2AConnectionConfig
+from pyagentspec.a2aagent import A2ASessionParameters as AgentSpecA2ASessionParameters
 from pyagentspec.agent import Agent as AgentSpecAgent
 from pyagentspec.component import Component as AgentSpecComponent
 from pyagentspec.flows.edges import ControlFlowEdge as AgentSpecControlFlowEdge
@@ -76,6 +79,8 @@ from pyagentspec.tools import ToolBox as AgentSpecToolBox
 
 from wayflowcore._metadata import METADATA_KEY
 from wayflowcore._utils._templating_helpers import MessageAsDictT as RuntimeMessageAsDictT
+from wayflowcore.a2a.a2aagent import A2AAgent as RuntimeA2AAgent
+from wayflowcore.a2a.a2aagent import A2AConnectionConfig as RuntimeA2AConnectionConfig
 from wayflowcore.agent import Agent as RuntimeAgent
 from wayflowcore.agent import CallerInputMode
 from wayflowcore.agentspec.components import (
@@ -675,6 +680,14 @@ class RuntimeToAgentSpecConverter:
             )
         elif isinstance(runtime_component, RuntimeOciAgent):
             agentspec_component = self._ociagent_convert_to_agentspec(
+                runtime_component, referenced_objects
+            )
+        elif isinstance(runtime_component, RuntimeA2AConnectionConfig):
+            agentspec_component = self._a2aconnectionconfig_convert_to_agentspec(
+                runtime_component, referenced_objects
+            )
+        elif isinstance(runtime_component, RuntimeA2AAgent):
+            agentspec_component = self._a2aagent_convert_to_agentspec(
                 runtime_component, referenced_objects
             )
         elif isinstance(runtime_component, RuntimeAgent):
@@ -1439,6 +1452,51 @@ class RuntimeToAgentSpecConverter:
                 for output in runtime_ociagent.output_descriptors or []
             ],
             metadata=_create_agentspec_metadata_from_runtime_component(runtime_ociagent),
+        )
+
+    def _a2aconnectionconfig_convert_to_agentspec(
+        self,
+        runtime_a2aconnectionconfig: RuntimeA2AConnectionConfig,
+        referenced_objects: Optional[Dict[str, Any]] = None,
+    ) -> AgentSpecA2AConnectionConfig:
+        return AgentSpecA2AConnectionConfig(
+            id=runtime_a2aconnectionconfig.id,
+            name=runtime_a2aconnectionconfig.name,
+            description=runtime_a2aconnectionconfig.description,
+            metadata=runtime_a2aconnectionconfig.__metadata_info__,
+            timeout=runtime_a2aconnectionconfig.timeout,
+            headers=runtime_a2aconnectionconfig.headers,
+            verify=runtime_a2aconnectionconfig.verify,
+            key_file=runtime_a2aconnectionconfig.key_file,
+            cert_file=runtime_a2aconnectionconfig.cert_file,
+            ssl_ca_cert=runtime_a2aconnectionconfig.ssl_ca_cert,
+        )
+
+    def _a2aagent_convert_to_agentspec(
+        self, runtime_a2aagent: RuntimeA2AAgent, referenced_objects: Optional[Dict[str, Any]] = None
+    ) -> AgentSpecA2AAgent:
+        return AgentSpecA2AAgent(
+            id=runtime_a2aagent.id,
+            name=runtime_a2aagent.name,
+            description=runtime_a2aagent.description,
+            agent_url=runtime_a2aagent.agent_url,
+            connection_config=self._a2aconnectionconfig_convert_to_agentspec(
+                runtime_a2aagent.connection_config, referenced_objects
+            ),
+            session_parameters=AgentSpecA2ASessionParameters(
+                timeout=runtime_a2aagent.session_parameters.timeout,
+                poll_interval=runtime_a2aagent.session_parameters.poll_interval,
+                max_retries=runtime_a2aagent.session_parameters.max_retries,
+            ),
+            inputs=[
+                _runtime_property_to_pyagentspec_property(input_)
+                for input_ in runtime_a2aagent.input_descriptors or []
+            ],
+            outputs=[
+                _runtime_property_to_pyagentspec_property(output)
+                for output in runtime_a2aagent.output_descriptors or []
+            ],
+            metadata=_create_agentspec_metadata_from_runtime_component(runtime_a2aagent),
         )
 
     def _mcptoolspec_convert_to_agentspec(
