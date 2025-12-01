@@ -14,13 +14,46 @@ from unittest.mock import Mock, patch
 import httpx
 import pytest
 
-from wayflowcore import Message, Tool
-from wayflowcore.models import LlmCompletion, OpenAICompatibleModel, Prompt
+from wayflowcore import Agent, Message, Tool
+from wayflowcore.models import LlmCompletion, OpenAICompatibleModel, Prompt, StreamChunkType
 from wayflowcore.models._requesthelpers import _RetryStrategy
+from wayflowcore.models.llmmodelfactory import LlmModelFactory
+from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
 from wayflowcore.property import StringProperty
 from wayflowcore.tools import ToolRequest
 
-from ..conftest import llama_api_url
+from ..conftest import (
+    OPENAI_REASONING_RESPONSES_CONFIG,
+    OPENAI_RESPONSES_CONFIG,
+    VLLM_OSS_CONFIG,
+    VLLM_OSS_REASONING_CONFIG,
+    llama_api_url,
+)
+from ..testhelpers.testhelpers import retry_test
+
+
+@pytest.fixture
+def openai_responses_llm():
+    if OPEN_API_KEY not in os.environ:
+        pytest.skip("OPENAI API KEY not available in environment")
+    return LlmModelFactory.from_config(OPENAI_RESPONSES_CONFIG)
+
+
+@pytest.fixture
+def vllm_responses_llm():
+    return LlmModelFactory.from_config(VLLM_OSS_CONFIG)
+
+
+@pytest.fixture
+def openai_reasoning_responses_llm():
+    if OPEN_API_KEY not in os.environ:
+        pytest.skip("OPENAI API KEY not available in environment")
+    return LlmModelFactory.from_config(OPENAI_REASONING_RESPONSES_CONFIG)
+
+
+@pytest.fixture
+def vllm_reasoning_responses_llm():
+    return LlmModelFactory.from_config(VLLM_OSS_REASONING_CONFIG)
 
 
 class FakeResponse:
@@ -375,7 +408,7 @@ def test_model_calls_correct_url(base_url, expected):
     prompt = Prompt(messages=[Message(role="user", content="hello")])
     payload = OpenAICompatibleModel(
         model_id="my.model-id", base_url=base_url
-    )._generate_request_params(prompt)
+    )._generate_request_params(prompt, stream=False)
     assert payload["url"] == expected
     if os.environ.get("OPENAI_API_KEY") is None:
         assert payload.get("headers", {}).get("Authorization") is None  # no api_key was specified
@@ -384,7 +417,166 @@ def test_model_calls_correct_url(base_url, expected):
 @mock.patch.dict(os.environ, {"OPENAI_API_KEY": "sk-012-MOCKED_KEY"})
 def test_model_has_correct_api_key():
     prompt = Prompt(messages=[Message(role="user", content="hello")])
-    payload = OpenAICompatibleModel(
-        model_id="my.model-id", base_url="my_awesome_llm"
-    )._generate_request_params(prompt)
+    model = OpenAICompatibleModel(model_id="my.model-id", base_url="my_awesome_llm")
+    payload = model._generate_request_params(prompt, stream=False)
+    payload["headers"] = model._get_headers()
     assert payload.get("headers", {}).get("Authorization") == "Bearer sk-012-MOCKED_KEY"
+
+
+@retry_test(max_attempts=3)
+def test_responses_open_ai_compatible_model_works_with_multiple_inputs(openai_responses_llm):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2025-11-25
+    Average success time:  1.69 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    prompt = Prompt(
+        messages=[
+            Message("What is the capital of Switzerland?"),
+            Message("What is the capital of France?"),
+            Message("What is the capital of Germany?"),
+        ]
+    )
+    llm_completion = openai_responses_llm.generate(prompt)
+    assert len(llm_completion.message.content) > 1
+
+
+@retry_test(max_attempts=3)
+def test_open_ai_compatible_model_works_with_streaming_responses(openai_responses_llm):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2025-11-25
+    Average success time:  7.75 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    stream = openai_responses_llm.stream_generate("What is life?")
+    res_content = ""
+    final_res = None
+    for chunk_type, chunk in stream:
+        if chunk_type == StreamChunkType.TEXT_CHUNK:
+            res_content += chunk.content
+        elif chunk_type == StreamChunkType.END_CHUNK:
+            final_res = chunk
+        elif chunk_type == StreamChunkType.START_CHUNK:
+            res_content += chunk.content
+        else:
+            pass
+
+    assert (
+        final_res.content in res_content
+    ), "Final chunk didn't return same content as what was streamed."
+
+
+@retry_test(max_attempts=3)
+def test_open_ai_compatible_reasoning_model_gives_encrypted_content_responses(
+    openai_reasoning_responses_llm,
+):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2025-11-25
+    Average success time:  16.96 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    llm_completion = openai_reasoning_responses_llm.generate(
+        "Puzzle: You are outside a closed room with three light switches. Only one of them controls a light inside the room."
+        "You can flip the switches as much as you want, but you can only enter the room once to check. How do you know which switch controls the light?"
+    )
+    assert llm_completion.message._reasoning_content is not None
+    assert "encrypted_content" in llm_completion.message._reasoning_content
+    assert llm_completion.message._reasoning_content["encrypted_content"] is not None
+
+
+@retry_test(max_attempts=3)
+def test_vllm_reasoning_model_gives_reasoning_content_responses(
+    vllm_reasoning_responses_llm,
+):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2025-11-25
+    Average success time:  12.09 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    llm_completion = vllm_reasoning_responses_llm.generate(
+        "Puzzle: You are outside a closed room with three light switches. Only one of them controls a light inside the room."
+        "You can flip the switches as much as you want, but you can only enter the room once to check. How do you know which switch controls the light?"
+    )
+    assert llm_completion.message._reasoning_content is not None
+    assert "content" in llm_completion.message._reasoning_content
+    assert llm_completion.message._reasoning_content["content"][0]["text"] is not None
+
+
+@retry_test(max_attempts=3)
+def test_vllm_responses_model_runs_with_agent(vllm_responses_llm):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2025-11-25
+    Average success time:  1.66 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    agent = Agent(llm=vllm_responses_llm)
+    conv = agent.start_conversation()
+    conv.append_user_message("Hi, how are you doing?")
+    conv.execute()
+    conv.append_user_message("I'm great.")
+    conv.execute()
+    all_messages = conv.get_messages()
+    assert len(all_messages) == 4
+
+
+@retry_test(max_attempts=3)
+def test_open_ai_compatible_responses_model_runs_with_agent_with_prompt_cache_key(
+    openai_responses_llm,
+):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2025-11-25
+    Average success time:  3.15 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+
+    agent = Agent(llm=openai_responses_llm)
+    conv = agent.start_conversation()
+    conv.append_user_message("Hi, how are you doing?")
+    conv.execute()
+    conv.append_user_message("I'm great.")
+    conv.execute()
+    all_messages = conv.get_messages()
+
+    assert any([message._prompt_cache_key is not None for message in all_messages])
+
+
+@retry_test(max_attempts=3)
+def test_open_ai_compatible_responses_model_raises_with_less_tokens(openai_responses_llm):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2025-11-25
+    Average success time:  10.54 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    agent = Agent(llm=openai_responses_llm)
+    conv = agent.start_conversation()
+
+    with pytest.raises(
+        ValueError, match="Streaming incomplete due to reason: {'reason': 'max_output_tokens'}"
+    ):
+        conv.append_user_message("How do birds survive in nature?")
+        conv.execute()
+        conv.append_user_message("Do you think this is a reasonable strategy? Give reasons")
+        conv.execute()
+        conv.append_user_message("That sounds great! Tell me more")
+        conv.execute()

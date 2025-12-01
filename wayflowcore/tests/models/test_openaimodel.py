@@ -9,7 +9,7 @@ import pytest
 
 from wayflowcore.models import OpenAIModel
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
-from wayflowcore.models.openaimodel import OPEN_API_KEY
+from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
 from wayflowcore.serialization.serializer import serialize
 from wayflowcore.templates import PromptTemplate
 

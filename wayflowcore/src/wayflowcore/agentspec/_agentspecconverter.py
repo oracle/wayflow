@@ -50,6 +50,7 @@ from pyagentspec.llms.ociclientconfig import (
 from pyagentspec.llms.ocigenaiconfig import ModelProvider as AgentSpecModelProvider
 from pyagentspec.llms.ocigenaiconfig import ServingMode as AgentSpecOciGenAiServingMode
 from pyagentspec.llms.ollamaconfig import OllamaConfig as AgentSpecOllamaModel
+from pyagentspec.llms.openaicompatibleconfig import OpenAIAPIType as AgentSpecOpenAIAPIType
 from pyagentspec.llms.openaicompatibleconfig import (
     OpenAiCompatibleConfig as AgentSpecOpenAiCompatibleConfig,
 )
@@ -310,6 +311,7 @@ from wayflowcore.messagelist import TextContent as RuntimeTextContent
 from wayflowcore.models import LlmModel as RuntimeLlmModel
 from wayflowcore.models import OCIGenAIModel as RuntimeOCIGenAIModel
 from wayflowcore.models import OllamaModel as RuntimeOllamaModel
+from wayflowcore.models import OpenAIAPIType as RuntimeOpenAIAPIType
 from wayflowcore.models import OpenAIModel as RuntimeOpenAIModel
 from wayflowcore.models import VllmModel as RuntimeVllmModel
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig as RuntimeLlmGenerationConfig
@@ -568,6 +570,17 @@ def _runtime_messagecontent_to_pyagentspec_messagecontent(
         return AgentSpecPluginImageContent(base64_content=message_content.base64_content)
     else:
         raise ValueError(f"Message content of type {type(message_content)} is not supported")
+
+
+def _runtime_apitype_to_pyagentspec_apitype(
+    api_type: RuntimeOpenAIAPIType,
+) -> AgentSpecOpenAIAPIType:
+    if api_type == RuntimeOpenAIAPIType.CHAT_COMPLETIONS:
+        return AgentSpecOpenAIAPIType.CHAT_COMPLETIONS
+    elif api_type == RuntimeOpenAIAPIType.RESPONSES:
+        return AgentSpecOpenAIAPIType.RESPONSES
+    else:
+        raise ValueError(f"Received invalid runtime API Type: {api_type}")
 
 
 def _runtime_nativemessage_to_pyagentspec_message(
@@ -1031,6 +1044,7 @@ class RuntimeToAgentSpecConverter:
                 name=runtime_llm.name,
                 model_id=runtime_llm.model_id,
                 url=runtime_llm.host_port,
+                api_type=_runtime_apitype_to_pyagentspec_apitype(runtime_llm.api_type),
                 metadata=_create_agentspec_metadata_from_runtime_component(runtime_llm),
                 id=runtime_llm.id,
                 description=runtime_llm.description,
@@ -1067,6 +1081,7 @@ class RuntimeToAgentSpecConverter:
             return AgentSpecOpenAiConfig(
                 name=runtime_llm.name,
                 model_id=runtime_llm.model_id,
+                api_type=_runtime_apitype_to_pyagentspec_apitype(runtime_llm.api_type),
                 metadata=_create_agentspec_metadata_from_runtime_component(runtime_llm),
                 id=runtime_llm.id,
                 description=runtime_llm.description,
@@ -1077,6 +1092,7 @@ class RuntimeToAgentSpecConverter:
                 name=runtime_llm.name,
                 model_id=runtime_llm.model_id,
                 url=runtime_llm.base_url,
+                api_type=_runtime_apitype_to_pyagentspec_apitype(runtime_llm.api_type),
                 metadata=_create_agentspec_metadata_from_runtime_component(runtime_llm),
                 id=runtime_llm.id,
                 description=runtime_llm.description,

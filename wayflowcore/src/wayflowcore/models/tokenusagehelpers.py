@@ -5,10 +5,11 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import json
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
-from wayflowcore.messagelist import Message
-from wayflowcore.tools import Tool
+if TYPE_CHECKING:
+    from wayflowcore.messagelist import Message
+    from wayflowcore.tools import Tool
 
 
 def _count_tokens_in_str(text: Optional[str]) -> int:
@@ -19,7 +20,7 @@ def _count_tokens_in_str(text: Optional[str]) -> int:
     return int(len(text.split(" ")) * 4 / 3)
 
 
-def _count_token_single_message(message: Message) -> int:
+def _count_token_single_message(message: "Message") -> int:
     # measured on `vllm`, each new message with llama is around 6 tokens
     token_count = 6 + _count_tokens_in_str(message.content)
     if message.tool_requests is not None:
@@ -31,7 +32,7 @@ def _count_token_single_message(message: Message) -> int:
     return token_count
 
 
-def _count_tokens_for_tools(tools: Optional[List[Tool]]) -> int:
+def _count_tokens_for_tools(tools: Optional[List["Tool"]]) -> int:
     from wayflowcore._utils.formatting import _to_openai_function_dict
 
     token_count = 0
@@ -42,12 +43,36 @@ def _count_tokens_for_tools(tools: Optional[List[Tool]]) -> int:
     return token_count
 
 
-def _get_approximate_num_token_from_wayflowcore_message(message: Message) -> int:
+def _get_approximate_num_token_from_wayflowcore_message(message: "Message") -> int:
     return _count_token_single_message(message)
 
 
+def _get_approximate_num_reasoning_tokens_from_wayflowcore_message(message: "Message") -> int:
+    """Count approximate reasoning tokens from WayFlow message. This is a very rough estimate, most models with summaries will return their exact token counts anyway"""
+    if message._reasoning_content:
+        total_count = 0
+        if "content" in message._reasoning_content and len(
+            message._reasoning_content["content"][0]["text"]
+        ):
+            total_count += _count_tokens_in_str(message._reasoning_content["content"][0]["text"])
+
+        elif "encrypted_content" in message._reasoning_content and len(
+            message._reasoning_content["encrypted_content"]
+        ):
+            total_count += _count_tokens_in_str(message._reasoning_content["encrypted_content"])
+
+        elif "summary" in message._reasoning_content and len(
+            message._reasoning_content["summary"][0]["text"]
+        ):
+            total_count += _count_tokens_in_str(message._reasoning_content["summary"][0]["text"])
+
+        return total_count
+
+    return 0
+
+
 def _get_approximate_num_token_from_wayflowcore_list_of_messages(
-    messages: List[Message], tools: Optional[List[Tool]] = None
+    messages: List["Message"], tools: Optional[List["Tool"]] = None
 ) -> int:
     # measured on `vllm`, initial system prompt for llama is around 20 tokens
     return (

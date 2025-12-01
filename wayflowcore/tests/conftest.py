@@ -31,6 +31,7 @@ from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication,
     OCIUserAuthenticationConfig,
 )
+from wayflowcore.models.openaiapitype import OpenAIAPIType
 from wayflowcore.steps import OutputMessageStep
 from wayflowcore.tools import ToolRequest
 
@@ -53,6 +54,10 @@ else:
 llama_api_url = os.environ.get("LLAMA_API_URL")
 if not llama_api_url:
     raise Exception("LLAMA_API_URL is not set in the environment")
+
+oss_api_url = os.environ.get("OSS_API_URL")
+if not oss_api_url:
+    raise Exception("OSS_API_URL is not set in the environment")
 
 llama70b_api_url = os.environ.get("LLAMA70B_API_URL")
 if not llama70b_api_url:
@@ -174,6 +179,22 @@ VLLM_MODEL_CONFIG = {
     "generation_config": {"max_tokens": 512},
 }
 
+VLLM_OSS_CONFIG = {
+    "model_type": "vllm",
+    "host_port": oss_api_url,
+    "model_id": "openai/gpt-oss-120b",
+    "generation_config": {"max_tokens": 512},
+    "api_type": OpenAIAPIType.RESPONSES,
+}
+
+VLLM_OSS_REASONING_CONFIG = {
+    "model_type": "vllm",
+    "host_port": oss_api_url,
+    "model_id": "openai/gpt-oss-120b",
+    "generation_config": {"max_tokens": 4096, "reasoning": {"effort": "high"}},
+    "api_type": OpenAIAPIType.RESPONSES,
+}
+
 OPENAI_COMPATIBLE_MODEL_CONFIG = {
     "model_type": "openaicompatible",
     "base_url": llama_api_url,
@@ -190,6 +211,21 @@ OPENAI_CONFIG = {
     "generation_config": {"max_tokens": 512},
 }
 
+OPENAI_RESPONSES_CONFIG = {
+    "model_type": "openai",
+    "model_id": "gpt-5-mini",
+    "proxy": oracle_http_proxy,
+    "generation_config": {"max_tokens": 512, "reasoning": {"effort": "minimal"}},
+    "api_type": OpenAIAPIType.RESPONSES,
+}
+
+OPENAI_REASONING_RESPONSES_CONFIG = {
+    "model_type": "openai",
+    "model_id": "gpt-5",
+    "proxy": oracle_http_proxy,
+    "generation_config": {"max_tokens": 4096, "reasoning": {"effort": "high"}},
+    "api_type": OpenAIAPIType.RESPONSES,
+}
 
 GEMMA_CONFIG = {
     "model_type": "vllm",

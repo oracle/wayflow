@@ -8,18 +8,17 @@ import ast
 import json
 import logging
 import uuid
-from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple
 
 from json_repair import json_repair
 
+from wayflowcore.models.openaiapitype import OpenAIAPIType
 from wayflowcore.property import JsonSchemaParam
 from wayflowcore.tools import Tool, ToolRequest, ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore import Message, MessageType
     from wayflowcore._utils._templating_helpers import MessageAsDictT
-
 
 logger = logging.getLogger(__name__)
 
@@ -146,58 +145,19 @@ def correct_arguments(
     return corrected_types
 
 
-def _remove_optional_from_signature(
-    param: JsonSchemaParam, _deepcopy: bool = True
-) -> JsonSchemaParam:
-    """
-    This functions transforms the var: Optional[X] into var: X = None to respect the behavior that
-    Langchain was using, which improves performance on weaker models like Llama.
-    """
-    if not isinstance(param, dict):
-        return param
-    if _deepcopy:
-        param = deepcopy(param)
-    if (
-        "anyOf" in param
-        and len(param["anyOf"]) == 2
-        and any(s == {"type": "null"} for s in param["anyOf"])
-    ):
-        param.update(next(s for s in param.pop("anyOf") if s != {"type": "null"}))
-    for k, v in param.items():
-        if k == "items":
-            _remove_optional_from_signature(v, False)  # type: ignore
-        elif k == "additionalProperties":
-            _remove_optional_from_signature(v, False)  # type: ignore
-        elif k == "properties" and isinstance(v, dict):
-            for _, t in v.items():
-                _remove_optional_from_signature(t, False)
-    return param
-
-
-def _to_openai_function_dict(tool: Tool) -> Dict[str, Any]:
+def _to_openai_function_dict(
+    tool: "Tool", api_type: OpenAIAPIType = OpenAIAPIType.CHAT_COMPLETIONS
+) -> Dict[str, Any]:
     """Function calling as defined in: https://platform.openai.com/docs/guides/function-calling"""
-    openai_function_dict: Dict[str, Any] = {
-        "type": "function",
-        "function": {
-            "name": tool.name,
-            "description": tool.description,
-        },
-    }
-    if any(tool.parameters):
-        openai_function_dict["function"]["parameters"] = {
-            "type": "object",
-            "properties": {
-                t_name: _remove_optional_from_signature(t) for t_name, t in tool.parameters.items()
-            },
-            "required": [
-                param_name
-                for param_name, param_info in tool.parameters.items()
-                if "default" not in param_info
-            ],
-        }
+    from wayflowcore.models.openaicompatiblemodel import _openai_api_type_to_processor_map
+
+    if api_type in _openai_api_type_to_processor_map:
+        model_cls = _openai_api_type_to_processor_map[api_type]
+        return model_cls._tool_to_openai_function_dict(tool)
     else:
-        openai_function_dict["function"]["parameters"] = {}
-    return openai_function_dict
+        raise ValueError(
+            f"OpenAI API type not supported: {api_type}. List of supported APIs: {[value for value in OpenAIAPIType]}"
+        )
 
 
 def stringify(x: Any) -> str:
@@ -210,7 +170,7 @@ def stringify(x: Any) -> str:
         return str(x)
 
 
-def _tool_to_simple_function_dict(tool: Tool) -> Dict[str, Any]:
+def _tool_to_simple_function_dict(tool: "Tool") -> Dict[str, Any]:
     function_dict: Dict[str, Any] = {
         "name": tool.name,
         "description": tool.description,
@@ -238,8 +198,8 @@ def stringify_if_not_jsonable(x: Any) -> Any:
 
 def _format_chat_history_with_tool_results(
     messages: List["Message"],
-    tool_request_renderer: Callable[[str, List[ToolRequest]], str],
-    tool_result_renderer: Callable[[List[Tuple[ToolRequest, ToolResult]]], List[str]],
+    tool_request_renderer: Callable[[str, List["ToolRequest"]], str],
+    tool_result_renderer: Callable[[List[Tuple["ToolRequest", "ToolResult"]]], List[str]],
     consecutive_tool_messages_allowed: bool = False,
     tool_role_allowed: bool = False,
 ) -> List["Message"]:
@@ -390,6 +350,7 @@ def parse_tool_call_using_ast(raw_txt: str) -> List[ToolRequest]:
 def parse_tool_call_using_json(
     raw_txt: str, parameter_key: str = "parameters"
 ) -> List[ToolRequest]:
+
     parsed_results = json_repair.loads(raw_txt)
 
     if isinstance(parsed_results, dict):

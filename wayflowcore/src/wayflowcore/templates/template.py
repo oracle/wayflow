@@ -17,6 +17,7 @@ from wayflowcore._utils._templating_helpers import (
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore._utils.formatting import render_message_dict_template
 from wayflowcore.component import DataclassComponent
+from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.outputparser import OutputParser, ToolOutputParser
@@ -353,8 +354,17 @@ class PromptTemplate(DataclassComponent):
             raise ValueError(
                 f"Should pass the chat_history as input (with key `self.CHAT_HISTORY_PLACEHOLDER_NAME`), but only passed: {inputs}"
             )
-
         chat_history = inputs.pop(self.CHAT_HISTORY_PLACEHOLDER_NAME, [])
+
+        prompt_cache_key = next(
+            (
+                msg._prompt_cache_key
+                for msg in reversed(chat_history)
+                if msg._prompt_cache_key is not None
+            ),
+            IdGenerator.get_or_generate_id(),
+        )
+
         for message_transform in self.pre_rendering_transforms or []:
             chat_history = await message_transform.call_async(chat_history)
 
@@ -373,6 +383,9 @@ class PromptTemplate(DataclassComponent):
 
         for message_transform in self.post_rendering_transforms or []:
             messages = await message_transform.call_async(messages)
+
+        # Using the prompt_cache_key is recommended by OpenAI: https://platform.openai.com/docs/guides/prompt-caching#best-practices
+        messages[-1]._prompt_cache_key = prompt_cache_key
 
         return messages
 

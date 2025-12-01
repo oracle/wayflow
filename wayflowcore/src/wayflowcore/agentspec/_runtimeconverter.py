@@ -45,6 +45,7 @@ from pyagentspec.llms.ociclientconfig import (
     OciClientConfigWithSecurityToken as AgentSpecOciClientConfigWithSecurityToken,
 )
 from pyagentspec.llms.ollamaconfig import OllamaConfig as AgentSpecOllamaModel
+from pyagentspec.llms.openaicompatibleconfig import OpenAIAPIType as AgentSpecOpenAIAPIType
 from pyagentspec.llms.openaicompatibleconfig import (
     OpenAiCompatibleConfig as AgentSpecOpenAiCompatibleConfig,
 )
@@ -313,6 +314,7 @@ from wayflowcore.models.ociclientconfig import (
 )
 from wayflowcore.models.ocigenaimodel import ModelProvider as RuntimeModelProvider
 from wayflowcore.models.ocigenaimodel import ServingMode as RuntimeServingMode
+from wayflowcore.models.openaiapitype import OpenAIAPIType as RuntimeOpenAIAPIType
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -609,6 +611,16 @@ class AgentSpecToRuntimeConverter:
             name=agentspec_template.name,
         )
 
+    def _convert_openai_apitype_to_runtime(
+        self, api_type: AgentSpecOpenAIAPIType
+    ) -> RuntimeOpenAIAPIType:
+        if api_type == AgentSpecOpenAIAPIType.CHAT_COMPLETIONS:
+            return RuntimeOpenAIAPIType.CHAT_COMPLETIONS
+        elif api_type == AgentSpecOpenAIAPIType.RESPONSES:
+            return RuntimeOpenAIAPIType.RESPONSES
+        else:
+            raise ValueError(f"Received invalid AgentSpec API Type: {api_type}")
+
     def _convert_mapnode_to_runtime(
         self,
         agentspec_node: AgentSpecMapNode,
@@ -703,6 +715,7 @@ class AgentSpecToRuntimeConverter:
                 # TODO enable more flexibility in base url
                 host_port=agentspec_component.url,
                 generation_config=generation_config,
+                api_type=self._convert_openai_apitype_to_runtime(agentspec_component.api_type),
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecOciGenAiModel):
@@ -732,6 +745,7 @@ class AgentSpecToRuntimeConverter:
             return RuntimeOpenAIModel(
                 model_id=agentspec_component.model_id,
                 generation_config=generation_config,
+                api_type=self._convert_openai_apitype_to_runtime(agentspec_component.api_type),
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecOpenAiCompatibleConfig):
@@ -739,6 +753,7 @@ class AgentSpecToRuntimeConverter:
                 model_id=agentspec_component.model_id,
                 base_url=agentspec_component.url,
                 generation_config=generation_config,
+                api_type=self._convert_openai_apitype_to_runtime(agentspec_component.api_type),
                 **self._get_component_arguments(agentspec_component),
             )
         else:

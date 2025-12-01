@@ -3,15 +3,17 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+import logging
 from typing import Any, Dict, List, Optional
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.embeddingmodels.embeddingmodel import EmbeddingModel
 from wayflowcore.models._requesthelpers import _RetryStrategy, request_post_with_retries
-from wayflowcore.models.openaicompatiblemodel import _add_leading_http_if_needed
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
@@ -102,3 +104,15 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         description = input_dict.get("description")
 
         return cls(model_id=model_id, base_url=base_url, name=name, description=description, id=id)
+
+
+def _add_leading_http_if_needed(url: str) -> str:
+    """
+    Ensures URLs have http:// if missing
+    """
+    if "://" in url:
+        return url
+    logger.info(
+        f"The provided LLM API URL `{url}` does not start with http:// or https://, prepending http:// to it"
+    )
+    return f"http://{url}"

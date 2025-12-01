@@ -20,6 +20,7 @@ from wayflowcore.messagelist import ImageContent, MessageType, TextContent
 from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
 
+from ._openaihelpers import _property_to_openai_schema
 from ._requesthelpers import StreamChunkType, TaggedMessageChunkTypeWithTokenUsage
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import LlmCompletion, LlmModel, Prompt
@@ -28,7 +29,6 @@ from .ociclientconfig import (
     _client_config_to_oci_client_kwargs,
     _convert_arguments_into_client_config,
 )
-from .openaicompatiblemodel import _property_to_openai_schema
 
 logger = logging.getLogger(__name__)
 

@@ -46,7 +46,9 @@ from ..conftest import (
     OPENAI_COMPATIBLE_MODEL_CONFIG,
     OPENAI_CONFIG,
     OPENAI_REASONING_CONFIG,
+    OPENAI_RESPONSES_CONFIG,
     VLLM_MODEL_CONFIG,
+    VLLM_OSS_CONFIG,
 )
 from ..testhelpers.dummy import DummyModel
 from ..testhelpers.patching import patch_openai_compatible_llm
@@ -225,6 +227,8 @@ def find_all_vision_models():
     available_models: List[Tuple[str, Dict[str, Any]]] = []
     if "OPENAI_API_KEY" in os.environ:
         available_models.append(("openai", OPENAI_CONFIG))
+        available_models.append(("openai_responses", OPENAI_RESPONSES_CONFIG))
+
     if "OCI_GENAI_API_KEY_CONFIG" in os.environ and "OCI_GENAI_API_KEY_PEM" in os.environ:
         available_models.append(("llama_4_oci", LLAMA_4_OCI_API_KEY_CONFIG))  # llama 4 oci
     available_models.append(("gemma_model", GEMMA_CONFIG))
@@ -239,11 +243,14 @@ def find_all_vision_models():
 def find_all_available_models(
     with_dummy: bool = False,
     with_tool_calling_modes: bool = False,
-    with_stop_parameter: bool = True,
+    with_stop_parameter: bool = False,
+    with_temperature_parameter: bool = False,
 ) -> Dict:
     available_models: List[Tuple[str, Dict[str, Any]]] = []
 
     available_models.append(("vllm_llama", VLLM_MODEL_CONFIG))  # default vllm
+    if not with_stop_parameter and not with_temperature_parameter:
+        available_models.append(("vllm_oss", VLLM_OSS_CONFIG))  # vllm with OpenAI Responses
     # default vllm with openai-compatible wrapper
     available_models.append(("openaicompatible_llama", OPENAI_COMPATIBLE_MODEL_CONFIG))
     available_models.append(("ollama", OLLAMA_MODEL_CONFIG))  # default ollama
@@ -251,6 +258,8 @@ def find_all_available_models(
         available_models.append(("dummy", DUMMY_CONFIG))
     if "OPENAI_API_KEY" in os.environ:
         available_models.append(("openai", OPENAI_CONFIG))
+        if not with_stop_parameter and not with_temperature_parameter:
+            available_models.append(("openai_responses", OPENAI_RESPONSES_CONFIG))
     if "OCI_GENAI_API_KEY_CONFIG" in os.environ and "OCI_GENAI_API_KEY_PEM" in os.environ:
         available_models.append(("cohere_oci", COHERE_OCI_API_KEY_CONFIG))  # cohere oci
         available_models.append(("llama_oci", LLAMA_OCI_API_KEY_CONFIG))  # llama oci
@@ -317,6 +326,9 @@ with_all_llm_configs_and_dummy = pytest.mark.parametrize(
 with_all_llm_configs_with_stop_parameter = pytest.mark.parametrize(
     "llm_config", **find_all_available_models(with_stop_parameter=True)
 )
+with_all_llm_configs_with_temperature_parameter = pytest.mark.parametrize(
+    "llm_config", **find_all_available_models(with_temperature_parameter=True)
+)
 with_all_llm_tool_calling_configs = pytest.mark.parametrize(
     "llm_config", **find_all_available_models(with_tool_calling_modes=True)
 )
@@ -350,6 +362,22 @@ def test_model_chat(llm_config: Dict[str, str], prompt: List[Message]) -> None:
     Average failure time:  No time measurement
     Max attempt:           2
     Justification:         (0.01 ** 2) ~= 9.6 / 100'000
+
+    openai_responses
+    Failure rate:          0 out of 100
+    Observed on:           2025-11-25
+    Average success time:  1.76 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           2
+    Justification:         (0.01 ** 2) ~= 9.6 / 100'000
+
+    vllm_oss
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  0.70 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
     """
     llm = initialize_model(llm_config)
     res = llm.generate(prompt=Prompt(prompt))
@@ -389,6 +417,22 @@ def test_model_without_stop_parameter(llm_config: Dict[str, str]) -> None:
     Average failure time:  No time measurement
     Max attempt:           2
     Justification:         (0.01 ** 2) ~= 9.6 / 100'000
+
+    openai_responses
+    Failure rate:          0 out of 100
+    Observed on:           2025-11-25
+    Average success time:  2.02 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           2
+    Justification:         (0.01 ** 2) ~= 9.6 / 100'000
+
+    vllm_oss
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  0.77 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
     """
     llm = initialize_model(llm_config)
     prompt = Prompt(
@@ -429,6 +473,14 @@ def test_model_chat_with_tools(llm_config: Dict[str, str], request) -> None:
     Max attempt:           4
     Justification:         (0.09 ** 4) ~= 6.8 / 100'000
 
+    vllm_oss
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  0.57 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
     ollama
     Failure rate:          11 out of 20
     Observed on:           2025-05-06
@@ -445,6 +497,14 @@ def test_model_chat_with_tools(llm_config: Dict[str, str], request) -> None:
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
+    openai_responses
+    Failure rate:          5 out of 20
+    Observed on:           2025-11-25
+    Average success time:  1.56 seconds per successful attempt
+    Average failure time:  2.10 seconds per failed attempt
+    Max attempt:           8
+    Justification:         (0.27 ** 8) ~= 3.1 / 100'000
 
     cohere_oci
     Failure rate:          0 out of 20
@@ -525,6 +585,14 @@ def test_model_chat_with_tools_stream(llm_config: Dict[str, str], request) -> No
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
 
+    vllm_oss
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  0.54 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
     ollama
     Failure rate:          4 out of 20
     Observed on:           2025-05-06
@@ -540,6 +608,14 @@ def test_model_chat_with_tools_stream(llm_config: Dict[str, str], request) -> No
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
+    openai_responses
+    Failure rate:          4 out of 20
+    Observed on:           2025-11-25
+    Average success time:  1.82 seconds per successful attempt
+    Average failure time:  1.44 seconds per failed attempt
+    Max attempt:           7
+    Justification:         (0.23 ** 7) ~= 3.1 / 100'000
 
     cohere_oci
     Failure rate:          0 out of 20
@@ -615,6 +691,22 @@ def test_model_text_generation(llm_config: Dict[str, str]) -> None:
     Average failure time:  No time measurement
     Max attempt:           2
     Justification:         (0.01 ** 2) ~= 9.6 / 100'000
+
+    openai_responses
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  1.86 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
+    vllm_oss
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  0.83 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
     """
     llm = initialize_model(llm_config)
     res = llm.generate(prompt=TEXT_GENERATION_PROMPT).message
@@ -682,6 +774,14 @@ def test_can_generate_tool_call(llm_config) -> None:
     Max attempt:           4
     Justification:         (0.09 ** 4) ~= 6.8 / 100'000
 
+    vllm_oss
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  1.18 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
     ollama
     Failure rate:          0 out of 20
     Observed on:           2025-05-06
@@ -694,6 +794,14 @@ def test_can_generate_tool_call(llm_config) -> None:
     Failure rate:          0 out of 20
     Observed on:           2025-05-06
     Average success time:  1.83 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
+    openai_responses
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  2.16 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
@@ -775,6 +883,14 @@ def test_can_generate_tool_call_stream(llm_config, request) -> None:
     Max attempt:           4
     Justification:         (0.05 ** 4) ~= 0.5 / 100'000
 
+    vllm_oss
+    Failure rate:          0 out of 40
+    Observed on:           2025-11-25
+    Average success time:  0.94 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 1.3 / 100'000
+
     ollama
     Failure rate:          0 out of 40
     Observed on:           2025-05-06
@@ -787,6 +903,14 @@ def test_can_generate_tool_call_stream(llm_config, request) -> None:
     Failure rate:          0 out of 40
     Observed on:           2025-05-06
     Average success time:  1.93 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 1.3 / 100'000
+
+    openai_responses
+    Failure rate:          0 out of 40
+    Observed on:           2025-11-25
+    Average success time:  2.34 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 1.3 / 100'000
@@ -1027,6 +1151,14 @@ def test_structured_generation(llm_config, request):
     Max attempt:           6
     Justification:         (0.18 ** 6) ~= 3.6 / 100'000
 
+    vllm_oss
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  0.92 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
     ollama
     Failure rate:          1 out of 20
     Observed on:           2025-05-06
@@ -1039,6 +1171,14 @@ def test_structured_generation(llm_config, request):
     Failure rate:          0 out of 20
     Observed on:           2025-05-06
     Average success time:  1.29 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
+    openai_responses
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  2.08 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
@@ -1087,6 +1227,14 @@ def test_structured_generation_with_multiple_outputs(llm_config, request):
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
 
+    vllm_oss
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  0.85 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
     ollama
     Failure rate:          0 out of 20
     Observed on:           2025-05-06
@@ -1099,6 +1247,14 @@ def test_structured_generation_with_multiple_outputs(llm_config, request):
     Failure rate:          0 out of 20
     Observed on:           2025-05-06
     Average success time:  1.53 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
+    openai_responses
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  1.90 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
@@ -1227,10 +1383,26 @@ def test_model_can_end_conversation(llm_config):
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
 
+    vllm_oss
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  0.65 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
     openai
     Failure rate:          0 out of 20
     Observed on:           2025-05-13
     Average success time:  1.41 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
+    openai_responses
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  2.02 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
@@ -1305,7 +1477,7 @@ async def test_async_call_model_inside_coroutine(remotely_hosted_llm):
     assert len(res.message.contents[0].content) > 0
 
 
-@with_all_llm_configs
+@with_all_llm_configs_with_temperature_parameter
 @retry_test(max_attempts=4, wait_between_tries=1)
 def test_generate_works_with_frequency_penalty(llm_config):
     """
@@ -1327,6 +1499,12 @@ def test_generate_works_with_frequency_penalty(llm_config):
 
     openai
     Not evaluated
+
+    openai_responses
+    Not supported
+
+    vllm_oss
+    Not supported
 
     cohere_oci
     Failure rate:          0 out of 10
@@ -1448,6 +1626,14 @@ def test_image_content_model(llm_config):
     Failure rate:          0 out of 10
     Observed on:           2025-07-11
     Average success time:  1.35 seconds per successful attempt
+
+    openai_responses
+    Failure rate:          0 out of 20
+    Observed on:           2025-11-25
+    Average success time:  2.23 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
     """
 
     remotely_hosted_llm = LlmModelFactory.from_config(llm_config)
@@ -1484,7 +1670,10 @@ def test_unsupported_content_type(llm_config):
         llm.generate(prompt)
 
 
-@pytest.mark.parametrize("llm_config", **find_all_available_models(with_stop_parameter=False))
+@pytest.mark.parametrize(
+    "llm_config",
+    **find_all_available_models(with_stop_parameter=False, with_temperature_parameter=True),
+)
 def test_all_parameter_configs_set_works(llm_config):
     llm = LlmModelFactory.from_config(llm_config)
     result = llm.generate(
@@ -1493,7 +1682,7 @@ def test_all_parameter_configs_set_works(llm_config):
             generation_config=LlmGenerationConfig(
                 top_p=0.95,
                 temperature=0.5,
-                max_tokens=10,
+                max_tokens=16,
                 stop=["4"],
                 frequency_penalty=0.5,
             ),
@@ -1629,7 +1818,9 @@ def test_structured_generation_with_enum(request, llm_fixture_name):
 )
 def test_vllm_ollama_with_correct_url(model_cls, base_url, expected):
     prompt = Prompt(messages=[Message(role="user", content="hello")])
-    payload = model_cls(model_id="my.model-id", host_port=base_url)._generate_request_params(prompt)
+    payload = model_cls(model_id="my.model-id", host_port=base_url)._generate_request_params(
+        prompt, stream=False
+    )
     assert payload["url"] == expected
     if os.environ.get("OPENAI_API_KEY") is None:
         assert payload.get("headers", {}).get("Authorization") is None  # no api_key was specified
@@ -1639,7 +1830,7 @@ def test_vllm_ollama_with_correct_url(model_cls, base_url, expected):
 @mock.patch.dict(os.environ, {"OPENAI_API_KEY": "sk-034-MOCKED_KEY"})
 def test_vllm_ollama_with_api_key(model_cls):
     prompt = Prompt(messages=[Message(role="user", content="hello")])
-    payload = model_cls(
-        model_id="my.model-id", host_port="localhost:80000"
-    )._generate_request_params(prompt)
+    model = model_cls(model_id="my.model-id", host_port="localhost:80000")
+    payload = model._generate_request_params(prompt, stream=False)
+    payload["headers"] = model._get_headers()
     assert payload.get("headers", {}).get("Authorization") == "Bearer sk-034-MOCKED_KEY"
