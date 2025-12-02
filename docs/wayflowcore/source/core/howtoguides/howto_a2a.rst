@@ -23,7 +23,7 @@ How to use Serve and Consume Agents using A2A
     - :doc:`LLM configuration <../howtoguides/llm_from_different_providers>`
     - :doc:`Using agents <agents>`
 
-This guide provides a step-by-step walkthrough on how to use the `Agent-to-Agent (A2A) protocol <https://a2a-protocol.org/latest/>` within Wayflow, covering both the serving and consuming roles from start to finish.
+This guide provides a step-by-step walkthrough on how to use the `Agent-to-Agent (A2A) protocol <https://a2a-protocol.org/latest/>`_ within Wayflow, covering both the serving and consuming roles from start to finish.
 The A2A protocol allows agents to seamlessly communicate and delegate tasks to one another.
 
 We'll demonstrate its functionality by creating two agents: one responsible for checking if a number is prime and another for generating random numbers. These agents will interact under the coordination of a manager agent.
