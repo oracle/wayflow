@@ -28,7 +28,14 @@ from wayflowcore.property import (
     StringProperty,
 )
 from wayflowcore.serialization.serializer import SerializableObject, serialize_to_dict
-from wayflowcore.steps import CompleteStep, InputMessageStep, MapStep, OutputMessageStep, StartStep
+from wayflowcore.steps import (
+    CompleteStep,
+    InputMessageStep,
+    MapStep,
+    OutputMessageStep,
+    ParallelMapStep,
+    StartStep,
+)
 from wayflowcore.tools import ServerTool
 from wayflowcore.variable import Variable
 
@@ -93,6 +100,7 @@ EXCLUDED_COMPONENTS = {
     # TODO: Support these in the future
     "DatastoreQueryStep",  # requires a relational datastore, we only have oracledb and it requires a connection to create the object
     "MapStep",  # names are not equivalent, need some complex logic
+    "ParallelMapStep",  # names are not equivalent, need some complex logic
     "ConstantContextProvider",  # is not serializable in wayflowcore so we can't test last step
     "Flow",
     "FlowExecutionStep",
@@ -104,6 +112,13 @@ EXCLUDED_COMPONENTS = {
     "Variable",
     "VariableReadStep",
     "VariableWriteStep",
+    "ComponentWithInputsOutputs",
+    "DataclassComponent",
+    "ConversationalComponent",
+    "ConversationExecutionState",
+    "FrozenDataclassComponent",
+    "HumanProxyAssistant",
+    "ToolBox",
 }
 
 ALL_ADDITIONAL_SUBCLASSES = list(
@@ -199,6 +214,7 @@ INIT_PARAMETER_DEFAULT_VALUES = {
     "group_manager": main_agent,
     "workers": [Agent(llm=llm, name="sub_agent", description="some description")],
     "llm": llm,
+    "host_port": "some/port",
     "_validate_api_key": False,
     "input_descriptors": [],
     "method": "POST",
@@ -237,7 +253,8 @@ INIT_PARAMETER_DEFAULT_VALUES = {
 }
 
 CLASS_SPECIFIC_INPUTS = {
-    MapStep: {"input_descriptors": [ListProperty(name=MapStep.ITERATED_INPUT)]}
+    MapStep: {"input_descriptors": [ListProperty(name=MapStep.ITERATED_INPUT)]},
+    ParallelMapStep: {"input_descriptors": [ListProperty(name=ParallelMapStep.ITERATED_INPUT)]},
 }
 
 

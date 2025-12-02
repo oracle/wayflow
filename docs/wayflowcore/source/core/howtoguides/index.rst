@@ -28,6 +28,15 @@ These how-to guides demonstrate how to use the main features to create and custo
 
 .. toctree::
    :maxdepth: 1
+   :caption: LLMs
+
+   Install and Use Ollama <installing_ollama>
+   Specify the Generation Configuration when Using LLMs <generation_config>
+   Use LLM from Different LLM Sources and Providers <llm_from_different_providers>
+   Handle long context with agents <howto_long_context>
+
+.. toctree::
+   :maxdepth: 1
    :caption: Agents
 
    Create a ReAct Agent <agents>
@@ -35,7 +44,6 @@ These how-to guides demonstrate how to use the main features to create and custo
    Use OCI Generative AI Agents <howto_ociagent>
    How to build A2A Agents <howto_a2aagent>
    Use Templates for Advanced Prompting Techniques <howto_prompttemplate>
-
 
 .. toctree::
    :maxdepth: 1
@@ -89,11 +97,8 @@ These guides demonstrate how to configure the components of assistants built wit
    Load and Execute an Agent Spec Configuration <howto_execute_agentspec_with_wayflowcore>
    Serialize and Deserialize Flows and Agents <howto_serdeser>
    Serialize and Deserialize Conversations <howto_serialize_conversations>
-   Specify the Generation Configuration when Using LLMs <generation_config>
-   Use LLM from Different LLM Sources and Providers <llm_from_different_providers>
-   Install and Use Ollama <installing_ollama>
+   Build a New WayFlow Component <howto_plugins>
    Enable Tracing <howto_tracing>
-   Handle long context with agents <howto_long_context>
 
 
 Data in Assistants

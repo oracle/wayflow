@@ -41,7 +41,7 @@ from wayflowcore.property import JsonSchemaParam, Property
 
 from .flowbasedtools import DescribedFlow
 from .toolbox import ToolBox
-from .tools import Tool, _make_tool_key, _sanitize_tool_name
+from .tools import SupportedToolTypesT, Tool, _make_tool_key, _sanitize_tool_name
 
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
@@ -204,6 +204,10 @@ class ServerTool(Tool):
             id=id,
             __metadata_info__=__metadata_info__,
         )
+
+    @property
+    def _tool_type(self) -> SupportedToolTypesT:
+        return "server"
 
     async def run_async(self, *args: Any, **kwargs: Any) -> Any:
         """

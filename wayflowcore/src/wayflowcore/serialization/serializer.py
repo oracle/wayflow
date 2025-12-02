@@ -5,10 +5,23 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import importlib
 import pkgutil
+import warnings
 from abc import ABC, abstractmethod
 from dataclasses import FrozenInstanceError, dataclass, field, fields
 from enum import Enum
-from typing import Any, ClassVar, Dict, ForwardRef, Optional, Type, TypeVar, cast, get_type_hints
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Dict,
+    ForwardRef,
+    List,
+    Optional,
+    Type,
+    TypeVar,
+    cast,
+    get_type_hints,
+)
 
 import yaml
 
@@ -34,6 +47,12 @@ from wayflowcore.serialization._typingutils import (
 )
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 
+if TYPE_CHECKING:
+    from wayflowcore.serialization.plugins import (
+        WayflowDeserializationPlugin,
+        WayflowSerializationPlugin,
+    )
+
 
 class SerializableObject(ObjectWithMetadata, ABC):
     """
@@ -42,17 +61,15 @@ class SerializableObject(ObjectWithMetadata, ABC):
     This class provides a common interface for objects that need to be converted to and from a dictionary representation.
     """
 
-    _COMPONENT_REGISTRY: ClassVar[Dict[str, Type["SerializableObject"]]] = (
-        {}
-    )  # Cannot be `_REGISTRY` which is already used by `_StepRegistry`
+    _COMPONENT_REGISTRY: ClassVar[Dict[str, Type["SerializableObject"]]] = {}
+    # Cannot be `_REGISTRY` which is already used by `_StepRegistry`
 
     _can_be_referenced: ClassVar[bool] = True
     # whether the object can be referenced or will be entirely serialized where its needed
 
     def __init_subclass__(cls, **kwargs: Dict[str, Any]):
         super().__init_subclass__(**kwargs)
-        # Only register if SerializableObject is a direct parent
-        if SerializableObject in cls.__bases__:
+        if issubclass(cls, SerializableObject):
             SerializableObject._COMPONENT_REGISTRY[cls.__name__] = cls
 
     @classmethod
@@ -228,8 +245,6 @@ class _IncorrectDeserializedTypeException(ValueError):
 def deserialize_any_from_dict(
     obj: Any, expected_type: Type[M], deserialization_context: DeserializationContext
 ) -> M:
-    from wayflowcore.serialization.toolserialization import deserialize_tool_from_config
-    from wayflowcore.tools import Tool
 
     _import_all_submodules("wayflowcore")
 
@@ -244,12 +259,16 @@ def deserialize_any_from_dict(
         # resolve string type-checking annotation
         expected_type = SerializableObject._COMPONENT_REGISTRY.get(expected_type, expected_type)  # type: ignore
 
-    # ugly workaround for legacy serialized tools
-    if expected_type is Tool:
-        return cast(M, deserialize_tool_from_config(obj, deserialization_context))
     try:
         if issubclass(expected_type, SerializableObject):
-            deserialized_object = autodeserialize_from_dict(obj, deserialization_context)
+            # If the object is a string and the expected type is a subclass of tool
+            # We proceed with its deserialization, as autodeserialize requires a dictionary
+            from wayflowcore.tools import Tool
+
+            if isinstance(obj, str) and issubclass(expected_type, Tool):
+                deserialized_object = Tool._deserialize_from_dict(obj, deserialization_context)  # type: ignore
+            else:
+                deserialized_object = autodeserialize_from_dict(obj, deserialization_context)
             if not isinstance(deserialized_object, expected_type):
                 raise _IncorrectDeserializedTypeException(
                     f"The expected deserialized type is {expected_type} but `{obj}` was passed (the deserialized type is {type(deserialized_object)})"
@@ -393,7 +412,9 @@ class SerializableCallable(SerializableDataclassMixin, ABC):
 
 
 def serialize_to_dict(
-    obj: SerializableObject, serialization_context: Optional[SerializationContext] = None
+    obj: SerializableObject,
+    serialization_context: Optional[SerializationContext] = None,
+    plugins: Optional[List["WayflowSerializationPlugin"]] = None,
 ) -> Dict[str, Any]:
     """
     Serializes an object into a dictionary representation.
@@ -405,6 +426,9 @@ def serialize_to_dict(
     serialization_context:
         Context for serialization operations. Keeps track of serialized objects to avoid serializing them several times.
         If not provided, a new ``SerializationContext`` will be created with the object as its root.
+    plugins:
+        List of plugins to be used in the SerializationContext.
+        If a serialization context instance is provided, this list is ignored.
 
     Returns
     -------
@@ -431,7 +455,13 @@ def serialize_to_dict(
 
     # not using the common serialization context if object is not supposed to use references
     if serialization_context is None:
-        serialization_context = SerializationContext(root=obj)
+        serialization_context = SerializationContext(root=obj, plugins=plugins)
+    elif plugins is not None:
+        warnings.warn(
+            "A list of plugins was provided together with a serialization context instance in `serialize_to_dict`. "
+            "Do not pass the plugins to `serialize_to_dict`, but create the context instance passing the list of plugins instead.",
+            UserWarning,
+        )
 
     # returned reference object if already deserialized
     if serialization_context.check_obj_is_already_serialized(obj):
@@ -440,7 +470,9 @@ def serialize_to_dict(
     # avoid self references
     if obj._can_be_referenced:
         serialization_context.start_serialization(obj)
-    obj_as_dict = obj._serialize_to_dict(serialization_context)
+
+    serialization_plugin = serialization_context.get_serialization_plugin_for_object(obj)
+    obj_as_dict = serialization_plugin.serialize(obj, serialization_context)
 
     # fill with type and metadata fields
     metadata = obj.__metadata_info__ if hasattr(obj, "__metadata_info__") else {}
@@ -466,7 +498,11 @@ def serialize_to_dict(
         return serialization_context.get_reference_dict(obj)
 
 
-def serialize(obj: SerializableObject) -> str:
+def serialize(
+    obj: SerializableObject,
+    serialization_context: Optional[SerializationContext] = None,
+    plugins: Optional[List["WayflowSerializationPlugin"]] = None,
+) -> str:
     """
     Serializes an object into a YAML string representation.
 
@@ -474,6 +510,12 @@ def serialize(obj: SerializableObject) -> str:
     ----------
     obj:
         Object to serialize.
+    serialization_context:
+        Context for serialization operations. Keeps track of serialized objects to avoid serializing them several times.
+        If not provided, a new ``SerializationContext`` will be created with the object as its root.
+    plugins:
+        List of plugins to be used in the SerializationContext.
+        If a serialization context instance is provided, this list is ignored.
 
     Returns
     -------
@@ -486,7 +528,7 @@ def serialize(obj: SerializableObject) -> str:
     >>> serialized_assistant_as_str = serialize(assistant)
 
     """
-    obj_as_dict = serialize_to_dict(obj)
+    obj_as_dict = serialize_to_dict(obj, serialization_context, plugins)
     return yaml.dump(obj_as_dict)
 
 
@@ -497,6 +539,7 @@ def deserialize_from_dict(
     deserialization_type: type[T],
     obj_as_dict: Dict[str, Any],
     deserialization_context: Optional[DeserializationContext] = None,
+    plugins: Optional[List["WayflowDeserializationPlugin"]] = None,
 ) -> T:
     """
     Deserializes an object from its dictionary representation.
@@ -510,6 +553,9 @@ def deserialize_from_dict(
     deserialization_context:
         Context for deserialization operations, to avoid deserializing the same object twice.
         If not provided, a new ``DeserializationContext`` will be created.
+    plugins:
+        List of plugins to be used in the DeserializationContext.
+        If a deserialization context instance is provided, this list is ignored.
 
     Returns
     -------
@@ -528,7 +574,14 @@ def deserialize_from_dict(
 
     """
     if deserialization_context is None:
-        deserialization_context = DeserializationContext()
+        deserialization_context = DeserializationContext(plugins=plugins)
+    elif plugins is not None:
+        warnings.warn(
+            "A list of plugins was provided together with a deserialization context instance in `deserialize_from_dict`. "
+            "Do not pass the plugins to `deserialize_from_dict`, but create the context instance passing the list of plugins instead.",
+            UserWarning,
+        )
+
     if isinstance(obj_as_dict, dict) and "_referenced_objects" in obj_as_dict:
         deserialization_context.add_referenced_objects(obj_as_dict["_referenced_objects"])
 
@@ -549,8 +602,11 @@ def deserialize_from_dict(
             deserialization_context.start_deserialization(object_reference)
             obj_as_dict = deserialization_context.get_referenced_dict(object_reference)
 
-    deserialized_obj = deserialization_type._deserialize_from_dict(
-        obj_as_dict, deserialization_context
+    deserialization_plugin = deserialization_context.get_deserialization_plugin_for_object(
+        deserialization_type
+    )
+    deserialized_obj = deserialization_plugin.deserialize(
+        deserialization_type, obj_as_dict, deserialization_context
     )
     if object_reference:
         deserialization_context.recorddeserialized_object(object_reference, deserialized_obj)
@@ -572,6 +628,7 @@ def deserialize(
     deserialization_type: type[T],
     obj: str,
     deserialization_context: Optional[DeserializationContext] = None,
+    plugins: Optional[List["WayflowDeserializationPlugin"]] = None,
 ) -> T:
     """
     Deserializes an object from its text representation and its corresponding class.
@@ -585,6 +642,9 @@ def deserialize(
     deserialization_context:
         Context for deserialization operations, to avoid deserializing a same object twice.
         If not provided, a new ``DeserializationContext`` will be created.
+    plugins:
+        List of plugins to be used in the DeserializationContext.
+        If a deserialization context instance is provided, this list is ignored.
 
     Returns
     -------
@@ -599,7 +659,14 @@ def deserialize(
 
     """
     if deserialization_context is None:
-        deserialization_context = DeserializationContext()
+        deserialization_context = DeserializationContext(plugins=plugins)
+    elif plugins is not None:
+        warnings.warn(
+            "A list of plugins was provided together with a deserialization context instance in `deserialize`. "
+            "Do not pass the plugins to `deserialize`, but create the context instance passing the list of plugins instead.",
+            UserWarning,
+        )
+
     obj_as_dict: Dict[str, Any] = yaml.safe_load(obj)
 
     component_type: str = obj_as_dict["_component_type"]
@@ -615,6 +682,7 @@ def deserialize(
 def autodeserialize(
     obj: str,
     deserialization_context: Optional[DeserializationContext] = None,
+    plugins: Optional[List["WayflowDeserializationPlugin"]] = None,
 ) -> SerializableObject:
     """
     Deserializes an object from its text representation.
@@ -626,6 +694,9 @@ def autodeserialize(
     deserialization_context:
         Context for deserialization operations, to avoid deserializing a same object twice.
         If not provided, a new ``DeserializationContext`` will be created.
+    plugins:
+        List of plugins to be used in the DeserializationContext.
+        If a deserialization context instance is provided, this list is ignored.
 
     Returns
     -------
@@ -640,7 +711,13 @@ def autodeserialize(
     """
 
     if deserialization_context is None:
-        deserialization_context = DeserializationContext()
+        deserialization_context = DeserializationContext(plugins=plugins)
+    elif plugins is not None:
+        warnings.warn(
+            "A list of plugins was provided together with a deserialization context instance in `autodeserialize`. "
+            "Do not pass the plugins to `autodeserialize`, but create the context instance passing the list of plugins instead.",
+            UserWarning,
+        )
 
     obj_as_dict: Dict[str, Any] = yaml.safe_load(obj)
     return autodeserialize_from_dict(obj_as_dict, deserialization_context)

@@ -1,0 +1,215 @@
+{
+  "component_type": "ExtendedAgent",
+  "id": "9602dfd1-77aa-42c7-8ebb-097cbdf6eb29",
+  "name": "agent_ed163a03__auto",
+  "description": "",
+  "metadata": {
+    "__metadata_info__": {}
+  },
+  "inputs": [],
+  "outputs": [],
+  "llm_config": {
+    "component_type": "VllmConfig",
+    "id": "c1cc758f-c022-4c9c-88d4-ac6cc027a897",
+    "name": "llm_2609a7b7__auto",
+    "description": null,
+    "metadata": {
+      "__metadata_info__": {}
+    },
+    "default_generation_parameters": null,
+    "url": "MODEL-URL",
+    "model_id": "MODEL-ID"
+  },
+  "system_prompt": "\nYou have the following files available:\n- movies.txt\n- videogames.txt\n\nRead the content of the right file - based on the user query - with the tool, and answer the user.\n",
+  "tools": [
+    {
+      "component_type": "AgentSpecReadFileTool",
+      "id": "f1097ec5-343d-434a-b599-39b8c8ec9c76",
+      "name": "read_file_tool",
+      "description": "Read the content of a file",
+      "metadata": {},
+      "inputs": [
+        {
+          "type": "string",
+          "title": "file_path"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "title": "file_content"
+        }
+      ],
+      "allowed_extensions": [
+        ".txt"
+      ],
+      "component_plugin_name": "PydanticComponentPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    }
+  ],
+  "toolboxes": [],
+  "human_in_the_loop": true,
+  "context_providers": null,
+  "can_finish_conversation": false,
+  "raise_exceptions": false,
+  "max_iterations": 10,
+  "initial_message": "Hi! How can I help you?",
+  "caller_input_mode": "always",
+  "agents": [],
+  "flows": [],
+  "agent_template": {
+    "component_type": "PluginPromptTemplate",
+    "id": "af4f8ec3-ac2c-43fc-852b-6be2f48f55cb",
+    "name": "",
+    "description": null,
+    "metadata": {
+      "__metadata_info__": {}
+    },
+    "messages": [
+      {
+        "role": "system",
+        "contents": [
+          {
+            "type": "text",
+            "content": "{%- if __TOOLS__ -%}\nEnvironment: ipython\nCutting Knowledge Date: December 2023\n\nYou are a helpful assistant with tool calling capabilities. Only reply with a tool call if the function exists in the library provided by the user. If it doesn't exist, just reply directly in natural language. When you receive a tool call response, use the output to format an answer to the original user question.\n\nYou have access to the following functions. To call a function, please respond with JSON for a function call.\nRespond in the format {\"name\": function name, \"parameters\": dictionary of argument name and its value}.\nDo not use variables.\n\n[{% for tool in __TOOLS__%}{{tool.to_openai_format() | tojson}}{{', ' if not loop.last}}{% endfor %}]\n{%- endif -%}\n"
+          }
+        ],
+        "tool_requests": null,
+        "tool_result": null,
+        "display_only": false,
+        "sender": null,
+        "recipients": [],
+        "time_created": "2025-11-18T18:54:31.910732+00:00",
+        "time_updated": "2025-11-18T18:54:31.910732+00:00"
+      },
+      {
+        "role": "system",
+        "contents": [
+          {
+            "type": "text",
+            "content": "{%- if custom_instruction -%}Additional instructions:\n{{custom_instruction}}{%- endif -%}"
+          }
+        ],
+        "tool_requests": null,
+        "tool_result": null,
+        "display_only": false,
+        "sender": null,
+        "recipients": [],
+        "time_created": "2025-11-18T18:54:31.910753+00:00",
+        "time_updated": "2025-11-18T18:54:31.910753+00:00"
+      },
+      {
+        "role": "system",
+        "contents": [
+          {
+            "type": "text",
+            "content": "$$__CHAT_HISTORY_PLACEHOLDER__$$"
+          }
+        ],
+        "tool_requests": null,
+        "tool_result": null,
+        "display_only": false,
+        "sender": null,
+        "recipients": [],
+        "time_created": "2025-11-18T18:54:31.908396+00:00",
+        "time_updated": "2025-11-18T18:54:31.908397+00:00"
+      },
+      {
+        "role": "system",
+        "contents": [
+          {
+            "type": "text",
+            "content": "{% if __PLAN__ %}The current plan you should follow is the following: \n{{__PLAN__}}{% endif %}"
+          }
+        ],
+        "tool_requests": null,
+        "tool_result": null,
+        "display_only": false,
+        "sender": null,
+        "recipients": [],
+        "time_created": "2025-11-18T18:54:31.910769+00:00",
+        "time_updated": "2025-11-18T18:54:31.910769+00:00"
+      }
+    ],
+    "output_parser": {
+      "component_type": "PluginJsonToolOutputParser",
+      "id": "9d783ae5-68db-4015-90cd-7becff0e1ad6",
+      "name": "jsontool_outputparser",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "tools": null,
+      "component_plugin_name": "OutputParserPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "inputs": [
+      {
+        "description": "\"__TOOLS__\" input variable for the template",
+        "title": "__TOOLS__"
+      },
+      {
+        "description": "\"custom_instruction\" input variable for the template",
+        "type": "string",
+        "title": "custom_instruction"
+      },
+      {
+        "description": "\"__PLAN__\" input variable for the template",
+        "type": "string",
+        "title": "__PLAN__",
+        "default": ""
+      },
+      {
+        "type": "array",
+        "items": {},
+        "title": "__CHAT_HISTORY__"
+      }
+    ],
+    "pre_rendering_transforms": null,
+    "post_rendering_transforms": [
+      {
+        "component_type": "PluginRemoveEmptyNonUserMessageTransform",
+        "id": "c1b5c055-4e6a-47a2-9a89-49b77132aff6",
+        "name": "removeemptynonusermessage_messagetransform",
+        "description": null,
+        "metadata": {
+          "__metadata_info__": {}
+        },
+        "component_plugin_name": "MessageTransformPlugin",
+        "component_plugin_version": "26.1.0.dev0"
+      },
+      {
+        "component_type": "PluginCoalesceSystemMessagesTransform",
+        "id": "292f22e0-2b83-4a5c-9c99-0a9eb5d04639",
+        "name": "coalescesystemmessage_messagetransform",
+        "description": null,
+        "metadata": {
+          "__metadata_info__": {}
+        },
+        "component_plugin_name": "MessageTransformPlugin",
+        "component_plugin_version": "26.1.0.dev0"
+      },
+      {
+        "component_type": "PluginLlamaMergeToolRequestAndCallsTransform",
+        "id": "199c50af-30f0-4d8d-a50c-86afdccaf089",
+        "name": "llamamergetoolrequestandcalls_messagetransform",
+        "description": null,
+        "metadata": {
+          "__metadata_info__": {}
+        },
+        "component_plugin_name": "MessageTransformPlugin",
+        "component_plugin_version": "26.1.0.dev0"
+      }
+    ],
+    "tools": null,
+    "native_tool_calling": false,
+    "response_format": null,
+    "native_structured_generation": true,
+    "generation_config": null,
+    "component_plugin_name": "PromptTemplatePlugin",
+    "component_plugin_version": "26.1.0.dev0"
+  },
+  "component_plugin_name": "AgentPlugin",
+  "component_plugin_version": "26.1.0.dev0",
+  "agentspec_version": "25.4.1"
+}

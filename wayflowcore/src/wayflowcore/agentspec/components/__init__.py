@@ -4,6 +4,10 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+from typing import List
+
+from pyagentspec.serialization import ComponentDeserializationPlugin, ComponentSerializationPlugin
+
 from .agent import ExtendedAgent, agent_deserialization_plugin, agent_serialization_plugin
 from .contextprovider import (
     PluginConstantContextProvider,
@@ -96,7 +100,7 @@ from .transforms import (
     messagetransform_serialization_plugin,
 )
 
-all_serialization_plugin = [
+all_serialization_plugin: List[ComponentSerializationPlugin] = [
     agent_serialization_plugin,
     swarm_serialization_plugin,
     managerworkers_serialization_plugin,
@@ -113,7 +117,7 @@ all_serialization_plugin = [
 ]
 
 
-all_deserialization_plugin = [
+all_deserialization_plugin: List[ComponentDeserializationPlugin] = [
     agent_deserialization_plugin,
     swarm_deserialization_plugin,
     managerworkers_deserialization_plugin,

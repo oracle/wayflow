@@ -95,7 +95,7 @@ Datastores also support managing multiple collections at the same time if needed
    :start-after: .. start-##_Create_entities
    :end-before: .. end-##_Create_entities
 
-Next, create an :ref:`InMemoryDataStore <inmemorydatastore>`.
+Next, create an :ref:`InMemoryDatastore <inmemorydatastore>`.
 For simplicity, you will use dummy data:
 
 .. literalinclude:: ../code_examples/howto_datastores.py

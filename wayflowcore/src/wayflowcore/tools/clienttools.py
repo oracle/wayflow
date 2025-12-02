@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 from wayflowcore._metadata import MetadataType
 from wayflowcore.property import JsonSchemaParam, Property
 
-from .tools import Tool
+from .tools import SupportedToolTypesT, Tool
 
 
 class ClientTool(Tool):
@@ -79,6 +79,10 @@ class ClientTool(Tool):
             id=id,
             __metadata_info__=__metadata_info__,
         )
+
+    @property
+    def _tool_type(self) -> SupportedToolTypesT:
+        return "client"
 
     @property
     def might_yield(self) -> bool:

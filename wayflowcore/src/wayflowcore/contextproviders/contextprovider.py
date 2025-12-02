@@ -7,18 +7,23 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
-from wayflowcore._metadata import MetadataType
+from wayflowcore._metadata import METADATA_KEY, MetadataType
 from wayflowcore._utils.async_helpers import run_async_in_sync, run_sync_in_thread
 from wayflowcore.component import Component
 from wayflowcore.conversation import Conversation
 from wayflowcore.property import Property
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
-from wayflowcore.serialization.serializer import SerializableObject
+from wayflowcore.serialization.serializer import (
+    SerializableObject,
+    autodeserialize_any_from_dict,
+    serialize_any_to_dict,
+)
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
     from wayflowcore.property import Property
+
 
 # It is not recommended to write a custom ContextProvider, you should rather use
 # the ToolContextProvider to maximize portability.
@@ -47,21 +52,71 @@ class ContextProvider(Component, SerializableObject, ABC):
         self._validate_single_output_description()
 
     def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
-        from wayflowcore.serialization.contextproviderserialization import (
-            serialize_context_provider_to_dict,
-        )
+        from wayflowcore.contextproviders import _SUPPORTED_CONTEXT_PROVIDER_TYPES
 
-        return serialize_context_provider_to_dict(self, serialization_context)
+        context_provider_types = {
+            context_provider_cls: context_provider_type
+            for context_provider_type, context_provider_cls in _SUPPORTED_CONTEXT_PROVIDER_TYPES.items()
+        }
+
+        if self.__class__ not in context_provider_types:
+            raise ValueError(
+                f"The context provider class {self.__class__.__name__} is not supported for serialization"
+            )
+
+        serialized_context_provider_dict: Dict[str, Any] = {
+            "_component_type": ContextProvider.__name__,
+            "context_provider_type": context_provider_types[self.__class__],
+            "name": self.name,
+            "id": self.id,
+            "description": self.description,
+        }
+
+        context_provider_args = {}
+        context_provider_config = self.get_static_configuration_descriptors()
+        for config_name, config_type_descriptor in context_provider_config.items():
+            if not hasattr(self, config_name):
+                raise ValueError(
+                    f"The ContextProvider {self.__class__.__name__} cannot be serialized "
+                    f"because it has a config named {config_name} but is missing the attribute "
+                    f"of the same name."
+                )
+            context_provider_args[config_name] = serialize_any_to_dict(
+                getattr(self, config_name), serialization_context
+            )
+
+        serialized_context_provider_dict["context_provider_args"] = context_provider_args
+
+        return serialized_context_provider_dict
 
     @classmethod
     def _deserialize_from_dict(
         cls, input_dict: Dict[str, Any], deserialization_context: DeserializationContext
     ) -> "SerializableObject":
-        from wayflowcore.serialization.contextproviderserialization import (
-            deserialize_context_provider_from_dict,
+        from wayflowcore.contextproviders import _SUPPORTED_CONTEXT_PROVIDER_TYPES
+
+        context_provider_type = input_dict["context_provider_type"]
+        if context_provider_type not in _SUPPORTED_CONTEXT_PROVIDER_TYPES:
+            raise ValueError(
+                f"The context provider type {context_provider_type} is not supported for deserialization."
+                f" Supported types are: {list(_SUPPORTED_CONTEXT_PROVIDER_TYPES.keys())}"
+            )
+        context_provider_cls = _SUPPORTED_CONTEXT_PROVIDER_TYPES[context_provider_type]
+
+        context_provider_arguments = {
+            arg_name: autodeserialize_any_from_dict(arg_prepared_value, deserialization_context)
+            for arg_name, arg_prepared_value in input_dict["context_provider_args"].items()
+        }
+
+        deserialized_context_provider = context_provider_cls(
+            **context_provider_arguments,
+            name=input_dict.get("name", None),
+            description=input_dict.get("description", None),
+            id=input_dict.get("id", None),
+            __metadata_info__=context_provider_arguments.get(METADATA_KEY, None),
         )
 
-        return deserialize_context_provider_from_dict(input_dict, deserialization_context)
+        return deserialized_context_provider
 
     def _has_async_implemented(self) -> bool:
         return "call_async" in self.__class__.__dict__

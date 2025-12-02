@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import warnings
 from typing import Dict, List, Literal, Optional, Sequence, Tuple, Union, overload
 
 from pyagentspec.component import Component as AgentSpecComponent
@@ -15,9 +16,8 @@ from pyagentspec.serialization.types import (
 from pyagentspec.versioning import AgentSpecVersionEnum
 from typing_extensions import TypeAlias
 
-from wayflowcore.agentspec._agentspecconverter import RuntimeToAgentSpecConverter
-from wayflowcore.agentspec.components import all_serialization_plugin
 from wayflowcore.component import Component as RuntimeComponent
+from wayflowcore.serialization.plugins import WayflowSerializationPlugin
 
 FieldID: TypeAlias = str
 RuntimeDisaggregatedComponentsConfigT: TypeAlias = Sequence[
@@ -31,27 +31,75 @@ class AgentSpecExporter:
 
     def __init__(
         self,
-        plugins: Optional[List[ComponentSerializationPlugin]] = None,
+        plugins: Optional[
+            List[Union[ComponentSerializationPlugin, WayflowSerializationPlugin]]
+        ] = None,
     ):
         """
         Parameters
         ----------
-        plugins: List[ComponentSerializationPlugin]
-            List of plugins to override existing plugins. By default, uses the latest supported plugins.
-        """
-        self.plugins = plugins
+        plugins: List[WayflowSerializationPlugin]
+            List of additional wayflow plugins to use. By default, uses the latest supported builtin plugins only.
 
-    def _get_all_plugins(self) -> List[ComponentSerializationPlugin]:
+            .. note:
+
+              Passing a list of ``ComponentSerializationPlugin`` from ``pyagentspec`` is deprecated
+              since wayflowcore==26.1.0.
+
+        """
+        self.plugins: List[WayflowSerializationPlugin] = (
+            [plugin for plugin in plugins if isinstance(plugin, WayflowSerializationPlugin)]
+            if plugins
+            else []
+        )
+
+        from wayflowcore.serialization._builtins_serialization_plugin import (
+            WayflowBuiltinsSerializationPlugin,
+        )
+
+        # If none of the given plugins is the builtins one, we automatically add it
+        if not any(
+            isinstance(plugin, WayflowBuiltinsSerializationPlugin) for plugin in self.plugins
+        ):
+            self.plugins.append(WayflowBuiltinsSerializationPlugin())
+
+        self.agentspec_plugins: List[ComponentSerializationPlugin] = (
+            [plugin for plugin in plugins if isinstance(plugin, ComponentSerializationPlugin)]
+            if plugins
+            else []
+        )
+        if self.agentspec_plugins:
+            # Deprecated in wayflowcore 26.1.0
+            warnings.warn(
+                "Passing plugins of type `ComponentSerializationPlugin` is deprecated since wayflowcore==26.1.0. "
+                "Please pass only plugins of type `WayflowSerializationPlugin` instead.",
+                DeprecationWarning,
+            )
+
+    def _get_all_plugins(self) -> List[WayflowSerializationPlugin]:
+        # We group all plugins that are manually passed here to allow passing
+        # specific plugins (e.g., plugin associated with a specific version).
+        # This is possible if:
+        # 1. All plugins are given a unique name
+        # 2. There is a single plugin that can serialize each custom component
+        all_plugins_by_name: Dict[str, WayflowSerializationPlugin] = {
+            plugin_.plugin_name: plugin_ for plugin_ in self.plugins
+        }
+        return list(all_plugins_by_name.values())
+
+    def _get_all_agentspec_plugins(self) -> List[ComponentSerializationPlugin]:
         # We group all plugins that are manually passed here to allow passing
         # specific plugins (e.g., plugin associated with a specific version).
         # This is possible if:
         # 1. All plugins are given a unique name
         # 2. There is a single plugin that can serialize each custom component
         all_plugins_by_name: Dict[str, ComponentSerializationPlugin] = {
-            plugin_.plugin_name: plugin_ for plugin_ in all_serialization_plugin
+            agentspec_plugin.plugin_name: agentspec_plugin
+            for plugin_ in self._get_all_plugins()
+            for agentspec_plugin in plugin_.required_agentspec_serialization_plugins
         }
-        for plugin_ in self.plugins or []:
-            all_plugins_by_name[plugin_.plugin_name] = plugin_
+        for agentspec_plugin in self.agentspec_plugins:
+            all_plugins_by_name[agentspec_plugin.plugin_name] = agentspec_plugin
         return list(all_plugins_by_name.values())
 
     @overload
@@ -199,7 +247,7 @@ class AgentSpecExporter:
             else None
         )
 
-        serializer = PyAgentSpecSerializer(plugins=self._get_all_plugins())
+        serializer = PyAgentSpecSerializer(plugins=self._get_all_agentspec_plugins())
         return serializer.to_json(
             agentspec_assistant,
             agentspec_version=agentspec_version,
@@ -352,7 +400,7 @@ class AgentSpecExporter:
             else None
         )
 
-        serializer = PyAgentSpecSerializer(plugins=self._get_all_plugins())
+        serializer = PyAgentSpecSerializer(plugins=self._get_all_agentspec_plugins())
         return serializer.to_yaml(
             agentspec_assistant,
             agentspec_version=agentspec_version,
@@ -387,4 +435,7 @@ class AgentSpecExporter:
             raise TypeError(
                 f"Expected an Agent or a Flow, but got '{type(runtime_component)}' instead"
             )
-        return RuntimeToAgentSpecConverter().convert(runtime_component)
+
+        from wayflowcore.agentspec._agentspecconverter import WayflowToAgentSpecConversionContext
+
+        return WayflowToAgentSpecConversionContext(plugins=self.plugins).convert(runtime_component)

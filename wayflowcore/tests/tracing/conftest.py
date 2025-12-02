@@ -24,9 +24,7 @@ class SerializableDummyModel(DummyModel):
 
     @property
     def config(self) -> Dict[str, Any]:
-        return {
-            "model_id": self.model_id,
-        }
+        return {"model_id": self.model_id}
 
 
 def create_serializable_dummy_llm_with_next_output(

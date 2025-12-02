@@ -346,6 +346,65 @@ def _remap_input_to_io_value_keys_with_startstep(
     return new_data_flow_edges, remapped_io_value_keys
 
 
+def _handle_transitions_updates(
+    step: "Step",
+    step_name: str,
+    old_transitions: Union[Sequence[Optional[str]], Dict[str, Optional[str]]],
+    additional_transitions: Dict[str, Optional[str]],
+) -> Dict[str, Optional[str]]:
+    """
+    Based on the previously gathered `additional_transitions` (during step building), we now modify the `transitions`
+    dict to include these additional transitions, and fill potentially missing branches that are now mandatory
+    (to avoid crashing on old configs)
+    """
+    if isinstance(old_transitions, Mapping):
+        if not isinstance(old_transitions, dict):
+            raise ValueError("Internal error")
+
+        if len(additional_transitions) > 0:
+            old_transitions.update(additional_transitions)
+        return old_transitions
+
+    from wayflowcore.steps import BranchingStep, ChoiceSelectionStep, RetryStep
+    from wayflowcore.steps.step import Step
+
+    transitions_dict = additional_transitions
+
+    step_cls = step.__class__
+
+    if step_cls in [BranchingStep, ChoiceSelectionStep, RetryStep]:
+        if step_cls == BranchingStep:
+            if BranchingStep.BRANCH_DEFAULT not in transitions_dict:
+                transitions_dict[BranchingStep.BRANCH_DEFAULT] = None
+
+        elif step_cls == ChoiceSelectionStep:
+            if ChoiceSelectionStep.BRANCH_DEFAULT not in transitions_dict:
+                transitions_dict[ChoiceSelectionStep.BRANCH_DEFAULT] = None
+
+        elif step_cls == RetryStep:
+            if RetryStep.BRANCH_NEXT not in transitions_dict:
+                transitions_dict[RetryStep.BRANCH_NEXT] = None
+            if RetryStep.BRANCH_FAILURE not in transitions_dict:
+                transitions_dict[RetryStep.BRANCH_FAILURE] = None
+
+        branches = step.get_branches()
+        for old_transition in old_transitions:
+            if old_transition in branches:
+                transitions_dict[str(old_transition)] = old_transition
+
+    else:
+        if len(old_transitions) > 1 and step_name in old_transitions:
+            old_transitions = [s for s in old_transitions if s != step_name]
+        if len(old_transitions) == 1:
+            transitions_dict = {Step.BRANCH_NEXT: old_transitions[0]}
+        else:
+            ValueError(
+                f"Found several potential next steps and transitions is a list: {old_transitions}"
+            )
+
+    return transitions_dict
+
+
 class Flow(ConversationalComponent, SerializableObject):
     """
     Represents a conversational assistant that defines the flow of a conversation.
@@ -1198,8 +1257,6 @@ class Flow(ConversationalComponent, SerializableObject):
             additional_transitions[step_name] = (
                 deserialization_context._consume_additional_transitions()
             )
-
-        from wayflowcore.serialization.stepserialization import _handle_transitions_updates
 
         transitions = input_dict.get("transitions", None)
         if transitions is not None:

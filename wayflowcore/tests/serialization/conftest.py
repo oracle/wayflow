@@ -10,7 +10,7 @@ import time
 
 import pytest
 
-from tests.utils import LogTee, _check_server_is_up, _terminate_process_tree, get_available_port
+from ..utils import LogTee, _check_server_is_up, _terminate_process_tree, get_available_port
 
 _START_SERVER_FILE_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "a2a", "server", "start_a2a_server.py"
@@ -18,7 +18,7 @@ _START_SERVER_FILE_PATH = os.path.join(
 
 
 def _start_a2a_server(
-    host: str, port: int, ready_timeout_s: float = 5.0
+    host: str, port: int, ready_timeout_s: float = 10.0
 ) -> tuple[subprocess.Popen, str]:
     process_args = [
         "python",
