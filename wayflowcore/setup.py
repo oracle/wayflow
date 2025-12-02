@@ -61,7 +61,7 @@ setup(
         "json_repair>=0.30.0,<0.45.0",
         "PyYAML>=5.4,<7.0.0",
         "pydantic>=2.7.4,<3.0.0",
-        "mcp>=1.12.0,<1.18.0",
+        "mcp>=1.12.0,<1.24.0",
         # 4rth party dependencies version bounds, for CVE patching
         "annotated-types>=0.6.0",
         "anyio>=4.10.0,<4.12.0",
