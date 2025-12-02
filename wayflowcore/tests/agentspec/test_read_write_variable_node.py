@@ -8,7 +8,7 @@ import pytest
 from pyagentspec.property import ListProperty, StringProperty
 
 from wayflowcore import Flow
-from wayflowcore.agentspec._runtimeconverter import AgentSpecToRuntimeConverter
+from wayflowcore.agentspec._runtimeconverter import AgentSpecToWayflowConversionContext
 from wayflowcore.agentspec.components.nodes import PluginReadVariableNode, PluginWriteVariableNode
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.property import ListProperty as RuntimeListProperty
@@ -28,10 +28,8 @@ def test_read_variable_node_executes_correctly():
         variable=agentspec_variable,
     )
 
-    runtime_step = AgentSpecToRuntimeConverter().convert(plugin_node, {})
-    runtime_variable = AgentSpecToRuntimeConverter()._convert_property_to_runtime_variable(
-        agentspec_variable
-    )
+    runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
+    runtime_variable = runtime_step.variable
 
     assert runtime_step.input_descriptors == []
     assert runtime_step.output_descriptors == [
@@ -66,10 +64,8 @@ def test_read_variable_node_with_output_mapping_executes_correctly():
         output_mapping={PluginReadVariableNode.VALUE: "read_variable_output"},
     )
 
-    runtime_step = AgentSpecToRuntimeConverter().convert(plugin_node, {})
-    runtime_variable = AgentSpecToRuntimeConverter()._convert_property_to_runtime_variable(
-        agentspec_variable
-    )
+    runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
+    runtime_variable = runtime_step.variable
 
     assert runtime_step.input_descriptors == []
     assert runtime_step.output_descriptors == [
@@ -103,10 +99,8 @@ def test_write_variable_node_with_default_write_operator_executes_correctly():
         variable=agentspec_variable,
     )  # default write operator is "overwrite"
 
-    runtime_step = AgentSpecToRuntimeConverter().convert(plugin_node, {})
-    runtime_variable = AgentSpecToRuntimeConverter()._convert_property_to_runtime_variable(
-        agentspec_variable
-    )
+    runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
+    runtime_variable = runtime_step.variable
 
     assert runtime_step.input_descriptors == [
         RuntimeListProperty(
@@ -145,10 +139,8 @@ def test_write_variable_node_with_write_operator_and_input_mapping_executes_corr
         input_mapping={PluginWriteVariableNode.VALUE: "write_value"},
     )
 
-    runtime_step = AgentSpecToRuntimeConverter().convert(plugin_node, {})
-    runtime_variable = AgentSpecToRuntimeConverter()._convert_property_to_runtime_variable(
-        agentspec_variable
-    )
+    runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
+    runtime_variable = runtime_step.variable
 
     assert runtime_step.input_descriptors == [
         RuntimeStringProperty(

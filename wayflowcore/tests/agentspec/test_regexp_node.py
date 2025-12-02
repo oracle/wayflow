@@ -11,7 +11,7 @@ from pyagentspec.property import Property, StringProperty
 
 from wayflowcore import Flow
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
-from wayflowcore.agentspec._runtimeconverter import AgentSpecToRuntimeConverter
+from wayflowcore.agentspec._runtimeconverter import AgentSpecToWayflowConversionContext
 from wayflowcore.agentspec.components.nodes import PluginRegexNode
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.property import ListProperty as RuntimeListProperty
@@ -40,7 +40,7 @@ def test_regex_node_with_mapped_ios_executes_correctly():
         input_mapping={PluginRegexNode.DEFAULT_INPUT_KEY: "MyTextFullOfNumbers"},
         output_mapping={PluginRegexNode.DEFAULT_OUTPUT_KEY: "AllMyExtractedNumbers"},
     )
-    runtime_step = AgentSpecToRuntimeConverter().convert(plugin_node, {})
+    runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
     assert runtime_step.input_descriptors == [RuntimeStringProperty(name="MyTextFullOfNumbers")]
     assert runtime_step.output_descriptors == [
         RuntimeListProperty(
@@ -83,7 +83,7 @@ def test_regex_node_with_default_properties_correctly_executes():
         ],
         outputs=[StringProperty(title=PluginRegexNode.DEFAULT_OUTPUT_KEY, default="1234")],
     )
-    runtime_step = AgentSpecToRuntimeConverter().convert(plugin_node, {})
+    runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
     runtime_flow = Flow.from_steps([runtime_step])
 
     conversation = runtime_flow.start_conversation(

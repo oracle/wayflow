@@ -252,10 +252,10 @@ print(result)
 # .. start-##_Export_config_to_Agent_Spec
 from wayflowcore.agent import Agent
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
-from wayflowcore.agentspec.components.template import prompttemplate_serialization_plugin, prompttemplate_deserialization_plugin
+
 assistant = Agent(llm=llm, agent_template=prompt_template)
-serialized_assistant = AgentSpecExporter(plugins=[prompttemplate_serialization_plugin]).to_json(assistant)
+serialized_assistant = AgentSpecExporter().to_json(assistant)
 # .. end-##_Export_config_to_Agent_Spec
 # .. start-##_Load_Agent_Spec_config
-new_agent: Agent = AgentSpecLoader(plugins=[prompttemplate_deserialization_plugin]).load_json(serialized_assistant)
+new_agent: Agent = AgentSpecLoader().load_json(serialized_assistant)
 # .. end-##_Load_Agent_Spec_config

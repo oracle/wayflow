@@ -114,6 +114,7 @@ DEFAULT_CLASS_PARAMETER_VALUES: Dict[str, Dict[str, object]] = {
 # Add step class names in this list if they are not meant to be actually tested
 step_cls_skiplist = [
     "CallableStep",
+    "DoNothingStep",
     "ObjectStep",
     "AddCustomValuesToContextStep",
     "InputOutputSpecifiedStep",

@@ -3,12 +3,11 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-from dataclasses import dataclass
 from typing import Any, Dict
 
 import pytest
 
-from wayflowcore import Message
+from wayflowcore import Message, __version__
 from wayflowcore.outputparser import (
     JsonOutputParser,
     JsonToolOutputParser,
@@ -20,6 +19,7 @@ from wayflowcore.outputparser import (
 from wayflowcore.property import ObjectProperty, StringProperty
 from wayflowcore.serialization import autodeserialize, serialize
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
+from wayflowcore.serialization.plugins import WayflowSerializationPlugin
 from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.templates import (
     LLAMA_AGENT_TEMPLATE,
@@ -32,6 +32,62 @@ from wayflowcore.templates import (
     REACT_CHAT_TEMPLATE,
     PromptTemplate,
 )
+
+from ..testhelpers.serialization import make_serialization_plugin
+
+
+@pytest.fixture
+def my_parser_with_serde_class():
+
+    class MyParser(OutputParser):
+
+        def _serialize_to_dict(
+            self, serialization_context: "SerializationContext"
+        ) -> Dict[str, Any]:
+            return {}
+
+        @classmethod
+        def _deserialize_from_dict(
+            cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
+        ) -> "SerializableObject":
+            return MyParser(__metadata_info__={})
+
+        def parse_output(self, content: Message) -> Message:
+            pass
+
+        async def parse_output_streaming(self, content: Any) -> Any:
+            pass
+
+    try:
+        yield MyParser
+    finally:
+        # need to manually remove it from registry so that it doesn't appear in the registry of other tests
+        SerializableObject._COMPONENT_REGISTRY.pop(MyParser.__name__)
+
+
+@pytest.fixture
+def my_parser_without_serde_class():
+
+    class MyParserNoSerde(OutputParser):
+
+        def parse_output(self, content: Message) -> Message:
+            pass
+
+        async def parse_output_streaming(self, content: Any) -> Any:
+            pass
+
+    try:
+        yield MyParserNoSerde
+    finally:
+        # need to manually remove it from registry so that it doesn't appear in the registry of other tests
+        SerializableObject._COMPONENT_REGISTRY.pop(MyParserNoSerde.__name__)
+
+
+@pytest.fixture
+def my_parser_serialization_plugin(my_parser_with_serde_class: type[SerializableObject]):
+    return make_serialization_plugin(
+        [my_parser_with_serde_class], name="MyParserPlugin", version=__version__
+    )
 
 
 @pytest.mark.parametrize(
@@ -86,53 +142,38 @@ def test_output_parser_serialization(output_parser):
     assert deserialized_output_parser == output_parser
 
 
-def test_serialization_of_template_with_custom_parser_works():
-    class MyParser(OutputParser):
-        def _serialize_to_dict(
-            self, serialization_context: "SerializationContext"
-        ) -> Dict[str, Any]:
-            return {}
-
-        @classmethod
-        def _deserialize_from_dict(
-            cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
-        ) -> "SerializableObject":
-            return MyParser(__metadata_info__={})
-
-        def parse_output(self, content: Message) -> Message:
-            pass
-
-        async def parse_output_streaming(self, content: Any) -> Any:
-            pass
-
-    parser = MyParser(__metadata_info__={})
-    serialized_parser = serialize(parser)
+def test_serialization_of_template_with_custom_parser_works(
+    my_parser_with_serde_class: type, my_parser_serialization_plugin: WayflowSerializationPlugin
+):
+    parser = my_parser_with_serde_class()
+    serialized_parser = serialize(parser, plugins=[my_parser_serialization_plugin])
+    assert "MyParser" in serialized_parser
 
 
-def test_serialization_of_custom_parser_raises():
-    @dataclass
-    class MyParser(OutputParser):
-        def parse_output(self, content: Message) -> Message:
-            pass
-
-        async def parse_output_streaming(self, content: Any) -> Any:
-            pass
-
-    parser = MyParser()
-    with pytest.raises(ValueError, match="Serialization not implemented for MyParser"):
+def test_serialization_of_template_with_custom_parser_without_plugin_works(
+    my_parser_with_serde_class: type,
+):
+    parser = my_parser_with_serde_class(__metadata_info__={})
+    with pytest.warns(
+        UserWarning,
+        match="Found no serialization plugin to serialize the object of type `MyParser`. Trying using the builtins serialization plugin instead.",
+    ):
         serialized_parser = serialize(parser)
+    assert "MyParser" in serialized_parser
 
 
-def test_serialization_of_template_with_custom_parser_raises():
-    @dataclass
-    class MyParser(OutputParser):
-        def parse_output(self, content: Message) -> Message:
-            pass
+def test_serialization_of_custom_parser_raises(
+    my_parser_without_serde_class: type, my_parser_serialization_plugin: WayflowSerializationPlugin
+):
+    parser = my_parser_without_serde_class()
+    with pytest.raises(ValueError, match="Serialization not implemented for MyParserNoSerde"):
+        _ = serialize(parser, plugins=[my_parser_serialization_plugin])
 
-        async def parse_output_streaming(self, content: Any) -> Any:
-            pass
 
-    parser = MyParser()
+def test_serialization_of_template_with_custom_parser_raises(
+    my_parser_without_serde_class: type, my_parser_serialization_plugin: WayflowSerializationPlugin
+):
+    parser = my_parser_without_serde_class()
     template = PromptTemplate.from_string("some text").with_output_parser(parser)
-    with pytest.raises(ValueError, match="Serialization not implemented for MyParser"):
-        serialized_parser = serialize(template)
+    with pytest.raises(ValueError, match="Serialization not implemented for MyParserNoSerde"):
+        _ = serialize(template, plugins=[my_parser_serialization_plugin])

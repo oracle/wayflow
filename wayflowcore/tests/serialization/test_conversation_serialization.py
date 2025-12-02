@@ -9,7 +9,7 @@ from typing import Sequence, cast
 
 import pytest
 
-from wayflowcore import Message, MessageType, Tool
+from wayflowcore import Message, MessageType, Tool, __version__
 from wayflowcore.agent import Agent
 from wayflowcore.executors._agentconversation import AgentConversation
 from wayflowcore.executors._agentexecutor import AgentConversationExecutionState
@@ -56,6 +56,7 @@ from wayflowcore.tools import (
 from ..conftest import VLLM_MODEL_CONFIG
 from ..testhelpers.dummy import DummyModel
 from ..testhelpers.patching import patch_llm
+from ..testhelpers.serialization import make_deserialization_plugin, make_serialization_plugin
 from ..testhelpers.testhelpers import retry_test
 from .test_assistant_serialization import add_number_tool, agent, create_agent, flow  # noqa
 
@@ -484,12 +485,22 @@ def custom_toolbox():
                 ),
             ]
 
-    yield MyToolBox()
-    # need to manually remove it from registry so that it doesn't appear in the registry of other tests
-    SerializableObject._COMPONENT_REGISTRY.pop(MyToolBox.__name__)
+    try:
+        yield MyToolBox()
+    finally:
+        # need to manually remove it from registry so that it doesn't appear in the registry of other tests
+        SerializableObject._COMPONENT_REGISTRY.pop(MyToolBox.__name__)
 
 
 def test_agent_with_toolbox_does_not_crash_in_between_calls(custom_toolbox, remotely_hosted_llm):
+
+    toolbox_serialization_plugin = make_serialization_plugin(
+        [custom_toolbox.__class__], name="MyToolboxPlugin", version=__version__
+    )
+    toolbox_deserialization_plugin = make_deserialization_plugin(
+        [custom_toolbox.__class__], name="MyToolboxPlugin", version=__version__
+    )
+
     agent = Agent(
         llm=remotely_hosted_llm,
         tools=[custom_toolbox],
@@ -497,13 +508,18 @@ def test_agent_with_toolbox_does_not_crash_in_between_calls(custom_toolbox, remo
         custom_instruction="you are a helpful assistant",
     )
 
-    serialized_agent = serialize(agent)
-    deserialized_agent = cast(Agent, autodeserialize(serialized_agent))
+    serialized_agent = serialize(agent, plugins=[toolbox_serialization_plugin])
+    deserialized_agent = cast(
+        Agent, autodeserialize(serialized_agent, plugins=[toolbox_deserialization_plugin])
+    )
 
     conversation = deserialized_agent.start_conversation()
 
-    serialized_conv = serialize(conversation)
-    deserialized_conv = cast(AgentConversation, autodeserialize(serialized_conv))
+    serialized_conv = serialize(conversation, plugins=[toolbox_serialization_plugin])
+    deserialized_conv = cast(
+        AgentConversation,
+        autodeserialize(serialized_conv, plugins=[toolbox_deserialization_plugin]),
+    )
 
     with patch_llm(
         deserialized_conv.component.llm,
@@ -517,8 +533,11 @@ def test_agent_with_toolbox_does_not_crash_in_between_calls(custom_toolbox, remo
         ToolResult(tool_request_id=status.tool_requests[0].tool_request_id, content="ok")
     )
 
-    deserialized_conv = serialize(deserialized_conv)
-    deserialized_conv = cast(AgentConversation, autodeserialize(deserialized_conv))
+    deserialized_conv = serialize(deserialized_conv, plugins=[toolbox_serialization_plugin])
+    deserialized_conv = cast(
+        AgentConversation,
+        autodeserialize(deserialized_conv, plugins=[toolbox_deserialization_plugin]),
+    )
 
     with patch_llm(deserialized_conv.component.llm, outputs=["bye"]):
         status = deserialized_conv.execute()

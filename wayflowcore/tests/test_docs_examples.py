@@ -136,6 +136,7 @@ def test_code_examples_in_docs_can_be_successfully_run(
     tmp_path: str,
     remotely_hosted_llm,
     remote_gemma_llm,
+    big_llama,
     test_with_llm_fixture,
     request,
 ) -> None:
@@ -146,6 +147,7 @@ def test_code_examples_in_docs_can_be_successfully_run(
         "mcp_user_query": MCP_USER_QUERY,
         "mcp_example_tool_name": "generate_random_string",
         "vision_llm": remote_gemma_llm,
+        "llm_big": big_llama,
     }
     globs["_update_globals"] = make_update_globals(globs, request)
     with open(file_path) as f:

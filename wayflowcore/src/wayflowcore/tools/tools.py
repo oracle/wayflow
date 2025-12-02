@@ -11,7 +11,18 @@ from abc import ABC
 from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import cache
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    TypedDict,
+    Union,
+    cast,
+)
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
@@ -29,6 +40,26 @@ if TYPE_CHECKING:
 VALID_JSON_TYPES = {"boolean", "number", "integer", "string", "bool", "object", "array", "null"}
 
 JSON_SCHEMA_NONE_TYPE = "null"
+
+SupportedToolTypesT = Literal["client", "server", "remote", "tool"]
+
+ToolConfigT = TypedDict(
+    "ToolConfigT",
+    {
+        "name": str,
+        "description": str,
+        "parameters": Dict[str, JsonSchemaParam],
+        "output": JsonSchemaParam,
+        "input_descriptors": List[Dict[str, Any]],
+        "output_descriptors": List[Dict[str, Any]],
+        "tool_type": SupportedToolTypesT,
+        "id": str,
+        "_component_type": Literal["Tool"],
+        "__metadata_info__": MetadataType,
+        "requires_confirmation": bool,
+    },
+    total=False,
+)
 
 
 @dataclass
@@ -250,18 +281,137 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
 
         return tool_outputs
 
-    def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
-        from wayflowcore.serialization.toolserialization import serialize_tool_to_config
+    @property
+    def _tool_type(self) -> SupportedToolTypesT:
+        return "tool"
 
-        return serialize_tool_to_config(self, serialization_context)
+    def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
+        from wayflowcore.serialization.serializer import serialize_to_dict
+
+        config = ToolConfigT(
+            name=self.name,
+            description=self.description or "",
+            input_descriptors=[
+                serialize_to_dict(prop_, serialization_context) for prop_ in self.input_descriptors
+            ],
+            output_descriptors=[
+                serialize_to_dict(prop_, serialization_context) for prop_ in self.output_descriptors
+            ],
+            tool_type=self._tool_type,
+            id=self.id,
+            _component_type="Tool",
+            __metadata_info__=self.__metadata_info__,
+            requires_confirmation=self.requires_confirmation,
+        )
+        return cast(Dict[str, Any], config)
 
     @classmethod
     def _deserialize_from_dict(
-        cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
+        cls,
+        input_dict: Dict[str, Any],
+        deserialization_context: "DeserializationContext",
     ) -> "SerializableObject":
-        from wayflowcore.serialization.toolserialization import deserialize_tool_from_config
+        from wayflowcore.serialization.serializer import deserialize_from_dict
+        from wayflowcore.tools.clienttools import ClientTool
+        from wayflowcore.tools.servertools import (
+            _convert_previously_supported_tool_into_server_tool,
+        )
 
-        return deserialize_tool_from_config(input_dict, deserialization_context)
+        if not (isinstance(input_dict, str) or input_dict["tool_type"] == "server"):
+            return ClientTool(
+                name=input_dict["name"],
+                description=input_dict["description"],
+                parameters=input_dict.get("parameters", None),
+                output=input_dict.get("output", None),
+                input_descriptors=(
+                    [
+                        deserialize_from_dict(Property, prop_dict, deserialization_context)
+                        for prop_dict in input_dict["input_descriptors"]
+                    ]
+                    if "input_descriptors" in input_dict
+                    else None
+                ),
+                output_descriptors=(
+                    [
+                        deserialize_from_dict(Property, prop_dict, deserialization_context)
+                        for prop_dict in input_dict["output_descriptors"]
+                    ]
+                    if "output_descriptors" in input_dict
+                    else None
+                ),
+                id=input_dict.get("id", IdGenerator.get_or_generate_id()),
+                __metadata_info__=input_dict["__metadata_info__"],
+            )
+
+        tool_name = input_dict if isinstance(input_dict, str) else input_dict["name"]
+        if tool_name not in deserialization_context.registered_tools:
+            raise ValueError(
+                f"While trying to deserialize tool named '{tool_name}', found no such tool "
+                f"registered. Please make sure that the tool's name matches one of the registered "
+                f"tools."
+            )
+        registered_tool = deserialization_context.registered_tools[tool_name]
+        deserialized_tool: Tool
+        if isinstance(registered_tool, Tool):
+            deserialized_tool = registered_tool
+        else:
+            deserialized_tool = _convert_previously_supported_tool_into_server_tool(registered_tool)
+
+        if isinstance(input_dict, dict):
+            for key in ("name", "description"):
+                if getattr(deserialized_tool, key) != input_dict.get(key):
+                    raise ValueError(
+                        f"Information of the registered tool does not match the serialization. For"
+                        f" key '{key}', '{getattr(deserialized_tool, key)}' != '{input_dict.get(key)}'"
+                    )
+
+            if "parameters" in input_dict:
+                input_descriptors = _parameters_to_input_descriptors(input_dict["parameters"])
+            else:
+                input_descriptors = [
+                    deserialize_from_dict(Property, prop_dict, deserialization_context)
+                    for prop_dict in input_dict["input_descriptors"]
+                ]
+
+            # We check whether the parameters are the same, and have the same type specified
+            deserialized_tool_parameters = set(
+                property_.name for property_ in deserialized_tool.input_descriptors
+            )
+            input_dict_parameters = set(property_.name for property_ in input_descriptors)
+            if deserialized_tool_parameters != input_dict_parameters:
+                raise ValueError(
+                    f"Information of the registered tool does not match the serialization."
+                    f"Parameters of serialized tool {deserialized_tool_parameters} do not match those of the registered tool ({input_dict_parameters})"
+                )
+            for parameter_property in input_descriptors:
+                if parameter_property not in deserialized_tool.input_descriptors:
+                    raise ValueError(
+                        f"Information of the registered tool does not match the serialization. "
+                        f"For parameter '{parameter_property.name}', '{parameter_property}' not in '{deserialized_tool.input_descriptors}'"
+                    )
+
+            if "output" in input_dict:
+                output_descriptors = _output_to_output_descriptors(input_dict["output"])
+            else:
+                output_descriptors = [
+                    deserialize_from_dict(Property, prop_dict, deserialization_context)
+                    for prop_dict in input_dict["output_descriptors"]
+                ]
+
+            # Then we check the type of the output
+            if output_descriptors != deserialized_tool.output_descriptors:
+                raise ValueError(
+                    f"Information of the registered tool does not match the serialization. For"
+                    f"For the output, '{output_descriptors}' != '{deserialized_tool.output_descriptors}'"
+                )
+            # We check if the requires_confirmation flag is the same
+            requires_confirmation = input_dict.get("requires_confirmation", False)
+            if requires_confirmation != deserialized_tool.requires_confirmation:
+                raise ValueError(
+                    f"Information of the registered tool does not match the serialization. For"
+                    f"requires_confirmation flag of serialized tool {deserialized_tool.requires_confirmation} does not match those of the registered tool ({requires_confirmation})"
+                )
+        return deserialized_tool
 
     def to_dict(self) -> Dict[str, Any]:
         return {

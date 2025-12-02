@@ -7,17 +7,31 @@ import logging
 from abc import ABCMeta
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Set, Tuple, Type
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    Union,
+    get_args,
+    get_origin,
+)
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.property import Property
-from wayflowcore.serialization.serializer import SerializableObject
-from wayflowcore.serialization.stepserialization import (
-    deserialize_step_from_dict,
-    serialize_step_to_dict,
+from wayflowcore.serialization.serializer import (
+    SerializableObject,
+    autodeserialize_any_from_dict,
+    serialize_any_to_dict,
+    serialize_to_dict,
 )
 from wayflowcore.tools import Tool
 
@@ -282,6 +296,102 @@ logger = logging.getLogger(__name__)
 #         )
 #
 # ```
+
+
+def _deserialize_as(
+    expected_cls: Type[Any],
+    arg_prepared_value: Any,
+    deserialization_context: "DeserializationContext",
+) -> Any:
+    if arg_prepared_value is None:
+        return None
+
+    if get_origin(expected_cls) is Union:
+        types = get_args(expected_cls)
+        internal_type = next(t for t in types if t is not None)
+        return _deserialize_as(internal_type, arg_prepared_value, deserialization_context)
+    elif get_origin(expected_cls) is list:
+        internal_type = get_args(expected_cls)[0]
+        return [
+            _deserialize_as(internal_type, t, deserialization_context) for t in arg_prepared_value
+        ]
+    elif get_origin(expected_cls) is dict:
+        if isinstance(arg_prepared_value, dict):
+            internal_type = get_args(expected_cls)[0]
+            return {
+                k: _deserialize_as(internal_type, v, deserialization_context)
+                for k, v in arg_prepared_value.items()
+            }
+        return autodeserialize_any_from_dict(arg_prepared_value, deserialization_context)
+    elif issubclass(expected_cls, Enum):
+        if "_component_type" in arg_prepared_value:
+            return autodeserialize_any_from_dict(arg_prepared_value, deserialization_context)
+        else:
+            try:
+                return expected_cls(arg_prepared_value)
+            except Exception:
+                raise ValueError(
+                    f"Error during deserialization of enum. Found value {arg_prepared_value}."
+                )
+    else:
+        return autodeserialize_any_from_dict(arg_prepared_value, deserialization_context)
+
+
+def _handle_backward_compatibility_for_branches(
+    step_cls: Type["Step"],
+    step_arguments: Dict[str, Any],
+) -> Dict[str, Optional[str]]:
+    """
+    We previously had next step names in the step config. Now, these old deprecated parameters need to be specified
+    in the transitions dict of the flow.
+    To still enable loading old configurations (that specify these arguments in the step config), we catch them here,
+    remove them from the config but save them as `additional_transitions` that will affect the `transitions` dict later.
+    We save these additional transitions in the deserialization context, so that it can be accessed by the flow
+    serializer function later.
+    """
+    compatibility_dict: Dict[str, Optional[str]] = {}
+
+    from wayflowcore.steps import BranchingStep, ChoiceSelectionStep, FlowExecutionStep, RetryStep
+    from wayflowcore.steps.step import Step
+
+    def remove_branch_argument_from_config(arg_name: str, branch_name: str) -> None:
+        if arg_name in step_arguments:
+            logger.warning(
+                f"`{arg_name}` is deprecated. Please use instead `{branch_name}` in `transitions`"
+            )
+            value = step_arguments.pop(arg_name)
+            if value is not None:
+                compatibility_dict[branch_name] = value
+
+    if step_cls == RetryStep:
+        remove_branch_argument_from_config(
+            arg_name="success_next_step", branch_name=Step.BRANCH_NEXT
+        )
+        remove_branch_argument_from_config(
+            arg_name="failure_next_step", branch_name=RetryStep.BRANCH_FAILURE
+        )
+
+    elif step_cls == ChoiceSelectionStep:
+        remove_branch_argument_from_config(
+            arg_name="default_next_step", branch_name=ChoiceSelectionStep.BRANCH_DEFAULT
+        )
+
+    elif step_cls == BranchingStep:
+        if "step_name_mapping" in step_arguments:
+            logger.warning(
+                "`step_name_mapping` is deprecated for `ChoiceSelectionStep`. Please use `branch_name_mapping` instead"
+            )
+            step_arguments["branch_name_mapping"] = step_arguments.pop("step_name_mapping") or {}
+
+        remove_branch_argument_from_config(
+            arg_name="default_next_step", branch_name=BranchingStep.BRANCH_DEFAULT
+        )
+
+    elif step_cls == FlowExecutionStep:
+        if "outer_step_transitions" in step_arguments:
+            compatibility_dict.update(step_arguments.pop("outer_step_transitions") or {})
+
+    return compatibility_dict
 
 
 class StepExecutionStatus(str, Enum):
@@ -703,13 +813,116 @@ class Step(ComponentWithInputsOutputs, SerializableObject, metaclass=_StepRegist
         return [cls.BRANCH_NEXT]
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
-        return serialize_step_to_dict(self, serialization_context)
+        serialization_dict: Dict[str, Any] = {
+            "_component_type": Step.__name__,
+            "step_cls": self.__class__.__name__,
+            "step_args": {},
+            "input_mapping": self.input_mapping,
+            "output_mapping": self.output_mapping,
+            "input_descriptors": [
+                serialize_to_dict(property_, serialization_context)
+                for property_ in self.input_descriptors
+            ],
+            "output_descriptors": [
+                serialize_to_dict(property_, serialization_context)
+                for property_ in self.output_descriptors
+            ],
+            "__metadata_info__": self.__metadata_info__,
+            "id": self.id,
+            "name": self.name,
+        }
+
+        step_config = {
+            **self._get_common_static_configuration_descriptors(),
+            **self._get_step_specific_static_configuration_descriptors(),
+        }
+        for config_name, config_type_descriptor in step_config.items():
+            if config_name in {
+                "input_mapping",
+                "output_mapping",
+                "input_descriptors",
+                "output_descriptors",
+            }:
+                # serialized at the root of the config
+                continue
+            if not hasattr(self, config_name):
+                raise ValueError(
+                    f"The step {self.__class__.__name__} cannot be serialized because it has a step "
+                    f"config named {config_name} but is missing the attribute of the same name."
+                )
+            serialization_dict["step_args"][config_name] = serialize_any_to_dict(
+                getattr(self, config_name), serialization_context
+            )
+
+        return serialization_dict
 
     @classmethod
     def _deserialize_from_dict(
         cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
     ) -> "SerializableObject":
-        return deserialize_step_from_dict(input_dict, deserialization_context)
+        from wayflowcore.property import Property
+        from wayflowcore.serialization.serializer import deserialize_from_dict
+        from wayflowcore.steps.step import _StepRegistry
+
+        step_cls_name = input_dict["step_cls"]
+        if step_cls_name not in _StepRegistry._REGISTRY:
+            raise ValueError(
+                f"Step `{step_cls_name}` unknown and not registered. Registered steps: {list(_StepRegistry._REGISTRY.keys())}"
+            )
+        step_cls = _StepRegistry._REGISTRY[step_cls_name]
+
+        step_config = step_cls.get_static_configuration_descriptors()
+
+        step_args_dict = input_dict.get("step_args", {})
+
+        # 1. we remove old arguments and save the compatibility transition dict
+        compatibility_dict = _handle_backward_compatibility_for_branches(step_cls, step_args_dict)
+
+        # 2. we handle the deprecated `llms` argument for backward compatibility
+        if "llms" in step_args_dict:
+            logger.warning(
+                f"The `llms` argument of {step_cls_name} is deprecated. Use the `llm` argument instead."
+            )
+            llms = step_args_dict.pop("llms")
+            step_args_dict["llm"] = llms[0] if llms else None
+
+        # 3. load parameters. They might also use this backward compatibility logic
+        step_arguments = {}
+        for arg_name, arg_prepared_value in step_args_dict.items():
+            expected_value_cls = step_config[arg_name]
+            step_arguments[arg_name] = _deserialize_as(
+                expected_value_cls, arg_prepared_value, deserialization_context
+            )
+
+        # 4. once parameters are deserialized (they can also contain old arguments), we can register this
+        # compatibility dict to the deserialization context so that it can be caught by the flow serializing function
+        deserialization_context._register_additional_transitions(compatibility_dict)
+
+        if "input_mapping" in input_dict:
+            step_arguments["input_mapping"] = input_dict["input_mapping"]
+        if "output_mapping" in input_dict:
+            step_arguments["output_mapping"] = input_dict["output_mapping"]
+        if "__metadata_info__" in input_dict:
+            step_arguments["__metadata_info__"] = input_dict["__metadata_info__"]
+        if "input_descriptors" in input_dict:
+            step_arguments["input_descriptors"] = [
+                deserialize_from_dict(Property, property_, deserialization_context)
+                for property_ in input_dict["input_descriptors"]
+            ]
+        if "output_descriptors" in input_dict:
+            step_arguments["output_descriptors"] = [
+                deserialize_from_dict(Property, property_, deserialization_context)
+                for property_ in input_dict["output_descriptors"]
+            ]
+        step = step_cls(**step_arguments)
+
+        if "id" in input_dict:
+            step.id = input_dict["id"]
+
+        if "name" in input_dict:
+            step.name = input_dict["name"]
+
+        return step
 
     @property
     def might_yield(self) -> bool:

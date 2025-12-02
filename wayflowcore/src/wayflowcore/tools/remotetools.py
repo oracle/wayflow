@@ -11,6 +11,7 @@ from wayflowcore.property import Property
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 
 from .servertools import ServerTool
+from .tools import SupportedToolTypesT
 
 
 @dataclass
@@ -279,3 +280,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         self.allow_credentials = allow_credentials
         self.allow_fragments = allow_fragments
         self.default_ports = default_ports
+
+    @property
+    def _tool_type(self) -> SupportedToolTypesT:
+        return "remote"

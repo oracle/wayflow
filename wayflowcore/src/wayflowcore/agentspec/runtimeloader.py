@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import warnings
 from typing import Any, Callable, Dict, List, Literal, Mapping, Optional, Tuple, Union, overload
 
 from pyagentspec.component import Component as AgentSpecComponent
@@ -11,9 +12,8 @@ from pyagentspec.serialization import AgentSpecDeserializer, ComponentDeserializ
 from pyagentspec.serialization.types import ComponentsRegistryT as AgentSpecComponentsRegistryT
 from typing_extensions import TypeAlias
 
-from wayflowcore.agentspec._runtimeconverter import AgentSpecToRuntimeConverter
-from wayflowcore.agentspec.components import all_deserialization_plugin
 from wayflowcore.component import Component as RuntimeComponent
+from wayflowcore.serialization.plugins import WayflowDeserializationPlugin
 from wayflowcore.tools import ServerTool as RuntimeServerTool
 
 FieldName: TypeAlias = str
@@ -28,7 +28,9 @@ class AgentSpecLoader:
     def __init__(
         self,
         tool_registry: Optional[Dict[str, Union[RuntimeServerTool, Callable[..., Any]]]] = None,
-        plugins: Optional[List[ComponentDeserializationPlugin]] = None,
+        plugins: Optional[
+            List[Union[WayflowDeserializationPlugin, ComponentDeserializationPlugin]]
+        ] = None,
     ):
         """
         Parameters
@@ -38,24 +40,68 @@ class AgentSpecLoader:
             Optional dictionary to enable converting/loading assistant configurations involving the
             use of tools. Keys must be the tool names as specified in the serialized configuration, and
             the values are the ServerTool objects or callables that will be used to create ServerTools.
-        plugins: List[ComponentSerializationPlugin]
-            List of plugins to override existing plugins. By default, uses the latest supported plugins.
+        plugins: List[WayflowDeserializationPlugin]
+            List of additional wayflow plugins to use. By default, uses the latest supported builtin plugins only.
+
+            .. note:
+
+              Passing a list of ``ComponentDeserializationPlugin`` from ``pyagentspec`` is deprecated
+              since wayflowcore==26.1.0.
 
         """
         self.tool_registry = tool_registry or {}
-        self.plugins = plugins
+        self.plugins: List[WayflowDeserializationPlugin] = (
+            [plugin for plugin in plugins if isinstance(plugin, WayflowDeserializationPlugin)]
+            if plugins
+            else []
+        )
 
-    def _get_all_plugins(self) -> List[ComponentDeserializationPlugin]:
-        # All groups of plugins are manually passed here to allow passing
+        from wayflowcore.serialization._builtins_deserialization_plugin import (
+            WayflowBuiltinsDeserializationPlugin,
+        )
+
+        # If none of the given plugins is the builtins one, we automatically add it
+        if not any(
+            isinstance(plugin, WayflowBuiltinsDeserializationPlugin) for plugin in self.plugins
+        ):
+            self.plugins.append(WayflowBuiltinsDeserializationPlugin())
+
+        self.agentspec_plugins: List[ComponentDeserializationPlugin] = (
+            [plugin for plugin in plugins if isinstance(plugin, ComponentDeserializationPlugin)]
+            if plugins
+            else []
+        )
+        if self.agentspec_plugins:
+            warnings.warn(
+                "Passing plugins of type `ComponentDeserializationPlugin` is deprecated since wayflowcore==26.1.0. "
+                "Please pass only plugins of type `WayflowDeserializationPlugin` instead.",
+                DeprecationWarning,
+            )
+
+    def _get_all_plugins(self) -> List[WayflowDeserializationPlugin]:
+        # We group all plugins that are manually passed here to allow passing
         # specific plugins (e.g., plugin associated with a specific version).
         # This is possible if:
         # 1. All plugins are given a unique name
-        # 2. There is a single plugin that can serialize each custom component
-        all_plugins_by_name: Dict[str, ComponentDeserializationPlugin] = {
-            plugin_.plugin_name: plugin_ for plugin_ in all_deserialization_plugin
+        # 2. There is a single plugin that can deserialize each custom component
+        all_plugins_by_name: Dict[str, WayflowDeserializationPlugin] = {
+            plugin_.plugin_name: plugin_ for plugin_ in self.plugins
         }
-        for plugin_ in self.plugins or []:
-            all_plugins_by_name[plugin_.plugin_name] = plugin_
+        return list(all_plugins_by_name.values())
+
+    def _get_all_agentspec_plugins(self) -> List[ComponentDeserializationPlugin]:
+        # We group all plugins that are manually passed here to allow passing
+        # specific plugins (e.g., plugin associated with a specific version).
+        # This is possible if:
+        # 1. All plugins are given a unique name
+        # 2. There is a single plugin that can deserialize each custom component
+        all_plugins_by_name: Dict[str, ComponentDeserializationPlugin] = {
+            agentspec_plugin.plugin_name: agentspec_plugin
+            for plugin_ in self._get_all_plugins()
+            for agentspec_plugin in plugin_.required_agentspec_deserialization_plugins
+        }
+        for agentspec_plugin in self.agentspec_plugins:
+            all_plugins_by_name[agentspec_plugin.plugin_name] = agentspec_plugin
         return list(all_plugins_by_name.values())
 
     @overload
@@ -200,7 +246,7 @@ class AgentSpecLoader:
         ... )
 
         """
-        deserializer = AgentSpecDeserializer(plugins=self._get_all_plugins())
+        deserializer = AgentSpecDeserializer(plugins=self._get_all_agentspec_plugins())
         converted_registry = (
             self._convert_component_registry(components_registry)
             if components_registry is not None
@@ -375,7 +421,7 @@ class AgentSpecLoader:
         ... )
 
         """
-        deserializer = AgentSpecDeserializer(plugins=self._get_all_plugins())
+        deserializer = AgentSpecDeserializer(plugins=self._get_all_agentspec_plugins())
         converted_registry = (
             self._convert_component_registry(components_registry)
             if components_registry is not None
@@ -432,7 +478,9 @@ class AgentSpecLoader:
         agentspec_component:
             PyAgentSpec Component to be converted to a WayFlow Component.
         """
-        runtime_assistant = AgentSpecToRuntimeConverter().convert(
+        from wayflowcore.agentspec._runtimeconverter import AgentSpecToWayflowConversionContext
+
+        runtime_assistant = AgentSpecToWayflowConversionContext(plugins=self.plugins).convert(
             agentspec_component, self.tool_registry
         )
         if not isinstance(runtime_assistant, RuntimeComponent):

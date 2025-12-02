@@ -4,19 +4,81 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import warnings
 from copy import deepcopy
-from typing import Any, Dict, Optional
+from functools import cached_property
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
+
+if TYPE_CHECKING:
+    from wayflowcore.serialization.plugins import (
+        WayflowDeserializationPlugin,
+        WayflowSerializationPlugin,
+    )
+    from wayflowcore.serialization.serializer import SerializableObject
+
+
+def _create_component_type_to_plugin_mapping(
+    plugins: Union[List["WayflowDeserializationPlugin"], List["WayflowSerializationPlugin"]],
+) -> Union[Dict[str, "WayflowDeserializationPlugin"], Dict[str, "WayflowSerializationPlugin"]]:
+    """Creates mapping from component types name to the plugin that should be used to (de)serialize it"""
+    component_types_to_plugins: Union[
+        Dict[str, "WayflowDeserializationPlugin"], Dict[str, "WayflowSerializationPlugin"]
+    ] = {}
+    for plugin in plugins:
+        for component_type in plugin.supported_component_types:
+            if component_type not in component_types_to_plugins:
+                component_types_to_plugins[component_type] = plugin  # type: ignore
+            else:
+                raise ValueError(
+                    f"Two plugins, `{plugin.plugin_name}` and "
+                    f"`{component_types_to_plugins[component_type].plugin_name}`, have "
+                    f"component types with the same name: `{component_type}`"
+                )
+    return component_types_to_plugins
 
 
 class SerializationContext:
-    def __init__(self, root: Any):
+
+    def __init__(self, root: Any, plugins: Optional[List["WayflowSerializationPlugin"]] = None):
         """
-        SerializationContext helps ensure that duplicated objects (e.g. reused steps in a nested
-        Flow) are serialized only once.
+        SerializationContext helps ensure that duplicated objects
+        (e.g. reused steps in a nested Flow) are serialized only once.
         """
+        self.root = root
         self._serialized_objects: Dict[str, Any] = {}
         self._started_serialization: Dict[str, bool] = {}
-        self.root = root
+        self.plugins = plugins or []
+
+        from wayflowcore.serialization._builtins_serialization_plugin import (
+            WayflowBuiltinsSerializationPlugin,
+        )
+
+        # If none of the given plugins is the builtins one, we automatically add it
+        if not any(
+            isinstance(plugin, WayflowBuiltinsSerializationPlugin) for plugin in self.plugins
+        ):
+            self.plugins.append(self._builtins_serialization_plugin)
+
+        # Create a mapping cache of component_type -> plugin mappings
+        # to know what plugin to use to convert a given component
+        self.component_types_to_plugins: Dict[str, "WayflowSerializationPlugin"] = cast(
+            Dict[str, "WayflowSerializationPlugin"],
+            _create_component_type_to_plugin_mapping(self.plugins),
+        )
+
+    def get_serialization_plugin_for_object(
+        self, obj: "SerializableObject"
+    ) -> "WayflowSerializationPlugin":
+        component_type = obj.__class__.__name__
+        if component_type not in self.component_types_to_plugins:
+            # For backward compatibility, we rely on the builtin serialization if no plugin is given, but we warn the user
+            warnings.warn(
+                f"Found no serialization plugin to serialize the object of type `{type(obj).__name__}`. "
+                f"Trying using the builtins serialization plugin instead. "
+                f"Note that since 26.1.0 Wayflow Plugins are required to support serialization of custom components."
+            )
+            return self._builtins_serialization_plugin
+        return self.component_types_to_plugins[component_type]
 
     def start_serialization(self, obj: Any) -> None:
         """
@@ -102,16 +164,55 @@ class SerializationContext:
         """
         return self._serialized_objects
 
+    @cached_property
+    def _builtins_serialization_plugin(cls) -> "WayflowSerializationPlugin":
+        from wayflowcore.serialization._builtins_serialization_plugin import (
+            WayflowBuiltinsSerializationPlugin,
+        )
+
+        return WayflowBuiltinsSerializationPlugin()
+
 
 class DeserializationContext:
 
-    def __init__(self) -> None:
+    def __init__(self, plugins: Optional[List["WayflowDeserializationPlugin"]] = None) -> None:
         self._referenced_objects: Dict[str, Dict[Any, Any]] = {}
         self._deserialized_objects: Dict[str, Any] = {}
         self._started_deserialization: Dict[str, bool] = {}
         self.registered_tools: Dict[str, Any] = {}
-
         self._current_additional_transitions: Dict[str, Optional[str]] = {}
+        self.plugins = plugins or []
+
+        from wayflowcore.serialization._builtins_deserialization_plugin import (
+            WayflowBuiltinsDeserializationPlugin,
+        )
+
+        # If none of the given plugins is the builtins one, we automatically add it
+        if not any(
+            isinstance(plugin, WayflowBuiltinsDeserializationPlugin) for plugin in self.plugins
+        ):
+            self.plugins.append(self._builtins_deserialization_plugin)
+
+        # Create a mapping cache of component_type -> plugin mappings
+        # to know what plugin to use to convert a given component
+        self.component_types_to_plugins: Dict[str, "WayflowDeserializationPlugin"] = cast(
+            Dict[str, "WayflowDeserializationPlugin"],
+            _create_component_type_to_plugin_mapping(self.plugins),
+        )
+
+    def get_deserialization_plugin_for_object(
+        self, obj_type: type["SerializableObject"]
+    ) -> "WayflowDeserializationPlugin":
+        component_type = obj_type.__name__
+        if component_type not in self.component_types_to_plugins:
+            # For backward compatibility, we rely on the builtin serialization if no plugin is given, but we warn the user
+            warnings.warn(
+                f"Found no deserialization plugin to deserialize the object of type `{component_type}`. "
+                f"Trying using the builtins deserialization plugin instead. "
+                f"Note that since 26.1.0 Wayflow Plugins are required to support deserialization of custom components."
+            )
+            return self._builtins_deserialization_plugin
+        return self.component_types_to_plugins[component_type]
 
     def add_referenced_objects(self, new_referenced_objects: Dict[str, Dict[Any, Any]]) -> None:
         self._referenced_objects.update(new_referenced_objects)
@@ -193,3 +294,11 @@ class DeserializationContext:
         additional_transitions = self._current_additional_transitions
         self._current_additional_transitions = {}  # reset
         return additional_transitions
+
+    @cached_property
+    def _builtins_deserialization_plugin(cls) -> "WayflowDeserializationPlugin":
+        from wayflowcore.serialization._builtins_deserialization_plugin import (
+            WayflowBuiltinsDeserializationPlugin,
+        )
+
+        return WayflowBuiltinsDeserializationPlugin()

@@ -1,0 +1,199 @@
+component_type: ExtendedAgent
+id: a5b53483-10ab-48ff-bc1d-562c89ab89ab
+name: agent_514df23e__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: e67b1ce6-bd21-4a33-a407-8defa56c867e
+  name: llm_f2262eaa__auto
+  description: null
+  metadata:
+    __metadata_info__: {}
+  default_generation_parameters: null
+  url: MODEL-URL
+  model_id: MODEL-ID
+system_prompt: '
+
+  You have the following files available:
+
+  - movies.txt
+
+  - videogames.txt
+
+
+  Read the content of the right file - based on the user query - with the tool, and
+  answer the user.
+
+  '
+tools:
+- component_type: AgentSpecReadFileTool
+  id: a8f4bd9d-ec84-4762-b063-b460cd6bd91e
+  name: read_file_tool
+  description: Read the content of a file
+  metadata: {}
+  inputs:
+  - type: string
+    title: file_path
+  outputs:
+  - type: string
+    title: file_content
+  allowed_extensions:
+  - .txt
+  component_plugin_name: PydanticComponentPlugin
+  component_plugin_version: 26.1.0.dev0
+toolboxes: []
+human_in_the_loop: true
+context_providers: null
+can_finish_conversation: false
+raise_exceptions: false
+max_iterations: 10
+initial_message: Hi! How can I help you?
+caller_input_mode: always
+agents: []
+flows: []
+agent_template:
+  component_type: PluginPromptTemplate
+  id: e3918256-4e22-4a94-bb73-6f530ac3a9bd
+  name: ''
+  description: null
+  metadata:
+    __metadata_info__: {}
+  messages:
+  - role: system
+    contents:
+    - type: text
+      content: '{%- if __TOOLS__ -%}
+
+        Environment: ipython
+
+        Cutting Knowledge Date: December 2023
+
+
+        You are a helpful assistant with tool calling capabilities. Only reply with
+        a tool call if the function exists in the library provided by the user. If
+        it doesn''t exist, just reply directly in natural language. When you receive
+        a tool call response, use the output to format an answer to the original user
+        question.
+
+
+        You have access to the following functions. To call a function, please respond
+        with JSON for a function call.
+
+        Respond in the format {"name": function name, "parameters": dictionary of
+        argument name and its value}.
+
+        Do not use variables.
+
+
+        [{% for tool in __TOOLS__%}{{tool.to_openai_format() | tojson}}{{'', '' if
+        not loop.last}}{% endfor %}]
+
+        {%- endif -%}
+
+        '
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-11-18T18:55:16.416935+00:00'
+    time_updated: '2025-11-18T18:55:16.416935+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: '{%- if custom_instruction -%}Additional instructions:
+
+        {{custom_instruction}}{%- endif -%}'
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-11-18T18:55:16.416954+00:00'
+    time_updated: '2025-11-18T18:55:16.416954+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: $$__CHAT_HISTORY_PLACEHOLDER__$$
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-11-18T18:55:16.414612+00:00'
+    time_updated: '2025-11-18T18:55:16.414612+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: "{% if __PLAN__ %}The current plan you should follow is the following:\
+        \ \n{{__PLAN__}}{% endif %}"
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-11-18T18:55:16.416970+00:00'
+    time_updated: '2025-11-18T18:55:16.416970+00:00'
+  output_parser:
+    component_type: PluginJsonToolOutputParser
+    id: 58030d61-6b25-48e4-992d-556acfcbc6cd
+    name: jsontool_outputparser
+    description: null
+    metadata:
+      __metadata_info__: {}
+    tools: null
+    component_plugin_name: OutputParserPlugin
+    component_plugin_version: 26.1.0.dev0
+  inputs:
+  - description: '"__TOOLS__" input variable for the template'
+    title: __TOOLS__
+  - description: '"custom_instruction" input variable for the template'
+    type: string
+    title: custom_instruction
+  - description: '"__PLAN__" input variable for the template'
+    type: string
+    title: __PLAN__
+    default: ''
+  - type: array
+    items: {}
+    title: __CHAT_HISTORY__
+  pre_rendering_transforms: null
+  post_rendering_transforms:
+  - component_type: PluginRemoveEmptyNonUserMessageTransform
+    id: 3aef0150-1ea1-4b05-9074-92968f936306
+    name: removeemptynonusermessage_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 26.1.0.dev0
+  - component_type: PluginCoalesceSystemMessagesTransform
+    id: edbc25ed-0543-4bf4-97cb-be4908ae8b98
+    name: coalescesystemmessage_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 26.1.0.dev0
+  - component_type: PluginLlamaMergeToolRequestAndCallsTransform
+    id: cf79ec30-db91-4cef-92ba-e198c59e56dc
+    name: llamamergetoolrequestandcalls_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 26.1.0.dev0
+  tools: null
+  native_tool_calling: false
+  response_format: null
+  native_structured_generation: true
+  generation_config: null
+  component_plugin_name: PromptTemplatePlugin
+  component_plugin_version: 26.1.0.dev0
+component_plugin_name: AgentPlugin
+component_plugin_version: 26.1.0.dev0
+agentspec_version: 25.4.1

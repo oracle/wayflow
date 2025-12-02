@@ -7,6 +7,11 @@ WayFlow 26.1.0
 New features
 ^^^^^^^^^^^^
 
+* **WayFlow Plugins:**
+
+  Wayflow plugins allow users extending existing components (like Tools, Steps, etc.), or even creating
+  new ones, and seamlessly integrate them in WayFlow and Agent Spec serialization and deserialization. For more information read the guide on :doc:`how to use WayFlow plugins <howtoguides/howto_plugins>`.
+
 * **OpenAI Responses API Support:**
 
   :ref:`OpenAICompatibleModel<openaicompatiblemodel>` now supports OpenAI Responses API, which can be configured
@@ -15,7 +20,6 @@ New features
   This enhancement allows recent OpenAI models to better leverage advanced reasoning capabilities, resulting in significant performance improvements for Wayflow-powered workflows.
 
   For more information check out :doc:`the how-to guide on LLMs from different providers <howtoguides/llm_from_different_providers>`.
-
 
 Improvements
 ^^^^^^^^^^^^

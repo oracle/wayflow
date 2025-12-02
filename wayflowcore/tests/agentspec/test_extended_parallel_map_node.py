@@ -3,12 +3,12 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-
 from typing import cast
 
+import pytest
 from pyagentspec.flows.edges import ControlFlowEdge
 from pyagentspec.flows.flow import Flow
-from pyagentspec.flows.nodes import EndNode, StartNode, ToolNode
+from pyagentspec.flows.nodes import EndNode, ParallelMapNode, StartNode, ToolNode
 from pyagentspec.property import ListProperty, StringProperty
 from pyagentspec.tools import ServerTool
 
@@ -18,7 +18,7 @@ from wayflowcore.agentspec.components import ExtendedParallelMapNode
 from wayflowcore.steps import ParallelMapStep
 
 
-def test_extended_parallel_map_node_is_serde_correctly() -> None:
+def create_flow_with_parallel_map_node(extended: bool = False) -> Flow:
     start_node = StartNode(name="start", inputs=[StringProperty(title="in")])
     end_node = EndNode(name="end", outputs=[StringProperty(title="out")])
     tool = ServerTool(
@@ -36,20 +36,27 @@ def test_extended_parallel_map_node_is_serde_correctly() -> None:
         data_flow_connections=None,
     )
 
-    start_node = StartNode(
-        name="start",
-        inputs=[
-            ListProperty(title=ExtendedParallelMapNode.ITERATED_INPUT, item_type=StringProperty())
-        ],
-    )
-    end_node = EndNode(name="end")
-    parallel_map_node = ExtendedParallelMapNode(
-        name="parallel_map_node",
-        flow=subflow,
-        unpack_input={"in": "."},
-        max_workers=3,
-    )
-    flow = Flow(
+    if extended:
+        parallel_map_node = ExtendedParallelMapNode(
+            name="parallel_map_node",
+            flow=subflow,
+            unpack_input={"in": "."},
+            max_workers=3,
+        )
+        parallel_map_node_input = ListProperty(
+            title=ExtendedParallelMapNode.ITERATED_INPUT, item_type=StringProperty()
+        )
+    else:
+        parallel_map_node = ParallelMapNode(
+            name="parallel_map_node",
+            subflow=subflow,
+        )
+        parallel_map_node_input = ListProperty(title="iterated_in", item_type=StringProperty())
+
+    start_node = StartNode(name="start", inputs=[parallel_map_node_input])
+    end_node = EndNode(name="end", outputs=parallel_map_node.outputs)
+
+    return Flow(
         name="flow",
         start_node=start_node,
         nodes=[start_node, end_node, parallel_map_node],
@@ -59,8 +66,48 @@ def test_extended_parallel_map_node_is_serde_correctly() -> None:
         ],
         data_flow_connections=None,
     )
+
+
+@pytest.fixture
+def default_flow_with_parallel_map_node() -> Flow:
+    return create_flow_with_parallel_map_node(extended=False)
+
+
+@pytest.fixture
+def default_flow_with_extended_parallel_map_node() -> Flow:
+    return create_flow_with_parallel_map_node(extended=True)
+
+
+def test_parallel_map_node_is_serde_correctly(default_flow_with_parallel_map_node: Flow) -> None:
+
     wayflow_flow = cast(
-        WayflowFlow, AgentSpecLoader(tool_registry={"tool": lambda x: x}).load_component(flow)
+        WayflowFlow,
+        AgentSpecLoader(tool_registry={"tool": lambda x: x}).load_component(
+            default_flow_with_parallel_map_node
+        ),
+    )
+    parallel_map_node = wayflow_flow.steps["parallel_map_node"]
+    assert isinstance(parallel_map_node, ParallelMapStep)
+    assert parallel_map_node.unpack_input == {"in": "."}
+    assert parallel_map_node.max_workers is None
+    assert isinstance(parallel_map_node.flow, WayflowFlow)
+
+    serialized_flow = AgentSpecExporter().to_yaml(wayflow_flow)
+    # The export of an import is going to be an extended version, since it contains input/output mappings
+    assert "component_type: ExtendedParallelMapNode" in serialized_flow
+    assert "tool_node" in serialized_flow
+    assert "unpack_input:" in serialized_flow
+
+
+def test_extended_parallel_map_node_is_serde_correctly(
+    default_flow_with_extended_parallel_map_node: Flow,
+) -> None:
+
+    wayflow_flow = cast(
+        WayflowFlow,
+        AgentSpecLoader(tool_registry={"tool": lambda x: x}).load_component(
+            default_flow_with_extended_parallel_map_node
+        ),
     )
     parallel_map_node = wayflow_flow.steps["parallel_map_node"]
     assert isinstance(parallel_map_node, ParallelMapStep)
