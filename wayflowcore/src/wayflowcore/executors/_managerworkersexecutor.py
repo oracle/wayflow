@@ -9,6 +9,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Union
 
 from wayflowcore import Conversation
+from wayflowcore.a2a.a2aagent import A2AAgent
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.executors._agenticpattern_helpers import (
     _SEND_MESSAGE_TOOL_NAME,
@@ -59,7 +60,7 @@ def _validate_agent_unicity(
     agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = {}
 
     for agent in agents:
-        if not isinstance(agent, (Agent, ManagerWorkers)):
+        if not isinstance(agent, (Agent, ManagerWorkers, A2AAgent)):
             raise TypeError(
                 f"Only Agent and ManagerWorker type are supported in ManagerWorkers, got component of type '{agent.__class__.__name__}'"
             )
