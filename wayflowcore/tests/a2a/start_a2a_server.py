@@ -60,6 +60,8 @@ class AgentType(str, Enum):
     MANAGER_WORKERS = "manager_workers"
     SWARM = "swarm"
     ADK_AGENT = "adk_agent"
+    SAMPLE_AGENT = "sample_agent"
+    PRIME_AGENT = "prime_agent"
 
 
 # ============== Agent functions ==============
@@ -245,6 +247,48 @@ def get_swarm() -> Swarm:
     second_agent = Agent(llm=llm, name="second_agent", description="second agent")
 
     return Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
+
+
+@register_agent(AgentType.SAMPLE_AGENT)
+def get_sample_agent() -> Agent:
+    @tool
+    def sample_number(a: Annotated[int, "upper bound for random selection"]) -> int:
+        "Simulate sampling a random number between 1 and the specified upper bound."
+        import random
+
+        result = random.randint(1, a)
+        return result
+
+    agent = Agent(
+        llm=llm,
+        name="sample_agent",
+        custom_instruction="You are an agent that can generate a random number between 1 and a specified value.",
+        tools=[sample_number],
+        can_finish_conversation=True,
+    )
+    return agent
+
+
+@register_agent(AgentType.PRIME_AGENT)
+def get_prime_agent() -> Agent:
+    @tool
+    def check_prime(a: Annotated[int, "first required integer"]) -> bool:
+        "Check if the input number is a prime number."
+        if a < 2:
+            return False
+        for i in range(2, int(a**0.5) + 1):
+            if a % i == 0:
+                return False
+        return True
+
+    agent = Agent(
+        llm=llm,
+        name="prime_agent",
+        custom_instruction="You are a math agent that can check whether a number is prime or not using the equipped tool.",
+        tools=[check_prime],
+        can_finish_conversation=True,
+    )
+    return agent
 
 
 # ============== Server ==============
