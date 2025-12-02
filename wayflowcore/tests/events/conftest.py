@@ -7,6 +7,8 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type, Union
 
+import pytest
+
 from wayflowcore.agent import Agent
 from wayflowcore.events.event import Event
 from wayflowcore.events.eventlistener import EventListener, GenericEventListener
@@ -93,6 +95,22 @@ def create_dummy_llm_with_next_output(
     llm = DummyModel()
     llm.set_next_output(next_output)
     return llm
+
+
+@pytest.fixture
+def agent_with_useless_tool(big_llama, with_tools):
+    if with_tools:
+        tools = [
+            ServerTool(
+                func=lambda: None,
+                name="do_nothing",
+                description="useless function, ignore it",
+                input_descriptors=[],
+            )
+        ]
+    else:
+        tools = []
+    return Agent(llm=big_llama, tools=tools)
 
 
 GET_LOCATION_CLIENT_TOOL = ClientTool(

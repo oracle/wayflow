@@ -219,6 +219,21 @@ def _make_talk_to_user_tool() -> ClientTool:
 
 class AgentConversationExecutor(ConversationExecutor):
     @staticmethod
+    def _register_event(
+        state: ConversationExecutionState,
+        conversation: Conversation,
+        event_type: EventType,
+        tool_request: Optional[ToolRequest] = None,
+    ) -> None:
+
+        # Do not register talk_to_user_tool as an event
+        if event_type in (EventType.TOOL_CALL_START, EventType.TOOL_CALL_END) and tool_request:
+            if tool_request.name == _TALK_TO_USER_TOOL_NAME:
+                return
+
+        return ConversationExecutor._register_event(state, conversation, event_type)
+
+    @staticmethod
     async def _collect_custom_instruction_variables(
         config: Agent,
         conversation: "AgentConversation",
@@ -995,13 +1010,12 @@ class AgentConversationExecutor(ConversationExecutor):
 
                 if agent_state.current_tool_request is not None:
                     tool_request = agent_state.current_tool_request
-
                     AgentConversationExecutor._register_event(
                         state=agent_state,
                         conversation=conversation,
                         event_type=EventType.TOOL_CALL_START,
+                        tool_request=tool_request,
                     )
-
                     execution_status, should_yield = (
                         await AgentConversationExecutor._process_tool_call(
                             agent_config=agent_config,
@@ -1019,6 +1033,7 @@ class AgentConversationExecutor(ConversationExecutor):
                         state=agent_state,
                         conversation=conversation,
                         event_type=EventType.TOOL_CALL_END,
+                        tool_request=tool_request,
                     )
 
                 elif len(agent_state.tool_call_queue) > 0:
