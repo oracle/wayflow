@@ -15,6 +15,7 @@ from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.conversation import Conversation
 from wayflowcore.executors._events.event import Event, EventType
 from wayflowcore.executors._executionstate import ConversationExecutionState
+from wayflowcore.executors.executionstatus import UserMessageRequestStatus
 from wayflowcore.executors.interrupts.executioninterrupt import (
     FlexibleExecutionInterrupt,
     FlowExecutionInterrupt,
@@ -32,7 +33,7 @@ from wayflowcore.serialization.context import DeserializationContext, Serializat
 from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.steps import PromptExecutionStep, StartStep
 from wayflowcore.steps.step import Step
-from wayflowcore.tools import ToolRequest, tool
+from wayflowcore.tools import ServerTool, ToolRequest, tool
 
 from .testhelpers.dummy import DoNothingStep, DummyModel, SleepStep
 
@@ -542,3 +543,32 @@ def test_flow_assistant_execution_stops_with_global_token_limit_execution_interr
     assert isinstance(execution_status, InterruptedExecutionStatus)
     assert execution_status.interrupter == execution_interrupts[0]
     assert execution_status.reason == "Global token limit reached"
+
+
+@pytest.fixture
+def agent(big_llama, with_tools):
+    if with_tools:
+        tools = [
+            ServerTool(
+                func=lambda: None,
+                name="do_nothing",
+                description="useless function, ignore it",
+                input_descriptors=[],
+            )
+        ]
+    else:
+        tools = []
+    return Agent(llm=big_llama, tools=tools)
+
+
+@pytest.mark.parametrize("with_tools", [False, True], ids=["without_tools", "with_tools"])
+def test_agent_does_not_trigger_tool_interrupt_event_when_talking_to_user(agent):
+    execution_interrupts = [
+        OnEventExecutionInterrupt(EventType.TOOL_CALL_START),
+        OnEventExecutionInterrupt(EventType.TOOL_CALL_END),
+    ]
+    conversation_with_interrupts = agent.start_conversation()
+    conversation_with_interrupts.append_user_message("What model are you?")
+    execution_status = conversation_with_interrupts.execute(execution_interrupts)
+
+    assert isinstance(execution_status, UserMessageRequestStatus)

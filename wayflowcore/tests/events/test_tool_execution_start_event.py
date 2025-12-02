@@ -10,6 +10,7 @@ import pytest
 from wayflowcore.agent import Agent
 from wayflowcore.events.event import _PII_TEXT_MASK, ToolExecutionStartEvent
 from wayflowcore.events.eventlistener import register_event_listeners
+from wayflowcore.executors.executionstatus import UserMessageRequestStatus
 from wayflowcore.flowhelpers import (
     _run_flow_and_return_status,
     create_single_step_flow,
@@ -156,3 +157,15 @@ def test_event_is_triggered_on_tool_call_with_flow():
         _run_flow_and_return_status(flow)
     assert len(event_listener.triggered_events) == 1
     assert isinstance(event_listener.triggered_events[0], ToolExecutionStartEvent)
+
+
+@pytest.mark.parametrize("with_tools", [False, True], ids=["without_tools", "with_tools"])
+def test_event_is_not_triggered_on_talk_to_user_tool_calls(agent_with_useless_tool):
+    event_listener = ToolExecutionStartEventListener()
+    with register_event_listeners([event_listener]):
+        conversation_with_interrupts = agent_with_useless_tool.start_conversation()
+        conversation_with_interrupts.append_user_message("What model are you?")
+        execution_status = conversation_with_interrupts.execute()
+
+    assert len(event_listener.triggered_events) == 0
+    assert isinstance(execution_status, UserMessageRequestStatus)
