@@ -27,6 +27,14 @@ Improvements
 
   This does not require any change to existing assistants or execution loops.
 
+* **Long Message Summarization including Image Support**
+
+  Added `MessageSummarizationTransform` which summarizes messages (including images) exceeding a configurable length
+  threshold using a specified LLM and caches the summaries in a user-provided `DataStore` with
+  configurable size, LRU eviction, and entry lifetime.
+
+  Transforms can now be assigned to an agent through its constructor. (This is not supported in `agentspec`, so attempting to convert agents with transforms to `agentspec` will raise a `NotImplementedError`)
+
 
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^

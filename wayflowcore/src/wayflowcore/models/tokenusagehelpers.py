@@ -7,22 +7,89 @@
 import json
 from typing import TYPE_CHECKING, List, Optional
 
+from wayflowcore.messagelist import ImageContent, TextContent
+
 if TYPE_CHECKING:
-    from wayflowcore.messagelist import Message
+    from wayflowcore.messagelist import Message, MessageContent
     from wayflowcore.tools import Tool
 
+import logging
 
-def _count_tokens_in_str(text: Optional[str]) -> int:
-    if text is None:
-        return 0
-    # we assume the approximation of 1 token == 3/4 words
-    # https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
-    return int(len(text.split(" ")) * 4 / 3)
+logger = logging.getLogger(__name__)
+
+
+class CountTokensHeuristics:
+    # Constants for image dimension limits
+    MAX_IMAGE_WIDTH = 2048
+    MAX_IMAGE_HEIGHT = 2048
+    IMAGE_PATCH_SIZE = 16
+
+    @staticmethod
+    def tokens_in_chars(nchars: int) -> int:
+        """
+        Returns an estimate of the number of tokens corresponding to `nchars` chars.
+        """
+        return (nchars + 3) // 4
+
+    @staticmethod
+    def _tokens_in_image_with_dims(width: int, height: int) -> int:
+        """
+        Returns an estimate of the number of tokens corresponding to a `width`x`height` image.
+        This estimate is intentionally over-estimating the number of tokens.
+        """
+        max_width = CountTokensHeuristics.MAX_IMAGE_WIDTH
+        max_height = CountTokensHeuristics.MAX_IMAGE_HEIGHT
+        patch_size = CountTokensHeuristics.IMAGE_PATCH_SIZE
+
+        # Clamp the input width and height to the maximum allowed
+        width = min(width, max_width)
+        height = min(height, max_height)
+
+        # Calculate number of patches (tokens) along each dimension, rounding up
+        patches_w = (width + patch_size - 1) // patch_size
+        patches_h = (height + patch_size - 1) // patch_size
+
+        # Each patch corresponds to a token
+        token_count = patches_w * patches_h
+
+        return token_count
+
+    @staticmethod
+    def _tokens_in_image(image: "ImageContent") -> int:
+        """
+        Returns an estimate of the number of tokens corresponding to an image.
+        Currently assumes the maximal possible image size. Next step includes getting the exact image size using PIL.
+        """
+        # TODO replace with actual image size after adding PIL as a dependency
+        width = CountTokensHeuristics.MAX_IMAGE_WIDTH
+        height = CountTokensHeuristics.MAX_IMAGE_HEIGHT
+        return CountTokensHeuristics._tokens_in_image_with_dims(width, height)
+
+    @staticmethod
+    def tokens_in_messagecontents(contents: List["MessageContent"]) -> int:
+        ntokens = 0
+        for content in contents:
+            if isinstance(content, TextContent):
+                ntokens += CountTokensHeuristics.tokens_in_chars(len(content.content))
+            if isinstance(content, ImageContent):
+                ntokens += CountTokensHeuristics._tokens_in_image(content)
+        return ntokens
+
+
+def _count_tokens_in_str(s: str) -> int:
+    return CountTokensHeuristics.tokens_in_chars(len(s))
 
 
 def _count_token_single_message(message: "Message") -> int:
     # measured on `vllm`, each new message with llama is around 6 tokens
     token_count = 6 + _count_tokens_in_str(message.content)
+    token_count += sum(
+        [
+            CountTokensHeuristics._tokens_in_image(c)
+            for c in message.contents
+            if isinstance(c, ImageContent)
+        ]
+    )
     if message.tool_requests is not None:
         for tool_request in message.tool_requests:
             # we assume the model generated the tool call as a json
