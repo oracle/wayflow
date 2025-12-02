@@ -1684,6 +1684,10 @@ class RuntimeToAgentSpecConverter:
         self, runtime_agent: RuntimeAgent, referenced_objects: Optional[Dict[str, Any]] = None
     ) -> AgentSpecAgent:
 
+        if len(runtime_agent.transforms) > 0:
+            raise NotImplementedError(
+                "Attaching transforms to an Agent will be supported for conversion in a future version."
+            )
         llm_config = cast(AgentSpecLlmConfig, self.convert(runtime_agent.llm, referenced_objects))
         tools = [
             cast(AgentSpecTool, self.convert(tool, referenced_objects))

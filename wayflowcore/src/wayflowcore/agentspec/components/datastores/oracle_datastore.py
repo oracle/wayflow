@@ -52,7 +52,7 @@ class PluginMTlsOracleDatabaseConnectionConfig(PluginOracleDatabaseConnectionCon
 
 
 class PluginOracleDatabaseDatastore(PluginRelationalDatastore):
-    """In-memory datastore for testing and development purposes."""
+    """Datastore that uses Oracle Database as the storage mechanism."""
 
     # "schema" is a special field for Pydantic, so use the prefix "datastore_" to avoid clashes
     datastore_schema: Dict[str, PluginEntity]
