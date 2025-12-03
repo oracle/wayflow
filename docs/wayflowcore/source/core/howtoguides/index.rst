@@ -66,7 +66,7 @@ These how-to guides demonstrate how to use the main features to create and custo
    Build a Hierarchical Multi-Agent System <howto_multiagent>
    Build a Swarm of Agents <howto_swarm>
    Build a ManagerWorkers of Agents <howto_managerworkers>
-   How to use Serve and Consume Agents using A2A <howto_a2a>
+   How to use A2A with ManagerWorkers <howto_a2a>
 
 
 .. toctree::
