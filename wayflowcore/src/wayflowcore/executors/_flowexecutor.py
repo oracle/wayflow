@@ -599,7 +599,7 @@ class FlowConversationExecutor(ConversationExecutor):
                 except Exception:
                     raise ValueError(
                         f"Expected a value of type {output_descriptor} but the output value "
-                        f"named `{output_descriptor.name}` --> {output_value} has type {type(output_value)}. "
+                        f"named `{output_descriptor.name}` --> {output_value!r} has type {type(output_value)}. "
                         f"(step `{current_step_name}` outputs: {step_outputs})"
                     )
 
