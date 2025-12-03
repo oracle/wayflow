@@ -14,6 +14,8 @@ from typing import Any, Dict, List, Tuple
 
 import pytest
 
+from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
+
 from .a2a.conftest import a2a_server_fixture  # noqa
 from .a2a.test_a2aagent import a2a_agent, connection_config_no_verify  # noqa
 from .mcptools.conftest import sse_mcp_server_http  # noqa
@@ -128,6 +130,7 @@ def make_update_globals(test_globs: Dict[str, Any], pytest_request):
     return _update_globals
 
 
+@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
 @pytest.mark.parametrize(
     "file_path", get_all_code_examples_files(), ids=get_all_code_examples_files()
 )

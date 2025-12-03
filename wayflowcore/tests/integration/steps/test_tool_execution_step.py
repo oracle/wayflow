@@ -1086,5 +1086,5 @@ def test_tool_step_warns_for_uncopyable_tool_result_without_raise_exceptions():
     flow = flow_with_uncopyable_object(raise_exceptions=False)
 
     conv = flow.start_conversation()
-    with pytest.raises(UserWarning, match="Tool output is not copyable"):
+    with pytest.warns(UserWarning, match="Tool output is not copyable"):
         conv.execute()

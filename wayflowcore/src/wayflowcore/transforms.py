@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import logging
 import time
+import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, List, Literal, Optional
 
@@ -12,7 +13,7 @@ from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore._utils.async_helpers import is_coroutine_function, run_sync_in_thread
 from wayflowcore.conversation import _get_current_conversation_id
 from wayflowcore.datastore.entity import Entity
-from wayflowcore.datastore.inmemory import InMemoryDatastore
+from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING, InMemoryDatastore
 from wayflowcore.messagelist import Message, MessageContent, MessageType, TextContent
 from wayflowcore.models.llmmodel import Prompt
 from wayflowcore.models.tokenusagehelpers import CountTokensHeuristics
@@ -25,6 +26,11 @@ if TYPE_CHECKING:
     from wayflowcore.models import LlmModel
 
 logger = logging.getLogger(__name__)
+
+_SUMMARIZATION_WARNING_MESSAGE = (
+    "Using a SummarizationMessageTransform without specifying the datastore "
+    "will create by default an InMemoryDatastore for caching which is not recommended for production systems."
+)
 
 
 class MessageTransform(SerializableCallable, SerializableObject):
@@ -173,7 +179,11 @@ class _MessageSummarizationCache:
         if datastore:
             self.datastore = datastore
         else:
-            self.datastore = InMemoryDatastore(self._get_cache_schema(collection_name))
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+                self.datastore = InMemoryDatastore(self._get_cache_schema(collection_name))
+
+            warnings.warn(_SUMMARIZATION_WARNING_MESSAGE)
 
         self.collection_name = collection_name
         self._validate_datastore_schema()

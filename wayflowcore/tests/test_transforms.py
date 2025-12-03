@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import time
+import warnings
 from pathlib import Path
 from typing import List, Optional
 from unittest.mock import AsyncMock, patch
@@ -13,7 +14,7 @@ import pytest
 from wayflowcore.agent import Agent
 from wayflowcore.conversation import Conversation
 from wayflowcore.datastore.entity import Entity
-from wayflowcore.datastore.inmemory import InMemoryDatastore
+from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING, InMemoryDatastore
 from wayflowcore.messagelist import ImageContent, Message, MessageType, TextContent
 from wayflowcore.models.llmmodel import LlmCompletion, LlmModel
 from wayflowcore.property import FloatProperty, IntegerProperty, StringProperty
@@ -21,6 +22,7 @@ from wayflowcore.templates.llamatemplates import _LlamaMergeToolRequestAndCallsT
 from wayflowcore.templates.pythoncalltemplates import _PythonMergeToolRequestAndCallsTransform
 from wayflowcore.tools import ToolRequest, ToolResult, tool
 from wayflowcore.transforms import (
+    _SUMMARIZATION_WARNING_MESSAGE,
     CoalesceSystemMessagesTransform,
     MessageSummarizationTransform,
     RemoveEmptyNonUserMessageTransform,
@@ -349,9 +351,10 @@ def test_transform_summarizes_long_messages_only(remote_gemma_llm, messages, lon
     # We have this check because this test requires short and long messages.
     assert len(long_messages) == 2 and len(short_messages) >= 3
     # We used different llms for summarization and agent
-    transform = MessageSummarizationTransform(
-        llm=remote_gemma_llm, max_message_size=max_message_size
-    )
+    with pytest.warns(UserWarning, match=_SUMMARIZATION_WARNING_MESSAGE):
+        transform = MessageSummarizationTransform(
+            llm=remote_gemma_llm, max_message_size=max_message_size
+        )
     # We pass a mock_llm because we will not need the agent's generation.
     agent_llm = mock_llm()
     agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
@@ -427,9 +430,12 @@ def testing_inmemory_data_store(collection_name: Optional[str]):
     # if collection name is none, the default one is chosen.
     if not collection_name:
         collection_name = "summarized_messages_cache"
-    return InMemoryDatastore(
-        {collection_name: MessageSummarizationTransform.get_entity_definition()}
-    )
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+        return InMemoryDatastore(
+            {collection_name: MessageSummarizationTransform.get_entity_definition()}
+        )
 
 
 @pytest.fixture(
@@ -462,7 +468,9 @@ def test_summarization_transform_caches_summarization(
     if collection_name:
         params["cache_collection_name"] = collection_name
 
-    transform = MessageSummarizationTransform(**params)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=f"{_SUMMARIZATION_WARNING_MESSAGE}*")
+        transform = MessageSummarizationTransform(**params)
     # We pass a mock_llm because we will not need the agent's generation.
     agent_llm = mock_llm()
     agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
@@ -497,7 +505,10 @@ def test_summarization_transform_cache_evicts_lru(messages, collection_name, tes
     }
     if collection_name:
         params["cache_collection_name"] = collection_name
-    transform = MessageSummarizationTransform(**params)
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=f"{_SUMMARIZATION_WARNING_MESSAGE}")
+        transform = MessageSummarizationTransform(**params)
     # We pass a mock_llm because we will not need the agent's generation.
     agent_llm = mock_llm()
     agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
@@ -599,7 +610,9 @@ def bad_datastore(request):
 @pytest.fixture
 def bad_inmemory_datastore(request):
     schema = request.param
-    return InMemoryDatastore(schema)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+        return InMemoryDatastore(schema)
 
 
 @pytest.mark.parametrize(
@@ -694,6 +707,7 @@ def test_summarization_transform_removes_expired_messages(
     )
 
 
+@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
 @pytest.mark.parametrize(
     "toolres_message_contents",
     [[], [TextContent(CONVERSATION_WITH_TOOL_REQUESTS[2].tool_result.content)]],
@@ -708,6 +722,7 @@ def test_summarization_transform_updates_tool_result_content(toolres_message_con
     CONVERSATION_WITH_TOOL_REQUESTS[2].contents = toolres_message_contents
 
     summarization_llm = mock_llm()
+
     transform = MessageSummarizationTransform(
         llm=summarization_llm, max_message_size=max_message_size
     )
@@ -752,6 +767,7 @@ def test_summarization_transform_updates_tool_result_content(toolres_message_con
                 assert transformed_messages[2].contents == toolres_message_contents
 
 
+@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
 @retry_test(max_attempts=4)
 def test_summarization_transform_summarizes_images(remote_gemma_llm):
     """
@@ -787,3 +803,13 @@ def test_summarization_transform_summarizes_images(remote_gemma_llm):
         assert "oracle" in transformed_messages[3].content.lower()
         assert IMAGE_CONTENT_PNG not in transformed_messages[1].contents
         assert IMAGE_CONTENT_PNG not in transformed_messages[3].contents
+
+
+def test_summarization_transform_raises_warning_with_no_datastore():
+    summarization_llm = mock_llm()
+    max_message_size = 500
+
+    with pytest.warns(UserWarning, match=_SUMMARIZATION_WARNING_MESSAGE):
+        transform = MessageSummarizationTransform(
+            llm=summarization_llm, max_message_size=max_message_size
+        )
