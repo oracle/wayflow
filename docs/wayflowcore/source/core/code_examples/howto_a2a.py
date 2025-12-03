@@ -47,8 +47,6 @@ def get_prime_agent():
         can_finish_conversation=True,
     )
     return agent
-
-
 # .. end-##_Server_Setup_Prime_Agent
 
 
@@ -70,8 +68,6 @@ def get_sample_agent():
         can_finish_conversation=True,
     )
     return agent
-
-
 # .. end-##_Server_Setup_Sample_Agent
 
 # .. start-##_Server_Startup_Logic
