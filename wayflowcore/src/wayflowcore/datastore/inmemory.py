@@ -26,6 +26,22 @@ from wayflowcore.serialization.serializer import SerializableObject, serialize_t
 
 logger = getLogger(__name__)
 
+_INMEMORY_USER_WARNING = "InMemoryDatastore is for DEVELOPMENT and PROOF-OF-CONCEPT ONLY!"
+
+_USER_WARNING_MESSAGE_INTERNAL = (
+    "InMemoryDatastore is for DEVELOPMENT and PROOF-OF-CONCEPT ONLY!\n"
+    + "DO NOT use InMemoryDatastore in production environments.\n"
+    + "\n"
+    + "Limitations:\n"
+    + "- Data is NOT persisted between sessions\n"
+    + "- Limited scalability (all data must fit in memory)\n"
+    + "- No concurrent access support\n"
+    + "- No enterprise features (backup, recovery, security)\n"
+    + "\n"
+    + "For production use, switch to OracleDatabaseDatastore.\n"
+    + "=" * 80
+)
+
 
 class _InMemoryDatatable(Datatable):
     def __init__(self, entity_description: Entity):
@@ -194,6 +210,8 @@ class InMemoryDatastore(Datastore, Component, SerializableObject):
         >>> datastore.delete("documents", where={"id": 3})
 
         """
+        warn(_USER_WARNING_MESSAGE_INTERNAL, UserWarning)
+
         self._validate_schema(schema)
         self.schema = schema
         self._datatables = {name: _InMemoryDatatable(e) for name, e in self.schema.items()}

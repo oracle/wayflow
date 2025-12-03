@@ -4,8 +4,10 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import pytest
 
 from wayflowcore.datastore.datastore import Datastore
+from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.flowhelpers import run_step_and_return_outputs
 from wayflowcore.property import FloatProperty, StringProperty
 from wayflowcore.serialization.serializer import autodeserialize, serialize
@@ -84,7 +86,8 @@ def test_datastore_step_serializable(testing_inmemory_data_store_with_data):
         testing_inmemory_data_store_with_data, "employees", {"department_name": "warehouse"}
     )
     serialized_step = serialize(step)
-    deserialized_step: DatastoreDeleteStep = autodeserialize(serialized_step)
+    with pytest.warns(UserWarning, match=_INMEMORY_USER_WARNING):
+        deserialized_step: DatastoreDeleteStep = autodeserialize(serialized_step)
     assert deserialized_step.collection_name == step.collection_name
     assert deserialized_step.datastore is not step.datastore
     assert deserialized_step.datastore.describe() == step.datastore.describe()

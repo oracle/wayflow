@@ -7,6 +7,7 @@
 
 import json
 import os
+import warnings
 from importlib.resources import files
 from typing import Dict, List, Optional, Type
 
@@ -15,7 +16,7 @@ import pytest
 from wayflowcore.datastore import MTlsOracleDatabaseConnectionConfig, OracleDatabaseDatastore
 from wayflowcore.datastore.datastore import Datastore
 from wayflowcore.datastore.entity import Entity, nullable
-from wayflowcore.datastore.inmemory import InMemoryDatastore
+from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING, InMemoryDatastore
 from wayflowcore.datastore.oracle import TlsOracleDatabaseConnectionConfig
 from wayflowcore.property import FloatProperty, IntegerProperty, Property, StringProperty
 from wayflowcore.steps.step import Step
@@ -48,7 +49,10 @@ def get_basic_office_entities():
 
 @pytest.fixture(scope="function")
 def testing_inmemory_data_store():
-    return InMemoryDatastore(get_basic_office_entities())
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+        datastore = InMemoryDatastore(get_basic_office_entities())
+    return datastore
 
 
 ORACLE_DB_DDL = [
@@ -163,7 +167,9 @@ def populate_with_basic_entities(datastore: Datastore):
 
 @pytest.fixture(scope="function")
 def testing_inmemory_data_store_with_data():
-    datastore = InMemoryDatastore(get_basic_office_entities())
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+        datastore = InMemoryDatastore(get_basic_office_entities())
     populate_with_basic_entities(datastore)
     return datastore
 

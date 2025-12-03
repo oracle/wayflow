@@ -6,6 +6,7 @@
 
 import inspect
 import random
+import warnings
 from typing import Annotated, Any, Dict, List, Optional, Type
 
 import pytest
@@ -14,7 +15,7 @@ from wayflowcore import Agent, Flow
 from wayflowcore.agent import CallerInputMode
 from wayflowcore.datastore import Datastore
 from wayflowcore.datastore.entity import Entity
-from wayflowcore.datastore.inmemory import InMemoryDatastore
+from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING, InMemoryDatastore
 from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.messagelist import MessageType
 from wayflowcore.models import LlmModel
@@ -47,6 +48,11 @@ llm_assistant_model = VllmModel(
     model_id=model_id,
     generation_config=LlmGenerationConfig(max_tokens=1234),
 )
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+    datastore = InMemoryDatastore(
+        schema={"Hello World": Entity(properties={"ID": IntegerProperty(default_value=0)})}
+    )
 
 
 @tool
@@ -81,9 +87,7 @@ DEFAULT_DESCRIPTOR_VALUES: Dict[str, object] = {
         description="var",
         default_value=[],
     ),
-    Datastore.__name__: InMemoryDatastore(
-        schema={"Hello World": Entity(properties={"ID": IntegerProperty(default_value=0)})}
-    ),
+    Datastore.__name__: datastore,
     CallerInputMode.__name__: CallerInputMode.ALWAYS,
     VariableWriteOperation.__name__: VariableWriteOperation.OVERWRITE,
 }
@@ -165,6 +169,7 @@ def create_init_arguments(step_cls: Type[Step]) -> Dict[str, Any]:
     return init_arguments
 
 
+@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
 @pytest.mark.parametrize("step_cls", steps_to_check)
 def test_all_steps_can_be_serde_when_init_with_default_values(
     step_cls: Any, deserialization_context_with_tool

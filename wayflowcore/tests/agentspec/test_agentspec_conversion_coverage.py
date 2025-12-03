@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import inspect
+import warnings
 from typing import Any, Dict
 
 import pytest
@@ -15,6 +16,7 @@ from wayflowcore.component import Component
 from wayflowcore.contextproviders import ContextProvider
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.datastore import Entity, InMemoryDatastore, nullable
+from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.embeddingmodels import EmbeddingModel
 from wayflowcore.mcp import SSETransport
 from wayflowcore.models import LlmModel, VllmModel
@@ -173,6 +175,9 @@ flow = Flow(
     control_flow_edges=control_flow_edges,
     output_descriptors=[],
 )
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+    datastore = InMemoryDatastore(schema=schema)
 
 INIT_PARAMETER_DEFAULT_VALUES = {
     "messages": [Message(content="message content", role="user")],
@@ -244,7 +249,7 @@ INIT_PARAMETER_DEFAULT_VALUES = {
     "next_steps": [],
     "value": "some_value",
     "output_description": StringProperty(),
-    "datastore": InMemoryDatastore(schema=schema),
+    "datastore": datastore,
     "collection_name": "products",
     "where": {"title": "{{user_requested_product}}"},
     "query": "SELECT *",
@@ -362,6 +367,7 @@ CLASSES_TO_RUN = list(
 )
 
 
+@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
 @pytest.mark.parametrize("component_class", CLASSES_TO_RUN)
 def test_coverage(component_class, with_mcp_enabled):
 

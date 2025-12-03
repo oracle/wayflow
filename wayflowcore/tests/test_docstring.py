@@ -11,11 +11,13 @@ from pathlib import Path
 
 import pytest
 
+from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.serialization.serializer import serialize
 from wayflowcore.steps import OutputMessageStep
+from wayflowcore.transforms import _SUMMARIZATION_WARNING_MESSAGE
 
 from .datastores.conftest import (  # noqa
     ORACLE_DB_DDL,
@@ -44,6 +46,8 @@ ONLY_FILE_VAR = "ONLY_FILE"
 FILES_REQUIRE_DATASTORE = ["datastorequerystep.py"]
 
 
+@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
 @pytest.mark.parametrize("file_path", get_all_src_files())
 def test_examples_in_docstrings_can_be_successfully_ran(
     remotely_hosted_llm: VllmModel,

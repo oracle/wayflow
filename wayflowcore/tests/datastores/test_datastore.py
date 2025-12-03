@@ -6,6 +6,7 @@
 
 import copy
 import threading
+import warnings
 
 import pytest
 import yaml
@@ -13,6 +14,7 @@ import yaml
 from wayflowcore._threading import get_threadpool
 from wayflowcore.datastore import Datastore, InMemoryDatastore, nullable
 from wayflowcore.datastore.entity import Entity
+from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.datastore.oracle import OracleDatabaseDatastore, TlsOracleDatabaseConnectionConfig
 from wayflowcore.exceptions import (
     DatastoreConstraintViolationError,
@@ -138,13 +140,15 @@ def test_nullable_property(testing_data_store: Datastore):
 
 
 def test_multiple_datastores_in_same_process():
-    datastore_1 = InMemoryDatastore(
-        get_basic_office_entities(),
-    )
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+        datastore_1 = InMemoryDatastore(
+            get_basic_office_entities(),
+        )
 
-    datastore_2 = InMemoryDatastore(
-        get_basic_office_entities(),
-    )
+        datastore_2 = InMemoryDatastore(
+            get_basic_office_entities(),
+        )
 
     employee = {
         "ID": 432,
@@ -181,8 +185,9 @@ def test_in_memory_serialization_deserialization(testing_inmemory_data_store):
     test_basic_operations(testing_inmemory_data_store)
     datastore_as_str = serialize(testing_inmemory_data_store)
 
-    reloaded_datastore = autodeserialize(datastore_as_str)
-    test_basic_operations(reloaded_datastore)
+    with pytest.warns(UserWarning, match=_INMEMORY_USER_WARNING):
+        reloaded_datastore = autodeserialize(datastore_as_str)
+        test_basic_operations(reloaded_datastore)
 
 
 def test_oracle_serialization_deserialization(testing_oracle_data_store):
@@ -523,4 +528,11 @@ def test_schema_inspection_on_dropped_tables():
     finally:
         cleanup_oracle_datastore(
             ddl=["DROP TABLE IF EXISTS PRODUCTS cascade constraints"] + drop_ddl
+        )
+
+
+def test_inmemory_datastore_warns_on_init():
+    with pytest.warns(UserWarning, match=_INMEMORY_USER_WARNING):
+        _ = InMemoryDatastore(
+            schema={"Hello World": Entity(properties={"ID": IntegerProperty(default_value=0)})}
         )
