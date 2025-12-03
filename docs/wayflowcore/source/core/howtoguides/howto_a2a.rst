@@ -23,27 +23,23 @@ How to use Serve and Consume Agents using A2A
     - :doc:`LLM configuration <../howtoguides/llm_from_different_providers>`
     - :doc:`Using agents <agents>`
 
-This guide provides a step-by-step walkthrough on how to use the `Agent-to-Agent (A2A) protocol <https://a2a-protocol.org/latest/>`_ within Wayflow, covering both the serving and consuming roles from start to finish.
-The A2A protocol allows agents to seamlessly communicate and delegate tasks to one another.
+This step-by-step guide demonstrates how to use the `Agent-to-Agent (A2A) protocol <https://a2a-protocol.org/latest/>`_ in Wayflow for both serving and consuming agents.
 
-We'll demonstrate its functionality by creating two agents: one responsible for checking if a number is prime and another for generating random numbers. These agents will interact under the coordination of a manager agent.
-Through this example, we'll highlight how the A2A protocol enables easy integration of specialized agents independent on how its implemented, allowing for flexible, plug-and-play capabilities across different tasks.
+The A2A protocol enables agents to communicate and delegate tasks seamlessly. In this example, you'll create two agents: one for checking if numbers are prime, and another for generating random numbers.
+A manager agent will coordinate their interactions, demonstrating the plug-and-play flexibility offered by the protocol for integrating specialized agents, regardless of their implementation details.
 
 Server Setup for Agents
 =======================
 
-In this section, we set up servers for two agents: a ``prime_agent`` for checking prime numbers and a ``sample_agent`` for generating random numbers.
+In this section, you'll set up servers for two agents: ``prime_agent`` checks if numbers are prime, and ``sample_agent`` generates random numbers.
 
-Prime Agent Server
-------------------
+Setting up the Agents
+---------------------
 
 .. literalinclude:: ../code_examples/howto_a2a.py
    :language: python
    :start-after: .. start-##_Server_Setup_Prime_Agent
    :end-before: .. end-##_Server_Setup_Prime_Agent
-
-Sample Agent Server
--------------------
 
 .. literalinclude:: ../code_examples/howto_a2a.py
    :language: python
@@ -58,20 +54,26 @@ Starting the Servers
    :start-after: .. start-##_Server_Startup_Logic
    :end-before: .. end-##_Server_Startup_Logic
 
+For further details, see :ref:`A2AServer <a2aserver>`.
+
 Client Setup for A2A Agents
 ===========================
 
-On the client side, we create A2A agents that connect to the respective servers.
+On the client side, create ``A2AAgent`` instances to connect to the servers started above.
 
 .. literalinclude:: ../code_examples/howto_a2a.py
    :language: python
    :start-after: .. start-##_Client_Setup
    :end-before: .. end-##_Client_Setup
 
+See also :ref:`A2AAgent <a2aagent>` for more information.
+
 Manager Agent Setup
 ===================
 
-A manager agent is created to coordinate tasks between the sample and prime agents.
+While each agent has limited standalone capability, combining them unlocks powerful workflows.
+Using :ref:`ManagerWorkers <managerworkers>`, you can implement a manager agent that efficiently coordinates tasks between the sample and prime agents.
+This modular, scalable architecture allows each agent to specialize, increasing system capability and flexibility.
 
 .. literalinclude:: ../code_examples/howto_a2a.py
    :language: python
@@ -81,7 +83,7 @@ A manager agent is created to coordinate tasks between the sample and prime agen
 Executing Tasks with ManagerWorkers
 ===================================
 
-Finally, we use the :ref:`ManagerWorkers <managerworkers>` to execute a conversation where the manager agent delegates tasks to the appropriate agents.
+Now, execute a conversation in which the manager agent delegates tasks to the most appropriate agent.
 
 .. literalinclude:: ../code_examples/howto_a2a.py
    :language: python
@@ -91,9 +93,12 @@ Finally, we use the :ref:`ManagerWorkers <managerworkers>` to execute a conversa
 Next steps
 ==========
 
-This guide provided a complete example of implementing the A2A protocol in Wayflow. By setting up servers for specialized agents and coordinating their interactions through a manager agent, you can create powerful distributed systems where tasks are delegated efficiently.
+This guide demonstrated end-to-end implementation of the A2A protocol: setting up agent servers and coordinating interactions through a manager agent to create distributed systems with effective task delegation.
 
-For more and fine grained details on serving agents with A2A, refer to :doc:`A2A Serving <howto_a2a_serving>` and on using A2A agents, refer to :doc:`A2A Consuming <howto_a2aagent>`.
+For more details:
+
+- On serving with A2A, see :doc:`A2A Serving <howto_a2a_serving>`
+- On using A2A agents, see :doc:`A2A Consuming <howto_a2aagent>`
 
 Full code
 =========
