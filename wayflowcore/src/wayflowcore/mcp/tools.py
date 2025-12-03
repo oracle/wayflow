@@ -31,7 +31,13 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
-    """Class to represent a MCP tool exposed by a MCP server to a ServerTool."""
+    """Class to represent a MCP tool exposed by a MCP server to a ServerTool.
+
+    .. seealso::
+
+        :ref:`How to connect MCP tools to Assistants <top-howtomcp>`
+
+    """
 
     client_transport: ClientTransport
     """Transport to use for establishing and managing connections to the MCP server."""
@@ -72,6 +78,16 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
                     tool.input_descriptors,
                 )
 
+            if output_descriptors is None:
+                output_descriptors = tool.output_descriptors
+            elif output_descriptors != tool.output_descriptors:
+                logger.warning(
+                    "The output descriptors exposed by the remote MCP server do not match the locally defined output descriptors for tool `%s`:\nLocal output descriptors: %s\nRemote output descriptors: %s",
+                    name,
+                    output_descriptors,
+                    tool.output_descriptors,
+                )
+
         if description is None or input_descriptors is None:
             raise ValueError(
                 f"For the tool to be usable, it should have a description and input_descriptors, but got: {description} and {input_descriptors}"
@@ -97,7 +113,9 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
         # 1. Ensure session is created (from the portal)
         session = mcp_runtime.get_or_create_session(self.client_transport)
         # 2. Perform the call (from the portal)
-        res = await mcp_runtime.call_async(_invoke_mcp_tool_call_async, session, self.name, kwargs)
+        res = await mcp_runtime.call_async(
+            _invoke_mcp_tool_call_async, session, self.name, kwargs, self.output_descriptors
+        )
         return res
 
     def run(self, *args: Any, **kwargs: Any) -> Any:
@@ -106,7 +124,9 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
         # 1. Ensure session is created (from the portal)
         session = mcp_runtime.get_or_create_session(self.client_transport)
         # 2. Perform the call (from the portal)
-        res = mcp_runtime.call(_invoke_mcp_tool_call_async, session, self.name, kwargs)
+        res = mcp_runtime.call(
+            _invoke_mcp_tool_call_async, session, self.name, kwargs, self.output_descriptors
+        )
         return res
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:

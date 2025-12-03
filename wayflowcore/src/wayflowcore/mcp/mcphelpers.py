@@ -7,7 +7,7 @@
 import logging
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from exceptiongroup import ExceptionGroup
 from httpx import ConnectError
@@ -16,7 +16,13 @@ from mcp import types as types
 
 from wayflowcore.exceptions import NoSuchToolFoundOnMCPServerError
 from wayflowcore.mcp.clienttransport import ClientTransport, ClientTransportWithAuth
-from wayflowcore.property import Property
+from wayflowcore.property import (
+    DictProperty,
+    JsonSchemaParam,
+    ListProperty,
+    ObjectProperty,
+    Property,
+)
 from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.tools import Tool
 
@@ -84,29 +90,117 @@ def _catch_and_raise_mcp_connection_errors() -> Any:
         raise e
 
 
+def _extract_text_content_from_tool_result(result: types.CallToolResult) -> str:
+    if len(result.content) == 0:
+        raise ValueError(f"No content was returned")
+
+    text_content = ""
+    for content in result.content:
+        if content.type == "text":
+            text_content += content.text
+        else:
+            raise ValueError(f"Only `text` content type is supported, was {content.type}")
+    return text_content
+
+
+def _try_handle_structured_content_from_tool_result(
+    result: types.CallToolResult, output_descriptors: List[Property]
+) -> Optional[Any]:
+    structured_output = result.structuredContent
+    if structured_output is None:
+        return None
+
+    try:
+        # 1. If there are several expected outputs, we return the wrapped structuredContent
+        if len(output_descriptors) > 1 and len(structured_output["result"]) == len(
+            output_descriptors
+        ):
+            # MCP only supports objects so tuples are wrapped into a "result" field
+            wrapped_outputs = structured_output["result"]
+            return {
+                property_.name: value
+                for property_, value in zip(output_descriptors, wrapped_outputs)
+            }  # required for multi-output tools
+
+        # 2. If the tool output is expected to be a dict, we return the structuredContent
+        elif (
+            len(output_descriptors) == 1
+            and isinstance(output_descriptors[0], (DictProperty, ObjectProperty))
+            and structured_output
+        ):
+            return structured_output
+
+        # 3. If the tool output is expected to be a list, we return the wrapped structuredContent
+        elif (
+            len(output_descriptors) == 1
+            and isinstance(output_descriptors[0], ListProperty)
+            and structured_output
+        ):
+            # MCP only supports objects so lists are wrapped into a "result" field
+            return structured_output["result"]
+
+        else:
+            return None
+
+    except KeyError:
+        logger.debug(
+            "Encountered error while parsing structured content in MCP tool result, will default to text content"
+        )
+        return None
+
+
 async def _invoke_mcp_tool_call_async(
     session: ClientSession,
     tool_name: str,
     tool_args: Dict[str, Any],
-) -> str:
+    output_descriptors: List[Property],
+) -> Any:
     with _catch_and_raise_mcp_connection_errors():
         result: types.CallToolResult = await session.call_tool(tool_name, tool_args)
 
-        if len(result.content) == 0:
-            raise ValueError(f"No content was returned")
+        output = _try_handle_structured_content_from_tool_result(result, output_descriptors)
+        if output is not None:
+            return output
 
-        text_content = ""
-        for content in result.content:
-            if content.type == "text":
-                text_content += content.text
-            else:
-                raise ValueError(f"Only `text` content type is supported, was {content.type}")
-        return text_content
+        return _extract_text_content_from_tool_result(result)
 
 
 async def _get_server_signatures_from_mcp_server(session: ClientSession) -> types.ListToolsResult:
     with _catch_and_raise_mcp_connection_errors():
         return await session.list_tools()
+
+
+def _try_convert_mcp_output_schema_to_properties(
+    schema: Optional[Dict[str, Any]],
+) -> Optional[List[Property]]:
+    """Best effort attempt to convert the output schema from a MCP Tool"""
+    if schema is None:
+        return None
+
+    # Detect Dict Property
+    if "additionalProperties" in schema:
+        return [Property.from_json_schema(cast(JsonSchemaParam, schema))]
+
+    if not "result" in schema["properties"]:
+        logger.warning(
+            "Output schema of MCP tool is not compliant with the MCP spec (missing "
+            "'result' field in 'properties')"
+        )
+        return None
+
+    result_property = schema["properties"]["result"]
+
+    # Detect List Property
+    if result_property["type"] == "array" and "items" in result_property:
+        item_property = Property.from_json_schema(result_property["items"])
+        return [ListProperty(name=schema["title"], item_type=item_property)]
+
+    # Detect Tuple Properties
+    if result_property["type"] == "array" and "prefixItems" in result_property:
+        return [Property.from_json_schema(p) for p in result_property["prefixItems"]]
+
+    # No compatible complex type was detected -> use default type
+    return None
 
 
 async def get_server_tools_from_mcp_server(
@@ -150,8 +244,12 @@ async def get_server_tools_from_mcp_server(
             Property.from_json_schema(json_property, name=input_name)
             for input_name, json_property in exposed_tool.inputSchema["properties"].items()
         ]
+        remote_output_descriptors = _try_convert_mcp_output_schema_to_properties(
+            exposed_tool.outputSchema
+        )
         remote_description = exposed_tool.description or ""
 
+        output_descriptors: Optional[List[Property]]
         if (
             expected_signatures_by_name
             and expected_signatures_by_name[exposed_tool_name] is not None
@@ -167,11 +265,21 @@ async def get_server_tools_from_mcp_server(
                     expected_tool_signature,
                     remote_input_descriptors,
                 )
+
+            output_descriptors = expected_tool_signature.output_descriptors
+            if output_descriptors != remote_output_descriptors:
+                logger.warning(
+                    "The output descriptors exposed by the remote MCP server do not match the locally defined output descriptors for tool `%s`:/nLocal ouptut descriptors: %s\nRemote output descriptors: %s",
+                    expected_tool_signature.name,
+                    expected_tool_signature,
+                    remote_output_descriptors,
+                )
             description = expected_tool_signature.description
             requires_confirmation = expected_tool_signature.requires_confirmation
         else:
             # we use the ones exposed by the MCP server
             input_descriptors = remote_input_descriptors
+            output_descriptors = remote_output_descriptors
             description = remote_description
             requires_confirmation = False
 
@@ -180,6 +288,7 @@ async def get_server_tools_from_mcp_server(
                 name=exposed_tool.name,
                 description=description,
                 input_descriptors=input_descriptors,
+                output_descriptors=output_descriptors,
                 client_transport=client_transport,
                 _validate_tool_exist_on_server=False,
                 requires_confirmation=requires_confirmation,

@@ -6,9 +6,10 @@
 import argparse
 from contextvars import ContextVar
 from os import PathLike
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 
 from mcp.server.fastmcp import FastMCP as BaseFastMCP
+from pydantic import BaseModel, Field, RootModel
 from starlette.applications import Starlette
 from typing_extensions import TypedDict
 
@@ -53,6 +54,21 @@ class FastMCP(BaseFastMCP):
         await self._start_server(starlette_app)
 
 
+class GenerateTupleOut(BaseModel, title="tool_output"):
+    result: tuple[
+        Annotated[str, Field(title="str_output")], Annotated[bool, Field(title="bool_output")]
+    ]
+    # /!\ this needs to be named `result`
+
+
+class GenerateListOut(BaseModel, title="tool_output"):
+    result: list[str]  # /!\ this needs to be named `result`
+
+
+class GenerateDictOut(RootModel[dict[str, str]], title="tool_output"):
+    pass
+
+
 def create_server(host: str, port: int):
     """Create and configure the MCP server"""
     server = FastMCP(
@@ -85,6 +101,28 @@ def create_server(host: str, port: int):
         import random
 
         return f"random_string_{random.randint(100, 999)}"
+
+    @server.tool(description="Tool that returns a complex type", structured_output=True)
+    def generate_complex_type() -> list[str]:
+        return ["value1", "value2"]
+
+    @server.tool(description="Tool that returns a dict", structured_output=True)
+    def generate_dict() -> GenerateDictOut:
+        # ^ the pydantic models should be used when users want to have
+        # fine control over the output schema (e.g. root schema title)
+        return GenerateDictOut({"key": "value"})
+
+    @server.tool(description="Tool that returns a list", structured_output=True)
+    def generate_list() -> GenerateListOut:
+        return GenerateListOut(result=["value1", "value2"])
+
+    @server.tool(description="Tool that returns a tuple", structured_output=True)
+    def generate_tuple() -> GenerateTupleOut:
+        return GenerateTupleOut(result=("value", True))
+
+    @server.tool(description="Tool that consumes a list and a dict")
+    def consumes_list_and_dict(vals: list[str], props: dict[str, str]) -> str:
+        return f"vals={vals!r}, props={props!r}"
 
     return server
 

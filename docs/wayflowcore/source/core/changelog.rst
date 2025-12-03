@@ -24,6 +24,14 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **Support list, dict and tuple output types in MCP tools:**
+
+  MCP tools now support non-string output types (list of string, dictionary of strings
+  and tuple of these types)
+
+  For more information see the guide on :doc:`using MCP tools <howtoguides/howto_mcp>`.
+
+
 * **Connection persistence for MCP servers:**
 
   MCP client sessions are now reused which improves MCP calls latency and enables

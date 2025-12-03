@@ -28,7 +28,14 @@ from wayflowcore.mcp import (
     StreamableHTTPmTLSTransport,
     StreamableHTTPTransport,
 )
-from wayflowcore.property import AnyProperty, IntegerProperty
+from wayflowcore.property import (
+    AnyProperty,
+    BooleanProperty,
+    DictProperty,
+    IntegerProperty,
+    ListProperty,
+    StringProperty,
+)
 from wayflowcore.serialization import autodeserialize, serialize
 from wayflowcore.steps import MapStep, OutputMessageStep, ToolExecutionStep
 from wayflowcore.tools import Tool
@@ -91,9 +98,10 @@ def streamablehttp_client_transport_mtls(
 def run_toolbox_test(transport: ClientTransport) -> None:
     toolbox = MCPToolBox(client_transport=transport)
     tools = toolbox.get_tools()  # need
-    assert len(tools) == 4
-    assert tools[0].run(a=1, b=2) == "7"
-    assert tools[0].input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
+    assert len(tools) == 9
+    mcp_tool = next(t for t in tools if t.name == "fooza_tool")
+    assert mcp_tool.run(a=1, b=2) == "7"
+    assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
 
 
 @pytest.mark.parametrize(
@@ -521,3 +529,76 @@ async def test_connection_persistence_with_flow_and_mcp_tool_async(
     all_session_ids = re.findall(message_pattern, caplog.text)
     assert len(set(all_session_ids)) == 1
     # ^ note: There is actually one more for the initial fetch (no conversation) but it is not captured here
+
+
+def test_mcp_tool_works_with_complex_output_type(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="generate_complex_type",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+    TOOL_OUTPUT_NAME = "generate_complex_typeOutput"
+    assert tool.output_descriptors == [ListProperty(name=TOOL_OUTPUT_NAME)]
+    step = ToolExecutionStep(tool=tool)
+    outputs = run_step_and_return_outputs(step)
+    assert TOOL_OUTPUT_NAME in outputs and outputs[TOOL_OUTPUT_NAME] == ["value1", "value2"]
+
+
+def test_mcp_tool_works_with_dict_output(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="generate_dict",
+        description="description",
+        client_transport=sse_client_transport,
+        output_descriptors=[DictProperty(name="tool_output")],
+    )
+    step = ToolExecutionStep(tool=tool)
+    outputs = run_step_and_return_outputs(step)
+    assert "tool_output" in outputs and outputs["tool_output"] == {"key": "value"}
+
+
+def test_mcp_tool_works_with_list_output(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="generate_list",
+        description="description",
+        client_transport=sse_client_transport,
+        output_descriptors=[ListProperty(name="tool_output")],
+    )
+    step = ToolExecutionStep(tool=tool)
+    outputs = run_step_and_return_outputs(step)
+    assert "tool_output" in outputs and outputs["tool_output"] == ["value1", "value2"]
+
+
+def test_mcp_tool_works_with_tuple_output(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="generate_tuple",
+        description="description",
+        client_transport=sse_client_transport,
+        output_descriptors=[StringProperty(name="str_output"), BooleanProperty(name="bool_output")],
+    )
+    step = ToolExecutionStep(tool=tool)
+    outputs = run_step_and_return_outputs(step)
+
+    assert (
+        "str_output" in outputs
+        and outputs["str_output"] == "value"
+        and "bool_output" in outputs
+        and outputs["bool_output"] is True
+    )
+
+
+def test_mcp_tool_works_with_nested_inputs(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="consumes_list_and_dict",
+        description="description",
+        client_transport=sse_client_transport,
+        input_descriptors=[ListProperty(name="vals"), DictProperty(name="props")],
+        output_descriptors=[StringProperty(name="tool_output")],
+    )
+    step = ToolExecutionStep(tool=tool)
+    outputs = run_step_and_return_outputs(
+        step, inputs={"vals": ["value1", "value2"], "props": {"key": "value"}}
+    )
+    assert (
+        "tool_output" in outputs
+        and outputs["tool_output"] == "vals=['value1', 'value2'], props={'key': 'value'}"
+    )

@@ -169,10 +169,142 @@ Execute the flow as follows:
     :end-before: # .. end-##_Running_the_flow
 
 
-Exporting/Loading with Agent Spec
----------------------------------
 
-You can export the flow configuration to Agent Spec YAML:
+Advanced use: Complex types in MCP tools
+========================================
+
+
+WayFlow supports MCP tools with non-string outputs, such as:
+
+- List of string
+- Dictionary with key and values of string type
+
+From the MCP server-side, you may need to enable the ``structured_output`` parameter
+of your MCP server (depends on the implementation).
+
+
+.. code-block:: python
+
+    server = FastMCP(
+        name="Example MCP Server",
+        instructions="A MCP Server.",
+        host=host,
+        port=port,
+    )
+
+    @server.tool(description="Tool that generates a dictionary", structured_output=True)
+    def generate_dict() -> dict[str, str]:
+        return {"key": "value"}
+
+    @server.tool(description="Tool that generates a list", structured_output=True)
+    def generate_list() -> list[str]:
+        return ["value1", "value2"]
+
+
+On the WayFlow side, the input and output descriptors can be automatically inferred.
+
+.. code-block:: python
+
+    generate_dict_tool = MCPTool(
+        name="generate_dict",
+        description="Tool that generates a dictionary",
+        client_transport=mcp_client,
+        # output_descriptors=[DictProperty(name="generate_dictOutput")], # this will be automatically inferred
+    )
+
+    generate_list_tool = MCPTool(
+        name="generate_list",
+        description="Tool that generates a list",
+        client_transport=mcp_client,
+        # output_descriptors=[ListProperty(name="generate_listOutput")], # this will be automatically inferred
+    )
+
+
+You can then use those tools in a :ref:`Flow <flow>` to natively support the manipulation of complex data types with MCP tools.
+
+You can also use Pydantic models to change the tool output names. Note that in this advanced use,
+you must wrap the outputs in a `result` field as expected by MCP when using non-dict types.
+This also enables the use of multi-output in tools by using tuples.
+
+
+.. code-block:: python
+
+    from typing import Annotated
+    from pydantic import BaseModel, RootModel, Field
+
+    class GenerateTupleOut(BaseModel, title="tool_output"):
+        result: tuple[
+            Annotated[str, Field(title="str_output")],
+            Annotated[bool, Field(title="bool_output")]
+        ]
+        # /!\ this needs to be named `result`
+
+    class GenerateListOut(BaseModel, title="tool_output"):
+        result: list[str] # /!\ this needs to be named `result`
+
+    class GenerateDictOut(RootModel[dict[str, str]], title="tool_output"):
+        pass
+
+    server = FastMCP(
+        name="Example MCP Server",
+        instructions="A MCP Server.",
+        host=host,
+        port=port,
+    )
+
+    @server.tool(description="Tool that generates a dictionary", structured_output=True)
+    def generate_dict() -> GenerateDictOut:
+        return GenerateDictOut({"key": "value"})
+
+    @server.tool(description="Tool that generates a list", structured_output=True)
+    def generate_list() -> GenerateListOut:
+        return GenerateListOut(result=["value1", "value2"])
+
+    @server.tool(description="Tool that returns multiple outputs", structured_output=True)
+    def generate_tuple(inputs: list[str]) -> GenerateTupleOut:
+        value = "; ".join(inputs)
+        return GenerateTupleOut(result=("value", True))
+
+
+You can then match the output descriptors on the WayFlow side.
+
+.. code-block:: python
+
+    generate_dict_tool = MCPTool(
+        name="generate_dict",
+        description="Tool that generates a dictionary",
+        client_transport=mcp_client,
+        output_descriptors=[DictProperty(name="tool_output")],
+    )
+
+    generate_list_tool = MCPTool(
+        name="generate_list",
+        description="Tool that generates a list",
+        client_transport=mcp_client,
+        output_descriptors=[ListProperty(name="tool_output")],
+    )
+
+    generate_tuple_tool = MCPTool(
+        name="generate_tuple",
+        description="Tool that returns multiple outputs",
+        client_transport=mcp_client,
+        input_descriptors=[ListProperty(name="inputs")],
+        output_descriptors=[StringProperty(name="str_output"), BooleanProperty(name="bool_output")],
+    )
+
+When specified, the input/output descriptors of the MCP tool will be validated against the schema fetched from the MCP server.
+
+
+.. note::
+
+    MCPToolBox are not compatible with complex output types.
+    Tools from MCPToolBox will always return string values.
+
+
+Exporting/Loading with Agent Spec
+=================================
+
+You can export the assistant from this tutorial to Agent Spec:
 
 .. literalinclude:: ../code_examples/howto_mcp.py
     :language: python
