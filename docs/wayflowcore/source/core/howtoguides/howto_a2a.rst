@@ -28,8 +28,8 @@ This step-by-step guide demonstrates how to use the `Agent-to-Agent (A2A) protoc
 The A2A protocol enables agents to communicate and delegate tasks seamlessly. In this example, you'll create two agents: one for checking if numbers are prime, and another for generating random numbers.
 A manager agent will coordinate their interactions, demonstrating the plug-and-play flexibility offered by the protocol for integrating specialized agents, regardless of their implementation details.
 
-Server Setup for Agents
-=======================
+Server Setup for A2A
+====================
 
 In this section, you'll set up servers for two agents: ``prime_agent`` checks if numbers are prime, and ``sample_agent`` generates random numbers.
 
@@ -56,8 +56,8 @@ Starting the Servers
 
 For further details, see :ref:`A2AServer <a2aserver>`.
 
-Client Setup for A2A Agents
-===========================
+Client Setup for A2A
+====================
 
 On the client side, create ``A2AAgent`` instances to connect to the servers started above.
 
