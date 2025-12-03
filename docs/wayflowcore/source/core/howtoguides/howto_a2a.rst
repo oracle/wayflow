@@ -1,8 +1,8 @@
 .. _top-howtoa2a:
 
-=============================================
-How to use Serve and Consume Agents using A2A
-=============================================
+==================================
+How to use A2A with ManagerWorkers
+==================================
 
 .. |python-icon| image:: ../../_static/icons/python-icon.svg
    :width: 40px
