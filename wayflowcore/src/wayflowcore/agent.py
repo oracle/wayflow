@@ -498,10 +498,15 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
 
     def _update_internal_state(self) -> None:
         """Updates the internal state of the Agent executor based on its attributes that are init attributes"""
-
-        if self.initial_message is None and self.custom_instruction is None:
+        if (
+            # When the user does not specify an agent_template, we default to the LLM's agent template.
+            # So here we check if the user set one or we are using the default.
+            self.agent_template == self.llm.agent_template
+            and self.initial_message is None
+            and self.custom_instruction is None
+        ):
             raise ValueError(
-                "Initial message was set to None, so the Agent requires a custom instruction, but it was None"
+                "Initial message and agent template were set to None, so the Agent requires a custom instruction, but it was None"
             )
 
         self._tools, self._toolboxes = _extract_toolboxes_from_tool_sequence(self.tools or [])
