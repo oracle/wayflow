@@ -25,9 +25,11 @@ class PydanticComponentSerializationPlugin(BasePydanticComponentSerializationPlu
         component_types_and_models: Mapping[str, Type[BaseModel]],
         name: str,
         version: Optional[str] = None,
+        _allow_partial_model_serialization: bool = True,
     ) -> None:
         super().__init__(
             component_types_and_models=component_types_and_models,
+            _allow_partial_model_serialization=_allow_partial_model_serialization,
         )
         self._name = name
         self._version = version
