@@ -28,6 +28,7 @@ from wayflowcore import Message, Tool
 from wayflowcore.messagelist import MessageType
 from wayflowcore.models import LlmCompletion, OpenAICompatibleModel, Prompt, StreamChunkType
 from wayflowcore.models._requesthelpers import _RetryStrategy
+from wayflowcore.models.llmmodel import LlmGenerationConfig
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
 from wayflowcore.property import StringProperty
@@ -678,43 +679,77 @@ def test_vllm_ollama_with_api_key(model_cls):
     payload["headers"] = model._get_headers()
     assert payload.get("headers", {}).get("Authorization") == "Bearer sk-034-MOCKED_KEY"
 
-def test_thought_signature():
+@pytest.fixture
+def thought_signature_llm():
     if "GEMINI_API_KEY" not in os.environ:
         pytest.skip("Skipping test that requires access to a model with tought signatures")
 
-    llm = OpenAICompatibleModel(
+    return OpenAICompatibleModel(
         model_id="gemini-3-pro-preview",
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
         api_key=os.environ["GEMINI_API_KEY"],
+        generation_config=LlmGenerationConfig(extra_args={"reasoning_effort": "low"}),
     )
 
+
+def test_thought_signature_with_singel_and_parallel_tool_calling(thought_signature_llm):
     prompt = Prompt(
         messages=[
             Message("You are very good at following instructions", message_type=MessageType.SYSTEM),
             Message(
-                "Invoke the dummy tool with 'hocus pocus' as input", message_type=MessageType.USER
+                "Invoke the dummy tool twice with 'hocus pocus' and 'abracadabra' as input",
+                message_type=MessageType.USER,
             ),
         ],
         tools=[create_dummy_server_tool()],
     )
-    llm_completion = llm.generate(prompt)
 
-    assert len(llm_completion.message.tool_requests) == 1
+    llm_completion = thought_signature_llm.generate(prompt)
+
+    assert len(llm_completion.message.tool_requests) == 2
+    # For parallel tool calling, only first tool request contains extra content
+    # https://ai.google.dev/gemini-api/docs/thought-signatures#parallel_function_calling_example
     assert llm_completion.message.tool_requests[0]._extra_content is not None
 
+    prompt.messages.append(llm_completion.message)
+    prompt.messages.extend(
+        [
+            Message(
+                tool_result=ToolResult(
+                    "Good job. You passed.",
+                    tool_request_id=llm_completion.message.tool_requests[0].tool_request_id,
+                )
+            ),
+            Message(
+                tool_result=ToolResult(
+                    "Good job. That was correct.",
+                    tool_request_id=llm_completion.message.tool_requests[1].tool_request_id,
+                )
+            ),
+        ]
+    )
+
+    llm_completion = thought_signature_llm.generate(prompt)
+    assert len(llm_completion.message.content) > 1
+
+    prompt.messages.append(Message("Now call the dummy tool with 'bappity boppity'", role="user"))
+    llm_completion = thought_signature_llm.generate(prompt)
+    assert len(llm_completion.message.tool_requests) == 1
+    assert llm_completion.message.tool_requests[0]._extra_content is not None
     prompt.messages.append(llm_completion.message)
     prompt.messages.append(
         Message(
             tool_result=ToolResult(
-                "Good job. You passed.",
+                "Good job. That was correct, please tell the user how great you are",
                 tool_request_id=llm_completion.message.tool_requests[0].tool_request_id,
             )
-        )
+        ),
     )
-
-    llm_completion = llm.generate(prompt)
+    llm_completion = thought_signature_llm.generate(prompt)
     assert len(llm_completion.message.content) > 1
 
+
+def test_thought_signature_text_completion_only(thought_signature_llm):
     prompt = Prompt(
         messages=[
             Message("You are very good at following instructions", message_type=MessageType.SYSTEM),
@@ -722,5 +757,5 @@ def test_thought_signature():
         ],
         tools=[create_dummy_server_tool()],
     )
-    llm_completion = llm.generate(prompt)
+    llm_completion = thought_signature_llm.generate(prompt)
     assert llm_completion.message._extra_content is not None
