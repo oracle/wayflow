@@ -65,7 +65,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                         "id": tc.tool_request_id,
                         "type": "function",
                         "function": {"name": tc.name, "arguments": json.dumps(tc.args)},
-                        "extra_content": tc.extra_content
+                        "extra_content": tc._extra_content
                     }
                     for tc in (m.tool_requests or [])
                 ],
@@ -150,7 +150,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                         name=tc["function"]["name"],
                         args=_safe_json_loads(tc["function"]["arguments"]),
                         tool_request_id=tc["id"],
-                        extra_content=tc.get("extra_content"),
+                        _extra_content=tc.get("extra_content"),
                     )
                     for tc in extracted_message["tool_calls"]
                 ],
@@ -160,7 +160,11 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
             # content might be empty when certain models (like gemini) decide
             # to finish the conversation
             content = extracted_message.get("content", "")
-            message = Message(role="assistant", contents=[TextContent(content=content)])
+            message = Message(
+                role="assistant",
+                contents=[TextContent(content=content)],
+                _extra_content=extracted_message.get("extra_content"),
+            )
         return message
 
     def _extract_usage(self, response_data: Dict[str, Any]) -> Optional[TokenUsage]:
@@ -274,7 +278,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 name=s["name"],
                 tool_request_id=s["tool_request_id"],
                 args=_safe_json_loads(s["arguments"]),
-                extra_content=s.get("extra_content"),
+                _extra_content=s.get("extra_content"),
             )
             for s in tool_requests_dict.values()
         ]

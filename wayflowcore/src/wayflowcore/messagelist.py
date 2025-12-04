@@ -194,7 +194,7 @@ class Message(SerializableDataclass):
         Message content. Is a list of chunks with potentially different types
     role:
         Role of the sender of the message. Can be `user`, `system` or `assistant`
-    extra_content:
+    _extra_content:
         Any additional information required when interacting with the LLM.
         Generally, this is provided in the model response itself, when required.
     """
@@ -218,7 +218,7 @@ class Message(SerializableDataclass):
     time_created: datetime = field(default_factory=lambda: datetime.now(timezone.utc), repr=False)
     time_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc), repr=False)
 
-    extra_content: Optional[Any] = None
+    _extra_content: Optional[Any] = None
 
     def __init__(
         self,
@@ -237,7 +237,7 @@ class Message(SerializableDataclass):
         _prompt_cache_key: Optional[str] = None,  # Only for OpenAI Responses API
         _reasoning_content: Optional[_ReasoningContent] = None,  # Only for OpenAI Responses API
         __metadata_info__: Optional[MetadataType] = None,
-        extra_content: Optional[Any] = None,
+        _extra_content: Optional[Any] = None,
     ) -> None:
         if __metadata_info__ is None:
             __metadata_info__ = {}
@@ -302,7 +302,7 @@ class Message(SerializableDataclass):
 
         self._hash_compute_time = time_updated
         self._hash: Optional[str] = None
-        self.extra_content = extra_content
+        self._extra_content = _extra_content
 
     def _convert_deprecated_arguments(
         self,

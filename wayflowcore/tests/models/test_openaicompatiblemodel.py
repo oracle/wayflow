@@ -26,7 +26,7 @@ from wayflowcore.models import (
 from wayflowcore.models import LlmCompletion, OpenAICompatibleModel, Prompt, StreamChunkType
 from wayflowcore import Message, Tool
 from wayflowcore.messagelist import MessageType
-from wayflowcore.models import LlmCompletion, OpenAICompatibleModel, Prompt
+from wayflowcore.models import LlmCompletion, OpenAICompatibleModel, Prompt, StreamChunkType
 from wayflowcore.models._requesthelpers import _RetryStrategy
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
@@ -67,6 +67,8 @@ def openai_reasoning_responses_llm():
 @pytest.fixture
 def vllm_reasoning_responses_llm():
     return LlmModelFactory.from_config(VLLM_OSS_REASONING_CONFIG)
+
+
 from ..conftest import llama_api_url
 from ..testhelpers.dummy import create_dummy_server_tool
 
@@ -698,7 +700,7 @@ def test_thought_signature():
     llm_completion = llm.generate(prompt)
 
     assert len(llm_completion.message.tool_requests) == 1
-    assert llm_completion.message.tool_requests[0].extra_content is not None
+    assert llm_completion.message.tool_requests[0]._extra_content is not None
 
     prompt.messages.append(llm_completion.message)
     prompt.messages.append(
@@ -721,4 +723,4 @@ def test_thought_signature():
         tools=[create_dummy_server_tool()],
     )
     llm_completion = llm.generate(prompt)
-    assert llm_completion.message.extra_content is not None
+    assert llm_completion.message._extra_content is not None
