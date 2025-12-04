@@ -2134,3 +2134,20 @@ def test_agent_with_missing_input_values_raises(big_llama):
         match="The agent requires an input `additional_context`, but it was not passed in the input dictionary",
     ):
         _ = agent.start_conversation({})
+
+
+def test_agent_template_with_no_custom_instructions(big_llama):
+    agent = Agent(
+        llm=big_llama,
+        initial_message=None,
+        custom_instruction=None,
+        agent_template=PromptTemplate(
+            messages=[Message("Hi, how can I help you?")],
+        ),
+    )
+
+    conv = agent.start_conversation()
+    conversation_length_before = len(conv.get_messages())
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    assert len(conv.get_messages()) == conversation_length_before + 1

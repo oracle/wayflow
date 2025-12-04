@@ -98,6 +98,11 @@ Bug fixes
   - The cause was that internally, WayFlow converted a subagent of an Agent into a Tool, which is then converted to a JSON payload to submit to the LLM provider, which then returns an HTTP error if the tool's name does not match a regex.
   - Now, users may specify arbitrary names for Agents and Flows. Internally, when creating Tools out of subagents and subflows, their names would be sanitized.
 
+* **Configuring Agents with PromptTemplates no longer requires custom instruction**
+
+  Fixed a bug where instantiating an Agent with an ``agent_template``, ``initial_message=None`` and ``custom_instruction=None`` would raise an exception.
+  Now, users can fully specify the agent template without having to additionally specify initial messages or custom instructions.
+
 WayFlow 25.4.2
 --------------
 
