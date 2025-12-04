@@ -682,7 +682,7 @@ def test_vllm_ollama_with_api_key(model_cls):
 @pytest.fixture
 def thought_signature_llm():
     if "GEMINI_API_KEY" not in os.environ:
-        pytest.skip("Skipping test that requires access to a model with tought signatures")
+        pytest.skip("Skipping test that requires access to a model with thought signatures")
 
     return OpenAICompatibleModel(
         model_id="gemini-3-pro-preview",
