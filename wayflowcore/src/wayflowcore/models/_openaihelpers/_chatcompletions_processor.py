@@ -43,6 +43,11 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
         if stream:
             json_obj["stream_options"] = dict(include_usage=True)
 
+        if not self._is_openai_endpoint():
+            # Some OpenAI Compatible APIs (e.g., VLLM) will choose to ignore this parameter if it is
+            # not supported, whereas others (e.g., Gemini) will return an error.
+            json_obj.pop("store")
+
         return json_obj
 
     def _convert_message_into_openai_message_dict(
