@@ -97,12 +97,14 @@ Improvements
 
   Transforms can now be assigned to an agent through its constructor. (This is not supported in `agentspec`, so attempting to convert agents with transforms to `agentspec` will raise a `NotImplementedError`)
 
-* **Improve Swarm prompt template and introduce HandoffMode:**
+* **Improve Swarm prompt template, introduce HandoffMode and support multiple tool calls in Swarm:**
 
   Removed redundant agent descriptions from the Swarm template and added a guidance rule that encourages agents to hand off when appropriate.
   Introduced ``HandoffMode`` to Swarm. In addition to the existing modes (``True`` → ``HandoffMode.OPTIONAL``, ``False`` → ``HandoffMode.NEVER``),
   a new mode ``HandoffMode.ALWAYS`` is now supported, requiring agents to always use the handoff
   mechanism when delegating tasks to other agents. Read more at :ref:`HandoffMode <HandoffMode>`.
+  Added support for multiple tool calls in Swarm. The LLM may now emit multiple tool calls in a single response; these tools are executed sequentially,
+  and all tool results are returned together.
 
   This significantly reduces token usage and improves execution speed.
 

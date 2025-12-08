@@ -44,7 +44,7 @@ it's a private message conversation between you and the other agent.
 _HANDOFF_TOOL_NAME = "handoff_conversation"
 
 _HANDOFF_TOOL_DESCRIPTION = """
-Use this tool to transfer the entire conversation with the user to another agent in your group.
+Use this tool to transfer the entire conversation with your user to another agent in your group.
 - Use this when another agent is better suited to handle the user’s request.
 - Once handed off, the receiving agent takes over the conversation entirely.
 - Specify the recipient agent’s name to complete the handoff.
@@ -52,8 +52,6 @@ Use this tool to transfer the entire conversation with the user to another agent
 
 
 def _create_communication_tools(
-    agent: Agent,
-    recipient_agents: List[Agent],
     handoff: Optional[HandoffMode] = HandoffMode.NEVER,
 ) -> List[ClientTool]:
     communication_tools = []
@@ -106,7 +104,7 @@ def _get_tool_request_from_message(message: Message, tool_name: str) -> ToolRequ
     return tool_request
 
 
-def _get_last_tool_request_message_info_from_agent_response(
+def _get_last_tool_request_message_and_answered_tool_requests_from_agent_response(
     message_list: MessageList,
 ) -> Tuple["Message", List[str]]:
     """
@@ -161,8 +159,8 @@ def _get_last_tool_request_message_info_from_agent_response(
 
 
 def _get_last_tool_request_message_from_agent_response(message_list: MessageList) -> "Message":
-    last_tool_request_message, _ = _get_last_tool_request_message_info_from_agent_response(
-        message_list
+    last_tool_request_message, _ = (
+        _get_last_tool_request_message_and_answered_tool_requests_from_agent_response(message_list)
     )
     return last_tool_request_message
 
@@ -171,7 +169,7 @@ def _get_unanswered_tool_requests_from_agent_response(
     message_list: MessageList,
 ) -> List[ToolRequest]:
     last_tool_request_message, answered_tool_request_ids = (
-        _get_last_tool_request_message_info_from_agent_response(message_list)
+        _get_last_tool_request_message_and_answered_tool_requests_from_agent_response(message_list)
     )
 
     if (
@@ -227,6 +225,58 @@ def _close_parallel_tool_requests_if_necessary(
         message_list.append_tool_result(
             ToolResult(
                 content=f"Parallel tool calling is not supported. Cancelling call to tool '{other_tool_request.name}'",
+                tool_request_id=other_tool_request.tool_request_id,
+            )
+        )
+
+
+def _close_parallel_tool_requests_after_handoff_tool_request(
+    message_list: MessageList, tool_request: ToolRequest
+) -> None:
+    """
+    Close parallel tool request by marking other tool requests after the handoff tool (`tool_request`) as "cancelling"
+    and appending corresponding tool results to the message list.
+    Example:
+    message_list = [Message(tool_requests=[TR0, "handoff_conversation", TR2, TR3])]
+    Resulting message_list after execution:
+        [
+            Message(tool_requests=[TR0, "handoff_conversation", TR2, TR3]),
+            Message(tool_result=ToolResult(content="Calling 'TR2' after the handoff is not possible. Cancelling call to tool 'TR2')),
+            Message(tool_result=ToolResult(content="Calling 'TR3' after the handoff is not possible. Cancelling call to tool 'TR3"))
+        ]
+    """
+    message = _get_last_tool_request_message_from_agent_response(message_list)
+    if (
+        message is None
+        or message.message_type != MessageType.TOOL_REQUEST
+        or not message.tool_requests
+    ):
+        raise ValueError(f"Internal error: {message}")  # for mypy compliance
+
+    logger.debug(
+        "Calling other tools after the handoff is not possble. Cancelling other tool calls."
+    )
+
+    idx = next(
+        (
+            i
+            for i, tq in enumerate(message.tool_requests)
+            if tq.tool_request_id == tool_request.tool_request_id
+        ),
+        None,
+    )
+
+    if idx is None:
+        raise ValueError(
+            f"Internal error: Error when cancelling parallel tool calls after the handoff."
+        )
+
+    # Cancel the tool requests after the handoff tool
+    other_tool_requests = message.tool_requests[idx + 1 :]
+    for other_tool_request in other_tool_requests:
+        message_list.append_tool_result(
+            ToolResult(
+                content=f"Calling '{other_tool_request.name}' after the handoff is not possible. Cancelling call to tool '{other_tool_request.name}'",
                 tool_request_id=other_tool_request.tool_request_id,
             )
         )

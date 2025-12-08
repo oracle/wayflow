@@ -43,17 +43,18 @@ You can communicate with the following entities.
 
 <response_rules>
 <tool_use_rules>
-- Always respond using a single tool call; plain text responses are forbidden
 - Never mention any specific tool names to users
 - Carefully verify available tools; do not fabricate non-existent tools. Delegate when necessary.
 - Tool request/results may originate from other parts of the system; only use explicitly provided tools
-- Call EXACTLY ONE tool per response. The system does not support parallel tool calling.
+- Call MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user’s query can be broken into independent subtasks.
+If `handoff_conversation` is included, it must be the final tool call.
+Note that tool calls are executed sequentially, but all tool results are returned to you together.
 - {%- if handoff=="optional" -%} You SHOULD use handoff_conversation tool if you think another agent can answer to the user directly,
 as this reduces unnecessary relaying and lowers latency {%- endif -%}
 - {%- if handoff=="always" -%} You must use the handoff_conversation tool when delegating to another agent.{%- endif -%}
 </tool_use_rules>
 
-Always structure your response as a thought followed by a function call using JSON compliant syntax.
+Always structure your response as a thought followed by one or multiple tool calls using JSON compliant syntax.
 The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
 -> Put **internal-only** information in the thoughts
 -> Put all necessary information in the tool calls to communicate to user/other entity.
@@ -165,17 +166,17 @@ class _ToolRequestAndCallsTransform(MessageTransform, SerializableObject):
                     json.dumps({"name": tool_request.name, "parameters": tool_request.args})
                     for tool_request in message.tool_requests
                 )
-                for tool_request in message.tool_requests:
-                    formatted_messages.append(
-                        Message(
-                            content=(
-                                f"--- MESSAGE: From: {message.sender} ---\n"
-                                f"{message.content}\n"
-                                f"{formatted_tool_calls}"
-                            ),
-                            message_type=MessageType.AGENT,
-                        )
+
+                formatted_messages.append(
+                    Message(
+                        content=(
+                            f"--- MESSAGE: From: {message.sender} ---\n"
+                            f"{message.content}\n"
+                            f"{formatted_tool_calls}"
+                        ),
+                        message_type=MessageType.AGENT,
                     )
+                )
             elif message.message_type == MessageType.SYSTEM:
                 formatted_messages.append(message)
             else:
