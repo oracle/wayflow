@@ -3,12 +3,18 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+import os
+
 import pytest
 
+from wayflowcore.agent import Agent
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
-from wayflowcore.events.event import EndSpanEvent
+from wayflowcore.events.event import EndSpanEvent, LlmGenerationRequestEvent
+from wayflowcore.events.eventlistener import EventListener, register_event_listeners
 from wayflowcore.flow import Flow
+from wayflowcore.messagelist import Message, MessageType
+from wayflowcore.models import VllmModel
 from wayflowcore.property import ListProperty, StringProperty
 from wayflowcore.steps import MapStep, PromptExecutionStep, StartStep
 from wayflowcore.tracing.span import ConversationSpan
@@ -201,3 +207,44 @@ def test_tracing_works_with_parallel_execution(
         len(set(span_types)) == 4
     )  # Expected Span types: ConversationSpan, FlowExecutionSpan, StepExecutionSpan, LlmGenerationSpan
     assert "LlmGenerationSpan" in span_types
+
+
+def test_tracing_initial_messages_in_agent_conversation():
+    class DebugEventListener(EventListener):
+        def __init__(self):
+            super().__init__()
+            self.prompt_to_llm = []
+
+        def __call__(self, event):
+            if isinstance(event, LlmGenerationRequestEvent):
+                self.prompt_to_llm.append(event.prompt)
+
+    system_prompt = "You are Specky, a useful assistant"
+    agent = Agent(
+        custom_instruction=system_prompt,
+        llm=VllmModel(
+            model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+            host_port=os.getenv("LLAMA_API_URL"),
+        ),
+    )
+    initial_messages = [
+        Message(
+            message_type=MessageType.USER,
+            content="Hey Specky, how do I use the Flows in WayFlow? Show me examples",
+        ),
+        Message(message_type=MessageType.AGENT, content="I am busy, please ask me again later."),
+        Message(message_type=MessageType.USER, content="Sorry. Can you try to help me now?"),
+    ]
+    listener = DebugEventListener()
+    with register_event_listeners([listener]):
+        conversation = agent.start_conversation(messages=initial_messages)
+        conversation.execute()
+    assert len(listener.prompt_to_llm) == 1
+    assert len(listener.prompt_to_llm[0].messages) == 4
+    # check that first message in the `Prompt` is the agent `custom_instructions`
+    assert (
+        listener.prompt_to_llm[0].messages[0].content
+        == f"Additional instructions:\n{system_prompt}"
+    )
+    for i in range(3):
+        assert listener.prompt_to_llm[0].messages[i + 1].content == initial_messages[i].content
