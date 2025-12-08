@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import logging
+from enum import Enum, auto
 from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Set, Tuple
 
 from wayflowcore import Conversation
@@ -13,9 +14,7 @@ from wayflowcore.agent import Agent
 from wayflowcore.executors._agenticpattern_helpers import (
     _HANDOFF_TOOL_NAME,
     _SEND_MESSAGE_TOOL_NAME,
-    _close_parallel_tool_requests_if_necessary,
-    _get_last_tool_request_message_from_agent_response,
-    _get_tool_request_from_message,
+    _close_parallel_tool_requests_after_handoff_tool_request,
     _get_unanswered_tool_requests_from_agent_response,
     _parse_handoff_conversation_tool_request,
     _parse_send_message_tool_request,
@@ -31,7 +30,7 @@ from wayflowcore.executors.interrupts.executioninterrupt import ExecutionInterru
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.swarm import HandoffMode, Swarm
 from wayflowcore.templates._swarmtemplate import _HANDOFF_CONFIRMATION_MESSAGE_TEMPLATE
-from wayflowcore.tools import ToolResult
+from wayflowcore.tools import ClientTool, ToolRequest, ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore.executors._agentconversation import AgentConversation
@@ -101,12 +100,19 @@ def _get_all_recipients_for_agent(
     return recipients
 
 
+class _ToolProcessSignal(Enum):
+    RETURN = auto()  # Break the while loop and return the status to user
+    START_NEW_LOOP = auto()  # Equivalent to `continue` in the while loop
+    EXECUTE_AGENT = auto()  # Go to the agent execution
+
+
 class SwarmRunner(ConversationExecutor):
     @staticmethod
     async def execute_async(
         conversation: Conversation,
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
+        from wayflowcore.agent import _MutatedAgent
         from wayflowcore.executors._swarmconversation import SwarmConversation
 
         if not isinstance(conversation, SwarmConversation):
@@ -114,35 +120,45 @@ class SwarmRunner(ConversationExecutor):
                 f"Conversation should be of type SwarmConversation, but got {type(conversation)}"
             )
 
-        from wayflowcore.agent import _MutatedAgent
-        from wayflowcore.executors._agentexecutor import (
-            _TALK_TO_USER_TOOL_NAME,
-            _make_talk_to_user_tool,
-        )
-
         swarm_config = conversation.component
 
-        current_thread = conversation.state.current_thread
-        if current_thread is None:
-            raise ValueError(
-                f"Cannot execute Swarm as current thread is `None`. Conversation was {conversation}"
+        while True:
+            # Setup context
+            current_thread = conversation.state.current_thread
+            if current_thread is None:
+                raise ValueError(
+                    f"Cannot execute Swarm as current thread is `None`. Conversation was {conversation}"
+                )
+
+            current_agent = current_thread.recipient_agent
+
+            agent_sub_conversation = conversation._get_subconversation_for_thread(current_thread)
+            if agent_sub_conversation is None:
+                agent_sub_conversation = conversation.state._create_subconversation_for_thread(
+                    current_thread
+                )
+
+            # Handle pending tool requests (if any)
+            result = SwarmRunner._handle_pending_tool_requests(
+                swarm_conversation=conversation,
+                agent_sub_conversation=agent_sub_conversation,
+                current_agent=current_agent,
             )
 
-        while True:
+            if result == _ToolProcessSignal.RETURN:
+                if not isinstance(agent_sub_conversation.status, ToolRequestStatus):
+                    raise ValueError("Internal error: The status should be ToolRequestStatus")
+                return agent_sub_conversation.status
+            elif result == _ToolProcessSignal.START_NEW_LOOP:
+                continue
+
+            # Execute agent
             logger.info(
                 "\n%s\nNew execution round. Current thread is %s\n%s\n",
                 "-" * 30,
                 current_thread.identifier,
                 "-" * 30,
             )
-            current_agent = current_thread.recipient_agent
-
-            # get sub conversation for current agent
-            agent_sub_conversation = conversation._get_subconversation_for_thread(current_thread)
-            if agent_sub_conversation is None:
-                agent_sub_conversation = conversation.state._create_subconversation_for_thread(
-                    current_thread
-                )
             communication_tools = swarm_config._communication_tools[current_agent.name]
             if (
                 conversation.component.handoff == HandoffMode.OPTIONAL
@@ -154,11 +170,6 @@ class SwarmRunner(ConversationExecutor):
                     t for t in communication_tools if t.name != _HANDOFF_TOOL_NAME
                 ]
             mutated_agent_tools = list(current_agent.tools) + communication_tools
-            has_talk_to_user_tool = any(
-                tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
-            )
-            if not has_talk_to_user_tool:
-                mutated_agent_tools.append(_make_talk_to_user_tool())
 
             mutated_agent_template = swarm_config.swarm_template.with_partial(
                 {
@@ -179,12 +190,19 @@ class SwarmRunner(ConversationExecutor):
                 {
                     "tools": mutated_agent_tools,
                     "agent_template": mutated_agent_template,
-                    "_add_talk_to_user_tool": has_talk_to_user_tool,
                     "id": current_agent.name,
                     # ^Change the agent id to agent name -> message.sender = agent_id = agent_name -> easier for llm to know which agent sending the message
                     # Note: this is a workaround and should be fixed in the future
                 },
             ):
+                if (
+                    isinstance(agent_sub_conversation.status, ToolRequestStatus)
+                    and not agent_sub_conversation.status.tool_requests
+                ):
+                    # If the status.tool_request is empty we manually reset the status to None
+                    # Otherwise, it will raise error as no tool results are present.
+                    agent_sub_conversation.status = None
+
                 status = await agent_sub_conversation.execute_async(
                     execution_interrupts=execution_interrupts,
                 )
@@ -199,32 +217,18 @@ class SwarmRunner(ConversationExecutor):
                     "Internal error: Last agent message is a tool request but execution status "
                     f"is not of type {ToolRequestStatus}, {ToolExecutionConfirmationStatus} (is '{status}')"
                 )
+            if isinstance(status, ToolRequestStatus):
+                # 1. Agent requests communication tools (send_message/handoff) or a standard client tool
+                # These tool(s) will be handled in the next loop
 
-            if isinstance(status, ToolRequestStatus) and any(
-                t.name == _SEND_MESSAGE_TOOL_NAME for t in status.tool_requests
-            ):
-                # 1. agent is sending a message to another agent
-                current_thread = SwarmRunner._post_agent_message_to_next_thread(
-                    swarm_conversation=conversation,
-                    current_thread=current_thread,
-                    current_agent=current_agent,
-                )
-                # we will handle the conversation manually
-                agent_sub_conversation.status = None
-            elif isinstance(status, ToolRequestStatus) and any(
-                t.name == _HANDOFF_TOOL_NAME for t in status.tool_requests
-            ):
-                # 2. agent is handing off the conversation to another agent
-                current_thread = SwarmRunner._handoff_conversation_to_agent(
-                    swarm_config=swarm_config,
-                    swarm_conversation=conversation,
-                    current_thread=current_thread,
-                    current_agent=current_agent,
-                )
-                # we will handle the conversation manually
-                agent_sub_conversation.status = None
+                # Empty status.tool_requests as we will:
+                # - For standard client tool: add only that client tool to status.tool_requests when handling it
+                # - For server and internal tool (e.g send_message, handoff_conversation): we handle it and the tool results manually -> should not appear in the status
+                status.tool_requests = []
+
+                continue
             elif isinstance(status, UserMessageRequestStatus) and current_thread.is_main_thread:
-                # 3. agent posted to main conversation, back to the user/caller
+                # 2. Agent posted to main conversation, back to the human user
                 _last_message = conversation.get_last_message()
                 if _last_message is None:
                     raise ValueError("Internal error: Empty message list after executing agent")
@@ -234,22 +238,98 @@ class SwarmRunner(ConversationExecutor):
                 )
                 return status
             elif isinstance(status, UserMessageRequestStatus):
-                # 4. agent is answering to another agent
-                current_thread = SwarmRunner._post_agent_answer_to_previous_thread(
+                # 3. Agent is answering to its caller which is another agent
+                next_thread = SwarmRunner._post_agent_answer_to_previous_thread(
                     swarm_conversation=conversation,
                     current_agent_subconversation=agent_sub_conversation,
                 )
-                # we will handle the conversation manually
-                agent_sub_conversation.status = None
-            elif isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus)):
-                # 5. usual client/server tool requests
+                conversation.state.current_thread = next_thread
+            elif isinstance(status, ToolExecutionConfirmationStatus):
+                # 4. Agent wants to execute tool that needs confirmation
                 return status
             else:
-                # 6. illegal agent finishing the conversation
+                # 5. Illegal agent finishing the conversation
                 raise ValueError("Should not happen")
 
-            # Set state's current thread to current_thread
-            conversation.state.current_thread = current_thread
+    @staticmethod
+    def _handle_pending_tool_requests(
+        swarm_conversation: "SwarmConversation",
+        agent_sub_conversation: "AgentConversation",
+        current_agent: Agent,
+    ) -> _ToolProcessSignal:
+        """
+        Returns
+        """
+        execute_tool = (
+            isinstance(agent_sub_conversation.status, ToolRequestStatus)
+            # If user submitted tool result (in case of client tool)
+            # -> need to execute the agent first to append the tool result to the message list before executing next tool request
+            and not agent_sub_conversation.status._tool_results
+            and (
+                agent_sub_conversation.state.current_tool_request
+                or agent_sub_conversation.state.tool_call_queue
+            )
+        )
+
+        if not execute_tool:
+            return _ToolProcessSignal.EXECUTE_AGENT
+
+        if not agent_sub_conversation.state.current_tool_request:
+            agent_sub_conversation.state.current_tool_request = (
+                agent_sub_conversation.state.tool_call_queue.pop(0)
+            )
+
+        tool_request = agent_sub_conversation.state.current_tool_request
+
+        # Case 1: Communication tool (internal)
+        if tool_request.name in [_SEND_MESSAGE_TOOL_NAME, _HANDOFF_TOOL_NAME]:
+            SwarmRunner._handle_communication_tool_request(
+                tool_request=tool_request,
+                swarm_conv=swarm_conversation,
+                current_agent=current_agent,
+            )
+
+            agent_sub_conversation.state.current_tool_request = None
+
+            # Start a new loop to handle the next tool request if any
+            return _ToolProcessSignal.START_NEW_LOOP
+
+        # Case 2: Standard client tool
+        tool = next((t for t in current_agent.tools if t.name == tool_request.name), None)
+        if tool and isinstance(tool, ClientTool):
+            # It is a standard client tool request
+
+            # Return only the current tool request in the ToolRequestStatus
+            if not isinstance(agent_sub_conversation.status, ToolRequestStatus):
+                raise ValueError("Internal error: The status should be ToolRequestStatus")
+            agent_sub_conversation.status.tool_requests = [tool_request]
+
+            agent_sub_conversation.state.current_tool_request = None
+
+            return _ToolProcessSignal.RETURN
+
+        # Case 3: Server tool or other internal tool
+        # -> Let agent handle it (agent will check the current_tool_request)
+        return _ToolProcessSignal.EXECUTE_AGENT
+
+    @staticmethod
+    def _handle_communication_tool_request(
+        tool_request: ToolRequest,
+        swarm_conv: "SwarmConversation",
+        current_agent: Agent,
+    ) -> None:
+        if tool_request.name == _SEND_MESSAGE_TOOL_NAME:
+            swarm_conv.state.current_thread = SwarmRunner._post_agent_message_to_next_thread(
+                swarm_conversation=swarm_conv,
+                current_agent=current_agent,
+            )
+        elif tool_request.name == _HANDOFF_TOOL_NAME:
+            swarm_conv.state.current_thread = SwarmRunner._handoff_conversation_to_agent(
+                swarm_config=swarm_conv.component,
+                swarm_conversation=swarm_conv,
+                current_agent=current_agent,
+            )
+        return None
 
     @staticmethod
     def _post_agent_answer_to_previous_thread(
@@ -276,47 +356,46 @@ class SwarmRunner(ConversationExecutor):
 
         unanswered_tool_requests = _get_unanswered_tool_requests_from_agent_response(
             current_thread.message_list
-        )  # fix
-        if len(unanswered_tool_requests) != 1:
-            raise ValueError(
-                f"Internal error, should have exactly one unanswered tool request, has {len(unanswered_tool_requests)}"
-            )
+        )
 
-        last_tool_request_id = unanswered_tool_requests[0].tool_request_id
+        # Get the oldest unanswered tool requests since the tool requests are processed sequentially
+        tool_request_id = unanswered_tool_requests[0].tool_request_id
 
         current_thread.message_list.append_tool_result(
-            ToolResult(agent_result_message.content, tool_request_id=last_tool_request_id)
+            ToolResult(agent_result_message.content, tool_request_id=tool_request_id)
         )
         logger.info(
             "Answering back to thread %s with tool result `%s`",
             current_thread.identifier,
             agent_result_message.content,
         )
+
         return current_thread
 
     @staticmethod
     def _post_agent_message_to_next_thread(
         swarm_conversation: "SwarmConversation",
-        current_thread: "SwarmThread",
         current_agent: "Agent",
     ) -> "SwarmThread":
-        from wayflowcore.executors._agentexecutor import _TALK_TO_USER_TOOL_NAME
-
         # if there is a send message tool request:
         #   -> current_thread pushed to the stack
         #   -> current_thread = thread between caller and recipient
         #   -> add message as user message in the current thread
-        last_tool_request_message = _get_last_tool_request_message_from_agent_response(
+        from wayflowcore.executors._agentexecutor import _TALK_TO_USER_TOOL_NAME
+
+        current_thread = swarm_conversation.state.current_thread
+
+        if not current_thread:
+            raise ValueError("Internal error when executing send_message tool.")
+
+        unanswered_tool_requests = _get_unanswered_tool_requests_from_agent_response(
             current_thread.message_list
         )
-        tool_request = _get_tool_request_from_message(
-            message=last_tool_request_message,
-            tool_name=_SEND_MESSAGE_TOOL_NAME,
-        )
-        _close_parallel_tool_requests_if_necessary(current_thread.message_list, tool_request)
-        # ^ We disable parallel client tool calling in Swarm
 
-        # validation
+        # Get the oldest unanswered tool requests since the tool requests are processed sequentially
+        tool_request = unanswered_tool_requests[0]
+
+        # Validation
         recipient_agent_name, message, error_message = _parse_send_message_tool_request(
             tool_request,
             possible_recipient_names=swarm_conversation._get_recipient_names_for_agent(
@@ -366,7 +445,6 @@ class SwarmRunner(ConversationExecutor):
     def _handoff_conversation_to_agent(
         swarm_config: Swarm,
         swarm_conversation: "SwarmConversation",
-        current_thread: "SwarmThread",
         current_agent: "Agent",
     ) -> "SwarmThread":
         # if there is a handoff conversation tool request:
@@ -374,16 +452,32 @@ class SwarmRunner(ConversationExecutor):
         #   -> current_thread = thread between caller and recipient
         #   -> current_thread.message_list = previous_thread_message_list
         #   -> add indication that conversation was handed off as user message in the current thread
-        last_tool_request_message = _get_last_tool_request_message_from_agent_response(
+        current_thread = swarm_conversation.state.current_thread
+
+        if not current_thread:
+            raise ValueError("Internal error when executing handoff tool.")
+
+        unanswered_tool_requests = _get_unanswered_tool_requests_from_agent_response(
             current_thread.message_list
         )
-        tool_request = _get_tool_request_from_message(
-            message=last_tool_request_message,
-            tool_name=_HANDOFF_TOOL_NAME,
-        )
-        _close_parallel_tool_requests_if_necessary(current_thread.message_list, tool_request)
 
-        # validation
+        # Get the oldest unanswered tool requests since the tool requests are processed sequentially
+        tool_request = unanswered_tool_requests[0]
+
+        if len(unanswered_tool_requests) >= 1:
+            # We do not allow tool requests after the handoff since the conversation is transfer to another agent
+            # by append tool results saying that the tool requests are cancelled
+            _close_parallel_tool_requests_after_handoff_tool_request(
+                current_thread.message_list, tool_request
+            )
+
+            # Empty the tool call queue
+            sub_conversation = swarm_conversation._get_subconversation_for_thread(current_thread)
+            if not sub_conversation:
+                raise ValueError("Internal error: sub conversation should not be None")
+            sub_conversation.state.tool_call_queue = []
+
+        # Validation
         recipient_agent_name, error_message = _parse_handoff_conversation_tool_request(
             tool_request,
             possible_recipient_names=swarm_conversation._get_recipient_names_for_agent(

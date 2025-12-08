@@ -28,9 +28,10 @@ from wayflowcore.property import StringProperty
 from wayflowcore.serialization import deserialize, serialize
 from wayflowcore.steps import OutputMessageStep
 from wayflowcore.swarm import HandoffMode, Swarm
-from wayflowcore.tools import ClientTool, ToolResult, tool
+from wayflowcore.tools import ClientTool, ToolRequest, ToolResult, tool
 
 from .testhelpers.dummy import DummyModel
+from .testhelpers.patching import patch_llm
 from .testhelpers.testhelpers import retry_test
 
 
@@ -112,7 +113,7 @@ def example_math_agents(remote_gemma_llm) -> Tuple[Agent, Agent, Agent]:
     )
 
 
-def _get_math_swarm(bwip_agent, zbuk_agent, fooza_agent, handoff: bool):
+def _get_math_swarm(bwip_agent, zbuk_agent, fooza_agent, handoff: HandoffMode):
     all_agents = (bwip_agent, zbuk_agent, fooza_agent)
     return Swarm(
         first_agent=fooza_agent,
@@ -157,6 +158,27 @@ def example_medical_agents(remotely_hosted_llm) -> Tuple[Agent, Agent, Agent]:
     )
 
     return gp_doctor, neurologist_doctor, oncologist_doctor
+
+
+def _get_check_name_in_db_client_tool() -> ClientTool:
+    return ClientTool(
+        name="check_name_in_db_tool",
+        description="Check if a name is present in the database",
+        input_descriptors=[
+            StringProperty("name", description="name to check"),
+        ],
+    )
+
+
+def _get_agent_with_client_tool(llm: LlmModel) -> Agent:
+    check_name_in_db_tool = _get_check_name_in_db_client_tool()
+    return Agent(
+        llm=llm,
+        tools=[check_name_in_db_tool],
+        name="check_name_in_db_agent",
+        description="A helpful agent that has access to a tool which check if a given name is present in database.",
+        custom_instruction="You are an agent which checks if a name is present in the database",
+    )
 
 
 def test_can_execute_swarm_with_initial_params_passed_in_start_conversation(
@@ -572,7 +594,7 @@ def test_swarm_can_complete_composition_task(example_math_agents):
     Max attempt:           5
     Justification:         (0.16 ** 5) ~= 9.3 / 100'000
     """
-    math_swarm = _get_math_swarm(*example_math_agents, handoff=True)
+    math_swarm = _get_math_swarm(*example_math_agents)
     conv = math_swarm.start_conversation()  # first agent is fooza
     conv.append_user_message("compute the result of the bwip(4, zbuk(5, 6))")
     conv.execute()
@@ -924,27 +946,13 @@ def test_swarm_can_handle_client_tool(big_llama):
     Max attempt:           4
     Justification:         (0.06 ** 4) ~= 1.1 / 100'000
     """
-    check_name_in_db_tool = ClientTool(
-        name="check_name_in_db_tool",
-        description="Check if a name is present in the database",
-        input_descriptors=[
-            StringProperty("name", description="name to check"),
-        ],
-    )
-    # Plug the tool into an agent
     llm = big_llama
     main_agent = Agent(
         llm=llm,
         description="general agent which will route queries to your agents",
         custom_instruction="You are a general agent which will always route queries to your agents and collect tool outputs",
     )
-    agent = Agent(
-        llm=llm,
-        tools=[check_name_in_db_tool],
-        name="check_name_in_db_agent",
-        description="A helpful agent that has access to a tool which check if a given name is present in database.",
-        custom_instruction="You are an agent which checks if a name is present in the database",
-    )
+    agent = _get_agent_with_client_tool(llm)
     swarm = Swarm(
         first_agent=main_agent,
         relationships=[(main_agent, agent)],
@@ -1029,7 +1037,7 @@ def get_debugger_agent(llm: LlmModel) -> Agent:
 def get_first_agent(llm: LlmModel) -> Agent:
     return Agent(
         llm=llm,
-        custom_instruction="you are the main agent",
+        custom_instruction="You are the main agent",
         name="master_agent",
         description="Redirects the user requests to the sub agents, or handles the subagents communication. Do not solve the task on your own.",
     )
@@ -1180,3 +1188,307 @@ def test_swarm_uses_send_message_when_collaboration_needed_in_optional_handoff_m
         assert tool_request.name == expected_tool_name
         for k, v in expected_params.items():
             assert tool_request.args[k] == v
+
+
+def test_multiple_tool_calling_with_nested_client_tool_request_does_not_raise_error(
+    vllm_responses_llm,
+):
+    llm = vllm_responses_llm
+
+    main_agent = get_first_agent(llm)
+    agent_with_client_tool = _get_agent_with_client_tool(llm)
+    fooza_agent = _get_fooza_agent(llm)
+
+    swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent_with_client_tool), (main_agent, fooza_agent)],
+    )
+
+    conv = swarm.start_conversation(
+        messages="Check if the name Alice present in the database and compute the result of fooza(4, 2)"
+    )
+
+    multiple_tool_requests = [
+        ToolRequest(
+            name="send_message",
+            args={
+                "recipient": "check_name_in_db_agent",
+                "message": "Check if the name Alice present in the database",
+            },
+            tool_request_id="send_message_1",
+        ),
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "fooza_agent", "message": "Compute fooza(4,2)"},
+            tool_request_id="send_message_2",
+        ),
+    ]
+    client_tool_request = [
+        ToolRequest(
+            name="check_name_in_db_tool",
+            args={"name": "Alice"},
+            tool_request_id="client_tool",
+        )
+    ]
+
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,  # output from main_agent
+            client_tool_request,  # output from agent_with_client_tool
+            "agent_with_client_tool_answers",
+            "fooza_agent_answers",
+            "main_agent_answers",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, ToolRequestStatus)  # yielding from agent_with_client_tool
+        assert len(status.tool_requests) == 1
+        assert status.tool_requests[0].name == "check_name_in_db_tool"
+
+        status.submit_tool_result(
+            ToolResult(
+                content="The name Alice is present in the database", tool_request_id="client_tool"
+            )
+        )
+        status_2 = conv.execute()
+        assert isinstance(status_2, UserMessageRequestStatus)  # yielding from main_agent
+        assert conv.get_last_message().content == "main_agent_answers"
+
+
+def test_multiple_tool_calling_with_nested_send_message_tool_request_can_be_executed(
+    vllm_responses_llm,
+):
+    llm = vllm_responses_llm
+
+    main_agent = get_first_agent(llm)
+    agent_1 = Agent(llm=llm, description="agent 1", name="agent_1")
+    agent_2 = Agent(llm=llm, description="agent 2", name="agent_2")
+
+    swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[
+            (main_agent, agent_1),
+            (main_agent, agent_2),
+            (agent_1, agent_2),
+        ],
+    )
+
+    conv = swarm.start_conversation(messages="Dummy message")
+    multiple_tool_requests = [
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "agent_1", "message": "message to agent 1 from main agent"},
+        ),
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "agent_2", "message": "message to agent 2 from main agent"},
+        ),
+    ]
+    send_message_request = [
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "agent_2", "message": "message to agent 2 from agent 1"},
+        ),
+    ]
+
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,  # output from main agent
+            send_message_request,  # output from agent 1
+            "agent 2 answers to agent 1",
+            "agent 1 answers to main agent",
+            "agent 2 answers to main agent",
+            "main agent answers to user",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, UserMessageRequestStatus)
+        assert conv.get_last_message().content == "main agent answers to user"
+
+
+def test_multiple_tool_calls_including_client_tool_can_be_executed(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    agent_with_client_tool = _get_agent_with_client_tool(llm)
+    fooza_agent = _get_fooza_agent(llm)
+
+    swarm = Swarm(
+        first_agent=agent_with_client_tool,
+        relationships=[(agent_with_client_tool, fooza_agent)],
+    )
+
+    conv = swarm.start_conversation(
+        messages="Check if the name Alice present in the database and compute the result of fooza(4, 2)"
+    )
+
+    multiple_tool_requests = [
+        ToolRequest(
+            name="check_name_in_db_tool",
+            args={"name": "Alice"},
+            tool_request_id="client_tool",
+        ),
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "fooza_agent", "message": "Compute fooza(4,2)"},
+            tool_request_id="send_message",
+        ),
+    ]
+
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,  # output from first agent (i.e. agent_with_client_tool)
+            "fooza_answers_to_main_agent",
+            "main_agent_answers_to_user",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, ToolRequestStatus)  # yielding from first_agent
+        assert len(status.tool_requests) == 1  # The send_message should not appear in the status
+        assert status.tool_requests[0].name == "check_name_in_db_tool"
+        status.submit_tool_result(
+            ToolResult(
+                content="The name Alice is present in the database", tool_request_id="client_tool"
+            )
+        )
+
+        status_2 = conv.execute()
+        assert isinstance(status_2, UserMessageRequestStatus)
+        assert conv.get_last_message().content == "main_agent_answers_to_user"
+
+
+def test_multiple_tool_calls_including_server_tool_can_be_executed(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+
+    swarm = Swarm(
+        first_agent=fooza_agent,
+        relationships=[(fooza_agent, bwip_agent)],
+    )
+
+    conv = swarm.start_conversation(messages="Compute bwip(4,2) fooza(4,3) and bwip(4,5)")
+
+    multiple_tool_requests = [
+        ToolRequest(
+            name="send_message",
+            args={
+                "recipient": "bwip_agent",
+                "message": "calculate bwip(4,2)",
+            },
+        ),
+        ToolRequest(
+            name="fooza_tool",
+            args={"a": 4, "b": 3},
+        ),
+        ToolRequest(
+            name="send_message",
+            args={
+                "recipient": "bwip_agent",
+                "message": "calculate bwip(4,5)",
+            },
+        ),
+    ]
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,
+            "bwip answers to fooza",
+            "bwip answers to fooza",
+            "fooza answers to user",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, UserMessageRequestStatus)
+        assert conv.get_last_message().content == "fooza answers to user"
+
+
+def test_multiple_tool_calls_after_handoff_get_cancelled(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+    main_agent = get_first_agent(llm)
+
+    math_swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent) for agent in [fooza_agent, bwip_agent]],
+    )
+
+    # Multiple tool calls
+    tool_requests = [
+        ToolRequest(
+            name="handoff_conversation",
+            args={"recipient": "fooza_agent", "message": "Compute the result of fooza(4, 2)"},
+            tool_request_id="handoff",
+        ),
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "bwip_agent", "message": "Compute bwip(4,5)"},
+            tool_request_id="send_message",
+        ),
+    ]
+    with patch_llm(llm, outputs=[tool_requests, "dummy_test"]):
+        conv = math_swarm.start_conversation(
+            messages="Compute the result of fooza(4, 2) + bwip(4, 5)"
+        )
+        conv.execute()
+        assert (
+            conv.state.current_thread.recipient_agent == fooza_agent
+        )  # The handoff tool is executed
+        for message in conv.get_messages():
+            if message.tool_result and message.tool_result.tool_request_id == "send_message":
+                assert (
+                    message.tool_result.content
+                    == "Calling 'send_message' after the handoff is not possible. Cancelling call to tool 'send_message'"
+                )
+
+
+@retry_test(max_attempts=8)
+def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
+    """
+    Failure rate:          13 out of 50
+    Observed on:           2025-12-15
+    Average success time:  13.04 seconds per successful attempt
+    Average failure time:  15.37 seconds per failed attempt
+    Max attempt:           8
+    Justification:         (0.27 ** 8) ~= 2.8 / 100'000
+    """
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+    zbuk_agent = _get_zbuk_agent(llm)
+    main_agent = get_first_agent(llm)
+
+    math_swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent) for agent in [fooza_agent, bwip_agent, zbuk_agent]],
+    )
+
+    conv = math_swarm.start_conversation(
+        messages="Compute the result of fooza(4, 2) + bwip(4, 5) + zbuk(5, 6)"
+    )
+
+    conv.execute()
+
+    expected_tool_requests = [
+        ("send_message", {"recipient": "fooza_agent"}),
+        ("send_message", {"recipient": "bwip_agent"}),
+        ("send_message", {"recipient": "zbuk_agent"}),
+    ]
+
+    second_message = conv.get_messages()[1]
+
+    for tool_request, (expected_tool_name, expected_params) in zip(
+        second_message.tool_requests, expected_tool_requests, strict=True
+    ):
+        assert tool_request.name == expected_tool_name
+        for k, v in expected_params.items():
+            assert tool_request.args[k] == v
+
+    result = fooza_tool.func(4, 2) + bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
+    assert str(result) in conv.get_last_message().content
