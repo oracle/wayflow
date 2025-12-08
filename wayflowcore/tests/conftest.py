@@ -728,6 +728,8 @@ def get_directory_allowlist_read(tmp_path: str, session_tmp_path: str) -> List[U
         # Used by OCI package to get OS information / read configurations
         Path("/System/Library/CoreServices/SystemVersion.plist"),
         Path("/usr/share/zoneinfo/UTC"),
+        # Used to read the development version in tests
+        Path(os.path.dirname(__file__)).parents[1] / "VERSION",
     ]
     # Dynamically add the wallet location from the environment variable
     wallet_location = os.getenv("ADB_WALLET_DIR")
