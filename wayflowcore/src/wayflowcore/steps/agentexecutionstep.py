@@ -23,6 +23,7 @@ from wayflowcore.tools import Tool
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
     from wayflowcore.executors._flowconversation import FlowConversation
+    from wayflowcore.swarm import Swarm
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ class AgentExecutionStep(Step):
 
     def __init__(
         self,
-        agent: Union[Agent, OciAgent],
+        agent: Union[Agent, OciAgent, "Swarm"],
         caller_input_mode: Optional[CallerInputMode] = None,
         input_descriptors: Optional[List[Property]] = None,
         output_descriptors: Optional[List[Property]] = None,
@@ -182,6 +183,7 @@ class AgentExecutionStep(Step):
         >>> # {'name': 'Oracle', 'creation_date': 1977, 'CEO': 'Safra A. Catz', 'country': 'US'}
 
         """
+        from wayflowcore.swarm import Swarm
 
         if caller_input_mode == CallerInputMode.NEVER and (
             output_descriptors is None or len(output_descriptors) == 0
@@ -191,22 +193,22 @@ class AgentExecutionStep(Step):
             )
 
         self.caller_input_mode = caller_input_mode
-        self.agent: Union[Agent, OciAgent] = agent
+        self.agent = agent
         self._share_conversation = _share_conversation
         """Whether the calling flow shares its messages with the Agent or not."""
 
-        if not isinstance(self.agent, Agent):
+        if not isinstance(self.agent, (Agent, Swarm)):
             if output_descriptors is not None and len(output_descriptors) > 0:
                 raise ValueError(
-                    f"Only `Agent` in `AgentExecutionStep` supports setting outputs, but you used: `{self.agent}` for {output_descriptors}. Please use an `Agent` or set the outputs to `None`"
+                    f"Only `Agent` and `Swarm` in `AgentExecutionStep` supports setting outputs, but you used: `{self.agent}` for {output_descriptors}. Please use an `Agent` or a `Swarm` or set the outputs to `None`"
                 )
             if caller_input_mode != CallerInputMode.ALWAYS:
                 raise ValueError(
-                    f"Only `Agent` in `AgentExecutionStep` supports setting a caller input mode, but you used: `{self.agent}` for {caller_input_mode}. Please use an `Agent` or set the outputs to `None`"
+                    f"Only `Agent` and `Swarm` in `AgentExecutionStep` supports setting a caller input mode, but you used: `{self.agent}` for {caller_input_mode}. Please use an `Agent` or a `Swarm` or set the outputs to `None`"
                 )
 
         super().__init__(
-            llm=self.agent.llm if isinstance(self.agent, Agent) else None,
+            llm=None,
             step_static_configuration=dict(
                 agent=agent,
                 caller_input_mode=caller_input_mode,
@@ -257,8 +259,15 @@ class AgentExecutionStep(Step):
     # override
     @property
     def might_yield(self) -> bool:
+        from wayflowcore.swarm import Swarm
+
         if isinstance(self.agent, Agent):
             return self.agent.might_yield or self.caller_input_mode == CallerInputMode.ALWAYS
+        elif isinstance(self.agent, Swarm):
+            return (
+                self.agent.first_agent.might_yield
+                or self.caller_input_mode == CallerInputMode.ALWAYS
+            )
         elif isinstance(self.agent, OciAgent):
             return True
         else:
@@ -293,6 +302,7 @@ class AgentExecutionStep(Step):
         conversation: "FlowConversation",
     ) -> StepResult:
         from wayflowcore.executors._flowexecutor import FlowConversationExecutor
+        from wayflowcore.swarm import Swarm, _MutatedSwarm
 
         SUB_CONVERSATION_ID = (
             f"agent_sub_conversation_{self.name}" + FlowConversationExecutor._SUB_CONVERSATION_KEY
@@ -307,16 +317,22 @@ class AgentExecutionStep(Step):
         }
         if self.caller_input_mode is not None:
             mutated_agent_parameters["caller_input_mode"] = self.caller_input_mode
-        context_manager = (
-            _MutatedAgent(
+
+        if isinstance(self.agent, Agent):
+            context_manager = _MutatedAgent(
                 agent=self.agent,
                 attributes=mutated_agent_parameters,
             )
-            if isinstance(self.agent, Agent)
-            else contextlib.nullcontext()
-        )
-        # ignoring the type because mypy doesn't recognize nullcontext as a proper context manager to typing fails
-        with context_manager:  # type: ignore
+        elif isinstance(self.agent, Swarm):
+            context_manager = _MutatedSwarm(
+                swarm=self.agent,
+                attributes=mutated_agent_parameters,
+            )  # type: ignore
+        else:
+            # ignoring the type because mypy doesn't recognize nullcontext as a proper context manager to typing fails
+            context_manager = contextlib.nullcontext()  # type: ignore
+
+        with context_manager:
             status = await agent_sub_conversation.execute_async()
 
         logger.debug(f"Agent of AgentExecutionStep returned status: {status}")

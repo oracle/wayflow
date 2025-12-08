@@ -13,10 +13,12 @@ from wayflowcore.agent import Agent, _MutatedAgent
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
+from wayflowcore.models import LlmModel
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import IntegerProperty, Property, StringProperty
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep, CallerInputMode
 from wayflowcore.steps.outputmessagestep import OutputMessageStep
+from wayflowcore.swarm import Swarm
 from wayflowcore.tools import ClientTool, ToolRequest
 
 from ...testhelpers.dummy import DummyModel
@@ -29,19 +31,24 @@ from ..test_agentcomposability import zinimo_tool
 from ..test_assistanttester import make_sequential_assistant_with_context_provider
 
 
-@fixture
-def zinimo_agent(remotely_hosted_llm):
+def get_zinimo_agent(llm: LlmModel):
     return Agent(
-        llm=remotely_hosted_llm,
+        llm=llm,
         custom_instruction=(
-            "You should ask the user for 2 numbers, compute their zinimo operation, "
+            "You need to compute the zinimo operation of 2 provided numbers (if not provided, you should ask the user)"
             "and submit the tool result to the user using the `submit_result` function (and not as a agent message). "
             "IMPORTANT: Never make up arguments, ask the user if you have a question. "
             "Only output a single function call at a time if needed."
         ),
         tools=[zinimo_tool],
+        description="Agent that can compute the zinimo operation of 2 provided numbers.",
         initial_message=None,
     )
+
+
+@fixture
+def zinimo_agent(remotely_hosted_llm):
+    return get_zinimo_agent(remotely_hosted_llm)
 
 
 zinimo_result_description = IntegerProperty(
@@ -541,3 +548,85 @@ def test_agent_step_that_uses_agent_with_default_input_values_works(big_llama):
     assert isinstance(status, UserMessageRequestStatus)
     last_message = status.message
     assert "videogame" in last_message.content.lower()
+
+
+def test_agent_step_with_swarm_can_execute_without_user_input_when_first_agent_handles_task(
+    vllm_responses_llm,
+):
+    first_agent = get_zinimo_agent(vllm_responses_llm)
+
+    second_agent = Agent(
+        llm=vllm_responses_llm,
+        name="second_agent",
+        description="second agent",
+        custom_instruction="You are a helpful agent",
+    )
+
+    swarm = Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
+    step = AgentExecutionStep(
+        agent=swarm,
+        output_descriptors=[zinimo_result_description],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+    flow = create_single_step_flow(step)
+    conv = flow.start_conversation()
+    conv.append_user_message("Calculate zinimo operation between 2 and 5")
+    status = conv.execute()
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values["zinimo_result"] == -2
+
+
+def test_agent_step_with_swarm_can_execute_without_user_input_when_sub_agent_handles_task(
+    vllm_responses_llm,
+):
+    first_agent = Agent(
+        llm=vllm_responses_llm,
+        name="master_agent",
+        description="Redirects the user requests to the sub agents, or handles the subagents communication. Do not solve the task on your own.",
+        custom_instruction="You are the main agent",
+    )
+    second_agent = get_zinimo_agent(vllm_responses_llm)
+
+    swarm = Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
+    step = AgentExecutionStep(
+        agent=swarm,
+        output_descriptors=[zinimo_result_description],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+    flow = create_single_step_flow(step)
+    conv = flow.start_conversation()
+    conv.append_user_message("Calculate zinimo operation between 2 and 5")
+    status = conv.execute()
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values["zinimo_result"] == -2
+
+
+def test_agent_step_with_swarm_can_execute_with_user_input(big_llama):
+    from wayflowcore.swarm import Swarm
+
+    first_agent = Agent(
+        llm=big_llama,
+        name="first_agent",
+        custom_instruction="You are a helpful agent",
+    )
+    second_agent = Agent(
+        llm=big_llama,
+        name="second_agent",
+        description="Agent that can do math",
+        custom_instruction="You are an agent that can do math",
+    )
+    swarm = Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
+    agent_step = AgentExecutionStep(agent=swarm)
+
+    flow = Flow.from_steps(steps=[agent_step])
+
+    conv = flow.start_conversation()
+    status = conv.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    status.submit_user_response("Hello, my name is John")
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    status.submit_user_response("What is my name?")
+    status = conv.execute()
+    assert "john" in conv.get_last_message().content.lower()

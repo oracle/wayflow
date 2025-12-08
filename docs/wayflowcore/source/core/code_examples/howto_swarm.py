@@ -211,7 +211,13 @@ assistant = Swarm(
     ],
 )
 # .. end-##_Creating_the_Swarm
+from wayflowcore.agentspec.components.swarm import swarm_serialization_plugin, swarm_deserialization_plugin # docs-skiprow
+serialized_assistant = AgentSpecExporter(plugins=[swarm_serialization_plugin]).to_json(assistant) # docs-skiprow
+new_assistant: Swarm = AgentSpecLoader(tool_registry={"symptoms_checker": symptoms_checker, "get_medication_info": get_medication_info, "knowledge_tool": knowledge_tool},plugins=[swarm_deserialization_plugin]).load_json(serialized_assistant) # docs-skiprow
 
+s1 = serialize(assistant) # docs-skiprow
+s2 = serialize(new_assistant) # docs-skiprow
+# assert s1 == s2 # Manually verified # docs-skiprow
 # .. start-##_Running_the_Swarm
 # With a linear conversation
 conversation = assistant.start_conversation()

@@ -11,7 +11,7 @@ from typing import Annotated, Optional, Tuple
 import pytest
 
 from wayflowcore._utils._templating_helpers import render_template
-from wayflowcore.agent import Agent
+from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.executors._agentexecutor import _TALK_TO_USER_TOOL_NAME
 from wayflowcore.executors._swarmconversation import SwarmConversation
 from wayflowcore.executors._swarmexecutor import _HANDOFF_TOOL_NAME, _SEND_MESSAGE_TOOL_NAME
@@ -1388,3 +1388,29 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_does_not
     conv.execute()
     result = bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
     assert str(result) in conv.get_last_message().content
+
+
+def test_swarm_without_user_input_can_execute_as_expected(vllm_responses_llm):
+    from wayflowcore.property import IntegerProperty
+
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+    main_agent = get_first_agent(llm)
+
+    math_swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, fooza_agent), (main_agent, bwip_agent)],
+        output_descriptors=[
+            IntegerProperty("result", description="The result of the user request")
+        ],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    conv = math_swarm.start_conversation(messages="Compute the result of fooza(4, 2) + bwip(4, 5)")
+    status = conv.execute()
+    assert isinstance(status, FinishedStatus)
+
+    result = fooza_tool.func(4, 2) + bwip_tool.func(4, 5)
+    assert status.output_values["result"] == result

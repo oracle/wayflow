@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Set, Tuple
 
 from wayflowcore import Conversation
 from wayflowcore._utils._templating_helpers import render_template
-from wayflowcore.agent import Agent
+from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.executors._agenticpattern_helpers import (
     _HANDOFF_TOOL_NAME,
     _SEND_MESSAGE_TOOL_NAME,
@@ -194,6 +194,15 @@ class SwarmRunner(ConversationExecutor):
                 {
                     "tools": mutated_agent_tools,
                     "agent_template": mutated_agent_template,
+                    "caller_input_mode": (
+                        CallerInputMode.NEVER
+                        if swarm_config.caller_input_mode == CallerInputMode.NEVER
+                        and current_thread.is_main_thread
+                        else current_agent.caller_input_mode
+                    ),  # If caller_input_mode == NEVER, set the caller input mode of the agent that is current interacting with user to NEVER
+                    "output_descriptors": (
+                        swarm_config.output_descriptors if current_thread.is_main_thread else []
+                    ),
                     "id": current_agent.name,
                     # ^Change the agent id to agent name -> message.sender = agent_id = agent_name -> easier for llm to know which agent sending the message
                     # Note: this is a workaround and should be fixed in the future
@@ -238,8 +247,8 @@ class SwarmRunner(ConversationExecutor):
                 # 4. Agent wants to execute tool that needs confirmation
                 return status
             else:
-                # 5. Illegal agent finishing the conversation
-                raise ValueError("Should not happen")
+                # 5. Finish status: happening when caller_input_mode == NEVER
+                return status
 
     @staticmethod
     def _handle_pending_tool_requests(

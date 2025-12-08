@@ -11,7 +11,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore.agent import Agent
+from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
@@ -81,6 +81,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
     first_agent: Agent
     relationships: List[Tuple[Agent, Agent]]
     handoff: Union[HandoffMode, bool]
+    caller_input_mode: CallerInputMode
     swarm_template: "PromptTemplate"
     input_descriptors: List["Property"]
     output_descriptors: List["Property"]
@@ -94,6 +95,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         first_agent: Agent,
         relationships: List[Tuple[Agent, Agent]],
         handoff: Union[HandoffMode, bool] = HandoffMode.OPTIONAL,
+        caller_input_mode: CallerInputMode = CallerInputMode.ALWAYS,
         swarm_template: Optional[PromptTemplate] = None,
         input_descriptors: Optional[List["Property"]] = None,
         output_descriptors: Optional[List["Property"]] = None,
@@ -146,10 +148,8 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 a warning will be raised and the swarm is not guaranteed to work properly.
         output_descriptors:
             Output descriptors of the swarm. ``None`` means the swarm will resolve them automatically in a best effort manner.
-
-            .. warning::
-
-                Setting output descriptors for the Swarm is currently not supported.
+        caller_input_mode:
+            Whether the agent in swarm can ask the user for additional information or needs to handle the task internally within the swarm.
         name:
             name of the swarm, used for composition
         description:
@@ -193,8 +193,6 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             raise ValueError(
                 "Cannot define an `Swarm` with no relationships between the agents. Use an `Agent` instead."
             )
-        if output_descriptors:
-            raise ValueError("`output_descriptors` is not supported yet for the Swarm pattern.")
 
         self._agent_by_name: Dict[str, "Agent"] = _validate_agent_unicity(
             first_agent, relationships
@@ -225,6 +223,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self.first_agent = first_agent
         self.relationships = relationships or []
         self.swarm_template = swarm_template or _DEFAULT_SWARM_CHAT_TEMPLATE
+        self.caller_input_mode = caller_input_mode
 
         super().__init__(
             name=IdGenerator.get_or_generate_name(name, prefix="swarm_", length=8),
@@ -304,3 +303,26 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                     )
 
         return all_tools
+
+
+class _MutatedSwarm:
+    def __init__(
+        self,
+        swarm: Swarm,
+        attributes: Dict[str, Any],
+    ):
+        self.swarm = swarm
+        self.attributes = attributes
+        self.old_config: Dict[str, Any] = {}
+
+    def __enter__(self) -> Swarm:
+        self.old_config.clear()
+        for attribute_name, attribute_value in self.attributes.items():
+            self.old_config[attribute_name] = getattr(self.swarm, attribute_name)
+            setattr(self.swarm, attribute_name, attribute_value)
+        return self.swarm
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        attribute_names = list(self.old_config.keys())
+        for attribute_name in attribute_names:
+            setattr(self.swarm, attribute_name, self.old_config.pop(attribute_name))
