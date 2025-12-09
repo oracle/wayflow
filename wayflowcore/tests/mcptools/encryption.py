@@ -267,14 +267,14 @@ def print_quick_checks(server_cert: x509.Certificate, client_cert: x509.Certific
 
 if __name__ == "__main__":
     # 1. Root CA
-    ca_key, ca_cert = create_root_ca(common_name="TestRootCA", days=3650)
+    ca_key, ca_cert, ca_cert_path = create_root_ca(common_name="TestRootCA", days=3650)
     # 2. Server key + CSR
-    server_key, server_csr = create_server_key_and_csr(cn="localhost")
+    server_key, server_csr, server_key_path = create_server_key_and_csr(cn="localhost")
     # 3. Issue server cert (SAN: localhost + 127.0.0.1)
-    server_cert = issue_server_cert(ca_key, ca_cert, server_csr, days=365)
+    server_cert, server_cert_path = issue_server_cert(ca_key, ca_cert, server_csr, days=365)
     # 4. Client key + CSR
-    client_key, client_csr = create_client_key_and_csr(cn="mtls-client")
+    client_key, client_csr, client_key_path = create_client_key_and_csr(cn="mtls-client")
     # 5. Issue client cert (EKU: clientAuth)
-    client_cert = issue_client_cert(ca_key, ca_cert, client_csr, days=365)
+    client_cert, client_cert_path = issue_client_cert(ca_key, ca_cert, client_csr, days=365)
     # 6. Quick checks
     print_quick_checks(server_cert, client_cert)
