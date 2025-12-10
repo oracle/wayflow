@@ -163,7 +163,9 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
                     "client_transport",
                     "requires_confirmation",
                 ]
-            }
+            },
+            # deserialization should not require to be able to reach the server
+            _validate_server_exists=False,
         )
 
 

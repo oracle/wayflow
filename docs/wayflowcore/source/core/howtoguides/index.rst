@@ -67,6 +67,13 @@ These how-to guides demonstrate how to use the main features to create and custo
    Build a ManagerWorkers of Agents <howto_managerworkers>
 
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Deployment
+
+   Serve Agents with WayFlow <howto_serve_agents>
+
+
 Tools in Assistants
 -------------------
 

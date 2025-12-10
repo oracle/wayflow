@@ -181,3 +181,10 @@ class OracleDatabaseDatastore(RelationalDatastore, SerializableObject):
         )
 
         return OracleDatabaseDatastore(schema, connection_config)
+
+
+def _execute_query_on_oracle_db(
+    connection_config: OracleDatabaseConnectionConfig, query: str
+) -> None:
+    with connection_config.get_connection() as conn:
+        conn.cursor().execute(query)

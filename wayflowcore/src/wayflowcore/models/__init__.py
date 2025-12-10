@@ -12,6 +12,15 @@ from ._requesthelpers import (
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import LlmCompletion, LlmModel, Prompt
 from .llmmodelfactory import LlmModelFactory
+from .ociclientconfig import (
+    OCIClientConfig,
+    OCIClientConfigWithApiKey,
+    OCIClientConfigWithInstancePrincipal,
+    OCIClientConfigWithResourcePrincipal,
+    OCIClientConfigWithSecurityToken,
+    OCIClientConfigWithUserAuthentication,
+    OCIUserAuthenticationConfig,
+)
 from .ocigenaimodel import OCIGenAIModel
 from .ollamamodel import OllamaModel
 from .openaiapitype import OpenAIAPIType
@@ -34,4 +43,11 @@ __all__ = [
     "VllmModel",
     "TaggedMessageChunkType",
     "TaggedMessageChunkTypeWithTokenUsage",
+    "OCIClientConfigWithApiKey",
+    "OCIClientConfigWithSecurityToken",
+    "OCIClientConfigWithInstancePrincipal",
+    "OCIClientConfigWithResourcePrincipal",
+    "OCIClientConfigWithUserAuthentication",
+    "OCIUserAuthenticationConfig",
+    "OCIClientConfig",
 ]

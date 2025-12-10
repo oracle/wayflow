@@ -1,0 +1,706 @@
+{
+  "component_type": "Flow",
+  "id": "91ee037c-b1fd-4107-a468-505c8624ae02",
+  "name": "flow_ebbd9937__auto",
+  "description": "",
+  "metadata": {
+    "__metadata_info__": {}
+  },
+  "inputs": [],
+  "outputs": [
+    {
+      "description": "the input value provided by the user",
+      "type": "string",
+      "title": "user_provided_input"
+    }
+  ],
+  "start_node": {
+    "$component_ref": "26fe98b7-eb39-41ea-ad26-69d754c910a9"
+  },
+  "nodes": [
+    {
+      "$component_ref": "66fac09c-fc20-4199-b07e-7ba831e94c7f"
+    },
+    {
+      "$component_ref": "2c5d2192-abd4-4d6e-a6f4-e76241938581"
+    },
+    {
+      "$component_ref": "8de99db5-70e2-4ad3-817c-91904c1e48cb"
+    },
+    {
+      "$component_ref": "91f23b0e-82c8-4e08-904f-b5fd55b3f907"
+    },
+    {
+      "$component_ref": "d7aa451d-fca5-4b43-82ef-839354d0e02a"
+    },
+    {
+      "$component_ref": "318f70b8-d004-49db-8fa7-aba7902da034"
+    },
+    {
+      "$component_ref": "7577e663-288b-4595-a5d0-fa6f507a0fd2"
+    },
+    {
+      "$component_ref": "630a34b2-5dbd-42b2-aee4-6bf7a6ad645f"
+    },
+    {
+      "$component_ref": "ba486287-c9b2-43ef-966b-8cbb1235e9a7"
+    },
+    {
+      "$component_ref": "9c87ebbf-f96b-4aa2-af10-a0652f479b29"
+    },
+    {
+      "$component_ref": "26fe98b7-eb39-41ea-ad26-69d754c910a9"
+    },
+    {
+      "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+    }
+  ],
+  "control_flow_connections": [
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "9aef7154-6867-4974-b1aa-0dfea68ffa82",
+      "name": "step_0_to_step_1_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "66fac09c-fc20-4199-b07e-7ba831e94c7f"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "2c5d2192-abd4-4d6e-a6f4-e76241938581"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "d46c2d6e-6ba3-4526-9177-899b21fa394b",
+      "name": "step_1_to_step_2_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "2c5d2192-abd4-4d6e-a6f4-e76241938581"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "8de99db5-70e2-4ad3-817c-91904c1e48cb"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "71b85fe4-da48-46ac-b9c6-9d428f880cc1",
+      "name": "step_2_to_step_3_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "8de99db5-70e2-4ad3-817c-91904c1e48cb"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "91f23b0e-82c8-4e08-904f-b5fd55b3f907"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "c681ac44-9599-4c14-9331-7f3735f21da3",
+      "name": "step_3_to_step_4_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "91f23b0e-82c8-4e08-904f-b5fd55b3f907"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "d7aa451d-fca5-4b43-82ef-839354d0e02a"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "bbe7d0e2-ab32-4322-9d06-03cdbeb756fd",
+      "name": "step_4_to_step_5_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "d7aa451d-fca5-4b43-82ef-839354d0e02a"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "318f70b8-d004-49db-8fa7-aba7902da034"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "f3076691-5718-4269-8a48-de3958547fbd",
+      "name": "step_5_to_step_6_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "318f70b8-d004-49db-8fa7-aba7902da034"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "7577e663-288b-4595-a5d0-fa6f507a0fd2"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "7d8226bb-a767-48c1-877a-5ec7d101a614",
+      "name": "step_6_to_step_7_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "7577e663-288b-4595-a5d0-fa6f507a0fd2"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "630a34b2-5dbd-42b2-aee4-6bf7a6ad645f"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "06d5c5e5-7bf8-4515-bda1-1e865e144471",
+      "name": "step_7_to_step_8_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "630a34b2-5dbd-42b2-aee4-6bf7a6ad645f"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "ba486287-c9b2-43ef-966b-8cbb1235e9a7"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "347c2d7b-a316-4e79-a94e-77475faf7c48",
+      "name": "step_8_to_step_9_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "ba486287-c9b2-43ef-966b-8cbb1235e9a7"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "9c87ebbf-f96b-4aa2-af10-a0652f479b29"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "437ca1e1-1901-43e6-96ed-12fb2bc71505",
+      "name": "__StartStep___to_step_0_control_flow_edge",
+      "description": null,
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "from_node": {
+        "$component_ref": "26fe98b7-eb39-41ea-ad26-69d754c910a9"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "66fac09c-fc20-4199-b07e-7ba831e94c7f"
+      }
+    },
+    {
+      "component_type": "ControlFlowEdge",
+      "id": "21af404b-34ed-4832-b0bc-529a5a54606f",
+      "name": "step_9_to_None End node_control_flow_edge",
+      "description": null,
+      "metadata": {},
+      "from_node": {
+        "$component_ref": "9c87ebbf-f96b-4aa2-af10-a0652f479b29"
+      },
+      "from_branch": null,
+      "to_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      }
+    }
+  ],
+  "data_flow_connections": [
+    {
+      "component_type": "DataFlowEdge",
+      "id": "93177d9f-364d-4f32-9552-bbb0f5f14c0f",
+      "name": "step_0_user_provided_input_to_None End node_user_provided_input_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "66fac09c-fc20-4199-b07e-7ba831e94c7f"
+      },
+      "source_output": "user_provided_input",
+      "destination_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      },
+      "destination_input": "user_provided_input"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "126bb1bf-6251-4405-8e72-4c91fba520f9",
+      "name": "step_1_user_provided_input_to_None End node_user_provided_input_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "2c5d2192-abd4-4d6e-a6f4-e76241938581"
+      },
+      "source_output": "user_provided_input",
+      "destination_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      },
+      "destination_input": "user_provided_input"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "8ebc0546-addd-41a7-9c11-4e94c9080a4c",
+      "name": "step_2_user_provided_input_to_None End node_user_provided_input_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "8de99db5-70e2-4ad3-817c-91904c1e48cb"
+      },
+      "source_output": "user_provided_input",
+      "destination_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      },
+      "destination_input": "user_provided_input"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "b5a900e3-8401-4874-936a-2663a6394f18",
+      "name": "step_3_user_provided_input_to_None End node_user_provided_input_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "91f23b0e-82c8-4e08-904f-b5fd55b3f907"
+      },
+      "source_output": "user_provided_input",
+      "destination_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      },
+      "destination_input": "user_provided_input"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "73f81aa2-ae1d-4b1a-8452-dfd0bbd7c8fa",
+      "name": "step_4_user_provided_input_to_None End node_user_provided_input_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "d7aa451d-fca5-4b43-82ef-839354d0e02a"
+      },
+      "source_output": "user_provided_input",
+      "destination_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      },
+      "destination_input": "user_provided_input"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "a42c4b09-3449-488d-8812-1cc28e4682d9",
+      "name": "step_5_user_provided_input_to_None End node_user_provided_input_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "318f70b8-d004-49db-8fa7-aba7902da034"
+      },
+      "source_output": "user_provided_input",
+      "destination_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      },
+      "destination_input": "user_provided_input"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "51e879f2-c57e-437d-8758-b45c71fbe478",
+      "name": "step_6_user_provided_input_to_None End node_user_provided_input_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "7577e663-288b-4595-a5d0-fa6f507a0fd2"
+      },
+      "source_output": "user_provided_input",
+      "destination_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      },
+      "destination_input": "user_provided_input"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "7bbe8549-14a6-431c-bc4c-7ad50f86bf84",
+      "name": "step_7_user_provided_input_to_None End node_user_provided_input_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "630a34b2-5dbd-42b2-aee4-6bf7a6ad645f"
+      },
+      "source_output": "user_provided_input",
+      "destination_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      },
+      "destination_input": "user_provided_input"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "a24ac055-b38a-4519-b880-19dc360ea131",
+      "name": "step_8_user_provided_input_to_None End node_user_provided_input_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "ba486287-c9b2-43ef-966b-8cbb1235e9a7"
+      },
+      "source_output": "user_provided_input",
+      "destination_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      },
+      "destination_input": "user_provided_input"
+    },
+    {
+      "component_type": "DataFlowEdge",
+      "id": "5ef4735f-8384-4a96-9199-5359a3d597af",
+      "name": "step_9_user_provided_input_to_None End node_user_provided_input_data_flow_edge",
+      "description": null,
+      "metadata": {},
+      "source_node": {
+        "$component_ref": "9c87ebbf-f96b-4aa2-af10-a0652f479b29"
+      },
+      "source_output": "user_provided_input",
+      "destination_node": {
+        "$component_ref": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10"
+      },
+      "destination_input": "user_provided_input"
+    }
+  ],
+  "$referenced_components": {
+    "26fe98b7-eb39-41ea-ad26-69d754c910a9": {
+      "component_type": "StartNode",
+      "id": "26fe98b7-eb39-41ea-ad26-69d754c910a9",
+      "name": "__StartStep__",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [],
+      "branches": [
+        "next"
+      ]
+    },
+    "f2b5f7b8-060e-4699-8bf3-705d05ed7e10": {
+      "component_type": "EndNode",
+      "id": "f2b5f7b8-060e-4699-8bf3-705d05ed7e10",
+      "name": "None End node",
+      "description": "End node representing all transitions to None in the WayFlow flow",
+      "metadata": {},
+      "inputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [],
+      "branch_name": "next"
+    },
+    "66fac09c-fc20-4199-b07e-7ba831e94c7f": {
+      "component_type": "PluginInputMessageNode",
+      "id": "66fac09c-fc20-4199-b07e-7ba831e94c7f",
+      "name": "step_0",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": null,
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_template": "hi 0",
+      "rephrase": false,
+      "llm_config": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "2c5d2192-abd4-4d6e-a6f4-e76241938581": {
+      "component_type": "PluginInputMessageNode",
+      "id": "2c5d2192-abd4-4d6e-a6f4-e76241938581",
+      "name": "step_1",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": null,
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_template": "hi 1",
+      "rephrase": false,
+      "llm_config": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "8de99db5-70e2-4ad3-817c-91904c1e48cb": {
+      "component_type": "PluginInputMessageNode",
+      "id": "8de99db5-70e2-4ad3-817c-91904c1e48cb",
+      "name": "step_2",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": null,
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_template": "hi 2",
+      "rephrase": false,
+      "llm_config": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "91f23b0e-82c8-4e08-904f-b5fd55b3f907": {
+      "component_type": "PluginInputMessageNode",
+      "id": "91f23b0e-82c8-4e08-904f-b5fd55b3f907",
+      "name": "step_3",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": null,
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_template": "hi 3",
+      "rephrase": false,
+      "llm_config": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "d7aa451d-fca5-4b43-82ef-839354d0e02a": {
+      "component_type": "PluginInputMessageNode",
+      "id": "d7aa451d-fca5-4b43-82ef-839354d0e02a",
+      "name": "step_4",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": null,
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_template": "hi 4",
+      "rephrase": false,
+      "llm_config": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "318f70b8-d004-49db-8fa7-aba7902da034": {
+      "component_type": "PluginInputMessageNode",
+      "id": "318f70b8-d004-49db-8fa7-aba7902da034",
+      "name": "step_5",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": null,
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_template": "hi 5",
+      "rephrase": false,
+      "llm_config": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "7577e663-288b-4595-a5d0-fa6f507a0fd2": {
+      "component_type": "PluginInputMessageNode",
+      "id": "7577e663-288b-4595-a5d0-fa6f507a0fd2",
+      "name": "step_6",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": null,
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_template": "hi 6",
+      "rephrase": false,
+      "llm_config": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "630a34b2-5dbd-42b2-aee4-6bf7a6ad645f": {
+      "component_type": "PluginInputMessageNode",
+      "id": "630a34b2-5dbd-42b2-aee4-6bf7a6ad645f",
+      "name": "step_7",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": null,
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_template": "hi 7",
+      "rephrase": false,
+      "llm_config": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "ba486287-c9b2-43ef-966b-8cbb1235e9a7": {
+      "component_type": "PluginInputMessageNode",
+      "id": "ba486287-c9b2-43ef-966b-8cbb1235e9a7",
+      "name": "step_8",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": null,
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_template": "hi 8",
+      "rephrase": false,
+      "llm_config": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    },
+    "9c87ebbf-f96b-4aa2-af10-a0652f479b29": {
+      "component_type": "PluginInputMessageNode",
+      "id": "9c87ebbf-f96b-4aa2-af10-a0652f479b29",
+      "name": "step_9",
+      "description": "",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "description": "the input value provided by the user",
+          "type": "string",
+          "title": "user_provided_input"
+        }
+      ],
+      "branches": [
+        "next"
+      ],
+      "message": null,
+      "input_mapping": {},
+      "output_mapping": {},
+      "message_template": "hi 9",
+      "rephrase": false,
+      "llm_config": null,
+      "component_plugin_name": "NodesPlugin",
+      "component_plugin_version": "26.1.0.dev0"
+    }
+  },
+  "agentspec_version": "25.4.2"
+}

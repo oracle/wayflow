@@ -13,6 +13,11 @@ from .oracle_datastore import (
     PluginOracleDatabaseDatastore,
     PluginTlsOracleDatabaseConnectionConfig,
 )
+from .postgres_datastore import (
+    PluginPostgresDatabaseConnectionConfig,
+    PluginPostgresDatabaseDatastore,
+    PluginTlsPostgresDatabaseConnectionConfig,
+)
 from .relational_datastore import PluginRelationalDatastore
 
 __all__ = [
@@ -24,4 +29,7 @@ __all__ = [
     "PluginOracleDatabaseConnectionConfig",
     "PluginTlsOracleDatabaseConnectionConfig",
     "PluginRelationalDatastore",
+    "PluginTlsPostgresDatabaseConnectionConfig",
+    "PluginPostgresDatabaseConnectionConfig",
+    "PluginPostgresDatabaseDatastore",
 ]

@@ -84,10 +84,13 @@ setup(
         "typing-inspection>=0.4.0",
         "exceptiongroup>=1.0.2",
         "uvicorn >=0.23.1",
+        "fastapi>=0.116.2,<1.0.0",
     ],
     test_suite="tests",
     entry_points={
-        "console_scripts": [],
+        "console_scripts": [
+            "wayflow = wayflowcore.cli:main",
+        ],
     },
     include_package_data=True,
     extras_require={
