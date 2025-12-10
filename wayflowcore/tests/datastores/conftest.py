@@ -18,6 +18,10 @@ from wayflowcore.datastore.datastore import Datastore
 from wayflowcore.datastore.entity import Entity, nullable
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING, InMemoryDatastore
 from wayflowcore.datastore.oracle import TlsOracleDatabaseConnectionConfig
+from wayflowcore.datastore.postgres import (
+    PostgresDatabaseDatastore,
+    TlsPostgresDatabaseConnectionConfig,
+)
 from wayflowcore.property import FloatProperty, IntegerProperty, Property, StringProperty
 from wayflowcore.steps.step import Step
 
@@ -81,8 +85,43 @@ CREATE TABLE departments (
 )""",
 ]
 
+POSTGRES_DDL = [
+    "DROP TABLE IF EXISTS departments CASCADE;",
+    "DROP TABLE IF EXISTS employees CASCADE;",
+    """\
+CREATE TABLE employees (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(400) NOT NULL,
+    email VARCHAR(400) NOT NULL,
+    department_name VARCHAR(400) NOT NULL,
+    department_area VARCHAR(400) NOT NULL,
+    salary FLOAT DEFAULT 0.1 NOT NULL
+);
+""",
+    """\
+CREATE TABLE departments (
+    department_name VARCHAR(400) NOT NULL,
+    area VARCHAR(400) NOT NULL,
+    regional_manager INTEGER NOT NULL,
+    assistant_to_the_regional_manager INTEGER,
+    PRIMARY KEY (department_name, area),
+    FOREIGN KEY (regional_manager)
+        REFERENCES employees (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (assistant_to_the_regional_manager)
+        REFERENCES employees (id)
+        ON DELETE CASCADE
+);
+""",
+]
 
-def get_oracle_connection_config():
+
+def all_oracle_tls_connection_config_env_variables_are_specified():
+    tls_connection_args = ["ADB_DB_USER", "ADB_DB_PASSWORD", "ADB_DSN"]
+    return all([arg in os.environ for arg in tls_connection_args])
+
+
+def all_oracle_mtls_connection_config_env_variables_are_specified():
     mtls_connection_args = [
         "ADB_CONFIG_DIR",
         "ADB_DB_USER",
@@ -91,26 +130,68 @@ def get_oracle_connection_config():
         "ADB_WALLET_DIR",
         "ADB_WALLET_SECRET",
     ]
-    tls_connection_args = ["ADB_DB_USER", "ADB_DB_PASSWORD", "ADB_DSN"]
-    if all([arg in os.environ for arg in mtls_connection_args]):
+    return all([arg in os.environ for arg in mtls_connection_args])
+
+
+def get_oracle_connection_config():
+    if all_oracle_mtls_connection_config_env_variables_are_specified():
         return MTlsOracleDatabaseConnectionConfig(
-            config_dir=os.environ["ADB_CONFIG_DIR"],
+            config_dir=os.environ["ADB_CONFIG_DIR"],  # needed in the CI
             user=os.environ["ADB_DB_USER"],
             password=os.environ["ADB_DB_PASSWORD"],
             dsn=os.environ["ADB_DSN"],
             wallet_location=os.environ["ADB_WALLET_DIR"],
             wallet_password=os.environ["ADB_WALLET_SECRET"],
         )
-    elif all([arg in os.environ for arg in tls_connection_args]):
+    elif all_oracle_tls_connection_config_env_variables_are_specified:
         return TlsOracleDatabaseConnectionConfig(
             user=os.environ["ADB_DB_USER"],
             password=os.environ["ADB_DB_PASSWORD"],
             dsn=os.environ["ADB_DSN"],
+            config_dir=os.environ.get("ADB_CONFIG_DIR", None),
         )
     else:
         pytest.skip(
             "No database connection arguments configured in environment. "
             "Skipping Oracle DB tests..."
+        )
+
+
+def all_postgres_connection_config_env_variables_are_specified():
+    tls_connection_args = [
+        "POSTGRES_DB_USER",
+        "POSTGRES_DB_PASSWORD",
+        "POSTGRES_DB_URL",
+    ]
+    return all([arg in os.environ for arg in tls_connection_args])
+
+
+def get_postgres_connection_config():
+    if all_postgres_connection_config_env_variables_are_specified():
+        return TlsPostgresDatabaseConnectionConfig(
+            user=os.environ["POSTGRES_DB_USER"],
+            password=os.environ["POSTGRES_DB_PASSWORD"],
+            url=os.environ["POSTGRES_DB_URL"],
+            sslmode="disable",
+        )
+    else:
+        pytest.skip(
+            "No database connection arguments configured in environment. "
+            "Skipping Postgres DB tests..."
+        )
+
+
+def get_tls_postgres_connection_config():
+    if all_postgres_connection_config_env_variables_are_specified():
+        return TlsPostgresDatabaseConnectionConfig(
+            user=os.environ["POSTGRES_DB_USER"],
+            password=os.environ["POSTGRES_DB_PASSWORD"],
+            url=os.environ["POSTGRES_DB_URL"],
+        )
+    else:
+        pytest.skip(
+            "No database connection arguments configured in environment. "
+            "Skipping Postgres DB tests..."
         )
 
 
@@ -123,6 +204,30 @@ def get_oracle_datastore_with_schema(ddl: List[str], entities: Dict[str, Entity]
     return OracleDatabaseDatastore(entities, connection_config=connection_config)
 
 
+def get_postgres_datastore_with_schema(ddl: List[str], entities: Dict[str, Entity]):
+    from sqlalchemy import text
+
+    connection_config = get_postgres_connection_config()
+    connection = connection_config.get_connection()
+    with connection.connect() as conn:
+        for stmt in ddl:
+            conn.execute(text(stmt))
+            conn.commit()
+    return PostgresDatabaseDatastore(entities, connection_config=connection_config)
+
+
+def get_tls_postgres_datastore_with_schema(ddl: List[str], entities: Dict[str, Entity]):
+    from sqlalchemy import text
+
+    connection_config = get_tls_postgres_connection_config()
+    connection = connection_config.get_connection()
+    with connection.connect() as conn:
+        for stmt in ddl:
+            conn.execute(text(stmt))
+            conn.commit()
+    return PostgresDatabaseDatastore(entities, connection_config=connection_config)
+
+
 def cleanup_oracle_datastore(ddl: Optional[List[str]] = None):
     stmts = ddl if ddl is not None else ORACLE_DB_DDL[:2]
     connection_config = get_oracle_connection_config()
@@ -132,9 +237,21 @@ def cleanup_oracle_datastore(ddl: Optional[List[str]] = None):
     conn.close()
 
 
-def cleanup_datastore_content(oracle_datastore: OracleDatabaseDatastore):
+def cleanup_postgres_datastore(ddl: Optional[List[str]] = None):
+    from sqlalchemy import text
+
+    stmts = ddl if ddl is not None else POSTGRES_DDL[:2]
+    connection_config = get_postgres_connection_config()
+    connection = connection_config.get_connection()
+    with connection.connect() as conn:
+        for stmt in stmts:
+            conn.execute(text(stmt))
+            conn.commit()
+
+
+def cleanup_datastore_content(datastore: Datastore):
     for entity in get_basic_office_entities():
-        oracle_datastore.delete(entity, where={})
+        datastore.delete(entity, where={})
 
 
 @pytest.fixture(scope="session")
@@ -143,10 +260,34 @@ def oracle_datastore():
     cleanup_oracle_datastore()
 
 
+@pytest.fixture(scope="session")
+def postgres_datastore():
+    yield get_postgres_datastore_with_schema(POSTGRES_DDL, get_basic_office_entities())
+    cleanup_postgres_datastore()
+
+
+@pytest.fixture(scope="session")
+def tls_postgres_datastore():
+    yield get_postgres_datastore_with_schema(POSTGRES_DDL, get_basic_office_entities())
+    cleanup_postgres_datastore()
+
+
 @pytest.fixture(scope="function")
 def testing_oracle_data_store(oracle_datastore: OracleDatabaseDatastore):
     yield oracle_datastore
     cleanup_datastore_content(oracle_datastore)
+
+
+@pytest.fixture(scope="function")
+def testing_postgres_data_store(postgres_datastore: PostgresDatabaseDatastore):
+    yield postgres_datastore
+    cleanup_datastore_content(postgres_datastore)
+
+
+@pytest.fixture(scope="function")
+def testing_tls_postgres_data_store(tls_postgres_datastore: PostgresDatabaseDatastore):
+    yield tls_postgres_datastore
+    cleanup_datastore_content(tls_postgres_datastore)
 
 
 def get_default_datastore_content():
@@ -181,9 +322,20 @@ def testing_oracle_data_store_with_data(oracle_datastore: OracleDatabaseDatastor
     cleanup_datastore_content(oracle_datastore)
 
 
+@pytest.fixture(scope="function")
+def testing_postgres_data_store_with_data(postgres_datastore: PostgresDatabaseDatastore):
+    populate_with_basic_entities(postgres_datastore)
+    yield postgres_datastore
+    cleanup_datastore_content(postgres_datastore)
+
+
 @pytest.fixture(
     scope="function",
-    params=["testing_inmemory_data_store_with_data", "testing_oracle_data_store_with_data"],
+    params=[
+        "testing_inmemory_data_store_with_data",
+        "testing_oracle_data_store_with_data",
+        "testing_postgres_data_store_with_data",
+    ],
 )
 def testing_data_store_with_data(request):
     # https://stackoverflow.com/questions/42014484/pytest-using-fixtures-as-arguments-in-parametrize

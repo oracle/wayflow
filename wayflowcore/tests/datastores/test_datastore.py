@@ -13,9 +13,11 @@ import yaml
 
 from wayflowcore._threading import get_threadpool
 from wayflowcore.datastore import Datastore, InMemoryDatastore, nullable
+from wayflowcore.datastore._relational import RelationalDatastore
 from wayflowcore.datastore.entity import Entity
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.datastore.oracle import OracleDatabaseDatastore, TlsOracleDatabaseConnectionConfig
+from wayflowcore.datastore.postgres import PostgresDatabaseDatastore
 from wayflowcore.exceptions import (
     DatastoreConstraintViolationError,
     DatastoreEntityError,
@@ -37,9 +39,23 @@ from .conftest import (
 
 
 @pytest.fixture(
-    scope="function", params=["testing_inmemory_data_store", "testing_oracle_data_store"]
+    scope="function",
+    params=[
+        "testing_inmemory_data_store",
+        "testing_oracle_data_store",
+        "testing_postgres_data_store",
+        "testing_tls_postgres_data_store",
+    ],
 )
 def testing_data_store(request):
+    # https://stackoverflow.com/questions/42014484/pytest-using-fixtures-as-arguments-in-parametrize
+    return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(
+    scope="function", params=["testing_oracle_data_store", "testing_postgres_data_store"]
+)
+def testing_db_data_store(request):
     # https://stackoverflow.com/questions/42014484/pytest-using-fixtures-as-arguments-in-parametrize
     return request.getfixturevalue(request.param)
 
@@ -191,7 +207,6 @@ def test_in_memory_serialization_deserialization(testing_inmemory_data_store):
 
 
 def test_oracle_serialization_deserialization(testing_oracle_data_store):
-    test_basic_operations(testing_oracle_data_store)
     with pytest.warns(SecurityWarning):
         datastore_as_str = serialize(testing_oracle_data_store)
     assert "user" not in datastore_as_str
@@ -203,9 +218,24 @@ def test_oracle_serialization_deserialization(testing_oracle_data_store):
         autodeserialize(datastore_as_str)
 
 
+def test_postgres_serialization_deserialization(testing_postgres_data_store):
+    with pytest.warns(SecurityWarning):
+        datastore_as_str = serialize(testing_postgres_data_store)
+    assert "user" not in datastore_as_str
+    assert "password" not in datastore_as_str
+
+    with pytest.raises(
+        TypeError,
+        match="TlsPostgresDatabaseConnectionConfig is a security sensitive configuration",
+    ):
+        autodeserialize(datastore_as_str)
+
+
 @pytest.mark.parametrize("salary_value", ["N/A", 4, {"huh?|"}])
 def test_data_type_validation(salary_value, testing_data_store: Datastore):
-    if salary_value == 4 and isinstance(testing_data_store, OracleDatabaseDatastore):
+    if salary_value == 4 and isinstance(
+        testing_data_store, (OracleDatabaseDatastore, PostgresDatabaseDatastore)
+    ):
         pytest.skip("Oracle Database supports casting of integer to float")
     with pytest.raises(DatastoreEntityError):
         employee_with_broken_salary = copy.copy(EMPLOYEE_0) | {"salary": salary_value}
@@ -312,17 +342,17 @@ def test_database_with_threadpool(testing_data_store: Datastore, shutdown_thread
         "SELECT * FROM EMPLOYEES WHERE ID = `bindvar`",
     ],
 )
-def test_invalid_query_patterns(query, testing_oracle_data_store: OracleDatabaseDatastore):
+def test_invalid_query_patterns(query, testing_db_data_store: RelationalDatastore):
     with pytest.raises(DatastoreError):
-        testing_oracle_data_store.query(query, bind={"bindvar": "; DROP TABLE EMPLOYEES; --"})
+        testing_db_data_store.query(query, bind={"bindvar": "; DROP TABLE EMPLOYEES; --"})
 
 
-def test_any_type_in_bind_var(testing_oracle_data_store: OracleDatabaseDatastore):
+def test_any_type_in_bind_var(testing_db_data_store: RelationalDatastore):
     query = "SELECT * FROM EMPLOYEES WHERE ID = :bindvar"
 
     with pytest.raises(DatastoreError):
         # This fails because of not supported type (dictionary)
-        testing_oracle_data_store.query(query, bind={"bindvar": {"bla": "I am an object"}})
+        testing_db_data_store.query(query, bind={"bindvar": {"bla": "I am an object"}})
 
     class MyCustomID:
         def __init__(self, id: int) -> None:
@@ -330,11 +360,11 @@ def test_any_type_in_bind_var(testing_oracle_data_store: OracleDatabaseDatastore
 
     with pytest.raises(DatastoreError):
         # This fails because of not supported type (custom class)
-        testing_oracle_data_store.query(query, bind={"bindvar": MyCustomID(1)})
+        testing_db_data_store.query(query, bind={"bindvar": MyCustomID(1)})
 
     with pytest.raises(DatastoreError):
         # This fails because the bound variable is supposed to be number, not binary
-        testing_oracle_data_store.query(query, bind={"bindvar": b"4352345q3wtsdfcvd"})
+        testing_db_data_store.query(query, bind={"bindvar": b"4352345q3wtsdfcvd"})
 
 
 def test_oracle_connection_error():

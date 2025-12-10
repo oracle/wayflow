@@ -674,8 +674,9 @@ class MessageList(SerializableDataclass):
                 streaming_span.start()
             elif chunk_type == StreamChunkType.TEXT_CHUNK:
                 self._update_last_message(content_chunk, append_only=True)
-                full_streamed_message += content_chunk.content
-                record_event(ConversationMessageStreamChunkEvent(chunk=content_chunk.content))
+                if content_chunk.content:
+                    full_streamed_message += content_chunk.content
+                    record_event(ConversationMessageStreamChunkEvent(chunk=content_chunk.content))
             elif chunk_type == StreamChunkType.END_CHUNK:
                 new_message = content_chunk
                 self._update_last_message(content_chunk, append_only=False)

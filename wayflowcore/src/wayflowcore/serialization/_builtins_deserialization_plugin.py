@@ -153,6 +153,12 @@ from wayflowcore.agentspec.components.datastores.oracle_datastore import (
 from wayflowcore.agentspec.components.datastores.oracle_datastore import (
     PluginTlsOracleDatabaseConnectionConfig as AgentSpecPluginTlsOracleDatabaseConnectionConfig,
 )
+from wayflowcore.agentspec.components.datastores.postgres_datastore import (
+    PluginPostgresDatabaseDatastore as AgentSpecPluginPostgresDatabaseDatastore,
+)
+from wayflowcore.agentspec.components.datastores.postgres_datastore import (
+    PluginTlsPostgresDatabaseConnectionConfig as AgentSpecPluginTlsPostgresDatabaseConnectionConfig,
+)
 from wayflowcore.agentspec.components.flow import ExtendedFlow as AgentSpecExtendedFlow
 from wayflowcore.agentspec.components.managerworkers import (
     PluginManagerWorkers as AgentSpecPluginManagerWorkers,
@@ -285,6 +291,12 @@ from wayflowcore.datastore.oracle import (
 from wayflowcore.datastore.oracle import OracleDatabaseDatastore as RuntimeOracleDatabaseDatastore
 from wayflowcore.datastore.oracle import (
     TlsOracleDatabaseConnectionConfig as RuntimeTlsOracleDatabaseConnectionConfig,
+)
+from wayflowcore.datastore.postgres import (
+    PostgresDatabaseDatastore as RuntimePostgresDatabaseDatastore,
+)
+from wayflowcore.datastore.postgres import (
+    TlsPostgresDatabaseConnectionConfig as RuntimeTlsPostgresDatabaseConnectionConfig,
 )
 from wayflowcore.embeddingmodels import OCIGenAIEmbeddingModel as RuntimeOCIGenAIEmbeddingModel
 from wayflowcore.embeddingmodels import OllamaEmbeddingModel as RuntimeOllamaEmbeddingModel
@@ -1586,6 +1598,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 password=agentspec_component.password,
                 dsn=agentspec_component.dsn,
                 config_dir=agentspec_component.config_dir,
+                **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecPluginMTlsOracleDatabaseConnectionConfig):
             return RuntimeMTlsOracleDatabaseConnectionConfig(
@@ -1595,9 +1608,32 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 password=agentspec_component.password,
                 wallet_location=agentspec_component.wallet_location,
                 wallet_password=agentspec_component.wallet_password,
+                **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecPluginOracleDatabaseDatastore):
             return RuntimeOracleDatabaseDatastore(
+                schema={
+                    k: self._convert_entity_to_runtime(v)
+                    for k, v in agentspec_component.datastore_schema.items()
+                },
+                connection_config=conversion_context.convert(
+                    agentspec_component.connection_config, tool_registry, converted_components
+                ),
+            )
+        elif isinstance(agentspec_component, AgentSpecPluginTlsPostgresDatabaseConnectionConfig):
+            return RuntimeTlsPostgresDatabaseConnectionConfig(
+                user=agentspec_component.user,
+                password=agentspec_component.password,
+                url=agentspec_component.url,
+                sslmode=agentspec_component.sslmode,
+                sslcert=agentspec_component.sslcert,
+                sslkey=agentspec_component.sslkey,
+                sslrootcert=agentspec_component.sslrootcert,
+                sslcrl=agentspec_component.sslcrl,
+                **self._get_component_arguments(agentspec_component),
+            )
+        elif isinstance(agentspec_component, AgentSpecPluginPostgresDatabaseDatastore):
+            return RuntimePostgresDatabaseDatastore(
                 schema={
                     k: self._convert_entity_to_runtime(v)
                     for k, v in agentspec_component.datastore_schema.items()

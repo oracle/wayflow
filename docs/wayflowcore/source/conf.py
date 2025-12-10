@@ -93,6 +93,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinxarg.ext",
 ]
 
 # Set the variables that should be replaced in the substitution-extensions directives

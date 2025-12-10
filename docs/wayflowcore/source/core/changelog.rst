@@ -21,6 +21,16 @@ New features
 
   For more information check out :doc:`the how-to guide on LLMs from different providers <howtoguides/llm_from_different_providers>`.
 
+* **Serve agents via OpenAI Responses API:**
+
+  Added :ref:`OpenAIResponsesServer <openairesponsesserver>` and
+  :ref:`ServerStorageConfig <serverstorageconfig>` to host WayFlow agents behind OpenAI
+  Responses-compatible endpoints, with optional persistence through supported datastores.
+
+  See :doc:`the new how-to guide on serving agents <howtoguides/howto_serve_agents>` for in-memory
+  setup, datastore persistence, and Agent Spec export/reload examples.
+
+
 Improvements
 ^^^^^^^^^^^^
 

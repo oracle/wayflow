@@ -151,9 +151,10 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 role="assistant",
             )
         else:
-            message = Message(
-                role="assistant", contents=[TextContent(extracted_message["content"])]
-            )
+            # content might be empty when certain models (like gemini) decide
+            # to finish the conversation
+            content = extracted_message.get("content", "")
+            message = Message(role="assistant", contents=[TextContent(content=content)])
         return message
 
     def _extract_usage(self, response_data: Dict[str, Any]) -> Optional[TokenUsage]:

@@ -730,6 +730,7 @@ def get_directory_allowlist_read(tmp_path: str, session_tmp_path: str) -> List[U
         Path("/usr/share/zoneinfo/UTC"),
         # Used to read the development version in tests
         Path(os.path.dirname(__file__)).parents[1] / "VERSION",
+        Path("/etc/os-release"),  # path read by the openai client
     ]
     # Dynamically add the wallet location from the environment variable
     wallet_location = os.getenv("ADB_WALLET_DIR")

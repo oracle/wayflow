@@ -30,6 +30,7 @@ API Reference
    Events <events>
    Flows <flows>
    Agents <agent>
+   Agent Server <agentserver>
    Embedding Models <embeddingmodels>
    Context Providers <contextproviders>
    Execution Interrupts <interrupts>

@@ -124,6 +124,8 @@ ALL_SERIALIZABLE_CLASSES = {
     "OutputParser",
     "ParallelFlowExecutionStep",
     "ParallelMapStep",
+    "PostgresDatabaseConnectionConfig",
+    "PostgresDatabaseDatastore",
     "Prompt",
     "PromptExecutionStep",
     "PromptTemplate",
@@ -161,6 +163,7 @@ ALL_SERIALIZABLE_CLASSES = {
     "TemplateRenderingStep",
     "TextContent",
     "TlsOracleDatabaseConnectionConfig",
+    "TlsPostgresDatabaseConnectionConfig",
     "TokenUsage",
     "Tool",
     "ToolBox",
@@ -198,8 +201,20 @@ def test_componentregistry_is_complete(tmp_path):
 
         ALL_SERIALIZABLE_CLASSES = {all_classes_str}
 
-        component_registry = SerializableObject._COMPONENT_REGISTRY
-        assert ALL_SERIALIZABLE_CLASSES == set(component_registry)
+        component_registry_set = set(SerializableObject._COMPONENT_REGISTRY)
+
+        missing = sorted(ALL_SERIALIZABLE_CLASSES - component_registry_set)
+        extra   = sorted(component_registry_set - ALL_SERIALIZABLE_CLASSES)
+
+        if missing or extra:
+            lines = ["Component registry mismatch:"]
+            if missing:
+                lines.append(f"  Missing ({{len(missing)}}):")
+                lines.extend(f"    - {{name}}" for name in missing)
+            if extra:
+                lines.append(f"  Extra ({{len(extra)}}):")
+                lines.extend(f"    + {{name}}" for name in extra)
+            raise AssertionError("\\n".join(lines))
         """
     )
     testfile = tmp_path / "_temp_test_componentregistry_is_complete.py"
@@ -208,7 +223,7 @@ def test_componentregistry_is_complete(tmp_path):
     result = subprocess.run(["python", testfile], capture_output=True, text=True)
     assert (
         result.returncode == 0
-    ), "Component registry does not match the components registry. Did you forget to add a new component to the test list?"
+    ), f"Component registry does not match the components registry. Did you forget to add a new component to the test list?\n{result.stderr}"
 
 
 def test_all_components_are_builtin_components(tmp_path):
@@ -230,4 +245,4 @@ def test_all_components_are_builtin_components(tmp_path):
     result = subprocess.run(["python", testfile])
     assert (
         result.returncode == 0
-    ), "Builtins component registry does not match the components registry. Did you forget to add a new component to the _BUILTIN_COMPONENTS?"
+    ), f"Builtins component registry does not match the components registry. Did you forget to add a new component to the _BUILTIN_COMPONENTS?\n{result}"

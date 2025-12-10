@@ -61,3 +61,22 @@ Oracle Database
 .. autoclass:: wayflowcore.datastore.OracleDatabaseDatastore
 
     .. automethod:: query
+
+
+Postgres Database
+-----------------
+
+.. important::
+    The Postgres Database Datastore requires additional optional dependencies, which can be installed
+    with the ``[datastore]`` installation option.
+
+.. _postgresdatabaseconnectionconfig:
+.. autoclass:: wayflowcore.datastore.PostgresDatabaseConnectionConfig
+
+.. _postgresdatabasetlsconnectionconfig:
+.. autoclass:: wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig
+
+.. _postgresdatabasedatastore:
+.. autoclass:: wayflowcore.datastore.PostgresDatabaseDatastore
+
+    .. automethod:: query

@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import inspect
+import os
 import warnings
 from typing import Any, Dict
 
@@ -15,20 +16,23 @@ from wayflowcore.a2a.a2aagent import A2AConnectionConfig
 from wayflowcore.component import Component
 from wayflowcore.contextproviders import ContextProvider
 from wayflowcore.controlconnection import ControlFlowEdge
-from wayflowcore.datastore import Entity, InMemoryDatastore, nullable
+from wayflowcore.datastore import (
+    Entity,
+    InMemoryDatastore,
+    OracleDatabaseDatastore,
+    PostgresDatabaseDatastore,
+    TlsOracleDatabaseConnectionConfig,
+    TlsPostgresDatabaseConnectionConfig,
+    nullable,
+)
+from wayflowcore.datastore._relational import RelationalDatastore
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.embeddingmodels import EmbeddingModel
 from wayflowcore.mcp import SSETransport
 from wayflowcore.models import LlmModel, VllmModel
 from wayflowcore.models.ociclientconfig import OCIClientConfigWithApiKey
 from wayflowcore.outputparser import RegexPattern
-from wayflowcore.property import (
-    FloatProperty,
-    IntegerProperty,
-    ListProperty,
-    Property,
-    StringProperty,
-)
+from wayflowcore.property import FloatProperty, IntegerProperty, ListProperty, StringProperty
 from wayflowcore.serialization.serializer import SerializableObject, serialize_to_dict
 from wayflowcore.steps import (
     CompleteStep,
@@ -40,20 +44,23 @@ from wayflowcore.steps import (
 )
 from wayflowcore.tools import ServerTool
 from wayflowcore.variable import Variable
+from wayflowcore.warnings import SecurityWarning
 
 from ..serialization.test_serializableobject import ALL_SERIALIZABLE_CLASSES
 
 EXCLUDED_COMPONENTS = {
+    # datastore abstract classes
+    "OracleDatabaseConnectionConfig",
+    "PostgresDatabaseConnectionConfig",
+    "OracleDatabaseDatastore",
+    "PostgresDatabaseDatastore",
     # not supported
-    "TlsOracleDatabaseConnectionConfig",
-    "MTlsOracleDatabaseConnectionConfig",
     "StepDescription",
     "DescribedFlow",
     "DescribedAgent",
     "ClientTransport",
     "SSEmTLSTransport",
     "StreamableHTTPmTLSTransport",
-    "OracleDatabaseDatastore",
     # abstract classes
     "Component",
     "Event",
@@ -65,7 +72,6 @@ EXCLUDED_COMPONENTS = {
     "Step",
     "Tool",
     "Property",
-    "OracleDatabaseConnectionConfig",
     "FrozenSerializableDataclass",
     "Message",
     "MessageList",
@@ -131,7 +137,7 @@ ALL_ADDITIONAL_SUBCLASSES = list(
         *LlmModel.__subclasses__(),
         *EmbeddingModel.__subclasses__(),
         *Tool.__subclasses__(),
-        *Property.__subclasses__(),
+        *RelationalDatastore.__subclasses__(),
     }
     if component_class.__name__ not in EXCLUDED_COMPONENTS
 )
@@ -139,7 +145,10 @@ ALL_ADDITIONAL_SUBCLASSES = list(
 ALL_AGENTSPEC_EXPORTABLE_CLASS = [
     SerializableObject._COMPONENT_REGISTRY[component_class_name]
     for component_class_name in ALL_SERIALIZABLE_CLASSES
-    if component_class_name not in EXCLUDED_COMPONENTS
+    if (
+        component_class_name not in EXCLUDED_COMPONENTS
+        and issubclass(SerializableObject._COMPONENT_REGISTRY[component_class_name], Component)
+    )
 ]
 
 llm = VllmModel(model_id="model_name", host_port="some/port")
@@ -255,11 +264,32 @@ INIT_PARAMETER_DEFAULT_VALUES = {
     "query": "SELECT *",
     "agent_url": "http://<URL>",
     "connection_config": A2AConnectionConfig(verify=False),
+    # oracledb classes
+    "config_dir": "some/config/path",
+    "user": "user",
+    "password": "fake/password",
+    "wallet_location": "some/path",
+    "wallet_password": "wallet_password",
+    "dsn": "dsn/path",
 }
 
 CLASS_SPECIFIC_INPUTS = {
     MapStep: {"input_descriptors": [ListProperty(name=MapStep.ITERATED_INPUT)]},
     ParallelMapStep: {"input_descriptors": [ListProperty(name=ParallelMapStep.ITERATED_INPUT)]},
+    OracleDatabaseDatastore: {
+        "connection_config": TlsOracleDatabaseConnectionConfig(
+            user="user", password="password", dsn="dsn/path"
+        )
+    },
+    PostgresDatabaseDatastore: {
+        "connection_config": TlsPostgresDatabaseConnectionConfig(
+            user=os.environ.get("POSTGRES_DB_USER", "user"),
+            password=os.environ.get("POSTGRES_DB_PASSWORD", "password"),
+            url=os.environ.get("POSTGRES_DB_URL", "url"),
+            sslmode="disable",
+        ),
+        "schema": {},
+    },
 }
 
 
@@ -370,9 +400,11 @@ CLASSES_TO_RUN = list(
 @pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
 @pytest.mark.parametrize("component_class", CLASSES_TO_RUN)
 def test_coverage(component_class, with_mcp_enabled):
+    print(ALL_AGENTSPEC_EXPORTABLE_CLASS)
+    print(ALL_ADDITIONAL_SUBCLASSES)
 
-    if not issubclass(component_class, Component):
-        pytest.skip()
+    # if :
+    #     pytest.skip()
 
     # Get constructor signature
     sig = inspect.signature(component_class.__init__)
@@ -391,4 +423,6 @@ def test_coverage(component_class, with_mcp_enabled):
         kwargs.update(**CLASS_SPECIFIC_INPUTS[component_class])
 
     obj = component_class(**kwargs)
+
+    warnings.filterwarnings(action="ignore", category=SecurityWarning)
     _validate_compatibility(obj)

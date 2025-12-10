@@ -155,6 +155,15 @@ from wayflowcore.agentspec.components.datastores.oracle_datastore import (
 from wayflowcore.agentspec.components.datastores.oracle_datastore import (
     PluginTlsOracleDatabaseConnectionConfig as AgentSpecPluginTlsOracleDatabaseConnectionConfig,
 )
+from wayflowcore.agentspec.components.datastores.postgres_datastore import (
+    PluginPostgresDatabaseConnectionConfig as AgentSpecPluginPostgresDatabaseConnectionConfig,
+)
+from wayflowcore.agentspec.components.datastores.postgres_datastore import (
+    PluginPostgresDatabaseDatastore as AgentSpecPluginPostgresDatabaseDatastore,
+)
+from wayflowcore.agentspec.components.datastores.postgres_datastore import (
+    PluginTlsPostgresDatabaseConnectionConfig as AgentSpecPluginTlsPostgresDatabaseConnectionConfig,
+)
 from wayflowcore.agentspec.components.flow import ExtendedFlow as AgentSpecExtendedFlow
 from wayflowcore.agentspec.components.mcp import (
     PluginSSEmTLSTransport as AgentSpecPluginSSEmTLSTransport,
@@ -281,6 +290,15 @@ from wayflowcore.datastore.oracle import (
 from wayflowcore.datastore.oracle import OracleDatabaseDatastore as RuntimeOracleDatabaseDatastore
 from wayflowcore.datastore.oracle import (
     TlsOracleDatabaseConnectionConfig as RuntimeTlsOracleDatabaseConnectionConfig,
+)
+from wayflowcore.datastore.postgres import (
+    PostgresDatabaseConnectionConfig as RuntimePostgresDatabaseConnectionConfig,
+)
+from wayflowcore.datastore.postgres import (
+    PostgresDatabaseDatastore as RuntimePostgresDatabaseDatastore,
+)
+from wayflowcore.datastore.postgres import (
+    TlsPostgresDatabaseConnectionConfig as RuntimeTlsPostgresDatabaseConnectionConfig,
 )
 from wayflowcore.embeddingmodels import EmbeddingModel as RuntimeEmbeddingModel
 from wayflowcore.embeddingmodels import OCIGenAIEmbeddingModel as RuntimeOCIGenAIEmbeddingModel
@@ -772,6 +790,10 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             agentspec_component = self._oracle_db_connection_config_convert_to_agentspec(
                 conversion_context, runtime_component, referenced_objects
             )
+        elif isinstance(runtime_component, RuntimePostgresDatabaseConnectionConfig):
+            agentspec_component = self._postgres_db_connection_config_convert_to_agentspec(
+                conversion_context, runtime_component, referenced_objects
+            )
         elif isinstance(runtime_component, RuntimePromptTemplate):
             agentspec_component = self._prompttemplate_convert_to_agentspec(
                 conversion_context, runtime_component, referenced_objects
@@ -975,6 +997,37 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             **extra_args,
         )
 
+    def _postgres_db_connection_config_convert_to_agentspec(
+        self,
+        conversion_context: "WayflowToAgentSpecConversionContext",
+        runtime_postgres_db_connection_config: RuntimePostgresDatabaseConnectionConfig,
+        referenced_objects: Optional[Dict[str, Any]] = None,
+    ) -> AgentSpecPluginPostgresDatabaseConnectionConfig:
+        if isinstance(
+            runtime_postgres_db_connection_config, RuntimeTlsPostgresDatabaseConnectionConfig
+        ):
+            return AgentSpecPluginTlsPostgresDatabaseConnectionConfig(
+                user=runtime_postgres_db_connection_config.user,
+                password=runtime_postgres_db_connection_config.password,
+                url=runtime_postgres_db_connection_config.url,
+                sslmode=runtime_postgres_db_connection_config.sslmode,
+                sslcert=runtime_postgres_db_connection_config.sslcert,
+                sslkey=runtime_postgres_db_connection_config.sslkey,
+                sslrootcert=runtime_postgres_db_connection_config.sslrootcert,
+                sslcrl=runtime_postgres_db_connection_config.sslcrl,
+                id=runtime_postgres_db_connection_config.id,
+                description=runtime_postgres_db_connection_config.description,
+                name=runtime_postgres_db_connection_config.name
+                or "PluginTlsPostgresDatabaseConnectionConfig",
+                metadata=_create_agentspec_metadata_from_runtime_component(
+                    runtime_postgres_db_connection_config
+                ),
+            )
+        raise ValueError(
+            f"Unsupported type of PluginPostgresDatabaseConnectionConfig in Agent Spec: "
+            f"{type(runtime_postgres_db_connection_config)}"
+        )
+
     def _oracle_db_connection_config_convert_to_agentspec(
         self,
         conversion_context: "WayflowToAgentSpecConversionContext",
@@ -985,12 +1038,14 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             runtime_oracle_db_connection_config, RuntimeTlsOracleDatabaseConnectionConfig
         ):
             return AgentSpecPluginTlsOracleDatabaseConnectionConfig(
-                name="PluginTlsOracleDatabaseConnectionConfig",
+                name=runtime_oracle_db_connection_config.name
+                or "PluginTlsOracleDatabaseConnectionConfig",
                 user=runtime_oracle_db_connection_config.user,
                 password=runtime_oracle_db_connection_config.password,
                 dsn=runtime_oracle_db_connection_config.dsn,
                 config_dir=runtime_oracle_db_connection_config.config_dir,
                 id=runtime_oracle_db_connection_config.id,
+                description=runtime_oracle_db_connection_config.description,
             )
         elif isinstance(
             runtime_oracle_db_connection_config, RuntimeMTlsOracleDatabaseConnectionConfig
@@ -1032,8 +1087,24 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     k: _runtime_entity_to_pyagentspec_entity(v)
                     for k, v in runtime_datastore.schema.items()
                 },
-                connection_config=conversion_context.convert(
-                    runtime_datastore.connection_config, referenced_objects
+                connection_config=self._oracle_db_connection_config_convert_to_agentspec(
+                    conversion_context=conversion_context,
+                    runtime_oracle_db_connection_config=runtime_datastore.connection_config,
+                    referenced_objects=referenced_objects,
+                ),
+                id=runtime_datastore.id,
+            )
+        elif isinstance(runtime_datastore, RuntimePostgresDatabaseDatastore):
+            return AgentSpecPluginPostgresDatabaseDatastore(
+                name="AgentSpecPluginPostgresDatabaseDatastore",
+                datastore_schema={
+                    k: _runtime_entity_to_pyagentspec_entity(v)
+                    for k, v in runtime_datastore.schema.items()
+                },
+                connection_config=self._postgres_db_connection_config_convert_to_agentspec(
+                    conversion_context=conversion_context,
+                    runtime_postgres_db_connection_config=runtime_datastore.connection_config,
+                    referenced_objects=referenced_objects,
                 ),
                 id=runtime_datastore.id,
             )

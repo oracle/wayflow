@@ -221,4 +221,6 @@ __all__ = [
     "PluginOpenAiEmbeddingConfig",
     "embeddingmodel_deserialization_plugin",
     "embeddingmodel_serialization_plugin",
+    "all_deserialization_plugin",
+    "all_serialization_plugin",
 ]

@@ -202,3 +202,5 @@ Thumbs.db
 *.pklz
 *.sqlite
 .env
+
+wayflowcore/dev_scripts/*/data

@@ -16,15 +16,24 @@ from wayflowcore.steps.datastoresteps.datastorequerystep import DatastoreQuerySt
 from wayflowcore.warnings import SecurityWarning
 
 
-def test_basic_query(testing_oracle_data_store_with_data: RelationalDatastore):
+@pytest.fixture(
+    scope="function",
+    params=["testing_oracle_data_store_with_data", "testing_postgres_data_store_with_data"],
+)
+def testing_db_data_store_with_data(request):
+    # https://stackoverflow.com/questions/42014484/pytest-using-fixtures-as-arguments-in-parametrize
+    return request.getfixturevalue(request.param)
+
+
+def test_basic_query(testing_db_data_store_with_data: RelationalDatastore):
     QUERY = "SELECT * FROM EMPLOYEES"
-    step = DatastoreQueryStep(testing_oracle_data_store_with_data, query=QUERY)
+    step = DatastoreQueryStep(testing_db_data_store_with_data, query=QUERY)
     # One input descriptor, always a bind_variables dictionary
     assert len(step.input_descriptors) == 1
     assert step.input_descriptors[0].name == "bind_variables"
     # Pass empty bind_variables dict for non-parametrized
     result = run_step_and_return_outputs(step, {"bind_variables": {}})
-    assert result[DatastoreQueryStep.RESULT] == testing_oracle_data_store_with_data.query(QUERY)
+    assert result[DatastoreQueryStep.RESULT] == testing_db_data_store_with_data.query(QUERY)
 
 
 @pytest.mark.parametrize(
@@ -37,23 +46,21 @@ def test_basic_query(testing_oracle_data_store_with_data: RelationalDatastore):
 )
 def test_parametrized_query_with_default_descriptors(
     query: str,
-    testing_oracle_data_store_with_data: RelationalDatastore,
+    testing_db_data_store_with_data: RelationalDatastore,
 ):
-    step = DatastoreQueryStep(testing_oracle_data_store_with_data, query=query)
+    step = DatastoreQueryStep(testing_db_data_store_with_data, query=query)
     assert len(step.input_descriptors) == 1
     assert step.input_descriptors[0].name == "bind_variables"
     bind = {"empsalary": 150000}
     result = run_step_and_return_outputs(step, {"bind_variables": bind})
-    assert result[DatastoreQueryStep.RESULT] == testing_oracle_data_store_with_data.query(
-        query, bind
-    )
+    assert result[DatastoreQueryStep.RESULT] == testing_db_data_store_with_data.query(query, bind)
 
 
-def test_error_on_jinja_in_query(testing_oracle_data_store_with_data: RelationalDatastore):
+def test_error_on_jinja_in_query(testing_db_data_store_with_data: RelationalDatastore):
     QUERY = "SELECT * FROM EMPLOYEES WHERE {{column}} > :empsalary"
     with pytest.raises(ValueError):
         DatastoreQueryStep(
-            testing_oracle_data_store_with_data,
+            testing_db_data_store_with_data,
             query=QUERY,
         )
 
@@ -62,19 +69,19 @@ def test_error_on_jinja_in_query(testing_oracle_data_store_with_data: Relational
     "query", ["SELECT * FROM employees", "SELECT * FROM EMPLOYEES WHERE salary > :empsalary"]
 )
 def test_datastore_step_serializable(
-    query: str, testing_oracle_data_store_with_data: RelationalDatastore
+    query: str, testing_db_data_store_with_data: RelationalDatastore
 ):
-    step = DatastoreQueryStep(testing_oracle_data_store_with_data, query)
+    step = DatastoreQueryStep(testing_db_data_store_with_data, query)
     with pytest.warns(SecurityWarning):
         serialized_step = serialize(step)
     with pytest.raises(TypeError):
         autodeserialize(serialized_step)
 
 
-def test_custom_descriptor_for_bind_variables(testing_oracle_data_store_with_data):
+def test_custom_descriptor_for_bind_variables(testing_db_data_store_with_data):
     datastore_query_flow = create_single_step_flow(
         DatastoreQueryStep(
-            testing_oracle_data_store_with_data,
+            testing_db_data_store_with_data,
             "SELECT email, salary FROM employees WHERE department_name = :depname OR salary < :salary",
         )
     )
@@ -87,7 +94,7 @@ def test_custom_descriptor_for_bind_variables(testing_oracle_data_store_with_dat
     # Second part of the example
     datastore_query_flow = create_single_step_flow(
         DatastoreQueryStep(
-            testing_oracle_data_store_with_data,
+            testing_db_data_store_with_data,
             "SELECT email, salary FROM employees WHERE department_name = :depname OR salary < :salary",
             input_descriptors=[
                 ObjectProperty(
@@ -123,10 +130,10 @@ def test_custom_descriptor_for_bind_variables(testing_oracle_data_store_with_dat
         "SELECT * FROM EMPLOYEES WHERE ID = `bindvar`",
     ],
 )
-def test_invalid_query_errors_are_propagated(query, testing_oracle_data_store_with_data):
+def test_invalid_query_errors_are_propagated(query, testing_db_data_store_with_data):
     datastore_query_flow = create_single_step_flow(
         DatastoreQueryStep(
-            testing_oracle_data_store_with_data,
+            testing_db_data_store_with_data,
             query,
         )
     )

@@ -6,7 +6,18 @@
 import warnings
 from abc import ABC
 from logging import getLogger
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, TypeVar, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+)
 
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.datastore._datatable import Datatable
@@ -218,15 +229,10 @@ class _RelationalDatatable(Datatable):
             entities = [entities]
             return_single_element = True
 
-        entities = [_case_insensitive_entity_dict(entity) for entity in entities]
-
         with self.engine.connect() as connection:
             try:
                 result = connection.execute(
-                    self.sqlalchemy_table.insert().returning(
-                        *self._get_columns_with_case_sensitive_aliases()
-                    ),
-                    entities,
+                    *self._create_query(entities),
                 ).fetchall()
                 if len(result) == 0:
                     raise DatastoreEntityError("Failed to create entity")
@@ -248,12 +254,27 @@ class _RelationalDatatable(Datatable):
             result_as_dict = _results_to_dict(result)
         return result_as_dict[0] if return_single_element else result_as_dict
 
-    def update(self, where: Dict[str, Any], update: EntityAsDictT) -> List[EntityAsDictT]:
+    def _create_query(
+        self, entities: List[EntityAsDictT]
+    ) -> Tuple["sqlalchemy.Executable", List[Dict[str, Any]]]:
+        entities = [_case_insensitive_entity_dict(entity) for entity in entities]
+
+        return (
+            self.sqlalchemy_table.insert().returning(
+                *self._get_columns_with_case_sensitive_aliases()
+            ),
+            entities,
+        )
+
+    def _update_query(self, where: Dict[str, Any], update: EntityAsDictT) -> "sqlalchemy.Update":
         query = sqlalchemy.update(self.sqlalchemy_table)
         query = self._apply_where_clause(query, where)
-        query = query.values(**_case_insensitive_entity_dict(update)).returning(
+        return query.values(**_case_insensitive_entity_dict(update)).returning(
             *self._get_columns_with_case_sensitive_aliases()
         )
+
+    def update(self, where: Dict[str, Any], update: EntityAsDictT) -> List[EntityAsDictT]:
+        query = self._update_query(where, update)
         with self.engine.connect() as connection:
             try:
                 result = connection.execute(query).fetchall()
