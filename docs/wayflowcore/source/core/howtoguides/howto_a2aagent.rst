@@ -1,8 +1,8 @@
 .. _top-howtoa2aagent:
 
-===================================
-How to Build A2A Agents
-===================================
+============================
+How to Connect to A2A Agents
+============================
 
 .. |python-icon| image:: ../../_static/icons/python-icon.svg
    :width: 40px

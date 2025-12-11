@@ -7,18 +7,19 @@
 import os
 import subprocess
 import time
+from pathlib import Path
 
 import pytest
 
 from tests.utils import LogTee, _check_server_is_up, _terminate_process_tree, get_available_port
 
-_START_SERVER_FILE_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "server", "start_a2a_server.py"
-)
+from .start_a2a_server import AgentType
+
+_START_SERVER_FILE_PATH = str(Path(__file__).parent / "start_a2a_server.py")
 
 
 def _start_a2a_server(
-    host: str, port: int, ready_timeout_s: float = 20.0
+    host: str, port: int, agent_type: AgentType, ready_timeout_s: float = 20.0
 ) -> tuple[subprocess.Popen, str]:
     process_args = [
         "python",
@@ -28,6 +29,8 @@ def _start_a2a_server(
         host,
         "--port",
         str(port),
+        "--agent",
+        agent_type.value,
     ]
 
     url = f"http://{host}:{port}"
@@ -78,10 +81,12 @@ def _start_a2a_server(
 
 
 @pytest.fixture(scope="session", name="a2a_server")
-def a2a_server_fixture():
+def a2a_server_fixture(request):
+    agent_type = getattr(request, "param", AgentType.AGENT_WITH_SERVER_TOOL)
+
     host = "localhost"
     port = get_available_port()
-    process, url = _start_a2a_server(host=host, port=port)
+    process, url = _start_a2a_server(host=host, port=port, agent_type=agent_type)
     try:
         yield url
     finally:

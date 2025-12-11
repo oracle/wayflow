@@ -1,8 +1,7 @@
 Agent Server
 ============
 
-This page covers the components used to expose WayFlow agents through an OpenAI Responses-compatible
-server.
+This page covers the components used to expose WayFlow agents through different protocols.
 
 
 Server application
@@ -10,6 +9,10 @@ Server application
 
 .. _openairesponsesserver:
 .. autoclass:: wayflowcore.agentserver.server.OpenAIResponsesServer
+    :members: __init__, get_app, run
+
+.. _a2aserver:
+.. autoclass:: wayflowcore.agentserver.server.A2AServer
     :members: __init__, get_app, run
 
 .. _serverstorageconfig:
@@ -22,10 +25,10 @@ Server application
 Service interfaces
 ------------------
 
-.. autoclass:: wayflowcore.agentserver.services.service.OpenAIResponsesService
+.. autoclass:: wayflowcore.agentserver.openairesponses.services.service.OpenAIResponsesService
     :members:
 
-.. autoclass:: wayflowcore.agentserver.services.wayflowservice.WayFlowOpenAIResponsesService
+.. autoclass:: wayflowcore.agentserver.openairesponses.services.wayflowservice.WayFlowOpenAIResponsesService
     :members:
 
 
