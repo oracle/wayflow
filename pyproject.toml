@@ -15,7 +15,7 @@ disable_error_code = [
     "type-abstract",  # https://stackoverflow.com/questions/48349054/how-do-you-annotate-the-type-of-an-abstract-class-with-mypy
 ]
 plugins = ['pydantic.mypy']
-
+ 
 [[tool.mypy.overrides]]
 module = [
     'tests.*',
