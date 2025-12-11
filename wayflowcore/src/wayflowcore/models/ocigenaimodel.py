@@ -384,10 +384,6 @@ class _OciApiFormatter(ABC):
 
     @staticmethod
     @abstractmethod
-    def extract_usage(response: Dict[str, Any]) -> Optional[TokenUsage]: ...
-
-    @staticmethod
-    @abstractmethod
     def convert_completion_into_message(response: Dict[str, Any]) -> "Message": ...
 
     @staticmethod
@@ -396,6 +392,33 @@ class _OciApiFormatter(ABC):
         iterator: Iterator[Any],
         post_processing: Optional[Callable[["Message"], "Message"]] = None,
     ) -> Iterator[TaggedMessageChunkTypeWithTokenUsage]: ...
+
+    @staticmethod
+    def extract_usage(response: Dict[str, Any]) -> Optional[TokenUsage]:
+        # only recent versions of oci have `usage` attribute
+        if not hasattr(response.data.chat_response, "usage"):  # type: ignore
+            return None
+
+        usage = response.data.chat_response.usage  # type: ignore
+
+        cached_tokens = 0
+        prompt_details = usage.prompt_tokens_details
+        if prompt_details and prompt_details.cached_tokens:
+            cached_tokens = prompt_details.cached_tokens
+
+        reasoning_tokens = 0
+        completion_details = usage.completion_tokens_details
+        if completion_details and completion_details.reasoning_tokens:
+            reasoning_tokens = completion_details.reasoning_tokens
+
+        return TokenUsage(
+            input_tokens=usage.prompt_tokens,
+            output_tokens=usage.completion_tokens,
+            total_tokens=usage.total_tokens,
+            cached_tokens=cached_tokens,
+            reasoning_tokens=reasoning_tokens,
+            exact_count=True,
+        )
 
 
 class _GenericOciApiFormatter(_OciApiFormatter):
@@ -427,11 +450,6 @@ class _GenericOciApiFormatter(_OciApiFormatter):
         generation_config: Optional[LlmGenerationConfig],
     ) -> Any:
         return _generation_config_to_generic_oci_parameters(generation_config, False)
-
-    @staticmethod
-    def extract_usage(response: Dict[str, Any]) -> Optional[TokenUsage]:
-        # OCI doesnt use tokens, but rather characters to bill
-        return None
 
     @staticmethod
     def convert_completion_into_message(response: Dict[str, Any]) -> "Message":
@@ -710,19 +728,6 @@ class _CohereOciApiFormatter(_OciApiFormatter):
             ),
             **_generation_config_to_cohere_oci_parameters(prompt.generation_config),
         )
-
-    @staticmethod
-    def extract_usage(response: Dict[str, Any]) -> Optional[TokenUsage]:
-        # only recent versions of oci have `usage` attribute
-        if hasattr(response.data.chat_response, "usage"):  # type: ignore
-            usage = response.data.chat_response.usage  # type: ignore
-            return TokenUsage(
-                input_tokens=usage.prompt_tokens,
-                output_tokens=usage.completion_tokens,
-                total_tokens=usage.total_tokens,
-                exact_count=True,
-            )
-        return None
 
     @staticmethod
     def convert_completion_into_message(response: Dict[str, Any]) -> "Message":

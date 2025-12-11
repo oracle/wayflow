@@ -115,6 +115,11 @@ CHAT_PROMPT_BEFORE_TOOL_CALL = [
 CHAT_PROMPT_STANDALONE_SYSTEM_MESSAGE = [
     Message(message_type=MessageType.SYSTEM, content="greet the user with a welcome message"),
 ]
+REQUIRES_REASONING_PROMPT = """\
+Puzzle: You are outside a closed room with three light switches. Only one of them controls a light \
+inside the room. You can flip the switches as much as you want, but you can only enter the room \
+once to check. How do you know which switch controls the light?
+"""
 
 DUMMY_CONFIG = {
     "model_type": "dummy",

@@ -30,6 +30,7 @@ from ..conftest import (
     llama_api_url,
 )
 from ..testhelpers.testhelpers import retry_test
+from .test_models import REQUIRES_REASONING_PROMPT
 
 
 @pytest.fixture
@@ -505,10 +506,7 @@ def test_vllm_reasoning_model_gives_reasoning_content_responses(
     Max attempt:           4
     Justification:         (0.08 ** 4) ~= 4.8 / 100'000
     """
-    llm_completion = vllm_reasoning_responses_llm.generate(
-        "Puzzle: You are outside a closed room with three light switches. Only one of them controls a light inside the room."
-        "You can flip the switches as much as you want, but you can only enter the room once to check. How do you know which switch controls the light?"
-    )
+    llm_completion = vllm_reasoning_responses_llm.generate(REQUIRES_REASONING_PROMPT)
     assert llm_completion.message._reasoning_content is not None
     assert "content" in llm_completion.message._reasoning_content
     assert llm_completion.message._reasoning_content["content"][0]["text"] is not None
