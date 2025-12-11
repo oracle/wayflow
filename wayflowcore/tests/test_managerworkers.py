@@ -184,7 +184,16 @@ def test_managerworkers_can_execute_with_initial_params_passed_in_start_conversa
     assert conversation.conversation_id == "12345"
 
 
+@retry_test(max_attempts=2)
 def test_worker_with_client_tool_works_as_expected(remotely_hosted_llm) -> None:
+    """
+    Failure rate:          0 out of 100
+    Observed on:           2025-12-11
+    Average success time:  1.07 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           2
+    Justification:         (0.01 ** 2) ~= 9.6 / 100'000
+    """
     llm = remotely_hosted_llm
     dummy_llm = DummyModel()
 

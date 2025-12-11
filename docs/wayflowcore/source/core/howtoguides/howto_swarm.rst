@@ -23,8 +23,8 @@ How to Build a Swarm of Agents
 
     This guide assumes familiarity with :doc:`Agents <../tutorials/basic_agent>`.
 
-The Swarm pattern is a type of agentic pattern that takes inspiration from `Swarm intelligence <https://en.wikipedia.org/wiki/Swarm_intelligence>`_.
-It is often observed in biological systems such as ant colonies, bee hives, and bird flocks.
+The Swarm pattern is a type of agentic pattern that takes inspiration from `Swarm intelligence <https://en.wikipedia.org/wiki/Swarm_intelligence>`_,
+a phenomenon commonly seen in ant colonies, bee hives, and bird flocks, where coordinated behavior emerges from many simple actors rather than a central controller.
 In this agentic pattern, each agent is assigned a specific responsibility and can delegate tasks to other specialized agents to improve overall performance.
 
 
