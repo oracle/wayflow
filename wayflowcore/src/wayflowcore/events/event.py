@@ -68,6 +68,87 @@ def _serialize_tool_request(
     return serialization
 
 
+def _convert_dict_to_dict_with_stringified_values(
+    dict_to_stringify: Optional[Dict[str, Any]],
+) -> Dict[str, str]:
+    return {key: stringify(value) for key, value in (dict_to_stringify or {}).items()}
+
+
+def _flow_conversation_execution_state_to_tracing_info(
+    execution_state: "FlowConversationExecutionState", mask_sensitive_information: bool
+) -> Dict[str, Any]:
+    serialization_context = SerializationContext(root=execution_state)
+    return {
+        "execution_state.current_step_name": execution_state.current_step_name,
+        "execution_state.input_output_key_values": (
+            serialize_any_to_dict_or_stringify(
+                execution_state.input_output_key_values, serialization_context
+            )
+            if not mask_sensitive_information
+            else _PII_TEXT_MASK
+        ),
+        "execution_state.variable_store": (
+            serialize_any_to_dict_or_stringify(
+                execution_state.variable_store, serialization_context
+            )
+            if not mask_sensitive_information
+            else _PII_TEXT_MASK
+        ),
+        "execution_state.step_history": execution_state.step_history,
+        "execution_state.nesting_level": execution_state.nesting_level,
+        "execution_state.internal_context_key_values": (
+            serialize_any_to_dict_or_stringify(
+                execution_state.internal_context_key_values, serialization_context
+            )
+            if not mask_sensitive_information
+            else _PII_TEXT_MASK
+        ),
+        "execution_state.context_key_values": (
+            serialize_any_to_dict_or_stringify(
+                execution_state.context_key_values, serialization_context
+            )
+            if not mask_sensitive_information
+            else _PII_TEXT_MASK
+        ),
+    }
+
+
+def _agent_conversation_execution_state_to_tracing_info(
+    execution_state: "AgentConversationExecutionState", mask_sensitive_information: bool
+) -> Dict[str, Any]:
+    return {
+        "execution_state.memory": (
+            (serialize_to_dict(execution_state.memory) if execution_state.memory else {})
+            if not mask_sensitive_information
+            else _PII_TEXT_MASK
+        ),
+        "execution_state.plan": (
+            stringify(execution_state.plan) if not mask_sensitive_information else _PII_TEXT_MASK
+        ),
+        "execution_state.tool_call_queue": [
+            _serialize_tool_request(tool_request, mask_sensitive_information)
+            for tool_request in execution_state.tool_call_queue
+        ],
+        "execution_state.current_tool_request": _serialize_tool_request(
+            execution_state.current_tool_request, mask_sensitive_information
+        ),
+        "execution_state.current_flow_conversation": (
+            (
+                serialize_to_dict(execution_state.current_flow_conversation)
+                if execution_state.current_flow_conversation
+                else None
+            )
+            if not mask_sensitive_information
+            else _PII_TEXT_MASK
+        ),
+        "execution_state.has_confirmed_conversation_exit": execution_state.has_confirmed_conversation_exit,
+        "execution_state.current_retrieved_tools": [
+            tool.name for tool in execution_state.current_retrieved_tools or []
+        ],
+        "execution_state.curr_iter": execution_state.curr_iter,
+    }
+
+
 @dataclass(frozen=True)
 class Event(ABC):
     """Base Event class. It contains information relevant to all events."""
@@ -265,7 +346,7 @@ class ConversationCreatedEvent(Event):
             "conversational_component.type": self.conversational_component.__class__.__name__,
             "conversational_component.id": self.conversational_component.id,
             "inputs": (
-                {key: stringify(value) for key, value in (self.inputs or {}).items()}
+                _convert_dict_to_dict_with_stringified_values(self.inputs)
                 if not mask_sensitive_information
                 else _PII_TEXT_MASK
             ),
@@ -375,7 +456,7 @@ class ToolExecutionStartEvent(StartSpanEvent["ToolExecutionSpan"]):
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "tool_request.inputs": (
-                {key: stringify(value) for key, value in self.tool_request.args.items()}
+                _convert_dict_to_dict_with_stringified_values(self.tool_request.args)
                 if not mask_sensitive_information
                 else _PII_TEXT_MASK
             ),
@@ -423,7 +504,7 @@ class ToolConfirmationRequestStartEvent(StartSpanEvent["ToolExecutionSpan"]):
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "tool_request.inputs": (
-                {key: stringify(value) for key, value in self.tool_request.args.items()}
+                _convert_dict_to_dict_with_stringified_values(self.tool_request.args)
                 if not mask_sensitive_information
                 else _PII_TEXT_MASK
             ),
@@ -448,7 +529,7 @@ class ToolConfirmationRequestEndEvent(EndSpanEvent["ToolExecutionSpan"]):
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "tool_request.inputs": (
-                {key: stringify(value) for key, value in self.tool_request.args.items()}
+                _convert_dict_to_dict_with_stringified_values(self.tool_request.args)
                 if not mask_sensitive_information
                 else _PII_TEXT_MASK
             ),
@@ -477,7 +558,7 @@ class StepInvocationStartEvent(StartSpanEvent["StepInvocationSpan"]):
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "inputs": (
-                {key: stringify(value) for key, value in self.inputs.items()}
+                _convert_dict_to_dict_with_stringified_values(self.inputs)
                 if not mask_sensitive_information
                 else _PII_TEXT_MASK
             ),
@@ -500,7 +581,7 @@ class StepInvocationResultEvent(EndSpanEvent["StepInvocationSpan"]):
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "step_result.outputs": (
-                {key: stringify(value) for key, value in self.step_result.outputs.items()}
+                _convert_dict_to_dict_with_stringified_values(self.step_result.outputs)
                 if not mask_sensitive_information
                 else _PII_TEXT_MASK
             ),
@@ -553,32 +634,10 @@ class FlowExecutionIterationStartedEvent(Event):
     """State of a flow (doesn't contain messages)"""
 
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
-        serialization_context = SerializationContext(root=self.execution_state)
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
-            "execution_state.current_step_name": self.execution_state.current_step_name,
-            "execution_state.input_output_key_values": (
-                serialize_any_to_dict_or_stringify(
-                    self.execution_state.input_output_key_values, serialization_context
-                )
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
-            ),
-            "execution_state.variable_store": (
-                serialize_any_to_dict_or_stringify(
-                    self.execution_state.variable_store, serialization_context
-                )
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
-            ),
-            "execution_state.step_history": self.execution_state.step_history,
-            "execution_state.nesting_level": self.execution_state.nesting_level,
-            "execution_state.internal_context_key_values": (
-                serialize_any_to_dict_or_stringify(
-                    self.execution_state.internal_context_key_values, serialization_context
-                )
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
+            **_flow_conversation_execution_state_to_tracing_info(
+                self.execution_state, mask_sensitive_information
             ),
         }
 
@@ -595,32 +654,10 @@ class FlowExecutionIterationFinishedEvent(Event):
     """State of a flow (doesn't contain messages)"""
 
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
-        serialization_context = SerializationContext(root=self.execution_state)
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
-            "execution_state.current_step_name": self.execution_state.current_step_name,
-            "execution_state.input_output_key_values": (
-                serialize_any_to_dict_or_stringify(
-                    self.execution_state.input_output_key_values, serialization_context
-                )
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
-            ),
-            "execution_state.variable_store": (
-                serialize_any_to_dict_or_stringify(
-                    self.execution_state.variable_store, serialization_context
-                )
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
-            ),
-            "execution_state.step_history": self.execution_state.step_history,
-            "execution_state.nesting_level": self.execution_state.nesting_level,
-            "execution_state.internal_context_key_values": (
-                serialize_any_to_dict_or_stringify(
-                    self.execution_state.internal_context_key_values, serialization_context
-                )
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
+            **_flow_conversation_execution_state_to_tracing_info(
+                self.execution_state, mask_sensitive_information
             ),
         }
 
@@ -639,41 +676,9 @@ class AgentExecutionIterationStartedEvent(Event):
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
-            "execution_state.memory": (
-                (
-                    serialize_to_dict(self.execution_state.memory)
-                    if self.execution_state.memory
-                    else {}
-                )
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
+            **_agent_conversation_execution_state_to_tracing_info(
+                self.execution_state, mask_sensitive_information
             ),
-            "execution_state.plan": (
-                stringify(self.execution_state.plan)
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
-            ),
-            "execution_state.tool_call_queue": [
-                _serialize_tool_request(tool_request, mask_sensitive_information)
-                for tool_request in self.execution_state.tool_call_queue
-            ],
-            "execution_state.current_tool_request": _serialize_tool_request(
-                self.execution_state.current_tool_request, mask_sensitive_information
-            ),
-            "execution_state.current_flow_conversation": (
-                (
-                    serialize_to_dict(self.execution_state.current_flow_conversation)
-                    if self.execution_state.current_flow_conversation
-                    else None
-                )
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
-            ),
-            "execution_state.has_confirmed_conversation_exit": self.execution_state.has_confirmed_conversation_exit,
-            "execution_state.current_retrieved_tools": [
-                tool.name for tool in self.execution_state.current_retrieved_tools or []
-            ],
-            "execution_state.curr_iter": self.execution_state.curr_iter,
         }
 
 
@@ -691,41 +696,9 @@ class AgentExecutionIterationFinishedEvent(Event):
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
-            "execution_state.memory": (
-                (
-                    serialize_to_dict(self.execution_state.memory)
-                    if self.execution_state.memory
-                    else {}
-                )
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
+            **_agent_conversation_execution_state_to_tracing_info(
+                self.execution_state, mask_sensitive_information
             ),
-            "execution_state.plan": (
-                stringify(self.execution_state.plan)
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
-            ),
-            "execution_state.tool_call_queue": [
-                _serialize_tool_request(tool_request, mask_sensitive_information)
-                for tool_request in self.execution_state.tool_call_queue
-            ],
-            "execution_state.current_tool_request": _serialize_tool_request(
-                self.execution_state.current_tool_request, mask_sensitive_information
-            ),
-            "execution_state.current_flow_conversation": (
-                (
-                    serialize_to_dict(self.execution_state.current_flow_conversation)
-                    if self.execution_state.current_flow_conversation
-                    else None
-                )
-                if not mask_sensitive_information
-                else _PII_TEXT_MASK
-            ),
-            "execution_state.has_confirmed_conversation_exit": self.execution_state.has_confirmed_conversation_exit,
-            "execution_state.current_retrieved_tools": [
-                tool.name for tool in self.execution_state.current_retrieved_tools or []
-            ],
-            "execution_state.curr_iter": self.execution_state.curr_iter,
         }
 
 
@@ -788,4 +761,44 @@ class ConversationExecutionFinishedEvent(EndSpanEvent["ConversationSpan"]):
             "conversation.id": self.conversation.conversation_id,
             "conversation.name": self.conversation.name,
             "execution_status": self.execution_status.__class__.__name__,
+        }
+
+
+@dataclass(frozen=True)
+class AgentNextActionDecisionStartEvent(Event):
+    """
+    This event is recorded at the start of the agent taking a decision on what to do next.
+    """
+
+    execution_state: "AgentConversationExecutionState" = field(
+        default_factory=_required_attribute("execution_state", "AgentConversationExecutionState")
+    )
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            **_agent_conversation_execution_state_to_tracing_info(
+                self.execution_state, mask_sensitive_information
+            ),
+        }
+
+
+@dataclass(frozen=True)
+class AgentDecidedNextActionEvent(Event):
+    """
+    This event is recorded whenever the agent decided what to do next.
+    """
+
+    should_yield: bool = field(default_factory=_required_attribute("should_yield", bool))
+    execution_state: "AgentConversationExecutionState" = field(
+        default_factory=_required_attribute("execution_state", "AgentConversationExecutionState")
+    )
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            "should_yield": self.should_yield,
+            **_agent_conversation_execution_state_to_tracing_info(
+                self.execution_state, mask_sensitive_information
+            ),
         }
