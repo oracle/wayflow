@@ -28,9 +28,11 @@ from ..conftest import (
     DUMMY_OCI_USER_CONFIG_DICT,
     LLAMA_OCI_API_KEY_CONFIG,
     LLAMA_OCI_INSTANCE_PRINCIPAL_CONFIG,
+    OCI_REASONING_MODEL_API_KEY_CONFIG,
     compartment_id,
 )
-from .test_models import CHAT_TEXT_PROMPT
+from ..testhelpers.testhelpers import retry_test
+from .test_models import CHAT_TEXT_PROMPT, REQUIRES_REASONING_PROMPT
 
 
 class UnsupportedContent(MessageContent):
@@ -404,3 +406,20 @@ def test_dedicated_model_forces_to_specify_provider(oci_agent_client_config):
             compartment_id="fake-compartment-id",
             serving_mode=ServingMode.DEDICATED,
         )
+
+
+@retry_test(max_attempts=3)
+def test_oci_model_has_exact_count_and_reasoning_tokens():
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-12-08
+    Average success time:  3.85 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
+    llm = LlmModelFactory.from_config(OCI_REASONING_MODEL_API_KEY_CONFIG)
+
+    token_usage = llm.generate(prompt=REQUIRES_REASONING_PROMPT).token_usage
+    assert token_usage.exact_count
+    assert token_usage.reasoning_tokens > 0
