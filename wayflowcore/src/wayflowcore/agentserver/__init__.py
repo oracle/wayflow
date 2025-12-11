@@ -4,10 +4,11 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from .server import OpenAIResponsesServer
+from .server import A2AServer, OpenAIResponsesServer
 from .serverstorageconfig import ServerStorageConfig
 
 __all__ = [
+    "A2AServer",
     "OpenAIResponsesServer",
     "ServerStorageConfig",
 ]

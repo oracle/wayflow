@@ -30,6 +30,10 @@ New features
   See :doc:`the new how-to guide on serving agents <howtoguides/howto_serve_agents>` for in-memory
   setup, datastore persistence, and Agent Spec export/reload examples.
 
+* **Serve agents via A2A protocol:**
+  Introduced the :ref:`A2AServer <a2aserver>` class for serving WayFlow conversational components using the A2A protocol.
+
+  For more information check out :doc:`how to serve assistants with A2A protocol <howtoguides/howto_a2a_serving>`.
 
 Improvements
 ^^^^^^^^^^^^

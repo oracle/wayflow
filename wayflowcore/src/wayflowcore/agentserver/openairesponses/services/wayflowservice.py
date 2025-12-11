@@ -16,15 +16,6 @@ from fastapi import HTTPException
 from fastapi import status as http_status_code
 
 from wayflowcore.agentserver.serverstorageconfig import ServerStorageConfig
-from wayflowcore.agentserver.services._wayflowconversion import (
-    _convert_tool_request_status_into_function_tool_call_items,
-    _convert_wayflow_token_usage_into_oai_token_usage,
-    _create_response_args_from_wayflow_status,
-    _get_conversation_new_input_messages,
-    _TextStreamingListener,
-    _TokenCounterListener,
-)
-from wayflowcore.agentserver.services.service import OpenAIResponsesService
 from wayflowcore.conversation import Conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.datastore import Datastore, InMemoryDatastore
@@ -52,6 +43,15 @@ from ..models.openairesponsespydanticmodels import (
     ResponseStreamEvent,
     ToolChoiceOptions,
 )
+from ._wayflowconversion import (
+    _convert_tool_request_status_into_function_tool_call_items,
+    _convert_wayflow_token_usage_into_oai_token_usage,
+    _create_response_args_from_wayflow_status,
+    _get_conversation_new_input_messages,
+    _TextStreamingListener,
+    _TokenCounterListener,
+)
+from .service import OpenAIResponsesService
 
 logger = logging.getLogger(__name__)
 
@@ -358,7 +358,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             try:
                 serialized_conversation = self._lookup_conversation(
                     where={self.storage_config.turn_id_column_name: previous_response_id},
-                    what=self.storage_config.state_column_name,
+                    what=self.storage_config.conversation_turn_state_column_name,
                 )
             except ValueError:
                 raise HTTPException(
@@ -369,10 +369,10 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             try:
                 serialized_conversation = self._lookup_conversation(
                     where={
-                        self.storage_config.state_id_column_name: conversation_id,
+                        self.storage_config.conversation_id_column_name: conversation_id,
                         self.storage_config.is_last_turn_column_name: 1,  # only latest round
                     },
-                    what=self.storage_config.state_column_name,
+                    what=self.storage_config.conversation_turn_state_column_name,
                 )
             except ValueError:
                 raise HTTPException(
@@ -403,16 +403,16 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
 
         updates = {self.storage_config.is_last_turn_column_name: 0}
         updates_where = {
-            self.storage_config.state_id_column_name: conversation_id,
+            self.storage_config.conversation_id_column_name: conversation_id,
             self.storage_config.is_last_turn_column_name: 1,
         }
         serialized_state = serialize(state)
         new_entity = {
             self.storage_config.agent_id_column_name: response.model,
-            self.storage_config.state_id_column_name: conversation_id,
+            self.storage_config.conversation_id_column_name: conversation_id,
             self.storage_config.turn_id_column_name: response.id,
             self.storage_config.created_at_column_name: int(time.time()),
-            self.storage_config.state_column_name: serialized_state,
+            self.storage_config.conversation_turn_state_column_name: serialized_state,
             self.storage_config.is_last_turn_column_name: 1,
             self.storage_config.extra_metadata_column_name: json.dumps(
                 {"response": response.model_dump_json()}

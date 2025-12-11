@@ -43,14 +43,20 @@ def _create_response(
 
 @pytest.fixture
 def official_openai_client(server_url):
-    from openai import OpenAI
+    try:
+        from openai import OpenAI
+    except ImportError:
+        pytest.skip("Skipping because openai is not installed", allow_module_level=False)
 
     return OpenAI(base_url=server_url + "/v1", api_key="SOME_FAKE_SECRET")
 
 
 @pytest.fixture
 def multi_agent_openai_client(multi_agent_inmemory_server):
-    from openai import OpenAI
+    try:
+        from openai import OpenAI
+    except ImportError:
+        pytest.skip("Skipping because openai is not installed", allow_module_level=False)
 
     return OpenAI(base_url=multi_agent_inmemory_server + "/v1", api_key="SOME_FAKE_SECRET")
 
@@ -386,7 +392,6 @@ def test_unsupported_arguments_raise(server_url, arg_name, arg_value):
     assert response.status_code == 501
 
 
-# @retry_test(max_attempts=3)
 @pytest.mark.parametrize(
     ["argument", "value"],
     [

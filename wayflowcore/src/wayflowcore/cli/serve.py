@@ -79,7 +79,7 @@ def add_parser(
 def _configure_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--api",
-        choices=["openai-responses"],
+        choices=["openai-responses", "a2a"],
         default="openai-responses",
         help="Protocol to expose (default: openai-responses).",
     )

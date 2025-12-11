@@ -23,14 +23,14 @@ class ServerStorageConfig:
     """Name of the table in which the states are stored"""
     agent_id_column_name: str = "agent_id"
     """Name of the column where the agent id of the state is stored"""
-    state_id_column_name: str = "state_id"
-    """Name of the column where the id of the state is stored"""
+    conversation_id_column_name: str = "conversation_id"
+    """Name of the column where the id of the conversation is stored"""
     turn_id_column_name: str = "turn_id"
     """Name of the column where the turn id / response id is stored"""
     created_at_column_name: str = "created_at"
     """Name of the column where the creation timestamp is stored"""
-    state_column_name: str = "state"
-    """Name of the column where the serialized state is store"""
+    conversation_turn_state_column_name: str = "conversation_turn_state"
+    """Name of the column where the serialized state of turn is store"""
     is_last_turn_column_name: str = "is_last_turn"
     """Name of the column where the marker for the most recent turn of a given conversation is stored"""
     extra_metadata_column_name: str = "extra_metadata"
@@ -44,10 +44,10 @@ class ServerStorageConfig:
             self.table_name: Entity(
                 properties={
                     self.agent_id_column_name: StringProperty(),
-                    self.state_id_column_name: StringProperty(),
+                    self.conversation_id_column_name: StringProperty(),
                     self.turn_id_column_name: StringProperty(),
                     self.is_last_turn_column_name: IntegerProperty(),
-                    self.state_column_name: StringProperty(),
+                    self.conversation_turn_state_column_name: StringProperty(),
                     self.created_at_column_name: IntegerProperty(),
                     self.extra_metadata_column_name: StringProperty(),
                 }
