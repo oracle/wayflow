@@ -32,7 +32,8 @@ types-python-dateutil
 cryptography
 starlette>=0.47.2
 uvicorn>=0.23.1
-openai
+openai # testing the openai responses server
+google-adk[a2a] # testing the a2a server
 
 # This is used to load database connection arguments in the unit tests
 python-dotenv

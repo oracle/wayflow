@@ -13,7 +13,7 @@ import pytest
 from ..utils import LogTee, _check_server_is_up, _terminate_process_tree, get_available_port
 
 _START_SERVER_FILE_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "a2a", "server", "start_a2a_server.py"
+    os.path.dirname(os.path.abspath(__file__)), "..", "a2a", "start_a2a_server.py"
 )
 
 

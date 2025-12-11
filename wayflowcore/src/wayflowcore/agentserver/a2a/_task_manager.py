@@ -7,10 +7,11 @@
 from __future__ import annotations as _annotations
 
 import uuid
-from contextlib import AsyncExitStack
+from contextlib import AsyncExitStack, nullcontext
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Dict, Optional
 
+import anyio
 from fasta2a.broker import Broker
 from fasta2a.schema import (
     CancelTaskRequest,
@@ -19,6 +20,8 @@ from fasta2a.schema import (
     GetTaskPushNotificationResponse,
     GetTaskRequest,
     GetTaskResponse,
+    InternalError,
+    InvalidParamsError,
     ResubscribeTaskRequest,
     SendMessageRequest,
     SendMessageResponse,
@@ -30,6 +33,33 @@ from fasta2a.schema import (
 )
 from fasta2a.storage import Storage
 
+_BLOCKING_REQUESTS_MAX_TIME_SECONDS = 10
+
+
+class TaskNotifier:
+    """An async notifier that lets a task manager wait for tasks to finish and lets tasks signal when they are done."""
+
+    def __init__(self) -> None:
+        self._events: Dict[str, anyio.Event] = {}
+        self._lock = anyio.Lock()
+
+    async def wait_for(self, task_id: str, *, timeout: Optional[float] = None) -> None:
+        async with self._lock:
+            ev = self._events.get(task_id)
+            if ev is None:
+                ev = anyio.Event()
+                self._events[task_id] = ev
+        with anyio.fail_after(timeout) if timeout else nullcontext():
+            await ev.wait()
+
+    async def notify(self, task_id: str) -> None:
+        async with self._lock:
+            ev = self._events.get(task_id)
+            if ev is None:
+                ev = anyio.Event()
+                self._events[task_id] = ev
+            ev.set()
+
 
 @dataclass
 class TaskManager:
@@ -37,10 +67,11 @@ class TaskManager:
 
     broker: Broker
     storage: Storage[Any]
+    notifier: TaskNotifier
 
     _aexit_stack: AsyncExitStack | None = field(default=None, init=False)
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "TaskManager":
         self._aexit_stack = AsyncExitStack()
         await self._aexit_stack.__aenter__()
         await self._aexit_stack.enter_async_context(self.broker)
@@ -51,7 +82,7 @@ class TaskManager:
     def is_running(self) -> bool:
         return self._aexit_stack is not None
 
-    async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any):
+    async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         if self._aexit_stack is None:
             raise RuntimeError("TaskManager was not properly initialized.")
         await self._aexit_stack.__aexit__(exc_type, exc_value, traceback)
@@ -65,30 +96,83 @@ class TaskManager:
         history_length = config.get("history_length")
 
         message = request["params"]["message"]
-        context_id = message.get("context_id", str(uuid.uuid4()))
-        task_id = message.get("task_id", None)
 
+        task_id = message.get("task_id", None)
+        context_id = message.get("context_id", str(uuid.uuid4()))
+
+        metadata = {}
         if not task_id:
+            # Create a new task
             task = await self.storage.submit_task(context_id, message)
         else:
+            # Client wants to continue an existing task
             task = await self.storage.load_task(task_id=task_id, history_length=history_length)
-            await self.storage.update_task(
-                task["id"],
-                state="submitted",
-                new_messages=[message],
-            )
+            if not task:
+                # Task is not found
+                return SendMessageResponse(
+                    jsonrpc="2.0",
+                    id=request_id,
+                    error=InvalidParamsError(
+                        code=-32602,
+                        message="Invalid parameters",
+                        data={
+                            "parameter": "task_id",
+                            "value": task_id,
+                            "reason": "Task id not found",
+                        },
+                    ),
+                )
+            elif task["status"]["state"] != "input-required":
+                # Task is already completed -> cannot continue
+                return SendMessageResponse(
+                    jsonrpc="2.0",
+                    id=request_id,
+                    error=InvalidParamsError(
+                        code=-32602,
+                        message="Invalid parameters",
+                        data={
+                            "parameter": "task_id",
+                            "value": task_id,
+                            "reason": "Cannot continue a completed task",
+                        },
+                    ),
+                )
+            task = await self.storage.update_task(task_id=task_id, state="submitted")
+
+            # Prioritize to continue from the give task's conversation rather than from the context
+            metadata["prioritize_task"] = True
 
         broker_params: TaskSendParams = {
             "id": task["id"],
             "context_id": context_id,
             "message": message,
+            "metadata": metadata,
         }
 
         if history_length is not None:
             broker_params["history_length"] = history_length
 
         await self.broker.run_task(broker_params)
-        return SendMessageResponse(jsonrpc="2.0", id=request_id, result=task)
+
+        blocking = config.get("blocking", False)
+        if not blocking:
+            # Send response notifying task is submitted
+            return SendMessageResponse(jsonrpc="2.0", id=request_id, result=task)
+
+        # Otherwise, wait until the task is finished
+        try:
+            await self.notifier.wait_for(task["id"], timeout=_BLOCKING_REQUESTS_MAX_TIME_SECONDS)
+            finished_task = await self.storage.load_task(task["id"])
+
+            return SendMessageResponse(jsonrpc="2.0", id=request_id, result=finished_task)
+        except TimeoutError:
+            return SendMessageResponse(
+                jsonrpc="2.0",
+                id=request_id,
+                error=InternalError(
+                    code=-32603, message="Internal error", data={"reason": "Time out error"}
+                ),
+            )
 
     async def get_task(self, request: GetTaskRequest) -> GetTaskResponse:
         """Get a task, and return it to the client.

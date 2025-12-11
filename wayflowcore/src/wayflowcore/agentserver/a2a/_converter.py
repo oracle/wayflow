@@ -4,17 +4,20 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from fasta2a.schema import DataPart, Message, Part, TextPart
+from typing import List, Optional, Tuple
 
+from fasta2a.schema import DataPart, FilePart, FileWithBytes, Message, Part, TextPart
+
+from wayflowcore.messagelist import ImageContent
 from wayflowcore.messagelist import Message as WayflowMessage
 from wayflowcore.messagelist import MessageContent, TextContent
 from wayflowcore.tools import ToolRequest, ToolResult
 
 
 def _convert_a2a_parts_to_wayflow_contents(
-    parts: list[Part],
-) -> tuple[list[MessageContent], list[ToolRequest], list[ToolResult]]:
-    contents = []
+    parts: List[Part],
+) -> Tuple[List[MessageContent], Optional[List[ToolRequest]], Optional[ToolResult]]:
+    contents: List[MessageContent] = []
     tool_requests = []
     tool_result = None
 
@@ -28,53 +31,47 @@ def _convert_a2a_parts_to_wayflow_contents(
                 tool_result = ToolResult(**part["data"])
             else:
                 raise ValueError("Data's type is wrong")
+        elif part["kind"] == "file":
+            contents.append(ImageContent(base64_content=part["file"]["bytes"]))
         else:
             raise NotImplementedError(f"{part['kind']} part is not supported yet")
 
-    if len(tool_requests) == 0:
-        tool_requests = None
-
-    if tool_requests and tool_result:
-        raise ValueError("Cannot have tool request and tool result in the same message")
-
-    return contents, tool_requests, tool_result
+    return contents, tool_requests if len(tool_requests) else None, tool_result
 
 
-def _convert_a2a_messages_to_wayflow_messages(
-    messages: list[Message],
-) -> list[WayflowMessage]:
+def _convert_a2a_messages_to_wayflow_messages(messages: List[Message]) -> List[WayflowMessage]:
     wayflow_messages = []
     for message in messages:
         # Convert Parts to corresponding Wayflow Message Contents
         contents, tool_requests, tool_result = _convert_a2a_parts_to_wayflow_contents(
             message["parts"]
         )
-        wayflow_messages.append(
-            WayflowMessage(
-                role=message["role"] if message["role"] == "user" else "assistant",
-                contents=contents,
-                tool_requests=tool_requests,
-                tool_result=tool_result,
-            )
+        wayflow_message = WayflowMessage(
+            role=message["role"] if message["role"] == "user" else "assistant",
+            contents=contents,
+            tool_requests=tool_requests,
+            tool_result=tool_result,
         )
+        wayflow_message.id = message["message_id"]
+        wayflow_messages.append(wayflow_message)
 
     return wayflow_messages
 
 
 def _convert_wayflow_messages_to_a2a_messages(
-    messages: list[WayflowMessage], message_id
-) -> list[Message]:
+    messages: List[WayflowMessage],
+) -> List[Message]:
     a2a_messages = []
 
     for message in messages:
-        # Convert contents to text part
         parts = []
-        print(message)
         for chunk in message.contents:
             if isinstance(chunk, TextContent):
                 parts.append(TextPart(text=chunk.content, kind="text"))
+            elif isinstance(chunk, ImageContent):
+                parts.append(FilePart(file=FileWithBytes(bytes=chunk.base64_content, kind="file")))
             else:
-                raise (f"{type(chunk)} is not supported")
+                raise ValueError(f"{type(chunk)} is not supported")
 
         if message.tool_requests:
             for tool_request in message.tool_requests:
@@ -99,10 +96,9 @@ def _convert_wayflow_messages_to_a2a_messages(
             Message(
                 role=message.role if message.role == "user" else "agent",
                 parts=parts,
+                message_id=message.id,
                 kind="message",
-                message_id=str(message_id),
             )
         )
-        message_id += 1
 
     return a2a_messages

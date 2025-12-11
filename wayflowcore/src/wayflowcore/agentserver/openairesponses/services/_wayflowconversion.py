@@ -13,7 +13,27 @@ from anyio.streams.memory import MemoryObjectSendStream
 from fastapi import HTTPException
 from fastapi import status as http_status_code
 
-from wayflowcore.agentserver.models.openairesponsespydanticmodels import (
+from wayflowcore.conversation import Conversation
+from wayflowcore.events import Event, EventListener
+from wayflowcore.events.event import (
+    ConversationMessageStreamChunkEvent,
+    ConversationMessageStreamEndedEvent,
+    ConversationMessageStreamStartedEvent,
+    LlmGenerationResponseEvent,
+)
+from wayflowcore.executors.executionstatus import (
+    ExecutionStatus,
+    FinishedStatus,
+    ToolRequestStatus,
+    UserMessageRequestStatus,
+)
+from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
+from wayflowcore.idgeneration import IdGenerator
+from wayflowcore.messagelist import ImageContent, Message, MessageContent, TextContent
+from wayflowcore.tokenusage import TokenUsage
+from wayflowcore.tools import ToolRequest, ToolResult
+
+from ..models.openairesponsespydanticmodels import (
     EasyInputMessage,
     FunctionCallOutputItemParam,
     FunctionToolCall,
@@ -38,25 +58,6 @@ from wayflowcore.agentserver.models.openairesponsespydanticmodels import (
     ResponseTextDoneEvent,
     ResponseUsage,
 )
-from wayflowcore.conversation import Conversation
-from wayflowcore.events import Event, EventListener
-from wayflowcore.events.event import (
-    ConversationMessageStreamChunkEvent,
-    ConversationMessageStreamEndedEvent,
-    ConversationMessageStreamStartedEvent,
-    LlmGenerationResponseEvent,
-)
-from wayflowcore.executors.executionstatus import (
-    ExecutionStatus,
-    FinishedStatus,
-    ToolRequestStatus,
-    UserMessageRequestStatus,
-)
-from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
-from wayflowcore.idgeneration import IdGenerator
-from wayflowcore.messagelist import ImageContent, Message, MessageContent, TextContent
-from wayflowcore.tokenusage import TokenUsage
-from wayflowcore.tools import ToolRequest, ToolResult
 
 logger = logging.getLogger(__name__)
 

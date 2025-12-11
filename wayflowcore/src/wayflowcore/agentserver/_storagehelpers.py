@@ -24,9 +24,9 @@ def _prepare_postgres_datastore(
         CREATE TABLE {storage_config.table_name} (
             {storage_config.turn_id_column_name} VARCHAR(255) PRIMARY KEY,
             {storage_config.agent_id_column_name} VARCHAR(255) NOT NULL,
-            {storage_config.state_id_column_name} VARCHAR(255) NOT NULL,
+            {storage_config.conversation_id_column_name} VARCHAR(255) NOT NULL,
             {storage_config.created_at_column_name} INTEGER NOT NULL,
-            {storage_config.state_column_name} TEXT NOT NULL,
+            {storage_config.conversation_turn_state_column_name} TEXT NOT NULL,
             {storage_config.is_last_turn_column_name} INTEGER NOT NULL,
             {storage_config.extra_metadata_column_name} TEXT NOT NULL
         );
@@ -51,9 +51,9 @@ def _prepare_oracle_datastore(
         CREATE TABLE {storage_config.table_name} (
             {storage_config.turn_id_column_name} VARCHAR2(255) PRIMARY KEY,
             {storage_config.agent_id_column_name} VARCHAR2(255) NOT NULL,
-            {storage_config.state_id_column_name} VARCHAR2(255) NOT NULL,
+            {storage_config.conversation_id_column_name} VARCHAR2(255) NOT NULL,
             {storage_config.created_at_column_name} INTEGER NOT NULL,
-            {storage_config.state_column_name} CLOB NOT NULL,
+            {storage_config.conversation_turn_state_column_name} CLOB NOT NULL,
             {storage_config.is_last_turn_column_name} INTEGER NOT NULL,
             {storage_config.extra_metadata_column_name} CLOB NOT NULL
         );

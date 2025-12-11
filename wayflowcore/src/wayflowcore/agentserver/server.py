@@ -3,21 +3,149 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-
 import secrets
 import warnings
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Any, Dict, Optional
+from urllib.parse import urlparse
 
+from fasta2a.broker import InMemoryBroker
+from fasta2a.schema import AgentCapabilities, AgentCard
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from wayflowcore.agentserver.serverstorageconfig import ServerStorageConfig
+from wayflowcore.flow import Flow
+from wayflowcore.steps import AgentExecutionStep, InputMessageStep
 
 from ..conversationalcomponent import ConversationalComponent
 from ..datastore import Datastore
-from .routes import create_openai_responses_api_routes
-from .services import OpenAIResponsesService, WayFlowOpenAIResponsesService
+from .a2a._app import A2AApp
+from .a2a._storage import A2AStorage
+from .a2a._task_manager import TaskNotifier
+from .a2a._worker import A2AAgentWorker
+from .openairesponses.routes import create_openai_responses_api_routes
+from .openairesponses.services import OpenAIResponsesService, WayFlowOpenAIResponsesService
+
+
+class A2AServer:
+    def __init__(
+        self,
+        storage_config: Optional[ServerStorageConfig] = None,
+    ) -> None:
+        """
+        A server for exposing a WayFlow conversational component via the A2A protocol.
+
+        The `A2AServer` wraps around an internal `A2AApp` (a Starlette application)
+        to handle HTTP-based communication between external A2A clients and an agent.
+        It automatically serves the agent card and task endpoints.
+
+        The assistant can be queried via the A2A protocol at the provided URL.
+
+        This server supports **server** tools in the served assistant.
+        In A2A, the WayFlow ToolRequest and ToolResult are represented as the `DataPart`
+        object.
+
+        A DataPart contains:
+            - **metadata**: a dictionary with a `type` key indicating whether this
+              part represents a `ToolRequest` or a `ToolResult`.
+            - **data**: a dictionary with the actual fields of the `ToolRequest`
+              or `ToolResult`.
+
+        Parameters
+        ----------
+
+        storage_config:
+            Config for the storage to save the conversations. If not provided, the default storage with `InMemoryDatastore` will be used.
+        """
+
+        self.storage_config = ServerStorageConfig()
+        self._storage = A2AStorage(self.storage_config)
+        self._broker = InMemoryBroker()
+
+    def serve_agent(
+        self,
+        agent: ConversationalComponent,
+        url: Optional[str] = None,
+    ) -> None:
+        """
+        Specifies the agent to be served.
+
+        Parameters
+        ----------
+        agent
+            The agent to be served which can be any conversational component in WayFlow (e.g Agent, Flow, Swarm, etc.).
+        url
+            The public address the agent is hosted at.
+        """
+        if url and not is_valid_url(url):
+            raise ValueError(f"Invalid URL")
+
+        self.agent = agent
+        if isinstance(self.agent, Flow) and not any(
+            isinstance(step, (InputMessageStep, AgentExecutionStep))
+            for step in self.agent.steps.values()
+        ):
+            raise ValueError(f"Only support Flow with ``InputMessageStep`` or ``AgentExecutionStep")
+
+        self._task_notifier = TaskNotifier()
+        self._worker = A2AAgentWorker(
+            broker=self._broker,
+            storage=self._storage,
+            assistant=self.agent,
+            notifier=self._task_notifier,
+        )
+        self.url = url
+
+    def get_app(self, host: str = "127.0.0.1", port: int = 8000) -> A2AApp:
+        @asynccontextmanager
+        async def lifespan(app: A2AApp) -> AsyncIterator[None]:
+            async with app.task_manager:
+                async with self._worker.run():
+                    yield
+
+        if not self.url:
+            url = f"http://{host}:{port}"
+            self.url = url
+        agent_card = _get_agent_card(self.agent, url=self.url)
+
+        app = A2AApp(
+            storage=self._storage,
+            broker=self._broker,
+            agent_card=agent_card,
+            notifer=self._task_notifier,
+            lifespan=lifespan,
+        )
+
+        return app
+
+    def run(self, host: str = "127.0.0.1", port: int = 8000, api_key: Optional[str] = None) -> None:
+        """
+        Starts the server and serve the assistant.
+
+        Parameters
+        ----------
+        host:
+            Host to serve the server.
+        port:
+            Port to expose the server.
+        api_key:
+            A key that will be required to authenticate the requests. It needs to be provided as a bearer token.
+        """
+        import uvicorn
+
+        # we log a warning since this server has no security implemented
+        warn_server_is_not_secured()
+
+        app = self.get_app(host, port)
+        uvicorn.run(
+            app=app,
+            host=host,
+            port=port,
+            reload=False,  # need to be set to false for production
+        )
 
 
 class OpenAIResponsesServer:
@@ -184,22 +312,44 @@ def _add_token_authentication_auth(app: FastAPI, api_key: str) -> None:
 
 _WARNING_MESSAGE = r"""
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃                           ⚠️  SECURITY WARNING                           ┃
-┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-┃                                                                         ┃
-┃   This server has NO built-in authentication or encryption.             ┃
-┃   Anyone with network access can invoke your agent.                     ┃
-┃                                                                         ┃
-┃   For production, either:                                               ┃
-┃     • Deploy behind an authenticated gateway (e.g., OCI Agent Hub)      ┃
-┃     • Add auth middleware via `OpenAIResponsesServer.get_app()`         ┃
-┃                                                                         ┃
-┃   See: https://docs.wayflow.dev/howtoguides/howto_serve_agents          ┃
-┃                                                                         ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                           ⚠️  SECURITY WARNING                                                 ┃
+┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+┃                                                                                                ┃
+┃   This server has NO built-in authentication or encryption.                                    ┃
+┃   Anyone with network access can invoke your agent.                                            ┃
+┃                                                                                                ┃
+┃   For production, either:                                                                      ┃
+┃     • Deploy behind an authenticated gateway (e.g., OCI Agent Hub)                             ┃
+┃     • Add auth middleware via `OpenAIResponsesServer.get_app()`                                ┃
+┃                                                                                                ┃
+┃   See: https://oracle.github.io/wayflow/development/core/howtoguides/howto_serve_agents.html   ┃
+┃                                                                                                ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 """
 
 
 def warn_server_is_not_secured() -> None:
     warnings.warn(_WARNING_MESSAGE)
+
+
+def is_valid_url(url: str) -> bool:
+    parsed = urlparse(url)
+    return all([parsed.scheme, parsed.netloc])
+
+
+def _get_agent_card(agent: ConversationalComponent, url: str) -> AgentCard:
+    return AgentCard(
+        name=agent.name,
+        description=agent.description,
+        url=url,
+        version="0.0.1",
+        skills=[],
+        default_input_modes=["application/json"],
+        default_output_modes=["application/json"],
+        capabilities=AgentCapabilities(
+            streaming=False,
+            push_notifications=False,
+            state_transition_history=False,
+        ),
+    )

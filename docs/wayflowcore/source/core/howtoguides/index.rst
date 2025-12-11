@@ -25,6 +25,8 @@ These how-to guides demonstrate how to use the main features to create and custo
 
    Change Input and Output Descriptors of Components <io_descriptors>
    Use Asynchronous APIs <howto_async>
+   Serve Assistants with A2A protocol <howto_a2a_serving>
+
 
 .. toctree::
    :maxdepth: 1
@@ -42,7 +44,7 @@ These how-to guides demonstrate how to use the main features to create and custo
    Create a ReAct Agent <agents>
    How to Send Images to LLMs and Agents <howto_imagecontent>
    Use OCI Generative AI Agents <howto_ociagent>
-   How to build A2A Agents <howto_a2aagent>
+   How to Connect to A2A Agents <howto_a2aagent>
    Use Templates for Advanced Prompting Techniques <howto_prompttemplate>
 
 .. toctree::
