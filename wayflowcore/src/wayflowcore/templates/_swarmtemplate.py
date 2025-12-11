@@ -19,7 +19,7 @@ from wayflowcore.transforms import (
 )
 
 _DEFAULT_SWARM_SYSTEM_PROMPT = """
-You are an helpful AI Agent.
+You are a helpful AI Agent.
 - name: {{name}}
 - description: {{description}}
 
@@ -36,30 +36,30 @@ Your user/caller is: {{caller_name}}.
 <other_entities>
 You can communicate with the following entities.
 {% for agent in other_agents %}
-<expert_agent>
-{{agent.name}}: {{agent.description}}
-</expert_agent>
+- {{agent.name}}: {{agent.description}}
 {% endfor %}
 </other_entities>
 </environment>
 
 <response_rules>
 <tool_use_rules>
-- You must respond with a tool use (function calling); plain text responses are forbidden
-- Do not mention any specific tool names to users in messages
+- Always respond using a single tool call; plain text responses are forbidden
+- Never mention any specific tool names to users
 - Carefully verify available tools; do not fabricate non-existent tools. Delegate when necessary.
 - Tool request/results may originate from other parts of the system; only use explicitly provided tools
-- Call a single tool per response.
+- Call EXACTLY ONE tool per response. The system does not support parallel tool calling.
+- {%- if handoff -%} You SHOULD use handoff_conversation tool if you think another agent can answer to the user directly,
+as this reduces unnecessary relaying and lowers latency {%- endif -%}
 </tool_use_rules>
 
-Responses should be structured as a thought followed by a your response function call using JSON compliant syntax.
+Always structure your response as a thought followed by a function call using JSON compliant syntax.
 The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
 -> Put **internal-only** information in the thoughts
 -> Put all necessary information in the tool calls to communicate to user/other entity.
 
 Do not use variables in the function call. Here's the structure:
 
-YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT SEE THOSE!)
+YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; NOT VISIBLE TO THE USER)
 
 {"name": function name, "parameters": dictionary of argument name and its value}
 </response_rules>
@@ -74,7 +74,7 @@ Here is a list of functions that you can invoke.
 
 {%- if custom_instruction -%}
 <system_instructions>
-Here are the instructions specific to your role.:
+Here are the instructions specific to your role:
 {{custom_instruction}}
 </system_instructions>{%- endif -%}
 """.strip()
@@ -82,15 +82,14 @@ Here are the instructions specific to your role.:
 
 _DEFAULT_SWARM_SYSTEM_REMINDER = """
 --- SYSTEM REMINDER ---
-You are an helpful AI Agent, your name: {{name}}. Your user/caller is: {{caller_name}}.
-The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
--> Put **internal-only** information in the thoughts
--> Put all necessary information in the tool calls to communicate to user/other entity.
+You are a helpful AI Agent, your name: {{name}}. Your user/caller is: {{caller_name}}.
 
-Responses should be structured as a thought followed by a your response function call using JSON compliant syntax.
+The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
+
+Always structure your response as a thought followed by a function call using JSON compliant syntax.
 Do not use variables in the function call. Here's the structure:
 
-YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT SEE THOSE!)
+YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; NOT VISIBLE TO THE USER)
 
 {"name": function name, "parameters": dictionary of argument name and its value}
 """.strip()
@@ -104,8 +103,8 @@ def _is_system_reminder(message: "Message") -> bool:
 
 _HANDOFF_CONFIRMATION_MESSAGE_TEMPLATE = """
 The conversation was transferred from agent '{{sender_agent_name}}' to agent '{{new_agent_name}}'.
-The user will see that the conversation has been transferred, do not introduce yourself again.
-Simply continue the conversation from where it was left off with the user to complete the user request.
+The user will see that the conversation has been transferred, do not reintroduce yourself.
+Simply continue the conversation from where the previous agent left off.
 """.strip()
 
 _MAX_CHAR_TOOL_RESULT_HEADER = 140
@@ -180,6 +179,10 @@ class _ToolRequestAndCallsTransform(MessageTransform, SerializableObject):
                 formatted_messages.append(message)
             else:
                 message_copy = message.copy()
+                if message_copy.role == "user" and not message_copy.sender:
+                    # If the message's sender is None, it is from the HUMAN USER
+                    message_copy.sender = "HUMAN USER"
+
                 message_copy.contents.insert(
                     0, TextContent(f"--- MESSAGE: From: {message_copy.sender} ---\n")
                 )
