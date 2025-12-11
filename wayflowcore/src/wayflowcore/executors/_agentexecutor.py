@@ -20,16 +20,20 @@ from wayflowcore.conversation import Conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.events import record_event
 from wayflowcore.events.event import (
+    AgentDecidedNextActionEvent,
     AgentExecutionIterationFinishedEvent,
     AgentExecutionIterationStartedEvent,
+    AgentNextActionDecisionStartEvent,
     ToolConfirmationRequestEndEvent,
     ToolConfirmationRequestStartEvent,
     ToolExecutionResultEvent,
     ToolExecutionStartEvent,
 )
-from wayflowcore.executors._events.event import EventType
 from wayflowcore.executors._executionstate import ConversationExecutionState
 from wayflowcore.executors._executor import ConversationExecutor, ExecutionInterruptedException
+from wayflowcore.executors._interrupts_eventlistener import (
+    get_interrupts_event_listener_context_for_conversation,
+)
 from wayflowcore.executors.executionstatus import (
     ExecutionStatus,
     FinishedStatus,
@@ -39,6 +43,7 @@ from wayflowcore.executors.executionstatus import (
 )
 from wayflowcore.executors.interrupts.executioninterrupt import (
     ExecutionInterrupt,
+    FlexibleExecutionInterrupt,
     FlowExecutionInterrupt,
 )
 from wayflowcore.messagelist import Message, MessageList, MessageType
@@ -218,21 +223,6 @@ def _make_talk_to_user_tool() -> ClientTool:
 
 
 class AgentConversationExecutor(ConversationExecutor):
-    @staticmethod
-    def _register_event(
-        state: ConversationExecutionState,
-        conversation: Conversation,
-        event_type: EventType,
-        tool_request: Optional[ToolRequest] = None,
-    ) -> None:
-
-        # Do not register talk_to_user_tool as an event
-        if event_type in (EventType.TOOL_CALL_START, EventType.TOOL_CALL_END) and tool_request:
-            if tool_request.name == _TALK_TO_USER_TOOL_NAME:
-                return
-
-        return ConversationExecutor._register_event(state, conversation, event_type)
-
     @staticmethod
     async def _collect_custom_instruction_variables(
         config: Agent,
@@ -459,8 +449,17 @@ class AgentConversationExecutor(ConversationExecutor):
                     caller_request_message=caller_request_message,
                 )
             )
+
             caller_conv._set_sub_component_conversation(expert_agent, sub_agent_conversation)
-            subagent_execution_status = await sub_agent_conversation.execute_async()
+            # We propagate the interrupts that work on agents
+            interrupts = [
+                interrupt
+                for interrupt in (caller_conv.state._get_execution_interrupts() or [])
+                if isinstance(interrupt, FlexibleExecutionInterrupt)
+            ]
+            subagent_execution_status = await sub_agent_conversation.execute_async(
+                execution_interrupts=interrupts
+            )
 
             last_message = sub_agent_conversation.get_last_message()
             agent_output = last_message.content if last_message is not None else ""
@@ -844,31 +843,34 @@ class AgentConversationExecutor(ConversationExecutor):
                 output, serialized_output = await AgentConversationExecutor._execute_tool(
                     tool, conversation, tool_request.args
                 )
+                logger.debug(
+                    'Tool "%s" (id=%s) returned: %s',
+                    tool_request.name,
+                    tool_request.tool_request_id,
+                    serialized_output,
+                )
+
+                if isinstance(output, Exception) and config.raise_exceptions:
+                    # Raise error in tool execution
+                    raise output
+
+                # Check if tool output is copyable
+                output = tool._check_tool_outputs_copyable(
+                    output, raise_exceptions=config.raise_exceptions
+                )
+
+                messages.append_message(
+                    AgentConversationExecutor._get_tool_response_message(
+                        output, tool_request.tool_request_id, config.agent_id
+                    )
+                )
+
+                conversation.state.current_tool_request = None
+
                 span.record_end_span_event(
                     output=output,
                 )
 
-            logger.debug(
-                'Tool "%s" (id=%s) returned: %s',
-                tool_request.name,
-                tool_request.tool_request_id,
-                serialized_output,
-            )
-
-            if isinstance(output, Exception) and config.raise_exceptions:
-                # Raise error in tool execution
-                raise output
-
-            # Check if tool output is copyable
-            output = tool._check_tool_outputs_copyable(
-                output, raise_exceptions=config.raise_exceptions
-            )
-
-            messages.append_message(
-                AgentConversationExecutor._get_tool_response_message(
-                    output, tool_request.tool_request_id, config.agent_id
-                )
-            )
             return None
         else:
             raise ValueError(f"Illegal: unsupported tool type: {tool}")
@@ -906,11 +908,16 @@ class AgentConversationExecutor(ConversationExecutor):
             raise ValueError(
                 f"the provided conversation to an agent must be of type AgentConversation but was {conversation.__class__.__name__}"
             )
-        with AgentExecutionSpan(conversational_component=conversation.component) as span:
-            execution_status = await AgentConversationExecutor._execute_agent(
-                conversation, execution_interrupts
-            )
-            span.record_end_span_event(execution_status=execution_status)
+        try:
+            with get_interrupts_event_listener_context_for_conversation(conversation):
+                conversation.state._set_execution_interrupts(execution_interrupts)
+                with AgentExecutionSpan(conversational_component=conversation.component) as span:
+                    execution_status = await AgentConversationExecutor._execute_agent(
+                        conversation, execution_interrupts
+                    )
+                    span.record_end_span_event(execution_status=execution_status)
+        except ExecutionInterruptedException as e:
+            return e.execution_status
         return execution_status
 
     @staticmethod
@@ -978,134 +985,87 @@ class AgentConversationExecutor(ConversationExecutor):
     ) -> ExecutionStatus:
         agent_config = conversation.component
 
-        logger.debug("%s::execute: start of execution", agent_config.agent_id)
         logger.debug("Interrupts received: %s", execution_interrupts)
+        logger.debug("%s::execute: start of execution", agent_config.agent_id)
 
         agent_state = conversation.state
-        agent_state._set_execution_interrupts(execution_interrupts)
 
-        try:
-            AgentConversationExecutor._register_event(
-                state=agent_state,
-                conversation=conversation,
-                event_type=EventType.EXECUTION_START,
+        messages = conversation.message_list
+        agent_state.curr_iter = 0
+        should_yield = False
+
+        while not should_yield:
+
+            record_event(
+                AgentExecutionIterationStartedEvent(
+                    execution_state=conversation.state,
+                )
             )
 
-            messages = conversation.message_list
-            agent_state.curr_iter = 0
-            should_yield = False
-
-            while not should_yield:
-
-                AgentConversationExecutor._register_event(
-                    state=agent_state,
+            if agent_state.current_tool_request is not None:
+                tool_request = agent_state.current_tool_request
+                execution_status, should_yield = await AgentConversationExecutor._process_tool_call(
+                    agent_config=agent_config,
+                    tool_request=tool_request,
+                    agent_state=agent_state,
                     conversation=conversation,
-                    event_type=EventType.EXECUTION_LOOP_ITERATION_START,
+                )
+                if execution_status is not None:
+                    return execution_status
+
+                agent_state.current_tool_request = None
+
+            elif len(agent_state.tool_call_queue) > 0:
+                agent_state.current_tool_request = agent_state.tool_call_queue.pop(0)
+            elif agent_state.curr_iter >= agent_config.max_iterations:
+                if len(agent_config.output_descriptors) > 0:
+                    # need to generate some outputs
+                    default_outputs = {
+                        o.name: o.default_value for o in agent_config.output_descriptors
+                    }
+                    return FinishedStatus(
+                        output_values=default_outputs, _conversation_id=conversation.id
+                    )
+                break
+            else:
+                logger.debug("No open tool call, will decide next action by prompting the llm")
+                agent_state.current_retrieved_tools = (
+                    await AgentConversationExecutor._collect_tools(
+                        config=agent_config, curr_iter=agent_state.curr_iter
+                    )
+                )
+
+                agent_state.curr_iter += 1
+
+                record_event(AgentNextActionDecisionStartEvent(execution_state=agent_state))
+                should_yield = await AgentConversationExecutor._decide_next_action(
+                    config=agent_config,
+                    conversation=conversation,
+                    state=agent_state,
+                    messages=messages,
+                    tools=agent_state.current_retrieved_tools,
+                    plan=agent_state.plan,
                 )
                 record_event(
-                    AgentExecutionIterationStartedEvent(
-                        execution_state=conversation.state,
+                    AgentDecidedNextActionEvent(
+                        should_yield=should_yield, execution_state=agent_state
                     )
                 )
 
-                if agent_state.current_tool_request is not None:
-                    tool_request = agent_state.current_tool_request
-                    AgentConversationExecutor._register_event(
-                        state=agent_state,
-                        conversation=conversation,
-                        event_type=EventType.TOOL_CALL_START,
-                        tool_request=tool_request,
-                    )
-                    execution_status, should_yield = (
-                        await AgentConversationExecutor._process_tool_call(
-                            agent_config=agent_config,
-                            tool_request=tool_request,
-                            agent_state=agent_state,
-                            conversation=conversation,
+                if should_yield and agent_config.caller_input_mode == CallerInputMode.NEVER:
+                    conversation.append_message(
+                        _caller_input_mode_never_reminder(
+                            caller_input_mode=agent_config.caller_input_mode,
+                            sender=agent_config.agent_id,
                         )
                     )
-                    if execution_status is not None:
-                        return execution_status
+                    should_yield = False
 
-                    agent_state.current_tool_request = None
-
-                    AgentConversationExecutor._register_event(
-                        state=agent_state,
-                        conversation=conversation,
-                        event_type=EventType.TOOL_CALL_END,
-                        tool_request=tool_request,
-                    )
-
-                elif len(agent_state.tool_call_queue) > 0:
-                    agent_state.current_tool_request = agent_state.tool_call_queue.pop(0)
-                elif agent_state.curr_iter >= agent_config.max_iterations:
-                    if len(agent_config.output_descriptors) > 0:
-                        # need to generate some outputs
-                        default_outputs = {
-                            o.name: o.default_value for o in agent_config.output_descriptors
-                        }
-                        return FinishedStatus(
-                            output_values=default_outputs, _conversation_id=conversation.id
-                        )
-                    break
-                else:
-                    logger.debug("No open tool call, will decide next action by prompting the llm")
-                    agent_state.current_retrieved_tools = (
-                        await AgentConversationExecutor._collect_tools(
-                            config=agent_config, curr_iter=agent_state.curr_iter
-                        )
-                    )
-
-                    agent_state.curr_iter += 1
-
-                    AgentConversationExecutor._register_event(
-                        state=agent_state,
-                        conversation=conversation,
-                        event_type=EventType.GENERATION_START,
-                    )
-
-                    should_yield = await AgentConversationExecutor._decide_next_action(
-                        config=agent_config,
-                        conversation=conversation,
-                        state=agent_state,
-                        messages=messages,
-                        tools=agent_state.current_retrieved_tools,
-                        plan=agent_state.plan,
-                    )
-
-                    AgentConversationExecutor._register_event(
-                        state=agent_state,
-                        conversation=conversation,
-                        event_type=EventType.GENERATION_END,
-                    )
-
-                    if should_yield and agent_config.caller_input_mode == CallerInputMode.NEVER:
-                        conversation.append_message(
-                            _caller_input_mode_never_reminder(
-                                caller_input_mode=agent_config.caller_input_mode,
-                                sender=agent_config.agent_id,
-                            )
-                        )
-                        should_yield = False
-
-                AgentConversationExecutor._register_event(
-                    state=agent_state,
-                    conversation=conversation,
-                    event_type=EventType.EXECUTION_LOOP_ITERATION_END,
+            record_event(
+                AgentExecutionIterationFinishedEvent(
+                    execution_state=conversation.state,
                 )
-                record_event(
-                    AgentExecutionIterationFinishedEvent(
-                        execution_state=conversation.state,
-                    )
-                )
-
-            AgentConversationExecutor._register_event(
-                state=agent_state,
-                conversation=conversation,
-                event_type=EventType.EXECUTION_END,
             )
-        except ExecutionInterruptedException as e:
-            return e.execution_status
 
         if agent_config.caller_input_mode == CallerInputMode.ALWAYS:
             last_message = conversation.get_last_message()

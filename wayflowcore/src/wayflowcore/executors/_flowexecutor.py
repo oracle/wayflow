@@ -21,9 +21,12 @@ from wayflowcore.events.event import (
     FlowExecutionIterationStartedEvent,
 )
 from wayflowcore.events.eventlistener import _record_exception
-from wayflowcore.executors._events.event import Event, EventType
+from wayflowcore.executors._events.event import Event
 from wayflowcore.executors._executionstate import ConversationExecutionState
 from wayflowcore.executors._executor import ConversationExecutor, ExecutionInterruptedException
+from wayflowcore.executors._interrupts_eventlistener import (
+    get_interrupts_event_listener_context_for_conversation,
+)
 from wayflowcore.executors.executionstatus import (
     ExecutionStatus,
     FinishedStatus,
@@ -692,12 +695,16 @@ class FlowConversationExecutor(ConversationExecutor):
             raise ValueError(
                 f"the provided conversation to a flow must be of type FlowConversation but was {type(conversation).__name__}"
             )
-
-        with FlowExecutionSpan(conversational_component=conversation.component) as span:
-            execution_status = await FlowConversationExecutor._execute_flow(
-                conversation, execution_interrupts
-            )
-            span.record_end_span_event(execution_status=execution_status)
+        try:
+            with get_interrupts_event_listener_context_for_conversation(conversation):
+                conversation.state._set_execution_interrupts(execution_interrupts)
+                with FlowExecutionSpan(conversational_component=conversation.component) as span:
+                    execution_status = await FlowConversationExecutor._execute_flow(
+                        conversation, execution_interrupts
+                    )
+                    span.record_end_span_event(execution_status=execution_status)
+        except ExecutionInterruptedException as e:
+            return e.execution_status
         return execution_status
 
     @staticmethod
@@ -726,23 +733,11 @@ class FlowConversationExecutor(ConversationExecutor):
         """
         logger.debug("Interrupts received: %s", execution_interrupts)
         flow_state = conversation.state
-        flow_state._set_execution_interrupts(execution_interrupts)
         last_complete_step_name_executed = None
 
         try:
-            FlowConversationExecutor._register_event(
-                state=flow_state,
-                conversation=conversation,
-                event_type=EventType.EXECUTION_START,
-            )
 
             while flow_state.current_step_name is not None:
-
-                FlowConversationExecutor._register_event(
-                    state=flow_state,
-                    conversation=conversation,
-                    event_type=EventType.EXECUTION_LOOP_ITERATION_START,
-                )
 
                 record_event(
                     FlowExecutionIterationStartedEvent(
@@ -774,12 +769,6 @@ class FlowConversationExecutor(ConversationExecutor):
                         current_step,
                         step_inputs,
                     )
-
-                FlowConversationExecutor._register_event(
-                    state=flow_state,
-                    conversation=conversation,
-                    event_type=EventType.STEP_EXECUTION_START,
-                )
 
                 step_result = await current_step.invoke_async(
                     inputs=step_inputs,
@@ -871,6 +860,7 @@ class FlowConversationExecutor(ConversationExecutor):
 
                 if interrupted and last_status is not None:
                     logger.info("%s is being interrupted", flow_state.current_step_name)
+
                     return last_status
 
                 if yielding:
@@ -906,18 +896,6 @@ class FlowConversationExecutor(ConversationExecutor):
                         message=last_message, _conversation_id=conversation.id
                     )
 
-                FlowConversationExecutor._register_event(
-                    state=flow_state,
-                    conversation=conversation,
-                    event_type=EventType.STEP_EXECUTION_END,
-                )
-
-                FlowConversationExecutor._register_event(
-                    state=flow_state,
-                    conversation=conversation,
-                    event_type=EventType.EXECUTION_LOOP_ITERATION_END,
-                )
-
                 record_event(
                     FlowExecutionIterationFinishedEvent(
                         execution_state=conversation.state,
@@ -930,13 +908,6 @@ class FlowConversationExecutor(ConversationExecutor):
                 fail_on_missing_value=False,  # TODO fix required values
             )
 
-            FlowConversationExecutor._register_event(
-                state=flow_state,
-                conversation=conversation,
-                event_type=EventType.EXECUTION_END,
-            )
-        except ExecutionInterruptedException as e:
-            return e.execution_status
         except Exception as e:
             _record_exception(e)
             raise e

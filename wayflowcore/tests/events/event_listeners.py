@@ -7,10 +7,12 @@
 from typing import List
 
 from wayflowcore.events.event import (
+    AgentDecidedNextActionEvent,
     AgentExecutionFinishedEvent,
     AgentExecutionIterationFinishedEvent,
     AgentExecutionIterationStartedEvent,
     AgentExecutionStartedEvent,
+    AgentNextActionDecisionStartEvent,
     ContextProviderExecutionRequestEvent,
     ContextProviderExecutionResultEvent,
     ConversationalComponentExecutionFinishedEvent,
@@ -309,4 +311,24 @@ class ConversationExecutionFinishedEventListener(EventListener):
 
     def __call__(self, event: Event) -> None:
         if isinstance(event, ConversationExecutionFinishedEvent):
+            self.triggered_events.append(event)
+
+
+class AgentNextActionDecisionStartEventListener(EventListener):
+
+    def __init__(self):
+        self.triggered_events: List[AgentNextActionDecisionStartEvent] = []
+
+    def __call__(self, event: Event) -> None:
+        if isinstance(event, AgentNextActionDecisionStartEvent):
+            self.triggered_events.append(event)
+
+
+class AgentDecidedNextActionEventListener(EventListener):
+
+    def __init__(self):
+        self.triggered_events: List[AgentDecidedNextActionEvent] = []
+
+    def __call__(self, event: Event) -> None:
+        if isinstance(event, AgentDecidedNextActionEvent):
             self.triggered_events.append(event)
