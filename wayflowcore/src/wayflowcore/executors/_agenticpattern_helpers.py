@@ -29,42 +29,29 @@ def _are_swarm_beta_features_enabled() -> bool:
     return _GLOBAL_ENABLED_SWARM_BETA_FEATURES.get()
 
 
-def _format_agents_descriptions(agents: List[Agent]) -> str:
-    """Used to add context to swarm communication tools about agents in the Swarm"""
-    agent_descriptions = []
-    for agent in agents:
-        if not agent.description:
-            raise ValueError(f"Agent '{agent.name}' is missing a description")
-        agent_descriptions.append(f"{agent.name}: {agent.description}")
-    return "\n".join(agent_descriptions)
-
-
 _SEND_MESSAGE_TOOL_NAME = "send_message"
 
 _SEND_MESSAGE_TOOL_DESCRIPTION = """
-Use this tool to facilitate direct, synchronous communication between specialized agents within your group.
-When you send a message using this tool, you receive a response exclusively from the designated recipient agent.
-To continue the dialogue, invoke this tool again with the desired recipient agent and your follow-up message.
-Remember, communication here is synchronous; the recipient agent won't perform any tasks post-response.
-You are responsible for relaying the recipient agent's responses back to the user, as the user does not have
-direct access to these replies. Keep engaging with the tool for continuous interaction until the task is fully resolved.
-Do not send more than 1 message to the same recipient agent at the same time.
+Use this tool to facilitate direct, synchronous communication with another agent within your group.
+- The recipient agent will respond only to this message, and will not continue any further tasks afterward.
+- To continue the dialogue, you must invoke this tool again with the recipient agent and a follow-up message.
+- You are responsible for relaying the agent's responses back to the user, as the user does not have direct access.
+- Do not send more than 1 message to the same agent simultaneously.
 """.strip()
 
 _HANDOFF_TOOL_NAME = "handoff_conversation"
 
 _HANDOFF_TOOL_DESCRIPTION = """
-Use this tool to Handoff (transfer) your conversation with the user to another Agent within your group.
-You should use this tool when you estimate that another Agent in your group is much more likely to
-assist the user properly than you can.
-To handoff the conversation to another Agent, specify the agent name you want to transfer the conversation to.
+Use this tool to transfer the entire conversation with the user to another agent in your group.
+- Use this when another agent is better suited to handle the user’s request.
+- Once handed off, the receiving agent takes over the conversation entirely.
+- Specify the recipient agent’s name to complete the handoff.
 """.strip()
 
 
 def _create_communication_tools(
     agent: Agent, recipient_agents: List[Agent], handoff: bool
 ) -> List[ClientTool]:
-    agent_descriptions = _format_agents_descriptions(recipient_agents)
     communication_tools = [
         ClientTool(
             name=_SEND_MESSAGE_TOOL_NAME,
@@ -80,7 +67,7 @@ def _create_communication_tools(
                 ),
                 StringProperty(
                     name="recipient",
-                    description=f"Name of the agent to transfer the conversation to. Available agents are: {agent_descriptions}",
+                    description=f"Name of the agent to send the message to. Available agents can be found in <other_entities>",
                 ),
             ],
         )
@@ -93,7 +80,7 @@ def _create_communication_tools(
                 input_descriptors=[
                     StringProperty(
                         name="recipient",
-                        description=f"Name of the agent to transfer the conversation to. Available agents are: {agent_descriptions}",
+                        description=f"Name of the agent to transfer the entire conversation to. Available agents can be found in <other_entities>",
                     ),
                 ],
             )
@@ -109,7 +96,7 @@ def _get_tool_request_from_message(message: Message, tool_name: str) -> ToolRequ
 
     tool_request = next((tr for tr in message.tool_requests if tr.name == tool_name), None)
     if not tool_request:
-        raise ValueError("Internal error: was expecting {tool_name} in the tool request.")
+        raise ValueError(f"Internal error: was expecting {tool_name} in the tool request.")
     return tool_request
 
 
@@ -267,7 +254,9 @@ def _parse_handoff_conversation_tool_request(
     recipient_agent_name = ""
     error_message = ""
     if "recipient" not in tool_request.args:
-        error_message += f"Missing or malformed `recipient` parameter in `{_SEND_MESSAGE_TOOL_NAME}` tool request.\n"
+        error_message += (
+            f"Missing or malformed `recipient` parameter in `{_HANDOFF_TOOL_NAME}` tool request.\n"
+        )
     else:
         recipient_agent_name = tool_request.args["recipient"]
         if recipient_agent_name not in possible_recipient_names:

@@ -23,6 +23,7 @@ from wayflowcore.executors.executionstatus import (
 )
 from wayflowcore.flow import Flow
 from wayflowcore.messagelist import Message, MessageType
+from wayflowcore.models import LlmModel
 from wayflowcore.property import StringProperty
 from wayflowcore.serialization import deserialize, serialize
 from wayflowcore.steps import OutputMessageStep
@@ -479,7 +480,7 @@ def test_swarm_can_complete_routing_task(example_math_agents, handoff: bool):
 @pytest.mark.skip(
     "just to show task ref perf"
 )  # Just to show the task with reference performance results
-def test_swarm_can_complete_composition_task(math_swarm_no_handoff: Swarm):
+def test_swarm_can_complete_composition_task(example_math_agents):
     """
     # NO HANDOFF
     [Llama-3.1-8B-Instruct][no_handoff]
@@ -571,7 +572,7 @@ def test_swarm_can_complete_composition_task(math_swarm_no_handoff: Swarm):
     Max attempt:           5
     Justification:         (0.16 ** 5) ~= 9.3 / 100'000
     """
-    math_swarm = math_swarm_no_handoff
+    math_swarm = _get_math_swarm(*example_math_agents, handoff=True)
     conv = math_swarm.start_conversation()  # first agent is fooza
     conv.append_user_message("compute the result of the bwip(4, zbuk(5, 6))")
     conv.execute()
@@ -965,3 +966,85 @@ def test_swarm_can_handle_client_tool(big_llama):
     conv.append_tool_result(ToolResult(content=tool_result, tool_request_id=req.tool_request_id))
     status_2 = conv.execute()
     assert isinstance(status_2, UserMessageRequestStatus) or isinstance(status_2, FinishedStatus)
+
+
+def test_agent_ids_in_swarm_are_the_same_after_the_conversation_execution(example_medical_agents):
+    gp_doctor, neurologist_doctor, oncologist_doctor = example_medical_agents
+
+    swarm = Swarm(
+        first_agent=gp_doctor,
+        relationships=[
+            (gp_doctor, neurologist_doctor),
+            (gp_doctor, oncologist_doctor),
+            (neurologist_doctor, oncologist_doctor),
+        ],
+    )
+
+    gp_doctor_id = gp_doctor.agent_id
+    neurologist_doctor_id = neurologist_doctor.agent_id
+    oncologist_doctor_id = oncologist_doctor.agent_id
+
+    conv = swarm.start_conversation()
+    conv.append_user_message(
+        "My skin has been itching for some about a week, can you help me understand what is going on?"
+    )
+    conv.execute()
+
+    assert gp_doctor_id == gp_doctor.agent_id
+    assert neurologist_doctor_id == neurologist_doctor.agent_id
+    assert oncologist_doctor_id == oncologist_doctor.agent_id
+
+
+def get_debugger_agent(llm: LlmModel) -> Agent:
+    @tool(description_mode="only_docstring")
+    def get_bug(product: str) -> dict[str, str]:
+        """Gets the existing bugs on a given product"""
+        return {"id": "fbuyeiwb", "details": "Infinite recursion bug on some function"}
+
+    return Agent(
+        llm=llm,
+        custom_instruction="You are the debugger agent. Be truthful, do not make up any information. Use your tools to find information about bugs",
+        name="debugger_agent",
+        description="can investigate bugs in the code-base of a given product and propose fixes",
+        tools=[get_bug],
+    )
+
+
+def get_first_agent(llm: LlmModel) -> Agent:
+    return Agent(
+        llm=llm,
+        custom_instruction="you are the main agent",
+        name="master_agent",
+        description="Redirects the user requests to the sub agents, or handles the subagents communication. Do not solve the task on your own.",
+    )
+
+
+@retry_test(max_attempts=5)
+def test_swarm_uses_handoff_tool_when_beneficial(oci_reasoning_model):
+    """
+    Failure rate:          2 out of 20
+    Observed on:           2025-12-08
+    Average success time:  35.99 seconds per successful attempt
+    Average failure time:  102.07 seconds per failed attempt
+    Max attempt:           5
+    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    """
+    llm = oci_reasoning_model
+
+    main_agent = get_first_agent(llm)
+    debugger_agent = get_debugger_agent(llm)
+    swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[
+            (main_agent, debugger_agent),
+            (debugger_agent, main_agent),
+        ],
+        handoff=True,
+    )
+
+    conv = swarm.start_conversation(messages="Do we have any bugs on the `amazon` product?")
+    conv.execute()
+    second_message = conv.get_messages()[1]
+    # Should use handoff tool as the debugger agent can answer to user directly
+    assert second_message.tool_requests[0].name == "handoff_conversation"
+    assert second_message.tool_requests[0].args["recipient"] == "debugger_agent"

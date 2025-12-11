@@ -57,6 +57,10 @@ Improvements
 
   Transforms can now be assigned to an agent through its constructor. (This is not supported in `agentspec`, so attempting to convert agents with transforms to `agentspec` will raise a `NotImplementedError`)
 
+* **Improve Swarm prompt template:**
+
+  Removed redundant agent descriptions from the Swarm template and added a guidance rule that encourages agents to hand off when appropriate.
+  This significantly reduces token usage and improves execution speed.
 
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^

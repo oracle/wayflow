@@ -28,7 +28,7 @@ from wayflowcore.executors.executionstatus import (
     UserMessageRequestStatus,
 )
 from wayflowcore.executors.interrupts.executioninterrupt import ExecutionInterrupt
-from wayflowcore.messagelist import MessageType
+from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.swarm import Swarm
 from wayflowcore.templates._swarmtemplate import _HANDOFF_CONFIRMATION_MESSAGE_TEMPLATE
 from wayflowcore.tools import ToolResult
@@ -91,9 +91,14 @@ def _validate_relationships_unicity(
 def _get_all_recipients_for_agent(
     relationships: List[Tuple[Agent, Agent]], agent: Agent
 ) -> List[Agent]:
-    return [
-        recipient_agent for sender_agent, recipient_agent in relationships if sender_agent == agent
-    ]
+    """Get all recipients for agent and make sure that they all have descriptions"""
+    recipients = []
+    for sender_agent, recipient_agent in relationships:
+        if sender_agent == agent:
+            if not recipient_agent.description:
+                raise ValueError(f"Agent '{recipient_agent.name}' is missing a description")
+            recipients.append(recipient_agent)
+    return recipients
 
 
 class SwarmRunner(ConversationExecutor):
@@ -146,7 +151,6 @@ class SwarmRunner(ConversationExecutor):
                 tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
             )
             if not has_talk_to_user_tool:
-                # Manager agent should have tool to talk to user
                 mutated_agent_tools.append(_make_talk_to_user_tool())
 
             mutated_agent_template = swarm_config.swarm_template.with_partial(
@@ -157,6 +161,7 @@ class SwarmRunner(ConversationExecutor):
                     "other_agents": _get_all_recipients_for_agent(
                         swarm_config.relationships, current_agent
                     ),
+                    "handoff": swarm_config.handoff,
                 }
             )
             with _MutatedAgent(
@@ -165,6 +170,9 @@ class SwarmRunner(ConversationExecutor):
                     "tools": mutated_agent_tools,
                     "agent_template": mutated_agent_template,
                     "_add_talk_to_user_tool": has_talk_to_user_tool,
+                    "id": current_agent.name,
+                    # ^Change the agent id to agent name -> message.sender = agent_id = agent_name -> easier for llm to know which agent sending the message
+                    # Note: this is a workaround and should be fixed in the future
                 },
             ):
                 status = await agent_sub_conversation.execute_async(
@@ -328,7 +336,14 @@ class SwarmRunner(ConversationExecutor):
             current_thread = swarm_conversation.state.agents_and_threads[current_agent.name][
                 recipient_agent_name
             ]
-            current_thread.message_list.append_user_message(message)
+
+            current_thread.message_list.append_message(
+                Message(
+                    role="user",
+                    content=message,
+                    sender=current_agent.name,
+                )
+            )
             logger.info(
                 "Calling new agent (thread %s) with request `%s`",
                 current_thread.identifier,
