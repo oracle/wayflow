@@ -147,11 +147,11 @@ Improvements
 
   Added support for multiple levels of ManagerWorkers where a worker in ``ManagerWorkers`` can itself be ``ManagerWorkers`` enabling the creation of hierarchical agent structures.
 
-* **Added support for ``extra_content`` in OpenAI compatible models**
+* **Added support for reasoning for certain OpenAI compatible models**
 
-  The ``_extra_content`` returned by some OpenAI-compatible APIs is now tracked
+  The ``extra_content`` returned by some OpenAI-compatible APIs is now tracked
   as part of messages and tool_requests. Some models may see improved performance
-  from having access to this additional information in the conversation.
+  from having access to additional reasoning signatures from previous rounds in the conversation.
 
 
 Possibly Breaking Changes

@@ -54,7 +54,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
         self, m: "Message", supports_tool_role: bool
     ) -> List[Dict[str, Any]]:
         if m.tool_requests:
-            if any([not isinstance(content, TextContent) for content in m.contents]):
+            if any(not isinstance(content, TextContent) for content in m.contents):
                 raise ValueError(
                     "Invalid tool request. A tool request message should only contain text contents"
                 )
@@ -65,7 +65,11 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                         "id": tc.tool_request_id,
                         "type": "function",
                         "function": {"name": tc.name, "arguments": json.dumps(tc.args)},
-                        "extra_content": tc._extra_content
+                        **(
+                            {"extra_content": tc._extra_content}
+                            if tc._extra_content is not None
+                            else {}
+                        ),
                     }
                     for tc in (m.tool_requests or [])
                 ],
