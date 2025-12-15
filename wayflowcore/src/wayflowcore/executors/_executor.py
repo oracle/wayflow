@@ -38,8 +38,10 @@ class ConversationExecutor(ABC):
         Runs a conversation given a list of messages and a state. The state is specific to the type of
         conversation (can be agent-based or flow-based).
 
-        Parameters:
-        -----------
-        conversation: Conversation
-        execution_interrupts: Optional[Sequence[ExecutionInterrupt]]
+        Parameters
+        ----------
+        conversation:
+            A conversation object
+        execution_interrupts:
+            List of execution interrupts
         """

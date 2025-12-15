@@ -18,17 +18,11 @@ class OpenAIEmbeddingModel(OpenAICompatibleEmbeddingModel, SerializableObject):
 
     Parameters
     ----------
-    model_id
+    model_id:
         The name of the OpenAI model to use for generating embeddings.
-    api_key
+    api_key:
         The API key for the service. If not provided, the value of the
         OPENAI_API_KEY environment variable will be used, if set.
-
-    Environment Variables
-    ---------------------
-    OPENAI_API_KEY
-        The default API key used for authentication with the embedding service
-        when `api_key` is not explicitly provided.
 
     Examples
     --------
@@ -42,7 +36,8 @@ class OpenAIEmbeddingModel(OpenAICompatibleEmbeddingModel, SerializableObject):
 
     Notes
     -----
-    If the API key is not provided and the environment variable OPENAI_API_KEY is not set, a ValueError is raised.
+    `OPENAI_API_KEY` is the default API key used for authentication with the embedding service when ``api_key`` is not explicitly provided.
+    If the API key is not provided and the environment variable `OPENAI_API_KEY` is not set, a ValueError is raised.
 
     Available embedding models: https://platform.openai.com/docs/guides/embeddings#embedding-models
     """

@@ -40,7 +40,7 @@ class AgentSpecLoader:
             Optional dictionary to enable converting/loading assistant configurations involving the
             use of tools. Keys must be the tool names as specified in the serialized configuration, and
             the values are the ServerTool objects or callables that will be used to create ServerTools.
-        plugins: List[WayflowDeserializationPlugin]
+        plugins:
             List of additional wayflow plugins to use. By default, uses the latest supported builtin plugins only.
 
             .. note:

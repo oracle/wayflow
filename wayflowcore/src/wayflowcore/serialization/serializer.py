@@ -536,7 +536,7 @@ T = TypeVar("T", bound=SerializableObject)
 
 
 def deserialize_from_dict(
-    deserialization_type: type[T],
+    deserialization_type: Type[T],
     obj_as_dict: Dict[str, Any],
     deserialization_context: Optional[DeserializationContext] = None,
     plugins: Optional[List["WayflowDeserializationPlugin"]] = None,
@@ -625,7 +625,7 @@ def _set_component_id(component: ObjectWithMetadata, reference: str) -> None:
 
 
 def deserialize(
-    deserialization_type: type[T],
+    deserialization_type: Type[T],
     obj: str,
     deserialization_context: Optional[DeserializationContext] = None,
     plugins: Optional[List["WayflowDeserializationPlugin"]] = None,

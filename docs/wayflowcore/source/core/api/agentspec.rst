@@ -104,6 +104,9 @@ Messages
 .. autoclass:: wayflowcore.agentspec.components.outputparser.PluginRegexPattern
     :exclude-members: model_post_init, model_config
 
+.. _agentspecoutputparser:
+.. autoclass:: wayflowcore.agentspec.components.outputparser.PluginOutputParser
+
 .. _agentspecregexoutputparser:
 .. autoclass:: wayflowcore.agentspec.components.outputparser.PluginRegexOutputParser
     :exclude-members: model_post_init, model_config
@@ -130,6 +133,10 @@ Messages
 
 .. _agentspecprompttemplate:
 .. autoclass:: wayflowcore.agentspec.components.template.PluginPromptTemplate
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecmessagetransform:
+.. autoclass:: wayflowcore.agentspec.components.transforms.PluginMessageTransform
     :exclude-members: model_post_init, model_config
 
 .. _agentspeccoalescesystemmessagestransform:
@@ -234,3 +241,20 @@ Datastores
 .. _agentspecrelationaldatastore:
 .. autoclass:: wayflowcore.agentspec.components.datastores.relational_datastore.PluginRelationalDatastore
     :exclude-members: model_post_init, model_config
+
+Tools
+^^^^^
+
+.. _agentspecplugintoolrequest:
+.. autoclass:: wayflowcore.agentspec.components.tools.PluginToolRequest
+
+.. _agentspecplugintoolresult:
+.. autoclass:: wayflowcore.agentspec.components.tools.PluginToolResult
+
+
+Context
+^^^^^^^
+
+.. autoclass:: wayflowcore.agentspec._runtimeconverter.AgentSpecToWayflowConversionContext
+
+.. autoclass:: wayflowcore.agentspec._agentspecconverter.WayflowToAgentSpecConversionContext

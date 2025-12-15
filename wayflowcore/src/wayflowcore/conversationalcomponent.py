@@ -7,7 +7,7 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Type, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
@@ -34,7 +34,7 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         description: Optional[str],
         input_descriptors: List["Property"],
         output_descriptors: List["Property"],
-        runner: type["ConversationExecutor"],
+        runner: Type["ConversationExecutor"],
         conversation_class: Any,
         id: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,

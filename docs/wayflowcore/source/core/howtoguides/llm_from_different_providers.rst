@@ -4,11 +4,11 @@ How to Use LLMs from Different LLM Providers
 
 WayFlow supports several LLM API providers. The available LLMs are:
 
-- :class:`OpenAIModel`
-- :class:`OpenAICompatibleModel`
-- :class:`OCIGenAIModel`
-- :class:`VllmModel`
-- :class:`OllamaModel`
+- :ref:`OpenAIModel <openaimodel>`
+- :ref:`OpenAICompatibleModel <openaicompatiblemodel>`
+- :ref:`OCIGenAIModel <ocigenaimodel>`
+- :ref:`VllmModel <vllmmodel>`
+- :ref:`OllamaModel <ollamamodel>`
 
 Their configuration is specified directly to their respective class constructor.
 This guide will show you how to configure LLMs from different LLM providers with examples and notes on usage.

@@ -7,7 +7,7 @@
 import warnings
 from copy import deepcopy
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, Union, cast
 
 if TYPE_CHECKING:
     from wayflowcore.serialization.plugins import (
@@ -201,7 +201,7 @@ class DeserializationContext:
         )
 
     def get_deserialization_plugin_for_object(
-        self, obj_type: type["SerializableObject"]
+        self, obj_type: Type["SerializableObject"]
     ) -> "WayflowDeserializationPlugin":
         component_type = obj_type.__name__
         if component_type not in self.component_types_to_plugins:

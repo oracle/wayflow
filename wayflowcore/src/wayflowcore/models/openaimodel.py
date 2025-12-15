@@ -50,6 +50,7 @@ class OpenAIModel(OpenAICompatibleModel):
         description:
             Description of the component.
 
+
         .. important::
             When running under Oracle VPN, the connection to the OCIGenAI service requires to run the model without any proxy.
             Therefore, make sure not to have any of ``http_proxy`` or ``HTTP_PROXY`` environment variables setup,

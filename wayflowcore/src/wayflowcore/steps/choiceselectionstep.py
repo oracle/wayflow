@@ -140,7 +140,7 @@ class ChoiceSelectionStep(Step):
 
         See Also
         --------
-        :class:`~wayflowcore.steps.BranchingStep` : Strict version of the ``ChoiceSelectionStep`` that does not use an LLM.
+        :class:`~wayflowcore.steps.branchingstep.BranchingStep` : Strict version of the ``ChoiceSelectionStep`` that does not use an LLM.
 
 
         Notes

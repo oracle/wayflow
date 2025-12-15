@@ -107,8 +107,8 @@ This allows assistants to process visual information alongside user dialog.
 API Reference and Practical Information
 =======================================
 
-- :class:`wayflowcore.messagelist.ImageContent`
-- :class:`wayflowcore.messagelist.TextContent`
+- :ref:`ImageContent <imagecontent>`
+- :ref:`TextContent <textcontent>`
 - :class:`wayflowcore.agent.Agent`
 
 Supported Image Formats

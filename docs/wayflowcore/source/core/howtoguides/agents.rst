@@ -11,7 +11,7 @@ Proper configuration of their instructions is essential.
 
 In this how to guide, we will learn how to:
 
-- Configure the instructions of an :ref:`Agent <Agent>`.
+- Configure the instructions of an :ref:`Agent <agent>`.
 - Set up instructions that vary with each ``Conversation``.
 - Maintain instructions that are consistently updated and refreshed.
 
@@ -47,7 +47,7 @@ To make the assistant more context-aware, define a variable or expression in the
     :end-before: .. end-conversation
 
 .. note::
-  It is useful to use the same :class:`Agent`, but change some part of the ``custom_instruction`` for each different conversation.
+  It is useful to use the same :ref:`Agent <agent>`, but change some part of the ``custom_instruction`` for each different conversation.
 
 Finally, incorporating dynamic context into the agent's instructions can significantly improve its responsiveness.
 For example, the instructions can contain the current time making the agent more aware of the situation.
@@ -64,7 +64,7 @@ You successfully customized the prompt of your agent.
 Recap
 =====
 
-In this guide, you learned how to configure :ref:`Agent <Agent>` instructions with:
+In this guide, you learned how to configure :ref:`Agent <agent>` instructions with:
 
 - pure text instructions;
 - specific variables for each ``Conversation``;

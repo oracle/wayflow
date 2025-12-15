@@ -13,12 +13,18 @@ Base classes
 Serialization
 -------------
 
+.. _serializationcontext:
+.. autoclass:: wayflowcore.serialization.context.SerializationContext
+
 .. _serialize:
 .. autofunction:: wayflowcore.serialization.serializer.serialize
 
 
 Deserialization
 ---------------
+
+.. _deserializationcontext:
+.. autoclass:: wayflowcore.serialization.context.DeserializationContext
 
 .. _deserialize:
 .. autofunction:: wayflowcore.serialization.serializer.deserialize

@@ -138,6 +138,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
     session_parameters:
         Parameters controlling session behavior such as polling timeouts and retry logic.
 
+
     .. note::
         ``A2AAgent`` is specifically designed for agent-to-agent communication and requires a valid server
         endpoint to function properly. Ensure the provided URL and connection configurations are correct
@@ -187,9 +188,9 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
 
         Raises
         ------
-        ValueError:
+        ValueError
             If the provided ``agent_url`` is not a valid URL.
-        TypeError:
+        TypeError
             If the provided ``agent_url`` is not a string.
         """
 
@@ -258,7 +259,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
 
         Returns
         -------
-        A2AAgentConversation:
+        Conversation:
             A new conversation object associated with this agent.
         """
         from wayflowcore.executors._a2aagentconversation import A2AAgentConversation

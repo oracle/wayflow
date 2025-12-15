@@ -74,9 +74,9 @@ class MessageContent(SerializableDataclassMixin, SerializableObject, ABC):
     and specify a class-level 'type' field to distinguish content variant.
     Subclasses may also add additional fields for content-specific data.
 
-    Attributes
+    Parameters
     ----------
-    type : ClassVar[str]
+    type:
         Identifier for the content type, to be implemented by subclasses.
     """
 
@@ -89,11 +89,11 @@ class TextContent(MessageContent, SerializableObject):
     """
     Represents the content of a text message.
 
-    Attributes
+    Parameters
     ----------
-    content : str
+    content:
         The textual content of the message.
-    type : Literal["text"]
+    type:
         Identifier for the text content type.
     """
 
@@ -115,11 +115,11 @@ class ImageContent(MessageContent, SerializableObject):
     """
     Represents the content of an image message, storing image data as a base64-encoded string.
 
-    Attributes
+    Parameters
     ----------
-    base64_content : str
+    base64_content:
         A base64-encoded string representing the image data.
-    type : str
+    type:
         Identifier for the image content type.
 
     Examples
@@ -134,8 +134,6 @@ class ImageContent(MessageContent, SerializableObject):
     >>> prompt = Prompt(messages=[Message(contents = [TextContent("Which company's logo is this?") , img_content])])
     >>> completion = multimodal_llm.generate(prompt)
     >>> # LlmCompletion(message=Message(content="That is the logo for **Oracle Corporation**."))
-
-
     """
 
     type = "image"

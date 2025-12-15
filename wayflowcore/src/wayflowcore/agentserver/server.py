@@ -262,7 +262,7 @@ class OpenAIResponsesServer:
 
         Returns
         -------
-        server:
+        fastapi.FastAPI:
             A FastAPI application that implements the OpenAI Responses endpoints.
         """
         return self.app
