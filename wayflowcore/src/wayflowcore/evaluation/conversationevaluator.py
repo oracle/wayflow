@@ -114,7 +114,8 @@ class ConversationEvaluator:
 
         Returns
         -------
-        A DataFrame with the conversation id [int] and the different scores [float] (columns)
+        pandas.DataFrame:
+            A DataFrame with the conversation id [int] and the different scores [float] (columns)
             for each conversation (rows)
         """
         return run_async_in_sync(
@@ -141,7 +142,8 @@ class ConversationEvaluator:
 
         Returns
         -------
-        A DataFrame with the conversation id [int] and the different scores [float] (columns)
+        pandas.DataFrame:
+            A DataFrame with the conversation id [int] and the different scores [float] (columns)
             for each conversation (rows)
         """
         if len(conversations) == 0:

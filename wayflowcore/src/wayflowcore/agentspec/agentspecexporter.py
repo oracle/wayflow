@@ -38,7 +38,7 @@ class AgentSpecExporter:
         """
         Parameters
         ----------
-        plugins: List[WayflowSerializationPlugin]
+        plugins:
             List of additional wayflow plugins to use. By default, uses the latest supported builtin plugins only.
 
             .. note:

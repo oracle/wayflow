@@ -65,7 +65,10 @@ stable_release = os.getenv("STABLE_RELEASE") or version_file
 if stable_release is None:
     raise Exception("Error: STABLE_RELEASE environment variable is not set.")
 
-WARNINGS_TO_FILTER_OUT = []
+WARNINGS_TO_FILTER_OUT = [
+    "Failed guarded type import with ImportError(\"cannot import name 'AbstractSetIntStr'",
+    'Cannot handle as a local function: "wayflowcore.agentspec.components.nodes.ExtendedLlmNode.check_either_prompt_str_or_object_is_used" (use @functools.wraps)',
+]
 
 
 class SphinxWarningFilter(logging.Filter):
@@ -94,6 +97,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinxarg.ext",
+    "sphinx_autodoc_typehints",
 ]
 
 # Set the variables that should be replaced in the substitution-extensions directives
@@ -193,6 +197,36 @@ html_show_sourcelink = False
 copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
 # enables the copy prevention of the above patterns when they match.
 copybutton_prompt_is_regexp = True
+# nitpicky flags
+nitpicky = True
+nitpick_ignore_regex = [
+    # External Packages
+    ("py:.*", r"pyagentspec\..*"),
+    ("py:.*", r"opentelemetry\..*"),
+    ("py:.*", r"datetime\..*"),
+    ("py:.*", r"pandas\..*"),
+    ("py:.*", r"re\..*"),
+    ("py:.*", r"dataclasses\..*"),
+    ("py:.*", r"typing\..*"),
+    ("py:.*", r"mcp\..*"),
+    ("py:.*", r"fastapi\..*"),
+    ("py:.*", r"sqlalchemy\..*"),
+    ("py:.*", r"starlette\..*"),
+    ("py:.*", r"collections\..*"),
+    ("py:.*", r"contextlib\..*"),
+    # `...`
+    ("py:data", r"Ellipsis"),
+    # Coming from typing
+    ("py:class", r"wayflowcore\..*\.Annotated"),
+    # Failing one one case in `SoftTokenLimitExecutionInterrupt`
+    ("py:class", r"MetadataType"),
+    # Purposely ignoring classes:
+    ("py:class", r"wayflowcore.executors._events.event.Event"),
+    ("py:class", r"(?:wayflowcore\.executors\._executor\.)?ConversationExecutor"),
+    ("py:class", r"(?:wayflowcore\.executors\._executionstate\.)?ConversationExecutionState"),
+    ("py:class", r"wayflowcore.executors._agentexecutor.AgentConversationExecutionState"),
+    ("py:class", r"wayflowcore.agentserver.a2a._app.A2AApp"),
+]
 
 
 def on_builder_inited(app):

@@ -21,8 +21,6 @@ This page presents all APIs and classes related to WayFlow agents.
     Click the button above ↑ to visit the `Agent Spec Documentation <https://oracle.github.io/agent-spec/index.html>`_
 
 
-
-
 Agent related classes
 ---------------------
 
@@ -70,3 +68,10 @@ ManagerWorkers class
 
 .. _managerworkers:
 .. autoclass:: wayflowcore.managerworkers.ManagerWorkers
+
+
+Agent Behavior Configuration
+----------------------------
+
+.. _callerinputmode:
+.. autoclass:: wayflowcore.agent.CallerInputMode

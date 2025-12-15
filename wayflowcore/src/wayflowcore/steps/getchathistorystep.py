@@ -87,17 +87,13 @@ class GetChatHistoryStep(Step):
             it will format the ``chat_history`` messages into this template using jinja2 syntax.
         input_descriptors:
             Input descriptors of the step. ``None`` means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.
-
         output_descriptors:
             Output descriptors of the step. ``None`` means the step will resolve them automatically using its static
             configuration in a best effort manner.
-
         name:
             Name of the step.
-
         input_mapping:
             Mapping between the name of the inputs this step expects and the name to get it from in the conversation input/output dictionary.
-
         output_mapping:
             Mapping between the name of the outputs this step expects and the name to get it from in the conversation input/output dictionary.
 

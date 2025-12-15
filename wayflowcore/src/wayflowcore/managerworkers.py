@@ -174,7 +174,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
 
         Returns
         -------
-        conversation:
+        Conversation:
             The conversation object of the managerworkers.
         """
         from wayflowcore.agentconversation import AgentConversation

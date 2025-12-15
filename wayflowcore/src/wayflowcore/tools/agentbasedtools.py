@@ -56,7 +56,7 @@ class DescribedAgent(SerializableObject):
 
         Returns
         -------
-        config:
+        Dict:
             A dictionary representing the configuration of the described agent.
         """
         from wayflowcore.serialization.serializer import serialize_to_dict
@@ -83,7 +83,7 @@ class DescribedAgent(SerializableObject):
 
         Returns
         -------
-        described_agent:
+        DescribedAgent:
             A DescribedAgent object created from the configuration.
         """
         from wayflowcore.agent import Agent

@@ -127,7 +127,7 @@ class InputMessageStep(Step):
 
         See Also
         --------
-        :class:`~wayflowcore.steps.OutputMessageStep` : Step to output a message to the chat history.
+        :class:`~wayflowcore.steps.outputmessagestep.OutputMessageStep`: Step to output a message to the chat history.
 
         Examples
         --------

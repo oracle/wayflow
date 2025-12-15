@@ -1062,7 +1062,8 @@ class Flow(ConversationalComponent, SerializableObject):
 
         Returns
         -------
-            A Conversation object.
+        Conversation:
+            A Flow Conversation object.
         """
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event

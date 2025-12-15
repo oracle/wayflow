@@ -42,3 +42,5 @@ API Reference
    Datastores <datastores>
    Warnings <warnings>
    Evaluation <evaluation>
+   Component <component>
+   A2A <a2a>
