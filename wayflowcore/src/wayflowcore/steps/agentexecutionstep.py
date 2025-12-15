@@ -8,6 +8,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.a2a.a2aagent import A2AAgent
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.conversationalcomponent import _mutate
 from wayflowcore.executors.executionstatus import (
@@ -196,7 +197,7 @@ class AgentExecutionStep(Step):
         self._share_conversation = _share_conversation
         """Whether the calling flow shares its messages with the Agent or not."""
 
-        if not isinstance(self.agent, (Agent, Swarm)):
+        if not isinstance(self.agent, ((A2AAgent, Agent, Swarm))):
             if output_descriptors is not None and len(output_descriptors) > 0:
                 raise ValueError(
                     f"Only `Agent` and `Swarm` in `AgentExecutionStep` supports setting outputs, but you used: `{self.agent}` for {output_descriptors}. Please use an `Agent` or a `Swarm` or set the outputs to `None`"
@@ -266,7 +267,7 @@ class AgentExecutionStep(Step):
                 self.agent.caller_input_mode == CallerInputMode.ALWAYS
                 or self.caller_input_mode == CallerInputMode.ALWAYS
             )
-        elif isinstance(self.agent, OciAgent):
+        elif isinstance(self.agent, (OciAgent, A2AAgent)):
             return True
         else:
             raise NotImplementedError(f"{self.agent} not supported in the agent execution step.")
