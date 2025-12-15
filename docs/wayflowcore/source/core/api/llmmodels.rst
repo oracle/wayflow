@@ -23,17 +23,30 @@ This page presents all APIs and classes related to LLM models.
 
 
 LlmModel
------------------
+--------
 
 .. _llmmodel:
 .. autoclass:: wayflowcore.models.llmmodel.LlmModel
 
+.. autoclass:: wayflowcore.models._requesthelpers.StreamChunkType
 
 LlmModelFactory
-------------------------
+---------------
 
 .. _llmmodelfactory:
 .. autoclass:: wayflowcore.models.llmmodelfactory.LlmModelFactory
+
+LlmCompletion
+-------------
+
+.. _llmmodelcompletion:
+.. autoclass:: wayflowcore.models.LlmCompletion
+
+Prompt
+------
+
+.. _prompt:
+.. autoclass:: wayflowcore.models.Prompt
 
 
 Token Usage
@@ -96,10 +109,16 @@ OCI GenAI Models
 .. _ocigenaimodel:
 .. autoclass:: wayflowcore.models.ocigenaimodel.OCIGenAIModel
 
+.. autoclass:: wayflowcore.models.ocigenaimodel.ServingMode
+
+.. autoclass:: wayflowcore.models.ocigenaimodel.ModelProvider
+
 .. _ociclientconfigclassesforauthentication:
 
 OCI Client Config Classes for Authentication
 ********************************************
+
+.. autoclass:: wayflowcore.models.ociclientconfig.OCIClientConfig
 
 .. _ociclientconfigwithapikey:
 .. autoclass:: wayflowcore.models.ociclientconfig.OCIClientConfigWithApiKey
@@ -115,6 +134,8 @@ OCI Client Config Classes for Authentication
 
 .. _ociclientconfigwithuserauthentication:
 .. autoclass:: wayflowcore.models.ociclientconfig.OCIClientConfigWithUserAuthentication
+
+.. autoclass:: wayflowcore.models.ociclientconfig._OCIAuthType
 
 .. important::
     ``OCIClientConfigWithUserAuthentication`` supports the same authentication type as ``OCIClientConfigWithApiKey`` but without a config file.

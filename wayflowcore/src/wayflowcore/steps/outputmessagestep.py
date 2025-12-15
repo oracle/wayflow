@@ -111,7 +111,7 @@ class OutputMessageStep(Step):
 
         See Also
         --------
-        :class:`~wayflowcore.steps.InputMessageStep` : Step to get an input from the conversation with the user.
+        :class:`~wayflowcore.steps.inputmessagestep.InputMessageStep`: Step to get an input from the conversation with the user.
 
         Examples
         --------

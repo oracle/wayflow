@@ -23,11 +23,10 @@ Assistant Evaluation
 .. autoclass:: wayflowcore.evaluation.assistantevaluator.run_proxy_agent_conversation
 
 .. _assistantevaluationresult:
-.. autoclass::wayflowcore.evaluation.assistantevaluator.AssistantEvaluationResult
+.. autoclass:: wayflowcore.evaluation.assistantevaluator.AssistantEvaluationResult
 
 .. _humanproxyassistant:
-.. autoclass::wayflowcore.evaluation.assistantevaluator.HumanProxyAssistant
-
+.. autoclass:: wayflowcore.evaluation.assistantevaluator.HumanProxyAssistant
 
 Conversation Evaluation
 -----------------------
@@ -49,8 +48,6 @@ Conversation Evaluation
 
 .. _defaultscoremap:
 .. autoclass:: wayflowcore.evaluation.criteriascorer.DEFAULT_SCORE_MAP
-
-
 
 Evaluation Metrics
 ------------------

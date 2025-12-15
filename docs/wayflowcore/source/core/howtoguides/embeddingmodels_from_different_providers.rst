@@ -4,10 +4,10 @@ How to Use Embedding Models from Different Providers
 
 WayFlow supports several embedding model providers. The available embedding models are:
 
-- :class:`OCIGenAIEmbeddingModel`
-- :class:`OpenAIEmbeddingModel`
-- :class:`VllmEmbeddingModel`
-- :class:`OllamaEmbeddingModel`
+- :ref:`OCIGenAIEmbeddingModel <ocigenaiembeddingmodel>`
+- :ref:`OpenAIEmbeddingModel <openaiembeddingmodel>`
+- :ref:`VllmEmbeddingModel <vllmembeddingmodel>`
+- :ref:`OllamaEmbeddingModel <ollamaembeddingmodel>`
 
 Their configuration is specified directly to their respective class constructor.
 This guide will show you how to configure embedding models from different providers with examples and notes on usage.

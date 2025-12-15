@@ -360,12 +360,8 @@ class LlmModel(Component, SerializableObject, ABC):
 
         Returns
         -------
+        TokenUsage:
             A TokenUsage object that gathers all token usage information.
-
-        See Also
-        --------
-        :class:`~wayflowcore.models.tokenusage.TokenUsage` : An object to gather all token usage information.
-
         """
         total_token_usage = TokenUsage(exact_count=True)
         if conversation_id in self.token_usages_flexible:

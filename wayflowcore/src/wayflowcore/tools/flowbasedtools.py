@@ -65,7 +65,7 @@ class DescribedFlow(SerializableObject):
 
         Returns
         -------
-        config:
+        Dict:
             A dictionary representing the configuration of the described flow.
         """
         from wayflowcore.serialization.serializer import serialize_to_dict
@@ -93,6 +93,7 @@ class DescribedFlow(SerializableObject):
 
         Returns
         -------
+        DescribedFlow:
             A DescribedFlow object created from the configuration.
         """
         from wayflowcore.flow import Flow

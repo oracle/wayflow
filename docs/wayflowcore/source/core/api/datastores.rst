@@ -33,6 +33,10 @@ In memory
     ..
         We exclude these members because they are already included in the base class
 
+Relational Datastore
+--------------------
+
+.. autoclass:: wayflowcore.datastore._relational.RelationalDatastore
 
 Oracle Database
 ---------------

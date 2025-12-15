@@ -231,6 +231,7 @@ class OCIUserAuthenticationConfig:
         region:
             OCI region
 
+
         .. warning::
             This class contains sensitive information. Please make sure that the contents are not printed or logged.
         """

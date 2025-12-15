@@ -32,7 +32,7 @@ Tool Security Specifics
 *   **Isolation for High-Risk Tools**: Run high-risk :ref:`ServerTool <servertool>` instances (e.g., with elevated permissions, network/filesystem access) in sandboxed environments (containers/pods) with minimal IAM roles. Deny network/filesystem writes unless essential.
 *   **Tools from `Flows` or `Steps`**:
 
-    *   When creating a :ref:`ServerTool <servertool>` via :meth:`.Flow.from_flow`, or :meth:`.Flow.from_step`, its security is inherited. Ensure source ``Flow`` or ``Step`` tools are secure.
+    *   When creating a :ref:`ServerTool <servertool>` via :meth:`~wayflowcore.tools.servertools.ServerTool.from_flow`, or :meth:`~wayflowcore.tools.servertools.ServerTool.from_step`, its security is inherited. Ensure source ``Flow`` or ``Step`` tools are secure.
 
 **`ClientTool` Considerations:**
 

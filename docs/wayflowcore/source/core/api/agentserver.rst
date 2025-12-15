@@ -22,16 +22,6 @@ Server application
 .. autofunction:: wayflowcore.agentserver.app.create_server_app
 
 
-Service interfaces
-------------------
-
-.. autoclass:: wayflowcore.agentserver.openairesponses.services.service.OpenAIResponsesService
-    :members:
-
-.. autoclass:: wayflowcore.agentserver.openairesponses.services.wayflowservice.WayFlowOpenAIResponsesService
-    :members:
-
-
 CLI Reference
 -------------
 

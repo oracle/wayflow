@@ -116,7 +116,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
 
         Returns
         -------
-        conversation:
+        Conversation:
             The conversation object of the agent.
         """
         from wayflowcore.executors._ociagentconversation import OciAgentConversation

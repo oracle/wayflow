@@ -4,7 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from typing import Any, Dict, cast
+from typing import Any, Dict, Type, cast
 
 from deprecated import deprecated
 
@@ -14,7 +14,7 @@ from .context import DeserializationContext, SerializationContext
 
 
 def register_supported_context_provider(
-    name: str, context_provider_cls: type[ContextProvider]
+    name: str, context_provider_cls: Type[ContextProvider]
 ) -> None:
     if name in _SUPPORTED_CONTEXT_PROVIDER_TYPES:
         raise ValueError(f"context provider already registered: {name}")

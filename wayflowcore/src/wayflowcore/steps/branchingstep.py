@@ -86,7 +86,7 @@ class BranchingStep(Step):
 
         See Also
         --------
-        :class:`~wayflowcore.steps.ChoiceSelectionStep` : Flexible version of the ``BranchingStep`` using an LLM to select the next step.
+        :class:`~wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep` : Flexible version of the ``BranchingStep`` using an LLM to select the next step.
 
         Examples
         --------

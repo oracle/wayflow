@@ -6,7 +6,7 @@
 import re
 import warnings
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Dict, List
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Type
 
 from pyagentspec.component import Component as AgentSpecComponent
 from pyagentspec.serialization import ComponentDeserializationPlugin, ComponentSerializationPlugin
@@ -100,7 +100,7 @@ class WayflowDeserializationPlugin(ABC):
 
     def deserialize(
         self,
-        obj_type: type["SerializableObject"],
+        obj_type: Type["SerializableObject"],
         input_dict: Dict[str, Any],
         deserialization_context: "DeserializationContext",
     ) -> "SerializableObject":

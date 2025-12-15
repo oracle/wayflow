@@ -461,7 +461,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
 
     def deserialize(
         self,
-        obj_type: type[SerializableObject],
+        obj_type: Type[SerializableObject],
         input_dict: Dict[str, Any],
         deserialization_context: "DeserializationContext",
     ) -> SerializableObject:

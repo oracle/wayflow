@@ -69,21 +69,21 @@ class HumanProxyAssistant(Agent):
 
         Parameters
         ----------
-        model_configs (`Union[str, List[LlmModel]]`):
-            model configs for the LLM
-        system_prompt (str, *optional*):
+        llm:
+            model config for the LLM
+        system_prompt:
             The system prompt to control the behavior of the Human Proxy. It should at least provide the context of the task of the
             other assistant the proxy is interacting with. It should also instruct the proxy to generate <ENDED> if the task is completed.
             If the system prompt is not provided, the other arguments below need to be provided to render a pre-defined system prompt template.
-        full_task_description (str, *optional*):
+        full_task_description:
             the detailed description of the task of the assistant (e.g. help the human build an app for the plumbing store)
-        short_task_description (str, *optional*):
+        short_task_description:
             the brief description of the task (e.g. build an app)
-        assistant_role (str, *optional*):
+        assistant_role:
             the persona of the assistant (e.g. a software engineer)
-        user_role (str, *optional*):
+        user_role:
             the persona of the human user, of which the LLM is a proxy (e.g. a busy manager of a plumbing store)
-        extra_instructions (str, *optional*):
+        extra_instructions:
             extra instructions to the LLM, usually to tell it to only respond in certain ways like only yes/no
             will be inserted to the system prompt at the end
 
