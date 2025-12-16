@@ -172,35 +172,51 @@ async def _get_server_signatures_from_mcp_server(session: ClientSession) -> type
 
 def _try_convert_mcp_output_schema_to_properties(
     schema: Optional[Dict[str, Any]],
+    tool_title: str,
 ) -> Optional[List[Property]]:
     """Best effort attempt to convert the output schema from a MCP Tool"""
     if schema is None:
         return None
 
-    # Detect Dict Property
-    if "additionalProperties" in schema:
-        return [Property.from_json_schema(cast(JsonSchemaParam, schema))]
-
-    if not "result" in schema["properties"]:
-        logger.warning(
-            "Output schema of MCP tool is not compliant with the MCP spec (missing "
-            "'result' field in 'properties')"
-        )
+    if "properties" not in schema:
+        logger.debug("Missing `properties` from schema: %s", schema)
         return None
 
-    result_property = schema["properties"]["result"]
+    output_schema_title = schema.get("title", tool_title)
 
-    # Detect List Property
-    if result_property["type"] == "array" and "items" in result_property:
-        item_property = Property.from_json_schema(result_property["items"])
-        return [ListProperty(name=schema["title"], item_type=item_property)]
+    try:
+        # Detect Dict Property
+        if "additionalProperties" in schema:
+            return [Property.from_json_schema(cast(JsonSchemaParam, schema))]
 
-    # Detect Tuple Properties
-    if result_property["type"] == "array" and "prefixItems" in result_property:
-        return [Property.from_json_schema(p) for p in result_property["prefixItems"]]
+        if not "result" in schema["properties"]:
+            logger.warning(
+                "Output schema of MCP tool is not compliant with the MCP spec (missing "
+                "'result' field in 'properties')"
+            )
+            return None
 
-    # No compatible complex type was detected -> use default type
-    return None
+        result_property = schema["properties"]["result"]
+
+        # Detect List Property
+        if result_property["type"] == "array" and "items" in result_property:
+            item_property = Property.from_json_schema(result_property["items"])
+            return [ListProperty(name=output_schema_title, item_type=item_property)]
+
+        # Detect Tuple Properties
+        if result_property["type"] == "array" and "prefixItems" in result_property:
+            return [Property.from_json_schema(p) for p in result_property["prefixItems"]]
+
+        return None  # No compatible complex type was detected -> use default type
+    except Exception as e:
+        logger.error(
+            "Failed to parse remote MCP output schema, will default to `None` "
+            "MCP tool output descriptors. Tool title: %s, schema: %s",
+            tool_title,
+            schema,
+            exc_info=True,
+        )
+        return None
 
 
 async def get_server_tools_from_mcp_server(
@@ -245,7 +261,8 @@ async def get_server_tools_from_mcp_server(
             for input_name, json_property in exposed_tool.inputSchema["properties"].items()
         ]
         remote_output_descriptors = _try_convert_mcp_output_schema_to_properties(
-            exposed_tool.outputSchema
+            exposed_tool.outputSchema,
+            tool_title=(exposed_tool.title or exposed_tool.name) + "Output",
         )
         remote_description = exposed_tool.description or ""
 
@@ -267,7 +284,13 @@ async def get_server_tools_from_mcp_server(
                 )
 
             output_descriptors = expected_tool_signature.output_descriptors
-            if output_descriptors != remote_output_descriptors:
+            if remote_output_descriptors is None and output_descriptors is not None:
+                logger.warning(
+                    "MCP Tool '%s' expects output descriptors %s but failed to parse remote output descriptors. Check the debug logs to see why the parsing failed.",
+                    expected_tool_signature.name,
+                    output_descriptors,
+                )
+            elif output_descriptors != remote_output_descriptors:
                 logger.warning(
                     "The output descriptors exposed by the remote MCP server do not match the locally defined output descriptors for tool `%s`:/nLocal ouptut descriptors: %s\nRemote output descriptors: %s",
                     expected_tool_signature.name,
