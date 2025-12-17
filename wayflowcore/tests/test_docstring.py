@@ -17,7 +17,7 @@ from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.serialization.serializer import serialize
 from wayflowcore.steps import OutputMessageStep
-from wayflowcore.transforms import _SUMMARIZATION_WARNING_MESSAGE
+from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
 
 from .datastores.conftest import (  # noqa
     ORACLE_DB_DDL,

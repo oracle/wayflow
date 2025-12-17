@@ -90,6 +90,7 @@ _BUILTIN_COMPONENTS = {
     "MessageList",
     "MessageProperty",
     "MessageSummarizationTransform",
+    "ConversationSummarizationTransform",
     "MessageTransform",
     "NullProperty",
     "OCIClientConfig",

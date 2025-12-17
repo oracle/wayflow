@@ -32,14 +32,14 @@ performance or errors when these limits are surpassed. Long context also incur h
 
 To address these performance issues and reduce cost, you can apply techniques that reduce the context size while retaining key information.
 
-This guide demonstrates three methods for reducing context size:
+This guide demonstrates three methods for reducing context size using built-in transforms:
 
-- **Discarding old messages**: For long conversations, a straightforward approach is to remove older messages and retain only the most recent ones.
-- **Summarizing tool outputs**: Tool outputs are often lengthy and include details that might not be relevant anymore after a few rounds of conversation. Summarizing them to extract the key points will shorten the context and can help the agent stay focused in extended conversations.
-- **Summarizing old messages**: Rather than discarding old messages entirely, summarizing old messages can allow the agent to retain historical information.
+- **Summarizing long messages** using :ref:`MessageSummarizationTransform <messagesummarizationtransform>`: Individual messages that exceed size limits (such as large tool outputs or long user inputs) are automatically summarized using an LLM.
+- **Summarizing long conversations** using :ref:`ConversationSummarizationTransform <conversationsummarizationtransform>`: When conversations become too lengthy, older messages are summarized to maintain context while keeping the total size manageable.
+- **Using both transforms together**: Combining both approaches for comprehensive context management.
 
 
-This guide shows how to create :ref:`MessageTransform <messagetransform>` objects to reduce the context size in agents.
+This guide shows how to use built-in :ref:`MessageTransform <messagetransform>` objects to reduce the context size in agents.
 
 Introduction
 ============
@@ -47,145 +47,140 @@ Introduction
 Message Transforms
 ~~~~~~~~~~~~~~~~~~
 
-A :ref:`MessageTransform <MessageTransform>` is a transformation applied to a :ref:`PromptTemplate <PromptTemplate>`. It modifies the list of messages before they are sent to the LLM powering the agent. You can learn
+A :ref:`MessageTransform <MessageTransform>` is a transformation applied to a list of messages before they are sent to the LLM powering the agent. You can learn
 more about them in the :doc:`Advanced Prompting Techniques <howto_prompttemplate>` guide.
 
-In this guide, we define new message transforms to adjust the agent's chat history by setting them as ``pre_rendering_transforms`` on the agent's :ref:`PromptTemplate <prompttemplate>`.
+In this guide, we use built-in message transforms to adjust the agent's chat history by passing them directly to the :ref:`Agent <agent>` constructor.
 
 LLM Setup
 ~~~~~~~~~
 
-In this guide, we use an LLM for both the agent and summarization tasks:
+There are multiple ways to define an LLM in WayFlow depending on the provider.
+Choose the one adapted to your needs:
+
+.. include:: ../_components/llm_config_tabs.rst
+
+In this guide, we will use `VllmModel`.  We can use two different LLMs - a capable LLM as the agent and a fast LLM as the summarizer. Note that if conversations include images, the summarization LLM should support image processing:
 
 .. literalinclude:: ../code_examples/howto_long_context.py
     :language: python
-    :start-after: .. start-##_Define_the_llm
-    :end-before: .. end-##_Define_the_llm
+    :start-after: .. start-##_Define_LLMS
+    :end-before: .. end-##_Define_LLMS
 
 
-Discarding Old Messages
-=======================
 
-Creating the MessageTransform
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summarizing Long Messages
+=========================
 
-This method employs a ``MessageTransform`` that discards older messages, keeping only the latest ones.
-
-A key consideration is to avoid dropping tool requests, as some LLM providers may fail if they receive tool results without matching requests. Here's a helper function to split messages while maintaining consistency:
+We use the built-in :ref:`MessageSummarizationTransform <messagesummarizationtransform>` to automatically summarize individual messages that exceed a specified size limit, including tool outputs, user messages and images.
 
 .. literalinclude:: ../code_examples/howto_long_context.py
-    :language: python
-    :start-after: .. start-##_Keep_Messages_Consistent
-    :end-before: .. end-##_Keep_Messages_Consistent
-
-The message transform can then be defined as follows:
-
-.. literalinclude:: ../code_examples/howto_long_context.py
-    :language: python
-    :start-after: .. start-##_Drop_Old_Message_Transform
-    :end-before: .. end-##_Drop_Old_Message_Transform
-
-
-Integrating the MessageTransform into the Agent
-===============================================
-
-After defining the ``MessageTransform``, incorporate it into the agent's prompt template, then run the agent:
-
-.. literalinclude:: ../code_examples/howto_long_context.py
-    :language: python
-    :start-after: .. start-##_Drop_Old_Message_Transform_Run
-    :end-before: .. end-##_Drop_Old_Message_Transform_Run
-
+   :language: python
+   :start-after: .. start-##_Create_MessageSummarizationTransform
+   :end-before: .. end-##_Create_MessageSummarizationTransform
 
 .. note::
-    We use a ``pre_rendering`` message transform as these ones are applied to the chat history. Here,
-    we only want to modify the chat history, not the potential system messages / formatting of the tools
-    for the LLM.
-    In general, ``pre_rendering`` transforms are to change the chat history, while ``post_rendering`` transforms
-    are about formatting the prompt in a certain way for the LLM.
+   When creating :ref:`MessageSummarizationTransform <messagesummarizationtransform>` without specifying a ``datastore``, it will initialize a default :ref:`InMemoryDatastore <inmemorydatastore>` for caching, which is only suitable for prototyping. This will raise a user warning indicating that in-memory datastores are not recommended for production systems.
+   For production systems, you can use :ref:`OracleDatabaseDatastore <oracledatabasedatastore>` or :ref:`PostgresDatabaseDatastore <postgresdatabasedatastore>`.
 
-.. note::
-    Using ``append=True`` means that the message transform will be added as the first message transform of
-    the list. The order in which message transforms are configured is important, since each might modify
-    the content of what the next transforms gets.
-    Therefore, to avoid cache misses, it is better to set message transforms that use caching as early
-    as possible in the list of template
-
-
-
-
-Summarizing Tool Outputs
-========================
-
-Creating the MessageTransform
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This approach uses a ``MessageTransform`` that splits large tool results into chunks, summarizes each chunk sequentially with an LLM, and replaces the original messages with summarized versions.
-
-The following ``MessageTransform`` is an example that can be customized for other scenarios.
+Let's integrate the :ref:`MessageSummarizationTransform <messagesummarizationtransform>` into the :ref:`Agent <agent>`:
 
 .. literalinclude:: ../code_examples/howto_long_context.py
     :language: python
-    :start-after: .. start-##_Creating_the_message_transform
-    :end-before: .. end-##_Creating_the_message_transform
+    :start-after: .. start-##_Create_Agent
+    :end-before: .. end-##_Create_Agent
 
-Integrating the MessageTransform into the Agent
-===============================================
-
-After defining the ``MessageTransform``, add it to the agent's prompt template as shown below:
+Before seeing an example, let's define a token counting event listener that will help us see the impact of our summarizer on token consumption.
 
 .. literalinclude:: ../code_examples/howto_long_context.py
     :language: python
-    :start-after: .. start-##_Creating_the_agent
-    :end-before: .. end-##_Creating_the_agent
+    :start-after: .. start-##_Create_Token_Event_Listener
+    :end-before: .. end-##_Create_Token_Event_Listener
 
-Then, run the agent like this:
-
-.. literalinclude:: ../code_examples/howto_long_context.py
-    :language: python
-    :start-after: .. start-##_Running_the_agent
-    :end-before: .. end-##_Running_the_agent
-
-A natural extension of this transform could be to only summarize long tool results when they are old, so that
-we keep them intact when the agent is asking for it for the first time.
-
-
-Summarizing Old Messages
-========================
-
-Creating the MessageTransform
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This technique uses a ``MessageTransform`` to summarize older messages, similar to the discarding method but preserving some past information.
+In this example, we run a conversation where the agent uses a tool that returns a very long log output. The :ref:`MessageSummarizationTransform <messagesummarizationtransform>` automatically summarizes this long message to stay within size limits. The agent then answers questions about the error, demonstrating that key information is preserved despite the summarization.
 
 .. literalinclude:: ../code_examples/howto_long_context.py
     :language: python
-    :start-after: .. start-##_Summarize_Old_Message_Transform
-    :end-before: .. end-##_Summarize_Old_Message_Transform
+    :start-after: .. start-##_Run_Agent_With_MessageSummarizationTransform
+    :end-before: .. end-##_Run_Agent_With_MessageSummarizationTransform
 
-Integrating the MessageTransform into the Agent
-===============================================
-
-After defining the ``MessageTransform``, add it to the agent's prompt template, then run the agent:
+To compare, let's run the same conversation without any transforms to see the difference in token usage.
 
 .. literalinclude:: ../code_examples/howto_long_context.py
     :language: python
-    :start-after: .. start-##_Summarize_Old_Message_Transform_Run
-    :end-before: .. end-##_Summarize_Old_Message_Transform_Run
+    :start-after: .. start-##_Create_Agent_Without_Transform
+    :end-before: .. end-##_Create_Agent_Without_Transform
 
+After one user message, we have used the following number of tokens:
 
-Agent Spec Exporting/Loading
-============================
+.. literalinclude:: ../code_examples/howto_long_context.py
+    :language: python
+    :start-after: .. start-##_Run_Agent_Without_Transform
+    :end-before: .. end-##_Run_Agent_Without_Transform
 
-Due to the custom ``MessageTransform``, the agent cannot be exported to an Agent Spec
-configuration.
+And after the second user message:
+
+.. literalinclude:: ../code_examples/howto_long_context.py
+    :language: python
+    :start-after: .. start-##_Run_Agent_Without_Transform_Round2
+    :end-before: .. end-##_Run_Agent_Without_Transform_Round2
+
+- **After one user message**, both approaches show high token usage:
+
+  - Without :ref:`MessageSummarizationTransform <messagesummarizationtransform>`: the agent LLM must process the full long tool output (around 12,800 tokens)
+
+  - With :ref:`MessageSummarizationTransform <messagesummarizationtransform>`: the summarization LLM generates a summary (around 8,900 tokens)
+
+- **After a second message**, the difference becomes significant:
+
+  - Without the transform: token usage doubles to about 25,300 tokens as the agent LLM must reprocess the long tool output
+
+  - With the transform: token usage only increases slightly to about 9,400 tokens due to summaries being cached in datastores and not regenerated.
+
+This demonstrates that the messages were effectively summarized and cached.
+
+Summarizing Long Conversations
+==============================
+
+This method uses the built-in :ref:`ConversationSummarizationTransform <conversationsummarizationtransform>` to summarize older messages when conversations become too long, preserving historical information while keeping the context manageable.
+
+.. literalinclude:: ../code_examples/howto_long_context.py
+   :language: python
+   :start-after: .. start-##_Create_ConversationSummarizationTransform
+   :end-before: .. end-##_Create_ConversationSummarizationTransform
+
+Let's integrate the :ref:`MessageTransform <messagetransform>` into the :ref:`Agent <agent>`:
+
+.. literalinclude:: ../code_examples/howto_long_context.py
+    :language: python
+    :start-after: .. start-##_Run_Agent_With_ConversationSummarizationTransform
+    :end-before: .. end-##_Run_Agent_With_ConversationSummarizationTransform
+
+If you want to check that the :ref:`ConversationSummarizationTransform <conversationsummarizationtransform>` is really summarizing old messages together, you either use the same ``TokenLister`` as in the previous section to measure tokens or you can also create your own ``EventListener`` that prints the conversation.
+
+Using Both Transforms Together
+==============================
+
+For comprehensive context management, you can apply both transforms together. The :ref:`MessageSummarizationTransform <messagesummarizationtransform>` will first handle individual long messages, and then the :ref:`ConversationSummarizationTransform <conversationsummarizationtransform>` will manage the overall conversation length.
+
+.. literalinclude:: ../code_examples/howto_long_context.py
+   :language: python
+   :start-after: .. start-##_Create_Both_Transforms
+   :end-before: .. end-##_Create_Both_Transforms
+
+Let’s integrate the :ref:`MessageTransform <messagetransform>` into the :ref:`Agent <agent>`:
+
+.. literalinclude:: ../code_examples/howto_long_context.py
+   :language: python
+   :start-after: .. start-##_Run_Agent_With_Both_Transforms
+   :end-before: .. end-##_Run_Agent_With_Both_Transforms
 
 
 Next Steps
 ==========
 
-With your new knowledge of using ``MessageTransform`` to manage large message contents, proceed
-to :doc:`How to Build Assistants with Tools <howto_build_assistants_with_tools>`.
+We have seen in this how-to how to leverage :ref:`MessageSummarizationTransform <messagesummarizationtransform>` and :ref:`ConversationSummarizationTransform <conversationsummarizationtransform>` to reduce the size of the LLM context.
+We have also seen how to use event listeners to measure LLM token consumption. With this new knowledge, you can proceed to :doc:`How to Build Assistants with Tools <howto_build_assistants_with_tools>`.
 
 
 Full Code
