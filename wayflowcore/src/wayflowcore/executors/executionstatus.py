@@ -11,6 +11,7 @@ from abc import abstractmethod
 from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
+from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableDataclass, SerializableObject
 
@@ -55,6 +56,7 @@ class FinishedStatus(ExecutionStatus):
             "output_values": self.output_values,
             "complete_step_name": self.complete_step_name,
             "_conversation_id": self._conversation_id,
+            "id": self.id,
         }
 
     @classmethod
@@ -65,6 +67,7 @@ class FinishedStatus(ExecutionStatus):
             output_values=input_dict["output_values"],
             complete_step_name=input_dict["complete_step_name"],
             _conversation_id=input_dict.get("_conversation_id", None),
+            id=input_dict.get("id") or IdGenerator.get_or_generate_id(),
         )
 
 
@@ -98,6 +101,7 @@ class UserMessageRequestStatus(ExecutionStatus):
             "message": serialize_any_to_dict(self.message, serialization_context),
             "_conversation_id": self._conversation_id,
             "_user_response": serialize_any_to_dict(self._user_response, serialization_context),
+            "id": self.id,
         }
 
     @classmethod
@@ -109,12 +113,17 @@ class UserMessageRequestStatus(ExecutionStatus):
 
         return UserMessageRequestStatus(
             _conversation_id=input_dict.get("_conversation_id", None),
-            message=deserialize_any_from_dict(
-                input_dict.get("message"), Message, deserialization_context
+            message=(
+                deserialize_any_from_dict(
+                    input_dict.get("message"), Message, deserialization_context
+                )
+                if input_dict.get("message") is not None
+                else Message(role="assistant", content="")
             ),
             _user_response=deserialize_any_from_dict(
                 input_dict.get("_user_response"), Optional[Message], deserialization_context  # type: ignore
             ),
+            id=input_dict.get("id") or IdGenerator.get_or_generate_id(),
         )
 
 
@@ -151,6 +160,7 @@ class ToolRequestStatus(ExecutionStatus):
             "_tool_results": (
                 [asdict(t) for t in self._tool_results] if self._tool_results is not None else None
             ),
+            "id": self.id,
         }
 
     @classmethod
@@ -167,6 +177,7 @@ class ToolRequestStatus(ExecutionStatus):
                 else None
             ),
             _conversation_id=input_dict.get("_conversation_id"),
+            id=input_dict.get("id") or IdGenerator.get_or_generate_id(),
         )
 
 
@@ -244,6 +255,7 @@ class ToolExecutionConfirmationStatus(ExecutionStatus):
         return {
             "tool_requests": [asdict(tool) for tool in self.tool_requests],
             "_conversation_id": self._conversation_id,
+            "id": self.id,
         }
 
     @classmethod
@@ -255,4 +267,5 @@ class ToolExecutionConfirmationStatus(ExecutionStatus):
         return ToolExecutionConfirmationStatus(
             tool_requests=[ToolRequest(**tool_dict) for tool_dict in input_dict["tool_requests"]],
             _conversation_id=input_dict.get("_conversation_id"),
+            id=input_dict.get("id") or IdGenerator.get_or_generate_id(),
         )
