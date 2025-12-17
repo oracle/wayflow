@@ -112,7 +112,7 @@ This software is under the Apache License 2.0 (LICENSE-APACHE or [http://www.apa
 
 
 
-[badge-dl]: https://img.shields.io/badge/download-latest-blue
+[badge-dl]: https://img.shields.io/pepy/dt/wayflowcore
 [badge-docs]: https://img.shields.io/badge/documentation-WayFlow-orange
 [badge-license]: https://img.shields.io/badge/license-apache_2.0+UPL_1.0-green
 [badge-reference-sheet]: https://img.shields.io/badge/reference%20sheet-read-red
