@@ -39,6 +39,11 @@ Message transforms
 
 .. autoclass:: wayflowcore.transforms.SplitPromptOnMarkerMessageTransform
 
+.. _messagesummarizationtransform:
+.. autoclass:: wayflowcore.transforms.MessageSummarizationTransform
+
+.. _conversationsummarizationtransform:
+.. autoclass:: wayflowcore.transforms.ConversationSummarizationTransform
 
 Helpers
 -------

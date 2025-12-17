@@ -13,8 +13,8 @@ REPO_ROOT=$( cd "$(dirname "${BASH_SOURCE[0]}")"/.. ; pwd -P )
 # run all tests
 if [ "$1" = "--parallel" ]; then
     # Run tests in parallel
-    pytest tests/test_docstring.py tests/datastores tests/agentserver
-    pytest -n auto $REPO_ROOT/tests --dist loadscope --ignore=tests/datastores/ --ignore=tests/test_docstring.py --ignore=tests/agentserver/
+    pytest tests/test_docstring.py tests/datastores tests/agentserver tests/transforms/test_summarization_transforms.py
+    pytest -n auto $REPO_ROOT/tests --dist loadscope --ignore=tests/datastores/ --ignore=tests/test_docstring.py --ignore=tests/agentserver/ --ignore=tests/transforms/test_summarization_transforms.py
 else
     # Run tests normally
     pytest $REPO_ROOT/tests
