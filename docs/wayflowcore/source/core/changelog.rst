@@ -53,6 +53,11 @@ Improvements
 
   This does not require any change to existing assistants or execution loops.
 
+* **Deserialization:**
+
+  Deserialization of large conversations with many agents is now much faster due to optimizations in
+  the deserialization code.
+
 * **Long Message Summarization including Image Support**
 
   Added `MessageSummarizationTransform` which summarizes messages (including images) exceeding a configurable length

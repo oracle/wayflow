@@ -9,6 +9,7 @@ import warnings
 from abc import ABC, abstractmethod
 from dataclasses import FrozenInstanceError, dataclass, field, fields
 from enum import Enum
+from functools import lru_cache
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -267,6 +268,10 @@ def deserialize_any_from_dict(
 
             if isinstance(obj, str) and issubclass(expected_type, Tool):
                 deserialized_object = Tool._deserialize_from_dict(obj, deserialization_context)  # type: ignore
+            elif obj is None:
+                raise _IncorrectDeserializedTypeException(
+                    f"Expected to deserialize an object {expected_type} but got None"
+                )
             else:
                 deserialized_object = autodeserialize_from_dict(obj, deserialization_context)
             if not isinstance(deserialized_object, expected_type):
@@ -294,10 +299,13 @@ def deserialize_any_from_dict(
             try:
                 return deserialize_any_from_dict(obj, inner_type, deserialization_context)
             except (TypeError, ValueError) as e:
-                encountered_errors.append(e)
+                if "'NoneType' object is not subscriptable" in str(e):
+                    raise e
+                encountered_errors.append(f"For deserialization into {inner_type}: {e}")
                 continue
+        errors_as_str = "\n- ".join(encountered_errors)
         raise ValueError(
-            f"The expected deserialized type is {expected_type} but `{obj}` was passed: none of the union types was serializable. Encountered errors: {encountered_errors}"
+            f"The expected deserialized type is {expected_type} ({inner_types}) but `{obj}` was passed: none of the union types was serializable. Encountered errors:\n- {errors_as_str}"
         )
 
     if is_optional_type(expected_type):
@@ -844,6 +852,8 @@ def autodeserialize_any_from_dict(obj: Any, deserialization_context: Deserializa
     return autodeserialize_from_dict(obj, deserialization_context)
 
 
+# use cache to only load the modules of a given package once
+@lru_cache(maxsize=None)
 def _import_all_submodules(package_name: str, recursive: bool = True) -> None:
     """Import all submodules to ensure all serializable classes are registered."""
     package = importlib.import_module(package_name)
