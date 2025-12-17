@@ -98,6 +98,7 @@ ALL_SERIALIZABLE_CLASSES = {
     "MessageList",
     "MessageProperty",
     "MessageSummarizationTransform",
+    "ConversationSummarizationTransform",
     "MessageTransform",
     "NullProperty",
     "OCIClientConfig",

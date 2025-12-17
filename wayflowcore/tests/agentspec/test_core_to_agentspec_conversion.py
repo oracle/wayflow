@@ -18,7 +18,8 @@ from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
 from wayflowcore.flow import Flow as RuntimeFlow
 from wayflowcore.ociagent import OciAgent as RuntimeOciAgent
 from wayflowcore.tools.servertools import ServerTool
-from wayflowcore.transforms import _SUMMARIZATION_WARNING_MESSAGE, MessageSummarizationTransform
+from wayflowcore.transforms import MessageSummarizationTransform
+from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
 
 from ..conftest import mock_llm
 from ..testhelpers.testhelpers import assert_agents_are_copies, assert_flows_are_copies

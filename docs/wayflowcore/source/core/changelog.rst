@@ -64,6 +64,13 @@ Improvements
   threshold using a specified LLM and caches the summaries in a user-provided `DataStore` with
   configurable size, LRU eviction, and entry lifetime.
 
+* **Long Conversation Summarization including Image Support**
+
+  Added `ConversationSummarizationTransform` which summarizes conversations exceeding a configurable number of messages
+  using a specified LLM and caches the summaries in a user-provided `DataStore` with configurable size, LRU eviction,
+  and entry lifetime. This helps manage long conversation contexts by summarizing older parts while preserving recent
+  messages.
+
   Transforms can now be assigned to an agent through its constructor. (This is not supported in `agentspec`, so attempting to convert agents with transforms to `agentspec` will raise a `NotImplementedError`)
 
 * **Improve Swarm prompt template:**
