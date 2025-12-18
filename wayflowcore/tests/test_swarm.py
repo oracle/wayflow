@@ -27,7 +27,7 @@ from wayflowcore.models import LlmModel
 from wayflowcore.property import StringProperty
 from wayflowcore.serialization import deserialize, serialize
 from wayflowcore.steps import OutputMessageStep
-from wayflowcore.swarm import Swarm
+from wayflowcore.swarm import HandoffMode, Swarm
 from wayflowcore.tools import ClientTool, ToolResult, tool
 
 from .testhelpers.dummy import DummyModel
@@ -300,10 +300,10 @@ def test_swarm_raises_when_using_flows(example_medical_agents):
 @retry_test(max_attempts=3)
 @pytest.mark.parametrize(
     argnames="handoff",
-    argvalues=[False, True],
+    argvalues=[HandoffMode.NEVER, HandoffMode.OPTIONAL],
     ids=["no_handoff", "with_handoff"],
 )
-def test_swarm_can_complete_task_without_specialist(example_math_agents, handoff: bool):
+def test_swarm_can_complete_task_without_specialist(example_math_agents, handoff: HandoffMode):
     """
     The only two configurations used are:
      * [gemma-3-27b-it][no_handoff]
@@ -390,10 +390,10 @@ def test_swarm_can_complete_task_without_specialist(example_math_agents, handoff
 @retry_test(max_attempts=3)
 @pytest.mark.parametrize(
     argnames="handoff",
-    argvalues=[False, True],
+    argvalues=[HandoffMode.NEVER, HandoffMode.OPTIONAL],
     ids=["no_handoff", "with_handoff"],
 )
-def test_swarm_can_complete_routing_task(example_math_agents, handoff: bool):
+def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMode):
     """
     The only two configurations used are:
      * [gemma-3-27b-it][no_handoff]
@@ -995,6 +995,21 @@ def test_agent_ids_in_swarm_are_the_same_after_the_conversation_execution(exampl
     assert oncologist_doctor_id == oncologist_doctor.agent_id
 
 
+def get_fixer_agent(llm: LlmModel) -> Agent:
+    @tool(description_mode="only_docstring")
+    def fix_bug(bug: dict[str, str]) -> str:
+        """Fix the the provided bug"""
+        return "Successfully fixed the give bug"
+
+    return Agent(
+        llm=llm,
+        custom_instruction="You are a bug-fixer. Use your tools to fix bugs",
+        name="fixer_agent",
+        description="can fix bugs in the code-base given a bug detail",
+        tools=[fix_bug],
+    )
+
+
 def get_debugger_agent(llm: LlmModel) -> Agent:
     @tool(description_mode="only_docstring")
     def get_bug(product: str) -> dict[str, str]:
@@ -1005,7 +1020,7 @@ def get_debugger_agent(llm: LlmModel) -> Agent:
         llm=llm,
         custom_instruction="You are the debugger agent. Be truthful, do not make up any information. Use your tools to find information about bugs",
         name="debugger_agent",
-        description="can investigate bugs in the code-base of a given product and propose fixes",
+        description="can investigate bugs in the code-base of a given product",
         tools=[get_bug],
     )
 
@@ -1019,17 +1034,71 @@ def get_first_agent(llm: LlmModel) -> Agent:
     )
 
 
-@retry_test(max_attempts=5)
-def test_swarm_uses_handoff_tool_when_beneficial(oci_reasoning_model):
+@retry_test(max_attempts=2)
+def test_swarm_uses_handoff_tool_in_always_handoff_mode(vllm_responses_llm):
     """
-    Failure rate:          2 out of 20
-    Observed on:           2025-12-08
-    Average success time:  35.99 seconds per successful attempt
-    Average failure time:  102.07 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    Failure rate:          0 out of 100
+    Observed on:           2025-12-10
+    Average success time:  8.40 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           2
+    Justification:         (0.01 ** 2) ~= 9.6 / 100'000
     """
-    llm = oci_reasoning_model
+
+    llm = vllm_responses_llm
+
+    main_agent = get_first_agent(llm)
+    debugger_agent = get_debugger_agent(llm)
+    fixer_agent = get_fixer_agent(llm)
+
+    swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[
+            (main_agent, debugger_agent),
+            (debugger_agent, main_agent),
+            (main_agent, fixer_agent),
+            (fixer_agent, main_agent),
+            (debugger_agent, fixer_agent),
+        ],
+        handoff=HandoffMode.ALWAYS,
+    )
+
+    conv = swarm.start_conversation(
+        messages="Do we have any bugs on the `amazon` product? If yes, fix them."
+    )
+    conv.execute()
+
+    expected_tool_requests = [
+        ("handoff_conversation", {"recipient": "debugger_agent"}),
+        ("get_bug", {}),
+        ("handoff_conversation", {"recipient": "fixer_agent"}),
+        ("fix_bug", {}),
+    ]
+    all_tool_requests = [
+        tq for message in conv.get_messages() for tq in (message.tool_requests or [])
+    ]
+    for tool_request, (expected_tool_name, expected_params) in zip(
+        all_tool_requests, expected_tool_requests, strict=True
+    ):
+        assert tool_request.name == expected_tool_name
+        for k, v in expected_params.items():
+            assert tool_request.args[k] == v
+
+
+@retry_test(max_attempts=3)
+def test_swarm_uses_handoff_tool_when_sub_agent_can_take_over_in_optional_handoff_mode(
+    vllm_responses_llm,
+):
+    """
+    Failure rate:          1 out of 100
+    Observed on:           2025-12-10
+    Average success time:  3.50 seconds per successful attempt
+    Average failure time:  606.05 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.8 / 100'000
+    """
+
+    llm = vllm_responses_llm
 
     main_agent = get_first_agent(llm)
     debugger_agent = get_debugger_agent(llm)
@@ -1039,12 +1108,74 @@ def test_swarm_uses_handoff_tool_when_beneficial(oci_reasoning_model):
             (main_agent, debugger_agent),
             (debugger_agent, main_agent),
         ],
-        handoff=True,
+        handoff=HandoffMode.ALWAYS,
     )
 
     conv = swarm.start_conversation(messages="Do we have any bugs on the `amazon` product?")
     conv.execute()
-    second_message = conv.get_messages()[1]
-    # Should use handoff tool as the debugger agent can answer to user directly
-    assert second_message.tool_requests[0].name == "handoff_conversation"
-    assert second_message.tool_requests[0].args["recipient"] == "debugger_agent"
+
+    expected_tool_requests = [
+        ("handoff_conversation", {"recipient": "debugger_agent"}),
+        ("get_bug", {}),
+    ]
+    all_tool_requests = [
+        tq for message in conv.get_messages() for tq in (message.tool_requests or [])
+    ]
+    for tool_request, (expected_tool_name, expected_params) in zip(
+        all_tool_requests, expected_tool_requests, strict=True
+    ):
+        assert tool_request.name == expected_tool_name
+        for k, v in expected_params.items():
+            assert tool_request.args[k] == v
+
+
+@retry_test(max_attempts=6)
+def test_swarm_uses_send_message_when_collaboration_needed_in_optional_handoff_mode(
+    vllm_responses_llm,
+):
+    """
+    Failure rate:          16 out of 100
+    Observed on:           2025-12-11
+    Average success time:  11.60 seconds per successful attempt
+    Average failure time:  13.25 seconds per failed attempt
+    Max attempt:           6
+    Justification:         (0.17 ** 6) ~= 2.1 / 100'000
+    """
+
+    llm = vllm_responses_llm
+
+    main_agent = get_first_agent(llm)
+    debugger_agent = get_debugger_agent(llm)
+    fixer_agent = get_fixer_agent(llm)
+
+    swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[
+            (main_agent, debugger_agent),
+            (debugger_agent, main_agent),
+            (main_agent, fixer_agent),
+            (fixer_agent, main_agent),
+            (debugger_agent, fixer_agent),
+        ],
+        handoff=HandoffMode.OPTIONAL,
+    )
+
+    conv = swarm.start_conversation(
+        messages="Do we have any bugs on the `amazon` product? If yes, fix them."
+    )
+    conv.execute()
+
+    expected_tool_requests = [
+        ("send_message", {"recipient": "debugger_agent"}),
+        ("send_message", {"recipient": "fixer_agent"}),
+    ]
+
+    all_tool_requests = [
+        tq for message in conv.get_messages() for tq in (message.tool_requests or [])
+    ]
+    for tool_request, (expected_tool_name, expected_params) in zip(
+        all_tool_requests, expected_tool_requests, strict=True
+    ):
+        assert tool_request.name == expected_tool_name
+        for k, v in expected_params.items():
+            assert tool_request.args[k] == v

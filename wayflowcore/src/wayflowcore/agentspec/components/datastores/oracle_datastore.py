@@ -7,6 +7,8 @@
 from typing import Dict, Optional
 
 from pyagentspec import Component
+from pyagentspec.sensitive_field import SensitiveField
+from pydantic import SerializeAsAny
 
 from wayflowcore.agentspec.components.datastores.entity import PluginEntity
 from wayflowcore.agentspec.components.datastores.relational_datastore import (
@@ -14,20 +16,20 @@ from wayflowcore.agentspec.components.datastores.relational_datastore import (
 )
 
 
-class PluginOracleDatabaseConnectionConfig(Component):
+class PluginOracleDatabaseConnectionConfig(Component, abstract=True):
     """Base class used for configuring connections to Oracle Database."""
 
 
 class PluginTlsOracleDatabaseConnectionConfig(PluginOracleDatabaseConnectionConfig):
     """TLS Connection Configuration to Oracle Database."""
 
-    user: str
+    user: SensitiveField[str]
     """User used to connect to the database"""
-    password: str
+    password: SensitiveField[str]
     """Password for the provided user"""
-    dsn: str
+    dsn: SensitiveField[str]
     """Connection string for the database (e.g., created using `oracledb.make_dsn`)"""
-    config_dir: Optional[str] = None
+    config_dir: SensitiveField[Optional[str]] = None
     """Configuration directory for the database connection. Set this if you are using an
         alias from your tnsnames.ora files as a DSN. Make sure that the specified DSN is
         appropriate for TLS connections (as the tnsnames.ora file in a downloaded wallet
@@ -37,17 +39,17 @@ class PluginTlsOracleDatabaseConnectionConfig(PluginOracleDatabaseConnectionConf
 class PluginMTlsOracleDatabaseConnectionConfig(PluginOracleDatabaseConnectionConfig):
     """Mutual-TLS Connection Configuration to Oracle Database."""
 
-    config_dir: str
+    config_dir: SensitiveField[str]
     """TNS Admin directory"""
-    dsn: str
+    dsn: SensitiveField[str]
     """Connection string for the database, or entry in the tnsnames.ora file"""
-    user: str
+    user: SensitiveField[str]
     """Connection string for the database"""
-    password: str
+    password: SensitiveField[str]
     """Password for the provided user"""
-    wallet_location: str
+    wallet_location: SensitiveField[str]
     """Location where the Oracle Database wallet is stored."""
-    wallet_password: str
+    wallet_password: SensitiveField[str]
     """Password for the provided wallet."""
 
 
@@ -57,5 +59,5 @@ class PluginOracleDatabaseDatastore(PluginRelationalDatastore):
     # "schema" is a special field for Pydantic, so use the prefix "datastore_" to avoid clashes
     datastore_schema: Dict[str, PluginEntity]
     """Mapping of collection names to entity definitions used by this datastore."""
-    connection_config: PluginOracleDatabaseConnectionConfig
+    connection_config: SerializeAsAny[PluginOracleDatabaseConnectionConfig]
     """Configuration of connection parameters"""

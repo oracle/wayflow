@@ -32,6 +32,14 @@ This page presents all APIs and classes related to Agent Spec and WayFlow.
 .. autoclass:: wayflowcore.agentspec.runtimeloader.AgentSpecLoader
 
 
+Agent Spec Tracing
+==================
+
+This event listener makes WayFlow components emit traces according to the Agent Spec Tracing standard.
+
+.. _agentspeceventlistener:
+.. autoclass:: wayflowcore.agentspec.tracing.AgentSpecEventListener
+
 
 Custom Components
 =================

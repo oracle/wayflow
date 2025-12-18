@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# this is the default value and wil not log a warning
 EMPTY_API_KEY = "<[EMPTY#KEY]>"
 OPEN_API_KEY = "OPENAI_API_KEY"
 
@@ -102,7 +103,8 @@ class OpenAICompatibleModel(LlmModel):
         """
         self.base_url = base_url
         self.proxy = proxy
-        self.api_key = _resolve_api_key(api_key)
+        self.api_key = api_key
+        self._api_key = _resolve_api_key(api_key)
         self.api_type = api_type
 
         self._retry_strategy = _RetryStrategy()
@@ -172,8 +174,8 @@ class OpenAICompatibleModel(LlmModel):
         headers = {
             "Content-Type": "application/json",
         }
-        if self.api_key is not None:
-            headers["Authorization"] = f"Bearer {self.api_key}"
+        if self._api_key is not None:
+            headers["Authorization"] = f"Bearer {self._api_key}"
         return headers
 
     def _setup_api_processor(self, api_type: OpenAIAPIType) -> None:
@@ -209,7 +211,7 @@ class OpenAICompatibleModel(LlmModel):
 
     @property
     def config(self) -> Dict[str, Any]:
-        if self.api_key is not None:
+        if self._api_key is not None:
             logger.warning(
                 f"API was configured on {self} but it will not be serialized in the config"
             )

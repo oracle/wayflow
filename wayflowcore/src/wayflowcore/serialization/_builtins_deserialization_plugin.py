@@ -396,6 +396,7 @@ from wayflowcore.steps.variablesteps.variablereadstep import (
 from wayflowcore.steps.variablesteps.variablewritestep import (
     VariableWriteStep as RuntimeVariableWriteStep,
 )
+from wayflowcore.swarm import HandoffMode as RuntimeHandoffMode
 from wayflowcore.swarm import Swarm as RuntimeSwarm
 from wayflowcore.templates import PromptTemplate as RuntimePromptTemplate
 from wayflowcore.templates._swarmtemplate import (
@@ -862,7 +863,11 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     )
                     for sender, recipient in agentspec_component.relationships
                 ],
-                handoff=agentspec_component.handoff,
+                handoff=(
+                    agentspec_component.handoff
+                    if isinstance(agentspec_component.handoff, bool)
+                    else RuntimeHandoffMode(agentspec_component.handoff.value)
+                ),
                 id=agentspec_component.id,
                 __metadata_info__=metadata_info,
             )
@@ -2085,6 +2090,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 host_port=agentspec_component.url,
                 generation_config=generation_config,
                 api_type=self._convert_openai_apitype_to_runtime(agentspec_component.api_type),
+                api_key=agentspec_component.api_key,
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecOciGenAiModel):
@@ -2115,6 +2121,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 model_id=agentspec_component.model_id,
                 generation_config=generation_config,
                 api_type=self._convert_openai_apitype_to_runtime(agentspec_component.api_type),
+                api_key=agentspec_component.api_key,
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecOpenAiCompatibleConfig):
@@ -2123,6 +2130,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 base_url=agentspec_component.url,
                 generation_config=generation_config,
                 api_type=self._convert_openai_apitype_to_runtime(agentspec_component.api_type),
+                api_key=agentspec_component.api_key,
                 **self._get_component_arguments(agentspec_component),
             )
         else:

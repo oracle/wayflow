@@ -161,7 +161,7 @@ class SwarmRunner(ConversationExecutor):
                     "other_agents": _get_all_recipients_for_agent(
                         swarm_config.relationships, current_agent
                     ),
-                    "handoff": swarm_config.handoff,
+                    "handoff": swarm_config.handoff.value,  # type: ignore
                 }
             )
             with _MutatedAgent(

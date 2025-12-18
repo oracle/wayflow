@@ -500,25 +500,6 @@ def grok_oci_llm():
     return LlmModelFactory.from_config(GROK_OCI_API_KEY_CONFIG)
 
 
-@contextmanager
-def patched_vllm_llm(llm: LlmModel, txt: str):
-    async def iterator():
-        yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT), None
-        yield StreamChunkType.TEXT_CHUNK, Message(content=txt, message_type=MessageType.AGENT), None
-        yield StreamChunkType.END_CHUNK, llm.agent_template.output_parser.parse_output(
-            Message(content=txt, message_type=MessageType.AGENT)
-        ), None
-
-    with patch.object(
-        llm, "_post", return_value={"choices": [{"message": {"content": txt}}]}
-    ), patch.object(
-        llm,
-        "_post_stream",
-        return_value=iterator(),
-    ):
-        yield
-
-
 # requires an OPEN_AI API key to use this fixture
 @pytest.fixture
 def gpt_llm():
@@ -571,6 +552,11 @@ def oci_reasoning_model() -> LlmModel:
     if not ("OCI_GENAI_API_KEY_CONFIG" in os.environ and "OCI_GENAI_API_KEY_PEM" in os.environ):
         pytest.skip("OCI GENAI models not configured")
     return LlmModelFactory.from_config(OCI_REASONING_MODEL_API_KEY_CONFIG)
+
+
+@pytest.fixture
+def vllm_responses_llm():
+    return LlmModelFactory.from_config(VLLM_OSS_CONFIG)
 
 
 @pytest.fixture

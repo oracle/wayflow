@@ -7,6 +7,7 @@
 from typing import Any, Dict, List, Type
 
 import pytest
+from pyagentspec import AgentSpecSerializer
 from pyagentspec.flows.edges import ControlFlowEdge, DataFlowEdge
 from pyagentspec.flows.flow import Flow
 from pyagentspec.flows.nodes import EndNode, StartNode
@@ -30,10 +31,11 @@ from wayflowcore.agentspec.components import (
     PluginReadVariableNode,
     PluginWriteVariableNode,
     all_deserialization_plugin,
+    all_serialization_plugin,
 )
 from wayflowcore.agentspec.components.datastores import (
-    PluginOracleDatabaseConnectionConfig,
     PluginOracleDatabaseDatastore,
+    PluginTlsOracleDatabaseConnectionConfig,
 )
 from wayflowcore.agentspec.components.datastores.nodes import (
     PluginDatastoreCreateNode,
@@ -75,7 +77,12 @@ example_datastore = PluginOracleDatabaseDatastore(
             }
         )
     },
-    connection_config=PluginOracleDatabaseConnectionConfig(name="connection_config"),
+    connection_config=PluginTlsOracleDatabaseConnectionConfig(
+        name="connection_config",
+        user="SENSITIVE_FIELD",
+        password="SENSITIVE_FIELD",
+        dsn="SENSITIVE_FIELD",
+    ),
 )
 
 example_tool = ClientTool(name="example_tool", inputs=[city_input], outputs=[city_output])
@@ -412,3 +419,24 @@ def test_extended_node_can_be_partially_constructed_out_of_nothing(extended_node
         {"name": "node"}, plugins=all_deserialization_plugin
     )
     assert isinstance(partially_constructed_node, extended_node_cls)
+
+
+@pytest.mark.parametrize(
+    "node_cls, node_args, expected_schemas",
+    [(node_cls, node_args, input_schemas) for node_cls, node_args, input_schemas, _ in test_cases],
+)
+def test_nodes_do_not_contain_sensitive_info(
+    node_cls: Type[ExtendedNode], node_args: Dict[str, Any], expected_schemas: List[Dict[str, Any]]
+) -> None:
+    node = node_cls(**node_args)
+    flow = Flow(
+        name="some-flow",
+        start_node=start_node,
+        nodes=[start_node, node, end_node],
+        control_flow_connections=[
+            ControlFlowEdge(name="start_to_llm", from_node=start_node, to_node=node),
+            ControlFlowEdge(name="llm_to_end", from_node=node, to_node=end_node),
+        ],
+    )
+    serialized_node = AgentSpecSerializer(plugins=all_serialization_plugin).to_json(flow)
+    assert "SENSITIVE_FIELD" not in serialized_node

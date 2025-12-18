@@ -5,7 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import warnings
-from typing import Any, Callable, Dict, List, Literal, Mapping, Optional, Tuple, Union, overload
+from typing import Any, Callable, Dict, List, Literal, Mapping, Optional, Union, overload
 
 from pyagentspec.component import Component as AgentSpecComponent
 from pyagentspec.serialization import AgentSpecDeserializer, ComponentDeserializationPlugin
@@ -17,9 +17,7 @@ from wayflowcore.serialization.plugins import WayflowDeserializationPlugin
 from wayflowcore.tools import ServerTool as RuntimeServerTool
 
 FieldName: TypeAlias = str
-RuntimeComponentsRegistryT: TypeAlias = Mapping[
-    str, Union[RuntimeComponent, Tuple[RuntimeComponent, FieldName]]
-]
+RuntimeComponentsRegistryT: TypeAlias = Mapping[str, Union[RuntimeComponent, Any]]
 
 
 class AgentSpecLoader:
@@ -463,9 +461,12 @@ class AgentSpecLoader:
 
         exporter = AgentSpecExporter()
         return {
-            custom_id: exporter.to_component(runtime_component)
-            for custom_id, runtime_component in runtime_component_registry.items()
-            if not isinstance(runtime_component, tuple)
+            custom_id: (
+                exporter.to_component(runtime_component_or_value)
+                if isinstance(runtime_component_or_value, RuntimeComponent)
+                else runtime_component_or_value
+            )
+            for custom_id, runtime_component_or_value in runtime_component_registry.items()
         }
 
     def load_component(self, agentspec_component: AgentSpecComponent) -> RuntimeComponent:
