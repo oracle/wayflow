@@ -77,6 +77,7 @@ class A2AAgentExecutor(ConversationExecutor):
         try:
             # Send Messages
             task_ids = []
+            responses = []
             a2aclient = A2AClient(component.agent_url, http_client)
             for msg in a2a_messages:
                 response = await a2aclient.send_message(msg)
@@ -87,13 +88,13 @@ class A2AAgentExecutor(ConversationExecutor):
                     and "task_id" in response["result"]["history"][-1]
                 ):
                     task_id = response["result"]["history"][-1]["task_id"]
+                    task_ids.append(task_id)
                 else:
-                    raise RuntimeError("Missing `task_id` in server response for polling.")
-                task_ids.append(task_id)
+                    # No need to poll as it is a message
+                    responses.append(response)
                 agent_state.last_message_idx += 1
 
             # Get the contents of the replies via polling
-            responses = []
             for task_id in task_ids:
                 task_info_response = await poll_task(
                     a2aclient,

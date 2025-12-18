@@ -285,3 +285,24 @@ def test_a2aagent_causes_timeout_with_custom_connection_config(a2a_server):
     # This timeout is raised by httpx, hence using `httpx.ConnectTimeout`
     with pytest.raises(httpx.ConnectTimeout):
         status = conversation.execute()
+
+
+@retry_test(max_attempts=3)
+def test_adk_a2aagent_replies_with_a_message(adk_a2a_server, connection_config_no_verify):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2025-12-03
+    Average success time:  0.66 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    a2a_agent = A2AAgent(
+        name="ADK A2A Agent",
+        agent_url=adk_a2a_server,
+        connection_config=connection_config_no_verify,
+    )
+    conversation = a2a_agent.start_conversation()
+    conversation.append_user_message("What is 4*4? Use the tools to compute it.")
+    status = conversation.execute()
+    assert "16" in conversation.get_last_message().content
