@@ -19,7 +19,7 @@ _START_SERVER_FILE_PATH = str(Path(__file__).parent / "start_a2a_server.py")
 
 
 def _start_a2a_server(
-    host: str, port: int, agent_type: AgentType, ready_timeout_s: float = 20.0
+    host: str, port: int, agent_type: AgentType, ready_timeout_s: float = 30.0
 ) -> tuple[subprocess.Popen, str]:
     process_args = [
         "python",
