@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from dataclasses import dataclass, field
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, cast
 
 from typing_extensions import Self
 
@@ -20,6 +20,7 @@ from wayflowcore.conversation import Conversation
 from wayflowcore.events.event import _PII_TEXT_MASK, Event
 from wayflowcore.events.eventlistener import (
     EventListener,
+    _record_exception,
     _register_event_listeners,
     get_event_listeners,
     record_event,
@@ -180,7 +181,7 @@ class Span(ABC):
         exc_value: Optional[BaseException],
         traceback: Optional[TracebackType],
     ) -> None:
-        self.end()
+        self.end(exception=(cast(Exception, exc_value) if exc_value is not None else None))
 
     def start(self) -> None:
         """
@@ -207,7 +208,7 @@ class Span(ABC):
             self.__exit__(*sys.exc_info())
             raise e
 
-    def end(self) -> None:
+    def end(self, exception: Optional[Exception] = None) -> None:
         """
         End the span.
 
@@ -216,9 +217,17 @@ class Span(ABC):
 
         If the ``record_end_span_event`` method was not called for this span, it is
         called automatically with a default EndSpanEvent, and a warning is raised.
+
+        Parameters
+        ----------
+        exception:
+            The exception that was raised during the execution of the span.
         """
         try:
             from wayflowcore.events.event import EndSpanEvent
+
+            if exception is not None:
+                _record_exception(exception)
 
             exceptions_list: List[Exception] = []
             self.end_time = time.time_ns()
@@ -231,10 +240,11 @@ class Span(ABC):
                 except Exception as e:
                     exceptions_list.append(e)
             if not self._end_event_was_triggered:
-                warnings.warn(
-                    "End span event was not manually recorded, a default one will be triggered. "
-                    "We recommend to record an end event manually."
-                )
+                if exception is None:
+                    warnings.warn(
+                        "End span event was not manually recorded, a default one will be triggered. "
+                        "We recommend to record an end event manually."
+                    )
                 self._record_end_span_event(event=EndSpanEvent(span=self, timestamp=self.end_time))
             # If we caught exceptions before, we raise one of them here (the first we caught)
             if len(exceptions_list) > 0:

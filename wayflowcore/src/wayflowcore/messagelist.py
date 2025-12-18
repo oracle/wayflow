@@ -281,7 +281,7 @@ class Message(SerializableDataclass):
 
         valid_roles = ["user", "system", "assistant"]
         if effective_role not in valid_roles:
-            logger.warning(
+            warnings.warn(
                 f"An invalid role was passed as parameter {role}. The role should be one of {valid_roles}"
             )
         self.role = cast(Literal["user", "assistant", "system"], effective_role)
@@ -557,7 +557,7 @@ class MessageList(SerializableDataclass):
         from wayflowcore.events.eventlistener import record_event
 
         if message is None:
-            logger.warning(
+            warnings.warn(
                 "Attempted to append a None message to the messages list. This message has been discarded."
             )
             return

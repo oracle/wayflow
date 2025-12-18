@@ -11,7 +11,7 @@ import pytest
 
 from wayflowcore.agent import Agent
 from wayflowcore.contextproviders.constantcontextprovider import ConstantContextProvider
-from wayflowcore.events.event import EndSpanEvent, Event, StartSpanEvent
+from wayflowcore.events.event import EndSpanEvent, Event, ExceptionRaisedEvent, StartSpanEvent
 from wayflowcore.events.eventlistener import (
     GenericEventListener,
     record_event,
@@ -163,14 +163,38 @@ def test_recording_span_end_event_twice_raises_exception() -> None:
 
 
 def test_closing_span_without_calling_record_end_span_event_method_raises_warning() -> None:
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match="End span event was not manually recorded"):
         with MyCustomSpan():
             pass
 
     span = MyCustomSpan()
     span.start()
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match="End span event was not manually recorded"):
         span.end()
+
+
+def test_raised_exception_in_span_does_not_raise_warning() -> None:
+    with pytest.raises(ValueError, match="custom error"):
+        with MyCustomSpan():
+            raise ValueError("custom error")
+
+
+def test_raised_exception_in_span_is_recorded_as_event_automatically() -> None:
+    with pytest.raises(ValueError, match="custom error"):
+        with MyCustomSpan() as s:
+            raise ValueError("custom error")
+
+    assert any(isinstance(e, ExceptionRaisedEvent) for e in s.events)
+
+
+def test_raised_exception_in_span_is_recorded_as_event_automatically_only_once() -> None:
+    with pytest.raises(ValueError, match="custom error"):
+        with MyCustomSpan() as outer_span:
+            with MyCustomSpan() as inner_span:
+                raise ValueError("custom error")
+
+    assert len([e for e in outer_span.events if isinstance(e, ExceptionRaisedEvent)]) == 0
+    assert len([e for e in inner_span.events if isinstance(e, ExceptionRaisedEvent)]) == 1
 
 
 def test_recorded_events_are_added_to_correct_span() -> None:
@@ -327,28 +351,29 @@ def test_span_is_deregistered_when_an_exception_is_raised_in_end_event() -> None
 
     assert get_current_span() is None
     try:
-        with register_event_listeners(
-            [
-                GenericEventListener(
-                    event_classes=[EndSpanEvent],
-                    function=_raises_exception,
-                )
-            ]
-        ):
-            with MyCustomSpan() as span_1:
-                try:
-                    with MyCustomSpan() as span_2:
-                        assert get_current_span() is span_2
-                        assert len(get_active_span_stack()) == 2
-                        with MyCustomSpan() as span_3:
-                            assert get_current_span() is span_3
-                            assert len(get_active_span_stack()) == 3
-                            span_3.record_end_span_event(EndSpanEvent(span=span_3))
-                except ValueError:
-                    pass
-                # We ensure that both spans are removed from stack
-                assert get_current_span() is span_1
-                assert len(get_active_span_stack()) == 1
+        with pytest.warns(UserWarning, match="End span event was not manually recorded"):
+            with register_event_listeners(
+                [
+                    GenericEventListener(
+                        event_classes=[EndSpanEvent],
+                        function=_raises_exception,
+                    )
+                ]
+            ):
+                with MyCustomSpan() as span_1:
+                    try:
+                        with MyCustomSpan() as span_2:
+                            assert get_current_span() is span_2
+                            assert len(get_active_span_stack()) == 2
+                            with MyCustomSpan() as span_3:
+                                assert get_current_span() is span_3
+                                assert len(get_active_span_stack()) == 3
+                                span_3.record_end_span_event(EndSpanEvent(span=span_3))
+                    except ValueError:
+                        pass
+                    # We ensure that both spans are removed from stack
+                    assert get_current_span() is span_1
+                    assert len(get_active_span_stack()) == 1
     except ValueError:
         pass
     assert get_current_span() is None

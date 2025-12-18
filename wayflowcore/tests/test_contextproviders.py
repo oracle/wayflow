@@ -344,7 +344,7 @@ def test_context_provider_output_description_names_collision_when_init_flow() ->
     mock_step = OutputMessageStep(message_template="{{my_context_provider}}")
     with pytest.raises(
         ValueError,
-        match="The provided list of context providers contains those with non-unique output description names",
+        match="The provided list of context providers contains non-unique output description names",
     ):
         Flow(
             begin_step=mock_step,

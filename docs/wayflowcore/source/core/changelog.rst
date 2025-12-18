@@ -109,6 +109,12 @@ Bug fixes
   are not supported by the serializer. The tracing helpers now fall back to stringifying those
   values while preserving container structures.
 
+* **Recording of end span event in case of exception:**
+
+  Fixed a bug where if an exception happened during a span, it would not be recorded and the span closing would
+  raise an unwanted warning. Now properly records the exception as an ExceptionRaisedEvent and does not throw
+  a warning.
+
 * **Default values in agents inputs were ignored:**
 
   Fixed a bug where if agents had input descriptors with default values set, these defaults were ignored and not

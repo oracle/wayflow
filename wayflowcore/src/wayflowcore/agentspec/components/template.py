@@ -140,7 +140,7 @@ class PluginPromptTemplate(Component):
         else:
             if self.TOOL_PLACEHOLDER_NAME not in inputs_names:
                 warnings.warn(
-                    f"There is no tool placeholder {self.TOOL_PLACEHOLDER_NAME} in the template and it has been configured in non-FC mode. The model will not see any tools. Inputs are {self.inputs}"
+                    f"There is no tool placeholder {self.TOOL_PLACEHOLDER_NAME} in the template and it has been configured in non-function-calling mode. The model will not see any tools. Inputs are {self.inputs}"
                 )
             if self.output_parser is None:
                 raise ValueError(

@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import logging
+import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from wayflowcore._metadata import MetadataType
@@ -90,32 +91,42 @@ class BranchingStep(Step):
 
         Examples
         --------
+        >>> from wayflowcore.controlconnection import ControlFlowEdge
         >>> from wayflowcore.flow import Flow
         >>> from wayflowcore.steps import BranchingStep, OutputMessageStep
-        >>> BRANCHING_STEP = "BRANCHING"
-        >>> OUTPUT_ACCESS_GRANTED_STEP = "ACCESS_GRANTED"
-        >>> OUTPUT_ACCESS_DENIED_STEP = "ACCESS_DENIED"
         >>> NEXT_STEP_NAME_IO = "$next_step_name"
         >>> branching_step = BranchingStep(
-        ...         branch_name_mapping={"yes": "access_is_granted", "no": "access_is_denied"},
-        ...         input_mapping={BranchingStep.NEXT_BRANCH_NAME: NEXT_STEP_NAME_IO},
-        ...    )
+        ...     branch_name_mapping={"yes": "access_is_granted", "no": "access_is_denied"},
+        ...     input_mapping={BranchingStep.NEXT_BRANCH_NAME: NEXT_STEP_NAME_IO},
+        ...     name="BRANCHING"
+        ... )
+        >>> output_access_granted_step = OutputMessageStep(
+        ...     "Access granted. Press any key to continue...", name="ACCESS_GRANTED"
+        ... )
+        >>> output_access_denied_step = OutputMessageStep(
+        ...     "Access denied. Please exit the conversation.", name="ACCESS_DENIED"
+        ... )
         >>> assistant = Flow(
         ...     begin_step=branching_step,
-        ...     steps={
-        ...         BRANCHING_STEP: branching_step,
-        ...         OUTPUT_ACCESS_GRANTED_STEP: OutputMessageStep("Access granted. Press any key to continue..."),
-        ...         OUTPUT_ACCESS_DENIED_STEP: OutputMessageStep("Access denied. Please exit the conversation."),
-        ...     },
-        ...     transitions={
-        ...         BRANCHING_STEP: {
-        ...             'access_is_granted': OUTPUT_ACCESS_GRANTED_STEP,
-        ...             'access_is_denied': OUTPUT_ACCESS_DENIED_STEP,
-        ...             BranchingStep.BRANCH_DEFAULT: OUTPUT_ACCESS_DENIED_STEP,
-        ...         },
-        ...         OUTPUT_ACCESS_GRANTED_STEP: [None],
-        ...         OUTPUT_ACCESS_DENIED_STEP: [None],
-        ...     }
+        ...     control_flow_edges=[
+        ...         ControlFlowEdge(
+        ...             source_step=branching_step,
+        ...             source_branch="access_is_granted",
+        ...             destination_step=output_access_granted_step,
+        ...         ),
+        ...         ControlFlowEdge(
+        ...             source_step=branching_step,
+        ...             source_branch="access_is_denied",
+        ...             destination_step=output_access_denied_step,
+        ...         ),
+        ...         ControlFlowEdge(
+        ...             source_step=branching_step,
+        ...             source_branch=BranchingStep.BRANCH_DEFAULT,
+        ...             destination_step=output_access_denied_step,
+        ...         ),
+        ...         ControlFlowEdge(source_step=output_access_granted_step, destination_step=None),
+        ...         ControlFlowEdge(source_step=output_access_denied_step, destination_step=None),
+        ...     ],
         ... )
         >>> conversation = assistant.start_conversation(inputs={NEXT_STEP_NAME_IO: "yes"})
         >>> status = conversation.execute()
@@ -173,7 +184,7 @@ class BranchingStep(Step):
         if branch_name_mapping is not None:
             branches_names = list(branch_name_mapping.values())
             if cls.BRANCH_DEFAULT in branches_names:
-                logger.warning(
+                warnings.warn(
                     f"Branching step already has a branch named {cls.BRANCH_DEFAULT}. Please choose another name in the `branch_name_mapping` values"
                 )
             branches.extend(branches_names)

@@ -77,7 +77,7 @@ class DummyModel(LlmModel):
                 key = prompt[-1].content
                 if key not in self.output:
                     raise ValueError(
-                        f"Dummy model wrongly configured, missing key {key} in dummy dict: {self.output}"
+                        f"Dummy model wrongly configured, missing key `{key}` in dummy dict: {self.output}"
                     )
                 output = self.output[key]
         else:

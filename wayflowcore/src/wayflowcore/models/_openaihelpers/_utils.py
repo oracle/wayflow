@@ -3,10 +3,12 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-
+import json
 import logging
 from copy import deepcopy
 from typing import Any, Dict
+
+import json_repair
 
 from wayflowcore.models.openaiapitype import OpenAIAPIType
 from wayflowcore.property import JsonSchemaParam, Property
@@ -102,3 +104,22 @@ def _build_request_url(base_url: str, api_type: OpenAIAPIType) -> str:
 
     # Otherwise, append  v1 + api-specific end
     return f"{base}/v1{_api_type_to_url_str[api_type]}"
+
+
+def _safe_json_loads(text: str) -> Any:
+    """Tries loading with JSON, defaults to repair_json if the json is wrongly
+    formatted (can happen for some remote LLMs)"""
+    try:
+        json_dict = json.loads(text)
+        if not isinstance(json_dict, dict):
+            raise TypeError(f"Expected a dict, but got: {type(json_dict)}")
+        return json_dict
+    except (json.decoder.JSONDecodeError, TypeError) as e:
+        logger.debug(
+            "Failed to decode JSON in the tool call returned by the LLM: %s. Will fallback on json_repair",
+            e,
+        )
+        repaired_json_struct = json_repair.loads(text)
+        if isinstance(repaired_json_struct, dict):
+            return repaired_json_struct
+        return {"wrong_arg_name": repaired_json_struct}

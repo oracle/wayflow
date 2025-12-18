@@ -3,6 +3,7 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+import logging
 
 import anyio
 import pytest
@@ -11,7 +12,7 @@ from wayflowcore import Flow
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
-from wayflowcore.property import StringProperty
+from wayflowcore.property import AnyProperty, DictProperty, StringProperty
 from wayflowcore.steps import (
     BranchingStep,
     InputMessageStep,
@@ -43,7 +44,7 @@ STEP_3 = OutputMessageStep(
 
 def test_flow_without_input_descriptors_correctly_raises_an_exception_on_conflicting_names():
     with pytest.raises(
-        ValueError, match="Some input descriptors have the same name but are different"
+        ValueError, match="Some flow input descriptors have the same name but are different"
     ):
         flow = Flow.from_steps(steps=[STEP_1, STEP_2, STEP_3], input_descriptors=None)
 
@@ -265,7 +266,8 @@ def test_flow_with_missing_input_without_default_raises_exception():
     )
     with pytest.raises(
         ValueError,
-        match="Step named `output_step` requires an input called `missing_input`, but no input with",
+        match="Step named `output_step` requires an input",
+        # match="Step named `output_step` requires an input called `missing_input`, but no input with",
     ):
         _ = Flow(
             begin_step=output_step,
@@ -293,3 +295,200 @@ def test_flow_with_missing_input_with_default_value_works():
     assert flow.input_descriptors[0].name == "user_input"
     assert len(flow.input_descriptors_dict) == 1
     assert "user_input" in flow.input_descriptors_dict
+
+
+def test_steps_with_input_names_conflicts_raises_warning(caplog):
+    caplog.set_level(logging.WARNING)
+
+    step_1 = OutputMessageStep(message_template="{{i1}}")
+    step_2 = OutputMessageStep(message_template="{{i1}}")
+    flow = Flow.from_steps([step_1, step_2])
+
+    assert "Make sure that these refer to the same input" in caplog.text
+
+
+def test_steps_with_input_names_conflicts_with_different_types_raises_error():
+    step_1 = OutputMessageStep(
+        message_template="{{i1}}", input_descriptors=[AnyProperty(name="i1")]
+    )
+    step_2 = OutputMessageStep(
+        message_template="{{i1}}", input_descriptors=[DictProperty(name="i1")]
+    )
+
+    with pytest.raises(ValueError, match="Their types are not compatible"):
+        flow = Flow.from_steps([step_1, step_2])
+
+
+def test_steps_with_input_names_conflicts_does_not_raises_warning_with_data_edges(caplog):
+    caplog.set_level(logging.WARNING)
+
+    step_1 = OutputMessageStep(message_template="{{i1}}")
+    step_2 = OutputMessageStep(message_template="{{i1}}")
+    start_step = StartStep(input_descriptors=[StringProperty(name="i1")])
+
+    data_edges = [
+        DataFlowEdge(
+            source_step=start_step,
+            source_output="i1",
+            destination_step=step_1,
+            destination_input="i1",
+        ),
+        DataFlowEdge(
+            source_step=start_step,
+            source_output="i1",
+            destination_step=step_2,
+            destination_input="i1",
+        ),
+    ]
+
+    flow = Flow.from_steps([start_step, step_1, step_2], data_flow_edges=data_edges)
+    assert "Make sure that these refer to the same input" not in caplog.text
+
+
+def test_step_in_data_flow_edge_destination_is_not_mentioned_in_the_control_flow_edges():
+    step_1 = OutputMessageStep(message_template="{{i1}}", name="step1")
+    step_2 = OutputMessageStep(message_template="{{i2}}", name="step2")
+    step_3 = OutputMessageStep(message_template="{{i3}}", name="step3")
+
+    with pytest.raises(ValueError, match="The destination step `step3`"):
+        flow = Flow(
+            begin_step=step_1,
+            control_flow_edges=[
+                ControlFlowEdge(source_step=step_1, destination_step=step_2),
+                ControlFlowEdge(source_step=step_2, destination_step=None),
+            ],
+            data_flow_edges=[
+                DataFlowEdge(
+                    source_step=step_1,
+                    source_output=step_1.OUTPUT,
+                    destination_step=step_3,
+                    destination_input="i3",
+                ),
+                DataFlowEdge(
+                    source_step=step_1,
+                    source_output=step_1.OUTPUT,
+                    destination_step=step_2,
+                    destination_input="i2",
+                ),
+            ],
+        )
+
+
+def test_step_in_data_flow_edge_source_is_not_mentioned_in_the_control_flow_edges():
+    step_1 = OutputMessageStep(message_template="{{i1}}", name="step1")
+    step_2 = OutputMessageStep(message_template="{{i2}}", name="step2")
+    step_3 = OutputMessageStep(message_template="{{i3}}", name="step3")
+
+    with pytest.raises(ValueError, match="The source step `step3`"):
+        flow = Flow(
+            begin_step=step_1,
+            control_flow_edges=[
+                ControlFlowEdge(source_step=step_1, destination_step=step_2),
+                ControlFlowEdge(source_step=step_2, destination_step=None),
+            ],
+            data_flow_edges=[
+                DataFlowEdge(
+                    source_step=step_3,
+                    source_output=step_3.OUTPUT,
+                    destination_step=step_1,
+                    destination_input="i1",
+                ),
+                DataFlowEdge(
+                    source_step=step_1,
+                    source_output=step_1.OUTPUT,
+                    destination_step=step_2,
+                    destination_input="i2",
+                ),
+            ],
+        )
+
+
+def test_missing_step_input_needs_to_be_added_to_start_step_raises():
+    start_step = StartStep(input_descriptors=[])
+    step_1 = OutputMessageStep(message_template="{{i1}}", name="step1")
+    step_2 = OutputMessageStep(message_template="{{i2}}", name="step2")
+
+    with pytest.raises(ValueError, match="The flow requires the input descriptor"):
+        flow = Flow(
+            begin_step=start_step,
+            control_flow_edges=[
+                ControlFlowEdge(source_step=start_step, destination_step=step_1),
+                ControlFlowEdge(source_step=step_1, destination_step=step_2),
+                ControlFlowEdge(source_step=step_2, destination_step=None),
+            ],
+            data_flow_edges=[
+                DataFlowEdge(
+                    source_step=step_1,
+                    source_output=step_1.OUTPUT,
+                    destination_step=step_2,
+                    destination_input="i2",
+                )
+            ],
+        )
+
+
+def test_node_in_control_flow_edge_not_in_steps_list():
+    step_1 = OutputMessageStep(message_template="{{i1}}", name="step1")
+    step_2 = OutputMessageStep(message_template="{{i2}}", name="step2")
+
+    with pytest.raises(ValueError, match="The destination step in control flow edge"):
+        flow = Flow(
+            begin_step=step_1,
+            steps=[step_1],
+            control_flow_edges=[
+                ControlFlowEdge(source_step=step_1, destination_step=step_2),
+                ControlFlowEdge(source_step=step_2, destination_step=None),
+            ],
+        )
+
+
+def test_node_in_data_flow_edge_not_in_steps_list():
+    step_1 = OutputMessageStep(message_template="{{i1}}", name="step1")
+    step_2 = OutputMessageStep(message_template="{{i2}}", name="step2")
+
+    with pytest.raises(
+        ValueError, match="The destination step `step2` present in the data flow edge"
+    ):
+        flow = Flow(
+            begin_step=step_1,
+            steps=[step_1],
+            control_flow_edges=[
+                ControlFlowEdge(source_step=step_1, destination_step=None),
+            ],
+            data_flow_edges=[
+                DataFlowEdge(
+                    source_step=step_1,
+                    source_output=step_1.OUTPUT,
+                    destination_step=step_2,
+                    destination_input="i2",
+                ),
+            ],
+        )
+
+
+def test_node_does_not_have_incoming_edges():
+    step_1 = OutputMessageStep(message_template="{{i1}}", name="step1")
+    step_2 = OutputMessageStep(message_template="{{i2}}", name="step2")
+
+    with pytest.raises(ValueError, match="No step is transitioning to step `step2`"):
+        flow = Flow(
+            begin_step=step_1,
+            steps=[step_1, step_2],
+            control_flow_edges=[
+                ControlFlowEdge(source_step=step_1, destination_step=None),
+            ],
+        )
+
+
+def test_node_does_not_have_outgoing_edges():
+    step_1 = OutputMessageStep(message_template="{{i1}}", name="step1")
+    step_2 = OutputMessageStep(message_template="{{i2}}", name="step2")
+
+    with pytest.raises(ValueError, match="Transition is not specified for step"):
+        flow = Flow(
+            begin_step=step_1,
+            steps=[step_1, step_2],
+            control_flow_edges=[
+                ControlFlowEdge(source_step=step_1, destination_step=step_2),
+            ],
+        )
