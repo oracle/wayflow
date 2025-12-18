@@ -151,57 +151,58 @@ def test_step_deserialization_raises_when_message_type_does_not_exist() -> None:
 
 
 def test_can_deserialise_subflow_execution_step() -> None:
-    step = deserialize(
-        Step,
-        """
-        _component_type: Step
-        step_args:
-            flow:
-                _component_type: Flow
-                begin_step_name: STEP_A
-                end_steps:
-                - null
-                steps:
-                    STEP_A:
-                        _component_type: Step
-                        step_args:
-                            message_template: Hello!
-                            message_type: AGENT
-                            rephrase: false
-                        step_cls: OutputMessageStep
-                    STEP_B:
-                        _component_type: Step
-                        step_args:
-                            message_template: How
-                            message_type: AGENT
-                            rephrase: false
-                        step_cls: OutputMessageStep
-                    STEP_C:
-                        _component_type: Step
-                        step_args:
-                            message_template: are
-                            message_type: AGENT
-                            rephrase: false
-                        step_cls: OutputMessageStep
-                    STEP_D:
-                        _component_type: Step
-                        step_args:
-                            message_template: you?
-                            message_type: AGENT
-                            rephrase: false
-                        step_cls: OutputMessageStep
-                transitions:
-                    STEP_A:
-                    - STEP_B
-                    STEP_B:
-                    - STEP_C
-                    STEP_C:
-                    - STEP_D
-                    STEP_D:
+    with pytest.warns(DeprecationWarning, match="Usage of `transitions` is deprecated"):
+        step = deserialize(
+            Step,
+            """
+            _component_type: Step
+            step_args:
+                flow:
+                    _component_type: Flow
+                    begin_step_name: STEP_A
+                    end_steps:
                     - null
-        step_cls: FlowExecutionStep
-    """,
-    )
+                    steps:
+                        STEP_A:
+                            _component_type: Step
+                            step_args:
+                                message_template: Hello!
+                                message_type: AGENT
+                                rephrase: false
+                            step_cls: OutputMessageStep
+                        STEP_B:
+                            _component_type: Step
+                            step_args:
+                                message_template: How
+                                message_type: AGENT
+                                rephrase: false
+                            step_cls: OutputMessageStep
+                        STEP_C:
+                            _component_type: Step
+                            step_args:
+                                message_template: are
+                                message_type: AGENT
+                                rephrase: false
+                            step_cls: OutputMessageStep
+                        STEP_D:
+                            _component_type: Step
+                            step_args:
+                                message_template: you?
+                                message_type: AGENT
+                                rephrase: false
+                            step_cls: OutputMessageStep
+                    transitions:
+                        STEP_A:
+                        - STEP_B
+                        STEP_B:
+                        - STEP_C
+                        STEP_C:
+                        - STEP_D
+                        STEP_D:
+                        - null
+            step_cls: FlowExecutionStep
+        """,
+        )
     assert isinstance(step, Step)
     assert isinstance(step, FlowExecutionStep)
     assert isinstance(step.flow, Flow)

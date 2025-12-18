@@ -3,7 +3,6 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-import warnings
 from copy import deepcopy
 from typing import Any, Dict, Type
 
@@ -39,10 +38,6 @@ class LlmModelFactory:
             config_copy["generation_config"] = LlmGenerationConfig.from_dict(
                 config_copy["generation_config"]
             )
-
-        if "model_args" in config_copy:
-            warnings.warn("Deprecated model_args. Use the wayflowcore model arguments")
-            config_copy.pop("model_args")
 
         if model_type == "ocigenai":
             if "client_config" in config_copy:

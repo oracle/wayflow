@@ -34,7 +34,13 @@ from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
-from wayflowcore.property import ObjectProperty, Property, _cast_value_into, _empty_default
+from wayflowcore.property import (
+    ObjectProperty,
+    Property,
+    _cast_value_into,
+    _empty_default,
+    _property_can_be_casted_into_property,
+)
 from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.tools import Tool
 
@@ -91,6 +97,7 @@ def _resolve_inputs_and_outputs(
     creating a conversation) as well as the produced flow outputs.
     """
     from wayflowcore.executors._flowexecutor import FlowConversationExecutor
+    from wayflowcore.steps.step import Step
 
     # The below list of tuples is used for traversing through the flow:
     # - current_step_name: str
@@ -102,6 +109,7 @@ def _resolve_inputs_and_outputs(
     # - produced_mapped_outputs_along_path: Dict[str, Property]
     #    All outputs renamed using the output mappings. This is kept for backward compatibility
     resolved_input_descriptors_dict: Dict[str, Property] = {}
+    producing_step_by_input_descriptor_name: Dict[str, Step] = {}
     _input_mapping_to_io_value_keys: Dict[str, List["_IoKeyType"]] = {}
     queue: List[Tuple[str, Set["_IoKeyType"], Dict[str, Property]]] = [(begin_step_name, set(), {})]
     all_possible_produced_outputs_at_exit: Dict[str, Dict[str, Property]] = {}
@@ -118,7 +126,8 @@ def _resolve_inputs_and_outputs(
             )
         except StopIteration:
             raise ValueError(
-                f"The flow does not seem to contain the destination step '{destination_step}"
+                f"The destination step `{destination_step.name}` present in the data flow edge (`{data_flow_edge})`"
+                f" does not seem to exist in the flow. Make sure it is mentioned in at least one control flow edge and in the steps."
             )
 
         return destination_step_name, data_flow_edge.destination_input
@@ -184,15 +193,45 @@ def _resolve_inputs_and_outputs(
             io_key = (current_step_name, input_name)
             if not has_matching_contextprovider and io_key not in produced_outputs_along_path:
                 if input_name in resolved_input_descriptors_dict:
-                    logger.warning(
-                        "Detected two inputs with the same names: the input %s from step %s was already produced: %s. Conflicts might happen",
-                        input_type,
-                        current_step,
-                        resolved_input_descriptors_dict[input_name],
-                    )
+                    if not data_flow_edges:
+                        other_input_descriptor = resolved_input_descriptors_dict[input_name]
+                        other_step = producing_step_by_input_descriptor_name[input_name]
+                        base_message = (
+                            "You did not specify any data edges, so they were created automatically based on a breath-first visit of the flow.\n"
+                            "The input `%s` of step `%s` (of type `%s`) has the same name as \n"
+                            "the input `%s` of step `%s` (of type `%s`), so they will appear as a single "
+                            "input of the flow. \n"
+                        )
+                        if not _property_can_be_casted_into_property(
+                            other_input_descriptor, input_type
+                        ):
+                            raise ValueError(
+                                base_message.replace("%s", "{}").format(
+                                    input_type.pretty_str(),
+                                    current_step.name,
+                                    type(current_step).__name__,
+                                    other_input_descriptor.pretty_str(),
+                                    other_step.name,
+                                    type(other_step).__name__,
+                                )
+                                + "Their types are not compatible, please change one of the names."
+                            )
+                        else:
+                            logger.warning(
+                                base_message
+                                + "Make sure that these refer to the same input or conflicts might happen",
+                                input_type.pretty_str(),
+                                current_step.name,
+                                type(current_step).__name__,
+                                other_input_descriptor.pretty_str(),
+                                other_step.name,
+                                type(other_step).__name__,
+                            )
                     conflicting_input_descriptors[input_name] = conflicting_input_descriptors.get(
                         input_name, []
                     ) + [input_type]
+
+                producing_step_by_input_descriptor_name[input_name] = current_step
                 resolved_input_descriptors_dict[input_name] = input_type
                 if input_name not in _input_mapping_to_io_value_keys:
                     _input_mapping_to_io_value_keys[input_name] = []
@@ -202,6 +241,15 @@ def _resolve_inputs_and_outputs(
         for data_flow_edge in data_flow_edges:
             if data_flow_edge.source_step is current_step:
                 produced_outputs_along_path.add(_get_destination_from_edge(data_flow_edge))
+
+            source_step = data_flow_edge.source_step
+            if isinstance(source_step, Step) and not any(
+                step_object for step_object in steps.values() if step_object is source_step
+            ):
+                raise ValueError(
+                    f"The source step `{source_step.name}` present in the data flow edge (`{data_flow_edge})`"
+                    f" does not seem to exist in the flow. Make sure it is mentioned in at least one control flow edge"
+                )
 
         for output_descriptor in current_step.output_descriptors:
             produced_mapped_outputs_along_path[output_descriptor.name] = output_descriptor
@@ -252,7 +300,8 @@ def _resolve_inputs_and_outputs(
         for input_name, prop in resolved_input_descriptors_dict.items():
             if not prop.has_default and input_name not in start_step_input_descriptors:
                 raise ValueError(
-                    f"The flow requires the input descriptor `{input_name}` "
+                    f"The flow requires the input descriptor `{prop.pretty_str()}` because some"
+                    f" step requires it but "
                     f"that is not available in the StartStep. Please add it."
                 )
         flow_input_descriptors_dict = start_step_input_descriptors
@@ -328,8 +377,8 @@ def _remap_input_to_io_value_keys_with_startstep(
                     # No default given for the destination input, that's a problem
                     raise ValueError(
                         f"Step named `{destination_step_name}` requires an input called `{original_step_input_name}`, "
-                        f"but no input with that name was given to the flow. Please check your input descriptors, "
-                        f"or give it a default value."
+                        f"but no input with that name was given to the flow. Please check the input descriptors of this step,"
+                        f" add a data flow edge or give it a default value."
                     )
                 # We have a default, we can continue without adding the edge
                 continue
@@ -419,7 +468,7 @@ class Flow(ConversationalComponent, SerializableObject):
 
     def __init__(
         self,
-        steps: Optional[Dict[str, "Step"]] = None,
+        steps: Optional[Union[Dict[str, "Step"], List["Step"]]] = None,
         begin_step: Optional["Step"] = None,
         data_flow_edges: Optional[List[DataFlowEdge]] = None,
         control_flow_edges: Optional[List[ControlFlowEdge]] = None,
@@ -524,23 +573,23 @@ class Flow(ConversationalComponent, SerializableObject):
         Examples
         --------
         >>> from wayflowcore.flow import Flow
-        >>> from wayflowcore.steps import OutputMessageStep, InputMessageStep, StartStep
+        >>> from wayflowcore.steps import OutputMessageStep, InputMessageStep, StartStep, CompleteStep
         >>> from wayflowcore.controlconnection import ControlFlowEdge
         >>> from wayflowcore.property import StringProperty
-        >>> START_STEP = "start_step"
-        >>> OUTPUT_STEP = "output_step"
         >>> USER_NAME = "$message"
-        >>> start_step = StartStep(input_descriptors=[StringProperty(name=USER_NAME)])
+        >>> start_step = StartStep(name="start_step", input_descriptors=[StringProperty(name=USER_NAME)])
         >>> output_step = OutputMessageStep(
+        ...     name="output_step",
         ...     message_template="Welcome, {{username}}",
         ...     input_mapping={"username": USER_NAME}
         ... )
+        >>> complete_step = CompleteStep(name='complete_step')
         >>> flow = Flow(
         ...     begin_step=start_step,
-        ...     steps={START_STEP: start_step, OUTPUT_STEP: output_step},
+        ...     steps=[start_step, output_step, complete_step],
         ...     control_flow_edges=[
         ...         ControlFlowEdge(source_step=start_step, destination_step=output_step),
-        ...         ControlFlowEdge(source_step=output_step, destination_step=None),
+        ...         ControlFlowEdge(source_step=output_step, destination_step=complete_step),
         ...     ],
         ... )
         >>> conversation = flow.start_conversation(inputs={USER_NAME: "User"})
@@ -568,29 +617,47 @@ class Flow(ConversationalComponent, SerializableObject):
             for step in all_steps:
                 if step.name is None:
                     raise ValueError(
-                        f"Found step without name ({step}. Either set a name on each step, or pass a `steps` dict to the flow"
+                        f"Found step without name: `{step}`. Either set a name on each step, or pass a `steps` dict to the flow"
                     )
                 elif step.name not in steps:
                     steps[step.name] = step
                 elif steps[step.name] is not step:
                     raise ValueError(
-                        f"Found 2 different steps with similar names: {steps[step.name]}, {step}. Please make sure names are unique."
+                        f"Found 2 different steps with similar names: {steps[step.name]}, {step}. Please make sure step names are unique in the flow"
                     )
+        elif isinstance(steps, list):
+            step_names_to_steps_dict: Dict[str, Step] = {}
+            for step in steps:
+                if step.name in step_names_to_steps_dict:
+                    raise ValueError(
+                        f"Two steps have the same id: {step} and {step_names_to_steps_dict[step.name]}"
+                    )
+                step_names_to_steps_dict[step.name] = step
+            steps = step_names_to_steps_dict
+        elif isinstance(steps, dict):
+            # we override the names
+            for step_name, step in steps.items():
+                if step.name is not None and IdGenerator.is_auto_generated(step.name):
+                    step.name = step_name
 
         # Validate begin step name
         if begin_step is not None:
             if begin_step not in steps.values():
-                raise ValueError(f"Indicated begin step `{begin_step}` is not present in the steps")
+                raise ValueError(
+                    f"Indicated begin step name `{begin_step}` is not present in the steps"
+                )
             begin_step_name = next(
                 step_name for step_name, step in steps.items() if step == begin_step
             )
         else:
             raise ValueError(
-                "You should specify the starting step with ``begin_step``, but was None"
+                "You should specify the starting step with the ``begin_step`` argument, but was None"
             )
 
         if _is_step_a_complete_step(steps[begin_step_name]):
-            raise ValueError("A flow cannot start with a CompleteStep.")
+            raise ValueError(
+                "A flow cannot start with a CompleteStep. Please specify another ``begin_step``."
+            )
 
         start_step_count = sum(_is_step_a_start_step(step) for step in steps.values())
         if start_step_count > 1:
@@ -606,8 +673,7 @@ class Flow(ConversationalComponent, SerializableObject):
             if self._DEFAULT_STARTSTEP_NAME in steps:
                 raise ValueError(
                     f"A step with the default StartStep name `{self._DEFAULT_STARTSTEP_NAME}` is given, "
-                    f"but it's not of type StartStep. Please provide a StartStep instance "
-                    f"and set its name as `begin_step_name`."
+                    f"but it's not of type StartStep. Please use another name."
                 )
 
         extended_end_steps: List[Optional[str]] = list(
@@ -622,8 +688,12 @@ class Flow(ConversationalComponent, SerializableObject):
                 raise ValueError(
                     "Cannot set both `control_flow_edges` and `transitions`. Please use `control_flow_edges`."
                 )
+            self._check_all_steps_are_mentioned(control_flow_edges, steps)
         elif transitions is not None:
-            logger.warning("Usage of `transitions` is deprecated. Please use `control_flow_edges`.")
+            warnings.warn(
+                "Usage of `transitions` is deprecated. Please use `control_flow_edges`.",
+                DeprecationWarning,
+            )
             control_flow_edges = self._convert_transition_mapping_into_control_flow_edges(
                 transitions=transitions, steps=steps
             )
@@ -640,7 +710,8 @@ class Flow(ConversationalComponent, SerializableObject):
             if control_flow_edge.destination_step is not None
         ):
             raise ValueError(
-                "Found a control edge with the StartStep as destination. This is not accepted."
+                "Found a control edge with the StartStep as destination. There should be a single StartStep per Flow"
+                " and it should not be specified as a destination of a control flow edge."
             )
 
         # Specify the list of Context Providers, convert them if needed and validate their names
@@ -683,10 +754,6 @@ class Flow(ConversationalComponent, SerializableObject):
         if not _is_step_a_start_step(steps[begin_step_name]):
             from wayflowcore.steps import StartStep
 
-            logger.info(
-                "No StartStep was given as part of the Flow, one will be added automatically."
-            )
-
             context_providers_output_descriptor_names = {
                 output_descriptor.name
                 for context_provider in context_providers
@@ -704,14 +771,30 @@ class Flow(ConversationalComponent, SerializableObject):
                         descriptor == input_descriptor
                         for descriptor in conflicting_input_descriptors[input_descriptor.name]
                     ):
+                        formatted_properties = (
+                            "\n-"
+                            + "\n -".join(
+                                s.pretty_str()
+                                for s in conflicting_input_descriptors[input_descriptor.name]
+                            )
+                            + "\n"
+                        )
                         raise ValueError(
-                            f"Some input descriptors have the same name but are different: {conflicting_input_descriptors[input_descriptor.name]}\nPlease make sure they should all take the same input value (in which case they should be the sidentical) or specify the inputs ofthe flow."
+                            f"Some flow input descriptors have the same name but are different:\n"
+                            f"{formatted_properties}"
+                            f"Please make sure properties with a common name are identical, or change one of the names to avoid conflicts."
                         )
 
             else:
                 resolved_input_descriptors = input_descriptors
 
             auto_start_step_input_resolution = input_descriptors is None
+
+            logger.info(
+                "No StartStep was given as part of the Flow, one will be added with the following detected inputs: %s",
+                "\n -".join(i.pretty_str() for i in resolved_input_descriptors),
+            )
+
             start_step = StartStep(input_descriptors=resolved_input_descriptors)
             control_flow_edges.append(
                 ControlFlowEdge(source_step=start_step, destination_step=steps[begin_step_name])
@@ -799,6 +882,46 @@ class Flow(ConversationalComponent, SerializableObject):
         return self.id
 
     @staticmethod
+    def _check_all_steps_are_mentioned(
+        control_flow_edges: List[ControlFlowEdge], steps: Dict[str, "Step"]
+    ) -> None:
+        for control_flow_edge in control_flow_edges:
+            source_step = control_flow_edge.source_step
+            source_step_name = source_step.name
+            if source_step_name not in steps:
+                # we check maybe there is a name mismatch
+                found_identical_step = next(
+                    iter(s for s in steps.values() if source_step is s), None
+                )
+                if found_identical_step is None:
+                    raise ValueError(
+                        f"The source step in control flow edge `{control_flow_edge}` was not specified in the list of steps: {list(steps.keys())}\nPlease add it."
+                    )
+            elif source_step is not steps[source_step_name]:
+                raise ValueError(
+                    f"The source step in control flow edge `{control_flow_edge}` is not the one specified in the list of steps under the name `{source_step_name}`: {steps[source_step_name]}\nPlease ensure it is the same step"
+                )
+
+            destination_step = control_flow_edge.destination_step
+            if destination_step is None:
+                continue
+
+            destination_step_name = destination_step.name
+            if destination_step_name not in steps:
+                # we check maybe there is a name mismatch
+                found_identical_step = next(
+                    iter(s for s in steps.values() if destination_step is s), None
+                )
+                if found_identical_step is None:
+                    raise ValueError(
+                        f"The destination step in control flow edge `{control_flow_edge}` was not specified in the list of steps: {list(steps.keys())}\nPlease add it."
+                    )
+            elif destination_step is not steps[destination_step_name]:
+                raise ValueError(
+                    f"The destination step in control flow edge `{control_flow_edge}` is not the one specified in the list of steps under the name `{source_step_name}`: {steps[source_step_name]}\nPlease ensure it is the same step",
+                )
+
+    @staticmethod
     def _convert_transition_mapping_into_control_flow_edges(
         transitions: Mapping[str, Union[List[Optional[str]], Mapping[str, Optional[str]]]],
         steps: Dict[str, "Step"],
@@ -884,7 +1007,7 @@ class Flow(ConversationalComponent, SerializableObject):
         available_branches = source_step.get_branches()
         if source_branch is not None and source_branch not in available_branches:
             logger.warning(
-                f"Step {source_step} doesn't have a transition named `{source_branch}`\nAvailable transitions: {available_branches}.\nThis transition will be ignored"
+                f"Step `{source_step}` doesn't expose a transition named `{source_branch}`\nAvailable transitions: {available_branches}.\nThis transition will be ignored"
             )
             return None
 
@@ -911,23 +1034,26 @@ class Flow(ConversationalComponent, SerializableObject):
                     f"Found duplicate step in the flow. Make sure they are all unique: {steps}"
                 )
 
-            # Make sure that all non-CompleteStep are transitioning to another step or None
-            if not _is_step_a_complete_step(step):
-                Flow._validate_step_has_correct_control_flow_edges(
-                    step, control_flow_edges, step_name
-                )
-
             # Make sure that all non-begin step are being transitioned to
             if step_name != begin_step_name and not any(
                 control_flow_edge
                 for control_flow_edge in control_flow_edges
                 if control_flow_edge.destination_step == step
             ):
+                edges_to_str = "\n".join(
+                    str(control_flow_edge) for control_flow_edge in control_flow_edges
+                )
                 raise ValueError(
                     f"No step is transitioning to step `{step_name}`. "
                     f"Except the begin step, all steps should be transitioned to.\n"
-                    f"Steps: {steps}\n"
-                    f"Control flow edges: {control_flow_edges}"
+                    f"Steps: {list(steps.keys())}\n"
+                    f"Control flow edges: {edges_to_str}"
+                )
+
+            # Make sure that all non-CompleteStep are transitioning to another step or None
+            if not _is_step_a_complete_step(step):
+                Flow._validate_step_has_correct_control_flow_edges(
+                    step, control_flow_edges, step_name
                 )
 
     @staticmethod
@@ -942,8 +1068,7 @@ class Flow(ConversationalComponent, SerializableObject):
             raise ValueError(
                 f"Transition is not specified for step `{step_name}`. "
                 "All non-CompleteStep should transition to another step or `None`\n"
-                f"Step: {step}\n"
-                f"Control flow edges: {control_flow_edges}"
+                f"Control flow edges: {[str(e) for e in control_flow_edges]}"
             )
 
         step_branches = step.get_branches()
@@ -961,14 +1086,13 @@ class Flow(ConversationalComponent, SerializableObject):
 
         for branch in step_branches:
             if branch not in mentioned_branch_names:
-                warnings.warn(
-                    f"Missing edge for branch `{branch}` of step `{step}`. You only passed the following `control_flow_edges`: {step_control_flow_edges}. The flow will raise at runtime if this branch is taken."
+                control_flow_edges_str = "\n".join(
+                    f"[{step.name}]-({edge.source_branch})->[{edge.destination_step.name if edge.destination_step else None}]"
+                    for edge in step_control_flow_edges
                 )
-
-        if len(step_branches) != len(step_control_flow_edges):
-            warnings.warn(
-                f"Step {step} has these branches: {step_branches}\nbut you have not specified one control flow edge for each: {step_control_flow_edges}"
-            )
+                warnings.warn(
+                    f"Missing a control flow edge for branch `{branch}` of step `{step.name}`. From this step, you only passed the following `control_flow_edges`:\n{control_flow_edges_str}\nThe flow will raise at runtime if this branch is taken."
+                )
 
     def _create_data_edges_for_implicit_data_edges(
         self,
@@ -1102,7 +1226,7 @@ class Flow(ConversationalComponent, SerializableObject):
                     casted_input_value = _cast_value_into(input_value, input_descriptor)
                     inputs[input_name] = casted_input_value
                     logger.warning(
-                        "The input value `%s` didn't have the right type: %s\nIt was casted from %s to %s",
+                        "The input value named `%s` didn't have the right type (expected `%s`). It was casted from `%s` to `%s`",
                         input_name,
                         input_descriptor,
                         input_value,
@@ -1110,7 +1234,7 @@ class Flow(ConversationalComponent, SerializableObject):
                     )
                 except Exception:
                     raise TypeError(
-                        f"The input passed: `{inputs[input_name]}` of type `{inputs[input_name].__class__.__name__}` is not of the expected type `{input_descriptor}`"
+                        f"The input passed: `{inputs[input_name]}` of type `{inputs[input_name].__class__.__name__}` is not of the expected type `{input_descriptor.pretty_str()}`"
                     )
 
         record_event(
@@ -1420,7 +1544,8 @@ class Flow(ConversationalComponent, SerializableObject):
             }:  # assumes variables is a list of variables whose names are unique
                 raise ValueError(
                     f"The Read/Write step '{step_name}' refers to the Variable '{step.variable.name}' "
-                    "but it was not passed into the flow constructor."
+                    "but it was not passed into the flow constructor. Make sure to pass it as an argument when "
+                    "creating the flow."
                 )
 
     @staticmethod
@@ -1434,8 +1559,8 @@ class Flow(ConversationalComponent, SerializableObject):
         ]
         if len(set(all_context_provider_keys)) < len(all_context_provider_keys):
             raise ValueError(
-                "The provided list of context providers contains those "
-                f"with non-unique output description names: {all_context_provider_keys}"
+                "The provided list of context providers contains "
+                f"non-unique output description names: {all_context_provider_keys}"
             )
 
     def add_context_providers(self, providers: List["ContextProvider"]) -> None:
@@ -1542,26 +1667,23 @@ class Flow(ConversationalComponent, SerializableObject):
 
         """
         if len(steps) == 0:
-            raise ValueError("Should pass at least one step.")
+            raise ValueError("Should pass at least one step, but passed an empty list.")
 
         if step_names is None:
-            step_names = [
-                (
-                    f"step_{idx}"
-                    if step.name is None or IdGenerator.is_auto_generated(step.name)
-                    else step.name
-                )
-                for idx, step in enumerate(steps)
-            ]
+            for idx, step in enumerate(steps):
+                if step.name is None or IdGenerator.is_auto_generated(step.name):
+                    step.name = f"step_{idx}"
         else:
             if len(step_names) != len(steps):
                 raise ValueError(
-                    f"Should have the same amount of steps and step_names, but got {len(step_names)} and {len(steps)}"
+                    f"Should have the same amount of steps and step_names, but got {len(step_names)} steps and {len(steps)} step names"
                 )
+            for step_name, step in zip(step_names, steps):
+                step.name = step_name
 
         return Flow(
             begin_step=steps[0],
-            steps={step_name: step for step_name, step in zip(step_names, steps)},
+            steps=steps,
             control_flow_edges=[
                 ControlFlowEdge(
                     source_step=step,

@@ -155,14 +155,13 @@ class ComponentWithInputsOutputs(Component, ABC):
             descriptors_per_name_groups[descriptor.name].append(descriptor)
 
         for descriptor_name, all_descriptors in descriptors_per_name_groups.items():
+            chosen_descriptor = all_descriptors[-1]
             if len(all_descriptors) > 1:
                 logger.warning(
-                    f"Detected name conflicts in resolved descriptors. Only this descriptor will be used for name `%s`: %s.\nAll descriptors: %s",
+                    f"Detected name conflicts in resolved descriptors. Only this descriptor will be used for name `%s`: %s.\nAll descriptors with this name: %s",
                     descriptor_name,
-                    all_descriptors[-1],
+                    chosen_descriptor,
                     all_descriptors,
                 )
-                selected_properties.append(all_descriptors[-1])
-            else:
-                selected_properties.append(all_descriptors[0])
+            selected_properties.append(chosen_descriptor)
         return selected_properties

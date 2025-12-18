@@ -40,14 +40,10 @@ class ControlFlowEdge(FrozenDataclassComponent):
     >>> from wayflowcore.controlconnection import ControlFlowEdge
     >>> from wayflowcore.flow import Flow
     >>> from wayflowcore.steps import OutputMessageStep
-    >>> opening_step = OutputMessageStep("Opening session")
-    >>> closing_step = OutputMessageStep('Closing session"')
+    >>> opening_step = OutputMessageStep("Opening session", name="open_step")
+    >>> closing_step = OutputMessageStep('Closing session"', name="close_step")
     >>> flow = Flow(
     ...     begin_step=opening_step,
-    ...     steps={
-    ...         "open_step": opening_step,
-    ...         "close_step": closing_step,
-    ...     },
     ...     control_flow_edges=[
     ...         ControlFlowEdge(source_step=opening_step, destination_step=closing_step),
     ...         ControlFlowEdge(source_step=closing_step, destination_step=None),
@@ -78,7 +74,7 @@ class ControlFlowEdge(FrozenDataclassComponent):
         available_source_branches = self.source_step.get_branches()
         if self.source_branch not in available_source_branches:
             raise ValueError(
-                f"The edge {self} is incorrect: the `source_step` does not have a branch named `{self.source_branch}` in its branches: {available_source_branches}"
+                f"The edge {self} is incorrect: the source_step `{self.source_step.name}` does not have a branch named `{self.source_branch}` in its branches: {available_source_branches}"
             )
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
@@ -114,3 +110,6 @@ class ControlFlowEdge(FrozenDataclassComponent):
         if "id" in input_dict:
             control_flow_edge_args["id"] = input_dict["id"]
         return ControlFlowEdge(**control_flow_edge_args)
+
+    def __str__(self) -> str:
+        return f"ControlFlowEdge(source_step={self.source_step.name}, source_branch={self.source_branch}, destination_step={self.destination_step.name if self.destination_step is not None else None})"

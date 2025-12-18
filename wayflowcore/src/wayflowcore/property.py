@@ -164,6 +164,14 @@ class Property(SerializableObject, ABC):
     def __hash__(self) -> int:
         return hash(self.name)
 
+    def pretty_str(self) -> str:
+        return (
+            str(self)
+            .replace(", description=''", "")
+            .replace(", default_value=<class 'wayflowcore.property._empty_default'>", "")
+            .replace(", enum=None", "")
+        )
+
     def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
         json_schema_dict: Dict[str, Any] = dict(self.to_json_schema())
         json_schema_dict["_component_type"] = Property.__name__

@@ -178,7 +178,7 @@ def test_choice_selection_step_works_when_some_next_step_has_default_name(
 ):
     next_steps = [
         ("choice1", "descr choice 1"),
-        ("default", "if nothing found"),
+        ("my_default", "if nothing found"),
     ]
 
     llm = DummyModel()
@@ -201,6 +201,9 @@ def test_choice_selection_step_works_when_some_next_step_has_default_name(
         control_flow_edges=[
             ControlFlowEdge(
                 source_step=choice_step, source_branch="choice1", destination_step=choice1_step
+            ),
+            ControlFlowEdge(
+                source_step=choice_step, source_branch="my_default", destination_step=default_step
             ),
             ControlFlowEdge(
                 source_step=choice_step, source_branch="default", destination_step=default_step

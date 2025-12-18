@@ -5,7 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 from decimal import DivisionByZero
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import pytest
 
@@ -15,6 +15,7 @@ from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.messagelist import Message, MessageType
+from wayflowcore.models import VllmModel
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep
 from wayflowcore.steps.flowexecutionstep import FlowExecutionStep
 from wayflowcore.steps.toolexecutionstep import ToolExecutionStep
@@ -22,6 +23,7 @@ from wayflowcore.tools.flowbasedtools import DescribedFlow
 from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.tools import ToolRequest
 
+from ..testhelpers.patching import patch_llm
 from .conftest import create_dummy_llm_with_next_output
 from .event_listeners import ExceptionRaisedEventListener
 
@@ -174,66 +176,49 @@ SERVER_TOOL = ServerTool(
 
 
 @pytest.mark.parametrize(
-    "agent, user_messages",
+    "agent, user_message",
     [
         (
             Agent(
                 agent_id="a123",
                 custom_instruction="Be polite",
-                llm=create_dummy_llm_with_next_output(
-                    {
-                        "Please use the tool": Message(
-                            tool_requests=[
-                                ToolRequest(
-                                    name=SERVER_TOOL.name,
-                                    args={},
-                                    tool_request_id="tool_request_id_1",
-                                )
-                            ],
-                            message_type=MessageType.TOOL_REQUEST,
-                            sender="a123",
-                            recipients={"a123"},
-                        ),
-                    },
-                ),
+                llm=VllmModel(model_id="fake", host_port="fake"),
                 flows=[
-                    DescribedFlow(
-                        name=SERVER_TOOL.name,
-                        description="Create file",
-                        flow=create_single_step_flow(
-                            step=FlowExecutionStep(
-                                flow=create_single_step_flow(
-                                    step=FlowExecutionStep(
-                                        flow=create_single_step_flow(
-                                            step=ToolExecutionStep(
-                                                tool=SERVER_TOOL,
-                                            ),
-                                        )
+                    create_single_step_flow(
+                        step=FlowExecutionStep(
+                            flow=create_single_step_flow(
+                                step=FlowExecutionStep(
+                                    flow=create_single_step_flow(
+                                        step=ToolExecutionStep(
+                                            tool=SERVER_TOOL,
+                                        ),
                                     )
                                 )
                             )
                         ),
-                    )
+                        flow_name=SERVER_TOOL.name,
+                        flow_description="Create file",
+                    ),
                 ],
+                raise_exceptions=True,
             ),
-            ["Please use the tool"],
+            "Please use the tool",
         ),
     ],
 )
 def test_event_is_triggered_with_agent_using_flow(
     agent: Agent,
-    user_messages: List[str],
+    user_message: str,
 ) -> None:
     event_listener = ExceptionRaisedEventListener()
-    conversation = agent.start_conversation()
+    conversation = agent.start_conversation(messages=user_message)
 
     with pytest.raises(Exception):
         with register_event_listeners([event_listener]):
-            conversation.execute()
-            for user_message in user_messages:
-                conversation.append_user_message(user_message)
+            with patch_llm(
+                agent.llm, [[ToolRequest(name=SERVER_TOOL.name, args={}, tool_request_id="id1")]]
+            ):
                 conversation.execute()
-
     assert len(event_listener.triggered_events) == 1
     assert isinstance(event_listener.triggered_events[0], ExceptionRaisedEvent)
 

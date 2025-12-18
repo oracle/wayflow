@@ -92,38 +92,26 @@ class FlowExecutionStep(Step):
         Let's see an example with a flow that estimates numerical value using the "wisdowm of the crowd" effect:
 
         >>> from typing import List
-        >>> from wayflowcore.property import Property, StringProperty, ListProperty
+        >>> from wayflowcore.property import Property, StringProperty, ListProperty, IntegerProperty
         >>> from wayflowcore.flowhelpers import create_single_step_flow
+        >>> from wayflowcore.controlconnection import ControlFlowEdge
         >>> from wayflowcore.flow import Flow
         >>> from wayflowcore.steps import MapStep, PromptExecutionStep, ToolExecutionStep
-        >>> from wayflowcore.tools import ServerTool
-        >>> def duplication_func(element: str, n: int) -> List[str]:
+        >>> from wayflowcore.tools import tool
+        >>>
+        >>> @tool(description_mode="only_docstring")
+        ... def duplication_tool(element: str, n: int) -> List[str]:
+        ...     '''Returns a list containing the passed element, n times'''
         ...     return [element for _ in range(n)]
         ...
-        >>> duplication_tool = ServerTool(
-        ...     name="duplication_tool", description="",
-        ...     parameters={
-        ...         "element": {"description": "", "type": "string"},
-        ...         "n": {"description": "", "type": "integer"},
-        ...     },
-        ...     func=duplication_func, output={'type': 'array'},
-        ... )
-        >>> def reduce_func(elements: List[str]) -> str:
+        >>> @tool(description_mode="only_docstring")
+        ... def reduce_tool(elements: List[str]) -> str:
+        ...     '''Returns the average of the first number found in each element'''
         ...     import re
         ...     extracted_elements = [re.search('-?\\d*\\.?\\d+', elt) for elt in elements]
         ...     extracted_numbers = [float(x.group(0)) for x in extracted_elements if x is not None] or [-1.]
         ...     return str(sum(extracted_numbers) / len(extracted_numbers))
         ...
-        >>> reduce_tool = ServerTool(
-        ...     name="reduce_tool", description="",
-        ...     parameters={"elements": {"description": "", "type": "array"}},
-        ...     func=reduce_func, output={'type': 'string'},
-        ... )
-        >>> # Defining step names
-        >>> DUPLICATION_STEP = "DUPLICATION"
-        >>> REASONING_STEP = "REASONING"
-        >>> MAP_STEP = "MAP"
-        >>> REDUCE_STEP = "REDUCE"
         >>> # Defining flow input/output variables
         >>> USER_QUERY_IO = "$user_query"
         >>> N_REPEAT_IO = "$n_repeat"
@@ -135,35 +123,32 @@ class FlowExecutionStep(Step):
         ... Your answer should be a single number. Do not include any units, reasoning, or extra text.'''
         >>> # Defining the subflow
         >>> duplication_step = ToolExecutionStep(
-        ...         tool=duplication_tool,
-        ...         input_mapping={"element": USER_QUERY_IO, "n": N_REPEAT_IO},
-        ...         output_mapping={ToolExecutionStep.TOOL_OUTPUT: FLOW_ITERABLE_QUERIES_IO},
-        ...     )
-        >>> mapreduce_flow = Flow(
-        ...     begin_step=duplication_step,
-        ...     steps={
-        ...         DUPLICATION_STEP: duplication_step,
-        ...         MAP_STEP: MapStep(
-        ...             flow=create_single_step_flow(
-        ...                 PromptExecutionStep(
-        ...                     prompt_template=REASONING_PROMPT_TEMPLATE,
-        ...                     llm=llm,
-        ...                     output_mapping={PromptExecutionStep.OUTPUT: FLOW_PROCESSED_QUERIES_IO},
-        ...                 ),
-        ...                 step_name=REASONING_STEP
-        ...             ),
-        ...             unpack_input={"user_input": "."},
-        ...             output_descriptors=[ListProperty(name=FLOW_PROCESSED_QUERIES_IO, item_type=StringProperty())],
-        ...             input_mapping={MapStep.ITERATED_INPUT: FLOW_ITERABLE_QUERIES_IO},
-        ...         ),
-        ...         REDUCE_STEP: ToolExecutionStep(
-        ...             tool=reduce_tool,
-        ...             input_mapping={"elements": FLOW_PROCESSED_QUERIES_IO},
-        ...             output_mapping={ToolExecutionStep.TOOL_OUTPUT: FINAL_ANSWER_IO},
-        ...         )
-        ...     },
-        ...     transitions={DUPLICATION_STEP: [MAP_STEP], MAP_STEP: [REDUCE_STEP], REDUCE_STEP: [None]}
+        ...     tool=duplication_tool,
+        ...     input_mapping={"element": USER_QUERY_IO, "n": N_REPEAT_IO},
+        ...     output_mapping={ToolExecutionStep.TOOL_OUTPUT: FLOW_ITERABLE_QUERIES_IO},
+        ...     name="DUPLICATION",
         ... )
+        >>> map_step = MapStep(
+        ...     flow=create_single_step_flow(
+        ...         PromptExecutionStep(
+        ...             prompt_template=REASONING_PROMPT_TEMPLATE,
+        ...             llm=llm,
+        ...             output_mapping={PromptExecutionStep.OUTPUT: FLOW_PROCESSED_QUERIES_IO},
+        ...         ),
+        ...         step_name="REASONING"
+        ...     ),
+        ...     unpack_input={"user_input": "."},
+        ...     output_descriptors=[ListProperty(name=FLOW_PROCESSED_QUERIES_IO, item_type=StringProperty())],
+        ...     input_mapping={MapStep.ITERATED_INPUT: FLOW_ITERABLE_QUERIES_IO},
+        ...     name="MAP"
+        ... )
+        >>> reduce_step = ToolExecutionStep(
+        ...     tool=reduce_tool,
+        ...     input_mapping={"elements": FLOW_PROCESSED_QUERIES_IO},
+        ...     output_mapping={ToolExecutionStep.TOOL_OUTPUT: FINAL_ANSWER_IO},
+        ...     name="REDUCE",
+        ... )
+        >>> mapreduce_flow = Flow.from_steps(steps=[duplication_step, map_step, reduce_step])
 
         Once the subflow is created we can simply integrate it with the ``FlowExecutionStep``:
 
@@ -171,14 +156,18 @@ class FlowExecutionStep(Step):
         >>> from wayflowcore.steps import FlowExecutionStep, OutputMessageStep
         >>> MAPREDUCE_STEP = "MAPREDUCE"
         >>> OUTPUT_STEP = "OUTPUT"
-        >>> mapreduce_step = FlowExecutionStep(mapreduce_flow)
+        >>> mapreduce_step = FlowExecutionStep(mapreduce_flow, name=MAPREDUCE_STEP)
+        >>> output_step = OutputMessageStep(
+        ...     "The estimation is {{value}}",
+        ...     input_mapping={"value": FINAL_ANSWER_IO},
+        ...     name=OUTPUT_STEP,
+        ... )
         >>> assistant = Flow(
         ...     begin_step=mapreduce_step,
-        ...     steps={
-        ...         MAPREDUCE_STEP: mapreduce_step,
-        ...         OUTPUT_STEP: OutputMessageStep("The estimation is {{value}}", input_mapping={"value": FINAL_ANSWER_IO})
-        ...     },
-        ...     transitions={MAPREDUCE_STEP: [OUTPUT_STEP], OUTPUT_STEP: [None]}
+        ...     control_flow_edges=[
+        ...         ControlFlowEdge(source_step=mapreduce_step, destination_step=output_step),
+        ...         ControlFlowEdge(source_step=output_step, destination_step=None),
+        ...     ],
         ... )
         >>> conversation = assistant.start_conversation(inputs={
         ...     USER_QUERY_IO: "How many calories are in a typical slice of pepperoni pizza?",

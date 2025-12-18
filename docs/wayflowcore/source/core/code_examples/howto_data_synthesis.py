@@ -585,20 +585,10 @@ def get_main_flow(llm_justification: LlmModel, llm_validation: LlmModel) -> Flow
     validation_step = get_validation_step(llm_validation)
     validation_parse_step = get_parse_validation_step()
 
-    steps = {
-        JUSTIFICATION_GEN_STEP: justification_gen_step,
-        JUSTIFICATION_PARSING_STEP: justification_parse_step,
-        VALIDATION_STEP: validation_step,
-        VALIDATION_PARSING_STEP: validation_parse_step,
-    }
-    transitions = {
-        JUSTIFICATION_GEN_STEP: [JUSTIFICATION_PARSING_STEP],
-        JUSTIFICATION_PARSING_STEP: [VALIDATION_STEP],
-        VALIDATION_STEP: [VALIDATION_PARSING_STEP],
-        VALIDATION_PARSING_STEP: [None],
-    }
-
-    return Flow(steps=steps, begin_step=justification_gen_step, transitions=transitions)
+    return Flow.from_steps(
+        steps=[justification_gen_step, justification_parse_step, validation_step, validation_parse_step],
+        step_names=[JUSTIFICATION_GEN_STEP, JUSTIFICATION_PARSING_STEP, VALIDATION_STEP, VALIDATION_PARSING_STEP]
+    )
 
 
 def get_flow(llm_justification: LlmModel, llm_validation: LlmModel) -> Flow:

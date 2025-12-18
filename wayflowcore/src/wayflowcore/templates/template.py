@@ -4,7 +4,6 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import logging
-import warnings
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Sequence, Union, cast
@@ -156,15 +155,18 @@ class PromptTemplate(DataclassComponent):
         input_descriptors_names = {d.name for d in self.input_descriptors or []}
         if self.native_tool_calling:
             if self.TOOL_PLACEHOLDER_NAME in input_descriptors_names:
-                warnings.warn(
-                    f"You used the tool placeholder {self.TOOL_PLACEHOLDER_NAME} in the template, which reserved for tools, "
+                logger.warning(
+                    f"You used the tool placeholder %s in the template, which is reserved for tool definitions (and used with parsing-based tool calling), "
                     "but you configured the prompt to use native tool calling. Make sure "
                     "you know what you are doing.",
+                    self.TOOL_PLACEHOLDER_NAME,
                 )
         else:
             if self.TOOL_PLACEHOLDER_NAME not in input_descriptors_names:
-                warnings.warn(
-                    f"There is no tool placeholder {self.TOOL_PLACEHOLDER_NAME} in the template and it has been configured in non-FC mode. The model will not see any tools. Inputs are {self.input_descriptors}"
+                logger.warning(
+                    f"There is no tool placeholder %s in the template and it has been configured in non-function-calling mode. The model will not see any tools. Inputs are %s",
+                    self.TOOL_PLACEHOLDER_NAME,
+                    self.input_descriptors,
                 )
             if self.output_parser is None:
                 raise ValueError(
@@ -175,10 +177,11 @@ class PromptTemplate(DataclassComponent):
         input_descriptors_names = {d.name for d in self.input_descriptors or []}
         if self.native_structured_generation:
             if self.RESPONSE_FORMAT_PLACEHOLDER_NAME in input_descriptors_names:
-                warnings.warn(
-                    f"You used the structured output placeholder {self.RESPONSE_FORMAT_PLACEHOLDER_NAME} in the template, which reserved for structured output format, "
+                logger.warning(
+                    f"You used the structured output placeholder %s in the template, which reserved for structured output format, "
                     "but you configured the prompt to use native structure output format. Make sure "
                     "you know what you are doing.",
+                    self.RESPONSE_FORMAT_PLACEHOLDER_NAME,
                 )
         else:
             if self.RESPONSE_FORMAT_PLACEHOLDER_NAME not in input_descriptors_names:

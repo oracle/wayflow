@@ -67,15 +67,18 @@ def test_start_step_with_subset_of_available_inputs():
 
 
 def test_inputs_are_passed_correctly_when_start_step_has_io_mapping():
-    steps = {
-        "start_step": StartStep(
-            input_descriptors=[StringProperty("i1")],
-            input_mapping={"internal_useless_name": "i1"},
-            output_mapping={"internal_useless_name": "renamed_i1"},
-        ),
-        "output_step": OutputMessageStep(message_template="{{renamed_i1}}"),
-        "end_step": CompleteStep(),
-    }
+    with pytest.warns(
+        UserWarning, match="The usage of input_mapping in the StartStep is discouraged"
+    ):
+        steps = {
+            "start_step": StartStep(
+                input_descriptors=[StringProperty("i1")],
+                input_mapping={"internal_useless_name": "i1"},
+                output_mapping={"internal_useless_name": "renamed_i1"},
+            ),
+            "output_step": OutputMessageStep(message_template="{{renamed_i1}}"),
+            "end_step": CompleteStep(),
+        }
     control_flow_edges = [
         ControlFlowEdge(source_step=steps["start_step"], destination_step=steps["output_step"]),
         ControlFlowEdge(source_step=steps["output_step"], destination_step=steps["end_step"]),
@@ -95,15 +98,18 @@ def test_inputs_are_passed_correctly_when_start_step_has_io_mapping():
 
 
 def test_inputs_are_passed_correctly_when_start_step_has_io_mapping_with_data_edges():
-    steps = {
-        "start_step": StartStep(
-            input_descriptors=[StringProperty("i1")],
-            input_mapping={"internal_name": "i1"},
-            output_mapping={"internal_name": "renamed_i1"},
-        ),
-        "output_step": OutputMessageStep(message_template="{{renamed_i1}}"),
-        "end_step": CompleteStep(),
-    }
+    with pytest.warns(
+        UserWarning, match="The usage of input_mapping in the StartStep is discouraged"
+    ):
+        steps = {
+            "start_step": StartStep(
+                input_descriptors=[StringProperty("i1")],
+                input_mapping={"internal_name": "i1"},
+                output_mapping={"internal_name": "renamed_i1"},
+            ),
+            "output_step": OutputMessageStep(message_template="{{renamed_i1}}"),
+            "end_step": CompleteStep(),
+        }
     control_flow_edges = [
         ControlFlowEdge(source_step=steps["start_step"], destination_step=steps["output_step"]),
         ControlFlowEdge(source_step=steps["output_step"], destination_step=steps["end_step"]),

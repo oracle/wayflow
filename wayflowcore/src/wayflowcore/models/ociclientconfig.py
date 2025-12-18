@@ -256,7 +256,7 @@ class OCIUserAuthenticationConfig:
     @classmethod
     def from_dict(cls, client_config: Dict[str, str]) -> "OCIUserAuthenticationConfig":
         raise ValueError(
-            "OCIUserAuthenticationConfig is a security sensitive configuration object, and cannot be deserialized."
+            "OCIUserAuthenticationConfig is a security sensitive configuration object, and cannot be deserialized.",
         )
 
     def _get_config(self) -> Dict[str, Optional[str]]:

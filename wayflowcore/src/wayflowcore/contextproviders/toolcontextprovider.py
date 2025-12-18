@@ -44,38 +44,33 @@ class ToolContextProvider(ContextProvider):
         Examples
         --------
         >>> from time import time
+        >>> from wayflowcore.controlconnection import ControlFlowEdge
         >>> from wayflowcore.contextproviders import ToolContextProvider
         >>> from wayflowcore.flow import Flow
         >>> from wayflowcore.steps import OutputMessageStep
-        >>> from wayflowcore.tools import ServerTool
+        >>> from wayflowcore.tools import tool
         >>>
-        >>> def current_time() -> str:
+        >>> @tool(description_mode='only_docstring')
+        ... def current_time() -> str:
+        ...     '''Tool that returns time'''
         ...     from time import time
         ...     return str(time())
         >>>
-        >>> tool = ServerTool(
-        ...     name="CurrentTime",
-        ...     description="Tool that returns time",
-        ...     parameters={},
-        ...     output={"type": "string"},
-        ...     func=current_time,
+        >>> context_provider = ToolContextProvider(tool=current_time, output_name="time_output_io", name="tool_step")
+        >>> display_first_step_time = OutputMessageStep(message_template="{{ time_output_io }}", name="display_first_step_time")
+        >>>
+        >>> display_second_step_time = OutputMessageStep(
+        ...     message_template="{{ time_output_io }}", name="display_second_step_time"
         ... )
-        >>>
-        >>> context_provider = ToolContextProvider(tool=tool, output_name="time_output_io")
-        >>> display_first_step_time = OutputMessageStep(message_template="{{ time_output_io }}")
-        >>>
         >>> flow = Flow(
         ...     begin_step=display_first_step_time,
-        ...     steps={
-        ...         "display_first_step_time": display_first_step_time,
-        ...         "display_second_step_time": OutputMessageStep(
-        ...             message_template="{{ time_output_io }}",
+        ...     control_flow_edges=[
+        ...         ControlFlowEdge(
+        ...             source_step=display_first_step_time,
+        ...             destination_step=display_second_step_time,
         ...         ),
-        ...     },
-        ...     transitions={
-        ...         "display_first_step_time": ["display_second_step_time"],
-        ...         "display_second_step_time": [None],
-        ...     },
+        ...         ControlFlowEdge(source_step=display_second_step_time, destination_step=None),
+        ...     ],
         ...     context_providers=[context_provider],
         ... )
 

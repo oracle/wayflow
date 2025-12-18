@@ -51,15 +51,15 @@ class FlowContextProvider(ContextProvider):
         Examples
         --------
         >>> from wayflowcore.contextproviders import FlowContextProvider
-        >>> from wayflowcore.flowhelpers import create_single_step_flow
+        >>> from wayflowcore.flow import Flow
         >>> from wayflowcore.steps import OutputMessageStep
-        >>> contextual_flow = create_single_step_flow(OutputMessageStep(
+        >>> contextual_flow = Flow.from_steps([OutputMessageStep(
         ...     message_template="The current time is 2pm.",
         ...     output_mapping={OutputMessageStep.OUTPUT: "time_output_io"},
-        ... ))
+        ... )])
         >>> context_provider = FlowContextProvider(contextual_flow, flow_output_names=["time_output_io"])
-        >>> flow = create_single_step_flow(
-        ...     OutputMessageStep("Last time message: {{time_output_io}}"),
+        >>> flow = Flow.from_steps(
+        ...     steps=[OutputMessageStep("Last time message: {{time_output_io}}")],
         ...     context_providers=[context_provider]
         ... )
         >>> conversation = flow.start_conversation()

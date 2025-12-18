@@ -248,16 +248,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         >>> # I'd be happy to help with your SQL query
         """
 
-        # We use the guidelines from https://docs.python.org/3/howto/logging.html#when-to-use-logging
-        # for when to use warnings.warn vs logger.warning:
-        # - use warnings.warn() if the issue is avoidable and the client application should be modified to eliminate the warning
-        # - use logging.warning() if there is nothing the client application can do about the situation, but the event should still be noted
         if agents:
-            warnings.warn(
-                "The use of expert agents is currently in beta and may undergo significant changes. "
-                "The API and behaviour are not guaranteed to be stable and may change in future versions.",
-                category=FutureWarning,
-            )
             agents = [_convert_described_agent_into_named_agent(agent) for agent in agents]
             self._validate_agent_can_be_used_in_composition(agents)
 
