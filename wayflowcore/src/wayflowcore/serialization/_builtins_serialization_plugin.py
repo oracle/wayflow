@@ -74,6 +74,7 @@ from pyagentspec.mcp.tools import MCPTool as AgentSpecMCPTool
 from pyagentspec.ociagent import OciAgent as AgentSpecOciAgent
 from pyagentspec.property import Property as AgentSpecProperty
 from pyagentspec.serialization import ComponentSerializationPlugin
+from pyagentspec.swarm import HandoffMode as AgentSpecHandoffMode
 from pyagentspec.swarm import Swarm as AgentSpecSwarm
 from pyagentspec.tools import ClientTool as AgentSpecClientTool
 from pyagentspec.tools import RemoteTool as AgentSpecRemoteTool
@@ -353,6 +354,7 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
+from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -1159,6 +1161,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 id=runtime_llm.id,
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
+                api_key=runtime_llm.api_key if runtime_llm.api_key != EMPTY_API_KEY else None,
             )
         elif isinstance(runtime_llm, RuntimeOCIGenAIModel):
             client_config = self._ociclientconfig_convert_to_agentspec(
@@ -1198,6 +1201,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 id=runtime_llm.id,
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
+                api_key=runtime_llm.api_key if runtime_llm.api_key != EMPTY_API_KEY else None,
             )
         elif isinstance(runtime_llm, RuntimeOpenAICompatibleModel):
             return AgentSpecOpenAiCompatibleConfig(
@@ -1209,6 +1213,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 id=runtime_llm.id,
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
+                api_key=runtime_llm.api_key if runtime_llm.api_key != EMPTY_API_KEY else None,
             )
         raise ValueError(f"Unsupported type of LLM in Agent Spec: {type(runtime_llm)}")
 
@@ -1561,7 +1566,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 name="oci_client_config",
                 service_endpoint=runtime_ociclientconfig.service_endpoint,
                 auth_profile=runtime_ociclientconfig.auth_profile,
-                auth_file_location=runtime_ociclientconfig.auth_file_location,
+                auth_file_location=(
+                    runtime_ociclientconfig.auth_file_location
+                    if runtime_ociclientconfig.auth_file_location != "~/.oci/config"
+                    else ""
+                ),
             )
         elif isinstance(runtime_ociclientconfig, RuntimeOCIClientConfigWithInstancePrincipal):
             return AgentSpecOciClientConfigWithInstancePrincipal(
@@ -1582,7 +1591,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 name="oci_client_config",
                 service_endpoint=runtime_ociclientconfig.service_endpoint,
                 auth_profile=runtime_ociclientconfig.auth_profile,
-                auth_file_location=runtime_ociclientconfig.auth_file_location,
+                auth_file_location=(
+                    runtime_ociclientconfig.auth_file_location
+                    if runtime_ociclientconfig.auth_file_location != "~/.oci/config"
+                    else ""
+                ),
             )
         else:
             raise ValueError(
@@ -2353,7 +2366,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 _runtime_property_to_pyagentspec_property(output)
                 for output in runtime_swarm.output_descriptors or []
             ],
-            handoff=runtime_swarm.handoff,
+            handoff=(
+                runtime_swarm.handoff
+                if isinstance(runtime_swarm.handoff, bool)
+                else AgentSpecHandoffMode(runtime_swarm.handoff.value)
+            ),
             metadata=metadata,
         )
 

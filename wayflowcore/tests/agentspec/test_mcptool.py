@@ -68,8 +68,16 @@ def test_mcp_tool_can_be_converted_to_agentspec_and_back(
     mcp_toolbox = MCPToolBox(client_transport=client_transport)
     agent = Agent(llm=remotely_hosted_llm, tools=[mcp_tool, mcp_toolbox])
 
+    components_registry = {
+        f"{client_transport.id}.cert_file": getattr(client_transport, "cert_file", None),
+        f"{client_transport.id}.ca_file": getattr(client_transport, "ssl_ca_cert", None),
+        f"{client_transport.id}.key_file": getattr(client_transport, "key_file", None),
+    }
+
     agentspec_agent = AgentSpecExporter().to_json(agent)
-    reloaded_agent = AgentSpecLoader().load_json(agentspec_agent)
+    reloaded_agent = AgentSpecLoader().load_json(
+        agentspec_agent, components_registry=components_registry
+    )
 
     assert isinstance(reloaded_agent, Agent)
     assert reloaded_agent.llm.id == agent.llm.id

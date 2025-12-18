@@ -5,7 +5,6 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import inspect
-import os
 import warnings
 from typing import Any, Dict
 
@@ -54,6 +53,7 @@ EXCLUDED_COMPONENTS = {
     "PostgresDatabaseConnectionConfig",
     "OracleDatabaseDatastore",
     "PostgresDatabaseDatastore",
+    "MTlsOracleDatabaseConnectionConfig",
     # not supported
     "StepDescription",
     "DescribedFlow",
@@ -219,6 +219,7 @@ INIT_PARAMETER_DEFAULT_VALUES = {
     "base64_content": "some_content".encode(),
     "type": StringProperty(),
     "command": "pwd",
+    "api_key": "",
     # swarm
     "first_agent": main_agent,
     "relationships": [
@@ -276,16 +277,26 @@ INIT_PARAMETER_DEFAULT_VALUES = {
 CLASS_SPECIFIC_INPUTS = {
     MapStep: {"input_descriptors": [ListProperty(name=MapStep.ITERATED_INPUT)]},
     ParallelMapStep: {"input_descriptors": [ListProperty(name=ParallelMapStep.ITERATED_INPUT)]},
+    TlsOracleDatabaseConnectionConfig: {
+        "user": "",
+        "password": "",
+        "dsn": "",
+        "config_dir": "",  # Needs empty strings for sensitive fields
+    },
+    TlsPostgresDatabaseConnectionConfig: {
+        "user": "",
+        "password": "",
+        "url": "",
+        "sslmode": "disable",  # Needs empty strings for sensitive fields
+    },
     OracleDatabaseDatastore: {
-        "connection_config": TlsOracleDatabaseConnectionConfig(
-            user="user", password="password", dsn="dsn/path"
-        )
+        "connection_config": TlsOracleDatabaseConnectionConfig(user="", password="", dsn="")
     },
     PostgresDatabaseDatastore: {
         "connection_config": TlsPostgresDatabaseConnectionConfig(
-            user=os.environ.get("POSTGRES_DB_USER", "user"),
-            password=os.environ.get("POSTGRES_DB_PASSWORD", "password"),
-            url=os.environ.get("POSTGRES_DB_URL", "url"),
+            user="",
+            password="",
+            url="",
             sslmode="disable",
         ),
         "schema": {},
@@ -400,11 +411,6 @@ CLASSES_TO_RUN = list(
 @pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
 @pytest.mark.parametrize("component_class", CLASSES_TO_RUN)
 def test_coverage(component_class, with_mcp_enabled):
-    print(ALL_AGENTSPEC_EXPORTABLE_CLASS)
-    print(ALL_ADDITIONAL_SUBCLASSES)
-
-    # if :
-    #     pytest.skip()
 
     # Get constructor signature
     sig = inspect.signature(component_class.__init__)

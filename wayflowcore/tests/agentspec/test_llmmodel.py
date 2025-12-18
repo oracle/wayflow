@@ -69,7 +69,11 @@ from wayflowcore.models.ociclientconfig import (
 def test_llm_model_serde_works_and_is_equal(llm_model) -> None:
     agent = Agent(llm=llm_model, custom_instruction="Be nice.")
     deserialized_agent = cast(
-        Agent, AgentSpecLoader().load_json(AgentSpecExporter().to_json(agent))
+        Agent,
+        AgentSpecLoader().load_json(
+            AgentSpecExporter().to_json(agent),
+            components_registry={f"{llm_model.id}.api_key": "something"},
+        ),
     )
     deserialized_llm_model = deserialized_agent.llm
     assert type(deserialized_llm_model) is type(llm_model)

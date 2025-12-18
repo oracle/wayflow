@@ -249,6 +249,7 @@ def run_swarm_in_command_line(assistant: Swarm):
 # ^ uncomment and execute
 # .. end-##_Running_with_the_execution_loop
 # .. start-##_Enabling_handoff_in_the_Swarm
+from wayflowcore.swarm import HandoffMode
 assistant = Swarm(
     name="Swarm",
     first_agent=general_practitioner,
@@ -257,7 +258,7 @@ assistant = Swarm(
         (general_practitioner, dermatologist),
         (dermatologist, pharmacist),
     ],
-    handoff=True,  # <-- Add this
+    handoff=HandoffMode.ALWAYS,  # <-- Choose the handoff mode of your choice
 )
 # .. end-##_Enabling_handoff_in_the_Swarm
 # .. start-##_Export_config_to_Agent_Spec

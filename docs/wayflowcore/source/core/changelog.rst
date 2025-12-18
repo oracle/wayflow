@@ -7,6 +7,14 @@ WayFlow 26.1.0
 New features
 ^^^^^^^^^^^^
 
+* **Agent Spec Tracing support:**
+
+  Open Agent Specification Tracing (short: Agent Spec Tracing) is an extension of
+  Agent Spec that standardizes how agent and flow executions emit traces.
+  Wayflow now supports the emission of traces according to the Agent Spec Tracing standard.
+
+  For more information read the guide on :doc:`How to Enable Tracing in WayFlow <howtoguides/howto_tracing>`.
+
 * **WayFlow Plugins:**
 
   Wayflow plugins allow users extending existing components (like Tools, Steps, etc.), or even creating
@@ -73,9 +81,13 @@ Improvements
 
   Transforms can now be assigned to an agent through its constructor. (This is not supported in `agentspec`, so attempting to convert agents with transforms to `agentspec` will raise a `NotImplementedError`)
 
-* **Improve Swarm prompt template:**
+* **Improve Swarm prompt template and introduce HandoffMode:**
 
   Removed redundant agent descriptions from the Swarm template and added a guidance rule that encourages agents to hand off when appropriate.
+  Introduced ``HandoffMode`` to Swarm. In addition to the existing modes (``True`` → ``HandoffMode.OPTIONAL``, ``False`` → ``HandoffMode.NEVER``),
+  a new mode ``HandoffMode.ALWAYS`` is now supported, requiring agents to always use the handoff
+  mechanism when delegating tasks to other agents. Read more at :ref:`HandoffMode <HandoffMode>`.
+
   This significantly reduces token usage and improves execution speed.
 
 Possibly Breaking Changes

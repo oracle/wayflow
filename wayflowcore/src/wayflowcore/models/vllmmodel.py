@@ -28,6 +28,7 @@ class VllmModel(OpenAICompatibleModel):
         supports_structured_generation: Optional[bool] = True,
         supports_tool_calling: Optional[bool] = True,
         api_type: OpenAIAPIType = OpenAIAPIType.CHAT_COMPLETIONS,
+        api_key: Optional[str] = EMPTY_API_KEY,
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
@@ -59,6 +60,10 @@ class VllmModel(OpenAICompatibleModel):
             Uses Completions API if not specified.
             As of November 2025, Reponses support with VLLM is limited for certain models.
             Responses API has been tested on vLLM with OpenAI GPT-OSS.
+        api_key:
+            API key to use for the request if needed. It will be formatted in the OpenAI format.
+            (as "Bearer API_KEY" in the request header)
+            If not provided, will attempt to read from the environment variable OPENAI_API_KEY
         id:
             ID of the component.
         name:
@@ -98,7 +103,7 @@ class VllmModel(OpenAICompatibleModel):
             base_url=host_port,
             model_id=model_id,
             proxy=proxy,
-            api_key=EMPTY_API_KEY,
+            api_key=api_key,
             generation_config=generation_config,
             supports_structured_generation=supports_structured_generation,
             supports_tool_calling=supports_tool_calling,

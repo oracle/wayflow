@@ -11,6 +11,7 @@ from typing import List, Optional, Tuple
 from wayflowcore.agent import Agent
 from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.property import StringProperty
+from wayflowcore.swarm import HandoffMode
 from wayflowcore.tools import ClientTool, ToolRequest, ToolResult
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,8 @@ _SEND_MESSAGE_TOOL_DESCRIPTION = """
 Use this tool to facilitate direct, synchronous communication with another agent within your group.
 - The recipient agent will respond only to this message, and will not continue any further tasks afterward.
 - To continue the dialogue, you must invoke this tool again with the recipient agent and a follow-up message.
-- You are responsible for relaying the agent's responses back to the user, as the user does not have direct access.
+- You are responsible for relaying the agent's responses back to your caller, as only you and the callee will see these messages,
+it's a private message conversation between you and the other agent.
 - Do not send more than 1 message to the same agent simultaneously.
 """.strip()
 
@@ -50,29 +52,33 @@ Use this tool to transfer the entire conversation with the user to another agent
 
 
 def _create_communication_tools(
-    agent: Agent, recipient_agents: List[Agent], handoff: bool
+    agent: Agent,
+    recipient_agents: List[Agent],
+    handoff: Optional[HandoffMode] = HandoffMode.NEVER,
 ) -> List[ClientTool]:
-    communication_tools = [
-        ClientTool(
-            name=_SEND_MESSAGE_TOOL_NAME,
-            description=_SEND_MESSAGE_TOOL_DESCRIPTION,
-            input_descriptors=[
-                StringProperty(
-                    name="message",
-                    description=(
-                        "Specify the task required for the recipient agent to complete. Focus on clarifying "
-                        "what the task entails, rather than providing exact instructions. Make sure to include "
-                        "all the relevant information from the conversation needed to complete the task."
+    communication_tools = []
+    if handoff != HandoffMode.ALWAYS:
+        communication_tools.append(
+            ClientTool(
+                name=_SEND_MESSAGE_TOOL_NAME,
+                description=_SEND_MESSAGE_TOOL_DESCRIPTION,
+                input_descriptors=[
+                    StringProperty(
+                        name="message",
+                        description=(
+                            "Specify the task required for the recipient agent to complete. Focus on clarifying "
+                            "what the task entails, rather than providing exact instructions. Make sure to include "
+                            "all the relevant information from the conversation needed to complete the task."
+                        ),
                     ),
-                ),
-                StringProperty(
-                    name="recipient",
-                    description=f"Name of the agent to send the message to. Available agents can be found in <other_entities>",
-                ),
-            ],
+                    StringProperty(
+                        name="recipient",
+                        description=f"Name of the agent to send the message to. Available agents can be found in <other_entities>",
+                    ),
+                ],
+            )
         )
-    ]
-    if handoff:
+    if handoff != HandoffMode.NEVER:
         communication_tools.append(
             ClientTool(
                 name=_HANDOFF_TOOL_NAME,
