@@ -8,7 +8,6 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
-from wayflowcore import Tool
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent
 from wayflowcore.conversationalcomponent import ConversationalComponent
@@ -18,7 +17,7 @@ from wayflowcore.property import Property
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.templates._swarmtemplate import _DEFAULT_SWARM_CHAT_TEMPLATE
-from wayflowcore.tools import ClientTool
+from wayflowcore.tools import ClientTool, Tool
 
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation

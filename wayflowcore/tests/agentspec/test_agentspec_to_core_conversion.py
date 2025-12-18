@@ -16,6 +16,8 @@ from wayflowcore.executors.executionstatus import ExecutionStatus, FinishedStatu
 from wayflowcore.flow import Flow as RuntimeFlow
 from wayflowcore.tools.servertools import ServerTool
 
+from ..testhelpers.testhelpers import retry_test
+
 from ..conftest import (  # isort:skip
     LLAMA_OCI_API_KEY_CONFIG,
     OLLAMA_MODEL_CONFIG,
@@ -161,7 +163,16 @@ def run_example(
     assert isinstance(status, ExecutionStatus)
 
 
+@retry_test(max_attempts=3)
 def test_apinode_exposes_http_response_among_outputs_when_executed() -> None:
+    """
+    Failure rate:          0 out of 50
+    Observed on:           2025-12-16
+    Average success time:  1.25 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    """
     loader = AgentSpecLoader()
 
     with open(CONFIGS_DIR / "flow_6.yaml", "r") as file:

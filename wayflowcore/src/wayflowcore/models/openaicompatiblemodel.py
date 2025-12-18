@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import logging
 import os
+from contextlib import aclosing
 from typing import TYPE_CHECKING, Any, AsyncIterable, AsyncIterator, Dict, Optional
 
 from wayflowcore._metadata import MetadataType
@@ -201,8 +202,10 @@ class OpenAICompatibleModel(LlmModel):
         line_iterator = request_streaming_post_with_retries(
             request_params, retry_strategy=retry_strategy, proxy=proxy
         )
-        async for chunk in api_processor._json_iterator_from_stream_of_api_str(line_iterator):
-            yield chunk
+        # ensure the generator is closed at the end
+        async with aclosing(line_iterator):
+            async for chunk in api_processor._json_iterator_from_stream_of_api_str(line_iterator):
+                yield chunk
 
     @property
     def config(self) -> Dict[str, Any]:

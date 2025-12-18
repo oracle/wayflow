@@ -23,9 +23,9 @@ from wayflowcore.datastore._relational import RelationalDatastore
 from wayflowcore.events import register_event_listeners
 from wayflowcore.executors.executionstatus import ExecutionStatus, ToolRequestStatus
 from wayflowcore.idgeneration import IdGenerator
-from wayflowcore.serialization import autodeserialize, serialize
-from wayflowcore.serialization.context import DeserializationContext
+from wayflowcore.serialization import serialize
 
+from ..._storagehelpers import _deserialize_conversation_safely
 from ..models.openairesponsespydanticmodels import (
     Conversation2,
     CreateResponse,
@@ -382,7 +382,11 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         else:
             return None
         try:
-            return self._deserialize_state(serialized_conversation, agent_id)
+            return _deserialize_conversation_safely(
+                serialized_state=serialized_conversation,
+                tool_registry=self.tool_registries[agent_id],
+                component=self.agents[agent_id],
+            )
         except (TypeError, ValueError) as e:
             raise HTTPException(
                 status_code=http_status_code.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -451,28 +455,6 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         if len(serialized_conversations) != 1:
             raise ValueError(f"No conversation with: {where}")
         return serialized_conversations[0][what]
-
-    def _deserialize_state(self, serialized_state: str, agent_name: str) -> Conversation:
-        deserialization_context = DeserializationContext()
-        deserialization_context.registered_tools = self.tool_registries[agent_name].copy()
-
-        try:
-            conversation = autodeserialize(
-                serialized_state, deserialization_context=deserialization_context
-            )
-        except (TypeError, ValueError) as e:
-            # we try adding the ref to the agent itself, so that we fall back if
-            # something went wrong during agent deserialization
-            logger.warning(
-                "Failed to deserialize conversation: %s. It will fallback on using the original agent instead of the deserialized one.",
-                e,
-            )
-            agent_object = self.agents[agent_name]
-            deserialization_context._deserialized_objects = {agent_object.id: agent_object}
-            conversation = autodeserialize(
-                serialized_state, deserialization_context=deserialization_context
-            )
-        return cast(Conversation, conversation)
 
     async def _create_state(
         self,
