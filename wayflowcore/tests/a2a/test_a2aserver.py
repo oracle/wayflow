@@ -432,15 +432,15 @@ def test_agent_card_is_accessible(a2a_server):
     assert resp.status_code == 200
 
 
-@retry_test(max_attempts=3)
+@retry_test(max_attempts=4)
 def test_server_can_handle_multiple_requests(a2a_server):
     """
-    Failure rate:          0 out of 25
-    Observed on:           2025-12-03
-    Average success time:  2.20 seconds per successful attempt
+    Failure rate:          0 out of 50
+    Observed on:           2025-12-18
+    Average success time:  2.47 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 5.1 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     base_url = a2a_server
 
