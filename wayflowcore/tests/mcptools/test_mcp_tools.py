@@ -432,6 +432,7 @@ def test_connection_persistence_with_agent_and_mcp_toolbox(
     )
     logger = logging.getLogger("httpx")
     logger.propagate = True  # necessary so that the caplog handler can capture logging messages
+    logger.setLevel(logging.INFO)
     caplog.set_level(logging.INFO)
     # ^ setting pytest to capture log messages of level INFO or above
 
@@ -459,6 +460,7 @@ async def test_connection_persistence_with_agent_and_mcp_toolbox_async(
     )
     logger = logging.getLogger("httpx")
     logger.propagate = True  # necessary so that the caplog handler can capture logging messages
+    logger.setLevel(logging.INFO)
     caplog.set_level(logging.INFO)
     # ^ setting pytest to capture log messages of level INFO or above
 
@@ -501,6 +503,7 @@ def test_connection_persistence_with_flow_and_mcp_tool(
     flow, message_pattern = get_simple_mcp_flow_and_message_pattern(mcp_fooza_tool)
     logger = logging.getLogger("httpx")
     logger.propagate = True  # necessary so that the caplog handler can capture logging messages
+    logger.setLevel(logging.INFO)
     caplog.set_level(logging.INFO)
     # ^ setting pytest to capture log messages of level INFO or above
 
@@ -520,6 +523,7 @@ async def test_connection_persistence_with_flow_and_mcp_tool_async(
     flow, message_pattern = get_simple_mcp_flow_and_message_pattern(mcp_fooza_tool)
     logger = logging.getLogger("httpx")
     logger.propagate = True  # necessary so that the caplog handler can capture logging messages
+    logger.setLevel(logging.INFO)
     caplog.set_level(logging.INFO)
     # ^ setting pytest to capture log messages of level INFO or above
 

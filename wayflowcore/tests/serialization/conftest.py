@@ -18,7 +18,7 @@ _START_SERVER_FILE_PATH = os.path.join(
 
 
 def _start_a2a_server(
-    host: str, port: int, ready_timeout_s: float = 10.0
+    host: str, port: int, ready_timeout_s: float = 20.0
 ) -> tuple[subprocess.Popen, str]:
     process_args = [
         "python",

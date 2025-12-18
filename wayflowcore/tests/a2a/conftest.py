@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import importlib
 import os
 import subprocess
 import time
@@ -18,9 +19,16 @@ from .start_a2a_server import AgentType
 _START_SERVER_FILE_PATH = str(Path(__file__).parent / "start_a2a_server.py")
 
 
+def is_package_installed(package_name):
+    return importlib.util.find_spec(package_name) is not None
+
+
 def _start_a2a_server(
     host: str, port: int, agent_type: AgentType, ready_timeout_s: float = 30.0
 ) -> tuple[subprocess.Popen, str]:
+    if agent_type == AgentType.ADK_AGENT:
+        if not is_package_installed("google.adk") or not is_package_installed("a2a"):
+            pytest.skip("Skipping because the google-adk[a2a] package is not installed.")
     process_args = [
         "python",
         "-u",  # unbuffered output
@@ -87,6 +95,17 @@ def a2a_server_fixture(request):
     host = "localhost"
     port = get_available_port()
     process, url = _start_a2a_server(host=host, port=port, agent_type=agent_type)
+    try:
+        yield url
+    finally:
+        _terminate_process_tree(process, timeout=5.0)
+
+
+@pytest.fixture(scope="session", name="adk_a2a_server")
+def adk_a2a_server_fixture():
+    host = "localhost"
+    port = get_available_port()
+    process, url = _start_a2a_server(host=host, port=port, agent_type=AgentType.ADK_AGENT)
     try:
         yield url
     finally:
