@@ -48,8 +48,9 @@ You can communicate with the following entities.
 - Carefully verify available tools; do not fabricate non-existent tools. Delegate when necessary.
 - Tool request/results may originate from other parts of the system; only use explicitly provided tools
 - Call EXACTLY ONE tool per response. The system does not support parallel tool calling.
-- {%- if handoff -%} You SHOULD use handoff_conversation tool if you think another agent can answer to the user directly,
+- {%- if handoff=="optional" -%} You SHOULD use handoff_conversation tool if you think another agent can answer to the user directly,
 as this reduces unnecessary relaying and lowers latency {%- endif -%}
+- {%- if handoff=="always" -%} You must use the handoff_conversation tool when delegating to another agent.{%- endif -%}
 </tool_use_rules>
 
 Always structure your response as a thought followed by a function call using JSON compliant syntax.

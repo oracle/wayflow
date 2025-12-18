@@ -63,6 +63,9 @@ Swarm class
 .. _swarm:
 .. autoclass:: wayflowcore.swarm.Swarm
 
+.. _handoffmode:
+.. autoclass:: wayflowcore.swarm.HandoffMode
+
 ManagerWorkers class
 ~~~~~~~~~~~~~~~~~~~~
 

@@ -86,7 +86,7 @@ class OpenAIModel(OpenAICompatibleModel):
             model_id=model_id,
             base_url="https://api.openai.com",
             proxy=proxy,
-            api_key=api_key or os.environ[OPEN_API_KEY],
+            api_key=api_key if api_key is not None else os.environ[OPEN_API_KEY],
             generation_config=generation_config,
             supports_structured_generation=True,
             supports_tool_calling=True,
@@ -96,12 +96,6 @@ class OpenAIModel(OpenAICompatibleModel):
             name=name,
             description=description,
         )
-
-    def _get_headers(self) -> Dict[str, Any]:
-        return {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
 
     @property
     def config(self) -> Dict[str, Any]:

@@ -134,7 +134,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
 
         # Create send message tools for the group manager
         self._manager_communication_tools = _create_communication_tools(
-            self.manager_agent, self.workers, handoff=False
+            self.manager_agent, self.workers
         )
 
         self.managerworkers_template = (

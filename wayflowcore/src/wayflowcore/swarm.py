@@ -5,7 +5,9 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import logging
+import warnings
 from dataclasses import dataclass
+from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
@@ -26,12 +28,59 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+class HandoffMode(Enum):
+    """
+    Controls how agents in a Swarm may delegate work to one another.
+    This setting determines whether an agent is equipped with:
+
+    * *send_message* — a tool for asking another agent to perform a sub-task and reply back.
+    * *handoff_conversation* — a tool for transferring the full user–agent conversation to another agent.
+
+    Depending on the selected mode, agents have different capabilities for delegation and collaboration.
+    """
+
+    NEVER = "never"
+    """
+    Agent is not equipped with the *handoff_conversation* tool.
+    Delegation is limited to message-passing:
+
+    * Agents *can* use *send_message* to request a sub-task from another agent.
+    * Agents *cannot* transfer the user conversation to another agent.
+
+    As a consequence, the ``first_agent`` always remains the primary point of contact with the user.
+    """
+
+    OPTIONAL = "optional"
+    """
+    Agents receive **both** *handoff_conversation* and *send_message* tool.
+    This gives agents full flexibility:
+
+    * They may pass a message to another agent and wait for a reply.
+    * Or they may fully hand off the user conversation to another agent.
+
+    Use this mode when you want agents to intelligently choose the most natural delegation strategy.
+    """
+
+    ALWAYS = "always"
+    """
+    Agents receive **only** the *handoff_conversation* tool.
+    Message-passing is disabled:
+
+    * Agents *must* hand off the user conversation when delegating work.
+    * They cannot simply send a message and receive a response.
+
+    This mode enforces a strict chain-of-ownership: whenever an agent involves another agent,
+    it must transfer the full dialogue context. The next agent can either respond directly to the user
+    or continue handing off the conversation to another agent.
+    """
+
+
 @dataclass(init=False)
 class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObject):
 
     first_agent: Agent
     relationships: List[Tuple[Agent, Agent]]
-    handoff: bool
+    handoff: Union[HandoffMode, bool]
     swarm_template: "PromptTemplate"
     input_descriptors: List["Property"]
     output_descriptors: List["Property"]
@@ -44,7 +93,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self,
         first_agent: Agent,
         relationships: List[Tuple[Agent, Agent]],
-        handoff: bool = True,
+        handoff: Union[HandoffMode, bool] = HandoffMode.OPTIONAL,
         swarm_template: Optional[PromptTemplate] = None,
         input_descriptors: Optional[List["Property"]] = None,
         output_descriptors: Optional[List["Property"]] = None,
@@ -68,19 +117,22 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             Each element in the list is a tuple ``(caller_agent, recipient_agent)``
             specifying that the ``caller_agent`` can query the ``recipient_agent``.
 
-            Currently, calling agents can perform two actions:
-            * Send a message to a recipient agent (e.g. asking to complete a sub task). The recipient agent then answers back the caller once done.
-            * Transfer the entire conversation with the user to another agent (also known as handoff, see ``handoff``)
+            Agents can delegate in two ways, depending on the ``handoff`` mode:
+
+            * **Message passing** via *send_message* tool — the caller requests a sub-task and waits for the recipient to reply. Note the the recipient does *not* need to have a reverse relatiship (i.e (recipient_agent, caller_agent)) in order to send a response back to the caller.
+            * **Conversation handoff** via *handoff_conversation* tool — the caller transfers the entire conversation history with the user to the recipient, who then becomes the new active agent speaking to the user.
         handoff:
-            * When ``False``, agent can only talk to each other, the ``first_agent`` is fixed for the entire conversation;
-            * When ``True``, agents can handoff the conversation to each other, i.e. transferring the list of messages between
-              an agent and the user to another agent in the Swarm. They can also talk to each other as when ``handoff=False``
+            Specifies how agents are allowed to delegate work. See ``HandoffMode`` for full details.
+
+            * ``HandoffMode.NEVER``: Agents can only use *send_message*. The ``first_agent`` is the only agent that can interact with the user.
+            * ``HandoffMode.OPTIONAL``: Agents may either send messages or fully hand off the conversation. This provides the most flexibility and often results in natural delegation.
+            * ``HandoffMode.ALWAYS``: Agents cannot send messages to other agents. Any delegation must be performed through *handoff_conversation*.
 
             .. note::
 
                 A key benefit of using Handoff is the reduced response latency: While talking to other agents increases the "distance"
                 between the human user and the current agent, transferring a conversation to another agent keeps this distance unchanged
-                (i.e. the agent interacting with the user is different but the user is still the same).
+                (i.e. the agent interacting with the user is different but the user is still the same). However, transferring the full conversation might increase the token usage.
         input_descriptors:
             Input descriptors of the swarm. ``None`` means the swarm will resolve the input descriptors automatically in a best effort manner.
 
@@ -149,6 +201,15 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         )
         _validate_relationships_unicity(relationships)
 
+        if isinstance(handoff, bool):
+            warnings.warn(
+                "Passing a boolean to configure handoff is deprecated. "
+                "Use a `HandoffMode` value instead. Booleans will be removed in a future release."
+            )
+            self.handoff = HandoffMode.OPTIONAL if handoff else HandoffMode.NEVER
+        else:
+            self.handoff = handoff
+
         # Creating send message tools for each agent
         self._communication_tools: Dict[str, List[ClientTool]] = {}
         for agent_name, agent in self._agent_by_name.items():
@@ -158,12 +219,11 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 logger.debug("Agent '%s' does not have any recipient", agent_name)
                 continue
 
-            send_message_tools = _create_communication_tools(agent, agent_recipients, handoff)
+            send_message_tools = _create_communication_tools(agent, agent_recipients, self.handoff)
             self._communication_tools[agent_name].extend(send_message_tools)
 
         self.first_agent = first_agent
         self.relationships = relationships or []
-        self.handoff = handoff
         self.swarm_template = swarm_template or _DEFAULT_SWARM_CHAT_TEMPLATE
 
         super().__init__(

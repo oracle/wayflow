@@ -70,7 +70,14 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
         ),
         ("ociagent_1.yaml", {}),
         ("a2aagent_1.yaml", {}),
-        ("swarm.yaml", {}),
+        pytest.param(
+            "swarm.yaml",
+            {},
+            marks=pytest.mark.filterwarnings(
+                "ignore:Passing `handoff` as a boolean:DeprecationWarning"
+            ),
+        ),
+        ("swarm_with_handoff_mode.yaml", {}),
         ("managerworkers.yaml", {}),
     ],
 )
@@ -139,7 +146,14 @@ def test_agentspec_config_can_be_converted_to_core_then_back_to_agentspec(
         ),
         ("ociagent_1.yaml", {}),
         ("a2aagent_1.yaml", {}),
-        ("swarm.yaml", {}),
+        pytest.param(
+            "swarm.yaml",
+            {},
+            marks=pytest.mark.filterwarnings(
+                "ignore:Passing `handoff` as a boolean:DeprecationWarning"
+            ),
+        ),
+        ("swarm_with_handoff_mode.yaml", {}),
     ],
 )
 def test_agentspec_json_and_yaml_import_are_equal(
