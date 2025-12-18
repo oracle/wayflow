@@ -9,6 +9,9 @@ import os
 from enum import Enum
 from typing import Annotated, Callable
 
+import pytest
+import uvicorn
+
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.agentserver.server import A2AServer
 from wayflowcore.controlconnection import ControlFlowEdge
@@ -56,6 +59,7 @@ class AgentType(str, Enum):
     FLOW_THAT_WITH_INPUT_STEP_YIELDS_ONCE = "flow_that_yields_once"
     MANAGER_WORKERS = "manager_workers"
     SWARM = "swarm"
+    ADK_AGENT = "adk_agent"
 
 
 # ============== Agent functions ==============
@@ -90,6 +94,51 @@ def get_agent_with_server_tool() -> Agent:
         custom_instruction="You are a Math agent that can do multiplication and addition using the equipped tools.",
         tools=[multiply, add],
         can_finish_conversation=True,
+    )
+
+
+# google-adk warnings
+@pytest.mark.filterwarnings("ignore::UserWarning")
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
+@pytest.mark.filterwarnings("ignore::FutureWarning")
+@register_agent(AgentType.ADK_AGENT)
+def get_adk_agent():
+    from google.adk.agents import Agent as ADKAgent
+    from google.adk.models.lite_llm import LiteLlm
+
+    VLLM_MODEL_ID = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+    VLLM_API_URL = os.getenv("LLAMA_API_URL")
+    llm = LiteLlm(model=f"hosted_vllm/{VLLM_MODEL_ID}", base_url=f"http://{VLLM_API_URL}/v1")
+
+    def multiply(a: int, b: int) -> int:
+        """Multiply two numbers.
+
+        Args:
+            a: First number.
+            b: Second number.
+
+        Returns:
+            product of a, b
+        """
+        return a * b
+
+    def add(a: int, b: int) -> int:
+        """Add two numbers.
+
+        Args:
+            a: First number.
+            b: Second number.
+
+        Returns:
+            sum of a, b
+        """
+        return a + b
+
+    return ADKAgent(
+        model=llm,
+        name="hello_world_agent",
+        instruction="You are a Math agent that can do multiplication and addition with the tools",
+        tools=[add, multiply],
     )
 
 
@@ -207,11 +256,36 @@ def create_server(agent_type: AgentType, host: str, port: int):
     return server
 
 
+# google-adk warnings
+@pytest.mark.filterwarnings("ignore::UserWarning")
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 def main(host: str, port: int, agent_type: AgentType):
-    server = create_server(agent_type=agent_type, host=host, port=port)
-    print(f"Starting A2A server on http://{host}:{port}")
-    server.run(host=host, port=port)
-    print("A2A server has stopped")
+    if agent_type == AgentType.ADK_AGENT:
+        from a2a.types import AgentCard
+        from google.adk.a2a.utils.agent_to_a2a import to_a2a
+
+        my_agent_card = AgentCard(
+            **{
+                "name": "file_agent",
+                "url": "http://example.com",
+                "description": "Test agent from file",
+                "version": "1.0.0",
+                "capabilities": {},
+                "skills": [],
+                "defaultInputModes": ["text/plain"],
+                "defaultOutputModes": ["text/plain"],
+                "supportsAuthenticatedExtendedCard": False,
+            }
+        )
+        agent = AGENT_FACTORIES.get(agent_type.value)()
+        a2a_app = to_a2a(agent, port=port, agent_card=my_agent_card)
+        uvicorn.run(a2a_app, host=host, port=port)
+    else:
+        server = create_server(agent_type=agent_type, host=host, port=port)
+        print(f"Starting A2A server on http://{host}:{port}")
+        server.run(host=host, port=port)
+        print("A2A server has stopped")
 
 
 if __name__ == "__main__":

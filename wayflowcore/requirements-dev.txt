@@ -34,6 +34,7 @@ starlette>=0.47.2
 uvicorn>=0.23.1
 openai # testing the openai responses server
 google-adk[a2a] # testing the a2a server
+litellm>=1.80.7 # testing the a2a agent
 
 # This is used to load database connection arguments in the unit tests
 python-dotenv
