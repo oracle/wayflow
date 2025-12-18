@@ -238,9 +238,9 @@ class PromptExecutionStep(Step):
                     )
                 )
             use_structured_generation = built_template.response_format is not None
-            if use_structured_generation and self.structured_generation_mode != None:
+            if use_structured_generation and self.structured_generation_mode is not None:
                 logger.warning(
-                    "%s was configured with a prompt template, ignoring structured generation mode "
+                    "Step `%s` was configured with a prompt template so it will ignore the structured generation mode "
                     "configuration.",
                     self.name,
                 )
@@ -457,7 +457,7 @@ class PromptExecutionStep(Step):
             if output_name not in outputs:
                 default_value = _format_default_value(expected_output)
                 logger.warning(
-                    f"Constrained generation is missing %s value. Will fill it with default value: %s",
+                    f"The output of the constrained generation is missing the expected value: %s. It will fill it with its default value: %s",
                     output_name,
                     default_value,
                 )
@@ -479,7 +479,7 @@ class PromptExecutionStep(Step):
         for output_name, output_value in outputs.items():
             if output_name not in validated_outputs:
                 logger.warning(
-                    "Constrained generation returned an additional value: `%s` with value `%s`. Not returning it.",
+                    "The output of the constrained generation has an additional unexpected value named `%s` with value `%s`. It will be ignored.",
                     output_name,
                     output_value,
                 )

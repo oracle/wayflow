@@ -108,7 +108,7 @@ def initialize_threadpool(num_threads: Optional[int] = None) -> None:
     thread_pool = WayFlowThreadPoolExecutor()
     if thread_pool.is_live:
         warnings.warn(
-            "The WayFlow threadpool is already started. Please make sure to shut it down before re-starting it"
+            "The WayFlow threadpool is already started. Please make sure to shut it down before re-starting it."
         )
     thread_pool.start(num_threads)
 

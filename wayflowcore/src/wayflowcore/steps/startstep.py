@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import logging
+import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from wayflowcore._metadata import MetadataType
@@ -70,6 +71,7 @@ class StartStep(Step):
 
         Examples
         --------
+        >>> from wayflowcore.controlconnection import ControlFlowEdge
         >>> from wayflowcore.property import StringProperty
         >>> from wayflowcore.dataconnection import DataFlowEdge
         >>> from wayflowcore.flow import Flow
@@ -78,34 +80,28 @@ class StartStep(Step):
         ...     PromptExecutionStep,
         ...     StartStep,
         ... )
-        >>> START_STEP = "start_step"
-        >>> LLM_ANSWER_STEP = "llm_answer_step"
-        >>> COMPLETE_STEP = "complete_step"
         >>> start_step = StartStep(
         ...     input_descriptors=[
         ...         StringProperty(
         ...             name="user_question",
         ...             description="The user question.",
         ...         )
-        ...     ]
+        ...     ],
+        ...     name="start_step"
         ... )
         >>> llm_step = PromptExecutionStep(
         ...     prompt_template="Answer the user question: {{user_question}}",
         ...     llm=llm,
+        ...     name="llm_answer_step"
         ... )
-        >>> steps = {
-        ...     START_STEP: start_step,
-        ...     LLM_ANSWER_STEP: llm_step,
-        ...     COMPLETE_STEP: CompleteStep(),
-        ... }
-        >>> transitions = {
-        ...     START_STEP: [LLM_ANSWER_STEP],
-        ...     LLM_ANSWER_STEP: [COMPLETE_STEP],
-        ... }
+        >>> complete_step = CompleteStep(name="complete_step")
+        >>> control_flow_edges = [
+        ...     ControlFlowEdge(source_step=start_step, destination_step=llm_step),
+        ...     ControlFlowEdge(source_step=llm_step, destination_step=complete_step),
+        ... ]
         >>> assistant = Flow(
         ...     begin_step=start_step,
-        ...     steps=steps,
-        ...     transitions=transitions,
+        ...     control_flow_edges=control_flow_edges,
         ... )
         >>> conversation = assistant.start_conversation(
         ...     inputs={"user_question": "Could you talk about the Oracle Cloud Infrastructure?"}
@@ -114,10 +110,14 @@ class StartStep(Step):
         """
         # Non-empty input_mapping is only confusing for the StartStep, as it has no internal input names
         if input_mapping:
-            logger.warning("The usage of input_mapping in the StartStep is discouraged")
+            warnings.warn(
+                "The usage of input_mapping in the StartStep is discouraged. Instead, you can just use directly the proper names on the input descriptors"
+            )
         # Setting output_descriptors is only confusing for the StartStep
         if output_descriptors is not None and input_descriptors != output_descriptors:
-            logger.warning("The usage of output_descriptors in the StartStep is discouraged")
+            warnings.warn(
+                "The usage of output_descriptors in the StartStep is discouraged. Instead, just specify the input descriptors and output descriptors will be a copy of it."
+            )
         super().__init__(
             input_descriptors=input_descriptors,
             output_descriptors=output_descriptors,

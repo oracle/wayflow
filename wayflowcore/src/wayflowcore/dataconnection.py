@@ -45,21 +45,19 @@ class DataFlowEdge(FrozenDataclassComponent):
 
     Example
     -------
+    >>> from wayflowcore.controlconnection import ControlFlowEdge
     >>> from wayflowcore.dataconnection import DataFlowEdge
     >>> from wayflowcore.flow import Flow
     >>> from wayflowcore.steps import OutputMessageStep
     >>>
-    >>> MOCK_PROCESSING_STEP = "processing_step"
-    >>> OUTPUT_STEP = "output_step"
-    >>> mock_processing_step = OutputMessageStep("Successfully processed username {{username}}")
-    >>> output_step = OutputMessageStep('{{session_id}}: Received message "{{processing_message}}"')
+    >>> mock_processing_step = OutputMessageStep("Successfully processed username {{username}}", name="processing_step")
+    >>> output_step = OutputMessageStep('{{session_id}}: Received message "{{processing_message}}"', name="output_step")
     >>> flow = Flow(
     ...     begin_step=mock_processing_step,
-    ...     steps={
-    ...         MOCK_PROCESSING_STEP: mock_processing_step,
-    ...         OUTPUT_STEP: output_step,
-    ...     },
-    ...     transitions={MOCK_PROCESSING_STEP: [OUTPUT_STEP], OUTPUT_STEP: [None]},
+    ...     control_flow_edges=[
+    ...         ControlFlowEdge(source_step=mock_processing_step, destination_step=output_step),
+    ...         ControlFlowEdge(source_step=output_step, destination_step=None),
+    ...     ],
     ...     data_flow_edges=[
     ...         DataFlowEdge(mock_processing_step, OutputMessageStep.OUTPUT, output_step, "processing_message")
     ...     ]
@@ -135,8 +133,8 @@ class DataFlowEdge(FrozenDataclassComponent):
         if not _property_can_be_casted_into_property(output_descriptor, input_descriptor):
             raise TypeError(
                 "Descriptor types are not compatible:\n"
-                f"- Output descriptor of step `{self.source_step.__class__.__name__}` is:\t{output_descriptor}\n"
-                f"- Input descriptor of step `{self.destination_step.__class__.__name__}` is:\t{input_descriptor}"
+                f"- Output descriptor of step `{self.source_step.__class__.__name__}` is:\t{output_descriptor.pretty_str()}\n"
+                f"- Input descriptor of step `{self.destination_step.__class__.__name__}` is:\t{input_descriptor.pretty_str()}"
             )
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
@@ -170,3 +168,6 @@ class DataFlowEdge(FrozenDataclassComponent):
         if "id" in input_dict:
             data_edge_args["id"] = input_dict["id"]
         return DataFlowEdge(**data_edge_args)
+
+    def __str__(self) -> str:
+        return f"DataFlowEdge(source_step={self.source_step.name}, source_output={self.source_output}, destination_step={self.destination_step.name}, destination_input={self.destination_input})"

@@ -16,7 +16,7 @@ from .._requesthelpers import StreamChunkType, TaggedMessageChunkTypeWithTokenUs
 from ..llmgenerationconfig import LlmGenerationConfig
 from ..llmmodel import Prompt
 from ._api_processor import _APIProcessor
-from ._utils import _prepare_openai_compatible_json_schema
+from ._utils import _prepare_openai_compatible_json_schema, _safe_json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +143,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 tool_requests=[
                     ToolRequest(
                         name=tc["function"]["name"],
-                        args=json.loads(tc["function"]["arguments"]),
+                        args=_safe_json_loads(tc["function"]["arguments"]),
                         tool_request_id=tc["id"],
                     )
                     for tc in extracted_message["tool_calls"]
@@ -261,11 +261,12 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                     tool_requests_dict[index]["name"] += func["name"]
                 if "arguments" in func:
                     tool_requests_dict[index]["arguments"] += func["arguments"]
+
         return [
             ToolRequest(
                 name=s["name"],
                 tool_request_id=s["tool_request_id"],
-                args=json.loads(s["arguments"]),
+                args=_safe_json_loads(s["arguments"]),
             )
             for s in tool_requests_dict.values()
         ]

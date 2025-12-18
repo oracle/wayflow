@@ -533,7 +533,9 @@ class Step(ComponentWithInputsOutputs, SerializableObject, metaclass=_StepRegist
 
         ComponentWithInputsOutputs.__init__(
             self,
-            name=IdGenerator.get_or_generate_name(name, prefix="step_", length=8),
+            name=IdGenerator.get_or_generate_name(
+                name, prefix=f"step_{self.__class__.__name__}_", length=8
+            ),
             description="",
             input_descriptors=self.input_descriptors,
             output_descriptors=self.output_descriptors,

@@ -371,14 +371,17 @@ def test_tools_are_properly_rendered_natively():
     assert prompt.tools == all_tools
 
 
-def test_template_non_native_tool_calling_needs_tool_template_and_raises_if_not_passed():
-    with pytest.warns(Warning, match="There is no tool placeholder"):
-        template = PromptTemplate(
-            messages=[Message(content="", message_type=MessageType.SYSTEM)],
-            tools=[some_tool],
-            native_tool_calling=False,
-            output_parser=PythonToolOutputParser(),
-        )
+def test_template_non_native_tool_calling_needs_tool_template_and_raises_if_not_passed(caplog):
+    caplog.set_level(
+        logging.WARNING
+    )  # setting pytest to capture log messages of level WARNING or above
+    template = PromptTemplate(
+        messages=[Message(content="", message_type=MessageType.SYSTEM)],
+        tools=[some_tool],
+        native_tool_calling=False,
+        output_parser=PythonToolOutputParser(),
+    )
+    assert "There is no tool placeholder" in caplog.text
 
 
 @pytest.mark.parametrize(

@@ -138,7 +138,7 @@ def correct_arguments(
 
     if not all(req_arg_name in corrected_types for req_arg_name in required_args):
         logger.warning(
-            "Tool request missing some arguments with no default value: %s",
+            "The LLM returned an incomplete tool request: some arguments are missing but they do not have a default value: %s",
             {req_arg_name: req_arg_name not in corrected_types for req_arg_name in required_args},
         )
 
@@ -165,8 +165,8 @@ def stringify(x: Any) -> str:
         return x
     try:
         return json.dumps(x)
-    except:
-        logger.warning("Result is not jsonable. Converting it to string with `str()`")
+    except (TypeError, ValueError):
+        logger.warning("Content is not jsonable. Converting it to string with `str()`")
         return str(x)
 
 
@@ -192,7 +192,7 @@ def stringify_if_not_jsonable(x: Any) -> Any:
         json.dumps(x)
         return x
     except:
-        logger.warning("Result is not jsonable. Converting it to string with `str()`")
+        logger.warning("Content is not jsonable. Converting it to string with `str()`")
         return str(x)
 
 

@@ -22,7 +22,7 @@ from .._requesthelpers import StreamChunkType, TaggedMessageChunkTypeWithTokenUs
 from ..llmgenerationconfig import LlmGenerationConfig
 from ..llmmodel import Prompt
 from ._api_processor import _APIProcessor
-from ._utils import _prepare_openai_compatible_json_schema
+from ._utils import _prepare_openai_compatible_json_schema, _safe_json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -247,7 +247,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 current_tool_requests.append(
                     ToolRequest(
                         name=item["name"],
-                        args=json.loads(item["arguments"]),
+                        args=_safe_json_loads(item["arguments"]),
                         tool_request_id=item["call_id"],
                     )
                 )
@@ -452,7 +452,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 ToolRequest(
                     name=req["name"],
                     tool_request_id=req["call_id"],
-                    args=json.loads(req["arguments"]),
+                    args=_safe_json_loads(req["arguments"]),
                 )
             )
 

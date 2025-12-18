@@ -321,7 +321,8 @@ def test_can_serde_flow_with_variable_readwrite_steps():
         - $ref: variable/140438685964896
     """
 
-    deserialized_flow = deserialize(Flow, serialized_flow)
+    with pytest.warns(DeprecationWarning, match="Usage of `transitions` is deprecated"):
+        deserialized_flow = deserialize(Flow, serialized_flow)
 
     assert len(deserialized_flow.variables) == 2
     assert deserialized_flow.variables == variables

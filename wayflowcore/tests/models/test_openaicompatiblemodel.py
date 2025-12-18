@@ -9,7 +9,7 @@ from contextlib import contextmanager, nullcontext
 from json import JSONDecodeError
 from typing import Any, Dict
 from unittest import mock
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import httpx
 import pytest
@@ -578,3 +578,51 @@ def test_open_ai_compatible_responses_model_raises_with_less_tokens(openai_respo
         conv.execute()
         conv.append_user_message("That sounds great! Tell me more")
         conv.execute()
+
+
+@pytest.mark.parametrize(
+    "tool_call_args",
+    [
+        "{}",
+        '{"arg1":"val1"}',
+        '{"arg1":"val1}',  # broken JSON, can be repaired
+        '{"arg1"val1"}',  # broken JSON, can be repaired
+        "{",  # completely broken, will be ignored
+    ],
+)
+def test_openai_model_does_not_raise_on_receiving_incomplete_tool_calls_from_remote(
+    remotely_hosted_llm, tool_call_args
+):
+    mocked_response = {
+        "id": "test-id",
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": "It is sunny in Zurich.",
+                    "tool_calls": [
+                        {
+                            "function": {
+                                "name": "get_weather",
+                                "arguments": tool_call_args,
+                            },
+                            "id": "id1",
+                        }
+                    ],
+                }
+            }
+        ],
+    }
+
+    mock_httpx_response = httpx.Response(status_code=200, json=mocked_response)
+
+    async_mock = AsyncMock(return_value=mock_httpx_response)
+
+    with patch("httpx.AsyncClient.post", async_mock):
+        completion = remotely_hosted_llm.generate("what is the weather in Zurich?")
+        tool_call = completion.message.tool_requests[0]
+
+        assert tool_call.name == "get_weather"
+
+        if "arg1" in tool_call_args:
+            assert tool_call.args.get("arg1") is not None

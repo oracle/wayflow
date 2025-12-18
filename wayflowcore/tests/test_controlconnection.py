@@ -99,7 +99,9 @@ def test_duplicate_control_flow_edge_raises():
 def test_missing_one_control_flow_edge_raises():
     step_1 = BranchingStep(branch_name_mapping={"o1": "o1", "o2": "o2"})
 
-    with (pytest.warns(UserWarning, match="Missing edge for branch `default` of step"),):
+    with (
+        pytest.warns(UserWarning, match="Missing a control flow edge for branch `default` of step"),
+    ):
         flow = Flow(
             begin_step=step_1,
             steps={

@@ -23,6 +23,7 @@ from .branchingstep import BranchingStep
 from .completestep import CompleteStep
 from .flowexecutionstep import FlowExecutionStep
 from .promptexecutionstep import PromptExecutionStep
+from .startstep import StartStep
 from .textextractionstep.regexextractionstep import RegexExtractionStep
 
 if TYPE_CHECKING:
@@ -153,29 +154,42 @@ class ChoiceSelectionStep(Step):
 
         Examples
         --------
+        >>> from wayflowcore.controlconnection import ControlFlowEdge
         >>> from wayflowcore.flow import Flow
         >>> from wayflowcore.steps import ChoiceSelectionStep, OutputMessageStep
-        >>>
-        >>> CHOICE_SELECTION_STEP = "CHOICE_SELECTION"
-        >>> OUTPUT_STEP1 = "OUTPUT1"
-        >>> OUTPUT_STEP2 = "OUTPUT2"
         >>> CHOICE_SELECTION_IO = "$choice_selection"
         >>> choice_selection_step = ChoiceSelectionStep(
         ...         llm=llm,
         ...         next_steps=[
-        ...             (OUTPUT_STEP1, "The access is denied", "is_access_denied"),
-        ...             (OUTPUT_STEP2, "The access is granted", "is_access_granted"),
+        ...             ("OUTPUT1", "The access is denied", "is_access_denied"),
+        ...             ("OUTPUT2", "The access is granted", "is_access_granted"),
         ...         ],
         ...         input_mapping={ChoiceSelectionStep.INPUT: CHOICE_SELECTION_IO},
+        ...         name="CHOICE_SELECTION"
         ...     )
+        >>> output_step1 = OutputMessageStep("Access denied. Please exit the conversation.", name="OUTPUT1")
+        >>> output_step2 = OutputMessageStep("Access granted. Press any key to continue...", name="OUTPUT2")
         >>> assistant = Flow(
         ...     begin_step=choice_selection_step,
-        ...     steps={
-        ...         CHOICE_SELECTION_STEP: choice_selection_step,
-        ...         OUTPUT_STEP1: OutputMessageStep("Access denied. Please exit the conversation."),
-        ...         OUTPUT_STEP2: OutputMessageStep("Access granted. Press any key to continue..."),
-        ...     },
-        ...     transitions={CHOICE_SELECTION_STEP: {OUTPUT_STEP1: OUTPUT_STEP1, OUTPUT_STEP2: OUTPUT_STEP2, ChoiceSelectionStep.BRANCH_DEFAULT: OUTPUT_STEP1}, OUTPUT_STEP1: [None], OUTPUT_STEP2: [None]}
+        ...     control_flow_edges=[
+        ...         ControlFlowEdge(
+        ...             source_step=choice_selection_step,
+        ...             source_branch="OUTPUT1",
+        ...             destination_step=output_step1,
+        ...         ),
+        ...         ControlFlowEdge(
+        ...             source_step=choice_selection_step,
+        ...             source_branch="OUTPUT2",
+        ...             destination_step=output_step2,
+        ...         ),
+        ...         ControlFlowEdge(
+        ...             source_step=choice_selection_step,
+        ...             source_branch=ChoiceSelectionStep.BRANCH_DEFAULT,
+        ...             destination_step=output_step1,
+        ...         ),
+        ...         ControlFlowEdge(source_step=output_step1, destination_step=None),
+        ...         ControlFlowEdge(source_step=output_step2, destination_step=None),
+        ...     ],
         ... )
         >>> conversation = assistant.start_conversation(inputs={CHOICE_SELECTION_IO: "I grant the access to the user"})
         >>> status = conversation.execute() # doctest: +SKIP
@@ -185,6 +199,7 @@ class ChoiceSelectionStep(Step):
         from wayflowcore.controlconnection import ControlFlowEdge
         from wayflowcore.flow import Flow
 
+        START = "choice_selection_start"
         PROMPT_EXECUTION = "prompt_execution"
         EXTRACTION = "next_step_extraction"
         BRANCHING = "branching"
@@ -212,55 +227,54 @@ class ChoiceSelectionStep(Step):
             prompt_template=prompt,
             generation_config=LlmGenerationConfig(max_tokens=num_tokens),
             output_mapping={PromptExecutionStep.OUTPUT: self.LLM_OUTPUT},
+            name=PROMPT_EXECUTION,
         )
         regex_extraction_step = RegexExtractionStep(
             regex_pattern=regex_pattern,
             input_mapping={RegexExtractionStep.TEXT: self.LLM_OUTPUT},
             output_mapping={RegexExtractionStep.OUTPUT: self.SELECTED_CHOICE},
+            name=EXTRACTION,
         )
         branching_step = BranchingStep(
             branch_name_mapping={k: v for k, v in next_step_mapping.items()},
             input_mapping={BranchingStep.NEXT_BRANCH_NAME: self.SELECTED_CHOICE},
+            name=BRANCHING,
         )
-        complete_steps = {
-            step_name: CompleteStep()
-            for step_name in next_step_mapping.values()
-            if step_name is not None
-        }
-        default_complete_step = CompleteStep()
 
-        steps = {
-            PROMPT_EXECUTION: prompt_execution_step,
-            EXTRACTION: regex_extraction_step,
-            BRANCHING: branching_step,
-            **complete_steps,
-        }
+        start_step = StartStep(
+            input_descriptors=[
+                descriptor.copy() for descriptor in prompt_execution_step.input_descriptors
+            ],
+            name=START,
+        )
 
         branching_step_control_flow_edges = [
             # all possible complete steps
             ControlFlowEdge(
-                source_step=branching_step, destination_step=step, source_branch=step_name
+                source_step=branching_step,
+                destination_step=CompleteStep(name=step_name),
+                source_branch=step_name,
             )
-            for step_name, step in complete_steps.items()
+            for step_name in set(next_step_mapping.values())
+            if step_name is not None
         ]
         if not any(
             branching_step.BRANCH_DEFAULT == edge.source_branch
             for edge in branching_step_control_flow_edges
         ):
-            steps[BranchingStep.BRANCH_DEFAULT] = default_complete_step
             branching_step_control_flow_edges += [
                 # default complete step
                 ControlFlowEdge(
-                    branching_step,
-                    destination_step=default_complete_step,
+                    source_step=branching_step,
+                    destination_step=CompleteStep(name=branching_step.BRANCH_DEFAULT),
                     source_branch=branching_step.BRANCH_DEFAULT,
                 )
             ]
 
         self.subflow = Flow(
-            begin_step=prompt_execution_step,
-            steps=steps,
+            begin_step=start_step,
             control_flow_edges=[
+                ControlFlowEdge(source_step=start_step, destination_step=prompt_execution_step),
                 # first stages
                 ControlFlowEdge(
                     source_step=prompt_execution_step, destination_step=regex_extraction_step

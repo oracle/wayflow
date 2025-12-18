@@ -59,12 +59,8 @@ from wayflowcore.steps import (
     PromptExecutionStep,
     StartStep,
 )
-steps = {'output_step': OutputMessageStep('Hello!')}
-flow = Flow(
-    begin_step=steps['output_step'],
-    steps=steps,
-    transitions={'output_step': [None]},
-)" >$OUT_FILE 2>$ERR_FILE
+step = OutputMessageStep('Hello!', name='output_step')
+flow = Flow.from_steps(steps=[step])" >$OUT_FILE 2>$ERR_FILE
 
     declare -i LOGSTREAM_RESULT=0
 
@@ -77,20 +73,6 @@ flow = Flow(
         $EXPECTED_LOGSTREAM given the logger initialization ($1).\
         Have you recently changed logging behaviour?";
         echo "Check stream outputs below for more info."
-    else
-        expected_logs=(
-            "Usage of \`transitions\` is deprecated. Please use \`control_flow_edges\`."
-        )
-
-        for t in ${expected_logs[@]}; do
-            grep -Fq "$t" $EXPECTED_LOG_FILE
-            if [ $? -ne 0 ]; then
-                echo "Script didn't write expected logs to $EXPECTED_LOGSTREAM: '$t'";
-                echo "If the log messages have changed, update the expected_logs above, otherwise check\
-                the stream outputs below for more info.";
-                LOGSTREAM_RESULT=1
-            fi;
-        done;
     fi
 
     if [ $LOGSTREAM_RESULT -ne 0 ]; then
