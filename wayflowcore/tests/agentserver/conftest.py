@@ -28,6 +28,7 @@ from ..datastores.conftest import (
     get_postgres_connection_config,
 )
 from ..utils import LogTee, _terminate_process_tree, get_available_port
+from .datastore_agent_server import ORACLE_DB_CREATE_DDL, ORACLE_DB_DELETE_DDL
 
 
 def _wait_for_http_ready(url: str, timeout: float) -> None:
@@ -282,9 +283,20 @@ def multi_agent_inmemory_server():
 
 
 @pytest.fixture(scope="session")
-def datastore_agent_inmemory_server():
+def oracle_db_with_names():
     if not all_oracle_tls_connection_config_env_variables_are_specified():
-        pytest.skip("Oracle Datastore not configured")
+        pytest.skip("Oracle DB not configured")
+    connection_config = get_oracle_connection_config()
+    try:
+        _execute_query_on_oracle_db(connection_config, ORACLE_DB_DELETE_DDL)
+        _execute_query_on_oracle_db(connection_config, ORACLE_DB_CREATE_DDL)
+        yield
+    finally:
+        _execute_query_on_oracle_db(connection_config, ORACLE_DB_DELETE_DDL)
+
+
+@pytest.fixture(scope="session")
+def datastore_agent_inmemory_server(oracle_db_with_names):
     available_port = get_available_port()
     print(f"Starting datastore agent server on port {available_port}")
     cmd = ["python", str(TEST_DIR / "datastore_agent_server.py"), "--port", str(available_port)]

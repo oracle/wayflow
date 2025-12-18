@@ -6,15 +6,18 @@
 
 import json
 import logging
-import time
+import sys
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
+    AsyncGenerator,
     AsyncIterable,
     Callable,
     Dict,
+    Generator,
     Optional,
     Sequence,
     Tuple,
@@ -22,6 +25,7 @@ from typing import (
     Union,
 )
 
+import anyio
 import httpx
 
 if TYPE_CHECKING:
@@ -135,7 +139,7 @@ async def request_post_with_retries(
                     response_error,
                     wait,
                 )
-                time.sleep(wait)
+                await anyio.sleep(wait)
             else:
                 raise Exception(
                     f"API request failed with status code {response.status_code}: {response_error} ({response})",
@@ -149,7 +153,7 @@ async def request_post_with_retries(
             logger.warning(
                 f"Request exception ({type(exc).__name__}): {exc}. Retrying in {wait} seconds."
             )
-            time.sleep(wait)
+            await anyio.sleep(wait)
         tries += 1
     if last_exc is not None:
         raise Exception(
@@ -158,65 +162,100 @@ async def request_post_with_retries(
     raise Exception("API request failed after maximum retries.")
 
 
+# Suppress “async generator ignored GeneratorExit” from httpcore/httpx streams:
+# This warning happens when an async HTTP stream is cancelled/cleaned up mid-yield
+# (e.g., httpcore’s connection pool iterator during teardown) — the generator gets
+# a GeneratorExit that it doesn’t cleanly propagate, resulting in Python printing
+# “async generator ignored GeneratorExit”. See:
+# https://github.com/Chainlit/chainlit/issues/2361
+def _silence_generator_exit_noise(unraisable: Any) -> None:
+    exc = unraisable.exc_value
+    ignored_exceptions = [
+        "Attempted to exit cancel scope in a different task than it was entered in",
+        "async generator ignored GeneratorExit",
+    ]
+    if isinstance(exc, RuntimeError) and any(x in str(exc) for x in ignored_exceptions):
+        return
+    sys.__unraisablehook__(unraisable)
+
+
+@contextmanager
+def silence_generator_exit_warnings() -> Generator[None, None, None]:
+    prev_unraisable_hook = sys.unraisablehook
+    try:
+        # ignore unraisable error coming from httpx to avoid polluting the logs
+        sys.unraisablehook = _silence_generator_exit_noise
+        yield
+    finally:
+        sys.unraisablehook = prev_unraisable_hook
+
+
 async def request_streaming_post_with_retries(
     request_params: Dict[str, Any],
     retry_strategy: _RetryStrategy,
     proxy: Optional[str] = None,
-) -> AsyncIterable[str]:
+) -> AsyncGenerator[str, None]:
     tries = 0
     last_exc = None
 
-    while tries <= retry_strategy.max_retries:
-        try:
-            async with httpx.AsyncClient(proxy=proxy, timeout=retry_strategy.timeout) as session:
-                async with session.stream("POST", **request_params) as response:
-                    if response.status_code == 200:
-                        async for chunk in response.aiter_lines():
-                            yield chunk
-                        return
-                    # read streaming response to get the error message properly
-                    raw_response = await response.aread()
-                    response_content = raw_response.decode()
-                if response.status_code in retry_strategy.recoverable_statuses:
-                    retry_after = response.headers.get("retry-after")
-                    if retry_after:
-                        try:
-                            wait = float(retry_after)
-                        except ValueError:
-                            wait = retry_strategy.min_wait * (retry_strategy.backoff_factor**tries)
-                    else:
-                        wait = min(
-                            retry_strategy.min_wait * (retry_strategy.backoff_factor**tries),
-                            retry_strategy.max_wait,
+    with silence_generator_exit_warnings():
+        while tries <= retry_strategy.max_retries:
+            try:
+                async with httpx.AsyncClient(
+                    proxy=proxy, timeout=retry_strategy.timeout
+                ) as session:
+                    async with session.stream("POST", **request_params) as response:
+                        if response.status_code == 200:
+                            async for chunk in response.aiter_lines():
+                                yield chunk
+                            return
+                        # read streaming response to get the error message properly
+                        raw_response = await response.aread()
+                        response_content = raw_response.decode()
+                    if response.status_code in retry_strategy.recoverable_statuses:
+                        retry_after = response.headers.get("retry-after")
+                        if retry_after:
+                            try:
+                                wait = float(retry_after)
+                            except ValueError:
+                                wait = retry_strategy.min_wait * (
+                                    retry_strategy.backoff_factor**tries
+                                )
+                        else:
+                            wait = min(
+                                retry_strategy.min_wait * (retry_strategy.backoff_factor**tries),
+                                retry_strategy.max_wait,
+                            )
+                        logger.warning(
+                            f"API streaming request failed with status %s: %s. Retrying in %s seconds.",
+                            response.status_code,
+                            response_content,
+                            wait,
                         )
-                    logger.warning(
-                        f"API streaming request failed with status %s: %s. Retrying in %s seconds.",
-                        response.status_code,
-                        response_content,
-                        wait,
-                    )
-                    time.sleep(wait)
-                else:
-                    raise Exception(
-                        f"API streaming request failed with status code {response.status_code}: {response_content} {response}"
-                    )
-        except (httpx.TimeoutException, httpx.ConnectError, httpx.RequestError) as exc:
-            last_exc = exc
-            wait = min(
-                retry_strategy.min_wait * (retry_strategy.backoff_factor**tries),
-                retry_strategy.max_wait,
-            )
-            logger.warning(
-                f"Streaming request exception ({type(exc).__name__}): {exc}. Retrying in {wait} seconds."
-            )
-            time.sleep(wait)
-        tries += 1
+                        await anyio.sleep(wait)
+                    else:
+                        raise Exception(
+                            f"API streaming request failed with status code {response.status_code}: {response_content} {response}"
+                        )
+            except (httpx.TimeoutException, httpx.ConnectError, httpx.RequestError) as exc:
+                last_exc = exc
+                wait = min(
+                    retry_strategy.min_wait * (retry_strategy.backoff_factor**tries),
+                    retry_strategy.max_wait,
+                )
+                logger.warning(
+                    f"Streaming request exception ({type(exc).__name__}): {exc}. Retrying in {wait} seconds."
+                )
+                await anyio.sleep(wait)
+            except (GeneratorExit, anyio.get_cancelled_exc_class()):
+                raise
+            tries += 1
 
-    if last_exc is not None:
-        raise Exception(
-            f"API streaming request failed after retries due to network error: {type(last_exc).__name__}: {last_exc}"
-        ) from last_exc
-    raise Exception("API streaming request failed after maximum retries.")
+        if last_exc is not None:
+            raise Exception(
+                f"API streaming request failed after retries due to network error: {type(last_exc).__name__}: {last_exc}"
+            ) from last_exc
+        raise Exception("API streaming request failed after maximum retries.")
 
 
 class StreamChunkType(Enum):
