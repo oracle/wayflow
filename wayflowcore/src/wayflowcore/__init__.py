@@ -11,6 +11,7 @@ from .conversation import Conversation
 from .flow import Flow
 from .messagelist import Message, MessageList, MessageType
 from .steps.step import Step
+from .swarm import Swarm
 from .tools import Tool, tool
 
 __all__ = [
@@ -21,6 +22,7 @@ __all__ = [
     "MessageList",
     "MessageType",
     "Step",
+    "Swarm",
     "tool",
     "Tool",
 ]

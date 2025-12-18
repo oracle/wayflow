@@ -19,6 +19,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Union,
 )
 
 from wayflowcore._utils.async_helpers import run_async_in_sync
@@ -31,7 +32,7 @@ from wayflowcore.executors.executionstatus import (
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
-from wayflowcore.messagelist import Message, MessageList
+from wayflowcore.messagelist import Message, MessageContent, MessageList
 from wayflowcore.planning import ExecutionPlan
 from wayflowcore.tokenusage import TokenUsage
 
@@ -92,6 +93,10 @@ class Conversation(DataclassComponent):
     token_usage: TokenUsage = field(default_factory=TokenUsage, init=False)
     conversation_id: str = ""  # deprecated
 
+    status_handled: bool = False
+    """Whether the current status associated to this conversation was already handled or not
+     (messages/tool results were added to the conversation)"""
+
     def __post_init__(self) -> None:
         if self.inputs is None:
             self.inputs = {}
@@ -130,15 +135,15 @@ class Conversation(DataclassComponent):
         The ``Execution`` status is returned by the Assistant and indicates if the assistant yielded,
         finished the conversation.
         """
-        if self.status is not None and self._status_applies_to_this_conversation(self.status):
-            self._update_conversation_with_status(self.status)
-
-        # reset status
-        self.status = None
+        if self.status_handled is False:
+            self._update_conversation_with_status()
 
         with _register_conversation(self):
-            self.status = await self.component.runner.execute_async(self, execution_interrupts)
-            return self.status
+            new_status = await self.component.runner.execute_async(self, execution_interrupts)
+
+        self.status = new_status
+        self.status_handled = False
+        return self.status
 
     @property
     @abstractmethod
@@ -183,10 +188,27 @@ class Conversation(DataclassComponent):
         """
         if self.status is None:
             self.message_list.append_message(message)
-        elif isinstance(self.status, UserMessageRequestStatus):
-            self.append_user_message(message.content)
-        elif isinstance(self.status, ToolRequestStatus) and message.tool_result is not None:
+        elif isinstance(self.status, UserMessageRequestStatus) and not self.status_handled:
+            if message.role != "user":
+                raise ValueError(
+                    'Role of the message should be "user" for status=`UserMessageRequestStatus`'
+                )
+            # we update the status
+            self.status.submit_user_response(message)
+            # we update the state so that the conversation contains the expected messages
+            self._update_conversation_with_status()
+            self.status_handled = True
+        elif (
+            isinstance(self.status, ToolRequestStatus)
+            and message.tool_result is not None
+            and not self.status_handled
+        ):
             self.append_tool_result(message.tool_result)
+            self._update_conversation_with_status()
+            self.status_handled = True
+            # we still need to add the content if there is any
+            if message.contents:
+                self.message_list.messages[-1].contents = message.contents
         else:
             self.message_list.append_message(message)
 
@@ -200,21 +222,30 @@ class Conversation(DataclassComponent):
         """
         self.message_list.append_agent_message(agent_input=agent_input, is_error=is_error)
 
-    def append_user_message(self, user_input: str) -> None:
+    def append_user_message(self, user_input: Union[str, List[MessageContent]]) -> None:
         """Append a new message object of type ``MessageType.USER`` to the messages list.
 
         Parameters
         ----------
         user_input:
-            message to append.
+            str or list of message contents to append as a user message.
         """
 
         from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
 
         if self.status is None:
+            # initial, we let the user post as many messages as they want
             self.message_list.append_user_message(user_input)
         elif isinstance(self.status, UserMessageRequestStatus):
-            self.status.submit_user_response(user_input)
+            # we update the status
+            self.status.submit_user_response(
+                user_input
+                if isinstance(user_input, str)
+                else Message(role="user", contents=user_input)
+            )
+            # we update the state so that the conversation contains the expected messages
+            self._update_conversation_with_status()
+            self.status_handled = True
         elif isinstance(self.status, InterruptedExecutionStatus):
             self.message_list.append_user_message(user_input)
         elif isinstance(self.status, FinishedStatus):
@@ -250,9 +281,12 @@ class Conversation(DataclassComponent):
     def _status_applies_to_this_conversation(self, status: ExecutionStatus) -> bool:
         return status is not None and status._conversation_id == self.id
 
-    def _update_conversation_with_status(self, status: ExecutionStatus) -> None:
-        if isinstance(status, UserMessageRequestStatus):
-            user_response = status._user_response
+    def _update_conversation_with_status(self) -> None:
+        if self.status is None or not self._status_applies_to_this_conversation(self.status):
+            return
+
+        if isinstance(self.status, UserMessageRequestStatus):
+            user_response = self.status._user_response
             if user_response is None:
                 s = "\n".join([str(m) for m in self.get_messages()])
                 logger.info(
@@ -260,14 +294,16 @@ class Conversation(DataclassComponent):
                 )
             else:
                 self.message_list.append_message(user_response)
-        elif isinstance(status, ToolRequestStatus):
-            tool_results = status._tool_results
+        elif isinstance(self.status, ToolRequestStatus):
+            tool_results = self.status._tool_results
             if tool_results is None:
                 # return
                 raise ValueError(
                     "Should have submitted a tool results before updating the conversation\n"
-                    f"The status was: {status}\n"
+                    f"The status was: {self.status}\n"
                     f"The conversation was: {self.get_messages()}\n"
                 )
             for tool_result in tool_results:
                 self.message_list.append_message(Message(tool_result=tool_result, role="assistant"))
+
+        self.status_handled = True

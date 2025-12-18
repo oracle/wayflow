@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from wayflowcore.agent import Agent
 from wayflowcore.conversation import Conversation
 from wayflowcore.executors._executionstate import ConversationExecutionState
-from wayflowcore.messagelist import Message, MessageList
+from wayflowcore.messagelist import Message, MessageContent, MessageList
 from wayflowcore.serialization.serializer import SerializableDataclass
 from wayflowcore.tools import ToolResult
 
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from wayflowcore.agentconversation import AgentConversation
     from wayflowcore.contextproviders import ContextProvider
     from wayflowcore.swarm import Swarm
+
 from wayflowcore.swarm import Swarm
 
 if TYPE_CHECKING:
@@ -149,7 +150,7 @@ class SwarmConversation(Conversation):
 
         current_conv.append_tool_result(tool_result)
 
-    def append_user_message(self, user_input: str) -> None:
+    def append_user_message(self, user_input: str | list[MessageContent]) -> None:
         """Append a new message object of type ``MessageType.USER`` to the main thread.
 
         Parameters

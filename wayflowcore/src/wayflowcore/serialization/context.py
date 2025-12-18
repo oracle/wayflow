@@ -10,6 +10,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, Union, cast
 
 if TYPE_CHECKING:
+    from wayflowcore.component import Component
     from wayflowcore.serialization.plugins import (
         WayflowDeserializationPlugin,
         WayflowSerializationPlugin,
@@ -134,7 +135,8 @@ class SerializationContext:
         """
         return {"$ref": self.get_reference(obj)}
 
-    def get_reference(self, obj: Any) -> str:
+    @staticmethod
+    def get_reference(obj: Any) -> str:
         """
         Returns the formatted string that is used by the serialization context to reference the
         object
@@ -302,3 +304,32 @@ class DeserializationContext:
         )
 
         return WayflowBuiltinsDeserializationPlugin()
+
+    def _add_component_to_context(self, component: "Component") -> None:
+        """
+        Adds the current components and all its subcomponents to this
+        deserialization context.
+        """
+        from wayflowcore.component import Component
+
+        component_ref = SerializationContext.get_reference(component)
+
+        if component_ref in self._deserialized_objects:
+            return
+
+        self._deserialized_objects[component_ref] = component
+
+        all_public_attrs = {
+            name: value for name, value in vars(component).items() if not name.startswith("_")
+        }
+        for attr_name, attr in all_public_attrs.items():
+            if isinstance(attr, Component):
+                self._add_component_to_context(attr)
+            if isinstance(attr, dict):
+                for value in attr.values():
+                    if isinstance(value, Component):
+                        self._add_component_to_context(value)
+            if isinstance(attr, list):
+                for value in attr:
+                    if isinstance(value, Component):
+                        self._add_component_to_context(value)

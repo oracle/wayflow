@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import importlib
+import inspect
 import pkgutil
 import warnings
 from abc import ABC, abstractmethod
@@ -225,10 +226,10 @@ class SerializableDataclassMixin:
                 dataclass_fields[field_name] = deserialize_any_from_dict(
                     field_value, field_type, deserialization_context
                 )
-            except DataclassFieldDeserializationError as e:
-                # throw exception as is
-                raise e
             except Exception as e:
+                if isinstance(e, DataclassFieldDeserializationError):
+                    # throw exception as is
+                    raise e
                 raise DataclassFieldDeserializationError(
                     f"Error when deserializing field `{field_name}` of dataclass `{cls.__name__}`: {str(e)}"
                 ) from e
@@ -261,7 +262,7 @@ def deserialize_any_from_dict(
         expected_type = SerializableObject._COMPONENT_REGISTRY.get(expected_type, expected_type)  # type: ignore
 
     try:
-        if issubclass(expected_type, SerializableObject):
+        if inspect.isclass(expected_type) and issubclass(expected_type, SerializableObject):
             # If the object is a string and the expected type is a subclass of tool
             # We proceed with its deserialization, as autodeserialize requires a dictionary
             from wayflowcore.tools import Tool
@@ -281,11 +282,6 @@ def deserialize_any_from_dict(
             return cast(M, deserialized_object)
     except _IncorrectDeserializedTypeException as e:
         pass
-    except TypeError as e:
-        # We ignore the TypeError raised by the call to `issubclass` because
-        # we don't want to break and can continue normally in this cases.
-        if "issubclass" not in str(e):
-            raise e
 
     if is_any_type(expected_type):
         return autodeserialize_any_from_dict(obj, deserialization_context)  # type: ignore

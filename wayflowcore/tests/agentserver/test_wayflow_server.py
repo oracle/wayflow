@@ -718,7 +718,7 @@ def test_agent_with_datastore_is_supported(datastore_agent_inmemory_server):
     response = _create_response(
         base_url=datastore_agent_inmemory_server,
         input_value="What is the capital of France?",
-        model="datastore-assistant",
+        model="datastore-swarm",
     )
     output = response["output"][0]["content"][0]["text"]
     assert "paris" in output.lower()

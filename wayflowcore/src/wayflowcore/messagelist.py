@@ -582,7 +582,7 @@ class MessageList(SerializableDataclass):
         message = Message(content=agent_input, message_type=MessageType.AGENT, is_error=is_error)
         self.append_message(message)
 
-    def append_user_message(self, user_input: str) -> None:
+    def append_user_message(self, user_input: Union[str, List[MessageContent]]) -> None:
         """Append a new message object of type ``MessageType.USER`` to the messages list.
 
         Parameters
@@ -592,8 +592,12 @@ class MessageList(SerializableDataclass):
         """
         self.append_message(
             Message(
-                content=user_input,
-                message_type=MessageType.USER,
+                contents=(
+                    user_input
+                    if isinstance(user_input, list)
+                    else [TextContent(content=user_input)]
+                ),
+                role="user",
             )
         )
 

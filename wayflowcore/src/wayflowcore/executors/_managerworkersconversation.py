@@ -12,7 +12,7 @@ from wayflowcore.agent import Agent
 from wayflowcore.conversation import Conversation
 from wayflowcore.executors._executionstate import ConversationExecutionState
 from wayflowcore.managerworkers import ManagerWorkers
-from wayflowcore.messagelist import Message
+from wayflowcore.messagelist import Message, MessageContent
 from wayflowcore.tools import ToolResult
 
 if TYPE_CHECKING:
@@ -83,7 +83,7 @@ class ManagerWorkersConversation(Conversation):
             raise (ValueError(f"Internal error: Current subconversation is None"))
         current_conv.append_tool_result(tool_result)
 
-    def append_user_message(self, user_input: str) -> None:
+    def append_user_message(self, user_input: str | list[MessageContent]) -> None:
         """Append a new message object of type ``MessageType.USER`` to the main thread.
 
         Parameters

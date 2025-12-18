@@ -121,6 +121,11 @@ Bug fixes
   set in the tool result if the tool execution did not produce a value for them. Tools that have a single output still ignore
   its default, as a return value is always assumed to be produced by the tool (possibly ``None``).
 
+* **Fixed warnings raised when LLM streaming generator was not properly closed:**
+
+  Fixed a bug where streaming LLM generation in a ``chainlit`` app could raise warnings due to a non-closed generator. The generator is now properly
+  closed and we silence the known issue on the ``httpx`` library.
+
 * **Some Agent and Flow names could cause issues when used in multi-agent patterns:**
 
   Fixed a bug where Agents or Flows, whose name contains whitespaces or special characters, would crash upon sending a request to the LLM provider

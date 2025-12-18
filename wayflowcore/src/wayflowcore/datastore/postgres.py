@@ -31,7 +31,7 @@ class PostgresDatabaseConnectionConfig(DataclassComponent, ABC):
     """Abstract class for a PostgreSQL connection."""
 
     @abstractmethod
-    def get_connection(self) -> sqlalchemy.Engine:
+    def get_connection(self) -> "sqlalchemy.Engine":
         raise NotImplementedError()
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
@@ -95,7 +95,7 @@ class TlsPostgresDatabaseConnectionConfig(PostgresDatabaseConnectionConfig):
     def _remove_trailing_http(self, url: str) -> str:
         return url.rstrip("http://").rstrip("https://")
 
-    def get_connection(self) -> sqlalchemy.Engine:
+    def get_connection(self) -> "sqlalchemy.Engine":
         from sqlalchemy import create_engine
 
         connect_args: Dict[str, Any] = {"sslmode": self.sslmode}

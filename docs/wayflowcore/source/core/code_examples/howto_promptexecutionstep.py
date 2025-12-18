@@ -182,7 +182,7 @@ agent = Agent(
     llm=llm,
     custom_instruction="""Extract from the article given by the user the name of the animal, its danger level and the threats it's subject to.""",
     initial_message=None,
-    caller_input_mode=CallerInputMode.ALWAYS,
+    caller_input_mode=CallerInputMode.NEVER,  # <- ensure the agent does not ask the user questions, just produces the expected outputs
     output_descriptors=[animal_output, danger_level_output, threats_output],
 )
 
