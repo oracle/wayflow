@@ -131,7 +131,10 @@ class ManagerWorkersRunner(ConversationExecutor):
                     {
                         "name": current_agent.name,
                         "description": current_agent.description,
-                        "other_agents": managerworkers_config.workers,
+                        "other_agents": [
+                            {"name": worker.name, "description": worker.description}
+                            for worker in managerworkers_config.workers
+                        ],
                         "caller_name": "HUMAN USER",
                     }
                 )

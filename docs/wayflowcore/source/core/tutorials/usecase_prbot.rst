@@ -390,6 +390,12 @@ This step converts the file diff list into a string so that it can be used by th
 This is done with the ``string`` Jinja filter as follows: ``{{ message | string }}``. It uses an :ref:`OutputMessageStep <outputmessagestep>`
 to achieve this.
 
+.. note::
+
+    Jinja templating introduces security concerns that are addressed by WayFlow by restricting Jinja's rendering capabilities.
+    Please check our guide on :ref:`How to write secure prompts with Jinja templating <securejinjatemplating>` for more information.
+
+
 Add lines to the diff, ``add_lines_on_diff_step``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

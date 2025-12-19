@@ -12,7 +12,6 @@ licenses_example/choosealicense.com
 .idea/
 *.iml
 .gradle/
-venv/
 .venv-*
 lib64/
 bin/
@@ -204,3 +203,7 @@ Thumbs.db
 .env
 
 wayflowcore/dev_scripts/*/data
+
+# environment variables such as private keys
+*env/
+examples/*

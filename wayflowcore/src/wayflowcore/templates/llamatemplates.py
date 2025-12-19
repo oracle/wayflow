@@ -71,7 +71,9 @@ You have access to the following functions. To call a function, please respond w
 Respond in the format {"name": function name, "parameters": dictionary of argument name and its value}.
 Do not use variables.
 
-[{% for tool in __TOOLS__%}{{tool.to_openai_format() | tojson}}{{', ' if not loop.last}}{% endfor %}]
+[
+{% for tool in __TOOLS__%}- {{tool | tojson}}{{ ",
+" }}{% endfor %}]
 {%- endif -%}
 """
 

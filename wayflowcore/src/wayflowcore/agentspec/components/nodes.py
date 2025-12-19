@@ -44,6 +44,9 @@ from wayflowcore.agentspec.components.messagelist import PluginMessageType  # ty
 from wayflowcore.agentspec.components.template import PluginPromptTemplate
 from wayflowcore.steps.agentexecutionstep import CallerInputMode  # type: ignore
 from wayflowcore.steps.choiceselectionstep import _DEFAULT_CHOICE_SELECTION_TEMPLATE
+from wayflowcore.steps.getchathistorystep import (
+    _DEFAULT_OUTPUT_TEMPLATE as _GETCHATHISTORY_DEFAULT_OUTPUT_TEMPLATE,
+)
 from wayflowcore.steps.getchathistorystep import MessageSlice as PluginMessageSlice
 from wayflowcore.variable import VariableWriteOperation as PluginVariableWriteOperation
 
@@ -536,18 +539,12 @@ class PluginConstantValuesNode(ExtendedNode):
             return outputs
 
 
-_DEFAULT_OUTPUT_TEMPLATE = """{% for m in chat_history -%}
-{{m.message_type.value}} >> {{m.content}}{{ "
-" if not loop.last }}
-{%- endfor %}"""
-
-
 class PluginGetChatHistoryNode(ExtendedNode):
     "Step to get messages from the messages list e.g. last 4 messages and return it as output."
 
     CHAT_HISTORY: ClassVar[str] = "chat_history"
     """Output key for the chat history collected by the ``GetChatHistoryStep``."""
-    DEFAULT_OUTPUT_TEMPLATE: ClassVar[str] = _DEFAULT_OUTPUT_TEMPLATE
+    DEFAULT_OUTPUT_TEMPLATE: ClassVar[str] = _GETCHATHISTORY_DEFAULT_OUTPUT_TEMPLATE
     """Default output template to be used to format the chat history."""
 
     n: int = 10

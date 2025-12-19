@@ -86,9 +86,6 @@ def test_spans_get_exported_correctly_to_otel_collector(
     assert len(response_json["events"]) == 3
     # The custom event is the one between start and end
     my_custom_event = response_json["events"][1]
-    import json
-
-    print(json.dumps(my_custom_event))
     assert "name" in my_custom_event
     assert my_custom_event["name"] == "MyTestCustomEvent"
     assert "attributes" in my_custom_event
