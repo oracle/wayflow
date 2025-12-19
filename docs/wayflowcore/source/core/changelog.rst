@@ -4,6 +4,16 @@ Changelog
 WayFlow 26.1.0
 --------------
 
+Security
+^^^^^^^^
+
+* **Stricter environment for jinja templates rendering:**
+
+  We now use a stricter version of the SandboxedEnvironment for rendering jinja templates.
+  No access to object attributes is allowed, only key-based access to python dictionaries, lists, and main jinja LoopContext properties are allowed.
+
+  Check the guide on :ref:`How to write secure prompts with Jinja templating <securejinjatemplating>` for more information.
+
 New features
 ^^^^^^^^^^^^
 
@@ -93,6 +103,10 @@ Improvements
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* **Stricter environment for jinja templates rendering:**
+
+  The new version of the Environment used to render templates could raise SecurityErrors on templates previously accepted.
+
 * **Removed deprecated Agent/Flow.execute:**
 
   Removed the deprecated method of ``Agent/Flow.execute(conversation)`` in favor of ``conversation.execute()``.
@@ -161,6 +175,7 @@ Bug fixes
 
   Fixed a bug where instantiating an Agent with an ``agent_template``, ``initial_message=None`` and ``custom_instruction=None`` would raise an exception.
   Now, users can fully specify the agent template without having to additionally specify initial messages or custom instructions.
+
 
 WayFlow 25.4.2
 --------------

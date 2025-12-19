@@ -148,7 +148,9 @@ Agent: The weather is sunny today in Zurich!
 ...
 
 Here is a list of functions in JSON format that you can invoke.
-[{% for tool in __TOOLS__%}{{tool.to_dict() | tojson}}{{',' if not loop.last}}{% endfor %}]
+[
+{% for tool in __TOOLS__%}- {{tool.function | tojson}}{{ ",
+" }}{% endfor %}]
 {%- endif -%}
 """
 

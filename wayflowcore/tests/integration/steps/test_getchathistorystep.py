@@ -75,7 +75,7 @@ def test_get_chat_history_can_return_display_only_messages(chat_history_display_
 def test_can_return_templated_chat_history(chat_history):
     step = GetChatHistoryStep(
         output_template="""{% for m in chat_history -%}
-{{m.message_type.value}}>>>{{m.content}}
+{{m.message_type}}>>>{{m.content}}
 {% endfor %}"""
     )
     filtered_messages = run_get_chat_history_step(step, chat_history)
@@ -146,7 +146,7 @@ def test_can_use_all_arguments_at_once(chat_history):
     )
     filtered_messages = run_get_chat_history_step(step, chat_history)
     assert (
-        filtered_messages
+        filtered_messages.strip()
         == """INTERNAL >> internal
 AGENT >> agent 2
 AGENT >> agent 3"""
