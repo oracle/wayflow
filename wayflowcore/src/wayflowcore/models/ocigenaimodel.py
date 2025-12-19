@@ -783,10 +783,6 @@ class _CohereOciApiFormatter(_OciApiFormatter):
                     for t in response["toolCalls"]
                 ]
                 text_content = accumulated_text
-                # cohere oci returns the text accumulated in the tool call chunk too
-                # we assert so that if it changes in the future, we know about it
-                # and don't end up with duplicated content silently
-                assert text_content == accumulated_text  # nosec
             else:
                 accumulated_text += text_content
 

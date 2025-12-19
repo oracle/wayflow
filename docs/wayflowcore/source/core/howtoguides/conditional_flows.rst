@@ -154,6 +154,11 @@ For scenarios requiring branching based on more advanced conditions, consider us
     :start-after: .. start-##_Branching_with_a_template
     :end-before: .. end-##_Branching_with_a_template
 
+.. note::
+
+    Jinja templating introduces security concerns that are addressed by WayFlow by restricting Jinja's rendering capabilities.
+    Please check our guide on :ref:`How to write secure prompts with Jinja templating <securejinjatemplating>` for more information.
+
 Pattern 3: Branching using an LLM
 ---------------------------------
 

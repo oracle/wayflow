@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 import pytest
 
 from wayflowcore.agent import Agent
-from wayflowcore.events.event import _MASKING_TOKEN, FlowExecutionIterationStartedEvent
+from wayflowcore.events.event import _PII_TEXT_MASK, FlowExecutionIterationStartedEvent
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors._flowexecutor import FlowConversationExecutionState
 from wayflowcore.flow import Flow
@@ -122,7 +122,7 @@ def test_correct_event_serialization_to_tracing_format(
                 "variable_store",
             }:
                 if mask_sensitive_information:
-                    assert _MASKING_TOKEN == serialized_event[f"execution_state.{attribute_name}"]
+                    assert _PII_TEXT_MASK == serialized_event[f"execution_state.{attribute_name}"]
                 else:
                     assert (
                         serialize_any_to_dict(

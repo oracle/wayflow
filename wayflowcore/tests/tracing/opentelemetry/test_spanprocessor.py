@@ -14,10 +14,10 @@ from opentelemetry.sdk.trace import ReadableSpan as OtelSdkReadableSpan
 from opentelemetry.sdk.trace.export import SpanExporter as OtelSdkSpanExporter
 from opentelemetry.sdk.trace.export import SpanExportResult as OtelSdkSpanExportResult
 
-from wayflowcore.events.event import _MASKING_TOKEN as EVENT_MASKING_TOKEN
+from wayflowcore.events.event import _PII_TEXT_MASK as EVENT_MASKING_TOKEN
 from wayflowcore.events.event import EndSpanEvent
 from wayflowcore.tracing.opentelemetry import OtelBatchSpanProcessor, OtelSimpleSpanProcessor
-from wayflowcore.tracing.span import _MASKING_TOKEN as SPAN_MASKING_TOKEN
+from wayflowcore.tracing.span import _PII_TEXT_MASK as SPAN_MASKING_TOKEN
 from wayflowcore.tracing.span import record_event
 from wayflowcore.tracing.trace import Trace
 
@@ -86,9 +86,6 @@ def test_spans_get_exported_correctly_to_otel_collector(
     assert len(response_json["events"]) == 3
     # The custom event is the one between start and end
     my_custom_event = response_json["events"][1]
-    import json
-
-    print(json.dumps(my_custom_event))
     assert "name" in my_custom_event
     assert my_custom_event["name"] == "MyTestCustomEvent"
     assert "attributes" in my_custom_event

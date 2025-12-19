@@ -487,6 +487,21 @@ Jinja 2's automatic HTML-escaping is **disabled by design** in WayFlow to:
 
 This preserves model fidelity/latency but removes default XSS/code-injection safeguards.
 
+WayFlow relies on a stricter implementation of the Jinja's SandboxedEnvironment for security reasons.
+Every callable is considered unsafe, and every attribute access is prevented, except for:
+
+* The attributes ``index0``, ``index``, ``first``, ``last``, ``length`` of the ``jinja2.runtime.LoopContext``;
+* The entries of a python dictionary (only native type is accepted);
+* The items of a python list (only native type is accepted).
+
+You should never write a template that includes a function call, or access to any internal attribute or element of
+an arbitrary variable: that is considered unsafe, and it will raise a ``SecurityException``.
+
+Moreover, WayFlow performs additional checks are performed on the inputs provided for rendering.
+In particular, only elements and sub-elements that are of basic python types
+(``str``, ``int``, ``float``, ``bool``, ``list``, ``dict``, ``tuple``, ``set``, ``NoneType``)
+are accepted. In any other case, a ``SecurityException`` is raised.
+
 .. important::
 
    **Never render the raw output of a WayFlow step directly to a browser.**

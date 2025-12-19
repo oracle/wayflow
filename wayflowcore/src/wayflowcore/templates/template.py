@@ -3,6 +3,7 @@
 # This software is under the Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License
 # 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.
+
 import logging
 import warnings
 from copy import deepcopy
@@ -276,14 +277,16 @@ class PromptTemplate(DataclassComponent):
         inputs.update(self._partial_values)
 
         if not self.native_tool_calling:
-            inputs[self.TOOL_PLACEHOLDER_NAME] = self.tools or []
+            inputs[self.TOOL_PLACEHOLDER_NAME] = [
+                tool.to_openai_format() for tool in (self.tools or [])
+            ]
 
         if (
             not self.native_structured_generation
             and self.response_format is not None
             and self.RESPONSE_FORMAT_PLACEHOLDER_NAME not in inputs
         ):
-            inputs[self.RESPONSE_FORMAT_PLACEHOLDER_NAME] = self.response_format
+            inputs[self.RESPONSE_FORMAT_PLACEHOLDER_NAME] = self.response_format.to_json_schema()
 
         messages = self._prepare_messages(inputs)
 
@@ -322,8 +325,16 @@ class PromptTemplate(DataclassComponent):
                 *render_template(messages[chat_history_index + 1 :], inputs=inputs),
             ]
         else:
+            serialized_chat_history = [
+                {
+                    "message_type": message.message_type.value,
+                    "content": message.content,
+                }
+                for message in chat_history
+            ]
             messages = render_template(
-                messages, inputs={self.CHAT_HISTORY_PLACEHOLDER_NAME: chat_history, **inputs}
+                messages,
+                inputs={self.CHAT_HISTORY_PLACEHOLDER_NAME: serialized_chat_history, **inputs},
             )
 
         for message_transform in self.post_rendering_transforms or []:

@@ -190,7 +190,7 @@ def test_output_can_use_lists(template: str, expected_match: str) -> None:
 
 
 def test_output_can_use_dicts() -> None:
-    template = """{% for v, k in my_dict.items() %}{{v}}:{{k}},{% endfor %}"""
+    template = """{% for k in my_dict %}{{k}}:{{my_dict[k]}},{% endfor %}"""
     assistant = Flow.from_steps(
         [
             OutputMessageStep(message_template=template),
@@ -219,10 +219,10 @@ def test_output_step_with_display_only_mode() -> None:
 
 
 def test_output_can_use_arbitrary_complex_structures() -> None:
-    template = """{% for k, v in my_dict.items() %}\
-[{%for vv in v %}\
-{%for kvv, vvv in vv.items() %}\
-{{kvv}}:{{vvv}},\
+    template = """{% for k in my_dict %}\
+[{%for vv in my_dict[k] %}\
+{%for kvv in vv %}\
+{{kvv}}:{{vv[kvv]}},\
 {% endfor %}\
 {% endfor %}]\
 {% endfor %}"""

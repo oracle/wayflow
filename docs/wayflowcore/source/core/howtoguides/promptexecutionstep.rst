@@ -89,6 +89,162 @@ You can instruct the agent to generate specific outputs, and use them in the ``A
     :start-after: .. start-agent:
     :end-before: .. end-agent
 
+How to write secure prompts with Jinja templating
+=================================================
+
+.. _securejinjatemplating:
+
+`Jinja2 <https://jinja.palletsprojects.com/en/stable/intro/>`_ is a fast and flexible templating engine for Python,
+enabling dynamic generation of text-based formats by combining templates with data.
+
+However, enabling all Jinja templating capabilities poses some security challenges.
+For this reason, WayFlow relies on a stricter implementation of the Jinja's SandboxedEnvironment for higher security.
+Every callable is considered unsafe, and every attribute and item access is prevented, except for:
+
+* The attributes ``index0``, ``index``, ``first``, ``last``, ``length`` of the ``jinja2.runtime.LoopContext``;
+* The entries of a python dictionary (only native type is accepted);
+* The items of a python list (only native type is accepted).
+
+You should never write a template that includes a function call, or access to any internal attribute or element of
+an arbitrary variable: that is considered unsafe, and it will raise a ``SecurityException``.
+
+Moreover, WayFlow performs additional checks on the inputs provided for rendering.
+In particular, only elements and sub-elements that are of basic python types
+(``str``, ``int``, ``float``, ``bool``, ``list``, ``dict``, ``tuple``, ``set``, ``NoneType``) are accepted.
+In any other case, a ``SecurityException`` is raised.
+
+What you can write
+------------------
+
+Here's a set of common patters that are accepted by WayFlow's restricted Jinja templating.
+
+Templates that access variables of base python types:
+
+  .. code-block:: python
+
+    my_var: str = "simple string"
+    template = "{{ my_var }}"
+    # Expected outcome: "simple string"
+
+Templates that access elements of a list of base python types:
+
+  .. code-block:: python
+
+    my_var: list[str] = ["simple string"]
+    template = "{{ my_var[0] }}"
+    # Expected outcome: "simple string"
+
+Templates that access dictionary entries of base python types:
+
+  .. code-block:: python
+
+    my_var: dict[str, str] = {"k1": "simple string"}
+    template = "{{ my_var['k1'] }}"
+    # Expected outcome: "simple string"
+
+    my_var: dict[str, str] = {"k1": "simple string"}
+    template = "{{ my_var.k1 }}"
+    # Expected outcome: "simple string"
+
+Builtin functions of Jinja, like ``length`` or ``format``:
+
+  .. code-block:: python
+
+    my_var: list[str] = ["simple string"]
+    template = "{{ my_var | length }}"
+    # Expected outcome: "1"
+
+Simple expressions:
+
+  .. code-block:: python
+
+    template = "{{ 7*7 }}"
+    # Expected outcome: "49"
+
+``For`` loops, optionally accessing the ``LoopContext``:
+
+  .. code-block:: python
+
+    my_var: list[int] = [1, 2, 3]
+    template = "{% for e in my_var %}{{e}}{{ ', ' if not loop.last }}{% endfor %}"
+    # Expected outcome: "1, 2, 3"
+
+``If`` conditions:
+
+  .. code-block:: python
+
+    my_var: int = 4
+    template = "{% if my_var % 2 == 0 %}even{% else %}odd{% endif %}"
+    # Expected outcome: "even"
+
+Our general recommendation is to avoid complex logic in templates, and to pre-process the data you want to render instead.
+For example, in case of complex objects, in order to comply with restrictions above, you should conveniently
+transform them recursively into a dictionary of entries of basic python types (see list of accepted types above).
+
+What you cannot write
+---------------------
+
+Here's a set of common patters that are **NOT** accepted by WayFlow's restricted Jinja templating.
+
+Templates that access arbitrary objects:
+
+  .. code-block:: python
+
+    my_var: MyComplexObject = MyComplexObject()
+    template = "{{ my_var }}"
+    # Expected outcome: SecurityException
+
+Templates that access attributes of arbitrary objects:
+
+  .. code-block:: python
+
+    my_var: MyComplexObject = MyComplexObject(attribute="my string")
+    template = "{{ my_var.attribute }}"
+    # Expected outcome: SecurityException
+
+Templates that access internals of any type and object:
+
+  .. code-block:: python
+
+    my_var: dict = {"k1": "my string"}
+    template = "{{ my_var.__init__ }}"
+    # Expected outcome: SecurityException
+
+Templates that access non-existing keys of a dictionary:
+
+  .. code-block:: python
+
+    my_var: dict = {"k1": "my string"}
+    template = "{{ my_var['non-existing-key'] }}"
+    # Expected outcome: SecurityException
+
+Templates that access keys of a dictionary of type different from ``int`` or ``str``:
+
+  .. code-block:: python
+
+    my_var: dict = {("complex", "key"): "my string"}
+    template = "{{ my_var[('complex', 'key')] }}"
+    # Expected outcome: SecurityException
+
+Templates that access callables:
+
+  .. code-block:: python
+
+    my_var: Callable = lambda x: f"my value {x}"
+    template = "{{ my_var(2) }}"
+    # Expected outcome: SecurityException
+
+    my_var: list = [1, 2, 3]
+    template = "{{ len(my_var) }}"
+    # Expected outcome: SecurityException
+
+    my_var: MyComplexObject = MyComplexObject()
+    template = "{{ my_var.to_string() }}"
+    # Expected outcome: SecurityException
+
+
+For more information, please check our :doc:`Security considerations page <../security>`.
+
 Recap
 =====
 

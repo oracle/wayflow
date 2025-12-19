@@ -228,11 +228,16 @@ Prompt Template
 ===============
 
 A prompt template is a standardized prompt structure with placeholders for variable inputs, designed to maintain consistency across similar queries
-while allowing for customization. WayFlow uses jinja-style placeholders to specify the input variables to the prompt (for more information check
-the `reference of jinja2 <https://jinja.palletsprojects.com/en/stable/templates>`_).
+while allowing for customization. WayFlow uses Jinja-style placeholders to specify the input variables to the prompt (for more information check
+the `reference of Jinja2 <https://jinja.palletsprojects.com/en/stable/templates>`_).
 
 See the :doc:`Tutorials and Use-Case Examples <../tutorials/index>` for concrete examples, or check the
 :ref:`TemplateRenderingStep API reference <templaterenderingstep>`.
+
+.. note::
+
+    Jinja templating introduces security concerns that are addressed by WayFlow by restricting Jinja's rendering capabilities.
+    Please check our guide on :ref:`How to write secure prompts with Jinja templating <securejinjatemplating>` for more information.
 
 Prompt templates can be used in WayFlow components that use LLMs, such as :ref:`Agents <agent>` and the :ref:`PromptExecutionStep <promptexecutionstep>`.
 
