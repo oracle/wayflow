@@ -1205,7 +1205,7 @@ def test_multiple_tool_calling_with_nested_client_tool_request_does_not_raise_er
     )
 
     conv = swarm.start_conversation(
-        messages="Check if the name Alice present in the database and compute the result of fooza(4, 2)"
+        messages="Check if the name Alice is present in the database and compute the result of fooza(4, 2)"
     )
 
     multiple_tool_requests = [
@@ -1213,7 +1213,7 @@ def test_multiple_tool_calling_with_nested_client_tool_request_does_not_raise_er
             name="send_message",
             args={
                 "recipient": "check_name_in_db_agent",
-                "message": "Check if the name Alice present in the database",
+                "message": "Check if the name Alice is present in the database",
             },
             tool_request_id="send_message_1",
         ),
@@ -1320,7 +1320,7 @@ def test_multiple_tool_calls_including_client_tool_can_be_executed(vllm_response
     )
 
     conv = swarm.start_conversation(
-        messages="Check if the name Alice present in the database and compute the result of fooza(4, 2)"
+        messages="Check if the name Alice is present in the database and compute the result of fooza(4, 2)"
     )
 
     multiple_tool_requests = [

@@ -8,7 +8,6 @@ import logging
 from contextvars import ContextVar
 from typing import List, Optional, Tuple
 
-from wayflowcore.agent import Agent
 from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.property import StringProperty
 from wayflowcore.swarm import HandoffMode
@@ -254,7 +253,7 @@ def _close_parallel_tool_requests_after_handoff_tool_request(
         raise ValueError(f"Internal error: {message}")  # for mypy compliance
 
     logger.debug(
-        "Calling other tools after the handoff is not possble. Cancelling other tool calls."
+        "Calling other tools after the handoff is not possible. Cancelling other tool calls."
     )
 
     idx = next(
