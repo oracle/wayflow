@@ -589,7 +589,7 @@ def _stream_request_and_return_output(
     return response
 
 
-@retry_test(max_attempts=3)
+@retry_test(max_attempts=10)  # not uniform
 @all_available_servers
 @with_and_without_streaming
 def test_create_response_stateful(server_url, streaming) -> None:

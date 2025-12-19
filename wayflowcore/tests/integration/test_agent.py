@@ -2151,3 +2151,156 @@ def test_agent_template_with_no_custom_instructions(big_llama):
     status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     assert len(conv.get_messages()) == conversation_length_before + 1
+
+
+@tool
+def success_tool() -> str:
+    """some tool"""
+    return "Success tool completed."
+
+
+@tool
+def failing_tool() -> str:
+    """some tool"""
+    raise RuntimeError("Simulated tool failure - this tool intentionally fails")
+
+
+def _check_each_tool_request_is_followed_by_single_matching_tool_result(
+    messages: List[Message],
+) -> None:
+    call_ids = set()
+    for message in messages:
+        if message.tool_requests:
+            for tr in message.tool_requests:
+                tr_id = tr.tool_request_id
+                assert tr_id not in call_ids
+                call_ids.add(tr_id)
+        if message.tool_result:
+            call_ids.remove(message.tool_result.tool_request_id)
+
+
+def test_exception_during_parallel_tool_calls(remotely_hosted_llm):
+    agent = Agent(
+        tools=[success_tool, failing_tool],
+        llm=remotely_hosted_llm,
+        custom_instruction="some instructions",
+        can_finish_conversation=False,
+        max_iterations=40,
+        raise_exceptions=True,  # need to raise exceptions
+    )
+
+    conversation = agent.start_conversation(messages="do something")
+
+    with pytest.raises(
+        RuntimeError, match="Simulated tool failure - this tool intentionally fails"
+    ):
+        with patch_llm(
+            remotely_hosted_llm,
+            outputs=[
+                [
+                    ToolRequest(name="success_tool", args={}, tool_request_id="id1"),
+                    ToolRequest(name="success_tool", args={}, tool_request_id="id2"),
+                    ToolRequest(name="failing_tool", args={}, tool_request_id="id3"),
+                    ToolRequest(name="failing_tool", args={}, tool_request_id="id4"),
+                    ToolRequest(name="success_tool", args={}, tool_request_id="id5"),
+                ]
+            ],
+        ):
+            status = conversation.execute()
+
+    _check_each_tool_request_is_followed_by_single_matching_tool_result(conversation.get_messages())
+
+    with patch_llm(
+        remotely_hosted_llm,
+        outputs=[
+            [
+                ToolRequest(name="success_tool", args={}, tool_request_id="id7"),
+                ToolRequest(name="success_tool", args={}, tool_request_id="id8"),
+            ],
+            "done",
+        ],
+    ):
+        status = conversation.execute()
+
+    _check_each_tool_request_is_followed_by_single_matching_tool_result(conversation.get_messages())
+
+
+def test_exception_during_parallel_tool_calls_with_agent(remotely_hosted_llm):
+    sub_agent = Agent(
+        llm=remotely_hosted_llm,
+        tools=[success_tool, failing_tool],
+        name="sub_agent",
+        description="some description",
+        raise_exceptions=True,
+    )
+    sub_agent.start_conversation(messages="do something")
+    agent = Agent(
+        agents=[sub_agent],
+        llm=remotely_hosted_llm,
+        custom_instruction="some instructions",
+        can_finish_conversation=False,
+        max_iterations=40,
+        raise_exceptions=True,  # need to raise exceptions
+    )
+
+    conversation = agent.start_conversation(messages="do something")
+
+    with pytest.raises(
+        RuntimeError, match="Simulated tool failure - this tool intentionally fails"
+    ):
+        with patch_llm(
+            remotely_hosted_llm,
+            outputs=[
+                [ToolRequest(name="sub_agent", args={"context": ""}, tool_request_id="id100")],
+                [
+                    ToolRequest(name="failing_tool", args={}, tool_request_id="id3"),
+                ],
+            ],
+        ):
+            status = conversation.execute()
+
+    _check_each_tool_request_is_followed_by_single_matching_tool_result(conversation.get_messages())
+
+    with patch_llm(remotely_hosted_llm, outputs=["done"]):
+        status = conversation.execute()
+
+    _check_each_tool_request_is_followed_by_single_matching_tool_result(conversation.get_messages())
+
+
+def test_exception_during_parallel_tool_calls_with_flow(remotely_hosted_llm):
+    sub_flow = Flow.from_steps(
+        steps=[ToolExecutionStep(tool=failing_tool, raise_exceptions=True)],
+        name="sub_flow",
+        description="some description",
+    )
+    agent = Agent(
+        flows=[sub_flow],
+        llm=remotely_hosted_llm,
+        custom_instruction="some instructions",
+        can_finish_conversation=False,
+        max_iterations=40,
+        raise_exceptions=True,  # need to raise exceptions
+    )
+
+    conversation = agent.start_conversation(messages="do something")
+
+    with pytest.raises(
+        RuntimeError, match="Simulated tool failure - this tool intentionally fails"
+    ):
+        with patch_llm(
+            remotely_hosted_llm,
+            outputs=[
+                [ToolRequest(name="sub_flow", args={}, tool_request_id="id100")],
+                [
+                    ToolRequest(name="failing_tool", args={}, tool_request_id="id3"),
+                ],
+            ],
+        ):
+            status = conversation.execute()
+
+    _check_each_tool_request_is_followed_by_single_matching_tool_result(conversation.get_messages())
+
+    with patch_llm(remotely_hosted_llm, outputs=["done"]):
+        status = conversation.execute()
+
+    _check_each_tool_request_is_followed_by_single_matching_tool_result(conversation.get_messages())
