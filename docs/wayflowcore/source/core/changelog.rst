@@ -144,6 +144,12 @@ Bug fixes
   Fixed a bug where streaming LLM generation in a ``chainlit`` app could raise warnings due to a non-closed generator. The generator is now properly
   closed and we silence the known issue on the ``httpx`` library.
 
+* **Continuing an agent conversation after an exception was raised could cause an exception:**
+
+  Fixed a bug where if an exception would occur during a tool, a sub-agent or a sub-flow call of an agent, the conversation
+  could not be resumed afterwards because the conversation would miss the tool results of any calls that should have
+  been done after the call that raised. It now posts results mentioning the call was skipped due to a previous failure.
+
 * **Some Agent and Flow names could cause issues when used in multi-agent patterns:**
 
   Fixed a bug where Agents or Flows, whose name contains whitespaces or special characters, would crash upon sending a request to the LLM provider

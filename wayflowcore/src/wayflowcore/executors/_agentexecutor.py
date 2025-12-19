@@ -678,6 +678,17 @@ class AgentConversationExecutor(ConversationExecutor):
         )
 
         if isinstance(output, Exception) and config.raise_exceptions:
+            messages.append_message(
+                AgentConversationExecutor._get_tool_response_message(
+                    serialized_output, tool_request.tool_request_id, config.agent_id
+                )
+            )
+            AgentConversationExecutor._clear_tool_queue_state_before_raising_error(
+                state=state,
+                tool_name=config.name,
+                messages=messages,
+                config=config,
+            )
             # Raise error in sub-agent execution
             raise output
 
@@ -719,6 +730,17 @@ class AgentConversationExecutor(ConversationExecutor):
         )
 
         if isinstance(output, Exception) and config.raise_exceptions:
+            messages.append_message(
+                AgentConversationExecutor._get_tool_response_message(
+                    serialized_output, tool_request.tool_request_id, config.agent_id
+                )
+            )
+            AgentConversationExecutor._clear_tool_queue_state_before_raising_error(
+                state=state,
+                tool_name=config.name,
+                messages=messages,
+                config=config,
+            )
             # Raise error in sub-flow execution
             raise output
 
@@ -843,16 +865,8 @@ class AgentConversationExecutor(ConversationExecutor):
                 output, serialized_output = await AgentConversationExecutor._execute_tool(
                     tool, conversation, tool_request.args
                 )
-                logger.debug(
-                    'Tool "%s" (id=%s) returned: %s',
-                    tool_request.name,
-                    tool_request.tool_request_id,
-                    serialized_output,
-                )
 
-                if isinstance(output, Exception) and config.raise_exceptions:
-                    # Raise error in tool execution
-                    raise output
+                raised_exception = output if isinstance(output, Exception) else None
 
                 # Check if tool output is copyable
                 output = tool._check_tool_outputs_copyable(
@@ -871,9 +885,54 @@ class AgentConversationExecutor(ConversationExecutor):
                     output=output,
                 )
 
+            if raised_exception:
+                if config.raise_exceptions:
+                    logger.info(
+                        f"Tool `{tool.name}` raised an error during exception, the current tool requests will be cleaned before raising the error."
+                    )
+                    AgentConversationExecutor._clear_tool_queue_state_before_raising_error(
+                        state=conversation.state,
+                        tool_name=tool.name,
+                        messages=messages,
+                        config=config,
+                    )
+                    raise raised_exception
+            else:
+                logger.debug(
+                    'Tool "%s" (id=%s) returned: %s',
+                    tool_request.name,
+                    tool_request.tool_request_id,
+                    serialized_output,
+                )
+
             return None
         else:
             raise ValueError(f"Illegal: unsupported tool type: {tool}")
+
+    @staticmethod
+    def _clear_tool_queue_state_before_raising_error(
+        state: AgentConversationExecutionState, tool_name: str, messages: MessageList, config: Agent
+    ) -> None:
+        # Before raising, add error responses for any remaining tools in queue
+        # This prevents "missing tool_call_id" errors when using llm parallel tool calling
+        if state.tool_call_queue:
+            logger.debug(
+                "Tool exception occurred with %d remaining tools in queue. "
+                "Adding error responses for remaining tools to prevent missing tool_call_ids.",
+                len(state.tool_call_queue),
+            )
+
+            for remaining_tool_request in state.tool_call_queue:
+                messages.append_message(
+                    AgentConversationExecutor._get_tool_response_message(
+                        f"Tool execution skipped due to previous tool failure on tool: {tool_name}",
+                        remaining_tool_request.tool_request_id,
+                        config.agent_id,
+                    )
+                )
+            state.tool_call_queue.clear()
+
+        state.current_tool_request = None
 
     @staticmethod
     def _get_all_open_client_tool_requests(
