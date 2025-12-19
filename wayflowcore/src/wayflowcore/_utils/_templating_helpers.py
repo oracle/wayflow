@@ -6,16 +6,19 @@
 
 import re
 from collections import Counter
-from typing import Any, Dict, List, Literal, Optional, Tuple, Union, overload
+from typing import Any, Dict, List, Literal, Optional, Tuple, Type, Union, overload
 
 import jinja2.exceptions
 from jinja2 import DebugUndefined, Environment, StrictUndefined, Template, meta
 from jinja2.nodes import For, Name, Node
+from jinja2.sandbox import SandboxedEnvironment
 from typing_extensions import NotRequired, TypedDict
 
+from wayflowcore.exceptions import SecurityException
 from wayflowcore.messagelist import Message, MessageContent, MessageType, TextContent
 from wayflowcore.property import AnyProperty, Property, StringProperty
 
+_MAX_RECURSION_DEPTH = 50
 _DEFAULT_VARIABLE_DESCRIPTION_TEMPLATE = '"{var_name}" input variable for the template'
 
 
@@ -37,20 +40,139 @@ class MessageAsDictT(TypedDict, total=False):
     tool_result: NotRequired[Optional[ToolResultAsDictT]]
 
 
+def check_value_contains_only_base_python_types(
+    value: Any, max_recursion_depth: int = _MAX_RECURSION_DEPTH
+) -> None:
+    """Check whether the value contains only base python types, raises a security exception otherwise."""
+    if max_recursion_depth < 0:
+        raise ValueError(
+            "Max recursion depth exceeded in method check_value_contains_only_base_python_types."
+            "Please check that your object is properly built. If it is, increase the acceptable max_recursion_depth."
+        )
+    if type(value) not in {str, int, float, bool, dict, list, set, tuple, type(None)}:
+        raise SecurityException(
+            f"Rendering type `{type(value)}` is not allowed. Only basic python types are allowed."
+        )
+    if type(value) in {list, set, tuple}:
+        for v in value:
+            check_value_contains_only_base_python_types(v, max_recursion_depth - 1)
+    if type(value) is dict:
+        for k, v in value.items():
+            check_value_contains_only_base_python_types(k, max_recursion_depth - 1)
+            check_value_contains_only_base_python_types(v, max_recursion_depth - 1)
+
+
+class RestrictedSandboxedEnvironment(SandboxedEnvironment):
+    """More restrictive SandboxedEnvironment for jinja2 templates that blocks callables and non-dict-or-list attribute access."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.globals = {}
+
+    def is_safe_attribute(self, _obj: Any, _attr: str, _value: Any) -> bool:
+        # We don't allow any access to any attribute that is not a specific set of the LoopContext object properties
+        if type(_obj) is jinja2.runtime.LoopContext and _attr in {
+            "index0",
+            "index",
+            "first",
+            "last",
+            "length",
+        }:
+            return True
+        return False
+
+    def is_safe_callable(self, _obj: Any) -> bool:
+        # We don't allow any callable
+        return False
+
+    def check_is_safe_object_access(
+        self, obj: Any, attribute: str | Any, allow_lists: bool = False
+    ) -> None:
+        # We allow accessing specific attributes in the LoopContext
+        # This is particularly useful in prompt templates that deal with collections,
+        # like list of messages, list of tools, etc., and we want to have a nice rendering,
+        # e.g., we want to avoid the last comma in a list, or we want to have a numerated list.
+        if type(obj) is jinja2.runtime.LoopContext:
+            if type(attribute) is not str:
+                raise SecurityException(
+                    f"Using an unexpected attribute type on LoopContext `{type(attribute)}`."
+                    f"Only `index`, `first`, `last`, and `length` strings are allowed."
+                )
+            if attribute not in {"index0", "index", "first", "last", "length"}:
+                raise SecurityException(
+                    f"Trying to access an unexpected attribute of LoopContext called `{attribute}`."
+                    f"Only `index`, index0`, `first`, `last`, and `length` are allowed."
+                )
+        elif type(attribute) not in {str, int}:
+            raise SecurityException(
+                f"Only integer and string attributes are allowed, given `{type(attribute)}` instead."
+            )
+        # We only allow integer indices on lists, if lists are allowed according to the parameter
+        elif type(obj) is list:
+            if not allow_lists:
+                raise SecurityException(
+                    "Accessing attributes of objects of type `list` is not allowed."
+                )
+            if type(attribute) is not int:
+                raise SecurityException(
+                    f"Only integer indices are allowed in `list`, given `{type(attribute)}` instead."
+                )
+        # We don't allow accessing attributes from objects that are not pure dictionaries
+        elif type(obj) is dict:
+            # And we only allow access on dictionary keys, no other attribute (e.g., internal methods)
+            if attribute not in obj.keys():
+                raise SecurityException(
+                    f"Only getting entries from a `dict` is allowed, trying to access `{attribute}` instead."
+                )
+        else:
+            raise SecurityException(
+                f"Only getting attributes from a `dict` or `list` is allowed, given `{type(obj)}` instead."
+            )
+
+    def getattr(self, obj: Any, attribute: str) -> Any:
+        # Lists should not have getattr implementation, so we do not accept them here
+        self.check_is_safe_object_access(obj, attribute, allow_lists=False)
+        return super().getattr(obj, attribute)
+
+    def getitem(self, obj: Any, attribute: str | Any) -> Any:
+        self.check_is_safe_object_access(obj, attribute, allow_lists=True)
+        return super().getitem(obj, attribute)
+
+
+class RestrictedTemplate(Template):
+    """More restrictive Template for jinja2 that blocks value types that are not basic python ones."""
+
+    environment_class: Type[Environment] = RestrictedSandboxedEnvironment
+    # WARNING! This is not enough to make this template use the restricted environment at instantiation time
+    # You should never use this template directly, use the RestrictedSandboxedEnvironment instead!
+
+    def render(self, *args: Any, **kwargs: Any) -> Any:
+        # Filter all values that are not of base python types
+        check_value_contains_only_base_python_types(args)
+        check_value_contains_only_base_python_types(kwargs)
+        return super().render(*args, **kwargs)
+
+
+RestrictedSandboxedEnvironment.template_class = RestrictedTemplate
+
+
 def check_template_validity(template: str) -> None:
     """Check whether the template is a valid jinja2 template"""
-    Template(template)
+    # Note that in jinja parse/compilation and rendering stages are different
+    # This code only requires parsing, which transforms the template in an internal representation
+    # It does not execute any code in the template, and it does not trigger security exceptions
+    RestrictedSandboxedEnvironment().from_string(source=template)
 
 
 def get_variable_names_from_object(
-    object: Any, ignore_unknown: bool = True, allow_duplicates: bool = True
+    obj: Any, ignore_unknown: bool = True, allow_duplicates: bool = True
 ) -> List[str]:
     """Retrieve the used variable names from any python object.
     Recursively traverses dicts, lists, sets, tuples, etc. and collects all jinja template variables in found strings and byte sequences.
 
     Parameters
     ----------
-    object : Any
+    obj : Any
         A potentially nested python object (str, bytes, dict, list, set, tuple)
     ignore_unknown : bool, optional
         If True, an unknown object (something that is not a str, bytes, dict, list, set, tuple) will return an empty list.
@@ -73,18 +195,18 @@ def get_variable_names_from_object(
         Thrown if there are duplicate variable names and `allow_duplicates` is False
         or if `ignore_unknown` is False and an invalid object is encountered
     """
-    if isinstance(object, str):
-        return get_variable_names_from_str_template(object)
-    elif isinstance(object, bytes):
-        return get_variable_names_from_object(object.decode("utf-8", errors="replace"))
-    elif isinstance(object, dict):
-        key_templates = get_variable_names_from_object(list(object.keys()), ignore_unknown)
-        value_templates = get_variable_names_from_object(list(object.values()), ignore_unknown)
+    if isinstance(obj, str):
+        return get_variable_names_from_str_template(obj)
+    elif isinstance(obj, bytes):
+        return get_variable_names_from_object(obj.decode("utf-8", errors="replace"))
+    elif isinstance(obj, dict):
+        key_templates = get_variable_names_from_object(list(obj.keys()), ignore_unknown)
+        value_templates = get_variable_names_from_object(list(obj.values()), ignore_unknown)
         return key_templates + value_templates
-    elif isinstance(object, list) or isinstance(object, set) or isinstance(object, tuple):
+    elif isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
         counted_keys = Counter(
             nested_item
-            for item in object
+            for item in obj
             for nested_item in get_variable_names_from_object(item, ignore_unknown)
         )
         if not allow_duplicates:
@@ -97,13 +219,13 @@ def get_variable_names_from_object(
         if ignore_unknown:
             return []
         else:
-            raise ValueError(f"Cannot extract template variables from {object}")
+            raise ValueError(f"Cannot extract template variables from {obj}")
 
 
 def get_variable_names_from_str_template(jinja_template: str) -> List[str]:
     """Extracts the variable name from a jinja template."""
-    # we skip pybandit alert because we don't want to escape the content
-    ast = Environment().parse(jinja_template)  # nosec
+
+    ast = RestrictedSandboxedEnvironment().parse(jinja_template)
     # extract all variable names using jinja2 function, in case our implementation
     # is missing some variables
     found_var_names_using_jinja2 = set(meta.find_undeclared_variables(ast))
@@ -236,11 +358,7 @@ def get_variables_names_and_types_from_template(
 
 
 def render_str_template_partially(template: str, inputs: Dict[str, Any]) -> str:
-    variable_names = get_variable_names_from_str_template(template)
-    return Template(
-        template,
-        undefined=DebugUndefined,
-    ).render(**{k: v for k, v in inputs.items() if k in variable_names})
+    return render_str_template(template=template, inputs=inputs, partial=True)
 
 
 @overload
@@ -286,7 +404,11 @@ def render_template_partially(
 
 
 def render_nested_object_template(
-    object: Any, inputs: Dict[str, Any], ignore_unknown: bool = True, partial: bool = False
+    object: Any,
+    inputs: Dict[str, Any],
+    ignore_unknown: bool = True,
+    partial: bool = False,
+    max_recursion_depth: int = _MAX_RECURSION_DEPTH,
 ) -> Any:
     """Renders any found jinja template in the given input object which can be an arbitrarily nested
     structure of dicts, lists, sets and tuples.
@@ -301,6 +423,9 @@ def render_nested_object_template(
         If True and an unsupported object is encountered, ignore it.
         Otherwise throw an exception
         by default True
+    max_recursion_depth : int
+        The maximum number of acceptable recursive call to this method.
+        Set to 50 by default.
 
     Returns
     -------
@@ -313,22 +438,37 @@ def render_nested_object_template(
     ValueError
         If `ignore_unknown` is False and an unsupported object is encountered.
     """
+    if max_recursion_depth < 0:
+        raise ValueError(
+            "Max recursion depth exceeded in method render_nested_object_template."
+            "Please check that your object is properly built. If it is, increase the acceptable max_recursion_depth."
+        )
     if isinstance(object, str):
         return render_str_template(object, inputs, partial)
     elif isinstance(object, bytes):
         return render_nested_object_template(
-            object.decode("utf-8", errors="replace"), inputs, ignore_unknown
+            object.decode("utf-8", errors="replace"),
+            inputs,
+            ignore_unknown,
+            max_recursion_depth=max_recursion_depth - 1,
         )
     elif isinstance(object, dict):
         return {
-            render_nested_object_template(k, inputs, ignore_unknown): render_nested_object_template(
-                v, inputs, ignore_unknown
+            render_nested_object_template(
+                k, inputs, ignore_unknown, max_recursion_depth=max_recursion_depth - 1
+            ): render_nested_object_template(
+                v, inputs, ignore_unknown, max_recursion_depth=max_recursion_depth - 1
             )
             for k, v in object.items()
         }
     elif isinstance(object, list) or isinstance(object, set) or isinstance(object, tuple):
         return object.__class__(
-            [render_nested_object_template(item, inputs, ignore_unknown) for item in object]
+            [
+                render_nested_object_template(
+                    item, inputs, ignore_unknown, max_recursion_depth=max_recursion_depth - 1
+                )
+                for item in object
+            ]
         )
     else:
         if ignore_unknown:
@@ -340,15 +480,22 @@ def render_nested_object_template(
 def render_str_template(template: str, inputs: Dict[str, Any], partial: bool = False) -> str:
     variable_names = get_variable_names_from_str_template(template)
     try:
-        # we skip pybandit alert because we don't want to escape the content
-        env = Environment(undefined=DebugUndefined if partial else StrictUndefined)  # nosec
+        env = RestrictedSandboxedEnvironment(
+            undefined=DebugUndefined if partial else StrictUndefined
+        )
         # don't sort the keys in dicts
         env.policies["json.dumps_kwargs"] = {"sort_keys": False}
         return env.from_string(source=template).render(
             **{k: v for k, v in inputs.items() if k in variable_names}
         )
+    except (SecurityException, jinja2.exceptions.SecurityError) as e:
+        raise SecurityException(
+            f"The jinja template `{template}` is not safe and raised a security error: {e}"
+        )
     except jinja2.exceptions.UndefinedError as e:
-        raise ValueError(f"The template is expecting a variable but it was not passed: {e}")
+        raise jinja2.exceptions.UndefinedError(
+            f"The template is expecting a variable but it was not passed: {e}"
+        )
 
 
 def render_message_template(message: "Message", inputs: Dict[str, Any], partial: bool) -> "Message":

@@ -41,6 +41,11 @@ Sometimes, there is contextual information relevant to the conversation.
 Assume a user is interacting with the assistant named "Jerry."
 To make the assistant more context-aware, define a variable or expression in the ``custom_instruction`` Jinja template, and pass it when creating the conversation:
 
+.. note::
+
+    Jinja templating introduces security concerns that are addressed by WayFlow by restricting Jinja's rendering capabilities.
+    Please check our guide on :ref:`How to write secure prompts with Jinja templating <securejinjatemplating>` for more information.
+
 .. literalinclude:: ../code_examples/howto_agents.py
     :language: python
     :start-after: .. start-conversation:

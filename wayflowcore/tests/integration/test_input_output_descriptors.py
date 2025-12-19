@@ -123,7 +123,6 @@ steps_to_check = [
     if not inspect.isabstract(cls) and cls.__name__ in all_wayflowcore_step_names
     # and cls != SearchStep  # required searchable datastore
 ]
-print(steps_to_check)
 
 
 def run_step_descriptors_test(init_arguments, step_cls):

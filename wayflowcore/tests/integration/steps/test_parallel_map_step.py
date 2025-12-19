@@ -105,7 +105,7 @@ def test_can_map_in_list_without_collecting() -> None:
                 {"username": "alex", "email": "a@oracle.com"},
                 {"username": "jonas", "email": "j@oracle.com"},
             ],
-            "{% for k,v in content.items() %}{{k}}:{{v}},{% endfor %}",
+            "{% for k in content %}{{k}}:{{content[k]}},{% endfor %}",
             ["username:alex,email:a@oracle.com,", "username:jonas,email:j@oracle.com,"],
         ),
     ],

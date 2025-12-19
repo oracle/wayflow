@@ -158,9 +158,12 @@ class SwarmRunner(ConversationExecutor):
                     "name": current_agent.name,
                     "description": current_agent.description,
                     "caller_name": current_thread.caller.name,
-                    "other_agents": _get_all_recipients_for_agent(
-                        swarm_config.relationships, current_agent
-                    ),
+                    "other_agents": [
+                        {"name": agent.name, "description": agent.description}
+                        for agent in _get_all_recipients_for_agent(
+                            swarm_config.relationships, current_agent
+                        )
+                    ],
                     "handoff": swarm_config.handoff.value,  # type: ignore
                 }
             )

@@ -87,7 +87,9 @@ You SHOULD NOT include any other text in the response.
 At each turn, you should try your best to complete the tasks requested by the user within the current turn. Continue to output functions to call until you have fulfilled the user's request to the best of your ability. Once you have no more functions to call, the system will consider the current turn complete and proceed to the next turn or task.
 
 Here is a list of functions in JSON format that you can invoke.
-[{% for tool in __TOOLS__%}{{tool.to_dict() | tojson}}{{',' if not loop.last}}{% endfor %}]
+[
+{% for tool in __TOOLS__%}- {{tool.function | tojson}}{{ ",
+" }}{% endfor %}]
 """
 
 PYTHON_CALL_CHAT_TEMPLATE = PromptTemplate(

@@ -84,7 +84,7 @@ def test_output_can_use_lists(template, expected_match):
 
 
 def test_output_can_use_dicts():
-    template = """{% for v, k in my_dict.items() %}{{v}}:{{k}},{% endfor %}"""
+    template = """{% for k in my_dict %}{{k}}:{{my_dict[k]}},{% endfor %}"""
     assistant = Flow.from_steps(
         [
             TemplateRenderingStep(template=template),
@@ -98,10 +98,10 @@ def test_output_can_use_dicts():
 
 
 def test_output_can_use_arbitrary_complex_structures():
-    template = """{% for k, v in my_dict.items() %}\
-[{%for vv in v %}\
-{%for kvv, vvv in vv.items() %}\
-{{kvv}}:{{vvv}},\
+    template = """{% for k in my_dict %}\
+[{%for vv in my_dict[k] %}\
+{%for kvv in vv %}\
+{{kvv}}:{{vv[kvv]}},\
 {% endfor %}\
 {% endfor %}]\
 {% endfor %}"""

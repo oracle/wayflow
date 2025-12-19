@@ -69,7 +69,7 @@ print(result)
 prompt_text = """You are a helpful assistant. Answer the user questions.
 For context, the conversation was:
 {% for msg in __CHAT_HISTORY__ %}
-{{ msg.message_type.value }} >> {{msg.content}}
+{{ msg.message_type }} >> {{msg.content}}
 {%- endfor %}
 
 Just answer the user question.
@@ -203,7 +203,7 @@ print(response)
 # .. start-###_With_custom_structured_generation
 text_template = """Extract information about a person. The person is 65 years old, named Johnny.
 Just return a json document that respects this JSON Schema:
-{{__RESPONSE_FORMAT__.to_json_schema() | tojson }}
+{{__RESPONSE_FORMAT__ | tojson }}
 
 Reminder: only output the required json document, no need to repeat the title of the description, just the properties are required!
 """
