@@ -384,11 +384,11 @@ def test_template_non_native_tool_calling_needs_tool_template_and_raises_if_not_
     "tool_template, expected_content",
     [
         (
-            "[{% for tool in __TOOLS__%}{{tool.to_openai_format() | tojson}}{{',' if not loop.last}}{% endfor %}]",
+            "[{% for tool in __TOOLS__%}{{tool | tojson}}{% endfor %}]",
             'You are a helpful assistant with tools: [{"type": "function", "function": {"name": "some_tool", "description": "Some tool", "parameters": {}}}]',
         ),
         (
-            '{% for tool in __TOOLS__%}{{tool.name}}{{"-" if not loop.last}}{% endfor %}',
+            "{% for tool in __TOOLS__%}{{tool.function.name}}{% endfor %}",
             "You are a helpful assistant with tools: some_tool",
         ),
     ],
@@ -449,12 +449,12 @@ def test_template_with_non_native_structured_generation_without_placeholder_work
     "template,expected_content",
     [
         (
-            "{{__RESPONSE_FORMAT__.to_json_schema() | tojson}}",
+            "{{__RESPONSE_FORMAT__ | tojson}}",
             'Please generate something: {"type": "string", "title": "text"}',
         ),
-        ("{{__RESPONSE_FORMAT__.to_json_schema()['title']}}", "Please generate something: text"),
+        ("{{__RESPONSE_FORMAT__.title}}", "Please generate something: text"),
         (
-            "{{__RESPONSE_FORMAT__.to_json_schema()['title'] | tojson}}",
+            "{{__RESPONSE_FORMAT__.title | tojson}}",
             'Please generate something: "text"',
         ),
     ],
@@ -509,7 +509,7 @@ def test_llama_chat_template():
         prompt.messages,
         [
             Message(
-                content='Environment: ipython\nCutting Knowledge Date: December 2023\n\nYou are a helpful assistant with tool calling capabilities. Only reply with a tool call if the function exists in the library provided by the user. If it doesn\'t exist, just reply directly in natural language. When you receive a tool call response, use the output to format an answer to the original user question.\n\nYou have access to the following functions. To call a function, please respond with JSON for a function call.\nRespond in the format {"name": function name, "parameters": dictionary of argument name and its value}.\nDo not use variables.\n\n[{"type": "function", "function": {"name": "some_tool", "description": "Some tool", "parameters": {}}}]\n\nAdditional instructions:\nYour name is Jerry',
+                content='Environment: ipython\nCutting Knowledge Date: December 2023\n\nYou are a helpful assistant with tool calling capabilities. Only reply with a tool call if the function exists in the library provided by the user. If it doesn\'t exist, just reply directly in natural language. When you receive a tool call response, use the output to format an answer to the original user question.\n\nYou have access to the following functions. To call a function, please respond with JSON for a function call.\nRespond in the format {"name": function name, "parameters": dictionary of argument name and its value}.\nDo not use variables.\n\n[\n- {"type": "function", "function": {"name": "some_tool", "description": "Some tool", "parameters": {}}},\n]\n\nAdditional instructions:\nYour name is Jerry',
                 message_type=MessageType.SYSTEM,
             ),
             Message(content="What is the capital of Switzerland?", message_type=MessageType.USER),
@@ -541,7 +541,7 @@ def test_bfcl_chat_template():
         prompt.messages,
         [
             Message(
-                content='You are an expert in composing functions. You are given a question and a set of possible functions.\nBased on the question, you will need to make one or more function/tool calls to achieve the purpose.\nIf none of the functions can be used, point it out. If the given question lacks the parameters required by the function, also point it out.\nYou should only return the function calls in your response.\n\nIf you decide to invoke any of the function(s), you MUST put it in the format of [func_name1(params_name1=params_value1, params_name2=params_value2...), func_name2(params)]\nYou SHOULD NOT include any other text in the response.\n\nAt each turn, you should try your best to complete the tasks requested by the user within the current turn. Continue to output functions to call until you have fulfilled the user\'s request to the best of your ability. Once you have no more functions to call, the system will consider the current turn complete and proceed to the next turn or task.\n\nHere is a list of functions in JSON format that you can invoke.\n[{"name": "some_tool", "description": "Some tool"}]\n\nAdditional instructions:\nYour name is Jerry',
+                content='You are an expert in composing functions. You are given a question and a set of possible functions.\nBased on the question, you will need to make one or more function/tool calls to achieve the purpose.\nIf none of the functions can be used, point it out. If the given question lacks the parameters required by the function, also point it out.\nYou should only return the function calls in your response.\n\nIf you decide to invoke any of the function(s), you MUST put it in the format of [func_name1(params_name1=params_value1, params_name2=params_value2...), func_name2(params)]\nYou SHOULD NOT include any other text in the response.\n\nAt each turn, you should try your best to complete the tasks requested by the user within the current turn. Continue to output functions to call until you have fulfilled the user\'s request to the best of your ability. Once you have no more functions to call, the system will consider the current turn complete and proceed to the next turn or task.\n\nHere is a list of functions in JSON format that you can invoke.\n[\n- {"name": "some_tool", "description": "Some tool", "parameters": {}},\n]\n\nAdditional instructions:\nYour name is Jerry',
                 message_type=MessageType.SYSTEM,
             ),
             Message(content="What is the capital of Switzerland?", message_type=MessageType.USER),
@@ -573,7 +573,7 @@ def test_react_chat_template():
         prompt.messages,
         [
             Message(
-                content='Focus your actions on solving the user request. Be proactive, act on obvious actions and suggest options when the user hasn\'t specified anything yet. You can either answer with some text, or a tool call format containing 3 sections: Thought, Action and Observation. Here is the format:\n\n## Thought: explain what you plan to do and why\n## Action:\n```json\n{\n    "name": $TOOL_NAME,\n    "parameters": $INPUTS\n}\n```\n## Observation: the output of the action\n\nThe first thought section describes the step by step reasoning about what you should do and why.\nThe second action section contains a well formatted json describing which tool to call and with what arguments. $INPUTS is a dictionnary containing the function arguments.\nThe third observation section contains the result of the tool. This is not visible by the user, so you might need to repeat its content to the user.\n\n\nIf tool calls appear in the chat, they are formatted with the above template. They are part of the conversation. Here is an example:\n\nUser: What is the weather in Zurich today?\nAgent: ## Thought: we need to call a tool to get the current weather\n## Action:\n```json\n{\n    "name": "get_weather",\n    "parameters": {\n        "location": "Zurich"\n    }\n}\n```\nUser: ## Observation: sunny\nAgent: The weather is sunny today in Zurich!\n...\n\nHere is a list of functions in JSON format that you can invoke.\n[{"name": "some_tool", "description": "Some tool"}]\n\nAdditional instructions:\nYour name is Jerry\n\nReminder: always answer the user request with plain text or specify a tool call using the format above. Only use tools when necessary.\nRemember that a tool call with thought, action and observation is NOT VISIBLE by the user, so if it contains information that the user needs to know, then make sure to repeat the information as a message.',
+                content='Focus your actions on solving the user request. Be proactive, act on obvious actions and suggest options when the user hasn\'t specified anything yet. You can either answer with some text, or a tool call format containing 3 sections: Thought, Action and Observation. Here is the format:\n\n## Thought: explain what you plan to do and why\n## Action:\n```json\n{\n    "name": $TOOL_NAME,\n    "parameters": $INPUTS\n}\n```\n## Observation: the output of the action\n\nThe first thought section describes the step by step reasoning about what you should do and why.\nThe second action section contains a well formatted json describing which tool to call and with what arguments. $INPUTS is a dictionnary containing the function arguments.\nThe third observation section contains the result of the tool. This is not visible by the user, so you might need to repeat its content to the user.\n\n\nIf tool calls appear in the chat, they are formatted with the above template. They are part of the conversation. Here is an example:\n\nUser: What is the weather in Zurich today?\nAgent: ## Thought: we need to call a tool to get the current weather\n## Action:\n```json\n{\n    "name": "get_weather",\n    "parameters": {\n        "location": "Zurich"\n    }\n}\n```\nUser: ## Observation: sunny\nAgent: The weather is sunny today in Zurich!\n...\n\nHere is a list of functions in JSON format that you can invoke.\n[\n- {"name": "some_tool", "description": "Some tool", "parameters": {}},\n]\n\nAdditional instructions:\nYour name is Jerry\n\nReminder: always answer the user request with plain text or specify a tool call using the format above. Only use tools when necessary.\nRemember that a tool call with thought, action and observation is NOT VISIBLE by the user, so if it contains information that the user needs to know, then make sure to repeat the information as a message.',
                 message_type=MessageType.SYSTEM,
             ),
             Message(content="What is the capital of Switzerland?", message_type=MessageType.USER),

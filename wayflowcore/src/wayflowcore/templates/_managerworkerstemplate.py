@@ -67,8 +67,8 @@ YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT 
 <tools>
 Here is a list of functions that you can invoke.
 {% for tool in __TOOLS__%}
-{{tool._to_simple_json_format() | tojson}}
-{{'---' if not loop.last}}
+{{tool | tojson}}{{ ",
+" }}
 {% endfor %}
 </tools>
 

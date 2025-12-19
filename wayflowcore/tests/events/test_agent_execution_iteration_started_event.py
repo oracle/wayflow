@@ -10,7 +10,7 @@ import pytest
 
 from wayflowcore.agent import Agent
 from wayflowcore.events.event import (
-    _MASKING_TOKEN,
+    _PII_TEXT_MASK,
     AgentExecutionIterationStartedEvent,
     _serialize_tool_request,
 )
@@ -140,7 +140,7 @@ def test_correct_event_serialization_to_tracing_format(
         except AttributeError:
             if attribute_name == "plan":
                 if mask_sensitive_information:
-                    assert _MASKING_TOKEN == serialized_event[f"execution_state.{attribute_name}"]
+                    assert _PII_TEXT_MASK == serialized_event[f"execution_state.{attribute_name}"]
                 else:
                     assert (
                         str(getattr(event.execution_state, attribute_name))
@@ -168,7 +168,7 @@ def test_correct_event_serialization_to_tracing_format(
                     "memory",
                     "current_flow_conversation",
                 }:
-                    assert _MASKING_TOKEN == serialized_event[f"execution_state.{attribute_name}"]
+                    assert _PII_TEXT_MASK == serialized_event[f"execution_state.{attribute_name}"]
                 else:
                     assert (
                         getattr(event.execution_state, attribute_name)

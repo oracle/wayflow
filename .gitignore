@@ -12,7 +12,6 @@ licenses_example/choosealicense.com
 .idea/
 *.iml
 .gradle/
-venv/
 .venv-*
 lib64/
 bin/
@@ -201,3 +200,8 @@ Thumbs.db
 
 *.pklz
 *.sqlite
+
+
+# environment variables such as private keys
+*env/
+examples/*

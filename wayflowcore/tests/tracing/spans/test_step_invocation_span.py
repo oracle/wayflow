@@ -16,7 +16,7 @@ from wayflowcore.steps.inputmessagestep import InputMessageStep
 from wayflowcore.steps.outputmessagestep import OutputMessageStep
 from wayflowcore.steps.step import StepResult
 from wayflowcore.steps.toolexecutionstep import ToolExecutionStep
-from wayflowcore.tracing.span import _MASKING_TOKEN, StepInvocationSpan
+from wayflowcore.tracing.span import _PII_TEXT_MASK, StepInvocationSpan
 from wayflowcore.tracing.spanprocessor import SpanProcessor
 from wayflowcore.tracing.trace import Trace
 
@@ -89,7 +89,7 @@ def test_span_serialization_format(
             assert getattr(span, attribute_name) == serialized_span[attribute_name]
         assert serialized_span["step.name"] == span.step.name
         if mask_sensitive_information:
-            assert serialized_span["step.static_configuration"] == _MASKING_TOKEN
+            assert serialized_span["step.static_configuration"] == _PII_TEXT_MASK
         else:
             assert (
                 serialized_span["step.static_configuration"] == span.step._step_static_configuration

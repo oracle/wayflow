@@ -100,7 +100,8 @@ def run_flow_and_return_outputs(
 
     """
     status = _run_flow_and_return_status(flow, inputs, messages)
-    assert isinstance(status, FinishedStatus)  # nosec
+    if not isinstance(status, FinishedStatus):
+        raise RuntimeError("The flow execution did not complete as expected.")
     return status.output_values
 
 
@@ -172,7 +173,8 @@ def _run_single_step_to_finish(
     conv, status = _run_single_step_and_return_conv_and_status(
         step, inputs, user_input, messages, context_providers
     )
-    assert isinstance(status, FinishedStatus)  # nosec
+    if not isinstance(status, FinishedStatus):
+        raise RuntimeError("The flow execution did not complete as expected.")
     return status.output_values
 
 
@@ -223,7 +225,8 @@ def _run_flow_and_return_conversation_and_status(
     conv = flow.start_conversation(inputs or {})
     status = conv.execute()
     if assert_finished:
-        assert isinstance(status, FinishedStatus)  # nosec
+        if not isinstance(status, FinishedStatus):
+            raise RuntimeError("The flow execution did not complete as expected.")
     return conv, status
 
 

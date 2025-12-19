@@ -164,7 +164,7 @@ def test_can_map_and_use_properly_new_conversation_each_time() -> None:
                 {"username": "alex", "email": "a@oracle.com"},
                 {"username": "jonas", "email": "j@oracle.com"},
             ],
-            "{% for k,v in content.items() %}{{k}}:{{v}},{% endfor %}",
+            "{% for k in content %}{{k}}:{{content[k]}},{% endfor %}",
             ["username:alex,email:a@oracle.com,", "username:jonas,email:j@oracle.com,"],
         ),
     ],

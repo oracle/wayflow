@@ -1,6 +1,20 @@
 Changelog
 =========
 
+WayFlow 25.4.3
+--------------
+
+Security
+^^^^^^^^
+
+* **Stricter environment for jinja templates rendering:**
+
+  We now use a stricter version of the SandboxedEnvironment for rendering jinja templates.
+  No access to object attributes is allowed, only key-based access to python dictionaries and main jinja LoopContext properties are allowed.
+
+  Check the guide on :ref:`How to write secure prompts with Jinja templating <securejinjatemplating>` for more information.
+
+
 WayFlow 25.4.2
 --------------
 

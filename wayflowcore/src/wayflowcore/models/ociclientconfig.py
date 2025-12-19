@@ -30,7 +30,7 @@ else:
 
 class _OCIAuthType(str, Enum):
     API_KEY = "API_KEY"
-    SECURITY_TOKEN = "SECURITY_TOKEN"  # nosec
+    SECURITY_TOKEN = "SECURITY_TOKEN"  # nosec0002 # the reported issue by pybandit that variables should not be named token is hard to comply with in this context as the variable refers to the token-based authentication method for the OCI service
     INSTANCE_PRINCIPAL = "INSTANCE_PRINCIPAL"
     RESOURCE_PRINCIPAL = "RESOURCE_PRINCIPAL"
 
@@ -160,7 +160,7 @@ class OCIClientConfigWithSecurityToken(OCIClientConfig):
         self.auth_profile = auth_profile or "DEFAULT"
         self.auth_file_location = _auth_file_location or "~/.oci/config"
         super().__init__(
-            service_endpoint, _OCIAuthType.SECURITY_TOKEN, compartment_id=compartment_id  # nosec
+            service_endpoint, _OCIAuthType.SECURITY_TOKEN, compartment_id=compartment_id
         )
 
     def to_dict(self) -> Dict[str, Union[str, Dict[str, str]]]:

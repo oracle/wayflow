@@ -33,7 +33,7 @@ class EventType(Enum):
     AGENT_CALL_START = "AGENT_CALL_START"
     AGENT_CALL_END = "AGENT_CALL_END"
 
-    TOKEN_CONSUMPTION = "TOKEN_CONSUMPTION"  # nosec
+    TOKEN_CONSUMPTION = "TOKEN_CONSUMPTION"  # nosec0001 # the reported issue by pybandit that variables should not be named token is hard to comply with in this context as the variable refers to the usage report of a LLM that is counted in number of tokens
 
 
 @dataclass

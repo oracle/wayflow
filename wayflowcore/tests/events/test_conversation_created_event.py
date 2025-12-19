@@ -10,7 +10,7 @@ import pytest
 
 from wayflowcore.agent import Agent
 from wayflowcore.conversationalcomponent import ConversationalComponent
-from wayflowcore.events.event import _MASKING_TOKEN, ConversationCreatedEvent
+from wayflowcore.events.event import _PII_TEXT_MASK, ConversationCreatedEvent
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
@@ -151,7 +151,7 @@ def test_correct_event_serialization_to_tracing_format(
         attr = getattr(event, attribute_name)
         if attribute_name == "messages":
             if mask_sensitive_information:
-                assert _MASKING_TOKEN == serialized_event[attribute_name]
+                assert _PII_TEXT_MASK == serialized_event[attribute_name]
             else:
                 if isinstance(event_info[attribute_name], MessageList):
                     for i, message in enumerate(event_info[attribute_name].get_messages()):
@@ -162,7 +162,7 @@ def test_correct_event_serialization_to_tracing_format(
                 else:
                     assert serialized_event[attribute_name] is None
         elif mask_sensitive_information and attribute_name == "inputs":
-            assert _MASKING_TOKEN == serialized_event[attribute_name]
+            assert _PII_TEXT_MASK == serialized_event[attribute_name]
         elif isinstance(attr, dict):
             for key, value in attr.items():
                 assert str(value) == serialized_event[attribute_name][key]

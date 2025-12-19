@@ -26,7 +26,7 @@ class MessageSlice(Enum):
 
 
 _DEFAULT_OUTPUT_TEMPLATE = """{% for m in chat_history -%}
-{{m.message_type.value}} >> {{m.content}}{{ "
+{{m.message_type}} >> {{m.content}}{{ "
 " if not loop.last }}
 {%- endfor %}"""
 
@@ -253,8 +253,16 @@ class GetChatHistoryStep(Step):
 
         formatted_chat_history: Union[str, List[Message]] = chat_history
         if self.output_template is not None:
+            serialized_chat_history = [
+                {
+                    "message_type": message.message_type.value,
+                    "content": message.content,
+                }
+                for message in chat_history
+            ]
             formatted_chat_history = render_template(
-                template=self.output_template, inputs=dict(chat_history=chat_history, **inputs)
+                template=self.output_template,
+                inputs=dict(chat_history=serialized_chat_history, **inputs),
             )
 
         return StepResult(

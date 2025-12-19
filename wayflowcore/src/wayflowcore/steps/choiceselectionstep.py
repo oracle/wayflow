@@ -6,6 +6,7 @@
 
 import logging
 import re
+from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from wayflowcore._metadata import MetadataType
@@ -199,7 +200,8 @@ class ChoiceSelectionStep(Step):
         }
 
         prompt = render_template_partially(
-            template=self.prompt_template, inputs=dict(next_steps=self.next_steps)
+            template=self.prompt_template,
+            inputs=dict(next_steps=[asdict(next_step) for next_step in self.next_steps]),
         )
         regex_pattern = r"(" + r"|".join([re.escape(s) for s in next_step_mapping.keys()]) + r")"
 
@@ -312,7 +314,10 @@ class ChoiceSelectionStep(Step):
         num_tokens: int,
     ) -> List[Property]:
         prompt = render_template_partially(
-            template=prompt_template, inputs=dict(next_steps=make_steps_descriptions(next_steps))
+            template=prompt_template,
+            inputs=dict(
+                next_steps=[asdict(next_step) for next_step in make_steps_descriptions(next_steps)]
+            ),
         )
         input_descriptors = [
             var_info

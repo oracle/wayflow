@@ -120,6 +120,11 @@ Parameters in a Jinja template look like this: ``{{this_is_a_template_parameter}
 other sources, such as the input parameters schemas of the ``tool`` for the ``ToolExecutionStep``. There will be one input descriptor for each
 parameter in the template, with a name taken from the parameter. Similarly, there will be one input descriptor for each parameter required by a ``tool``.
 
+.. note::
+
+    Jinja templating introduces security concerns that are addressed by WayFlow by restricting Jinja's rendering capabilities.
+    Please check our guide on :ref:`How to write secure prompts with Jinja templating <securejinjatemplating>` for more information.
+
 Output descriptors can also be considered names for a step's outputs. For many steps, there will be a default name for each output. For example,
 for a ``ToolExecutionStep`` the default name for the output of the step is ``ToolExecutionStep.TOOL_OUTPUT``.
 

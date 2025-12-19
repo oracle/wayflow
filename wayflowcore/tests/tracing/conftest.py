@@ -12,7 +12,7 @@ import pytest
 from wayflowcore import Message
 from wayflowcore.events.event import EndSpanEvent, Event, StartSpanEvent
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
-from wayflowcore.tracing.span import _MASKING_TOKEN, Span
+from wayflowcore.tracing.span import _PII_TEXT_MASK, Span
 from wayflowcore.tracing.spanexporter import SpanExporter
 from wayflowcore.tracing.spanprocessor import SimpleSpanProcessor
 
@@ -50,7 +50,7 @@ class MyCustomEvent(Event):
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "custom_attribute": self.custom_attribute,
             "custom_secret_attribute": (
-                _MASKING_TOKEN if mask_sensitive_information else self.custom_secret_attribute
+                _PII_TEXT_MASK if mask_sensitive_information else self.custom_secret_attribute
             ),
         }
 
@@ -66,7 +66,7 @@ class MyCustomSpan(Span):
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
             "custom_attribute": self.custom_attribute,
             "custom_secret_attribute": (
-                _MASKING_TOKEN if mask_sensitive_information else self.custom_secret_attribute
+                _PII_TEXT_MASK if mask_sensitive_information else self.custom_secret_attribute
             ),
         }
 

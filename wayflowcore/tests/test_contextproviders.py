@@ -207,7 +207,7 @@ def test_load_history_returns_expected_result(
     )
     assert isinstance(conversation.state, FlowConversationExecutionState)
     assert "history" not in conversation.state.input_output_key_values
-    assert messages[-1].content == expected_history
+    assert messages[-1].content.strip() == expected_history.strip()
 
 
 @pytest.mark.parametrize(
@@ -235,7 +235,7 @@ def test_load_history_can_offset_messages(offset: int, expected_history: str) ->
     )
     assert isinstance(conversation.state, FlowConversationExecutionState)
     assert "history" not in conversation.state.input_output_key_values
-    assert messages[-1].content == expected_history
+    assert messages[-1].content.strip() == expected_history.strip()
 
 
 def run_two_output_message_step_with_context(

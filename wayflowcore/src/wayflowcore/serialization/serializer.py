@@ -247,7 +247,7 @@ def deserialize_any_from_dict(
                     f"The expected deserialized type is {expected_type} but `{obj}` was passed (the deserialized type is {type(deserialized_object)})"
                 )
             return cast(M, deserialized_object)
-    except _IncorrectDeserializedTypeException as e:  # nosec
+    except _IncorrectDeserializedTypeException as e:
         pass
     except TypeError as e:
         # We ignore the TypeError raised by the call to `issubclass` because
@@ -266,7 +266,7 @@ def deserialize_any_from_dict(
         for inner_type in inner_types:
             try:
                 return deserialize_any_from_dict(obj, inner_type, deserialization_context)
-            except Exception as e:  # nosec
+            except (TypeError, ValueError) as e:
                 encountered_errors.append(e)
                 continue
         raise ValueError(
@@ -334,7 +334,10 @@ def deserialize_any_from_dict(
     try:
         if issubclass(expected_type, Enum):
             return expected_type(obj)  # type: ignore
-    except Exception:  # nosec
+    except (TypeError, ValueError):
+        # "ValueError: * is not a valid `expected_type`" or
+        # "TypeError: issubclass() arg 1 must be a class"
+        # We failed deserialization as enum, it's ok, we can continue
         pass
 
     # handle primitive types
