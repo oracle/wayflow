@@ -332,15 +332,20 @@ class AgentConversationExecutor(ConversationExecutor):
         if new_message.tool_requests is None or len(new_message.tool_requests) == 0:
             return True
 
-        # fix
-        talk_to_user_request = next(
-            (tr for tr in new_message.tool_requests if tr.name == _TALK_TO_USER_TOOL_NAME), None
-        )
-        if talk_to_user_request:
-            logger.debug(
-                "Parallel tool calling is disabled when using %s tool", _TALK_TO_USER_TOOL_NAME
-            )
-            new_message.tool_requests = [talk_to_user_request]
+        # check if tool requests include talk_to_user
+        for i, tool_request in enumerate(new_message.tool_requests):
+            if tool_request.name == _TALK_TO_USER_TOOL_NAME:
+                if i == 0:
+                    logger.debug(
+                        f"Multiple tool calling after {_TALK_TO_USER_TOOL_NAME} is not possible. Other tool requests are removed."
+                    )
+                    new_message.tool_requests = [tool_request]
+                else:
+                    logger.debug(
+                        f"Multiple tool calling with {_TALK_TO_USER_TOOL_NAME} included is not possible. {_TALK_TO_USER_TOOL_NAME} and the tool requests after it are removed."
+                    )
+                    new_message.tool_requests = new_message.tool_requests[:i]
+                break
 
         state.tool_call_queue.extend(new_message.tool_requests)
         return False
@@ -569,7 +574,7 @@ class AgentConversationExecutor(ConversationExecutor):
                 )
 
         if state.current_retrieved_tools is None:
-            # need to reload the tools if when reloading they are not present anymore
+            # need to reload the tools if when reloading fthey are not present anymore
             state.current_retrieved_tools = await AgentConversationExecutor._collect_tools(
                 config=config, curr_iter=state.curr_iter
             )

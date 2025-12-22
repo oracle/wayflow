@@ -46,9 +46,8 @@ You can communicate with the following entities.
 - Never mention any specific tool names to users
 - Carefully verify available tools; do not fabricate non-existent tools. Delegate when necessary.
 - Tool request/results may originate from other parts of the system; only use explicitly provided tools
-- Call MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user’s query can be broken into independent subtasks.
-If `handoff_conversation` is included, it must be the final tool call.
-Note that tool calls are executed sequentially, but all tool results are returned to you together.
+- Call MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user’s query can be broken into INDEPENDENT subtasks.
+If `handoff_conversation` is included in multiple tool calls, it must be the final tool call.
 - {%- if handoff=="optional" -%} You SHOULD use handoff_conversation tool if you think another agent can answer to the user directly,
 as this reduces unnecessary relaying and lowers latency {%- endif -%}
 - {%- if handoff=="always" -%} You must use the handoff_conversation tool when delegating to another agent.{%- endif -%}
@@ -167,12 +166,19 @@ class _ToolRequestAndCallsTransform(MessageTransform, SerializableObject):
                     for tool_request in message.tool_requests
                 )
 
+                header = f"--- MESSAGE: From: {message.sender} ---\n"
+                content = (
+                    message.content  # sometimes the llm outputs this header automatically -> no need to add it.
+                    if message.content.startswith(header)
+                    else f"{header}{message.content}"
+                )
+
                 formatted_messages.append(
                     Message(
                         content=(
-                            f"--- MESSAGE: From: {message.sender} ---\n"
-                            f"{message.content}\n"
-                            f"{formatted_tool_calls}"
+                            f"{content}\n{formatted_tool_calls}"
+                            if formatted_tool_calls not in content
+                            else f"{content}"
                         ),
                         message_type=MessageType.AGENT,
                     )
@@ -195,7 +201,7 @@ class _ToolRequestAndCallsTransform(MessageTransform, SerializableObject):
 class SwarmJsonToolOutputParser(JsonToolOutputParser, SerializableObject):
     def parse_thoughts_and_calls(self, raw_txt: str) -> Tuple[str, str]:
         """Swarm-specific function to separate thoughts and tool calls."""
-        if "{" not in raw_txt:  # Will need to be adapted for parallel tool calls
+        if "{" not in raw_txt:
             return "", raw_txt
         thoughts, raw_tool_calls = raw_txt.split("{", maxsplit=1)
         return thoughts.strip(), "{" + raw_tool_calls.replace("args={", "parameters={")

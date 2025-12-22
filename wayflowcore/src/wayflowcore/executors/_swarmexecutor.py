@@ -199,7 +199,7 @@ class SwarmRunner(ConversationExecutor):
                     isinstance(agent_sub_conversation.status, ToolRequestStatus)
                     and not agent_sub_conversation.status.tool_requests
                 ):
-                    # If the status.tool_request is empty we manually reset the status to None
+                    # If the status.tool_requests is empty we need to manually reset the status to None
                     # Otherwise, it will raise error as no tool results are present.
                     agent_sub_conversation.status = None
 
@@ -257,9 +257,6 @@ class SwarmRunner(ConversationExecutor):
         agent_sub_conversation: "AgentConversation",
         current_agent: Agent,
     ) -> _ToolProcessSignal:
-        """
-        Returns
-        """
         execute_tool = (
             isinstance(agent_sub_conversation.status, ToolRequestStatus)
             # If user submitted tool result (in case of client tool)
