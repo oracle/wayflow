@@ -24,7 +24,7 @@ def is_package_installed(package_name):
 
 
 def _start_a2a_server(
-    host: str, port: int, agent_type: AgentType, ready_timeout_s: float = 30.0
+    host: str, port: int, agent_type: AgentType, ready_timeout_s: float = 40.0
 ) -> tuple[subprocess.Popen, str]:
     if agent_type == AgentType.ADK_AGENT:
         if not is_package_installed("google.adk") or not is_package_installed("a2a"):
@@ -71,7 +71,7 @@ def _start_a2a_server(
             if rc is not None:
                 raise RuntimeError(f"Uvicorn exited early with code {rc}.\nLogs:\n{tee.dump()}")
 
-            if _check_server_is_up(url, timeout_s=0.5):
+            if _check_server_is_up(url):
                 print("A2A Server is up.", flush=True)
                 return process, url
             time.sleep(0.2)
@@ -97,6 +97,7 @@ def a2a_server_fixture(request):
     process, url = _start_a2a_server(host=host, port=port, agent_type=agent_type)
     try:
         yield url
+        time.sleep(0.5)
     finally:
         _terminate_process_tree(process, timeout=5.0)
 
