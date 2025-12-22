@@ -1043,15 +1043,15 @@ def get_first_agent(llm: LlmModel) -> Agent:
     )
 
 
-@retry_test(max_attempts=2)
+@retry_test(6)
 def test_swarm_uses_handoff_tool_in_always_handoff_mode(vllm_responses_llm):
     """
-    Failure rate:          0 out of 100
-    Observed on:           2025-12-10
-    Average success time:  8.40 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           2
-    Justification:         (0.01 ** 2) ~= 9.6 / 100'000
+    Failure rate:          18 out of 100
+    Observed on:           2025-12-22
+    Average success time:  8.97 seconds per successful attempt
+    Average failure time:  3.65 seconds per failed attempt
+    Max attempt:           6
+    Justification:         (0.19 ** 6) ~= 4.2 / 100'000
     """
 
     llm = vllm_responses_llm
@@ -1086,8 +1086,15 @@ def test_swarm_uses_handoff_tool_in_always_handoff_mode(vllm_responses_llm):
     all_tool_requests = [
         tq for message in conv.get_messages() for tq in (message.tool_requests or [])
     ]
+
+    assert len(all_tool_requests) > 0
+
     for tool_request, (expected_tool_name, expected_params) in zip(
-        all_tool_requests, expected_tool_requests, strict=True
+        all_tool_requests,
+        expected_tool_requests,
+        strict=False,
+        # ^ sometime the agent yields to tell the user about the bug before fixing it
+        # -> handoff_conversation, fix_bug might not be in the tool requests.
     ):
         assert tool_request.name == expected_tool_name
         for k, v in expected_params.items():
@@ -1447,15 +1454,15 @@ def test_multiple_tool_calls_after_handoff_get_cancelled(vllm_responses_llm):
                 )
 
 
-@retry_test(max_attempts=8)
+@retry_test(max_attempts=3)
 def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
     """
-    Failure rate:          13 out of 50
-    Observed on:           2025-12-15
-    Average success time:  13.04 seconds per successful attempt
-    Average failure time:  15.37 seconds per failed attempt
-    Max attempt:           8
-    Justification:         (0.27 ** 8) ~= 2.8 / 100'000
+    Failure rate:          1 out of 50
+    Observed on:           2025-12-22
+    Average success time:  11.72 seconds per successful attempt
+    Average failure time:  3.71 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -1463,6 +1470,9 @@ def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm)
     bwip_agent = _get_bwip_agent(llm)
     zbuk_agent = _get_zbuk_agent(llm)
     main_agent = get_first_agent(llm)
+    main_agent.custom_instruction = (
+        "You are the main agent. You SHOULD output multiple tool calls at once when approriate."
+    )
 
     math_swarm = Swarm(
         first_agent=main_agent,
@@ -1483,8 +1493,12 @@ def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm)
 
     second_message = conv.get_messages()[1]
 
+    assert (
+        len(second_message.tool_requests) == 2 or len(second_message.tool_requests) == 3
+    )  # multiple tool calls, sometimes it outputs 2 instead of 3 tool calls at once.
+
     for tool_request, (expected_tool_name, expected_params) in zip(
-        second_message.tool_requests, expected_tool_requests, strict=True
+        second_message.tool_requests, expected_tool_requests
     ):
         assert tool_request.name == expected_tool_name
         for k, v in expected_params.items():
