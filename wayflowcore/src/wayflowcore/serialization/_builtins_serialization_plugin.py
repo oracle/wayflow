@@ -2758,8 +2758,16 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 runtime_step.message_template is None
                 and not runtime_step.rephrase
                 and not runtime_step.input_mapping
-                and not runtime_step.output_mapping
             ):
+                if runtime_step.output_mapping:
+                    # If we have an output mapping, we rename the output of the Agent Spec node and use the core component
+                    output_name = runtime_step.output_mapping[runtime_step.USER_PROVIDED_INPUT]
+                    if len(step_args["outputs"]) > 0:
+                        step_args["outputs"][0] = AgentSpecProperty(
+                            json_schema=step_args["outputs"][0].json_schema, title=output_name
+                        )
+                    else:
+                        step_args["outputs"] = [AgentSpecProperty(title=output_name, type="string")]
                 return AgentSpecInputMessageNode(**step_args)
             return AgentSpecPluginInputMessageNode(
                 **step_args,
