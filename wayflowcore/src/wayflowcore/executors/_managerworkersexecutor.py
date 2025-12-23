@@ -53,13 +53,15 @@ def _create_manager_agent(group_manager: Union[Agent, LlmModel]) -> Agent:
     return manager_agent
 
 
-def _validate_agent_unicity(agents: List[Agent]) -> Dict[str, "Agent"]:
-    agent_by_name: Dict[str, "Agent"] = {}
+def _validate_agent_unicity(
+    agents: List[Union[Agent, ManagerWorkers]],
+) -> Dict[str, Union[Agent, ManagerWorkers]]:
+    agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = {}
 
     for agent in agents:
-        if not isinstance(agent, Agent):
+        if not isinstance(agent, (Agent, ManagerWorkers)):
             raise TypeError(
-                f"Only Agents are supported in ManagerWorkers, got component of type '{agent.__class__.__name__}'"
+                f"Only Agent and ManagerWorker type are supported in ManagerWorkers, got component of type '{agent.__class__.__name__}'"
             )
 
         # Checking for missing name
@@ -255,7 +257,7 @@ class ManagerWorkersRunner(ConversationExecutor):
     @staticmethod
     def _handle_pending_tool_requests_of_manager(
         manager: Agent,
-        manager_conversation: "AgentConversation",
+        manager_conversation: Union["AgentConversation"],
         managerworkers_conversation: "ManagerWorkersConversation",
     ) -> _ToolProcessSignal:
         if not isinstance(manager_conversation.status, ToolRequestStatus):
