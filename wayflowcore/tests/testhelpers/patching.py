@@ -4,8 +4,8 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 from contextlib import contextmanager
-from typing import Any, AsyncIterable, AsyncIterator, Callable, Dict, Generator, List, Union
-from unittest.mock import patch
+from typing import Any, AsyncIterable, AsyncIterator, Callable, Dict, Generator, List, Tuple, Union
+from unittest.mock import AsyncMock, patch
 
 from wayflowcore import Message, MessageType
 from wayflowcore.models import (
@@ -54,7 +54,7 @@ def patch_llm(
     llm: "LlmModel",
     outputs: List[Union[str, List["ToolRequest"], "Message"]],
     patch_internal: bool = False,
-) -> Generator[None, None, None]:
+) -> Generator[Tuple[AsyncMock, AsyncMock], None, None]:
     """
     Patch `llm.generate` and `llm.stream_generate` so that every call returns
     the next element in outputs.
@@ -119,7 +119,7 @@ def patch_llm(
         )
 
     with patch_generate, patch_stream:
-        yield
+        yield patch_generate.get_original()[0], patch_stream.get_original()[0]
 
 
 @contextmanager

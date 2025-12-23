@@ -112,6 +112,7 @@ class ToolContextProvider(ContextProvider):
                     args={},
                     tool_request_id=tool_request_id,
                 ),
+                name=f"ToolExecution[{self.tool.name}]",
             ) as tool_span:
                 tool_output = await self.tool.run_async()
                 tool_span.record_end_span_event(

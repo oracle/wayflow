@@ -18,8 +18,11 @@ from wayflowcore.templates.reacttemplates import (
     _ReactMergeToolRequestAndCallsTransform,
 )
 from wayflowcore.transforms import (
+    AppendTrailingSystemMessageToUserMessageTransform,
+    CanonicalizationMessageTransform,
     CoalesceSystemMessagesTransform,
     RemoveEmptyNonUserMessageTransform,
+    SplitPromptOnMarkerMessageTransform,
 )
 
 
@@ -34,6 +37,9 @@ def test_prompttemplate_can_be_exported_to_agentspec_then_imported(remotely_host
             _ReactMergeToolRequestAndCallsTransform(),
             CoalesceSystemMessagesTransform(),
             RemoveEmptyNonUserMessageTransform(),
+            CanonicalizationMessageTransform(),
+            AppendTrailingSystemMessageToUserMessageTransform(),
+            SplitPromptOnMarkerMessageTransform(),
         ],
         output_parser=ReactToolOutputParser(),
         generation_config=LlmGenerationConfig(stop=["## Observation"]),

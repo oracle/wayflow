@@ -366,8 +366,7 @@ class ToolExecutionStep(Step):
 
             elif isinstance(tool, ServerTool) and tool_request._tool_execution_confirmed:
                 with ToolExecutionSpan(
-                    tool=tool,
-                    tool_request=tool_request,
+                    tool=tool, tool_request=tool_request, name=f"ToolExecution[{tool.name}]"
                 ) as span:
                     tool_output = await self._execute_tool(tool, tool_request.args)
                     span.record_end_span_event(
@@ -407,6 +406,7 @@ class ToolExecutionStep(Step):
                 args=inputs,
                 tool_request_id=tool_request_id,
             ),
+            name=f"ToolExecution[{tool.name}]",
         ) as span:
             tool_output = await self._execute_tool(tool, inputs)
             span.record_end_span_event(

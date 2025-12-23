@@ -176,6 +176,18 @@ Bug fixes
   Fixed a bug where instantiating an Agent with an ``agent_template``, ``initial_message=None`` and ``custom_instruction=None`` would raise an exception.
   Now, users can fully specify the agent template without having to additionally specify initial messages or custom instructions.
 
+* **Fixed tool calling for OCI models**
+
+  Resolved an issue that sent incorrectly formatted chat histories to OCI endpoints, degrading
+  tool-calling and agentic performance for ``google`` and ``cohere`` models.
+  All OCI models can now more reliably and efficiently leverage tool calling.
+
+* **Fixed agent termination when ``caller_input_mode`` was set to never**
+
+  Corrected an issue where agents without outputs and ``caller_input_mode=CallerInputMode.NEVER``
+  would repeatedly iterate until the maximum limit.
+  Agents can now better complete the task and exit as expected.
+
 
 WayFlow 25.4.2
 --------------

@@ -175,6 +175,7 @@ REACT_CHAT_TEMPLATE = PromptTemplate(
     output_parser=ReactToolOutputParser(),
     generation_config=LlmGenerationConfig(stop=["## Observation"]),
 )
+"""React chat template for models that do not support native tool calling or reasoning."""
 
 
 REACT_AGENT_TEMPLATE = PromptTemplate(
@@ -200,3 +201,4 @@ REACT_AGENT_TEMPLATE = PromptTemplate(
     output_parser=ReactToolOutputParser(),
     generation_config=LlmGenerationConfig(stop=["## Observation"]),
 )
+"""React agent template for models that do not support native tool calling or reasoning."""

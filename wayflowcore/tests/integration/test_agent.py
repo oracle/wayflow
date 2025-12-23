@@ -2304,3 +2304,19 @@ def test_exception_during_parallel_tool_calls_with_flow(remotely_hosted_llm):
         status = conversation.execute()
 
     _check_each_tool_request_is_followed_by_single_matching_tool_result(conversation.get_messages())
+
+
+def test_agent_does_not_loop_until_max_iterations(remotely_hosted_llm):
+    # when caller_input_mode == NEVER, can_finish_conversation=False and no outputs,
+    # the agent does not have the exit conversation nor the submit tool
+    # we still need it to be able to exit
+    agent = Agent(
+        llm=remotely_hosted_llm,
+        can_finish_conversation=False,
+        caller_input_mode=CallerInputMode.NEVER,
+        custom_instruction="do something",
+    )
+    conv = agent.start_conversation()
+    status = conv.execute()
+    # it should not have exited because of max_iter
+    assert conv.state.curr_iter != agent.max_iterations

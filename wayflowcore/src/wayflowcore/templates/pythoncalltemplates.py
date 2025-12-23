@@ -13,6 +13,7 @@ from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.templates.template import PromptTemplate
 from wayflowcore.tools import ToolRequest, ToolResult
 from wayflowcore.transforms import (
+    CanonicalizationMessageTransform,
     CoalesceSystemMessagesTransform,
     MessageTransform,
     RemoveEmptyNonUserMessageTransform,
@@ -105,6 +106,7 @@ PYTHON_CALL_CHAT_TEMPLATE = PromptTemplate(
     ],
     output_parser=PythonToolOutputParser(),
 )
+"""Pythonic chat template that leverages python syntax to write tool calls"""
 
 PYTHON_CALL_AGENT_TEMPLATE = PromptTemplate(
     messages=[
@@ -127,3 +129,10 @@ PYTHON_CALL_AGENT_TEMPLATE = PromptTemplate(
     ],
     output_parser=PythonToolOutputParser(),
 )
+"""Pythonic agent template that leverages python syntax to write tool calls"""
+
+
+GEMMA_AGENT_TEMPLATE = PYTHON_CALL_AGENT_TEMPLATE.with_additional_post_rendering_transform(
+    CanonicalizationMessageTransform()
+)
+"""Template for gemma models that do not support native tool calling"""

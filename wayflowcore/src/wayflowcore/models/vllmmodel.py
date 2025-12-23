@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from wayflowcore._metadata import MetadataType
 
+from ._modelhelpers import _is_gemma_model, _is_llama_legacy_model
 from .llmgenerationconfig import LlmGenerationConfig
 from .openaiapitype import OpenAIAPIType
 from .openaicompatiblemodel import EMPTY_API_KEY, OpenAICompatibleModel
@@ -127,15 +128,41 @@ class VllmModel(OpenAICompatibleModel):
 
     @property
     def default_chat_template(self) -> "PromptTemplate":
-        from wayflowcore.templates import LLAMA_CHAT_TEMPLATE
+        from wayflowcore.templates import LLAMA_CHAT_TEMPLATE, NATIVE_CHAT_TEMPLATE
+        from wayflowcore.transforms import CanonicalizationMessageTransform
 
-        return LLAMA_CHAT_TEMPLATE
+        if _is_llama_legacy_model(self.model_id):
+            # llama3.x works better with custom template
+            logger.debug(
+                "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_CHAT_TEMPLATE`, which yields better performance than native tool calling"
+            )
+            return LLAMA_CHAT_TEMPLATE
+        if _is_gemma_model(self.model_id):
+            logger.debug(
+                "Gemma models only support alternating user and agent messages. The `CanonicalizationMessageTransform` will be added to this default's model template to ensure that."
+            )
+            return NATIVE_CHAT_TEMPLATE.with_additional_post_rendering_transform(
+                CanonicalizationMessageTransform()
+            )
+        return NATIVE_CHAT_TEMPLATE
 
     @property
     def default_agent_template(self) -> "PromptTemplate":
         from wayflowcore.templates import LLAMA_AGENT_TEMPLATE, NATIVE_AGENT_TEMPLATE
+        from wayflowcore.transforms import CanonicalizationMessageTransform
 
-        if "llama" in self.model_id.lower() and "3." in self.model_id:
+        if _is_llama_legacy_model(self.model_id):
             # llama3.x works better with custom template
+            logger.debug(
+                "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_CHAT_TEMPLATE`, which yields better performance than native tool calling"
+            )
             return LLAMA_AGENT_TEMPLATE
+        if _is_gemma_model(self.model_id):
+            logger.debug(
+                "Gemma models only support alternating user and agent messages. The `CanonicalizationMessageTransform` will be added to this default's model template to ensure that."
+            )
+            return NATIVE_AGENT_TEMPLATE.with_additional_post_rendering_transform(
+                CanonicalizationMessageTransform()
+            )
+
         return NATIVE_AGENT_TEMPLATE

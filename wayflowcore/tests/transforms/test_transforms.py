@@ -11,7 +11,8 @@ from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.templates.llamatemplates import _LlamaMergeToolRequestAndCallsTransform
 from wayflowcore.templates.pythoncalltemplates import _PythonMergeToolRequestAndCallsTransform
 from wayflowcore.tools import ToolRequest, ToolResult
-from wayflowcore.transforms.transforms import (
+from wayflowcore.transforms import (
+    CanonicalizationMessageTransform,
     CoalesceSystemMessagesTransform,
     RemoveEmptyNonUserMessageTransform,
     SplitPromptOnMarkerMessageTransform,
@@ -202,3 +203,94 @@ def test_split_prompt_on_marker(messages, expected_messages):
     transform = SplitPromptOnMarkerMessageTransform()
     transformed_messages = transform(messages)
     assert_messages_are_correct(transformed_messages, expected_messages)
+
+
+SYSTEM_MSG = Message(role="system", content="machine")
+ASSISTANT_MSG = Message(role="assistant", content="robot")
+USER_MSG = Message(role="user", content="human")
+T_REQ_1_MSG = Message(
+    content="robot",
+    tool_requests=[ToolRequest(name="get_weather", args={"city": "zurich"}, tool_request_id="id1")],
+)
+T_RES_1_MSG = Message(tool_result=ToolResult(content="sunny", tool_request_id="id1"))
+T_REQ_2_MSG = Message(
+    content="robot",
+    tool_requests=[ToolRequest(name="get_weather", args={"city": "basel"}, tool_request_id="id2")],
+)
+T_RES_2_MSG = Message(tool_result=ToolResult(content="rainy", tool_request_id="id2"))
+T_REQ_3_MSG = Message(
+    content="robot",
+    tool_requests=[
+        ToolRequest(name="get_weather", args={"city": "zurich"}, tool_request_id="id1"),
+        ToolRequest(name="get_weather", args={"city": "basel"}, tool_request_id="id2"),
+    ],
+)
+
+
+@pytest.mark.parametrize(
+    "messages, expected_length",
+    [
+        ([USER_MSG], 1),
+        ([SYSTEM_MSG], 2),
+        ([SYSTEM_MSG, USER_MSG], 2),
+        ([SYSTEM_MSG, SYSTEM_MSG, USER_MSG], 2),
+        ([SYSTEM_MSG, USER_MSG, USER_MSG], 2),
+        ([SYSTEM_MSG, ASSISTANT_MSG], 3),
+        ([SYSTEM_MSG, ASSISTANT_MSG, ASSISTANT_MSG], 3),
+        ([USER_MSG, ASSISTANT_MSG], 2),
+        ([SYSTEM_MSG, USER_MSG, ASSISTANT_MSG], 3),
+        ([SYSTEM_MSG, USER_MSG, ASSISTANT_MSG, SYSTEM_MSG], 3),
+        ([SYSTEM_MSG, USER_MSG, ASSISTANT_MSG, SYSTEM_MSG, SYSTEM_MSG], 3),
+        ([SYSTEM_MSG, ASSISTANT_MSG, USER_MSG], 4),
+        ([SYSTEM_MSG, USER_MSG, T_REQ_1_MSG, T_RES_1_MSG], 4),
+        ([SYSTEM_MSG, USER_MSG, T_REQ_1_MSG, T_RES_1_MSG, T_REQ_2_MSG, T_RES_2_MSG], 6),
+        (
+            [
+                SYSTEM_MSG,
+                ASSISTANT_MSG,
+                USER_MSG,
+                T_REQ_1_MSG,
+                T_RES_1_MSG,
+                T_REQ_2_MSG,
+                T_RES_2_MSG,
+            ],
+            8,
+        ),
+        ([SYSTEM_MSG, USER_MSG, T_REQ_3_MSG, T_RES_1_MSG, T_RES_2_MSG], 6),
+    ],
+)
+def test_alternating_message_transform(messages, expected_length):
+    transform = CanonicalizationMessageTransform()
+    transformed_messages = transform(messages)
+    assert len(transformed_messages) == expected_length
+
+    has_system_message = transformed_messages[0].role == "system"
+    if has_system_message:
+        # no assistant message put in the system prompt
+        assert "robot" not in transformed_messages[0].content
+
+    tool_ids = set()
+    for idx, msg in enumerate(transformed_messages[(1 if has_system_message else 0) :]):
+        if idx % 2 == 0:
+            assert msg.role == "user"
+            # we don't put the assistant message inside user message
+            assert "robot" not in msg.content
+            assert msg.tool_result is not None or (
+                msg.contents is not None and len(msg.contents) > 0
+            )
+        else:
+            assert msg.role == "assistant"
+            # we don't put the user message inside assistant message
+            assert "human" not in msg.content
+            assert msg.tool_requests is not None or (
+                msg.contents is not None and len(msg.contents) > 0
+            )
+        if msg.tool_requests:
+            for tool_request in msg.tool_requests:
+                assert tool_request.tool_request_id not in tool_ids
+                tool_ids.add(tool_request.tool_request_id)
+        if msg.tool_result is not None:
+            assert msg.tool_result.tool_request_id in tool_ids
+            tool_ids.remove(msg.tool_result.tool_request_id)
+
+    assert len(tool_ids) == 0

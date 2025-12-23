@@ -14,6 +14,7 @@ _BUILTIN_COMPONENTS = {
     "AgentConversation",
     "AgentConversationExecutionState",
     "AgentExecutionStep",
+    "CanonicalizationMessageTransform",
     "AnyProperty",
     "ApiCallStep",
     "AppendTrailingSystemMessageToUserMessageTransform",

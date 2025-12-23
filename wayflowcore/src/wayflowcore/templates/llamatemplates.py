@@ -91,6 +91,7 @@ LLAMA_CHAT_TEMPLATE = PromptTemplate(
     ],
     output_parser=JsonToolOutputParser(),
 )
+"""Chat template for legacy llama models"""
 
 LLAMA_AGENT_TEMPLATE = PromptTemplate(
     messages=[
@@ -113,3 +114,4 @@ LLAMA_AGENT_TEMPLATE = PromptTemplate(
     ],
     output_parser=JsonToolOutputParser(),
 )
+"""Agent template for legacy llama models"""
