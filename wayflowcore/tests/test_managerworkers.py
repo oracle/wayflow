@@ -23,7 +23,14 @@ from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.property import IntegerProperty, StringProperty
 from wayflowcore.tools import ClientTool, ToolRequest, ToolResult, tool
 
+from .test_swarm import (
+    _get_agent_with_client_tool,
+    _get_bwip_agent,
+    _get_fooza_agent,
+    _get_zbuk_agent,
+)
 from .testhelpers.dummy import DummyModel
+from .testhelpers.patching import patch_llm
 from .testhelpers.testhelpers import retry_test
 
 _MANAGER_TOOL_CALL_TEMPLATE = """
@@ -568,3 +575,214 @@ def test_managerworkers_execution_works_with_servertool_confirmation(big_llama):
     status2 = conversation.execute()
     # Should result in a user message request or final status
     assert isinstance(status2, UserMessageRequestStatus) or isinstance(status2, FinishedStatus)
+
+
+def test_multiple_tool_calling_with_nested_client_tool_request_does_not_raise_error(
+    vllm_responses_llm,
+):
+    llm = vllm_responses_llm
+
+    agent_with_client_tool = _get_agent_with_client_tool(llm)
+    fooza_agent = _get_fooza_agent(llm)
+
+    group = ManagerWorkers(group_manager=llm, workers=[agent_with_client_tool, fooza_agent])
+
+    conv = group.start_conversation(
+        messages="Check if the name Alice is present in the database and compute the result of fooza(4, 2)"
+    )
+
+    multiple_tool_requests = [
+        ToolRequest(
+            name="send_message",
+            args={
+                "recipient": "check_name_in_db_agent",
+                "message": "Check if the name Alice is present in the database",
+            },
+            tool_request_id="send_message_1",
+        ),
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "fooza_agent", "message": "Compute fooza(4,2)"},
+            tool_request_id="send_message_2",
+        ),
+    ]
+    client_tool_request = [
+        ToolRequest(
+            name="check_name_in_db_tool",
+            args={"name": "Alice"},
+            tool_request_id="client_tool",
+        )
+    ]
+
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,  # output from manager
+            client_tool_request,  # output from agent_with_client_tool
+            "agent_with_client_tool_answers",
+            "fooza_agent_answers",
+            "manager_answers",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, ToolRequestStatus)  # yielding from agent_with_client_tool
+        assert len(status.tool_requests) == 1
+        assert status.tool_requests[0].name == "check_name_in_db_tool"
+
+        status.submit_tool_result(
+            ToolResult(
+                content="The name Alice is present in the database", tool_request_id="client_tool"
+            )
+        )
+        status_2 = conv.execute()
+        assert isinstance(status_2, UserMessageRequestStatus)  # yielding from manager
+        assert conv.get_last_message().content == "manager_answers"
+
+
+def test_multiple_tool_calls_including_client_tool_can_be_executed(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    agent_with_client_tool = _get_agent_with_client_tool(llm)
+    fooza_agent = _get_fooza_agent(llm)
+
+    group = ManagerWorkers(
+        group_manager=agent_with_client_tool,
+        workers=[fooza_agent],
+    )
+
+    conv = group.start_conversation(
+        messages="Check if the name Alice is present in the database and compute the result of fooza(4, 2)"
+    )
+
+    multiple_tool_requests = [
+        ToolRequest(
+            name="check_name_in_db_tool",
+            args={"name": "Alice"},
+            tool_request_id="client_tool",
+        ),
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "fooza_agent", "message": "Compute fooza(4,2)"},
+            tool_request_id="send_message",
+        ),
+    ]
+
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,  # output from manager agent (i.e. agent_with_client_tool)
+            "fooza_answers_to_main_agent",
+            "manager_answers_to_user",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, ToolRequestStatus)  # yielding from manager
+        assert len(status.tool_requests) == 1  # the send_message should not appear in the status
+        assert status.tool_requests[0].name == "check_name_in_db_tool"
+        status.submit_tool_result(
+            ToolResult(
+                content="The name Alice is present in the database", tool_request_id="client_tool"
+            )
+        )
+
+        status_2 = conv.execute()
+        assert isinstance(status_2, UserMessageRequestStatus)
+        assert conv.get_last_message().content == "manager_answers_to_user"
+
+
+def test_multiple_tool_calls_including_server_tool_can_be_executed(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+
+    group = ManagerWorkers(
+        group_manager=fooza_agent,
+        workers=[bwip_agent],
+    )
+
+    conv = group.start_conversation(messages="Compute bwip(4,2) fooza(4,3) and bwip(4,5)")
+
+    multiple_tool_requests = [
+        ToolRequest(
+            name="send_message",
+            args={
+                "recipient": "bwip_agent",
+                "message": "calculate bwip(4,2)",
+            },
+        ),
+        ToolRequest(
+            name="fooza_tool",
+            args={"a": 4, "b": 3},
+        ),
+        ToolRequest(
+            name="send_message",
+            args={
+                "recipient": "bwip_agent",
+                "message": "calculate bwip(4,5)",
+            },
+        ),
+    ]
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,  # fooza's output
+            "bwip answers to fooza",
+            "bwip answers to fooza",
+            "fooza answers to user",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, UserMessageRequestStatus)
+        assert conv.get_last_message().content == "fooza answers to user"
+
+
+@retry_test(max_attempts=4)
+def test_managerworkers_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
+    """
+    Failure rate:          3 out of 50
+    Observed on:           2025-12-23
+    Average success time:  8.14 seconds per successful attempt
+    Average failure time:  5.36 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 3.5 / 100'000
+    """
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+    zbuk_agent = _get_zbuk_agent(llm)
+
+    group = ManagerWorkers(
+        group_manager=llm,
+        workers=[fooza_agent, bwip_agent, zbuk_agent],
+    )
+
+    conv = group.start_conversation(
+        messages="Compute the result of fooza(4, 2) + bwip(4, 5) + zbuk(5, 6). You should call multiple tools at once for this task."
+    )
+
+    conv.execute()
+
+    expected_tool_requests = [
+        ("send_message", {"recipient": "fooza_agent"}),
+        ("send_message", {"recipient": "bwip_agent"}),
+        ("send_message", {"recipient": "zbuk_agent"}),
+    ]
+
+    second_message = conv.get_messages()[1]
+
+    assert (
+        len(second_message.tool_requests) == 2 or len(second_message.tool_requests) == 3
+    )  # multiple tool calls, sometimes it outputs 2 instead of 3 tool calls at once.
+
+    for tool_request, (expected_tool_name, expected_params) in zip(
+        second_message.tool_requests,
+        expected_tool_requests,
+        strict=True,
+    ):
+        assert tool_request.name == expected_tool_name
+        for k, v in expected_params.items():
+            assert tool_request.args[k] == v
+
+    assert "30" in conv.get_last_message().content
