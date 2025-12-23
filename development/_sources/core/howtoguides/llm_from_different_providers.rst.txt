@@ -4,11 +4,11 @@ How to Use LLMs from Different LLM Providers
 
 WayFlow supports several LLM API providers. The available LLMs are:
 
-- :class:`OpenAIModel`
-- :class:`OpenAICompatibleModel`
-- :class:`OCIGenAIModel`
-- :class:`VllmModel`
-- :class:`OllamaModel`
+- :ref:`OpenAIModel <openaimodel>`
+- :ref:`OpenAICompatibleModel <openaicompatiblemodel>`
+- :ref:`OCIGenAIModel <ocigenaimodel>`
+- :ref:`VllmModel <vllmmodel>`
+- :ref:`OllamaModel <ollamamodel>`
 
 Their configuration is specified directly to their respective class constructor.
 This guide will show you how to configure LLMs from different LLM providers with examples and notes on usage.
@@ -35,8 +35,10 @@ OCI GenAI Model
   under the Model Retirement Dates (On-Demand Mode) section.
 
 .. option:: generation_config: dict, optional
+
   Default parameters for text generation with this model.
   Example:
+
   .. code-block:: python
 
     generation_config = LlmGenerationConfig(max_tokens=256, temperature=0.8, top_p=0.95)
@@ -167,14 +169,21 @@ OpenAI Model is powered by `OpenAI <https://platform.openai.com/docs/models>`_.
 
 **Parameters**
 
-- **model_id** : str
+.. option:: model_id: str
+
   Name of the model to use. Current supported models: ``gpt-4o`` and ``gpt-4o-mini``.
 
-- **generation_config** : dict, optional
+.. option:: generation_config: dict, optional
+
   Default parameters for text generation with this model.
 
-- **proxy** : str, optional
+.. option:: proxy: str, optional
+
   Proxy settings to access the remote model.
+
+.. option:: api_type: OpenAIAPIType
+
+  OpenAI API type to use. Should be one of the values from :ref:`OpenAIAPIType<openaiapitype>`. Defaults to `Chat Completions API <https://platform.openai.com/docs/api-reference/chat>`_
 
 .. important::
    Ensure that the ``OPENAI_API_KEY`` is set beforehand
@@ -204,12 +213,21 @@ vLLM Model
 
 **Parameters**
 
-- **model_id** : str
+.. option:: model_id: str
+
   Name of the model to use.
-- **host_port** : str
+
+.. option:: host_port: str
+
   Hostname and port of the vLLM server where the model is hosted.
-- **generation_config** : dict, optional
+
+.. option:: generation_config: dict, optional
+
   Default parameters for text generation with this model.
+
+.. option:: api_type: OpenAIAPIType
+
+  OpenAI API type to use. Should be one of the values from :ref:`OpenAIAPIType<openaiapitype>`. Defaults to `Chat Completions API <https://platform.openai.com/docs/api-reference/chat>`_
 
 **Examples**
 
@@ -246,14 +264,17 @@ Ollama Model
 
 **Parameters**
 
-- **model_id** : str
+.. option:: model_id: str
+
   Name of the model to use. A list of model names can be found `here <https://ollama.com/search>`_.
 
-- **host_port** : str
+.. option:: host_port: str
+
   Hostname and port of the Ollama server where the model is hosted.
   By default Ollama binds port 11434.
 
-- **generation_config** : dict, optional
+.. option:: generation_config: dict, optional
+
   Default parameters for text generation with this model.
 
 **Examples**
@@ -271,6 +292,8 @@ Ollama Model
         :end-before: .. ollama-llmfactory-end
 
 **Notes**
+
+As of November 2025, Ollama does not support `OpenAI Responses API <https://platform.openai.com/docs/api-reference/responses>`_. Therefore only Chat Completions API will be supported for OpenAI models.
 
 As of November 2024, Ollama does not support tools calling with token streaming.
 To enable this functionality, WayFlow modifies the prompt by prepending and appending specific ReAct templates and formats tools accordingly when:

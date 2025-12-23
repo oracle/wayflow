@@ -1,0 +1,933 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Agent Server &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/agentserver';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Embedding Models" href="embeddingmodels.html" />
+    <link rel="prev" title="Agents" href="agent.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="26.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">Evaluate Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">Evaluate Conversations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
+
+
+<li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Agent Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Agent Server</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="agent-server">
+<h1>Agent Server<a class="headerlink" href="#agent-server" title="Permalink to this heading">#</a></h1>
+<p>This page covers the components used to expose WayFlow agents through different protocols.</p>
+<section id="server-application">
+<h2>Server application<a class="headerlink" href="#server-application" title="Permalink to this heading">#</a></h2>
+<span class="target" id="openairesponsesserver"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.server.OpenAIResponsesServer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.agentserver.server.</span></span><span class="sig-name descname"><span class="pre">OpenAIResponsesServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agents</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.server.OpenAIResponsesServer" title="Permalink to this definition">#</a></dt>
+<dd><p>FastAPI application for task management with AI agents.</p>
+<p>Public-facing server for exposing an Agent or Flow via the OpenAI Responses protocol.
+The assistant can be queried via the OpenAI Responses protocol at the provided URL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agents</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a>]]) – Dictionary storing the agent_ids and agents to serve. The <cite>model_id</cite> will be the one
+clients will have to mention in <cite>request.model</cite> to choose which agent to use for their request.</p></li>
+<li><p><strong>storage</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="datastores.html#wayflowcore.datastore.Datastore" title="wayflowcore.datastore.datastore.Datastore"><code class="xref py py-class docutils literal notranslate"><span class="pre">Datastore</span></code></a>]) – Datastore for server persistence. Needs to have the proper table and columns as specified
+in the <cite>storage_config</cite>.</p></li>
+<li><p><strong>storage_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig" title="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerStorageConfig</span></code></a>]) – Cch will not guarantee persistence of data across runs.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.server.OpenAIResponsesServer.get_app">
+<span class="sig-name descname"><span class="pre">get_app</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.server.OpenAIResponsesServer.get_app" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the FastAPI application instance.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For production environments, you should use this function to get the FastAPI
+application that implements the OpenAI Responses endpoints, and then add your
+own security/authentication layer on top of it.</p>
+<p>Consider adding:</p>
+<ul class="simple">
+<li><p><strong>HTTPS/TLS</strong>: Terminate TLS at a reverse proxy or load balancer, or use
+<code class="docutils literal notranslate"><span class="pre">uvicorn</span> <span class="pre">--ssl-keyfile</span></code> and <code class="docutils literal notranslate"><span class="pre">--ssl-certfile</span></code>.</p></li>
+<li><p><strong>Rate limiting</strong>: Use <code class="docutils literal notranslate"><span class="pre">slowapi</span></code> or an API gateway to prevent abuse.</p></li>
+<li><p><strong>CORS</strong>: Configure <code class="docutils literal notranslate"><span class="pre">CORSMiddleware</span></code> if serving browser-based clients.</p></li>
+<li><p><strong>Request validation</strong>: Add input size limits and content-type checks.</p></li>
+</ul>
+</div>
+<p class="rubric">Example</p>
+<p>Here is a very simple example of how to implement token-based authentication:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">secrets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span><span class="p">,</span> <span class="n">status</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">JSONResponse</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">API_TOKEN</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WAYFLOW_SERVER_TOKEN&quot;</span><span class="p">,</span> <span class="s2">&quot;change-me&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">get_app</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@app</span><span class="o">.</span><span class="n">middleware</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">)</span>  
+<span class="gp">... </span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">require_bearer_token</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">call_next</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">auth_header</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;authorization&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">expected_header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">API_TOKEN</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">secrets</span><span class="o">.</span><span class="n">compare_digest</span><span class="p">(</span><span class="n">auth_header</span><span class="p">,</span> <span class="n">expected_header</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">content</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;Missing or invalid bearer token&quot;</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="k">await</span> <span class="n">call_next</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and then run <code class="docutils literal notranslate"><span class="pre">uvicorn</span> <span class="pre">main:app</span> <span class="pre">--host</span> <span class="pre">0.0.0.0</span> <span class="pre">--port</span> <span class="pre">8000</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A FastAPI application that implements the OpenAI Responses endpoints.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>fastapi.FastAPI</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.server.OpenAIResponsesServer.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.server.OpenAIResponsesServer.run" title="Permalink to this definition">#</a></dt>
+<dd><p>Starts the server and serves all the registered agents in a blocking way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Host to serve the server.</p></li>
+<li><p><strong>port</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Port to expose the server.</p></li>
+<li><p><strong>api_key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – A key that will be required to authenticate the requests. It needs to be provided as a bearer token.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.server.OpenAIResponsesServer.serve_agent">
+<span class="sig-name descname"><span class="pre">serve_agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.server.OpenAIResponsesServer.serve_agent" title="Permalink to this definition">#</a></dt>
+<dd><p>Adds an agent to the service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agent_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the agent to serve.</p></li>
+<li><p><strong>agent</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a>) – The agent to serve.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="a2aserver"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.server.A2AServer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.agentserver.server.</span></span><span class="sig-name descname"><span class="pre">A2AServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.server.A2AServer" title="Permalink to this definition">#</a></dt>
+<dd><p>A server for exposing a WayFlow conversational component via the A2A protocol.</p>
+<p>The <cite>A2AServer</cite> wraps around an internal <cite>A2AApp</cite> (a Starlette application)
+to handle HTTP-based communication between external A2A clients and an agent.
+It automatically serves the agent card and task endpoints.</p>
+<p>The assistant can be queried via the A2A protocol at the provided URL.</p>
+<p>This server supports <strong>server</strong> tools in the served assistant.
+In A2A, the WayFlow ToolRequest and ToolResult are represented as the <cite>DataPart</cite>
+object.</p>
+<dl class="simple">
+<dt>A DataPart contains:</dt><dd><ul class="simple">
+<li><p><strong>metadata</strong>: a dictionary with a <cite>type</cite> key indicating whether this
+part represents a <cite>ToolRequest</cite> or a <cite>ToolResult</cite>.</p></li>
+<li><p><strong>data</strong>: a dictionary with the actual fields of the <cite>ToolRequest</cite>
+or <cite>ToolResult</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>storage_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig" title="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerStorageConfig</span></code></a>]) – Config for the storage to save the conversations. If not provided, the default storage with <cite>InMemoryDatastore</cite> will be used.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.server.A2AServer.get_app">
+<span class="sig-name descname"><span class="pre">get_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.server.A2AServer.get_app" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">A2AApp</span></code></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>host</strong> (<em>str</em>) – </p></li>
+<li><p><strong>port</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.server.A2AServer.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.server.A2AServer.run" title="Permalink to this definition">#</a></dt>
+<dd><p>Starts the server and serve the assistant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Host to serve the server.</p></li>
+<li><p><strong>port</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Port to expose the server.</p></li>
+<li><p><strong>api_key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – A key that will be required to authenticate the requests. It needs to be provided as a bearer token.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.server.A2AServer.serve_agent">
+<span class="sig-name descname"><span class="pre">serve_agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.server.A2AServer.serve_agent" title="Permalink to this definition">#</a></dt>
+<dd><p>Specifies the agent to be served.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agent</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a>) – The agent to be served which can be any conversational component in WayFlow (e.g Agent, Flow, Swarm, etc.).</p></li>
+<li><p><strong>url</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The public address the agent is hosted at.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="serverstorageconfig"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.agentserver.serverstorageconfig.</span></span><span class="sig-name descname"><span class="pre">ServerStorageConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'conversations'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_id_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'agent_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation_id_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'conversation_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turn_id_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'turn_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'created_at'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation_turn_state_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'conversation_turn_state'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_last_turn_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'is_last_turn'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_metadata_column_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'extra_metadata'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for server storage management.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datastore</strong> (<a class="reference internal" href="datastores.html#wayflowcore.datastore.Datastore" title="wayflowcore.datastore.datastore.Datastore"><em>Datastore</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>agent_id_column_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>conversation_id_column_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>turn_id_column_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>created_at_column_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>conversation_turn_state_column_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>is_last_turn_column_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>extra_metadata_column_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>max_retention</strong> (<em>int</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.agent_id_column_name">
+<span class="sig-name descname"><span class="pre">agent_id_column_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'agent_id'</span></em><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.agent_id_column_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the column where the agent id of the state is stored</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.conversation_id_column_name">
+<span class="sig-name descname"><span class="pre">conversation_id_column_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'conversation_id'</span></em><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.conversation_id_column_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the column where the id of the conversation is stored</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.conversation_turn_state_column_name">
+<span class="sig-name descname"><span class="pre">conversation_turn_state_column_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'conversation_turn_state'</span></em><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.conversation_turn_state_column_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the column where the serialized state of turn is store</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.created_at_column_name">
+<span class="sig-name descname"><span class="pre">created_at_column_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'created_at'</span></em><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.created_at_column_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the column where the creation timestamp is stored</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.datastore">
+<span class="sig-name descname"><span class="pre">datastore</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="datastores.html#wayflowcore.datastore.Datastore" title="wayflowcore.datastore.datastore.Datastore"><code class="xref py py-class docutils literal notranslate"><span class="pre">Datastore</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.datastore" title="Permalink to this definition">#</a></dt>
+<dd><p>Datastore to use for persistence</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.extra_metadata_column_name">
+<span class="sig-name descname"><span class="pre">extra_metadata_column_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'extra_metadata'</span></em><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.extra_metadata_column_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the column where the server stores its own attributes</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.is_last_turn_column_name">
+<span class="sig-name descname"><span class="pre">is_last_turn_column_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'is_last_turn'</span></em><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.is_last_turn_column_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the column where the marker for the most recent turn of a given conversation is stored</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.max_retention">
+<span class="sig-name descname"><span class="pre">max_retention</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.max_retention" title="Permalink to this definition">#</a></dt>
+<dd><p>Number of seconds for which to retain a conversation before discarding it</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.table_name">
+<span class="sig-name descname"><span class="pre">table_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'conversations'</span></em><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.table_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the table in which the states are stored</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.to_schema">
+<span class="sig-name descname"><span class="pre">to_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.to_schema" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="datastores.html#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.turn_id_column_name">
+<span class="sig-name descname"><span class="pre">turn_id_column_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'turn_id'</span></em><a class="headerlink" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.turn_id_column_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Name of the column where the turn id / response id is stored</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wayflowcore.agentserver.app.create_server_app">
+<span class="sig-prename descclassname"><span class="pre">wayflowcore.agentserver.app.</span></span><span class="sig-name descname"><span class="pre">create_server_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agents</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.agentserver.app.create_server_app" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="#wayflowcore.agentserver.server.OpenAIResponsesServer" title="wayflowcore.agentserver.server.OpenAIResponsesServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenAIResponsesServer</span></code></a>, <a class="reference internal" href="#wayflowcore.agentserver.server.A2AServer" title="wayflowcore.agentserver.server.A2AServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">A2AServer</span></code></a>]</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>api</strong> (<em>Literal</em><em>[</em><em>'openai-responses'</em><em>, </em><em>'a2a'</em><em>]</em>) – </p></li>
+<li><p><strong>agents</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a><em>]</em>) – </p></li>
+<li><p><strong>storage</strong> (<a class="reference internal" href="datastores.html#wayflowcore.datastore.Datastore" title="wayflowcore.datastore.datastore.Datastore"><em>Datastore</em></a>) – </p></li>
+<li><p><strong>storage_config</strong> (<a class="reference internal" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig" title="wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig"><em>ServerStorageConfig</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="cli-reference">
+<h2>CLI Reference<a class="headerlink" href="#cli-reference" title="Permalink to this heading">#</a></h2>
+<p id="cliwayflowreference"><p>WayFlow command line interface.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">wayflow</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="n">serve</span><span class="p">}</span> <span class="o">...</span>
+</pre></div>
+</div>
+<section id="wayflowcore.cli-build_parser-positional-arguments">
+<h3>Positional Arguments<a class="headerlink" href="#wayflowcore.cli-build_parser-positional-arguments" title="Permalink to this heading">#</a></h3>
+<dl class="option-list">
+<dt><kbd>command</kbd></dt>
+<dd><p>Possible choices: serve</p>
+</dd>
+</dl>
+</section>
+<section id="Sub-commands">
+<h3>Sub-commands<a class="headerlink" href="#Sub-commands" title="Permalink to this heading">#</a></h3>
+<section id="serve">
+<h4>serve<a class="headerlink" href="#serve" title="Permalink to this heading">#</a></h4>
+<p>Launch a WayFlow server hosting agents with the selected API protocol.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wayflow</span> <span class="n">serve</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">api</span> <span class="p">{</span><span class="n">openai</span><span class="o">-</span><span class="n">responses</span><span class="p">,</span><span class="n">a2a</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">agent</span><span class="o">-</span><span class="n">config</span> <span class="n">AGENT_CONFIG</span> <span class="p">[</span><span class="n">AGENT_CONFIG</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">agent</span><span class="o">-</span><span class="nb">id</span> <span class="n">AGENT_ID</span> <span class="p">[</span><span class="n">AGENT_ID</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">port</span> <span class="n">PORT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">host</span> <span class="n">HOST</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">tool</span><span class="o">-</span><span class="n">registry</span> <span class="n">TOOL_REGISTRY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">server</span><span class="o">-</span><span class="n">storage</span> <span class="p">{</span><span class="ow">in</span><span class="o">-</span><span class="n">memory</span><span class="p">,</span><span class="n">oracle</span><span class="o">-</span><span class="n">db</span><span class="p">,</span><span class="n">postgres</span><span class="o">-</span><span class="n">db</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">server</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">config</span> <span class="n">SERVER_STORAGE_CONFIG</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">datastore</span><span class="o">-</span><span class="n">connection</span><span class="o">-</span><span class="n">config</span> <span class="n">DATASTORE_CONNECTION_CONFIG</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">setup</span><span class="o">-</span><span class="n">datastore</span> <span class="p">{</span><span class="n">no</span><span class="p">,</span><span class="n">yes</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">api</span><span class="o">-</span><span class="n">key</span> <span class="n">API_KEY</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments">
+<h5>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading">#</a></h5>
+<dl class="option-list">
+<dt><kbd>--api</kbd></dt>
+<dd><p>Possible choices: openai-responses, a2a</p>
+<p>Protocol to expose (default: openai-responses).</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'openai-responses'</span></code></p>
+</dd>
+<dt><kbd>--agent-config</kbd></dt>
+<dd><p>Path to the agent specification file (default: agent.json).</p>
+</dd>
+<dt><kbd>--agent-id</kbd></dt>
+<dd><p>Identifier used by clients to select the hosted agent (default: my-agent).</p>
+</dd>
+<dt><kbd>--port</kbd></dt>
+<dd><p>Port to bind the server to (default: 3000).</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">3000</span></code></p>
+</dd>
+<dt><kbd>--host</kbd></dt>
+<dd><p>Host interface to bind to (default: 127.0.0.1).</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'127.0.0.1'</span></code></p>
+</dd>
+<dt><kbd>--tool-registry</kbd></dt>
+<dd><p>Optional path to a Python module exposing a <cite>tool_registry</cite> dictionary for agent server tools.</p>
+</dd>
+<dt><kbd>--server-storage</kbd></dt>
+<dd><p>Possible choices: in-memory, oracle-db, postgres-db</p>
+<p>Persistence backend for conversations (default: in-memory).</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'in-memory'</span></code></p>
+</dd>
+<dt><kbd>--server-storage-config</kbd></dt>
+<dd><p>Optional YAML file overriding ServerStorageConfig defaults.</p>
+</dd>
+<dt><kbd>--datastore-connection-config</kbd></dt>
+<dd><p>YAML file containing the type of connection to use and its configuration.
+For example: <cite>type: TlsPostgresDatabaseConnectionConfig
+user: my_user
+password: my_password
+url:localhost:7777</cite></p>
+</dd>
+<dt><kbd>--setup-datastore</kbd></dt>
+<dd><p>Possible choices: no, yes</p>
+<p>Whether to create or reset datastore tables when supported (default: no). It will NOT delete any existing table, you should do it first.</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'no'</span></code></p>
+</dd>
+<dt><kbd>--api-key</kbd></dt>
+<dd><p>Optional api key to add an authentication layer to the server. This API_KEY will be required on requests as a bearer token in the headers: {‘authorization’: ‘Bearer SOME_FAKE_SECRET’}</p>
+</dd>
+</dl>
+</section>
+</section>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#server-application">Server application</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.server.OpenAIResponsesServer"><code class="docutils literal notranslate"><span class="pre">OpenAIResponsesServer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.server.OpenAIResponsesServer.get_app"><code class="docutils literal notranslate"><span class="pre">OpenAIResponsesServer.get_app()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.server.OpenAIResponsesServer.run"><code class="docutils literal notranslate"><span class="pre">OpenAIResponsesServer.run()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.server.OpenAIResponsesServer.serve_agent"><code class="docutils literal notranslate"><span class="pre">OpenAIResponsesServer.serve_agent()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.server.A2AServer"><code class="docutils literal notranslate"><span class="pre">A2AServer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.server.A2AServer.get_app"><code class="docutils literal notranslate"><span class="pre">A2AServer.get_app()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.server.A2AServer.run"><code class="docutils literal notranslate"><span class="pre">A2AServer.run()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.server.A2AServer.serve_agent"><code class="docutils literal notranslate"><span class="pre">A2AServer.serve_agent()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.agent_id_column_name"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.agent_id_column_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.conversation_id_column_name"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.conversation_id_column_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.conversation_turn_state_column_name"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.conversation_turn_state_column_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.created_at_column_name"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.created_at_column_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.datastore"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.datastore</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.extra_metadata_column_name"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.extra_metadata_column_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.is_last_turn_column_name"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.is_last_turn_column_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.max_retention"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.max_retention</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.table_name"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.table_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.to_schema"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.to_schema()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig.turn_id_column_name"><code class="docutils literal notranslate"><span class="pre">ServerStorageConfig.turn_id_column_name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.agentserver.app.create_server_app"><code class="docutils literal notranslate"><span class="pre">create_server_app()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-reference">CLI Reference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.cli-build_parser-positional-arguments">Positional Arguments</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Sub-commands">Sub-commands</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#serve">serve</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#named-arguments">Named Arguments</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

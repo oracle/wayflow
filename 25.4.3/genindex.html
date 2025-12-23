@@ -1,0 +1,2716 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; wayflowcore 25.4.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
+
+  
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/tabs.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '25.4.3';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="_static/announcement.js"></script>
+
+    <link rel="icon" href="_static/favicon.png"/>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.4" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 25.4.3 documentation - Home"/>
+    <img src="_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 25.4.3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#Symbols"><strong>Symbols</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ 
+</div>
+<h2 id="Symbols">Symbols</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    ..
+
+      <ul>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-..">command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.templates.structuredgeneration.adapt_prompt_template_for_json_structured_generation">adapt_prompt_template_for_json_structured_generation() (in module wayflowcore.templates.structuredgeneration)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.flow.Flow.add_context_providers">add_context_providers() (wayflowcore.flow.Flow method)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent">Agent (class in wayflowcore.agent)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageType.AGENT">AGENT (wayflowcore.messagelist.MessageType attribute)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.tools.DescribedAgent.agent">agent (wayflowcore.tools.DescribedAgent attribute)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.ociagent.OciAgent.agent_endpoint_id">agent_endpoint_id (wayflowcore.ociagent.OciAgent attribute)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.agent_id">agent_id (wayflowcore.agent.Agent property)</a>
+
+      <ul>
+        <li><a href="core/api/agent.html#wayflowcore.ociagent.OciAgent.agent_id">(wayflowcore.ociagent.OciAgent property)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.agent_template">agent_template (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.agent.ExtendedAgent.agent_template">(wayflowcore.agentspec.components.agent.ExtendedAgent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.agentexecutionstep.AgentExecutionStep">AgentExecutionStep (class in wayflowcore.steps.agentexecutionstep)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.agents">agents (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.agent.ExtendedAgent.agents">(wayflowcore.agentspec.components.agent.ExtendedAgent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.agentspecexporter.AgentSpecExporter">AgentSpecExporter (class in wayflowcore.agentspec.agentspecexporter)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.runtimeloader.AgentSpecLoader">AgentSpecLoader (class in wayflowcore.agentspec.runtimeloader)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.allow_credentials">allow_credentials (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.allow_fragments">allow_fragments (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.allow_insecure_http">allow_insecure_http (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/flows.html#wayflowcore.property.UnionProperty.any_of">any_of (wayflowcore.property.UnionProperty attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.AnyProperty">AnyProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.apicallstep.ApiCallStep">ApiCallStep (class in wayflowcore.steps.apicallstep)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.append_agent_message">append_agent_message() (wayflowcore.conversation.Conversation method)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageList.append_agent_message">(wayflowcore.messagelist.MessageList method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.append_message">append_message() (wayflowcore.conversation.Conversation method)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageList.append_message">(wayflowcore.messagelist.MessageList method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.append_tool_result">append_tool_result() (wayflowcore.conversation.Conversation method)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageList.append_tool_result">(wayflowcore.messagelist.MessageList method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.append_user_message">append_user_message() (wayflowcore.conversation.Conversation method)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageList.append_user_message">(wayflowcore.messagelist.MessageList method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.transforms.AppendTrailingSystemMessageToUserMessageTransform">AppendTrailingSystemMessageToUserMessageTransform (class in wayflowcore.transforms)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.StdioTransport.args">args (wayflowcore.mcp.StdioTransport attribute)</a>
+
+      <ul>
+        <li><a href="core/api/tools.html#wayflowcore.tools.tools.ToolRequest.args">(wayflowcore.tools.tools.ToolRequest attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.flow.Flow.as_client_tool">as_client_tool() (wayflowcore.flow.Flow method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.flow.Flow.as_server_tool">as_server_tool() (wayflowcore.flow.Flow method)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator">AssistantEvaluator (class in wayflowcore.evaluation.assistantevaluator)</a>
+</li>
+      <li><a href="core/api/serialization.html#wayflowcore.serialization.serializer.autodeserialize">autodeserialize() (in module wayflowcore.serialization.serializer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginImageContent.base64_content">base64_content (wayflowcore.agentspec.components.messagelist.PluginImageContent attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.BooleanProperty">BooleanProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.branchingstep.BranchingStep.BRANCH_DEFAULT">BRANCH_DEFAULT (wayflowcore.steps.branchingstep.BranchingStep attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep.BRANCH_DEFAULT">(wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/flows.html#wayflowcore.steps.retrystep.RetryStep.BRANCH_FAILURE">BRANCH_FAILURE (wayflowcore.steps.retrystep.RetryStep attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.StepResult.branch_name">branch_name (wayflowcore.steps.step.StepResult attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.BRANCH_NEXT">BRANCH_NEXT (wayflowcore.steps.step.Step attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.BRANCH_SELF">BRANCH_SELF (wayflowcore.steps.step.Step attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.branchingstep.BranchingStep">BranchingStep (class in wayflowcore.steps.branchingstep)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/llmmodels.html#wayflowcore.tokenusage.TokenUsage.cached_tokens">cached_tokens (wayflowcore.tokenusage.TokenUsage attribute)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.evaluation_metrics.calculate_accuracy">calculate_accuracy() (in module wayflowcore.evaluation.evaluation_metrics)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.evaluation_metrics.calculate_set_metrics">calculate_set_metrics() (in module wayflowcore.evaluation.evaluation_metrics)</a>
+</li>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider.call_async">call_async() (wayflowcore.contextproviders.contextprovider.ContextProvider method)</a>
+
+      <ul>
+        <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.call_async">(wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider method)</a>
+</li>
+        <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.call_async">(wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.caller_input_mode">caller_input_mode (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.agent.ExtendedAgent.caller_input_mode">(wayflowcore.agentspec.components.agent.ExtendedAgent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.can_finish_conversation">can_finish_conversation (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.agent.ExtendedAgent.can_finish_conversation">(wayflowcore.agentspec.components.agent.ExtendedAgent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode.catch_all_exceptions">catch_all_exceptions (wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.catchexceptionstep.CatchExceptionStep">CatchExceptionStep (class in wayflowcore.steps.catchexceptionstep)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.getchathistorystep.GetChatHistoryStep.CHAT_HISTORY">CHAT_HISTORY (wayflowcore.steps.getchathistorystep.GetChatHistoryStep attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.CHAT_HISTORY_PLACEHOLDER">CHAT_HISTORY_PLACEHOLDER (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME">CHAT_HISTORY_PLACEHOLDER_NAME (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider">ChatHistoryContextProvider (class in wayflowcore.contextproviders.chathistorycontextprovider)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedLlmNode.check_either_prompt_str_or_object_is_used">check_either_prompt_str_or_object_is_used() (wayflowcore.agentspec.components.nodes.ExtendedLlmNode class method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep">ChoiceSelectionStep (class in wayflowcore.steps.choiceselectionstep)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.ociagent.OciAgent.client_config">client_config (wayflowcore.ociagent.OciAgent attribute)</a>
+</li>
+      <li>
+    client_config:
+
+      <ul>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-client_config">command line option</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.mcp.PluginMCPToolBox.client_transport">client_transport (wayflowcore.agentspec.components.mcp.PluginMCPToolBox attribute)</a>
+
+      <ul>
+        <li><a href="core/api/tools.html#wayflowcore.mcp.MCPTool.client_transport">(wayflowcore.mcp.MCPTool attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.mcp.MCPToolBox.client_transport">(wayflowcore.mcp.MCPToolBox attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.clienttools.ClientTool">ClientTool (class in wayflowcore.tools.clienttools)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.ClientTransport">ClientTransport (class in wayflowcore.mcp)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.clone">clone() (wayflowcore.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.flow.Flow.clone">(wayflowcore.flow.Flow method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.transforms.CoalesceSystemMessagesTransform">CoalesceSystemMessagesTransform (class in wayflowcore.transforms)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreCreateNode.collection_name">collection_name (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreCreateNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreDeleteNode.collection_name">(wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreDeleteNode attribute)</a>
+</li>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode.collection_name">(wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode attribute)</a>
+</li>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode.collection_name">(wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.StdioTransport.command">command (wayflowcore.mcp.StdioTransport attribute)</a>
+</li>
+      <li>
+    command line option
+
+      <ul>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-..">..</a>
+</li>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-client_config">client_config:</a>
+</li>
+        <li><a href="core/howtoguides/embeddingmodels_from_different_providers.html#cmdoption-arg-config">config:</a>
+</li>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-Default">Default</a>
+</li>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-Example">Example:</a>
+</li>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-generation_config">generation_config:</a>
+</li>
+        <li><a href="core/howtoguides/embeddingmodels_from_different_providers.html#cmdoption-arg-model_id">model_id:</a>, <a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-model_id">[1]</a>
+</li>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-client_config">optional</a>, <a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-generation_config">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.executors.executionstatus.FinishedStatus.complete_step_name">complete_step_name (wayflowcore.executors.executionstatus.FinishedStatus attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.completestep.CompleteStep">CompleteStep (class in wayflowcore.steps.completestep)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.LlmGenerationResponseEvent.completion">completion (wayflowcore.events.event.LlmGenerationResponseEvent attribute)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.component">component (wayflowcore.conversation.Conversation attribute)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.compute_agent_inputs">compute_agent_inputs() (wayflowcore.agent.Agent static method)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.config">config (wayflowcore.agent.Agent property)</a>
+
+      <ul>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodel.LlmModel.config">(wayflowcore.models.llmmodel.LlmModel property)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ocigenaimodel.OCIGenAIModel.config">(wayflowcore.models.ocigenaimodel.OCIGenAIModel property)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ollamamodel.OllamaModel.config">(wayflowcore.models.ollamamodel.OllamaModel property)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.openaicompatiblemodel.OpenAICompatibleModel.config">(wayflowcore.models.openaicompatiblemodel.OpenAICompatibleModel property)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.openaimodel.OpenAIModel.config">(wayflowcore.models.openaimodel.OpenAIModel property)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.vllmmodel.VllmModel.config">(wayflowcore.models.vllmmodel.VllmModel property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    config:
+
+      <ul>
+        <li><a href="core/howtoguides/embeddingmodels_from_different_providers.html#cmdoption-arg-config">command line option</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig.config_dir">config_dir (wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig.config_dir">(wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+        <li><a href="core/api/datastores.html#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.config_dir">(wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+        <li><a href="core/api/datastores.html#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.config_dir">(wayflowcore.datastore.TlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseDatastore.connection_config">connection_config (wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseDatastore attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.ConstantValuesStep">ConstantValuesStep (class in wayflowcore.steps)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginTextContent.content">content (wayflowcore.agentspec.components.messagelist.PluginTextContent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.content">(wayflowcore.messagelist.Message property)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.tools.ToolResult.content">(wayflowcore.tools.tools.ToolResult attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.contents">contents (wayflowcore.agentspec.components.messagelist.PluginMessage attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.contents">(wayflowcore.messagelist.Message attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ContextProviderExecutionSpan.context_provider">context_provider (wayflowcore.tracing.span.ContextProviderExecutionSpan attribute)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.context_providers">context_providers (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.agent.ExtendedAgent.context_providers">(wayflowcore.agentspec.components.agent.ExtendedAgent attribute)</a>
+</li>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.flow.ExtendedFlow.context_providers">(wayflowcore.agentspec.components.flow.ExtendedFlow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider">ContextProvider (class in wayflowcore.contextproviders.contextprovider)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ContextProviderExecutionSpan">ContextProviderExecutionSpan (class in wayflowcore.tracing.span)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.controlconnection.ControlFlowEdge">ControlFlowEdge (class in wayflowcore.controlconnection)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation">Conversation (class in wayflowcore.conversation)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ConversationSpan.conversation">conversation (wayflowcore.tracing.span.ConversationSpan attribute)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.conversation_id">conversation_id (wayflowcore.conversation.Conversation attribute)</a>
+
+      <ul>
+        <li><a href="core/api/events.html#wayflowcore.events.event.ConversationCreatedEvent.conversation_id">(wayflowcore.events.event.ConversationCreatedEvent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent.conversational_component">conversational_component (wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/events.html#wayflowcore.events.event.ConversationalComponentExecutionStartedEvent.conversational_component">(wayflowcore.events.event.ConversationalComponentExecutionStartedEvent attribute)</a>
+</li>
+        <li><a href="core/api/events.html#wayflowcore.events.event.ConversationCreatedEvent.conversational_component">(wayflowcore.events.event.ConversationCreatedEvent attribute)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ConversationalComponentExecutionSpan.conversational_component">(wayflowcore.tracing.span.ConversationalComponentExecutionSpan attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent">ConversationalComponent (class in wayflowcore.conversationalcomponent)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent">ConversationalComponentExecutionFinishedEvent (class in wayflowcore.events.event)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ConversationalComponentExecutionSpan">ConversationalComponentExecutionSpan (class in wayflowcore.tracing.span)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.ConversationalComponentExecutionStartedEvent">ConversationalComponentExecutionStartedEvent (class in wayflowcore.events.event)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.ConversationCreatedEvent">ConversationCreatedEvent (class in wayflowcore.events.event)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.conversationevaluator.ConversationEvaluator">ConversationEvaluator (class in wayflowcore.evaluation.conversationevaluator)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.ConversationMessageAddedEvent">ConversationMessageAddedEvent (class in wayflowcore.events.event)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.conversationscorer.ConversationScorer">ConversationScorer (class in wayflowcore.evaluation.conversationscorer)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ConversationSpan">ConversationSpan (class in wayflowcore.tracing.span)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.cookies">cookies (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.copy">copy() (wayflowcore.messagelist.Message method)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageList.copy">(wayflowcore.messagelist.MessageList method)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.property.Property.copy">(wayflowcore.property.Property method)</a>
+</li>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.copy">(wayflowcore.templates.template.PromptTemplate method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.Datastore.create">create() (wayflowcore.datastore.Datastore method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.flowhelpers.create_single_step_flow">create_single_step_flow (class in wayflowcore.flowhelpers)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreCreateNode.CREATED_ENTITY">CREATED_ENTITY (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreCreateNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreCreateStep.CREATED_ENTITY">(wayflowcore.steps.datastoresteps.DatastoreCreateStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.criteriascorer.CriteriaScorer.CRITERIA_DESCRIPTIONS">CRITERIA_DESCRIPTIONS (wayflowcore.evaluation.criteriascorer.CriteriaScorer attribute)</a>
+
+      <ul>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.CRITERIA_DESCRIPTIONS">(wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer attribute)</a>
+</li>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.CRITERIA_DESCRIPTIONS">(wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.criteriascorer.CriteriaScorer.CRITERIA_NAMES">CRITERIA_NAMES (wayflowcore.evaluation.criteriascorer.CriteriaScorer attribute)</a>
+
+      <ul>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.CRITERIA_NAMES">(wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer attribute)</a>
+</li>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.CRITERIA_NAMES">(wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.criteriascorer.CriteriaScorer">CriteriaScorer (class in wayflowcore.evaluation.criteriascorer)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.current_step_name">current_step_name (wayflowcore.conversation.Conversation property)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.custom_instruction">custom_instruction (wayflowcore.agent.Agent attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.StdioTransport.cwd">cwd (wayflowcore.mcp.StdioTransport attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.data">data (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.dataconnection.DataFlowEdge">DataFlowEdge (class in wayflowcore.dataconnection)</a>
+</li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.Datastore">Datastore (class in wayflowcore.datastore)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreCreateNode.datastore">datastore (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreCreateNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreDeleteNode.datastore">(wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreDeleteNode attribute)</a>
+</li>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode.datastore">(wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode attribute)</a>
+</li>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreQueryNode.datastore">(wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreQueryNode attribute)</a>
+</li>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode.datastore">(wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.inmemory_datastore.PluginInMemoryDatastore.datastore_schema">datastore_schema (wayflowcore.agentspec.components.datastores.inmemory_datastore.PluginInMemoryDatastore attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseDatastore.datastore_schema">(wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseDatastore attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreCreateStep">DatastoreCreateStep (class in wayflowcore.steps.datastoresteps)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreDeleteStep">DatastoreDeleteStep (class in wayflowcore.steps.datastoresteps)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreListStep">DatastoreListStep (class in wayflowcore.steps.datastoresteps)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreQueryStep">DatastoreQueryStep (class in wayflowcore.steps.datastoresteps)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreUpdateStep">DatastoreUpdateStep (class in wayflowcore.steps.datastoresteps)</a>
+</li>
+      <li>
+    Default
+
+      <ul>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-Default">command line option</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodel.LlmModel.default_agent_template">default_agent_template (wayflowcore.models.llmmodel.LlmModel property)</a>
+
+      <ul>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ocigenaimodel.OCIGenAIModel.default_agent_template">(wayflowcore.models.ocigenaimodel.OCIGenAIModel property)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ollamamodel.OllamaModel.default_agent_template">(wayflowcore.models.ollamamodel.OllamaModel property)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.vllmmodel.VllmModel.default_agent_template">(wayflowcore.models.vllmmodel.VllmModel property)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodel.LlmModel.default_chat_template">default_chat_template (wayflowcore.models.llmmodel.LlmModel property)</a>
+
+      <ul>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ocigenaimodel.OCIGenAIModel.default_chat_template">(wayflowcore.models.ocigenaimodel.OCIGenAIModel property)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ollamamodel.OllamaModel.default_chat_template">(wayflowcore.models.ollamamodel.OllamaModel property)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.vllmmodel.VllmModel.default_chat_template">(wayflowcore.models.vllmmodel.VllmModel property)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep.DEFAULT_CHOICE_SELECTION_TEMPLATE">DEFAULT_CHOICE_SELECTION_TEMPLATE (wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode.DEFAULT_EXCEPTION_BRANCH">DEFAULT_EXCEPTION_BRANCH (wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.catchexceptionstep.CatchExceptionStep.DEFAULT_EXCEPTION_BRANCH">(wayflowcore.steps.catchexceptionstep.CatchExceptionStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.DEFAULT_INITIAL_MESSAGE">DEFAULT_INITIAL_MESSAGE (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agent.html#wayflowcore.ociagent.OciAgent.DEFAULT_INITIAL_MESSAGE">(wayflowcore.ociagent.OciAgent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.getchathistorystep.GetChatHistoryStep.DEFAULT_OUTPUT_TEMPLATE">DEFAULT_OUTPUT_TEMPLATE (wayflowcore.steps.getchathistorystep.GetChatHistoryStep attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.default_ports">default_ports (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.criteriascorer.DEFAULT_SCORE_MAP">DEFAULT_SCORE_MAP (in module wayflowcore.evaluation.criteriascorer)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.taskscorer.TaskScorer.DEFAULT_SCORER_ID">DEFAULT_SCORER_ID (wayflowcore.evaluation.taskscorer.TaskScorer attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.Property.default_value">default_value (wayflowcore.property.Property attribute)</a>
+
+      <ul>
+        <li><a href="core/api/variables.html#wayflowcore.variable.Variable.default_value">(wayflowcore.variable.Variable attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.Datastore.delete">delete() (wayflowcore.datastore.Datastore method)</a>
+</li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.Datastore.describe">describe() (wayflowcore.datastore.Datastore method)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.tools.DescribedAgent">DescribedAgent (class in wayflowcore.tools)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.tools.DescribedFlow">DescribedFlow (class in wayflowcore.tools)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.description">description (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationTask.description">(wayflowcore.evaluation.assistantevaluator.EvaluationTask attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.managerworkers.ManagerWorkers.description">(wayflowcore.managerworkers.ManagerWorkers attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.ociagent.OciAgent.description">(wayflowcore.ociagent.OciAgent attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.property.Property.description">(wayflowcore.property.Property attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm.description">(wayflowcore.swarm.Swarm attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.clienttools.ClientTool.description">(wayflowcore.tools.clienttools.ClientTool attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.tools.DescribedAgent.description">(wayflowcore.tools.DescribedAgent attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.tools.DescribedFlow.description">(wayflowcore.tools.DescribedFlow attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.description">(wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.description">(wayflowcore.tools.servertools.ServerTool attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/serialization.html#wayflowcore.serialization.serializer.deserialize">deserialize() (in module wayflowcore.serialization.serializer)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.deserialize_time_created">deserialize_time_created() (wayflowcore.agentspec.components.messagelist.PluginMessage class method)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.deserialize_time_updated">deserialize_time_updated() (wayflowcore.agentspec.components.messagelist.PluginMessage class method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.dataconnection.DataFlowEdge.destination_input">destination_input (wayflowcore.dataconnection.DataFlowEdge attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.controlconnection.ControlFlowEdge.destination_step">destination_step (wayflowcore.controlconnection.ControlFlowEdge attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.dataconnection.DataFlowEdge.destination_step">(wayflowcore.dataconnection.DataFlowEdge attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.property.DictProperty">DictProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.display_only">display_only (wayflowcore.agentspec.components.messagelist.PluginMessage attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.display_only">(wayflowcore.messagelist.Message attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageType.DISPLAY_ONLY">DISPLAY_ONLY (wayflowcore.messagelist.MessageType attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig.dsn">dsn (wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig.dsn">(wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+        <li><a href="core/api/datastores.html#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.dsn">(wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+        <li><a href="core/api/datastores.html#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.dsn">(wayflowcore.datastore.TlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/embeddingmodels.html#wayflowcore.embeddingmodels.embeddingmodel.EmbeddingModel.embed">embed() (wayflowcore.embeddingmodels.embeddingmodel.EmbeddingModel method)</a>
+
+      <ul>
+        <li><a href="core/api/embeddingmodels.html#wayflowcore.embeddingmodels.ocigenaimodel.OCIGenAIEmbeddingModel.embed">(wayflowcore.embeddingmodels.ocigenaimodel.OCIGenAIEmbeddingModel method)</a>
+</li>
+        <li><a href="core/api/embeddingmodels.html#wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel.embed">(wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/embeddingmodels.html#wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel.embed_async">embed_async() (wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel method)</a>
+</li>
+      <li><a href="core/api/embeddingmodels.html#wayflowcore.embeddingmodels.embeddingmodel.EmbeddingModel">EmbeddingModel (class in wayflowcore.embeddingmodels.embeddingmodel)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.Property.empty_default">empty_default (wayflowcore.property.Property attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.enable_mcp_without_auth">enable_mcp_without_auth() (in module wayflowcore.mcp)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.StdioTransport.encoding">encoding (wayflowcore.mcp.StdioTransport attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.StdioTransport.encoding_error_handler">encoding_error_handler (wayflowcore.mcp.StdioTransport attribute)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.Span.end">end() (wayflowcore.tracing.span.Span method)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.Span.end_time">end_time (wayflowcore.tracing.span.Span attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode.ENTITIES">ENTITIES (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode.ENTITIES">(wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreListStep.ENTITIES">(wayflowcore.steps.datastoresteps.DatastoreListStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreUpdateStep.ENTITIES">(wayflowcore.steps.datastoresteps.DatastoreUpdateStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.Entity">Entity (class in wayflowcore.datastore)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreCreateNode.ENTITY">ENTITY (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreCreateNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreCreateStep.ENTITY">(wayflowcore.steps.datastoresteps.DatastoreCreateStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.property.Property.enum">enum (wayflowcore.property.Property attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.StdioTransport.env">env (wayflowcore.mcp.StdioTransport attribute)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageType.ERROR">ERROR (wayflowcore.messagelist.MessageType attribute)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment">EvaluationEnvironment (class in wayflowcore.evaluation.assistantevaluator)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationTask">EvaluationTask (class in wayflowcore.evaluation.assistantevaluator)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.Event">Event (class in wayflowcore.events.event)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.Event.event_id">event_id (wayflowcore.events.event.Event attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/events.html#wayflowcore.events.eventlistener.EventListener">EventListener (class in wayflowcore.events.eventlistener)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.Span.events">events (wayflowcore.tracing.span.Span attribute)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.tokenusage.TokenUsage.exact_count">exact_count (wayflowcore.tokenusage.TokenUsage attribute)</a>
+</li>
+      <li>
+    Example:
+
+      <ul>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-Example">command line option</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode.except_on">except_on (wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode.EXCEPTION_NAME_OUTPUT_NAME">EXCEPTION_NAME_OUTPUT_NAME (wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.catchexceptionstep.CatchExceptionStep.EXCEPTION_NAME_OUTPUT_NAME">(wayflowcore.steps.catchexceptionstep.CatchExceptionStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode.EXCEPTION_PAYLOAD_OUTPUT_NAME">EXCEPTION_PAYLOAD_OUTPUT_NAME (wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.catchexceptionstep.CatchExceptionStep.EXCEPTION_PAYLOAD_OUTPUT_NAME">(wayflowcore.steps.catchexceptionstep.CatchExceptionStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.execute">execute() (wayflowcore.conversation.Conversation method)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent.execute">(wayflowcore.conversationalcomponent.ConversationalComponent method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.execute_async">execute_async() (wayflowcore.conversation.Conversation method)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent.execution_status">execution_status (wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent attribute)</a>
+</li>
+      <li><a href="core/api/interrupts.html#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt">ExecutionInterrupt (class in wayflowcore.executors.interrupts.executioninterrupt)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus">ExecutionStatus (class in wayflowcore.executors.executionstatus)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.executor">executor (wayflowcore.agent.Agent property)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.spanexporter.SpanExporter.export">export() (wayflowcore.tracing.spanexporter.SpanExporter method)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginOutputMessageNode.expose_message_as_output">expose_message_as_output (wayflowcore.agentspec.components.nodes.PluginOutputMessageNode attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.agent.ExtendedAgent">ExtendedAgent (class in wayflowcore.agentspec.components.agent)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.flow.ExtendedFlow">ExtendedFlow (class in wayflowcore.agentspec.components.flow)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedLlmNode">ExtendedLlmNode (class in wayflowcore.agentspec.components.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedMapNode">ExtendedMapNode (class in wayflowcore.agentspec.components.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedToolNode">ExtendedToolNode (class in wayflowcore.agentspec.components.nodes)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.extra_args">extra_args (wayflowcore.models.llmgenerationconfig.LlmGenerationConfig attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.textextractionstep.extractvaluefromjsonstep.ExtractValueFromJsonStep">ExtractValueFromJsonStep (class in wayflowcore.steps.textextractionstep.extractvaluefromjsonstep)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/conversation.html#wayflowcore.executors.executionstatus.FinishedStatus">FinishedStatus (class in wayflowcore.executors.executionstatus)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.swarm.PluginSwarm.first_agent">first_agent (wayflowcore.agentspec.components.swarm.PluginSwarm attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm.first_agent">(wayflowcore.swarm.Swarm attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginRegexPattern.flags">flags (wayflowcore.agentspec.components.outputparser.PluginRegexPattern attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.RegexPattern.flags">(wayflowcore.outputparser.RegexPattern attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.property.FloatProperty">FloatProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.flow.Flow">Flow (class in wayflowcore.flow)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedMapNode.flow">flow (wayflowcore.agentspec.components.nodes.ExtendedMapNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode.flow">(wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.tools.DescribedFlow.flow">(wayflowcore.tools.DescribedFlow attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.flow.Flow.flow_id">flow_id (wayflowcore.flow.Flow property)</a>
+</li>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider">FlowContextProvider (class in wayflowcore.contextproviders.flowcontextprovider)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.flowexecutionstep.FlowExecutionStep">FlowExecutionStep (class in wayflowcore.steps.flowexecutionstep)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.flows">flows (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.agent.ExtendedAgent.flows">(wayflowcore.agentspec.components.agent.ExtendedAgent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.spanexporter.SpanExporter.force_flush">force_flush() (wayflowcore.tracing.spanexporter.SpanExporter method)</a>
+
+      <ul>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SimpleSpanProcessor.force_flush">(wayflowcore.tracing.spanprocessor.SimpleSpanProcessor method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SpanProcessor.force_flush">(wayflowcore.tracing.spanprocessor.SpanProcessor method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.format">format() (wayflowcore.templates.template.PromptTemplate method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/flows.html#wayflowcore.steps.templaterenderingstep.TemplateRenderingStep.format_template">format_template() (wayflowcore.steps.templaterenderingstep.TemplateRenderingStep class method)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.frequency_penalty">frequency_penalty (wayflowcore.models.llmgenerationconfig.LlmGenerationConfig attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.from_any">from_any() (wayflowcore.tools.servertools.ServerTool class method)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodelfactory.LlmModelFactory.from_config">from_config() (wayflowcore.models.llmmodelfactory.LlmModelFactory static method)</a>
+
+      <ul>
+        <li><a href="core/api/agent.html#wayflowcore.tools.DescribedAgent.from_config">(wayflowcore.tools.DescribedAgent static method)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.tools.DescribedFlow.from_config">(wayflowcore.tools.DescribedFlow static method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.from_dict">from_dict() (wayflowcore.models.llmgenerationconfig.LlmGenerationConfig static method)</a>
+
+      <ul>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig.from_dict">(wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig class method)</a>
+</li>
+        <li><a href="core/api/variables.html#wayflowcore.variable.Variable.from_dict">(wayflowcore.variable.Variable class method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.from_flow">from_flow() (wayflowcore.tools.servertools.ServerTool class method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.Property.from_json_schema">from_json_schema() (wayflowcore.property.Property static method)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.from_langchain">from_langchain() (wayflowcore.tools.servertools.ServerTool class method)</a>
+</li>
+      <li><a href="core/api/variables.html#wayflowcore.variable.Variable.from_property">from_property() (wayflowcore.variable.Variable class method)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.from_step">from_step() (wayflowcore.tools.servertools.ServerTool class method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.flow.Flow.from_steps">from_steps() (wayflowcore.flow.Flow static method)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginRegexPattern.from_str">from_str() (wayflowcore.agentspec.components.outputparser.PluginRegexPattern static method)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.RegexPattern.from_str">(wayflowcore.outputparser.RegexPattern static method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.from_string">from_string() (wayflowcore.templates.template.PromptTemplate class method)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.func">func (wayflowcore.tools.servertools.ServerTool attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodel.LlmModel.generate">generate() (wayflowcore.models.llmmodel.LlmModel method)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodel.LlmModel.generate_async">generate_async() (wayflowcore.models.llmmodel.LlmModel method)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.generation_config">generation_config (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.generation_config">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li>
+    generation_config:
+
+      <ul>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-generation_config">command line option</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/events.html#wayflowcore.events.eventlistener.GenericEventListener">GenericEventListener (class in wayflowcore.events.eventlistener)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.get_active_span_stack">get_active_span_stack() (in module wayflowcore.tracing.span)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.get_assistant">get_assistant() (wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.get_branches">get_branches() (wayflowcore.steps.step.Step method)</a>
+</li>
+      <li><a href="core/api/serialization.html#wayflowcore.serialization.serializer.SerializableObject.get_component">get_component() (wayflowcore.serialization.serializer.SerializableObject class method)</a>
+</li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.OracleDatabaseConnectionConfig.get_connection">get_connection() (wayflowcore.datastore.OracleDatabaseConnectionConfig method)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.get_current_span">get_current_span() (in module wayflowcore.tracing.span)</a>
+</li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.Entity.get_entity_defaults">get_entity_defaults() (wayflowcore.datastore.Entity method)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.eventlistener.get_event_listeners">get_event_listeners() (in module wayflowcore.events.eventlistener)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.get_human_proxy">get_human_proxy() (wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment method)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.get_last_message">get_last_message() (wayflowcore.conversation.Conversation method)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageList.get_last_message">(wayflowcore.messagelist.MessageList method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.get_messages">get_messages() (wayflowcore.conversation.Conversation method)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageList.get_messages">(wayflowcore.messagelist.MessageList method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider.get_output_descriptors">get_output_descriptors() (wayflowcore.contextproviders.contextprovider.ContextProvider method)</a>
+
+      <ul>
+        <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.get_output_descriptors">(wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider method)</a>
+</li>
+        <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.get_output_descriptors">(wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.property.Property.get_python_type_str">get_python_type_str() (wayflowcore.property.Property method)</a>
+</li>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider.get_static_configuration_descriptors">get_static_configuration_descriptors() (wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider class method)</a>
+
+      <ul>
+        <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider.get_static_configuration_descriptors">(wayflowcore.contextproviders.contextprovider.ContextProvider class method)</a>
+</li>
+        <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.get_static_configuration_descriptors">(wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider class method)</a>
+</li>
+        <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.get_static_configuration_descriptors">(wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider class method)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.get_static_configuration_descriptors">(wayflowcore.steps.step.Step class method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.MCPToolBox.get_tools">get_tools() (wayflowcore.mcp.MCPToolBox method)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.MCPToolBox.get_tools_async">get_tools_async() (wayflowcore.mcp.MCPToolBox method)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodel.LlmModel.get_total_token_consumption">get_total_token_consumption() (wayflowcore.models.llmmodel.LlmModel method)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.trace.get_trace">get_trace() (in module wayflowcore.tracing.trace)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.DictProperty.get_type_str">get_type_str() (wayflowcore.property.DictProperty method)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.property.ListProperty.get_type_str">(wayflowcore.property.ListProperty method)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.property.ObjectProperty.get_type_str">(wayflowcore.property.ObjectProperty method)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.property.Property.get_type_str">(wayflowcore.property.Property method)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.property.UnionProperty.get_type_str">(wayflowcore.property.UnionProperty method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.getchathistorystep.GetChatHistoryStep">GetChatHistoryStep (class in wayflowcore.steps.getchathistorystep)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.managerworkers.ManagerWorkers.group_manager">group_manager (wayflowcore.managerworkers.ManagerWorkers attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.swarm.PluginSwarm.handoff">handoff (wayflowcore.agentspec.components.swarm.PluginSwarm attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm.handoff">(wayflowcore.swarm.Swarm attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.property.Property.has_default">has_default (wayflowcore.property.Property property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.headers">headers (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.apicallstep.ApiCallStep.HTTP_RESPONSE">HTTP_RESPONSE (wayflowcore.steps.apicallstep.ApiCallStep attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.apicallstep.ApiCallStep.HTTP_STATUS_CODE">HTTP_STATUS_CODE (wayflowcore.steps.apicallstep.ApiCallStep attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.id">id (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agent.html#wayflowcore.managerworkers.ManagerWorkers.id">(wayflowcore.managerworkers.ManagerWorkers attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.ociagent.OciAgent.id">(wayflowcore.ociagent.OciAgent attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm.id">(wayflowcore.swarm.Swarm attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.ignore_bad_http_requests">ignore_bad_http_requests (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.init_env">init_env() (wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment method)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.initial_message">initial_message (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.agent.ExtendedAgent.initial_message">(wayflowcore.agentspec.components.agent.ExtendedAgent attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.ociagent.OciAgent.initial_message">(wayflowcore.ociagent.OciAgent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.InMemoryDatastore">InMemoryDatastore (class in wayflowcore.datastore)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep.INPUT">INPUT (wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep attribute)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.input_descriptors">input_descriptors (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agent.html#wayflowcore.managerworkers.ManagerWorkers.input_descriptors">(wayflowcore.managerworkers.ManagerWorkers attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm.input_descriptors">(wayflowcore.swarm.Swarm attribute)</a>
+</li>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.input_descriptors">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.clienttools.ClientTool.input_descriptors">(wayflowcore.tools.clienttools.ClientTool attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.input_descriptors">(wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.input_descriptors">(wayflowcore.tools.servertools.ServerTool attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.agentexecutionstep.AgentExecutionStep.input_mapping">input_mapping (wayflowcore.steps.agentexecutionstep.AgentExecutionStep attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.apicallstep.ApiCallStep.input_mapping">(wayflowcore.steps.apicallstep.ApiCallStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.branchingstep.BranchingStep.input_mapping">(wayflowcore.steps.branchingstep.BranchingStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.catchexceptionstep.CatchExceptionStep.input_mapping">(wayflowcore.steps.catchexceptionstep.CatchExceptionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep.input_mapping">(wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.completestep.CompleteStep.input_mapping">(wayflowcore.steps.completestep.CompleteStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.ConstantValuesStep.input_mapping">(wayflowcore.steps.ConstantValuesStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreCreateStep.input_mapping">(wayflowcore.steps.datastoresteps.DatastoreCreateStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreDeleteStep.input_mapping">(wayflowcore.steps.datastoresteps.DatastoreDeleteStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreListStep.input_mapping">(wayflowcore.steps.datastoresteps.DatastoreListStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreQueryStep.input_mapping">(wayflowcore.steps.datastoresteps.DatastoreQueryStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreUpdateStep.input_mapping">(wayflowcore.steps.datastoresteps.DatastoreUpdateStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.flowexecutionstep.FlowExecutionStep.input_mapping">(wayflowcore.steps.flowexecutionstep.FlowExecutionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.getchathistorystep.GetChatHistoryStep.input_mapping">(wayflowcore.steps.getchathistorystep.GetChatHistoryStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.inputmessagestep.InputMessageStep.input_mapping">(wayflowcore.steps.inputmessagestep.InputMessageStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.mapstep.MapStep.input_mapping">(wayflowcore.steps.mapstep.MapStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.outputmessagestep.OutputMessageStep.input_mapping">(wayflowcore.steps.outputmessagestep.OutputMessageStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.promptexecutionstep.PromptExecutionStep.input_mapping">(wayflowcore.steps.promptexecutionstep.PromptExecutionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.retrystep.RetryStep.input_mapping">(wayflowcore.steps.retrystep.RetryStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.startstep.StartStep.input_mapping">(wayflowcore.steps.startstep.StartStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.templaterenderingstep.TemplateRenderingStep.input_mapping">(wayflowcore.steps.templaterenderingstep.TemplateRenderingStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.textextractionstep.extractvaluefromjsonstep.ExtractValueFromJsonStep.input_mapping">(wayflowcore.steps.textextractionstep.extractvaluefromjsonstep.ExtractValueFromJsonStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep.input_mapping">(wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.toolexecutionstep.ToolExecutionStep.input_mapping">(wayflowcore.steps.toolexecutionstep.ToolExecutionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep.input_mapping">(wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.variablesteps.variablewritestep.VariableWriteStep.input_mapping">(wayflowcore.steps.variablesteps.variablewritestep.VariableWriteStep attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/llmmodels.html#wayflowcore.tokenusage.TokenUsage.input_tokens">input_tokens (wayflowcore.tokenusage.TokenUsage attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.inputmessagestep.InputMessageStep">InputMessageStep (class in wayflowcore.steps.inputmessagestep)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.inputs">inputs (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.inputs">(wayflowcore.conversation.Conversation attribute)</a>
+</li>
+        <li><a href="core/api/events.html#wayflowcore.events.event.ConversationCreatedEvent.inputs">(wayflowcore.events.event.ConversationCreatedEvent attribute)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.StepInvocationSpan.inputs">(wayflowcore.tracing.span.StepInvocationSpan attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/variables.html#wayflowcore.variable.VariableWriteOperation.INSERT">INSERT (wayflowcore.variable.VariableWriteOperation attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.IntegerProperty">IntegerProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageType.INTERNAL">INTERNAL (wayflowcore.messagelist.MessageType attribute)</a>
+</li>
+      <li><a href="core/api/interrupts.html#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus">InterruptedExecutionStatus (class in wayflowcore.executors.interrupts.executioninterrupt)</a>
+</li>
+      <li><a href="core/api/interrupts.html#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.interrupter">interrupter (wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.invoke">invoke() (wayflowcore.steps.step.Step method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.invoke_async">invoke_async() (wayflowcore.steps.step.Step method)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.is_error">is_error (wayflowcore.messagelist.Message property)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.Property.is_value_of_expected_type">is_value_of_expected_type() (wayflowcore.property.Property method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.ListProperty.item_type">item_type (wayflowcore.property.ListProperty attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedMapNode.ITERATED_INPUT">ITERATED_INPUT (wayflowcore.agentspec.components.nodes.ExtendedMapNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.mapstep.MapStep.ITERATED_INPUT">(wayflowcore.steps.mapstep.MapStep attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.json_body">json_body (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/flows.html#wayflowcore.steps.promptexecutionstep.PromptExecutionStep.JSON_CONSTRAINED_GENERATION_PROMPT">JSON_CONSTRAINED_GENERATION_PROMPT (wayflowcore.steps.promptexecutionstep.PromptExecutionStep attribute)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.JsonOutputParser">JsonOutputParser (class in wayflowcore.outputparser)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/flows.html#wayflowcore.property.DictProperty.key_type">key_type (wayflowcore.property.DictProperty attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode.limit">limit (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode attribute)</a>
+</li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.Datastore.list">list() (wayflowcore.datastore.Datastore method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.ListProperty">ListProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.llm">llm (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/events.html#wayflowcore.events.event.LlmGenerationRequestEvent.llm">(wayflowcore.events.event.LlmGenerationRequestEvent attribute)</a>
+</li>
+        <li><a href="core/api/events.html#wayflowcore.events.event.LlmGenerationResponseEvent.llm">(wayflowcore.events.event.LlmGenerationResponseEvent attribute)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.LlmGenerationSpan.llm">(wayflowcore.tracing.span.LlmGenerationSpan attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginExtractNode.llm_config">llm_config (wayflowcore.agentspec.components.nodes.PluginExtractNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginInputMessageNode.llm_config">(wayflowcore.agentspec.components.nodes.PluginInputMessageNode attribute)</a>
+</li>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginOutputMessageNode.llm_config">(wayflowcore.agentspec.components.nodes.PluginOutputMessageNode attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep.LLM_OUTPUT">LLM_OUTPUT (wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep attribute)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig">LlmGenerationConfig (class in wayflowcore.models.llmgenerationconfig)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/events.html#wayflowcore.events.event.LlmGenerationRequestEvent">LlmGenerationRequestEvent (class in wayflowcore.events.event)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.LlmGenerationResponseEvent">LlmGenerationResponseEvent (class in wayflowcore.events.event)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.LlmGenerationSpan">LlmGenerationSpan (class in wayflowcore.tracing.span)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodel.LlmModel">LlmModel (class in wayflowcore.models.llmmodel)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodelfactory.LlmModelFactory">LlmModelFactory (class in wayflowcore.models.llmmodelfactory)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.llms">llms (wayflowcore.agent.Agent property)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent.llms">(wayflowcore.conversationalcomponent.ConversationalComponent property)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.flow.Flow.llms">(wayflowcore.flow.Flow property)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.llms">(wayflowcore.steps.step.Step property)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.runtimeloader.AgentSpecLoader.load_component">load_component() (wayflowcore.agentspec.runtimeloader.AgentSpecLoader method)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.runtimeloader.AgentSpecLoader.load_json">load_json() (wayflowcore.agentspec.runtimeloader.AgentSpecLoader method)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.runtimeloader.AgentSpecLoader.load_yaml">load_yaml() (wayflowcore.agentspec.runtimeloader.AgentSpecLoader method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agent.html#wayflowcore.managerworkers.ManagerWorkers">ManagerWorkers (class in wayflowcore.managerworkers)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.managerworkers.ManagerWorkers.managerworkers_template">managerworkers_template (wayflowcore.managerworkers.ManagerWorkers attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.mapstep.MapStep">MapStep (class in wayflowcore.steps.mapstep)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginRegexPattern.match">match (wayflowcore.agentspec.components.outputparser.PluginRegexPattern attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.RegexPattern.match">(wayflowcore.outputparser.RegexPattern attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.max_iterations">max_iterations (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.agent.ExtendedAgent.max_iterations">(wayflowcore.agentspec.components.agent.ExtendedAgent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.retrystep.RetryStep.MAX_RETRY">MAX_RETRY (wayflowcore.steps.retrystep.RetryStep attribute)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.max_tokens">max_tokens (wayflowcore.models.llmgenerationconfig.LlmGenerationConfig attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.MCPTool">MCPTool (class in wayflowcore.mcp)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.MCPToolBox">MCPToolBox (class in wayflowcore.mcp)</a>
+</li>
+      <li><a href="core/api/variables.html#wayflowcore.variable.VariableWriteOperation.MERGE">MERGE (wayflowcore.variable.VariableWriteOperation attribute)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.merge_config">merge_config() (wayflowcore.models.llmgenerationconfig.LlmGenerationConfig method)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message">Message (class in wayflowcore.messagelist)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginOutputMessageNode.message">message (wayflowcore.agentspec.components.nodes.PluginOutputMessageNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/events.html#wayflowcore.events.event.ConversationMessageAddedEvent.message">(wayflowcore.events.event.ConversationMessageAddedEvent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.message_list">message_list (wayflowcore.conversation.Conversation attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginInputMessageNode.message_template">message_template (wayflowcore.agentspec.components.nodes.PluginInputMessageNode attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginOutputMessageNode.message_type">message_type (wayflowcore.agentspec.components.nodes.PluginOutputMessageNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.message_type">(wayflowcore.messagelist.Message property)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider.message_types">message_types (wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider property)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageList">MessageList (class in wayflowcore.messagelist)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/flows.html#wayflowcore.property.MessageProperty">MessageProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.messages">messages (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/events.html#wayflowcore.events.event.ConversationCreatedEvent.messages">(wayflowcore.events.event.ConversationCreatedEvent attribute)</a>
+</li>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageList.messages">(wayflowcore.messagelist.MessageList attribute)</a>
+</li>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.messages">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.transforms.MessageTransform">MessageTransform (class in wayflowcore.transforms)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageType">MessageType (class in wayflowcore.messagelist)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.method">method (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.might_yield">might_yield (wayflowcore.agent.Agent property)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.flow.Flow.might_yield">(wayflowcore.flow.Flow property)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.agentexecutionstep.AgentExecutionStep.might_yield">(wayflowcore.steps.agentexecutionstep.AgentExecutionStep property)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.catchexceptionstep.CatchExceptionStep.might_yield">(wayflowcore.steps.catchexceptionstep.CatchExceptionStep property)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.flowexecutionstep.FlowExecutionStep.might_yield">(wayflowcore.steps.flowexecutionstep.FlowExecutionStep property)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.inputmessagestep.InputMessageStep.might_yield">(wayflowcore.steps.inputmessagestep.InputMessageStep property)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.mapstep.MapStep.might_yield">(wayflowcore.steps.mapstep.MapStep property)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.retrystep.RetryStep.might_yield">(wayflowcore.steps.retrystep.RetryStep property)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.might_yield">(wayflowcore.steps.step.Step property)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.toolexecutionstep.ToolExecutionStep.might_yield">(wayflowcore.steps.toolexecutionstep.ToolExecutionStep property)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.clienttools.ClientTool.might_yield">(wayflowcore.tools.clienttools.ClientTool property)</a>
+</li>
+      </ul></li>
+      <li>
+    model_id:
+
+      <ul>
+        <li><a href="core/howtoguides/embeddingmodels_from_different_providers.html#cmdoption-arg-model_id">command line option</a>, <a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-model_id">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig">MTlsOracleDatabaseConnectionConfig (class in wayflowcore.datastore)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider.n">n (wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider property)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.name">name (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/events.html#wayflowcore.events.event.Event.name">(wayflowcore.events.event.Event attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.managerworkers.ManagerWorkers.name">(wayflowcore.managerworkers.ManagerWorkers attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.ociagent.OciAgent.name">(wayflowcore.ociagent.OciAgent attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.property.Property.name">(wayflowcore.property.Property attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm.name">(wayflowcore.swarm.Swarm attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.clienttools.ClientTool.name">(wayflowcore.tools.clienttools.ClientTool attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.tools.DescribedAgent.name">(wayflowcore.tools.DescribedAgent attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.tools.DescribedFlow.name">(wayflowcore.tools.DescribedFlow attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.name">(wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.name">(wayflowcore.tools.servertools.ServerTool attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.tools.ToolRequest.name">(wayflowcore.tools.tools.ToolRequest attribute)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.Span.name">(wayflowcore.tracing.span.Span attribute)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.trace.Trace.name">(wayflowcore.tracing.trace.Trace attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.native_structured_generation">native_structured_generation (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.native_structured_generation">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.native_tool_calling">native_tool_calling (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.native_tool_calling">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.ConversationCreatedEvent.nesting_level">nesting_level (wayflowcore.events.event.ConversationCreatedEvent attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.branchingstep.BranchingStep.NEXT_BRANCH_NAME">NEXT_BRANCH_NAME (wayflowcore.steps.branchingstep.BranchingStep attribute)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.NOT_SET_INITIAL_MESSAGE">NOT_SET_INITIAL_MESSAGE (wayflowcore.agent.Agent attribute)</a>
+</li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.nullable">nullable (class in wayflowcore.datastore)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.NullProperty">NullProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.retrystep.RetryStep.NUM_RETRIES_VAR">NUM_RETRIES_VAR (wayflowcore.steps.retrystep.RetryStep attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.num_retry_on_bad_http_request">num_retry_on_bad_http_request (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/flows.html#wayflowcore.property.ObjectProperty">ObjectProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.ociagent.OciAgent">OciAgent (class in wayflowcore.ociagent)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIClientConfigWithApiKey">OCIClientConfigWithApiKey (class in wayflowcore.models.ociclientconfig)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIClientConfigWithInstancePrincipal">OCIClientConfigWithInstancePrincipal (class in wayflowcore.models.ociclientconfig)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIClientConfigWithResourcePrincipal">OCIClientConfigWithResourcePrincipal (class in wayflowcore.models.ociclientconfig)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIClientConfigWithSecurityToken">OCIClientConfigWithSecurityToken (class in wayflowcore.models.ociclientconfig)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIClientConfigWithUserAuthentication">OCIClientConfigWithUserAuthentication (class in wayflowcore.models.ociclientconfig)</a>
+</li>
+      <li><a href="core/api/embeddingmodels.html#wayflowcore.embeddingmodels.ocigenaimodel.OCIGenAIEmbeddingModel">OCIGenAIEmbeddingModel (class in wayflowcore.embeddingmodels.ocigenaimodel)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.ocigenaimodel.OCIGenAIModel">OCIGenAIModel (class in wayflowcore.models.ocigenaimodel)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig">OCIUserAuthenticationConfig (class in wayflowcore.models.ociclientconfig)</a>
+</li>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider.offset">offset (wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider property)</a>
+</li>
+      <li><a href="core/api/embeddingmodels.html#wayflowcore.embeddingmodels.ollamamodel.OllamaEmbeddingModel">OllamaEmbeddingModel (class in wayflowcore.embeddingmodels.ollamamodel)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.ollamamodel.OllamaModel">OllamaModel (class in wayflowcore.models.ollamamodel)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SimpleSpanProcessor.on_end">on_end() (wayflowcore.tracing.spanprocessor.SimpleSpanProcessor method)</a>
+
+      <ul>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SpanProcessor.on_end">(wayflowcore.tracing.spanprocessor.SpanProcessor method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/interrupts.html#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt.on_event">on_event() (wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt method)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SimpleSpanProcessor.on_start">on_start() (wayflowcore.tracing.spanprocessor.SimpleSpanProcessor method)</a>
+
+      <ul>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SpanProcessor.on_start">(wayflowcore.tracing.spanprocessor.SpanProcessor method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/embeddingmodels.html#wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel">OpenAICompatibleEmbeddingModel (class in wayflowcore.embeddingmodels.openaicompatiblemodel)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.openaicompatiblemodel.OpenAICompatibleModel">OpenAICompatibleModel (class in wayflowcore.models.openaicompatiblemodel)</a>
+</li>
+      <li><a href="core/api/embeddingmodels.html#wayflowcore.embeddingmodels.openaimodel.OpenAIEmbeddingModel">OpenAIEmbeddingModel (class in wayflowcore.embeddingmodels.openaimodel)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.openaimodel.OpenAIModel">OpenAIModel (class in wayflowcore.models.openaimodel)</a>
+</li>
+      <li>
+    optional
+
+      <ul>
+        <li><a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-client_config">command line option</a>, <a href="core/howtoguides/llm_from_different_providers.html#cmdoption-arg-generation_config">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.OracleDatabaseConnectionConfig">OracleDatabaseConnectionConfig (class in wayflowcore.datastore)</a>
+</li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.OracleDatabaseDatastore">OracleDatabaseDatastore (class in wayflowcore.datastore)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.opentelemetry.spanprocessor.OtelBatchSpanProcessor">OtelBatchSpanProcessor (class in wayflowcore.tracing.opentelemetry.spanprocessor)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.opentelemetry.spanprocessor.OtelSimpleSpanProcessor">OtelSimpleSpanProcessor (class in wayflowcore.tracing.opentelemetry.spanprocessor)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedLlmNode.OUTPUT">OUTPUT (wayflowcore.agentspec.components.nodes.ExtendedLlmNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginOutputMessageNode.OUTPUT">(wayflowcore.agentspec.components.nodes.PluginOutputMessageNode attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.outputmessagestep.OutputMessageStep.OUTPUT">(wayflowcore.steps.outputmessagestep.OutputMessageStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.promptexecutionstep.PromptExecutionStep.OUTPUT">(wayflowcore.steps.promptexecutionstep.PromptExecutionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.templaterenderingstep.TemplateRenderingStep.OUTPUT">(wayflowcore.steps.templaterenderingstep.TemplateRenderingStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep.OUTPUT">(wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agent.html#wayflowcore.tools.DescribedFlow.output">output (wayflowcore.tools.DescribedFlow attribute)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.output_descriptors">output_descriptors (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider.output_descriptors">(wayflowcore.contextproviders.contextprovider.ContextProvider property)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.managerworkers.ManagerWorkers.output_descriptors">(wayflowcore.managerworkers.ManagerWorkers attribute)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm.output_descriptors">(wayflowcore.swarm.Swarm attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.clienttools.ClientTool.output_descriptors">(wayflowcore.tools.clienttools.ClientTool attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.output_descriptors">(wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+        <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.output_descriptors">(wayflowcore.tools.servertools.ServerTool attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.output_jq_query">output_jq_query (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.agentexecutionstep.AgentExecutionStep.output_mapping">output_mapping (wayflowcore.steps.agentexecutionstep.AgentExecutionStep attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.apicallstep.ApiCallStep.output_mapping">(wayflowcore.steps.apicallstep.ApiCallStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.branchingstep.BranchingStep.output_mapping">(wayflowcore.steps.branchingstep.BranchingStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.catchexceptionstep.CatchExceptionStep.output_mapping">(wayflowcore.steps.catchexceptionstep.CatchExceptionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep.output_mapping">(wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.completestep.CompleteStep.output_mapping">(wayflowcore.steps.completestep.CompleteStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.ConstantValuesStep.output_mapping">(wayflowcore.steps.ConstantValuesStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreCreateStep.output_mapping">(wayflowcore.steps.datastoresteps.DatastoreCreateStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreDeleteStep.output_mapping">(wayflowcore.steps.datastoresteps.DatastoreDeleteStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreListStep.output_mapping">(wayflowcore.steps.datastoresteps.DatastoreListStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreQueryStep.output_mapping">(wayflowcore.steps.datastoresteps.DatastoreQueryStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreUpdateStep.output_mapping">(wayflowcore.steps.datastoresteps.DatastoreUpdateStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.flowexecutionstep.FlowExecutionStep.output_mapping">(wayflowcore.steps.flowexecutionstep.FlowExecutionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.getchathistorystep.GetChatHistoryStep.output_mapping">(wayflowcore.steps.getchathistorystep.GetChatHistoryStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.inputmessagestep.InputMessageStep.output_mapping">(wayflowcore.steps.inputmessagestep.InputMessageStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.mapstep.MapStep.output_mapping">(wayflowcore.steps.mapstep.MapStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.outputmessagestep.OutputMessageStep.output_mapping">(wayflowcore.steps.outputmessagestep.OutputMessageStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.promptexecutionstep.PromptExecutionStep.output_mapping">(wayflowcore.steps.promptexecutionstep.PromptExecutionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.retrystep.RetryStep.output_mapping">(wayflowcore.steps.retrystep.RetryStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.startstep.StartStep.output_mapping">(wayflowcore.steps.startstep.StartStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.templaterenderingstep.TemplateRenderingStep.output_mapping">(wayflowcore.steps.templaterenderingstep.TemplateRenderingStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.textextractionstep.extractvaluefromjsonstep.ExtractValueFromJsonStep.output_mapping">(wayflowcore.steps.textextractionstep.extractvaluefromjsonstep.ExtractValueFromJsonStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep.output_mapping">(wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.toolexecutionstep.ToolExecutionStep.output_mapping">(wayflowcore.steps.toolexecutionstep.ToolExecutionStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep.output_mapping">(wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.variablesteps.variablewritestep.VariableWriteStep.output_mapping">(wayflowcore.steps.variablesteps.variablewritestep.VariableWriteStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.taskscorer.TaskScorer.OUTPUT_METRICS">OUTPUT_METRICS (wayflowcore.evaluation.taskscorer.TaskScorer attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.output_parser">output_parser (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.output_parser">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider.output_template">output_template (wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider property)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.tokenusage.TokenUsage.output_tokens">output_tokens (wayflowcore.tokenusage.TokenUsage attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginExtractNode.output_values">output_values (wayflowcore.agentspec.components.nodes.PluginExtractNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.executors.executionstatus.FinishedStatus.output_values">(wayflowcore.executors.executionstatus.FinishedStatus attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.outputmessagestep.OutputMessageStep">OutputMessageStep (class in wayflowcore.steps.outputmessagestep)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.OutputParser">OutputParser (class in wayflowcore.outputparser)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.StepResult.outputs">outputs (wayflowcore.steps.step.StepResult attribute)</a>
+</li>
+      <li><a href="core/api/variables.html#wayflowcore.variable.VariableWriteOperation.OVERWRITE">OVERWRITE (wayflowcore.variable.VariableWriteOperation attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedMapNode.parallel_execution">parallel_execution (wayflowcore.agentspec.components.nodes.ExtendedMapNode attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.params">params (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.JsonOutputParser.parse_output">parse_output() (wayflowcore.outputparser.JsonOutputParser method)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.OutputParser.parse_output">(wayflowcore.outputparser.OutputParser method)</a>
+</li>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.RegexOutputParser.parse_output">(wayflowcore.outputparser.RegexOutputParser method)</a>
+</li>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.ToolOutputParser.parse_output">(wayflowcore.outputparser.ToolOutputParser method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.JsonOutputParser.parse_output_streaming">parse_output_streaming() (wayflowcore.outputparser.JsonOutputParser method)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.OutputParser.parse_output_streaming">(wayflowcore.outputparser.OutputParser method)</a>
+</li>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.RegexOutputParser.parse_output_streaming">(wayflowcore.outputparser.RegexOutputParser method)</a>
+</li>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.ToolOutputParser.parse_output_streaming">(wayflowcore.outputparser.ToolOutputParser method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.ToolOutputParser.parse_thoughts_and_calls">parse_thoughts_and_calls() (wayflowcore.outputparser.ToolOutputParser method)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.ToolOutputParser.parse_tool_request_from_str">parse_tool_request_from_str() (wayflowcore.outputparser.ToolOutputParser method)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig.password">password (wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig.password">(wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+        <li><a href="core/api/datastores.html#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.password">(wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+        <li><a href="core/api/datastores.html#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.password">(wayflowcore.datastore.TlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginRegexPattern.pattern">pattern (wayflowcore.agentspec.components.outputparser.PluginRegexPattern attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.RegexPattern.pattern">(wayflowcore.outputparser.RegexPattern attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.plan">plan (wayflowcore.conversation.Conversation property)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.transforms.PluginAppendTrailingSystemMessageToUserMessageTransform">PluginAppendTrailingSystemMessageToUserMessageTransform (class in wayflowcore.agentspec.components.transforms)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginCatchExceptionNode">PluginCatchExceptionNode (class in wayflowcore.agentspec.components.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.mcp.PluginClientTransport">PluginClientTransport (class in wayflowcore.agentspec.components.mcp)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.transforms.PluginCoalesceSystemMessagesTransform">PluginCoalesceSystemMessagesTransform (class in wayflowcore.agentspec.components.transforms)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.contextprovider.PluginContextProvider">PluginContextProvider (class in wayflowcore.agentspec.components.contextprovider)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.datastore.PluginDatastore">PluginDatastore (class in wayflowcore.agentspec.components.datastores.datastore)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreCreateNode">PluginDatastoreCreateNode (class in wayflowcore.agentspec.components.datastores.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreDeleteNode">PluginDatastoreDeleteNode (class in wayflowcore.agentspec.components.datastores.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode">PluginDatastoreListNode (class in wayflowcore.agentspec.components.datastores.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreQueryNode">PluginDatastoreQueryNode (class in wayflowcore.agentspec.components.datastores.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode">PluginDatastoreUpdateNode (class in wayflowcore.agentspec.components.datastores.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.entity.PluginEntity">PluginEntity (in module wayflowcore.agentspec.components.datastores.entity)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginExtractNode">PluginExtractNode (class in wayflowcore.agentspec.components.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginImageContent">PluginImageContent (class in wayflowcore.agentspec.components.messagelist)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.inmemory_datastore.PluginInMemoryDatastore">PluginInMemoryDatastore (class in wayflowcore.agentspec.components.datastores.inmemory_datastore)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginInputMessageNode">PluginInputMessageNode (class in wayflowcore.agentspec.components.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginJsonOutputParser">PluginJsonOutputParser (class in wayflowcore.agentspec.components.outputparser)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginJsonToolOutputParser">PluginJsonToolOutputParser (class in wayflowcore.agentspec.components.outputparser)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.transforms.PluginLlamaMergeToolRequestAndCallsTransform">PluginLlamaMergeToolRequestAndCallsTransform (class in wayflowcore.agentspec.components.transforms)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.mcp.PluginMCPToolBox">PluginMCPToolBox (class in wayflowcore.agentspec.components.mcp)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.mcp.PluginMCPToolSpec">PluginMCPToolSpec (class in wayflowcore.agentspec.components.mcp)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage">PluginMessage (class in wayflowcore.agentspec.components.messagelist)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig">PluginMTlsOracleDatabaseConnectionConfig (class in wayflowcore.agentspec.components.datastores.oracle_datastore)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseConnectionConfig">PluginOracleDatabaseConnectionConfig (class in wayflowcore.agentspec.components.datastores.oracle_datastore)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseDatastore">PluginOracleDatabaseDatastore (class in wayflowcore.agentspec.components.datastores.oracle_datastore)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginOutputMessageNode">PluginOutputMessageNode (class in wayflowcore.agentspec.components.nodes)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate">PluginPromptTemplate (class in wayflowcore.agentspec.components.template)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginPythonToolOutputParser">PluginPythonToolOutputParser (class in wayflowcore.agentspec.components.outputparser)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.transforms.PluginReactMergeToolRequestAndCallsTransform">PluginReactMergeToolRequestAndCallsTransform (class in wayflowcore.agentspec.components.transforms)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginReactToolOutputParser">PluginReactToolOutputParser (class in wayflowcore.agentspec.components.outputparser)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginRegexOutputParser">PluginRegexOutputParser (class in wayflowcore.agentspec.components.outputparser)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginRegexPattern">PluginRegexPattern (class in wayflowcore.agentspec.components.outputparser)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.relational_datastore.PluginRelationalDatastore">PluginRelationalDatastore (class in wayflowcore.agentspec.components.datastores.relational_datastore)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.transforms.PluginRemoveEmptyNonUserMessageTransform">PluginRemoveEmptyNonUserMessageTransform (class in wayflowcore.agentspec.components.transforms)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.mcp.PluginSSETransport">PluginSSETransport (class in wayflowcore.agentspec.components.mcp)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.swarm.PluginSwarm">PluginSwarm (class in wayflowcore.agentspec.components.swarm)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginTextContent">PluginTextContent (class in wayflowcore.agentspec.components.messagelist)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig">PluginTlsOracleDatabaseConnectionConfig (class in wayflowcore.agentspec.components.datastores.oracle_datastore)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.tools.PluginToolBox">PluginToolBox (class in wayflowcore.agentspec.components.tools)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginToolOutputParser">PluginToolOutputParser (class in wayflowcore.agentspec.components.outputparser)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.post_rendering_transforms">post_rendering_transforms (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.post_rendering_transforms">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.pre_rendering_transforms">pre_rendering_transforms (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.pre_rendering_transforms">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.LlmGenerationRequestEvent.prompt">prompt (wayflowcore.events.event.LlmGenerationRequestEvent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.LlmGenerationSpan.prompt">(wayflowcore.tracing.span.LlmGenerationSpan attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedLlmNode.prompt_template_object">prompt_template_object (wayflowcore.agentspec.components.nodes.ExtendedLlmNode attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.promptexecutionstep.PromptExecutionStep">PromptExecutionStep (class in wayflowcore.steps.promptexecutionstep)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate">PromptTemplate (class in wayflowcore.templates.template)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginJsonOutputParser.properties">properties (wayflowcore.agentspec.components.outputparser.PluginJsonOutputParser attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.JsonOutputParser.properties">(wayflowcore.outputparser.JsonOutputParser attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.property.ObjectProperty.properties">(wayflowcore.property.ObjectProperty attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.property.Property">Property (class in wayflowcore.property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreQueryNode.query">query (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreQueryNode attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.OracleDatabaseDatastore.query">query() (wayflowcore.datastore.OracleDatabaseDatastore method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedToolNode.raise_exceptions">raise_exceptions (wayflowcore.agentspec.components.nodes.ExtendedToolNode attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.SessionParameters.read_timeout_seconds">read_timeout_seconds (wayflowcore.mcp.SessionParameters attribute)</a>
+</li>
+      <li><a href="core/api/interrupts.html#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.reason">reason (wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.recipients">recipients (wayflowcore.agentspec.components.messagelist.PluginMessage attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.recipients">(wayflowcore.messagelist.Message attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ContextProviderExecutionSpan.record_end_span_event">record_end_span_event() (wayflowcore.tracing.span.ContextProviderExecutionSpan method)</a>
+
+      <ul>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ConversationalComponentExecutionSpan.record_end_span_event">(wayflowcore.tracing.span.ConversationalComponentExecutionSpan method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ConversationSpan.record_end_span_event">(wayflowcore.tracing.span.ConversationSpan method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.LlmGenerationSpan.record_end_span_event">(wayflowcore.tracing.span.LlmGenerationSpan method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.Span.record_end_span_event">(wayflowcore.tracing.span.Span method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.StepInvocationSpan.record_end_span_event">(wayflowcore.tracing.span.StepInvocationSpan method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ToolExecutionSpan.record_end_span_event">(wayflowcore.tracing.span.ToolExecutionSpan method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/events.html#wayflowcore.events.eventlistener.record_event">record_event() (in module wayflowcore.events.eventlistener)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginRegexOutputParser.regex_pattern">regex_pattern (wayflowcore.agentspec.components.outputparser.PluginRegexOutputParser attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.RegexOutputParser.regex_pattern">(wayflowcore.outputparser.RegexOutputParser attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep">RegexExtractionStep (class in wayflowcore.steps.textextractionstep.regexextractionstep)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.RegexOutputParser">RegexOutputParser (class in wayflowcore.outputparser)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.RegexPattern">RegexPattern (class in wayflowcore.outputparser)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.eventlistener.register_event_listeners">register_event_listeners() (in module wayflowcore.events.eventlistener)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.swarm.PluginSwarm.relationships">relationships (wayflowcore.agentspec.components.swarm.PluginSwarm attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm.relationships">(wayflowcore.swarm.Swarm attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.remap_inputs">remap_inputs() (wayflowcore.steps.step.Step method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.remap_outputs">remap_outputs() (wayflowcore.steps.step.Step method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool">RemoteTool (class in wayflowcore.tools.remotetools)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.transforms.RemoveEmptyNonUserMessageTransform">RemoveEmptyNonUserMessageTransform (class in wayflowcore.transforms)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginInputMessageNode.rephrase">rephrase (wayflowcore.agentspec.components.nodes.PluginInputMessageNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginOutputMessageNode.rephrase">(wayflowcore.agentspec.components.nodes.PluginOutputMessageNode attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.reset_env">reset_env() (wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment method)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.response_format">response_format (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.response_format">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.RESPONSE_FORMAT_PLACEHOLDER_NAME">RESPONSE_FORMAT_PLACEHOLDER_NAME (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.RESPONSE_FORMAT_PLACEHOLDER_NAME">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreQueryNode.RESULT">RESULT (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreQueryNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreQueryStep.RESULT">(wayflowcore.steps.datastoresteps.DatastoreQueryStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginExtractNode.retry">retry (wayflowcore.agentspec.components.nodes.PluginExtractNode attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.retrystep.RetryStep">RetryStep (class in wayflowcore.steps.retrystep)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.role">role (wayflowcore.agentspec.components.messagelist.PluginMessage attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.role">(wayflowcore.messagelist.Message attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.run">run() (wayflowcore.tools.servertools.ServerTool method)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool.run_async">run_async() (wayflowcore.tools.servertools.ServerTool method)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.run_benchmark">run_benchmark() (wayflowcore.evaluation.assistantevaluator.AssistantEvaluator method)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.conversationevaluator.ConversationEvaluator.run_evaluations">run_evaluations() (wayflowcore.evaluation.conversationevaluator.ConversationEvaluator method)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.conversationevaluator.ConversationEvaluator.run_evaluations_async">run_evaluations_async() (wayflowcore.evaluation.conversationevaluator.ConversationEvaluator method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.flowhelpers.run_flow_and_return_outputs">run_flow_and_return_outputs (class in wayflowcore.flowhelpers)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.run_proxy_agent_conversation">run_proxy_agent_conversation (class in wayflowcore.evaluation.assistantevaluator)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.flowhelpers.run_step_and_return_outputs">run_step_and_return_outputs (class in wayflowcore.flowhelpers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationTask.score">score() (wayflowcore.evaluation.assistantevaluator.EvaluationTask method)</a>
+
+      <ul>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.conversationscorer.ConversationScorer.score">(wayflowcore.evaluation.conversationscorer.ConversationScorer method)</a>
+</li>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.criteriascorer.CriteriaScorer.score">(wayflowcore.evaluation.criteriascorer.CriteriaScorer method)</a>
+</li>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.taskscorer.TaskScorer.score">(wayflowcore.evaluation.taskscorer.TaskScorer method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.conversationscorer.ConversationScorer.score_async">score_async() (wayflowcore.evaluation.conversationscorer.ConversationScorer method)</a>
+
+      <ul>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.criteriascorer.CriteriaScorer.score_async">(wayflowcore.evaluation.criteriascorer.CriteriaScorer method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationTask.score_exceptional_case">score_exceptional_case() (wayflowcore.evaluation.assistantevaluator.EvaluationTask method)</a>
+
+      <ul>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.taskscorer.TaskScorer.score_exceptional_case">(wayflowcore.evaluation.taskscorer.TaskScorer method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.criteriascorer.CriteriaScorer.SCORER_THEME">SCORER_THEME (wayflowcore.evaluation.criteriascorer.CriteriaScorer attribute)</a>
+
+      <ul>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer.SCORER_THEME">(wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer attribute)</a>
+</li>
+        <li><a href="core/api/evaluation.html#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer.SCORER_THEME">(wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationTask.scorers">scorers (wayflowcore.evaluation.assistantevaluator.EvaluationTask attribute)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationTask.scoring_kwargs">scoring_kwargs (wayflowcore.evaluation.assistantevaluator.EvaluationTask attribute)</a>
+</li>
+      <li><a href="core/api/warnings.html#wayflowcore.warnings.SecurityWarning">SecurityWarning (class in wayflowcore.warnings)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep.SELECTED_CHOICE">SELECTED_CHOICE (wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedLlmNode.send_message">send_message (wayflowcore.agentspec.components.nodes.ExtendedLlmNode attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.sender">sender (wayflowcore.agentspec.components.messagelist.PluginMessage attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.sender">(wayflowcore.messagelist.Message attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/serialization.html#wayflowcore.serialization.serializer.SerializableObject">SerializableObject (class in wayflowcore.serialization.serializer)</a>
+</li>
+      <li><a href="core/api/serialization.html#wayflowcore.serialization.serializer.serialize">serialize() (in module wayflowcore.serialization.serializer)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.serialize_time_created">serialize_time_created() (wayflowcore.agentspec.components.messagelist.PluginMessage method)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.serialize_time_updated">serialize_time_updated() (wayflowcore.agentspec.components.messagelist.PluginMessage method)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.servertools.ServerTool">ServerTool (class in wayflowcore.tools.servertools)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.StdioTransport.session_parameters">session_parameters (wayflowcore.mcp.StdioTransport attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.SessionParameters">SessionParameters (class in wayflowcore.mcp)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.spanexporter.SpanExporter.shutdown">shutdown() (wayflowcore.tracing.spanexporter.SpanExporter method)</a>
+
+      <ul>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SimpleSpanProcessor.shutdown">(wayflowcore.tracing.spanprocessor.SimpleSpanProcessor method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SpanProcessor.shutdown">(wayflowcore.tracing.spanprocessor.SpanProcessor method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.trace.Trace.shutdown_on_exit">shutdown_on_exit (wayflowcore.tracing.trace.Trace attribute)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SimpleSpanProcessor">SimpleSpanProcessor (class in wayflowcore.tracing.spanprocessor)</a>
+</li>
+      <li><a href="core/api/interrupts.html#wayflowcore.executors.interrupts.timeoutexecutioninterrupt.SoftTimeoutExecutionInterrupt">SoftTimeoutExecutionInterrupt (class in wayflowcore.executors.interrupts.timeoutexecutioninterrupt)</a>
+</li>
+      <li><a href="core/api/interrupts.html#wayflowcore.executors.interrupts.tokenlimitexecutioninterrupt.SoftTokenLimitExecutionInterrupt">SoftTokenLimitExecutionInterrupt (class in wayflowcore.executors.interrupts.tokenlimitexecutioninterrupt)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.controlconnection.ControlFlowEdge.source_branch">source_branch (wayflowcore.controlconnection.ControlFlowEdge attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.dataconnection.DataFlowEdge.source_output">source_output (wayflowcore.dataconnection.DataFlowEdge attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.controlconnection.ControlFlowEdge.source_step">source_step (wayflowcore.controlconnection.ControlFlowEdge attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.dataconnection.DataFlowEdge.source_step">(wayflowcore.dataconnection.DataFlowEdge attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.Span">Span (class in wayflowcore.tracing.span)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.Span.span_id">span_id (wayflowcore.tracing.span.Span attribute)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.trace.Trace.span_processors">span_processors (wayflowcore.tracing.trace.Trace attribute)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.spanexporter.SpanExporter">SpanExporter (class in wayflowcore.tracing.spanexporter)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SpanProcessor">SpanProcessor (class in wayflowcore.tracing.spanprocessor)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.SSEmTLSTransport">SSEmTLSTransport (class in wayflowcore.mcp)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.SSETransport">SSETransport (class in wayflowcore.mcp)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.Span.start">start() (wayflowcore.tracing.span.Span method)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.start_conversation">start_conversation() (wayflowcore.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent.start_conversation">(wayflowcore.conversationalcomponent.ConversationalComponent method)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.flow.Flow.start_conversation">(wayflowcore.flow.Flow method)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.managerworkers.ManagerWorkers.start_conversation">(wayflowcore.managerworkers.ManagerWorkers method)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.ociagent.OciAgent.start_conversation">(wayflowcore.ociagent.OciAgent method)</a>
+</li>
+        <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm.start_conversation">(wayflowcore.swarm.Swarm method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.Span.start_time">start_time (wayflowcore.tracing.span.Span attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.startstep.StartStep">StartStep (class in wayflowcore.steps.startstep)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.spanexporter.SpanExporter.startup">startup() (wayflowcore.tracing.spanexporter.SpanExporter method)</a>
+
+      <ul>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SimpleSpanProcessor.startup">(wayflowcore.tracing.spanprocessor.SimpleSpanProcessor method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.spanprocessor.SpanProcessor.startup">(wayflowcore.tracing.spanprocessor.SpanProcessor method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.flow.ExtendedFlow.state">state (wayflowcore.agentspec.components.flow.ExtendedFlow attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.state">(wayflowcore.conversation.Conversation attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.status">status (wayflowcore.conversation.Conversation attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.StdioTransport">StdioTransport (class in wayflowcore.mcp)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.Step">Step (class in wayflowcore.steps.step)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.StepInvocationSpan.step">step (wayflowcore.tracing.span.StepInvocationSpan attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.StepResult.step_type">step_type (wayflowcore.steps.step.StepResult attribute)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.StepInvocationSpan">StepInvocationSpan (class in wayflowcore.tracing.span)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.StepResult">StepResult (class in wayflowcore.steps.step)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.stop">stop (wayflowcore.models.llmgenerationconfig.LlmGenerationConfig attribute)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodel.LlmModel.stream_generate">stream_generate() (wayflowcore.models.llmmodel.LlmModel method)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmmodel.LlmModel.stream_generate_async">stream_generate_async() (wayflowcore.models.llmmodel.LlmModel method)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.StreamableHTTPmTLSTransport">StreamableHTTPmTLSTransport (class in wayflowcore.mcp)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.mcp.StreamableHTTPTransport">StreamableHTTPTransport (class in wayflowcore.mcp)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginRegexOutputParser.strict">strict (wayflowcore.agentspec.components.outputparser.PluginRegexOutputParser attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.RegexOutputParser.strict">(wayflowcore.outputparser.RegexOutputParser attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.property.StringProperty">StringProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.catchexceptionstep.CatchExceptionStep.sub_flow">sub_flow() (wayflowcore.steps.catchexceptionstep.CatchExceptionStep method)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep.sub_flow">(wayflowcore.steps.choiceselectionstep.ChoiceSelectionStep method)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.flowexecutionstep.FlowExecutionStep.sub_flow">(wayflowcore.steps.flowexecutionstep.FlowExecutionStep method)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.mapstep.MapStep.sub_flow">(wayflowcore.steps.mapstep.MapStep method)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.retrystep.RetryStep.sub_flow">(wayflowcore.steps.retrystep.RetryStep method)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.sub_flow">(wayflowcore.steps.step.Step method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.retrystep.RetryStep.SUCCESS_VAR">SUCCESS_VAR (wayflowcore.steps.retrystep.RetryStep attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.step.Step.supports_dict_io_with_non_str_keys">supports_dict_io_with_non_str_keys (wayflowcore.steps.step.Step property)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.toolexecutionstep.ToolExecutionStep.supports_dict_io_with_non_str_keys">(wayflowcore.steps.toolexecutionstep.ToolExecutionStep property)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm">Swarm (class in wayflowcore.swarm)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.swarm.Swarm.swarm_template">swarm_template (wayflowcore.swarm.Swarm attribute)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageType.SYSTEM">SYSTEM (wayflowcore.messagelist.MessageType attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.TASK_ATTEMPT_NO_COLUMN_NAME">TASK_ATTEMPT_NO_COLUMN_NAME (wayflowcore.evaluation.assistantevaluator.AssistantEvaluator attribute)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationTask.task_id">task_id (wayflowcore.evaluation.assistantevaluator.EvaluationTask attribute)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.AssistantEvaluator.TASK_ID_COLUMN_NAME">TASK_ID_COLUMN_NAME (wayflowcore.evaluation.assistantevaluator.AssistantEvaluator attribute)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationTask.task_kwargs">task_kwargs (wayflowcore.evaluation.assistantevaluator.EvaluationTask attribute)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.taskscorer.TaskScorer">TaskScorer (class in wayflowcore.evaluation.taskscorer)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.temperature">temperature (wayflowcore.models.llmgenerationconfig.LlmGenerationConfig attribute)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.templaterenderingstep.TemplateRenderingStep">TemplateRenderingStep (class in wayflowcore.steps.templaterenderingstep)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment.termination_check">termination_check() (wayflowcore.evaluation.assistantevaluator.EvaluationEnvironment method)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginExtractNode.TEXT">TEXT (wayflowcore.agentspec.components.nodes.PluginExtractNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.textextractionstep.extractvaluefromjsonstep.ExtractValueFromJsonStep.TEXT">(wayflowcore.steps.textextractionstep.extractvaluefromjsonstep.ExtractValueFromJsonStep attribute)</a>
+</li>
+        <li><a href="core/api/flows.html#wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep.TEXT">(wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageType.THOUGHT">THOUGHT (wayflowcore.messagelist.MessageType attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.time_created">time_created (wayflowcore.agentspec.components.messagelist.PluginMessage attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.time_created">(wayflowcore.messagelist.Message attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.time_updated">time_updated (wayflowcore.agentspec.components.messagelist.PluginMessage attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.time_updated">(wayflowcore.messagelist.Message attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.Event.timestamp">timestamp (wayflowcore.events.event.Event attribute)</a>
+</li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig">TlsOracleDatabaseConnectionConfig (class in wayflowcore.datastore)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.agentspecexporter.AgentSpecExporter.to_component">to_component() (wayflowcore.agentspec.agentspecexporter.AgentSpecExporter method)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.tools.DescribedAgent.to_config">to_config() (wayflowcore.tools.DescribedAgent method)</a>
+
+      <ul>
+        <li><a href="core/api/agent.html#wayflowcore.tools.DescribedFlow.to_config">(wayflowcore.tools.DescribedFlow method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.to_dict">to_dict() (wayflowcore.models.llmgenerationconfig.LlmGenerationConfig method)</a>
+
+      <ul>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIClientConfigWithApiKey.to_dict">(wayflowcore.models.ociclientconfig.OCIClientConfigWithApiKey method)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIClientConfigWithSecurityToken.to_dict">(wayflowcore.models.ociclientconfig.OCIClientConfigWithSecurityToken method)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIClientConfigWithUserAuthentication.to_dict">(wayflowcore.models.ociclientconfig.OCIClientConfigWithUserAuthentication method)</a>
+</li>
+        <li><a href="core/api/llmmodels.html#wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig.to_dict">(wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig method)</a>
+</li>
+        <li><a href="core/api/variables.html#wayflowcore.variable.Variable.to_dict">(wayflowcore.variable.Variable method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.agentspecexporter.AgentSpecExporter.to_json">to_json() (wayflowcore.agentspec.agentspecexporter.AgentSpecExporter method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.property.Property.to_json_schema">to_json_schema() (wayflowcore.property.Property method)</a>
+</li>
+      <li><a href="core/api/variables.html#wayflowcore.variable.Variable.to_property">to_property() (wayflowcore.variable.Variable method)</a>
+</li>
+      <li><a href="core/api/events.html#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent.to_tracing_info">to_tracing_info() (wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent method)</a>
+
+      <ul>
+        <li><a href="core/api/events.html#wayflowcore.events.event.ConversationCreatedEvent.to_tracing_info">(wayflowcore.events.event.ConversationCreatedEvent method)</a>
+</li>
+        <li><a href="core/api/events.html#wayflowcore.events.event.ConversationMessageAddedEvent.to_tracing_info">(wayflowcore.events.event.ConversationMessageAddedEvent method)</a>
+</li>
+        <li><a href="core/api/events.html#wayflowcore.events.event.Event.to_tracing_info">(wayflowcore.events.event.Event method)</a>
+</li>
+        <li><a href="core/api/events.html#wayflowcore.events.event.LlmGenerationRequestEvent.to_tracing_info">(wayflowcore.events.event.LlmGenerationRequestEvent method)</a>
+</li>
+        <li><a href="core/api/events.html#wayflowcore.events.event.LlmGenerationResponseEvent.to_tracing_info">(wayflowcore.events.event.LlmGenerationResponseEvent method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ContextProviderExecutionSpan.to_tracing_info">(wayflowcore.tracing.span.ContextProviderExecutionSpan method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ConversationalComponentExecutionSpan.to_tracing_info">(wayflowcore.tracing.span.ConversationalComponentExecutionSpan method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ConversationSpan.to_tracing_info">(wayflowcore.tracing.span.ConversationSpan method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.LlmGenerationSpan.to_tracing_info">(wayflowcore.tracing.span.LlmGenerationSpan method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.Span.to_tracing_info">(wayflowcore.tracing.span.Span method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.StepInvocationSpan.to_tracing_info">(wayflowcore.tracing.span.StepInvocationSpan method)</a>
+</li>
+        <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ToolExecutionSpan.to_tracing_info">(wayflowcore.tracing.span.ToolExecutionSpan method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.agentspecexporter.AgentSpecExporter.to_yaml">to_yaml() (wayflowcore.agentspec.agentspecexporter.AgentSpecExporter method)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.conversation.Conversation.token_usage">token_usage (wayflowcore.conversation.Conversation attribute)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.tokenusage.TokenUsage">TokenUsage (class in wayflowcore.tokenusage)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ToolExecutionSpan.tool">tool (wayflowcore.tracing.span.ToolExecutionSpan attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.toolhelpers.tool">tool() (in module wayflowcore.tools.toolhelpers)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.mcp.PluginMCPToolBox.tool_filter">tool_filter (wayflowcore.agentspec.components.mcp.PluginMCPToolBox attribute)</a>
+
+      <ul>
+        <li><a href="core/api/tools.html#wayflowcore.mcp.MCPToolBox.tool_filter">(wayflowcore.mcp.MCPToolBox attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.toolexecutionstep.ToolExecutionStep.TOOL_OUTPUT">TOOL_OUTPUT (wayflowcore.steps.toolexecutionstep.ToolExecutionStep attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.TOOL_PLACEHOLDER_NAME">TOOL_PLACEHOLDER_NAME (wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.TOOL_PLACEHOLDER_NAME">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageType.TOOL_REQUEST">TOOL_REQUEST (wayflowcore.messagelist.MessageType attribute)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ToolExecutionSpan.tool_request">tool_request (wayflowcore.tracing.span.ToolExecutionSpan attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.tools.ToolRequest.tool_request_id">tool_request_id (wayflowcore.tools.tools.ToolRequest attribute)</a>
+
+      <ul>
+        <li><a href="core/api/tools.html#wayflowcore.tools.tools.ToolResult.tool_request_id">(wayflowcore.tools.tools.ToolResult attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.toolexecutionstep.ToolExecutionStep.TOOL_REQUEST_UUID">TOOL_REQUEST_UUID (wayflowcore.steps.toolexecutionstep.ToolExecutionStep attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.tool_requests">tool_requests (wayflowcore.agentspec.components.messagelist.PluginMessage attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.executors.executionstatus.ToolRequestStatus.tool_requests">(wayflowcore.executors.executionstatus.ToolRequestStatus attribute)</a>
+</li>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.tool_requests">(wayflowcore.messagelist.Message attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginMessage.tool_result">tool_result (wayflowcore.agentspec.components.messagelist.PluginMessage attribute)</a>
+
+      <ul>
+        <li><a href="core/api/conversation.html#wayflowcore.messagelist.Message.tool_result">(wayflowcore.messagelist.Message attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageType.TOOL_RESULT">TOOL_RESULT (wayflowcore.messagelist.MessageType attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.agent.ExtendedAgent.toolboxes">toolboxes (wayflowcore.agentspec.components.agent.ExtendedAgent attribute)</a>
+</li>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider">ToolContextProvider (class in wayflowcore.contextproviders.toolcontextprovider)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.span.ToolExecutionSpan">ToolExecutionSpan (class in wayflowcore.tracing.span)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.toolexecutionstep.ToolExecutionStep">ToolExecutionStep (class in wayflowcore.steps.toolexecutionstep)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.ToolOutputParser">ToolOutputParser (class in wayflowcore.outputparser)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.tools.ToolRequest">ToolRequest (class in wayflowcore.tools.tools)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.executors.executionstatus.ToolRequestStatus">ToolRequestStatus (class in wayflowcore.executors.executionstatus)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.tools.ToolResult">ToolResult (class in wayflowcore.tools.tools)</a>
+</li>
+      <li><a href="core/api/agent.html#wayflowcore.agent.Agent.tools">tools (wayflowcore.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.outputparser.PluginToolOutputParser.tools">(wayflowcore.agentspec.components.outputparser.PluginToolOutputParser attribute)</a>
+</li>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.template.PluginPromptTemplate.tools">(wayflowcore.agentspec.components.template.PluginPromptTemplate attribute)</a>
+</li>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.ToolOutputParser.tools">(wayflowcore.outputparser.ToolOutputParser attribute)</a>
+</li>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.tools">(wayflowcore.templates.template.PromptTemplate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.top_p">top_p (wayflowcore.models.llmgenerationconfig.LlmGenerationConfig attribute)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.tokenusage.TokenUsage.total_tokens">total_tokens (wayflowcore.tokenusage.TokenUsage attribute)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.trace.Trace">Trace (class in wayflowcore.tracing.trace)</a>
+</li>
+      <li><a href="core/api/tracing.html#wayflowcore.tracing.trace.Trace.trace_id">trace_id (wayflowcore.tracing.trace.Trace attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginImageContent.type">type (wayflowcore.agentspec.components.messagelist.PluginImageContent attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginTextContent.type">(wayflowcore.agentspec.components.messagelist.PluginTextContent attribute)</a>
+</li>
+        <li><a href="core/api/variables.html#wayflowcore.variable.Variable.type">(wayflowcore.variable.Variable attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/flows.html#wayflowcore.property.UnionProperty">UnionProperty (class in wayflowcore.property)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.ExtendedMapNode.unpack_input">unpack_input (wayflowcore.agentspec.components.nodes.ExtendedMapNode attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode.unpack_single_entity_from_list">unpack_single_entity_from_list (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode.UPDATE">UPDATE (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.datastoresteps.DatastoreUpdateStep.UPDATE">(wayflowcore.steps.datastoresteps.DatastoreUpdateStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/datastores.html#wayflowcore.datastore.Datastore.update">update() (wayflowcore.datastore.Datastore method)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.url">url (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/tools.html#wayflowcore.tools.remotetools.RemoteTool.url_allow_list">url_allow_list (wayflowcore.tools.remotetools.RemoteTool attribute)</a>
+</li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.usefulnessscorer.UsefulnessScorer">UsefulnessScorer (class in wayflowcore.evaluation.usefulnessscorer)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig.user">user (wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig.user">(wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+        <li><a href="core/api/datastores.html#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.user">(wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+        <li><a href="core/api/datastores.html#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.user">(wayflowcore.datastore.TlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/conversation.html#wayflowcore.messagelist.MessageType.USER">USER (wayflowcore.messagelist.MessageType attribute)</a>
+</li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.nodes.PluginInputMessageNode.USER_PROVIDED_INPUT">USER_PROVIDED_INPUT (wayflowcore.agentspec.components.nodes.PluginInputMessageNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.inputmessagestep.InputMessageStep.USER_PROVIDED_INPUT">(wayflowcore.steps.inputmessagestep.InputMessageStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/evaluation.html#wayflowcore.evaluation.userhappinessscorer.UserHappinessScorer">UserHappinessScorer (class in wayflowcore.evaluation.userhappinessscorer)</a>
+</li>
+      <li><a href="core/api/conversation.html#wayflowcore.executors.executionstatus.UserMessageRequestStatus">UserMessageRequestStatus (class in wayflowcore.executors.executionstatus)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.messagelist.PluginTextContent.validate_text_content_type">validate_text_content_type() (wayflowcore.agentspec.components.messagelist.PluginTextContent method)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep.VALUE">VALUE (wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep attribute)</a>
+
+      <ul>
+        <li><a href="core/api/flows.html#wayflowcore.steps.variablesteps.variablewritestep.VariableWriteStep.VALUE">(wayflowcore.steps.variablesteps.variablewritestep.VariableWriteStep attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/flows.html#wayflowcore.property.DictProperty.value_type">value_type (wayflowcore.property.DictProperty attribute)</a>
+</li>
+      <li><a href="core/api/variables.html#wayflowcore.variable.Variable">Variable (class in wayflowcore.variable)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/flows.html#wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep">VariableReadStep (class in wayflowcore.steps.variablesteps.variablereadstep)</a>
+</li>
+      <li><a href="core/api/variables.html#wayflowcore.variable.VariableWriteOperation">VariableWriteOperation (class in wayflowcore.variable)</a>
+</li>
+      <li><a href="core/api/flows.html#wayflowcore.steps.variablesteps.variablewritestep.VariableWriteStep">VariableWriteStep (class in wayflowcore.steps.variablesteps.variablewritestep)</a>
+</li>
+      <li><a href="core/api/embeddingmodels.html#wayflowcore.embeddingmodels.vllmmodel.VllmEmbeddingModel">VllmEmbeddingModel (class in wayflowcore.embeddingmodels.vllmmodel)</a>
+</li>
+      <li><a href="core/api/llmmodels.html#wayflowcore.models.vllmmodel.VllmModel">VllmModel (class in wayflowcore.models.vllmmodel)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig.wallet_location">wallet_location (wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig attribute)</a>
+
+      <ul>
+        <li><a href="core/api/datastores.html#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_location">(wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig.wallet_password">wallet_password (wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig attribute)</a>
+
+      <ul>
+        <li><a href="core/api/datastores.html#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_password">(wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreDeleteNode.where">where (wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreDeleteNode attribute)</a>
+
+      <ul>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode.where">(wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreListNode attribute)</a>
+</li>
+        <li><a href="core/api/agentspec.html#wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode.where">(wayflowcore.agentspec.components.datastores.nodes.PluginDatastoreUpdateNode attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/contextproviders.html#wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider.which_messages">which_messages (wayflowcore.contextproviders.chathistorycontextprovider.ChatHistoryContextProvider property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.with_additional_post_rendering_transform">with_additional_post_rendering_transform() (wayflowcore.templates.template.PromptTemplate method)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.with_generation_config">with_generation_config() (wayflowcore.templates.template.PromptTemplate method)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.with_output_parser">with_output_parser() (wayflowcore.templates.template.PromptTemplate method)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.with_partial">with_partial() (wayflowcore.templates.template.PromptTemplate method)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.with_response_format">with_response_format() (wayflowcore.templates.template.PromptTemplate method)</a>
+</li>
+      <li><a href="core/api/prompttemplate.html#wayflowcore.outputparser.ToolOutputParser.with_tools">with_tools() (wayflowcore.outputparser.ToolOutputParser method)</a>
+
+      <ul>
+        <li><a href="core/api/prompttemplate.html#wayflowcore.templates.template.PromptTemplate.with_tools">(wayflowcore.templates.template.PromptTemplate method)</a>
+</li>
+      </ul></li>
+      <li><a href="core/api/agent.html#wayflowcore.managerworkers.ManagerWorkers.workers">workers (wayflowcore.managerworkers.ManagerWorkers attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

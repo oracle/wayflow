@@ -100,7 +100,7 @@ print(result)
 prompt_text = """You are a helpful assistant. Answer the user questions.
 For context, the conversation was:
 {% for msg in __CHAT_HISTORY__ %}
-{{ msg.message_type.value }} >> {{msg.content}}
+{{ msg.message_type }} >> {{msg.content}}
 {%- endfor %}
 
 Just answer the user question.
@@ -255,7 +255,7 @@ print(response)
 # %%
 text_template = """Extract information about a person. The person is 65 years old, named Johnny.
 Just return a json document that respects this JSON Schema:
-{{__RESPONSE_FORMAT__.to_json_schema() | tojson }}
+{{__RESPONSE_FORMAT__ | tojson }}
 
 Reminder: only output the required json document, no need to repeat the title of the description, just the properties are required!
 """
@@ -310,12 +310,12 @@ print(result)
 # %%
 from wayflowcore.agent import Agent
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
-from wayflowcore.agentspec.components.template import prompttemplate_serialization_plugin, prompttemplate_deserialization_plugin
+
 assistant = Agent(llm=llm, agent_template=prompt_template)
-serialized_assistant = AgentSpecExporter(plugins=[prompttemplate_serialization_plugin]).to_json(assistant)
+serialized_assistant = AgentSpecExporter().to_json(assistant)
 
 # %%[markdown]
 ## Load Agent Spec config
 
 # %%
-new_agent: Agent = AgentSpecLoader(plugins=[prompttemplate_deserialization_plugin]).load_json(serialized_assistant)
+new_agent: Agent = AgentSpecLoader().load_json(serialized_assistant)

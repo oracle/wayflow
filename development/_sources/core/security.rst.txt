@@ -32,7 +32,7 @@ Tool Security Specifics
 *   **Isolation for High-Risk Tools**: Run high-risk :ref:`ServerTool <servertool>` instances (e.g., with elevated permissions, network/filesystem access) in sandboxed environments (containers/pods) with minimal IAM roles. Deny network/filesystem writes unless essential.
 *   **Tools from `Flows` or `Steps`**:
 
-    *   When creating a :ref:`ServerTool <servertool>` via :meth:`.Flow.from_flow`, or :meth:`.Flow.from_step`, its security is inherited. Ensure source ``Flow`` or ``Step`` tools are secure.
+    *   When creating a :ref:`ServerTool <servertool>` via :meth:`~wayflowcore.tools.servertools.ServerTool.from_flow`, or :meth:`~wayflowcore.tools.servertools.ServerTool.from_step`, its security is inherited. Ensure source ``Flow`` or ``Step`` tools are secure.
 
 **`ClientTool` Considerations:**
 
@@ -486,6 +486,21 @@ Jinja 2's automatic HTML-escaping is **disabled by design** in WayFlow to:
 * prevent mangling of deliberately model-generated HTML tags.
 
 This preserves model fidelity/latency but removes default XSS/code-injection safeguards.
+
+WayFlow relies on a stricter implementation of the Jinja's SandboxedEnvironment for security reasons.
+Every callable is considered unsafe, and every attribute access is prevented, except for:
+
+* The attributes ``index0``, ``index``, ``first``, ``last``, ``length`` of the ``jinja2.runtime.LoopContext``;
+* The entries of a python dictionary (only native type is accepted);
+* The items of a python list (only native type is accepted).
+
+You should never write a template that includes a function call, or access to any internal attribute or element of
+an arbitrary variable: that is considered unsafe, and it will raise a ``SecurityException``.
+
+Moreover, WayFlow performs additional checks are performed on the inputs provided for rendering.
+In particular, only elements and sub-elements that are of basic python types
+(``str``, ``int``, ``float``, ``bool``, ``list``, ``dict``, ``tuple``, ``set``, ``NoneType``)
+are accepted. In any other case, a ``SecurityException`` is raised.
 
 .. important::
 

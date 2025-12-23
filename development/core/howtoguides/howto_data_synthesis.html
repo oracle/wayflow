@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -292,9 +292,14 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -307,6 +312,8 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -315,11 +322,8 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -331,11 +335,13 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
@@ -347,6 +353,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -939,16 +947,15 @@ It samples values for a numerical feature conditional on one or more categorical
 <p>For long text generation, you need to use an LLM.
 WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span>
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span><span class="p">,</span> <span class="n">OCIClientConfigWithApiKey</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-
-    <span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
-        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+    <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
+    <span class="n">client_config</span><span class="o">=</span><span class="n">OCIClientConfigWithApiKey</span><span class="p">(</span>
         <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;https://url-to-service-endpoint.com&quot;</span><span class="p">,</span>
-        <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
-        <span class="n">auth_type</span><span class="o">=</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
@@ -1195,20 +1202,10 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
     <span class="n">validation_step</span> <span class="o">=</span> <span class="n">get_validation_step</span><span class="p">(</span><span class="n">llm_validation</span><span class="p">)</span>
     <span class="n">validation_parse_step</span> <span class="o">=</span> <span class="n">get_parse_validation_step</span><span class="p">()</span>
 
-    <span class="n">steps</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">JUSTIFICATION_GEN_STEP</span><span class="p">:</span> <span class="n">justification_gen_step</span><span class="p">,</span>
-        <span class="n">JUSTIFICATION_PARSING_STEP</span><span class="p">:</span> <span class="n">justification_parse_step</span><span class="p">,</span>
-        <span class="n">VALIDATION_STEP</span><span class="p">:</span> <span class="n">validation_step</span><span class="p">,</span>
-        <span class="n">VALIDATION_PARSING_STEP</span><span class="p">:</span> <span class="n">validation_parse_step</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="n">transitions</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">JUSTIFICATION_GEN_STEP</span><span class="p">:</span> <span class="p">[</span><span class="n">JUSTIFICATION_PARSING_STEP</span><span class="p">],</span>
-        <span class="n">JUSTIFICATION_PARSING_STEP</span><span class="p">:</span> <span class="p">[</span><span class="n">VALIDATION_STEP</span><span class="p">],</span>
-        <span class="n">VALIDATION_STEP</span><span class="p">:</span> <span class="p">[</span><span class="n">VALIDATION_PARSING_STEP</span><span class="p">],</span>
-        <span class="n">VALIDATION_PARSING_STEP</span><span class="p">:</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">,</span> <span class="n">begin_step</span><span class="o">=</span><span class="n">justification_gen_step</span><span class="p">,</span> <span class="n">transitions</span><span class="o">=</span><span class="n">transitions</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Flow</span><span class="o">.</span><span class="n">from_steps</span><span class="p">(</span>
+        <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="n">justification_gen_step</span><span class="p">,</span> <span class="n">justification_parse_step</span><span class="p">,</span> <span class="n">validation_step</span><span class="p">,</span> <span class="n">validation_parse_step</span><span class="p">],</span>
+        <span class="n">step_names</span><span class="o">=</span><span class="p">[</span><span class="n">JUSTIFICATION_GEN_STEP</span><span class="p">,</span> <span class="n">JUSTIFICATION_PARSING_STEP</span><span class="p">,</span> <span class="n">VALIDATION_STEP</span><span class="p">,</span> <span class="n">VALIDATION_PARSING_STEP</span><span class="p">]</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_flow</span><span class="p">(</span><span class="n">llm_justification</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">,</span> <span class="n">llm_validation</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
@@ -1940,99 +1937,89 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 <span class="linenos">648</span>    <span class="n">validation_step</span> <span class="o">=</span> <span class="n">get_validation_step</span><span class="p">(</span><span class="n">llm_validation</span><span class="p">)</span>
 <span class="linenos">649</span>    <span class="n">validation_parse_step</span> <span class="o">=</span> <span class="n">get_parse_validation_step</span><span class="p">()</span>
 <span class="linenos">650</span>
-<span class="linenos">651</span>    <span class="n">steps</span> <span class="o">=</span> <span class="p">{</span>
-<span class="linenos">652</span>        <span class="n">JUSTIFICATION_GEN_STEP</span><span class="p">:</span> <span class="n">justification_gen_step</span><span class="p">,</span>
-<span class="linenos">653</span>        <span class="n">JUSTIFICATION_PARSING_STEP</span><span class="p">:</span> <span class="n">justification_parse_step</span><span class="p">,</span>
-<span class="linenos">654</span>        <span class="n">VALIDATION_STEP</span><span class="p">:</span> <span class="n">validation_step</span><span class="p">,</span>
-<span class="linenos">655</span>        <span class="n">VALIDATION_PARSING_STEP</span><span class="p">:</span> <span class="n">validation_parse_step</span><span class="p">,</span>
-<span class="linenos">656</span>    <span class="p">}</span>
-<span class="linenos">657</span>    <span class="n">transitions</span> <span class="o">=</span> <span class="p">{</span>
-<span class="linenos">658</span>        <span class="n">JUSTIFICATION_GEN_STEP</span><span class="p">:</span> <span class="p">[</span><span class="n">JUSTIFICATION_PARSING_STEP</span><span class="p">],</span>
-<span class="linenos">659</span>        <span class="n">JUSTIFICATION_PARSING_STEP</span><span class="p">:</span> <span class="p">[</span><span class="n">VALIDATION_STEP</span><span class="p">],</span>
-<span class="linenos">660</span>        <span class="n">VALIDATION_STEP</span><span class="p">:</span> <span class="p">[</span><span class="n">VALIDATION_PARSING_STEP</span><span class="p">],</span>
-<span class="linenos">661</span>        <span class="n">VALIDATION_PARSING_STEP</span><span class="p">:</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span>
-<span class="linenos">662</span>    <span class="p">}</span>
-<span class="linenos">663</span>
-<span class="linenos">664</span>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">,</span> <span class="n">begin_step</span><span class="o">=</span><span class="n">justification_gen_step</span><span class="p">,</span> <span class="n">transitions</span><span class="o">=</span><span class="n">transitions</span><span class="p">)</span>
-<span class="linenos">665</span>
-<span class="linenos">666</span>
-<span class="linenos">667</span><span class="k">def</span><span class="w"> </span><span class="nf">get_flow</span><span class="p">(</span><span class="n">llm_justification</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">,</span> <span class="n">llm_validation</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
-<span class="linenos">668</span>    <span class="n">main_flow</span> <span class="o">=</span> <span class="n">get_main_flow</span><span class="p">(</span><span class="n">llm_justification</span><span class="p">,</span> <span class="n">llm_validation</span><span class="p">)</span>
-<span class="linenos">669</span>    <span class="n">retry_step</span> <span class="o">=</span> <span class="n">get_retry_step</span><span class="p">(</span><span class="n">main_flow</span><span class="p">)</span>
-<span class="linenos">670</span>    <span class="n">success_step</span> <span class="o">=</span> <span class="n">CompleteStep</span><span class="p">()</span>
-<span class="linenos">671</span>    <span class="n">failure_step</span> <span class="o">=</span> <span class="n">CompleteStep</span><span class="p">()</span>
-<span class="linenos">672</span>
-<span class="linenos">673</span>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span>
-<span class="linenos">674</span>        <span class="n">begin_step</span><span class="o">=</span><span class="n">retry_step</span><span class="p">,</span>
-<span class="linenos">675</span>        <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
-<span class="linenos">676</span>            <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">retry_step</span><span class="p">,</span>
-<span class="linenos">677</span>            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">success_step</span><span class="p">,</span>
-<span class="linenos">678</span>            <span class="s2">&quot;failure&quot;</span><span class="p">:</span> <span class="n">failure_step</span><span class="p">,</span>
-<span class="linenos">679</span>        <span class="p">},</span>
-<span class="linenos">680</span>        <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
-<span class="linenos">681</span>            <span class="n">ControlFlowEdge</span><span class="p">(</span>
-<span class="linenos">682</span>                <span class="n">source_step</span><span class="o">=</span><span class="n">retry_step</span><span class="p">,</span>
-<span class="linenos">683</span>                <span class="n">source_branch</span><span class="o">=</span><span class="n">retry_step</span><span class="o">.</span><span class="n">BRANCH_NEXT</span><span class="p">,</span>
-<span class="linenos">684</span>                <span class="n">destination_step</span><span class="o">=</span><span class="n">success_step</span><span class="p">,</span>
-<span class="linenos">685</span>            <span class="p">),</span>
-<span class="linenos">686</span>            <span class="n">ControlFlowEdge</span><span class="p">(</span>
-<span class="linenos">687</span>                <span class="n">source_step</span><span class="o">=</span><span class="n">retry_step</span><span class="p">,</span>
-<span class="linenos">688</span>                <span class="n">source_branch</span><span class="o">=</span><span class="n">retry_step</span><span class="o">.</span><span class="n">BRANCH_FAILURE</span><span class="p">,</span>
-<span class="linenos">689</span>                <span class="n">destination_step</span><span class="o">=</span><span class="n">failure_step</span><span class="p">,</span>
-<span class="linenos">690</span>            <span class="p">),</span>
-<span class="linenos">691</span>        <span class="p">],</span>
-<span class="linenos">692</span>    <span class="p">)</span>
-<span class="linenos">693</span>
-<span class="linenos">694</span>
-<span class="linenos">695</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">696</span><span class="n">llm</span> <span class="n">definition</span><span class="p">:</span>
-<span class="linenos">697</span>
-<span class="linenos">698</span><span class="c1"># %%</span>
-<span class="linenos">699</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
-<span class="linenos">700</span>
-<span class="linenos">701</span><span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
-<span class="linenos">702</span>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;LLAMA_MODEL_ID&quot;</span><span class="p">,</span>
-<span class="linenos">703</span>    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;LLAMA_API_URL&quot;</span><span class="p">,</span>
-<span class="linenos">704</span><span class="p">)</span>
-<span class="linenos">705</span>
-<span class="linenos">706</span>
-<span class="linenos">707</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">708</span><span class="n">justification</span> <span class="n">generation</span><span class="p">:</span>
-<span class="linenos">709</span>
-<span class="linenos">710</span><span class="c1"># %%</span>
-<span class="linenos">711</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListProperty</span>
-<span class="linenos">712</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapStep</span>
-<span class="linenos">713</span>
-<span class="linenos">714</span><span class="n">flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span>
-<span class="linenos">715</span>    <span class="n">step</span><span class="o">=</span><span class="n">MapStep</span><span class="p">(</span>
-<span class="linenos">716</span>        <span class="n">flow</span><span class="o">=</span><span class="n">get_flow</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">llm</span><span class="p">),</span>
-<span class="linenos">717</span>        <span class="n">parallel_execution</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="linenos">718</span>        <span class="n">unpack_input</span><span class="o">=</span><span class="p">{</span>
-<span class="linenos">719</span>            <span class="s2">&quot;seed_example&quot;</span><span class="p">:</span> <span class="s2">&quot;.seed_example&quot;</span><span class="p">,</span>
-<span class="linenos">720</span>            <span class="s2">&quot;generated_row&quot;</span><span class="p">:</span> <span class="s2">&quot;.generated_row&quot;</span><span class="p">,</span>
-<span class="linenos">721</span>        <span class="p">},</span>
-<span class="linenos">722</span>        <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">ListProperty</span><span class="p">(</span><span class="n">JUSTIFICATION_PARSING_IO</span><span class="p">)],</span>
-<span class="linenos">723</span>    <span class="p">)</span>
-<span class="linenos">724</span><span class="p">)</span>
-<span class="linenos">725</span>
-<span class="linenos">726</span><span class="n">input_sequence</span> <span class="o">=</span> <span class="p">[</span>
-<span class="linenos">727</span>    <span class="p">{</span>
-<span class="linenos">728</span>        <span class="s2">&quot;seed_example&quot;</span><span class="p">:</span> <span class="n">df_seed</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
-<span class="linenos">729</span>        <span class="s2">&quot;generated_row&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
-<span class="linenos">730</span>    <span class="p">}</span>
-<span class="linenos">731</span>    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df_synthesized</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()</span>
-<span class="linenos">732</span><span class="p">]</span>
-<span class="linenos">733</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="n">MapStep</span><span class="o">.</span><span class="n">ITERATED_INPUT</span><span class="p">:</span> <span class="n">input_sequence</span><span class="p">})</span>
-<span class="linenos">734</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="linenos">735</span><span class="n">df_synthesized</span><span class="p">[</span><span class="s2">&quot;justification&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">[</span><span class="n">JUSTIFICATION_PARSING_IO</span><span class="p">]</span>
-<span class="linenos">736</span>
-<span class="linenos">737</span>
-<span class="linenos">738</span>
-<span class="linenos">739</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">740</span><span class="n">exporting</span> <span class="n">synthetic</span> <span class="n">dataset</span><span class="p">:</span>
-<span class="linenos">741</span>
-<span class="linenos">742</span><span class="c1"># %%</span>
-<span class="linenos">743</span><span class="n">df_synthesized</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;records&quot;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="linenos">651</span>    <span class="k">return</span> <span class="n">Flow</span><span class="o">.</span><span class="n">from_steps</span><span class="p">(</span>
+<span class="linenos">652</span>        <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="n">justification_gen_step</span><span class="p">,</span> <span class="n">justification_parse_step</span><span class="p">,</span> <span class="n">validation_step</span><span class="p">,</span> <span class="n">validation_parse_step</span><span class="p">],</span>
+<span class="linenos">653</span>        <span class="n">step_names</span><span class="o">=</span><span class="p">[</span><span class="n">JUSTIFICATION_GEN_STEP</span><span class="p">,</span> <span class="n">JUSTIFICATION_PARSING_STEP</span><span class="p">,</span> <span class="n">VALIDATION_STEP</span><span class="p">,</span> <span class="n">VALIDATION_PARSING_STEP</span><span class="p">]</span>
+<span class="linenos">654</span>    <span class="p">)</span>
+<span class="linenos">655</span>
+<span class="linenos">656</span>
+<span class="linenos">657</span><span class="k">def</span><span class="w"> </span><span class="nf">get_flow</span><span class="p">(</span><span class="n">llm_justification</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">,</span> <span class="n">llm_validation</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flow</span><span class="p">:</span>
+<span class="linenos">658</span>    <span class="n">main_flow</span> <span class="o">=</span> <span class="n">get_main_flow</span><span class="p">(</span><span class="n">llm_justification</span><span class="p">,</span> <span class="n">llm_validation</span><span class="p">)</span>
+<span class="linenos">659</span>    <span class="n">retry_step</span> <span class="o">=</span> <span class="n">get_retry_step</span><span class="p">(</span><span class="n">main_flow</span><span class="p">)</span>
+<span class="linenos">660</span>    <span class="n">success_step</span> <span class="o">=</span> <span class="n">CompleteStep</span><span class="p">()</span>
+<span class="linenos">661</span>    <span class="n">failure_step</span> <span class="o">=</span> <span class="n">CompleteStep</span><span class="p">()</span>
+<span class="linenos">662</span>
+<span class="linenos">663</span>    <span class="k">return</span> <span class="n">Flow</span><span class="p">(</span>
+<span class="linenos">664</span>        <span class="n">begin_step</span><span class="o">=</span><span class="n">retry_step</span><span class="p">,</span>
+<span class="linenos">665</span>        <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">666</span>            <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">retry_step</span><span class="p">,</span>
+<span class="linenos">667</span>            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">success_step</span><span class="p">,</span>
+<span class="linenos">668</span>            <span class="s2">&quot;failure&quot;</span><span class="p">:</span> <span class="n">failure_step</span><span class="p">,</span>
+<span class="linenos">669</span>        <span class="p">},</span>
+<span class="linenos">670</span>        <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">671</span>            <span class="n">ControlFlowEdge</span><span class="p">(</span>
+<span class="linenos">672</span>                <span class="n">source_step</span><span class="o">=</span><span class="n">retry_step</span><span class="p">,</span>
+<span class="linenos">673</span>                <span class="n">source_branch</span><span class="o">=</span><span class="n">retry_step</span><span class="o">.</span><span class="n">BRANCH_NEXT</span><span class="p">,</span>
+<span class="linenos">674</span>                <span class="n">destination_step</span><span class="o">=</span><span class="n">success_step</span><span class="p">,</span>
+<span class="linenos">675</span>            <span class="p">),</span>
+<span class="linenos">676</span>            <span class="n">ControlFlowEdge</span><span class="p">(</span>
+<span class="linenos">677</span>                <span class="n">source_step</span><span class="o">=</span><span class="n">retry_step</span><span class="p">,</span>
+<span class="linenos">678</span>                <span class="n">source_branch</span><span class="o">=</span><span class="n">retry_step</span><span class="o">.</span><span class="n">BRANCH_FAILURE</span><span class="p">,</span>
+<span class="linenos">679</span>                <span class="n">destination_step</span><span class="o">=</span><span class="n">failure_step</span><span class="p">,</span>
+<span class="linenos">680</span>            <span class="p">),</span>
+<span class="linenos">681</span>        <span class="p">],</span>
+<span class="linenos">682</span>    <span class="p">)</span>
+<span class="linenos">683</span>
+<span class="linenos">684</span>
+<span class="linenos">685</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">686</span><span class="n">llm</span> <span class="n">definition</span><span class="p">:</span>
+<span class="linenos">687</span>
+<span class="linenos">688</span><span class="c1"># %%</span>
+<span class="linenos">689</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+<span class="linenos">690</span>
+<span class="linenos">691</span><span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+<span class="linenos">692</span>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;LLAMA_MODEL_ID&quot;</span><span class="p">,</span>
+<span class="linenos">693</span>    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;LLAMA_API_URL&quot;</span><span class="p">,</span>
+<span class="linenos">694</span><span class="p">)</span>
+<span class="linenos">695</span>
+<span class="linenos">696</span>
+<span class="linenos">697</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">698</span><span class="n">justification</span> <span class="n">generation</span><span class="p">:</span>
+<span class="linenos">699</span>
+<span class="linenos">700</span><span class="c1"># %%</span>
+<span class="linenos">701</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListProperty</span>
+<span class="linenos">702</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapStep</span>
+<span class="linenos">703</span>
+<span class="linenos">704</span><span class="n">flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span>
+<span class="linenos">705</span>    <span class="n">step</span><span class="o">=</span><span class="n">MapStep</span><span class="p">(</span>
+<span class="linenos">706</span>        <span class="n">flow</span><span class="o">=</span><span class="n">get_flow</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">llm</span><span class="p">),</span>
+<span class="linenos">707</span>        <span class="n">parallel_execution</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="linenos">708</span>        <span class="n">unpack_input</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">709</span>            <span class="s2">&quot;seed_example&quot;</span><span class="p">:</span> <span class="s2">&quot;.seed_example&quot;</span><span class="p">,</span>
+<span class="linenos">710</span>            <span class="s2">&quot;generated_row&quot;</span><span class="p">:</span> <span class="s2">&quot;.generated_row&quot;</span><span class="p">,</span>
+<span class="linenos">711</span>        <span class="p">},</span>
+<span class="linenos">712</span>        <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">ListProperty</span><span class="p">(</span><span class="n">JUSTIFICATION_PARSING_IO</span><span class="p">)],</span>
+<span class="linenos">713</span>    <span class="p">)</span>
+<span class="linenos">714</span><span class="p">)</span>
+<span class="linenos">715</span>
+<span class="linenos">716</span><span class="n">input_sequence</span> <span class="o">=</span> <span class="p">[</span>
+<span class="linenos">717</span>    <span class="p">{</span>
+<span class="linenos">718</span>        <span class="s2">&quot;seed_example&quot;</span><span class="p">:</span> <span class="n">df_seed</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+<span class="linenos">719</span>        <span class="s2">&quot;generated_row&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+<span class="linenos">720</span>    <span class="p">}</span>
+<span class="linenos">721</span>    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df_synthesized</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()</span>
+<span class="linenos">722</span><span class="p">]</span>
+<span class="linenos">723</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="n">MapStep</span><span class="o">.</span><span class="n">ITERATED_INPUT</span><span class="p">:</span> <span class="n">input_sequence</span><span class="p">})</span>
+<span class="linenos">724</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">725</span><span class="n">df_synthesized</span><span class="p">[</span><span class="s2">&quot;justification&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">[</span><span class="n">JUSTIFICATION_PARSING_IO</span><span class="p">]</span>
+<span class="linenos">726</span>
+<span class="linenos">727</span>
+<span class="linenos">728</span>
+<span class="linenos">729</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">730</span><span class="n">exporting</span> <span class="n">synthetic</span> <span class="n">dataset</span><span class="p">:</span>
+<span class="linenos">731</span>
+<span class="linenos">732</span><span class="c1"># %%</span>
+<span class="linenos">733</span><span class="n">df_synthesized</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;records&quot;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -2107,8 +2094,8 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

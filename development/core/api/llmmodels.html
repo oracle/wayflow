@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -291,9 +291,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -306,6 +311,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -314,11 +321,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -330,11 +334,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
@@ -346,6 +352,8 @@
 <li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -448,19 +456,19 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_id</strong> (<em>str</em>) – ID of the model.</p></li>
-<li><p><strong>generation_config</strong> (<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – Parameters for LLM generation.</p></li>
-<li><p><strong>chat_template</strong> (<a class="reference internal" href="prompttemplate.html#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a><em> | </em><em>None</em>) – Default template for chat completion.</p></li>
-<li><p><strong>agent_template</strong> (<a class="reference internal" href="prompttemplate.html#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a><em> | </em><em>None</em>) – Default template for agents using this model.</p></li>
-<li><p><strong>supports_structured_generation</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether the model supports structured generation or not. When set to <cite>None</cite>,
+<li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – ID of the model.</p></li>
+<li><p><strong>generation_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmGenerationConfig</span></code></a>]) – Parameters for LLM generation.</p></li>
+<li><p><strong>chat_template</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="prompttemplate.html#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a>]) – Default template for chat completion.</p></li>
+<li><p><strong>agent_template</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="prompttemplate.html#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a>]) – Default template for agents using this model.</p></li>
+<li><p><strong>supports_structured_generation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – Whether the model supports structured generation or not. When set to <cite>None</cite>,
 the model will be prompted with a response format and it will check it can use
 structured generation.</p></li>
-<li><p><strong>supports_tool_calling</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether the model supports tool calling or not. When set to <cite>None</cite>,
+<li><p><strong>supports_tool_calling</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – Whether the model supports tool calling or not. When set to <cite>None</cite>,
 the model will be prompted with a tool and it will check it can use
 the tool.</p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the component.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the component.</p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – Description of the component.</p></li>
+<li><p><strong>id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – ID of the component.</p></li>
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Name of the component.</p></li>
+<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Description of the component.</p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
 </ul>
 </dd>
@@ -488,12 +496,12 @@ the tool.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>prompt</strong> (<em>str</em><em> | </em><em>Prompt</em>) – Prompt that contains the messages and other arguments to send to the LLM</p></li>
+<li><p><strong>prompt</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a>]) – Prompt that contains the messages and other arguments to send to the LLM</p></li>
 <li><p><strong>_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a><em> | </em><em>None</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>LlmCompletion</em></p>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.models.LlmCompletion" title="wayflowcore.models.llmmodel.LlmCompletion"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmCompletion</span></code></a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -510,14 +518,14 @@ the tool.</p></li>
 <dt class="sig sig-object py" id="wayflowcore.models.llmmodel.LlmModel.generate_async">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_conversation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.llmmodel.LlmModel.generate_async" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prompt</strong> (<em>str</em><em> | </em><em>Prompt</em>) – </p></li>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.models.LlmCompletion" title="wayflowcore.models.llmmodel.LlmCompletion"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmCompletion</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>prompt</strong> (<em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><em>Prompt</em></a>) – </p></li>
 <li><p><strong>_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a><em> | </em><em>None</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>LlmCompletion</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -530,33 +538,29 @@ the tool.</p></li>
 by summing the token usages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>conversation_id</strong> (<em>str</em>) – The unique identifier for the conversation whose token consumption is to be calculated.</p>
+<dd class="field-odd"><p><strong>conversation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The unique identifier for the conversation whose token consumption is to be calculated.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A TokenUsage object that gathers all token usage information.</p>
 </dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">TokenUsage</span></code></dt><dd><p>An object to gather all token usage information.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.tokenusage.TokenUsage" title="wayflowcore.tokenusage.TokenUsage">TokenUsage</a></p>
 </dd>
 </dl>
-</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.models.llmmodel.LlmModel.stream_generate">
 <span class="sig-name descname"><span class="pre">stream_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_conversation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.llmmodel.LlmModel.stream_generate" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prompt</strong> (<em>str</em><em> | </em><em>Prompt</em>) – </p></li>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<a class="reference internal" href="#wayflowcore.models._requesthelpers.StreamChunkType" title="wayflowcore.models._requesthelpers.StreamChunkType"><code class="xref py py-class docutils literal notranslate"><span class="pre">StreamChunkType</span></code></a>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]]]</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>prompt</strong> (<em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><em>Prompt</em></a>) – </p></li>
 <li><p><strong>_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a><em> | </em><em>None</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Iterable</em>[<em>Tuple</em>[<em>StreamChunkType</em>, <a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message">Message</a> | None]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -568,12 +572,12 @@ by summing the token usages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>prompt</strong> (<em>str</em><em> | </em><em>Prompt</em>) – Prompt that contains the messages and other arguments to send to the LLM</p></li>
+<li><p><strong>prompt</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a>]) – Prompt that contains the messages and other arguments to send to the LLM</p></li>
 <li><p><strong>_conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a><em> | </em><em>None</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>AsyncIterable</em>[<em>Tuple</em>[<em>StreamChunkType</em>, <a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message">Message</a> | None]]</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncIterable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<a class="reference internal" href="#wayflowcore.models._requesthelpers.StreamChunkType" title="wayflowcore.models._requesthelpers.StreamChunkType"><code class="xref py py-class docutils literal notranslate"><span class="pre">StreamChunkType</span></code></a>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]]]</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -598,6 +602,31 @@ by summing the token usages.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.models._requesthelpers.StreamChunkType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models._requesthelpers.</span></span><span class="sig-name descname"><span class="pre">StreamChunkType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models._requesthelpers.StreamChunkType" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models._requesthelpers.StreamChunkType.END_CHUNK">
+<span class="sig-name descname"><span class="pre">END_CHUNK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#wayflowcore.models._requesthelpers.StreamChunkType.END_CHUNK" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models._requesthelpers.StreamChunkType.IGNORED">
+<span class="sig-name descname"><span class="pre">IGNORED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wayflowcore.models._requesthelpers.StreamChunkType.IGNORED" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models._requesthelpers.StreamChunkType.START_CHUNK">
+<span class="sig-name descname"><span class="pre">START_CHUNK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#wayflowcore.models._requesthelpers.StreamChunkType.START_CHUNK" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models._requesthelpers.StreamChunkType.TEXT_CHUNK">
+<span class="sig-name descname"><span class="pre">TEXT_CHUNK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#wayflowcore.models._requesthelpers.StreamChunkType.TEXT_CHUNK" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="llmmodelfactory">
 <h2>LlmModelFactory<a class="headerlink" href="#llmmodelfactory" title="Permalink to this heading">#</a></h2>
@@ -610,13 +639,118 @@ by summing the token usages.</p>
 <dt class="sig sig-object py" id="wayflowcore.models.llmmodelfactory.LlmModelFactory.from_config">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.llmmodelfactory.LlmModelFactory.from_config" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>model_config</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmModel</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>model_config</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
 </dd>
 </dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="llmcompletion">
+<h2>LlmCompletion<a class="headerlink" href="#llmcompletion" title="Permalink to this heading">#</a></h2>
+<span class="target" id="llmmodelcompletion"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.models.LlmCompletion">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.</span></span><span class="sig-name descname"><span class="pre">LlmCompletion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_usage</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.LlmCompletion" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p></li>
+<li><p><strong>token_usage</strong> (<a class="reference internal" href="#wayflowcore.tokenusage.TokenUsage" title="wayflowcore.tokenusage.TokenUsage"><em>TokenUsage</em></a><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.LlmCompletion.message">
+<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Message</span></em><a class="headerlink" href="#wayflowcore.models.LlmCompletion.message" title="Permalink to this definition">#</a></dt>
+<dd><p>Message generated by the LLM</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.LlmCompletion.token_usage">
+<span class="sig-name descname"><span class="pre">token_usage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.tokenusage.TokenUsage" title="wayflowcore.tokenusage.TokenUsage"><code class="xref py py-class docutils literal notranslate"><span class="pre">TokenUsage</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.models.LlmCompletion.token_usage" title="Permalink to this definition">#</a></dt>
+<dd><p>Token usage for this completion</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="prompt">
+<h2>Prompt<a class="headerlink" href="#prompt" title="Permalink to this heading">#</a></h2>
+<span class="target" id="id3"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.models.Prompt">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.</span></span><span class="sig-name descname"><span class="pre">Prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tools</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_parser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.Prompt" title="Permalink to this definition">#</a></dt>
+<dd><p>Dataclass containing all information needed for LLM completion + potential post-processing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>messages</strong> (<em>List</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em>]</em>) – </p></li>
+<li><p><strong>tools</strong> (<em>List</em><em>[</em><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>response_format</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>output_parser</strong> (<a class="reference internal" href="prompttemplate.html#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="prompttemplate.html#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>generation_config</strong> (<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.models.Prompt.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.Prompt.copy" title="Permalink to this definition">#</a></dt>
+<dd><p>Makes a copy of the prompt and changes some given attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>kwargs</strong> (<em>Any</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.Prompt.generation_config">
+<span class="sig-name descname"><span class="pre">generation_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmGenerationConfig</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.Prompt.generation_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Optional parameters for the llm generation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.Prompt.messages">
+<span class="sig-name descname"><span class="pre">messages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[Message]</span></em><a class="headerlink" href="#wayflowcore.models.Prompt.messages" title="Permalink to this definition">#</a></dt>
+<dd><p>List of messages to use for chat generation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.Prompt.output_parser">
+<span class="sig-name descname"><span class="pre">output_parser</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[OutputParser,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[OutputParser],</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.Prompt.output_parser" title="Permalink to this definition">#</a></dt>
+<dd><p>Optional parser to transform the raw output of the LLM.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.models.Prompt.parse_output">
+<span class="sig-name descname"><span class="pre">parse_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.Prompt.parse_output" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.Prompt.response_format">
+<span class="sig-name descname"><span class="pre">response_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.Prompt.response_format" title="Permalink to this definition">#</a></dt>
+<dd><p>Optional response format to use for structured generation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.Prompt.tools">
+<span class="sig-name descname"><span class="pre">tools</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[Tool]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.Prompt.tools" title="Permalink to this definition">#</a></dt>
+<dd><p>Optional tools to use for native tool calling.</p>
 </dd></dl>
 
 </dd></dl>
@@ -627,42 +761,48 @@ by summing the token usages.</p>
 <p>Class that is used to gather all token usage information.</p>
 <span class="target" id="tokenusage"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.tokenusage.TokenUsage">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tokenusage.</span></span><span class="sig-name descname"><span class="pre">TokenUsage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cached_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tokenusage.</span></span><span class="sig-name descname"><span class="pre">TokenUsage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cached_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reasoning_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage" title="Permalink to this definition">#</a></dt>
 <dd><p>Gathers all token usage information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_tokens</strong> (<em>int</em>) – Number of tokens used as input/context.</p></li>
-<li><p><strong>cached_tokens</strong> (<em>int</em>) – Number of tokens in prompt that were cached.</p></li>
-<li><p><strong>output_tokens</strong> (<em>int</em>) – Number of tokens generated by the model.</p></li>
-<li><p><strong>exact_count</strong> (<em>bool</em>) – Whether these numbers are exact or were estimated using the 1 token ≈ 3/4 word rule</p></li>
+<li><p><strong>input_tokens</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of tokens used as input/context.</p></li>
+<li><p><strong>cached_tokens</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of tokens in prompt that were cached.</p></li>
+<li><p><strong>output_tokens</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of tokens generated by the model.</p></li>
+<li><p><strong>reasoning_tokens</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of reasoning tokens generated by the model</p></li>
+<li><p><strong>exact_count</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether these numbers are exact or were estimated using the 1 token ≈ 3/4 word rule</p></li>
 <li><p><strong>total_tokens</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tokenusage.TokenUsage.cached_tokens">
-<span class="sig-name descname"><span class="pre">cached_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.cached_tokens" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cached_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.cached_tokens" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tokenusage.TokenUsage.exact_count">
-<span class="sig-name descname"><span class="pre">exact_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.exact_count" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">exact_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.exact_count" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tokenusage.TokenUsage.input_tokens">
-<span class="sig-name descname"><span class="pre">input_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.input_tokens" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">input_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.input_tokens" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tokenusage.TokenUsage.output_tokens">
-<span class="sig-name descname"><span class="pre">output_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.output_tokens" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">output_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.output_tokens" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.tokenusage.TokenUsage.reasoning_tokens">
+<span class="sig-name descname"><span class="pre">reasoning_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.reasoning_tokens" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tokenusage.TokenUsage.total_tokens">
-<span class="sig-name descname"><span class="pre">total_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.total_tokens" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">total_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wayflowcore.tokenusage.TokenUsage.total_tokens" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -678,20 +818,43 @@ by summing the token usages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>max_tokens</strong> (<em>int</em><em> | </em><em>None</em>) – Maximum number of tokens to generate as output.</p></li>
-<li><p><strong>temperature</strong> (<em>float</em><em> | </em><em>None</em>) – What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random,
+<li><p><strong>max_tokens</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Maximum number of tokens to generate as output.</p></li>
+<li><p><strong>temperature</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random,
 while lower values like 0.2 will make it more focused and deterministic.
 We generally recommend altering this or <code class="docutils literal notranslate"><span class="pre">top_p</span></code> but not both.</p></li>
-<li><p><strong>top_p</strong> (<em>float</em><em> | </em><em>None</em>) – An alternative to sampling with temperature, called nucleus sampling, where the model considers the results
+<li><p><strong>top_p</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – An alternative to sampling with temperature, called nucleus sampling, where the model considers the results
 of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability
 mass are considered.
 We generally recommend altering this or temperature but not both.</p></li>
-<li><p><strong>stop</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – List of stop words to indicate the LLM to stop generating when encountering one of these words. This helps
+<li><p><strong>stop</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – List of stop words to indicate the LLM to stop generating when encountering one of these words. This helps
 reducing hallucinations, when using templates like ReAct. Some reasoning models (o3, o4-mini…) might
 not support it.</p></li>
-<li><p><strong>frequency_penalty</strong> (<em>float</em><em> | </em><em>None</em>) – float between -2.0 and 2.0 that penalizes new tokens based on their frequency in the generated text so far.
+<li><p><strong>frequency_penalty</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – float between -2.0 and 2.0 that penalizes new tokens based on their frequency in the generated text so far.
 Values &gt; 0 encourage the model to use new tokens, while values &lt; 0 encourage the model to repeat tokens.</p></li>
-<li><p><strong>extra_args</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – <p>dictionary of extra arguments that can be used by specific model providers</p>
+<li><p><strong>extra_args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]) – <p>dictionary of extra arguments that can be used by specific model providers</p>
+<blockquote>
+<div><p>For OpenAI Responses API:</p>
+<dl>
+<dt>max_tool_calls:</dt><dd><p>The maximum number of total calls to built-in tools that can be processed in a response.
+This maximum number applies across all built-in tool calls, not per individual tool.
+Any further attempts to call a tool by the model will be ignored.</p>
+</dd>
+<dt>reasoning:</dt><dd><p>gpt-5 and o-series models only.</p>
+<p>If the config contains “reasoning”, adds the “reasoning.encrypted_content” key in “include” automatically to preserve reasoning traces.
+(<a class="reference external" href="https://platform.openai.com/docs/api-reference/responses/create#responses_create-include">https://platform.openai.com/docs/api-reference/responses/create#responses_create-include</a>)</p>
+<dl class="simple">
+<dt>effort:</dt><dd><p>Constrains effort on reasoning for reasoning models. Currently supported values are “minimal”, “low”, “medium”, and “high”.
+Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.</p>
+</dd>
+<dt>summary:</dt><dd><p>A summary of the reasoning performed by the model. This can be useful for debugging and understanding the model’s reasoning process. One of “auto”, “concise”, or “detailed”.
+If the config contains “reasoning” and the “summary” parameter is not set, defaults to “auto”.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<p>The full list of parameters for Responses API can be found here:
+<a class="reference external" href="https://platform.openai.com/docs/api-reference/responses/create">https://platform.openai.com/docs/api-reference/responses/create</a></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The extra parameters should never include sensitive information.</p>
@@ -704,53 +867,53 @@ Values &gt; 0 encourage the model to use new tokens, while values &lt; 0 encoura
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.extra_args">
-<span class="sig-name descname"><span class="pre">extra_args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.extra_args" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">extra_args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.extra_args" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.frequency_penalty">
-<span class="sig-name descname"><span class="pre">frequency_penalty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.frequency_penalty" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">frequency_penalty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.frequency_penalty" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.from_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmGenerationConfig</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>config</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.max_tokens">
-<span class="sig-name descname"><span class="pre">max_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.max_tokens" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">max_tokens</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.max_tokens" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.merge_config">
 <span class="sig-name descname"><span class="pre">merge_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overriding_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.merge_config" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>overriding_config</strong> (<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmGenerationConfig</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>overriding_config</strong> (<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.stop">
-<span class="sig-name descname"><span class="pre">stop</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.stop" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">stop</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.stop" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.temperature">
-<span class="sig-name descname"><span class="pre">temperature</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.temperature" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">temperature</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.temperature" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -758,14 +921,36 @@ Values &gt; 0 encourage the model to use new tokens, while values &lt; 0 encoura
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.to_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Dict</em>[str, <em>Any</em>]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.top_p">
-<span class="sig-name descname"><span class="pre">top_p</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.top_p" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">top_p</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.top_p" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="api-type">
+<h2>API Type<a class="headerlink" href="#api-type" title="Permalink to this heading">#</a></h2>
+<p>Class that is used to select the OpenAI API Type to use.</p>
+<span class="target" id="openaiapitype"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.models.openaiapitype.OpenAIAPIType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.openaiapitype.</span></span><span class="sig-name descname"><span class="pre">OpenAIAPIType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.openaiapitype.OpenAIAPIType" title="Permalink to this definition">#</a></dt>
+<dd><p>Enumeration of OpenAI API Types.</p>
+<p>chat_completions: Chat Completions API
+responses: Responses API</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.openaiapitype.OpenAIAPIType.CHAT_COMPLETIONS">
+<span class="sig-name descname"><span class="pre">CHAT_COMPLETIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'chat_completions'</span></em><a class="headerlink" href="#wayflowcore.models.openaiapitype.OpenAIAPIType.CHAT_COMPLETIONS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.openaiapitype.OpenAIAPIType.RESPONSES">
+<span class="sig-name descname"><span class="pre">RESPONSES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'responses'</span></em><a class="headerlink" href="#wayflowcore.models.openaiapitype.OpenAIAPIType.RESPONSES" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -777,29 +962,32 @@ Values &gt; 0 encourage the model to use new tokens, while values &lt; 0 encoura
 <h3>OpenAI Compatible Models<a class="headerlink" href="#openai-compatible-models" title="Permalink to this heading">#</a></h3>
 <span class="target" id="openaicompatiblemodel"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.models.openaicompatiblemodel.OpenAICompatibleModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.openaicompatiblemodel.</span></span><span class="sig-name descname"><span class="pre">OpenAICompatibleModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supports_structured_generation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supports_tool_calling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.openaicompatiblemodel.OpenAICompatibleModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.openaicompatiblemodel.</span></span><span class="sig-name descname"><span class="pre">OpenAICompatibleModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supports_structured_generation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supports_tool_calling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">OpenAIAPIType.CHAT_COMPLETIONS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.openaicompatiblemodel.OpenAICompatibleModel" title="Permalink to this definition">#</a></dt>
 <dd><p>Model to use remote LLM endpoints that use OpenAI-compatible chat APIs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_id</strong> (<em>str</em>) – Name of the model to use</p></li>
-<li><p><strong>base_url</strong> (<em>str</em>) – Hostname and port of the vllm server where the model is hosted. If you specify a url
-ending with <cite>/completions</cite> it will be used as-is, otherwise the url path
-<cite>v1/chat/completions</cite> will be appended to the base url.</p></li>
-<li><p><strong>proxy</strong> (<em>str</em><em> | </em><em>None</em>) – Proxy to use to connect to the remote LLM endpoint</p></li>
-<li><p><strong>api_key</strong> (<em>str</em><em> | </em><em>None</em>) – API key to use for the request if needed. It will be formatted in the OpenAI format.
+<li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the model to use</p></li>
+<li><p><strong>base_url</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Hostname and port of the vllm server where the model is hosted. If you specify a url
+ending with <cite>/completions</cite> or <cite>/responses</cite> it will be used as-is, otherwise the url path
+<cite>v1/chat/completions</cite> or <cite>v1/responses</cite> will be appended to the base url depending on the API
+type specified.</p></li>
+<li><p><strong>proxy</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Proxy to use to connect to the remote LLM endpoint</p></li>
+<li><p><strong>api_key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – API key to use for the request if needed. It will be formatted in the OpenAI format.
 (as “Bearer API_KEY” in the request header)
 If not provided, will attempt to read from the environment variable OPENAI_API_KEY</p></li>
-<li><p><strong>generation_config</strong> (<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – default parameters for text generation with this model</p></li>
-<li><p><strong>supports_structured_generation</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether the model supports structured generation or not. When set to <cite>None</cite>,
+<li><p><strong>generation_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmGenerationConfig</span></code></a>]) – default parameters for text generation with this model</p></li>
+<li><p><strong>supports_structured_generation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – Whether the model supports structured generation or not. When set to <cite>None</cite>,
 the model will be prompted with a response format and it will check it can use
 structured generation.</p></li>
-<li><p><strong>supports_tool_calling</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether the model supports tool calling or not. When set to <cite>None</cite>,
+<li><p><strong>supports_tool_calling</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – Whether the model supports tool calling or not. When set to <cite>None</cite>,
 the model will be prompted with a tool and it will check it can use
 the tool.</p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the component.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the component.</p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – Description of the component.</p></li>
+<li><p><strong>api_type</strong> (<a class="reference internal" href="#wayflowcore.models.openaiapitype.OpenAIAPIType" title="wayflowcore.models.openaiapitype.OpenAIAPIType"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenAIAPIType</span></code></a>) – OpenAI API type to use. Currently supports Responses and Chat Completions API.
+Uses Chat Completions API if not specified</p></li>
+<li><p><strong>id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – ID of the component.</p></li>
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Name of the component.</p></li>
+<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Description of the component.</p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
 </ul>
 </dd>
@@ -826,28 +1014,32 @@ the tool.</p></li>
 <h3>OpenAI Models<a class="headerlink" href="#openai-models" title="Permalink to this heading">#</a></h3>
 <span class="target" id="openaimodel"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.models.openaimodel.OpenAIModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.openaimodel.</span></span><span class="sig-name descname"><span class="pre">OpenAIModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gpt-4o-mini'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.openaimodel.OpenAIModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.openaimodel.</span></span><span class="sig-name descname"><span class="pre">OpenAIModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gpt-4o-mini'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">OpenAIAPIType.CHAT_COMPLETIONS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.openaimodel.OpenAIModel" title="Permalink to this definition">#</a></dt>
 <dd><p>Model powered by OpenAI.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_id</strong> (<em>str</em>) – Name of the model to use</p></li>
-<li><p><strong>api_key</strong> (<em>str</em><em> | </em><em>None</em>) – API key for the OpenAI endpoint. Overrides existing <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> environment variable.</p></li>
-<li><p><strong>generation_config</strong> (<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – default parameters for text generation with this model</p></li>
-<li><p><strong>proxy</strong> (<em>str</em><em> | </em><em>None</em>) – proxy to access the remote model under VPN</p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the component.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the component.</p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – Description of the component.</p></li>
-<li><p><strong>important::</strong> (<em>..</em>) – <p>When running under Oracle VPN, the connection to the OCIGenAI service requires to run the model without any proxy.
-Therefore, make sure not to have any of <code class="docutils literal notranslate"><span class="pre">http_proxy</span></code> or <code class="docutils literal notranslate"><span class="pre">HTTP_PROXY</span></code> environment variables setup,
-or unset them with <code class="docutils literal notranslate"><span class="pre">unset</span> <span class="pre">http_proxy</span> <span class="pre">HTTP_PROXY</span></code>. Please also ensure that the <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> is set beforehand
-to access this model. A list of available OpenAI models can be found at the following
-link: <a class="reference external" href="https://platform.openai.com/docs/models">OpenAI Models</a></p>
-</p></li>
+<li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the model to use</p></li>
+<li><p><strong>api_key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – API key for the OpenAI endpoint. Overrides existing <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> environment variable.</p></li>
+<li><p><strong>generation_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmGenerationConfig</span></code></a>]) – default parameters for text generation with this model</p></li>
+<li><p><strong>proxy</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – proxy to access the remote model under VPN</p></li>
+<li><p><strong>api_type</strong> (<a class="reference internal" href="#wayflowcore.models.openaiapitype.OpenAIAPIType" title="wayflowcore.models.openaiapitype.OpenAIAPIType"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenAIAPIType</span></code></a>) – OpenAI API type to use. Currently supports Responses and Chat Completions API.
+Uses Completions API if not specified</p></li>
+<li><p><strong>id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – ID of the component.</p></li>
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Name of the component.</p></li>
+<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Description of the component.</p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When running under Oracle VPN, the connection to the OCIGenAI service requires to run the model without any proxy.
+Therefore, make sure not to have any of <code class="docutils literal notranslate"><span class="pre">http_proxy</span></code> or <code class="docutils literal notranslate"><span class="pre">HTTP_PROXY</span></code> environment variables setup,
+or unset them with <code class="docutils literal notranslate"><span class="pre">unset</span> <span class="pre">http_proxy</span> <span class="pre">HTTP_PROXY</span></code>. Please also ensure that the <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> is set beforehand
+to access this model. A list of available OpenAI models can be found at the following
+link: <a class="reference external" href="https://platform.openai.com/docs/models">OpenAI Models</a></p>
+</div>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmModelFactory</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">OPENAI_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
@@ -884,21 +1076,21 @@ link: <a class="reference external" href="https://platform.openai.com/docs/model
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_id</strong> (<em>str</em>) – Name of the model to use. List of model names can be found here:
+<li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the model to use. List of model names can be found here:
 <a class="reference external" href="https://ollama.com/search">https://ollama.com/search</a></p></li>
-<li><p><strong>host_port</strong> (<em>str</em>) – Hostname and port of the vllm server where the model is hosted.
+<li><p><strong>host_port</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Hostname and port of the vllm server where the model is hosted.
 By default Ollama binds port 11434.</p></li>
-<li><p><strong>proxy</strong> (<em>str</em><em> | </em><em>None</em>) – Proxy to use to connect to the remote LLM endpoint</p></li>
-<li><p><strong>generation_config</strong> (<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – default parameters for text generation with this model</p></li>
-<li><p><strong>supports_structured_generation</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether the model supports structured generation or not. When set to <cite>None</cite>,
+<li><p><strong>proxy</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Proxy to use to connect to the remote LLM endpoint</p></li>
+<li><p><strong>generation_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmGenerationConfig</span></code></a>]) – default parameters for text generation with this model</p></li>
+<li><p><strong>supports_structured_generation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – Whether the model supports structured generation or not. When set to <cite>None</cite>,
 the model will be prompted with a response format and it will check it can use
 structured generation.</p></li>
-<li><p><strong>supports_tool_calling</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether the model supports tool calling or not. When set to <cite>None</cite>,
+<li><p><strong>supports_tool_calling</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – Whether the model supports tool calling or not. When set to <cite>None</cite>,
 the model will be prompted with a tool and it will check it can use
 the tool.</p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the component.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the component.</p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – Description of the component.</p></li>
+<li><p><strong>id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – ID of the component.</p></li>
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Name of the component.</p></li>
+<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Description of the component.</p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
 </ul>
 </dd>
@@ -945,24 +1137,31 @@ See <a class="reference external" href="https://arxiv.org/abs/2210.03629">https:
 <h3>VLLM Models<a class="headerlink" href="#vllm-models" title="Permalink to this heading">#</a></h3>
 <span class="target" id="vllmmodel"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.models.vllmmodel.VllmModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.vllmmodel.</span></span><span class="sig-name descname"><span class="pre">VllmModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supports_structured_generation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supports_tool_calling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.vllmmodel.VllmModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.vllmmodel.</span></span><span class="sig-name descname"><span class="pre">VllmModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supports_structured_generation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supports_tool_calling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">OpenAIAPIType.CHAT_COMPLETIONS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'&lt;[EMPTY#KEY]&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.vllmmodel.VllmModel" title="Permalink to this definition">#</a></dt>
 <dd><p>Model powered by a model hosted with VLLM server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_id</strong> (<em>str</em>) – Name of the model to use</p></li>
-<li><p><strong>host_port</strong> (<em>str</em>) – Hostname and port of the vllm server where the model is hosted</p></li>
-<li><p><strong>proxy</strong> (<em>str</em><em> | </em><em>None</em>) – Proxy to use to connect to the remote LLM endpoint</p></li>
-<li><p><strong>generation_config</strong> (<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – default parameters for text generation with this model</p></li>
-<li><p><strong>supports_structured_generation</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether the model supports structured generation or not. When set to <cite>None</cite>,
+<li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the model to use</p></li>
+<li><p><strong>host_port</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Hostname and port of the vllm server where the model is hosted</p></li>
+<li><p><strong>proxy</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Proxy to use to connect to the remote LLM endpoint</p></li>
+<li><p><strong>generation_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmGenerationConfig</span></code></a>]) – default parameters for text generation with this model</p></li>
+<li><p><strong>supports_structured_generation</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – Whether the model supports structured generation or not. When set to <cite>None</cite>,
 the model will be prompted with a response format and it will check it can use
 structured generation.</p></li>
-<li><p><strong>supports_tool_calling</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether the model supports tool calling or not. When set to <cite>None</cite>,
+<li><p><strong>supports_tool_calling</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]) – Whether the model supports tool calling or not. When set to <cite>None</cite>,
 the model will be prompted with a tool and it will check it can use
 the tool.</p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the component.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the component.</p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – Description of the component.</p></li>
+<li><p><strong>api_type</strong> (<a class="reference internal" href="#wayflowcore.models.openaiapitype.OpenAIAPIType" title="wayflowcore.models.openaiapitype.OpenAIAPIType"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenAIAPIType</span></code></a>) – OpenAI API type to use. Currently supports Responses and Chat Completions API.
+Uses Completions API if not specified.
+As of November 2025, Reponses support with VLLM is limited for certain models.
+Responses API has been tested on vLLM with OpenAI GPT-OSS.</p></li>
+<li><p><strong>api_key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – API key to use for the request if needed. It will be formatted in the OpenAI format.
+(as “Bearer API_KEY” in the request header)
+If not provided, will attempt to read from the environment variable OPENAI_API_KEY</p></li>
+<li><p><strong>id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – ID of the component.</p></li>
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Name of the component.</p></li>
+<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Description of the component.</p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
 </ul>
 </dd>
@@ -1018,18 +1217,18 @@ Therefore, make sure not to have any of <cite>http_proxy</cite> or <cite>HTTP_PR
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_id</strong> (<em>str</em>) – Name of the model to use.</p></li>
-<li><p><strong>compartment_id</strong> (<em>str</em><em> | </em><em>None</em>) – The compartment OCID. Can be also configured in the <cite>OCI_GENAI_COMPARTMENT</cite> env variable.</p></li>
-<li><p><strong>client_config</strong> (<em>OCIClientConfig</em><em> | </em><em>None</em>) – OCI client config to authenticate the OCI service.</p></li>
-<li><p><strong>serving_mode</strong> (<em>ServingMode</em><em> | </em><em>None</em>) – OCI serving mode for the model. Either <code class="docutils literal notranslate"><span class="pre">ServingMode.ON_DEMAND</span></code> or <code class="docutils literal notranslate"><span class="pre">ServingMode.DEDICATED</span></code>.
+<li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the model to use.</p></li>
+<li><p><strong>compartment_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The compartment OCID. Can be also configured in the <cite>OCI_GENAI_COMPARTMENT</cite> env variable.</p></li>
+<li><p><strong>client_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.models.ociclientconfig.OCIClientConfig" title="wayflowcore.models.ociclientconfig.OCIClientConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">OCIClientConfig</span></code></a>]) – OCI client config to authenticate the OCI service.</p></li>
+<li><p><strong>serving_mode</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.models.ocigenaimodel.ServingMode" title="wayflowcore.models.ocigenaimodel.ServingMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServingMode</span></code></a>]) – OCI serving mode for the model. Either <code class="docutils literal notranslate"><span class="pre">ServingMode.ON_DEMAND</span></code> or <code class="docutils literal notranslate"><span class="pre">ServingMode.DEDICATED</span></code>.
 When set to None, it will be auto-detected based on the <code class="docutils literal notranslate"><span class="pre">model_id</span></code>.</p></li>
-<li><p><strong>provider</strong> (<em>ModelProvider</em><em> | </em><em>None</em>) – Name of the provider of the underlying model, to adapt the request.
+<li><p><strong>provider</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.models.ocigenaimodel.ModelProvider" title="wayflowcore.models.ocigenaimodel.ModelProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelProvider</span></code></a>]) – Name of the provider of the underlying model, to adapt the request.
 Needs to be specified in <code class="docutils literal notranslate"><span class="pre">ServingMode.DEDICATED</span></code>. Is auto-detected when in <code class="docutils literal notranslate"><span class="pre">ServingMode.ON_DEMAND</span></code>
 based on the <code class="docutils literal notranslate"><span class="pre">model_id</span></code>.</p></li>
-<li><p><strong>generation_config</strong> (<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – default parameters for text generation with this model</p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – ID of the component.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the component.</p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – Description of the component.</p></li>
+<li><p><strong>generation_config</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmGenerationConfig</span></code></a>]) – default parameters for text generation with this model</p></li>
+<li><p><strong>id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – ID of the component.</p></li>
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Name of the component.</p></li>
+<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Description of the component.</p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>service_endpoint</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>auth_type</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
@@ -1086,8 +1285,104 @@ To grant an OCI Compute instance the ability to authenticate as an Instance Prin
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.models.ocigenaimodel.ServingMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.ocigenaimodel.</span></span><span class="sig-name descname"><span class="pre">ServingMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ocigenaimodel.ServingMode" title="Permalink to this definition">#</a></dt>
+<dd><p>The serving mode in which the model is hosted</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ocigenaimodel.ServingMode.DEDICATED">
+<span class="sig-name descname"><span class="pre">DEDICATED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DEDICATED'</span></em><a class="headerlink" href="#wayflowcore.models.ocigenaimodel.ServingMode.DEDICATED" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ocigenaimodel.ServingMode.ON_DEMAND">
+<span class="sig-name descname"><span class="pre">ON_DEMAND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ON_DEMAND'</span></em><a class="headerlink" href="#wayflowcore.models.ocigenaimodel.ServingMode.ON_DEMAND" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.models.ocigenaimodel.ModelProvider">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.ocigenaimodel.</span></span><span class="sig-name descname"><span class="pre">ModelProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ocigenaimodel.ModelProvider" title="Permalink to this definition">#</a></dt>
+<dd><p>Provider of the model. It is used to ensure the requests to this model respect
+the format expected by the provider.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ocigenaimodel.ModelProvider.COHERE">
+<span class="sig-name descname"><span class="pre">COHERE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'COHERE'</span></em><a class="headerlink" href="#wayflowcore.models.ocigenaimodel.ModelProvider.COHERE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ocigenaimodel.ModelProvider.GROK">
+<span class="sig-name descname"><span class="pre">GROK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GROK'</span></em><a class="headerlink" href="#wayflowcore.models.ocigenaimodel.ModelProvider.GROK" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ocigenaimodel.ModelProvider.META">
+<span class="sig-name descname"><span class="pre">META</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'META'</span></em><a class="headerlink" href="#wayflowcore.models.ocigenaimodel.ModelProvider.META" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ocigenaimodel.ModelProvider.OTHER">
+<span class="sig-name descname"><span class="pre">OTHER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'OTHER'</span></em><a class="headerlink" href="#wayflowcore.models.ocigenaimodel.ModelProvider.OTHER" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <section id="oci-client-config-classes-for-authentication">
 <span id="ociclientconfigclassesforauthentication"></span><h4>OCI Client Config Classes for Authentication<a class="headerlink" href="#oci-client-config-classes-for-authentication" title="Permalink to this heading">#</a></h4>
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig.OCIClientConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.ociclientconfig.</span></span><span class="sig-name descname"><span class="pre">OCIClientConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compartment_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIClientConfig" title="Permalink to this definition">#</a></dt>
+<dd><p>Base abstract class for OCI client config</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service_endpoint</strong> (<em>str</em>) – </p></li>
+<li><p><strong>auth_type</strong> (<a class="reference internal" href="#wayflowcore.models.ociclientconfig._OCIAuthType" title="wayflowcore.models.ociclientconfig._OCIAuthType"><em>_OCIAuthType</em></a>) – </p></li>
+<li><p><strong>compartment_id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig.OCIClientConfig.auth_type">
+<span class="sig-name descname"><span class="pre">auth_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.models.ociclientconfig._OCIAuthType" title="wayflowcore.models.ociclientconfig._OCIAuthType"><code class="xref py py-class docutils literal notranslate"><span class="pre">_OCIAuthType</span></code></a></em><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIClientConfig.auth_type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig.OCIClientConfig.compartment_id">
+<span class="sig-name descname"><span class="pre">compartment_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIClientConfig.compartment_id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig.OCIClientConfig.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIClientConfig.from_dict" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.models.ociclientconfig.OCIClientConfig" title="wayflowcore.models.ociclientconfig.OCIClientConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">OCIClientConfig</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>input_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em> | </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig.OCIClientConfig.service_endpoint">
+<span class="sig-name descname"><span class="pre">service_endpoint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIClientConfig.service_endpoint" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig.OCIClientConfig.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIClientConfig.to_dict" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <span class="target" id="ociclientconfigwithapikey"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig.OCIClientConfigWithApiKey">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.ociclientconfig.</span></span><span class="sig-name descname"><span class="pre">OCIClientConfigWithApiKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compartment_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_profile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_auth_file_location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIClientConfigWithApiKey" title="Permalink to this definition">#</a></dt>
@@ -1095,9 +1390,9 @@ To grant an OCI Compute instance the ability to authenticate as an Instance Prin
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>service_endpoint</strong> (<em>str</em>) – the endpoint of the OCI GenAI service.</p></li>
-<li><p><strong>compartment_id</strong> (<em>str</em><em> | </em><em>None</em>) – compartment id to use.</p></li>
-<li><p><strong>auth_profile</strong> (<em>str</em><em> | </em><em>None</em>) – name of the profile to use in the config file. Defaults to “DEFAULT”.</p></li>
+<li><p><strong>service_endpoint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – the endpoint of the OCI GenAI service.</p></li>
+<li><p><strong>compartment_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – compartment id to use.</p></li>
+<li><p><strong>auth_profile</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – name of the profile to use in the config file. Defaults to “DEFAULT”.</p></li>
 <li><p><strong>_auth_file_location</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 </ul>
 </dd>
@@ -1107,7 +1402,7 @@ To grant an OCI Compute instance the ability to authenticate as an Instance Prin
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIClientConfigWithApiKey.to_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Dict</em>[str, str | <em>Dict</em>[str, str]]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1121,9 +1416,9 @@ To grant an OCI Compute instance the ability to authenticate as an Instance Prin
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>service_endpoint</strong> (<em>str</em>) – the endpoint of the OCI GenAI service.</p></li>
-<li><p><strong>compartment_id</strong> (<em>str</em><em> | </em><em>None</em>) – compartment id to use.</p></li>
-<li><p><strong>auth_profile</strong> (<em>str</em><em> | </em><em>None</em>) – name of the profile to use in the config file. Defaults to “DEFAULT”.</p></li>
+<li><p><strong>service_endpoint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – the endpoint of the OCI GenAI service.</p></li>
+<li><p><strong>compartment_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – compartment id to use.</p></li>
+<li><p><strong>auth_profile</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – name of the profile to use in the config file. Defaults to “DEFAULT”.</p></li>
 <li><p><strong>_auth_file_location</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 </ul>
 </dd>
@@ -1133,7 +1428,7 @@ To grant an OCI Compute instance the ability to authenticate as an Instance Prin
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIClientConfigWithSecurityToken.to_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Dict</em>[str, str | <em>Dict</em>[str, str]]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1147,8 +1442,8 @@ To grant an OCI Compute instance the ability to authenticate as an Instance Prin
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>service_endpoint</strong> (<em>str</em>) – the endpoint of the OCI GenAI service.</p></li>
-<li><p><strong>compartment_id</strong> (<em>str</em><em> | </em><em>None</em>) – compartment id to use.</p></li>
+<li><p><strong>service_endpoint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – the endpoint of the OCI GenAI service.</p></li>
+<li><p><strong>compartment_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – compartment id to use.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1161,8 +1456,8 @@ To grant an OCI Compute instance the ability to authenticate as an Instance Prin
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>service_endpoint</strong> (<em>str</em>) – the endpoint of the OCI GenAI service.</p></li>
-<li><p><strong>compartment_id</strong> (<em>str</em><em> | </em><em>None</em>) – compartment id to use.</p></li>
+<li><p><strong>service_endpoint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – the endpoint of the OCI GenAI service.</p></li>
+<li><p><strong>compartment_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – compartment id to use.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1185,10 +1480,35 @@ To grant an OCI Compute instance the ability to authenticate as an Instance Prin
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIClientConfigWithUserAuthentication.to_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Dict</em>[str, str | <em>Dict</em>[str, <em>Any</em>]]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]]</p>
 </dd>
 </dl>
 </dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig._OCIAuthType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.models.ociclientconfig.</span></span><span class="sig-name descname"><span class="pre">_OCIAuthType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ociclientconfig._OCIAuthType" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig._OCIAuthType.API_KEY">
+<span class="sig-name descname"><span class="pre">API_KEY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'API_KEY'</span></em><a class="headerlink" href="#wayflowcore.models.ociclientconfig._OCIAuthType.API_KEY" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig._OCIAuthType.INSTANCE_PRINCIPAL">
+<span class="sig-name descname"><span class="pre">INSTANCE_PRINCIPAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INSTANCE_PRINCIPAL'</span></em><a class="headerlink" href="#wayflowcore.models.ociclientconfig._OCIAuthType.INSTANCE_PRINCIPAL" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig._OCIAuthType.RESOURCE_PRINCIPAL">
+<span class="sig-name descname"><span class="pre">RESOURCE_PRINCIPAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RESOURCE_PRINCIPAL'</span></em><a class="headerlink" href="#wayflowcore.models.ociclientconfig._OCIAuthType.RESOURCE_PRINCIPAL" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig._OCIAuthType.SECURITY_TOKEN">
+<span class="sig-name descname"><span class="pre">SECURITY_TOKEN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SECURITY_TOKEN'</span></em><a class="headerlink" href="#wayflowcore.models.ociclientconfig._OCIAuthType.SECURITY_TOKEN" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1206,24 +1526,27 @@ In other words, it is equivalent to saving the config in a file and passing the 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>user</strong> (<em>str</em>) – user OCID</p></li>
-<li><p><strong>key_content</strong> (<em>str</em>) – content of the private key</p></li>
-<li><p><strong>fingerprint</strong> (<em>str</em>) – fingerprint of your public key</p></li>
-<li><p><strong>tenancy</strong> (<em>str</em>) – tenancy OCID</p></li>
-<li><p><strong>region</strong> (<em>str</em>) – OCI region</p></li>
-<li><p><strong>warning::</strong> (<em>..</em>) – This class contains sensitive information. Please make sure that the contents are not printed or logged.</p></li>
+<li><p><strong>user</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – user OCID</p></li>
+<li><p><strong>key_content</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – content of the private key</p></li>
+<li><p><strong>fingerprint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – fingerprint of your public key</p></li>
+<li><p><strong>tenancy</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – tenancy OCID</p></li>
+<li><p><strong>region</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – OCI region</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class contains sensitive information. Please make sure that the contents are not printed or logged.</p>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig.from_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>client_config</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig" title="wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">OCIUserAuthenticationConfig</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig" title="wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig"><em>OCIUserAuthenticationConfig</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>client_config</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -1233,7 +1556,7 @@ In other words, it is equivalent to saving the config in a file and passing the 
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig.to_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Dict</em>[str, str]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1284,11 +1607,39 @@ In other words, it is equivalent to saving the config in a file and passing the 
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.llmmodel.LlmModel.stream_generate_async"><code class="docutils literal notranslate"><span class="pre">LlmModel.stream_generate_async()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models._requesthelpers.StreamChunkType"><code class="docutils literal notranslate"><span class="pre">StreamChunkType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models._requesthelpers.StreamChunkType.END_CHUNK"><code class="docutils literal notranslate"><span class="pre">StreamChunkType.END_CHUNK</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models._requesthelpers.StreamChunkType.IGNORED"><code class="docutils literal notranslate"><span class="pre">StreamChunkType.IGNORED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models._requesthelpers.StreamChunkType.START_CHUNK"><code class="docutils literal notranslate"><span class="pre">StreamChunkType.START_CHUNK</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models._requesthelpers.StreamChunkType.TEXT_CHUNK"><code class="docutils literal notranslate"><span class="pre">StreamChunkType.TEXT_CHUNK</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#llmmodelfactory">LlmModelFactory</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.llmmodelfactory.LlmModelFactory"><code class="docutils literal notranslate"><span class="pre">LlmModelFactory</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.llmmodelfactory.LlmModelFactory.from_config"><code class="docutils literal notranslate"><span class="pre">LlmModelFactory.from_config()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#llmcompletion">LlmCompletion</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.LlmCompletion"><code class="docutils literal notranslate"><span class="pre">LlmCompletion</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.LlmCompletion.message"><code class="docutils literal notranslate"><span class="pre">LlmCompletion.message</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.LlmCompletion.token_usage"><code class="docutils literal notranslate"><span class="pre">LlmCompletion.token_usage</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt">Prompt</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.Prompt"><code class="docutils literal notranslate"><span class="pre">Prompt</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.Prompt.copy"><code class="docutils literal notranslate"><span class="pre">Prompt.copy()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.Prompt.generation_config"><code class="docutils literal notranslate"><span class="pre">Prompt.generation_config</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.Prompt.messages"><code class="docutils literal notranslate"><span class="pre">Prompt.messages</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.Prompt.output_parser"><code class="docutils literal notranslate"><span class="pre">Prompt.output_parser</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.Prompt.parse_output"><code class="docutils literal notranslate"><span class="pre">Prompt.parse_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.Prompt.response_format"><code class="docutils literal notranslate"><span class="pre">Prompt.response_format</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.Prompt.tools"><code class="docutils literal notranslate"><span class="pre">Prompt.tools</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1299,6 +1650,7 @@ In other words, it is equivalent to saving the config in a file and passing the 
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tokenusage.TokenUsage.exact_count"><code class="docutils literal notranslate"><span class="pre">TokenUsage.exact_count</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tokenusage.TokenUsage.input_tokens"><code class="docutils literal notranslate"><span class="pre">TokenUsage.input_tokens</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tokenusage.TokenUsage.output_tokens"><code class="docutils literal notranslate"><span class="pre">TokenUsage.output_tokens</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tokenusage.TokenUsage.reasoning_tokens"><code class="docutils literal notranslate"><span class="pre">TokenUsage.reasoning_tokens</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tokenusage.TokenUsage.total_tokens"><code class="docutils literal notranslate"><span class="pre">TokenUsage.total_tokens</span></code></a></li>
 </ul>
 </li>
@@ -1315,6 +1667,14 @@ In other words, it is equivalent to saving the config in a file and passing the 
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.temperature"><code class="docutils literal notranslate"><span class="pre">LlmGenerationConfig.temperature</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.to_dict"><code class="docutils literal notranslate"><span class="pre">LlmGenerationConfig.to_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig.top_p"><code class="docutils literal notranslate"><span class="pre">LlmGenerationConfig.top_p</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-type">API Type</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.openaiapitype.OpenAIAPIType"><code class="docutils literal notranslate"><span class="pre">OpenAIAPIType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.openaiapitype.OpenAIAPIType.CHAT_COMPLETIONS"><code class="docutils literal notranslate"><span class="pre">OpenAIAPIType.CHAT_COMPLETIONS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.openaiapitype.OpenAIAPIType.RESPONSES"><code class="docutils literal notranslate"><span class="pre">OpenAIAPIType.RESPONSES</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1359,7 +1719,27 @@ In other words, it is equivalent to saving the config in a file and passing the 
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ocigenaimodel.OCIGenAIModel.default_chat_template"><code class="docutils literal notranslate"><span class="pre">OCIGenAIModel.default_chat_template</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ocigenaimodel.ServingMode"><code class="docutils literal notranslate"><span class="pre">ServingMode</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ocigenaimodel.ServingMode.DEDICATED"><code class="docutils literal notranslate"><span class="pre">ServingMode.DEDICATED</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ocigenaimodel.ServingMode.ON_DEMAND"><code class="docutils literal notranslate"><span class="pre">ServingMode.ON_DEMAND</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ocigenaimodel.ModelProvider"><code class="docutils literal notranslate"><span class="pre">ModelProvider</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ocigenaimodel.ModelProvider.COHERE"><code class="docutils literal notranslate"><span class="pre">ModelProvider.COHERE</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ocigenaimodel.ModelProvider.GROK"><code class="docutils literal notranslate"><span class="pre">ModelProvider.GROK</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ocigenaimodel.ModelProvider.META"><code class="docutils literal notranslate"><span class="pre">ModelProvider.META</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ocigenaimodel.ModelProvider.OTHER"><code class="docutils literal notranslate"><span class="pre">ModelProvider.OTHER</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#oci-client-config-classes-for-authentication">OCI Client Config Classes for Authentication</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfig"><code class="docutils literal notranslate"><span class="pre">OCIClientConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfig.auth_type"><code class="docutils literal notranslate"><span class="pre">OCIClientConfig.auth_type</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfig.compartment_id"><code class="docutils literal notranslate"><span class="pre">OCIClientConfig.compartment_id</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfig.from_dict"><code class="docutils literal notranslate"><span class="pre">OCIClientConfig.from_dict()</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfig.service_endpoint"><code class="docutils literal notranslate"><span class="pre">OCIClientConfig.service_endpoint</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfig.to_dict"><code class="docutils literal notranslate"><span class="pre">OCIClientConfig.to_dict()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfigWithApiKey"><code class="docutils literal notranslate"><span class="pre">OCIClientConfigWithApiKey</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfigWithApiKey.to_dict"><code class="docutils literal notranslate"><span class="pre">OCIClientConfigWithApiKey.to_dict()</span></code></a></li>
 </ul>
@@ -1372,6 +1752,13 @@ In other words, it is equivalent to saving the config in a file and passing the 
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfigWithResourcePrincipal"><code class="docutils literal notranslate"><span class="pre">OCIClientConfigWithResourcePrincipal</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfigWithUserAuthentication"><code class="docutils literal notranslate"><span class="pre">OCIClientConfigWithUserAuthentication</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIClientConfigWithUserAuthentication.to_dict"><code class="docutils literal notranslate"><span class="pre">OCIClientConfigWithUserAuthentication.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig._OCIAuthType"><code class="docutils literal notranslate"><span class="pre">_OCIAuthType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig._OCIAuthType.API_KEY"><code class="docutils literal notranslate"><span class="pre">_OCIAuthType.API_KEY</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig._OCIAuthType.INSTANCE_PRINCIPAL"><code class="docutils literal notranslate"><span class="pre">_OCIAuthType.INSTANCE_PRINCIPAL</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig._OCIAuthType.RESOURCE_PRINCIPAL"><code class="docutils literal notranslate"><span class="pre">_OCIAuthType.RESOURCE_PRINCIPAL</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig._OCIAuthType.SECURITY_TOKEN"><code class="docutils literal notranslate"><span class="pre">_OCIAuthType.SECURITY_TOKEN</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.models.ociclientconfig.OCIUserAuthenticationConfig"><code class="docutils literal notranslate"><span class="pre">OCIUserAuthenticationConfig</span></code></a><ul class="nav section-nav flex-column">
@@ -1401,8 +1788,8 @@ In other words, it is equivalent to saving the config in a file and passing the 
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

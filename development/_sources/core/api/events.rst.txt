@@ -29,6 +29,12 @@ Events
 .. _conversationmessageaddedevent:
 .. autoclass:: wayflowcore.events.event.ConversationMessageAddedEvent
 
+.. _agentnextactiondecisionstartevent:
+.. autoclass:: wayflowcore.events.event.AgentNextActionDecisionStartEvent
+
+.. _agentdecidednextactionevent:
+.. autoclass:: wayflowcore.events.event.AgentDecidedNextActionEvent
+
 
 Event Listeners
 ---------------

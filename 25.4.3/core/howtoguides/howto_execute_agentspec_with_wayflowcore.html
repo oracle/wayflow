@@ -1,0 +1,811 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Execute Agent Spec Configuration with WayFlow &#8212; wayflowcore 25.4.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_execute_agentspec_with_wayflowcore';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '25.4.3';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to Serialize and Deserialize Flows and Agents" href="howto_serdeser.html" />
+    <link rel="prev" title="How to Do Remote API Calls with Potentially Expiring Tokens" href="howto_remote_tool_expired_token.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.4" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 25.4.3 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 25.4.3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">How to Evaluate WayFlow Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">How to Evaluate Assistant Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-to Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Execute Agent Spec Configuration with WayFlow</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="execute-agent-spec-configuration-with-wayflow">
+<span id="top-execute-agentspec"></span><h1>Execute Agent Spec Configuration with WayFlow<a class="headerlink" href="#execute-agent-spec-configuration-with-wayflow" title="Permalink to this heading">#</a></h1>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<p class="sd-card-text">Python script/notebook for this guide.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_execute_agentspec_with_wayflowcore.py"><span>Execute Agent Spec with WayFlow how-to script</span></a></div>
+</div>
+</div>
+</div>
+<div class="admonition-prerequisites admonition">
+<p class="admonition-title">Prerequisites</p>
+<p>This guide assumes familiarity with <a class="reference external" href="https://github.com/oracle/agent-spec/">Agent Spec</a> and exporting Agent Spec configurations.</p>
+</div>
+<p>This guide will show you how to:</p>
+<ol class="arabic simple">
+<li><p>Define the execution of tools in a tool registry.</p></li>
+<li><p>Load an Agent Spec configuration with the WayFlow adapter.</p></li>
+<li><p>Run the assistant and interact with it.</p></li>
+</ol>
+<p>This guide shows you how to use a minimal Agent setup with a single tool for performing multiplications.
+You can use the same code structure to load and run more complex assistants.</p>
+<section id="install-packages">
+<h2>1. Install packages<a class="headerlink" href="#install-packages" title="Permalink to this heading">#</a></h2>
+<p>To run the examples in this guide, make sure that <code class="docutils literal notranslate"><span class="pre">wayflowcore</span></code> is installed.</p>
+<p>For more details, refer to the <a class="reference external" href="https://oracle.github.io/agent-spec/api/index.html">WayFlow Agent Spec adapter API documentation</a>.</p>
+</section>
+<section id="define-the-tool-registry">
+<h2>2. Define the tool registry<a class="headerlink" href="#define-the-tool-registry" title="Permalink to this heading">#</a></h2>
+<p>Before loading the configuration, you need to define the tool registry.
+This registry specifies how to execute each tool since the implementation of tools is not
+included in the Agent Spec assistant configuration.</p>
+<p>The example below shows how to register a single tool that performs multiplications.
+Adapt this pattern to register all the tools your assistant requires.</p>
+<p>This guide uses the simplest type of tool, <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code>.
+For more advanced tool types, refer to the <a class="reference external" href="https://oracle.github.io/agent-spec/agentspec/agentspec_language_spec_0_2.html">Agent Spec Language specification</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="nd">@tool</span><span class="p">(</span><span class="n">description_mode</span><span class="o">=</span><span class="s2">&quot;only_docstring&quot;</span><span class="p">)</span>
+<span class="linenos">2</span><span class="k">def</span><span class="w"> </span><span class="nf">multiplication_tool</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="linenos">3</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Tool that allows to compute multiplications.&quot;&quot;&quot;</span>
+<span class="linenos">4</span>    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+<span class="linenos">5</span>
+<span class="linenos">6</span><span class="n">tool_registry</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">7</span>    <span class="s2">&quot;multiplication_tool&quot;</span><span class="p">:</span> <span class="n">multiplication_tool</span><span class="p">,</span>
+<span class="linenos">8</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="load-the-agent-spec-configuration">
+<h2>3. Load the Agent Spec configuration<a class="headerlink" href="#load-the-agent-spec-configuration" title="Permalink to this heading">#</a></h2>
+<p>Now load the agent configuration.
+The configuration starts by defining two components: <code class="docutils literal notranslate"><span class="pre">multiplication_tool</span></code> and <code class="docutils literal notranslate"><span class="pre">vllm_config</span></code>.
+These are referenced in the agent definition later.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">AgentSpec_CONFIG</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="s2">  $referenced_components:</span>
+<span class="linenos"> 3</span><span class="s2">    multiplication_tool:</span>
+<span class="linenos"> 4</span><span class="s2">      component_type: ServerTool</span>
+<span class="linenos"> 5</span><span class="s2">      description: Tool that allows to compute multiplications</span>
+<span class="linenos"> 6</span><span class="s2">      id: multiplication_tool</span>
+<span class="linenos"> 7</span><span class="s2">      inputs:</span>
+<span class="linenos"> 8</span><span class="s2">      - title: a</span>
+<span class="linenos"> 9</span><span class="s2">        type: integer</span>
+<span class="linenos">10</span><span class="s2">      - title: b</span>
+<span class="linenos">11</span><span class="s2">        type: integer</span>
+<span class="linenos">12</span><span class="s2">      name: multiplication_tool</span>
+<span class="linenos">13</span><span class="s2">      outputs:</span>
+<span class="linenos">14</span><span class="s2">      - title: product</span>
+<span class="linenos">15</span><span class="s2">        type: integer</span>
+<span class="linenos">16</span><span class="s2">    vllm_config:</span>
+<span class="linenos">17</span><span class="s2">      component_type: VllmConfig</span>
+<span class="linenos">18</span><span class="s2">      default_generation_parameters: null</span>
+<span class="linenos">19</span><span class="s2">      description: null</span>
+<span class="linenos">20</span><span class="s2">      id: vllm_config</span>
+<span class="linenos">21</span><span class="s2">      model_id: meta-llama/Meta-Llama-3.1-8B-Instruct</span>
+<span class="linenos">22</span><span class="s2">      name: llama-3.1-8b-instruct</span>
+<span class="linenos">23</span><span class="s2">      url: http://insert-your-model-url-here</span>
+<span class="linenos">24</span><span class="s2">  component_type: Agent</span>
+<span class="linenos">25</span><span class="s2">  llm_config:</span>
+<span class="linenos">26</span><span class="s2">    $component_ref: vllm_config</span>
+<span class="linenos">27</span><span class="s2">  name: Math homework assistant</span>
+<span class="linenos">28</span><span class="s2">  system_prompt: You are an assistant for helping with math homework.</span>
+<span class="linenos">29</span><span class="s2">  tools:</span>
+<span class="linenos">30</span><span class="s2">  - $component_ref: multiplication_tool</span>
+<span class="linenos">31</span><span class="s2">  agentspec_version: 25.4.1</span>
+<span class="linenos">32</span><span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>Loading the configuration to the WayFlow executor is simple as long as the <code class="docutils literal notranslate"><span class="pre">tool_registry</span></code> has been defined.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="n">loader</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span><span class="n">tool_registry</span><span class="o">=</span><span class="n">tool_registry</span><span class="p">)</span>
+<span class="linenos">4</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load_yaml</span><span class="p">(</span><span class="n">AgentSpec_CONFIG</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="run-the-assistant">
+<h2>4. Run the assistant<a class="headerlink" href="#run-the-assistant" title="Permalink to this heading">#</a></h2>
+<p>Start by creating a conversation.
+Then prompt the user for some input.
+The assistant will respond until you interrupt the process with Ctrl+C.
+Messages of type <code class="docutils literal notranslate"><span class="pre">TOOL_REQUEST</span></code> and <code class="docutils literal notranslate"><span class="pre">TOOL_RESULT</span></code> are also displayed.
+These messages help you understand how the assistant decides to act.</p>
+<p>For more details, see the <a class="reference internal" href="../api/conversation.html"><span class="doc">API Reference</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageType</span>
+<span class="linenos"> 2</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="c1"># %%</span>
+<span class="linenos"> 5</span><span class="c1"># Or with an execution loop</span>
+<span class="linenos"> 6</span><span class="k">def</span><span class="w"> </span><span class="nf">run_agent_in_command_line</span><span class="p">(</span><span class="n">assistant</span><span class="p">:</span> <span class="n">Agent</span><span class="p">):</span>
+<span class="linenos"> 7</span>    <span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="linenos"> 8</span>    <span class="n">message_idx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="linenos"> 9</span>    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+<span class="linenos">10</span>        <span class="n">user_input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">USER &gt;&gt;&gt; &quot;</span><span class="p">)</span>
+<span class="linenos">11</span>        <span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="n">user_input</span><span class="p">)</span>
+<span class="linenos">12</span>        <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">13</span>        <span class="n">messages</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">get_messages</span><span class="p">()</span>
+<span class="linenos">14</span>        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">[</span><span class="n">message_idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span>
+<span class="linenos">15</span>            <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">message_type</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">TOOL_REQUEST</span><span class="p">:</span>
+<span class="linenos">16</span>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">message_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">tool_requests</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">17</span>            <span class="k">else</span><span class="p">:</span>
+<span class="linenos">18</span>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">message_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">19</span>        <span class="n">message_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span><span class="c1"># run_agent_in_command_line(assistant)</span>
+<span class="linenos">22</span><span class="c1"># ^ uncomment and execute</span>
+</pre></div>
+</div>
+<p>You can also run a non-conversational flow.
+In that case, the execution loop could be implemented as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="k">def</span><span class="w"> </span><span class="nf">run_agent_non_conversational</span><span class="p">(</span><span class="n">assistant</span><span class="p">:</span> <span class="n">Agent</span><span class="p">):</span>
+<span class="linenos">2</span>    <span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">({</span> <span class="s2">&quot;some_input_name&quot;</span><span class="p">:</span> <span class="s2">&quot;some_input_value&quot;</span><span class="p">})</span>
+<span class="linenos">3</span>    <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">4</span>    <span class="k">for</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">output_value</span> <span class="ow">in</span> <span class="n">conversation</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">input_output_key_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="linenos">5</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="se">\n</span><span class="si">{</span><span class="n">output_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">6</span>
+<span class="linenos">7</span><span class="c1"># run_agent_non_conversational(assistant)</span>
+<span class="linenos">8</span><span class="c1"># ^ uncomment and execute</span>
+</pre></div>
+</div>
+<section id="agent-spec-exporting-loading">
+<h3>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h3>
+<p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And load it back using the <code class="docutils literal notranslate"><span class="pre">AgentSpecLoader</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+
+<span class="n">tool_registry</span><span class="o">=</span> <span class="p">{</span><span class="s2">&quot;multiplication_tool&quot;</span><span class="p">:</span> <span class="n">multiplication_tool</span><span class="p">}</span>
+<span class="n">new_assistant</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span><span class="n">tool_registry</span><span class="o">=</span><span class="n">tool_registry</span><span class="p">)</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="next-steps">
+<h3>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h3>
+<p>In this guide, you learned how to:</p>
+<ol class="arabic simple">
+<li><p>Install the Agent Spec adapter for WayFlow.</p></li>
+<li><p>Define tool execution using a tool registry.</p></li>
+<li><p>Load an Agent Spec configuration with the WayFlow adapter.</p></li>
+<li><p>Run the assistant and interact with it in a conversation loop.</p></li>
+</ol>
+<p>You may now proceed to:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="howto_mcp.html"><span class="doc">How to Connect to a MCP Server</span></a></p></li>
+<li><p><a class="reference internal" href="howto_userconfirmation.html"><span class="doc">How to Add User Confirmation to Tool Call Requests</span></a></p></li>
+</ul>
+</section>
+<section id="full-code">
+<h3>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h3>
+<p>Click on the card at the <a class="reference internal" href="#top-execute-agentspec"><span class="std std-ref">top of this page</span></a> to download the full code for this guide or copy the code below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
+<span class="linenos">  2</span><span class="c1">#</span>
+<span class="linenos">  3</span><span class="c1"># This software is under the Universal Permissive License</span>
+<span class="linenos">  4</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">  5</span><span class="c1"># WayFlow Code Example - How to Execute Agent Spec with WayFlow</span>
+<span class="linenos">  6</span><span class="c1"># -------------------------------------------------------------</span>
+<span class="linenos">  7</span>
+<span class="linenos">  8</span><span class="c1"># How to use:</span>
+<span class="linenos">  9</span><span class="c1"># Create a new Python virtual environment and install the latest WayFlow version.</span>
+<span class="linenos"> 10</span><span class="c1"># ```bash</span>
+<span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
+<span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
+<span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==25.4&quot; </span>
+<span class="linenos"> 15</span><span class="c1"># ```</span>
+<span class="linenos"> 16</span>
+<span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
+<span class="linenos"> 18</span><span class="c1"># 1. As a Python file:</span>
+<span class="linenos"> 19</span><span class="c1"># ```bash</span>
+<span class="linenos"> 20</span><span class="c1"># python howto_execute_agentspec_with_wayflowcore.py</span>
+<span class="linenos"> 21</span><span class="c1"># ```</span>
+<span class="linenos"> 22</span><span class="c1"># 2. As a Notebook (in VSCode):</span>
+<span class="linenos"> 23</span><span class="c1"># When viewing the file,</span>
+<span class="linenos"> 24</span><span class="c1">#  - press the keys Ctrl + Enter to run the selected cell</span>
+<span class="linenos"> 25</span><span class="c1">#  - or Shift + Enter to run the selected cell and move to the cell below# (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl) or Apache License</span>
+<span class="linenos"> 26</span><span class="c1"># 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0), at your option.</span>
+<span class="linenos"> 27</span>
+<span class="linenos"> 28</span>
+<span class="linenos"> 29</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+<span class="linenos"> 30</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+<span class="linenos"> 31</span>
+<span class="linenos"> 32</span>
+<span class="linenos"> 33</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 34</span><span class="c1">## AgentSpec Configuration</span>
+<span class="linenos"> 35</span>
+<span class="linenos"> 36</span><span class="c1"># %%</span>
+<span class="linenos"> 37</span><span class="n">AgentSpec_CONFIG</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos"> 38</span><span class="s2">  $referenced_components:</span>
+<span class="linenos"> 39</span><span class="s2">    multiplication_tool:</span>
+<span class="linenos"> 40</span><span class="s2">      component_type: ServerTool</span>
+<span class="linenos"> 41</span><span class="s2">      description: Tool that allows to compute multiplications</span>
+<span class="linenos"> 42</span><span class="s2">      id: multiplication_tool</span>
+<span class="linenos"> 43</span><span class="s2">      inputs:</span>
+<span class="linenos"> 44</span><span class="s2">      - title: a</span>
+<span class="linenos"> 45</span><span class="s2">        type: integer</span>
+<span class="linenos"> 46</span><span class="s2">      - title: b</span>
+<span class="linenos"> 47</span><span class="s2">        type: integer</span>
+<span class="linenos"> 48</span><span class="s2">      name: multiplication_tool</span>
+<span class="linenos"> 49</span><span class="s2">      outputs:</span>
+<span class="linenos"> 50</span><span class="s2">      - title: product</span>
+<span class="linenos"> 51</span><span class="s2">        type: integer</span>
+<span class="linenos"> 52</span><span class="s2">    vllm_config:</span>
+<span class="linenos"> 53</span><span class="s2">      component_type: VllmConfig</span>
+<span class="linenos"> 54</span><span class="s2">      default_generation_parameters: null</span>
+<span class="linenos"> 55</span><span class="s2">      description: null</span>
+<span class="linenos"> 56</span><span class="s2">      id: vllm_config</span>
+<span class="linenos"> 57</span><span class="s2">      model_id: meta-llama/Meta-Llama-3.1-8B-Instruct</span>
+<span class="linenos"> 58</span><span class="s2">      name: llama-3.1-8b-instruct</span>
+<span class="linenos"> 59</span><span class="s2">      url: http://insert-your-model-url-here</span>
+<span class="linenos"> 60</span><span class="s2">  component_type: Agent</span>
+<span class="linenos"> 61</span><span class="s2">  llm_config:</span>
+<span class="linenos"> 62</span><span class="s2">    $component_ref: vllm_config</span>
+<span class="linenos"> 63</span><span class="s2">  name: Math homework assistant</span>
+<span class="linenos"> 64</span><span class="s2">  system_prompt: You are an assistant for helping with math homework.</span>
+<span class="linenos"> 65</span><span class="s2">  tools:</span>
+<span class="linenos"> 66</span><span class="s2">  - $component_ref: multiplication_tool</span>
+<span class="linenos"> 67</span><span class="s2">  agentspec_version: 25.4.1</span>
+<span class="linenos"> 68</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos"> 69</span>
+<span class="linenos"> 70</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 71</span><span class="c1">## Tool Registry Setup</span>
+<span class="linenos"> 72</span>
+<span class="linenos"> 73</span><span class="c1"># %%</span>
+<span class="linenos"> 74</span><span class="nd">@tool</span><span class="p">(</span><span class="n">description_mode</span><span class="o">=</span><span class="s2">&quot;only_docstring&quot;</span><span class="p">)</span>
+<span class="linenos"> 75</span><span class="k">def</span><span class="w"> </span><span class="nf">multiplication_tool</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="linenos"> 76</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Tool that allows to compute multiplications.&quot;&quot;&quot;</span>
+<span class="linenos"> 77</span>    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+<span class="linenos"> 78</span>
+<span class="linenos"> 79</span><span class="n">tool_registry</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos"> 80</span>    <span class="s2">&quot;multiplication_tool&quot;</span><span class="p">:</span> <span class="n">multiplication_tool</span><span class="p">,</span>
+<span class="linenos"> 81</span><span class="p">}</span>
+<span class="linenos"> 82</span>
+<span class="linenos"> 83</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 84</span><span class="c1">## Load AgentSpec Configuration</span>
+<span class="linenos"> 85</span>
+<span class="linenos"> 86</span><span class="c1"># %%</span>
+<span class="linenos"> 87</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+<span class="linenos"> 88</span>
+<span class="linenos"> 89</span><span class="n">loader</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span><span class="n">tool_registry</span><span class="o">=</span><span class="n">tool_registry</span><span class="p">)</span>
+<span class="linenos"> 90</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load_yaml</span><span class="p">(</span><span class="n">AgentSpec_CONFIG</span><span class="p">)</span>
+<span class="linenos"> 91</span>
+<span class="linenos"> 92</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 93</span><span class="c1">## Execution Loop Conversational</span>
+<span class="linenos"> 94</span>
+<span class="linenos"> 95</span><span class="c1"># %%</span>
+<span class="linenos"> 96</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageType</span>
+<span class="linenos"> 97</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="linenos"> 98</span>
+<span class="linenos"> 99</span><span class="c1"># %%</span>
+<span class="linenos">100</span><span class="c1"># Or with an execution loop</span>
+<span class="linenos">101</span><span class="k">def</span><span class="w"> </span><span class="nf">run_agent_in_command_line</span><span class="p">(</span><span class="n">assistant</span><span class="p">:</span> <span class="n">Agent</span><span class="p">):</span>
+<span class="linenos">102</span>    <span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="linenos">103</span>    <span class="n">message_idx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="linenos">104</span>    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+<span class="linenos">105</span>        <span class="n">user_input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">USER &gt;&gt;&gt; &quot;</span><span class="p">)</span>
+<span class="linenos">106</span>        <span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="n">user_input</span><span class="p">)</span>
+<span class="linenos">107</span>        <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">108</span>        <span class="n">messages</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">get_messages</span><span class="p">()</span>
+<span class="linenos">109</span>        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">[</span><span class="n">message_idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span>
+<span class="linenos">110</span>            <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">message_type</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">TOOL_REQUEST</span><span class="p">:</span>
+<span class="linenos">111</span>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">message_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">tool_requests</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">112</span>            <span class="k">else</span><span class="p">:</span>
+<span class="linenos">113</span>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">message_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">114</span>        <span class="n">message_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+<span class="linenos">115</span>
+<span class="linenos">116</span><span class="c1"># run_agent_in_command_line(assistant)</span>
+<span class="linenos">117</span><span class="c1"># ^ uncomment and execute</span>
+<span class="linenos">118</span>
+<span class="linenos">119</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">120</span><span class="c1">## Execution Loop Non Conversational</span>
+<span class="linenos">121</span>
+<span class="linenos">122</span><span class="c1"># %%</span>
+<span class="linenos">123</span><span class="k">def</span><span class="w"> </span><span class="nf">run_agent_non_conversational</span><span class="p">(</span><span class="n">assistant</span><span class="p">:</span> <span class="n">Agent</span><span class="p">):</span>
+<span class="linenos">124</span>    <span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">({</span> <span class="s2">&quot;some_input_name&quot;</span><span class="p">:</span> <span class="s2">&quot;some_input_value&quot;</span><span class="p">})</span>
+<span class="linenos">125</span>    <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">126</span>    <span class="k">for</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">output_value</span> <span class="ow">in</span> <span class="n">conversation</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">input_output_key_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="linenos">127</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="se">\n</span><span class="si">{</span><span class="n">output_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">128</span>
+<span class="linenos">129</span><span class="c1"># run_agent_non_conversational(assistant)</span>
+<span class="linenos">130</span><span class="c1"># ^ uncomment and execute</span>
+<span class="linenos">131</span>
+<span class="linenos">132</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">133</span><span class="c1">## Export Config to Agent Spec</span>
+<span class="linenos">134</span>
+<span class="linenos">135</span><span class="c1"># %%</span>
+<span class="linenos">136</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+<span class="linenos">137</span>
+<span class="linenos">138</span><span class="n">config</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
+<span class="linenos">139</span>
+<span class="linenos">140</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">141</span><span class="c1">## Load Agent Spec Config</span>
+<span class="linenos">142</span>
+<span class="linenos">143</span><span class="c1"># %%</span>
+<span class="linenos">144</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+<span class="linenos">145</span>
+<span class="linenos">146</span><span class="n">tool_registry</span><span class="o">=</span> <span class="p">{</span><span class="s2">&quot;multiplication_tool&quot;</span><span class="p">:</span> <span class="n">multiplication_tool</span><span class="p">}</span>
+<span class="linenos">147</span><span class="n">new_assistant</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span><span class="n">tool_registry</span><span class="o">=</span><span class="n">tool_registry</span><span class="p">)</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-packages">1. Install packages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-the-tool-registry">2. Define the tool registry</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-agent-spec-configuration">3. Load the Agent Spec configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-assistant">4. Run the assistant</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#agent-spec-exporting-loading">Agent Spec Exporting/Loading</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#full-code">Full code</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

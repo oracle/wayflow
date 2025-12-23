@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -292,9 +292,14 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Create Conditional Transitions in Flows</a></li>
@@ -307,6 +312,8 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -315,11 +322,8 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -331,11 +335,13 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
@@ -347,6 +353,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -503,8 +511,8 @@ example, the branching step has 2 branches based on the configuration (specified
 <p class="admonition-title">Note</p>
 <p>Most steps only have a single next step, so you do not need to specify a transition dictionary,
 and can just use a list with a single element.</p>
-<p>For steps with several branches (such as <code class="xref py py-class docutils literal notranslate"><span class="pre">BranchingStep</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ChoiceSelectionStep</span></code>,
-<code class="xref py py-class docutils literal notranslate"><span class="pre">RetryStep</span></code>, and <code class="xref py py-class docutils literal notranslate"><span class="pre">FlowExecutionStep</span></code>), you need to mapping each branch name to
+<p>For steps with several branches (such as <a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep</span></a>, <a class="reference internal" href="../api/flows.html#choiceselectionstep"><span class="std std-ref">ChoiceSelectionStep</span></a>,
+<a class="reference internal" href="../api/flows.html#retrystep"><span class="std std-ref">RetryStep</span></a>, and <a class="reference internal" href="../api/flows.html#flowexecutionstep"><span class="std std-ref">FlowExecutionStep</span></a>), you need to mapping each branch name to
 the next step using an edge. Creating the flow will inform you if you are missing a branch in
 the mapping.</p>
 </div>
@@ -1701,9 +1709,9 @@ it allows execution in compatible environments.</p>
 <h2>Common patterns and best practices<a class="headerlink" href="#common-patterns-and-best-practices" title="Permalink to this heading">#</a></h2>
 <section id="pattern-1-branching-if-a-token-is-present-in-a-text">
 <h3>Pattern 1: Branching if a token is present in a text<a class="headerlink" href="#pattern-1-branching-if-a-token-is-present-in-a-text" title="Permalink to this heading">#</a></h3>
-<p>Most of the time, you will use <code class="xref py py-class docutils literal notranslate"><span class="pre">BranchingStep</span></code> to branch out depending on whether a token is present
+<p>Most of the time, you will use <a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep</span></a> to branch out depending on whether a token is present
 in a text (for example, whether an LLM generated a token <code class="docutils literal notranslate"><span class="pre">[SUCCESS]</span></code> or not).
-To do this, pass <code class="xref py py-class docutils literal notranslate"><span class="pre">RegexExtractionStep</span></code> before the <code class="xref py py-class docutils literal notranslate"><span class="pre">BranchingStep</span></code>:</p>
+To do this, pass <a class="reference internal" href="../api/flows.html#regexextractionstep"><span class="std std-ref">RegexExtractionStep</span></a> before the <a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep</span></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
@@ -1829,6 +1837,11 @@ This approach allows the model to contextualize its decision, leading to more ac
 <span class="c1"># &quot;It was a success&quot;</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Jinja templating introduces security concerns that are addressed by WayFlow by restricting Jinja’s rendering capabilities.
+Please check our guide on <a class="reference internal" href="howto_promptexecutionstep.html#securejinjatemplating"><span class="std std-ref">How to write secure prompts with Jinja templating</span></a> for more information.</p>
+</div>
 </section>
 <section id="pattern-3-branching-using-an-llm">
 <h3>Pattern 3: Branching using an LLM<a class="headerlink" href="#pattern-3-branching-using-an-llm" title="Permalink to this heading">#</a></h3>
@@ -1836,16 +1849,15 @@ This approach allows the model to contextualize its decision, leading to more ac
 <p>WayFlow supports several LLM API providers. Select an LLM from the options below to
 proceed with the configuration.</p>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-1-1-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-2" name="1-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span>
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-1-1-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-2" name="1-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span><span class="p">,</span> <span class="n">OCIClientConfigWithApiKey</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-
-    <span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
-        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+    <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
+    <span class="n">client_config</span><span class="o">=</span><span class="n">OCIClientConfigWithApiKey</span><span class="p">(</span>
         <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;https://url-to-service-endpoint.com&quot;</span><span class="p">,</span>
-        <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
-        <span class="n">auth_type</span><span class="o">=</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
@@ -1922,7 +1934,7 @@ potential next branches.</p>
 <h3>Pattern 4: Conditional branching with a sub-flow<a class="headerlink" href="#pattern-4-conditional-branching-with-a-sub-flow" title="Permalink to this heading">#</a></h3>
 <p>To implement branching based on multiple possible outcomes of a sub-flow, wrap it in
 <a class="reference internal" href="../api/flows.html#flowexecutionstep"><span class="std std-ref">FlowExecutionStep</span></a>. It will expose one branch per one possible end.
-Mapping works the same as for <code class="xref py py-class docutils literal notranslate"><span class="pre">BranchingStep</span></code>:</p>
+Mapping works the same as for <a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep</span></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">BranchingStep</span><span class="p">,</span> <span class="n">CompleteStep</span><span class="p">,</span> <span class="n">FlowExecutionStep</span><span class="p">,</span> <span class="n">OutputMessageStep</span>
 
@@ -2048,12 +2060,12 @@ will inform you about the missing branch names:</p>
 <h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
 <p>In this guide, you explored methods for implementing conditional branching within a Flow:</p>
 <ul class="simple">
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">BranchingStep</span></code>.</p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">BranchingStep</span></code> with pattern matching.</p></li>
-<li><p>more complex conditionals with <code class="xref py py-class docutils literal notranslate"><span class="pre">ToolExecutionStep</span></code>, or <code class="xref py py-class docutils literal notranslate"><span class="pre">TemplateRenderingStep</span></code>, and
-<code class="xref py py-class docutils literal notranslate"><span class="pre">BranchingStep</span></code>.</p></li>
-<li><p>an LLM to decide on the condition using <code class="xref py py-class docutils literal notranslate"><span class="pre">ChoiceSelectionStep</span></code>.</p></li>
-<li><p>a sub-flow to handle the conditional logic using <code class="xref py py-class docutils literal notranslate"><span class="pre">FlowExecutionStep</span></code>.</p></li>
+<li><p><a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep</span></a>.</p></li>
+<li><p><a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep</span></a> with pattern matching.</p></li>
+<li><p>more complex conditionals with <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a>, or <a class="reference internal" href="../api/flows.html#templaterenderingstep"><span class="std std-ref">TemplateRenderingStep</span></a>, and
+<a class="reference internal" href="../api/flows.html#branchingstep"><span class="std std-ref">BranchingStep</span></a>.</p></li>
+<li><p>an LLM to decide on the condition using <a class="reference internal" href="../api/flows.html#choiceselectionstep"><span class="std std-ref">ChoiceSelectionStep</span></a>.</p></li>
+<li><p>a sub-flow to handle the conditional logic using <a class="reference internal" href="../api/flows.html#flowexecutionstep"><span class="std std-ref">FlowExecutionStep</span></a>.</p></li>
 </ul>
 <p>Having learned how to implement conditional branching in flows, you may now proceed to <a class="reference internal" href="catching_exceptions.html"><span class="doc">Catching Exceptions</span></a> to see how to ensure robustness in a <code class="docutils literal notranslate"><span class="pre">Flow</span></code>.</p>
 </section>
@@ -2568,8 +2580,8 @@ full code for this guide or copy the code below.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

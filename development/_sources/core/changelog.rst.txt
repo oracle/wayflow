@@ -4,8 +4,65 @@ Changelog
 WayFlow 26.1.0
 --------------
 
+Security
+^^^^^^^^
+
+* **Stricter environment for jinja templates rendering:**
+
+  We now use a stricter version of the SandboxedEnvironment for rendering jinja templates.
+  No access to object attributes is allowed, only key-based access to python dictionaries, lists, and main jinja LoopContext properties are allowed.
+
+  Check the guide on :ref:`How to write secure prompts with Jinja templating <securejinjatemplating>` for more information.
+
+New features
+^^^^^^^^^^^^
+
+* **Agent Spec Tracing support:**
+
+  Open Agent Specification Tracing (short: Agent Spec Tracing) is an extension of
+  Agent Spec that standardizes how agent and flow executions emit traces.
+  Wayflow now supports the emission of traces according to the Agent Spec Tracing standard.
+
+  For more information read the guide on :doc:`How to Enable Tracing in WayFlow <howtoguides/howto_tracing>`.
+
+* **WayFlow Plugins:**
+
+  Wayflow plugins allow users extending existing components (like Tools, Steps, etc.), or even creating
+  new ones, and seamlessly integrate them in WayFlow and Agent Spec serialization and deserialization. For more information read the guide on :doc:`how to use WayFlow plugins <howtoguides/howto_plugins>`.
+
+* **OpenAI Responses API Support:**
+
+  :ref:`OpenAICompatibleModel<openaicompatiblemodel>` now supports OpenAI Responses API, which can be configured
+  using the ``api_type`` parameter, which accepts values from :ref:`OpenAIAPIType<openaiapitype>`.
+
+  This enhancement allows recent OpenAI models to better leverage advanced reasoning capabilities, resulting in significant performance improvements for Wayflow-powered workflows.
+
+  For more information check out :doc:`the how-to guide on LLMs from different providers <howtoguides/llm_from_different_providers>`.
+
+* **Serve agents via OpenAI Responses API:**
+
+  Added :ref:`OpenAIResponsesServer <openairesponsesserver>` and
+  :ref:`ServerStorageConfig <serverstorageconfig>` to host WayFlow agents behind OpenAI
+  Responses-compatible endpoints, with optional persistence through supported datastores.
+
+  See :doc:`the new how-to guide on serving agents <howtoguides/howto_serve_agents>` for in-memory
+  setup, datastore persistence, and Agent Spec export/reload examples.
+
+* **Serve agents via A2A protocol:**
+  Introduced the :ref:`A2AServer <a2aserver>` class for serving WayFlow conversational components using the A2A protocol.
+
+  For more information check out :doc:`how to serve assistants with A2A protocol <howtoguides/howto_a2a_serving>`.
+
 Improvements
 ^^^^^^^^^^^^
+
+* **Support list, dict and tuple output types in MCP tools:**
+
+  MCP tools now support non-string output types (list of string, dictionary of strings
+  and tuple of these types)
+
+  For more information see the guide on :doc:`using MCP tools <howtoguides/howto_mcp>`.
+
 
 * **Connection persistence for MCP servers:**
 
@@ -14,9 +71,41 @@ Improvements
 
   This does not require any change to existing assistants or execution loops.
 
+* **Deserialization:**
+
+  Deserialization of large conversations with many agents is now much faster due to optimizations in
+  the deserialization code.
+
+* **Long Message Summarization including Image Support**
+
+  Added `MessageSummarizationTransform` which summarizes messages (including images) exceeding a configurable length
+  threshold using a specified LLM and caches the summaries in a user-provided `DataStore` with
+  configurable size, LRU eviction, and entry lifetime.
+
+* **Long Conversation Summarization including Image Support**
+
+  Added `ConversationSummarizationTransform` which summarizes conversations exceeding a configurable number of messages
+  using a specified LLM and caches the summaries in a user-provided `DataStore` with configurable size, LRU eviction,
+  and entry lifetime. This helps manage long conversation contexts by summarizing older parts while preserving recent
+  messages.
+
+  Transforms can now be assigned to an agent through its constructor. (This is not supported in `agentspec`, so attempting to convert agents with transforms to `agentspec` will raise a `NotImplementedError`)
+
+* **Improve Swarm prompt template and introduce HandoffMode:**
+
+  Removed redundant agent descriptions from the Swarm template and added a guidance rule that encourages agents to hand off when appropriate.
+  Introduced ``HandoffMode`` to Swarm. In addition to the existing modes (``True`` → ``HandoffMode.OPTIONAL``, ``False`` → ``HandoffMode.NEVER``),
+  a new mode ``HandoffMode.ALWAYS`` is now supported, requiring agents to always use the handoff
+  mechanism when delegating tasks to other agents. Read more at :ref:`HandoffMode <HandoffMode>`.
+
+  This significantly reduces token usage and improves execution speed.
 
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **Stricter environment for jinja templates rendering:**
+
+  The new version of the Environment used to render templates could raise SecurityErrors on templates previously accepted.
 
 * **Removed deprecated Agent/Flow.execute:**
 
@@ -39,11 +128,41 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+* **Fixed several issues related to event tracing serialization when containing execution state:**
+
+  Fixed an issue where ``FlowExecutionIterationStartedEvent`` and
+  ``FlowExecutionIterationFinishedEvent`` could raise when the execution state contained values that
+  are not supported by the serializer. The tracing helpers now fall back to stringifying those
+  values while preserving container structures.
+
+* **Recording of end span event in case of exception:**
+
+  Fixed a bug where if an exception happened during a span, it would not be recorded and the span closing would
+  raise an unwanted warning. Now properly records the exception as an ExceptionRaisedEvent and does not throw
+  a warning.
+
+* **Default values in agents inputs were ignored:**
+
+  Fixed a bug where if agents had input descriptors with default values set, these defaults were ignored and not
+  used when starting a conversation. Now default values of input descriptors are used if they are set, and no
+  input entry with the descriptor name is passed to the ``start_conversation`` method.
+
 * **Default values in tools outputs were ignored:**
 
   Fixed a bug where if tools had multiple output descriptors with default values set for some of them, these defaults were ignored and not
   set in the tool result if the tool execution did not produce a value for them. Tools that have a single output still ignore
   its default, as a return value is always assumed to be produced by the tool (possibly ``None``).
+
+* **Fixed warnings raised when LLM streaming generator was not properly closed:**
+
+  Fixed a bug where streaming LLM generation in a ``chainlit`` app could raise warnings due to a non-closed generator. The generator is now properly
+  closed and we silence the known issue on the ``httpx`` library.
+
+* **Continuing an agent conversation after an exception was raised could cause an exception:**
+
+  Fixed a bug where if an exception would occur during a tool, a sub-agent or a sub-flow call of an agent, the conversation
+  could not be resumed afterwards because the conversation would miss the tool results of any calls that should have
+  been done after the call that raised. It now posts results mentioning the call was skipped due to a previous failure.
 
 * **Some Agent and Flow names could cause issues when used in multi-agent patterns:**
 
@@ -51,6 +170,12 @@ Bug fixes
 
   - The cause was that internally, WayFlow converted a subagent of an Agent into a Tool, which is then converted to a JSON payload to submit to the LLM provider, which then returns an HTTP error if the tool's name does not match a regex.
   - Now, users may specify arbitrary names for Agents and Flows. Internally, when creating Tools out of subagents and subflows, their names would be sanitized.
+
+* **Configuring Agents with PromptTemplates no longer requires custom instruction**
+
+  Fixed a bug where instantiating an Agent with an ``agent_template``, ``initial_message=None`` and ``custom_instruction=None`` would raise an exception.
+  Now, users can fully specify the agent template without having to additionally specify initial messages or custom instructions.
+
 
 WayFlow 25.4.2
 --------------

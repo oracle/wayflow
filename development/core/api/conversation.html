@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -291,9 +291,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -306,6 +311,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -314,11 +321,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -330,11 +334,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
@@ -346,6 +352,8 @@
 <li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -421,211 +429,34 @@
                   
   <section id="conversations">
 <h1>Conversations<a class="headerlink" href="#conversations" title="Permalink to this heading">#</a></h1>
-<section id="conversation-messages">
-<h2>Conversation &amp; Messages<a class="headerlink" href="#conversation-messages" title="Permalink to this heading">#</a></h2>
-<span class="target" id="conversation"></span><dl class="py class">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.conversation.</span></span><span class="sig-name descname"><span class="pre">Conversation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">component:</span> <span class="pre">wayflowcore.conversationalcomponent.ConversationalComponent,</span> <span class="pre">state:</span> <span class="pre">'ConversationExecutionState',</span> <span class="pre">inputs:</span> <span class="pre">Dict[str,</span> <span class="pre">Any],</span> <span class="pre">message_list:</span> <span class="pre">wayflowcore.messagelist.MessageList,</span> <span class="pre">status:</span> <span class="pre">Optional[wayflowcore.executors.executionstatus.ExecutionStatus],</span> <span class="pre">conversation_id:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">*,</span> <span class="pre">id:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">__metadata_info__:</span> <span class="pre">Dict[str,</span> <span class="pre">Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">description:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>component</strong> (<a class="reference internal" href="#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>) – </p></li>
-<li><p><strong>state</strong> (<em>ConversationExecutionState</em>) – </p></li>
-<li><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
-<li><p><strong>message_list</strong> (<a class="reference internal" href="#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a>) – </p></li>
-<li><p><strong>status</strong> (<a class="reference internal" href="#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><em>ExecutionStatus</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>conversation_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
-<li><p><strong>name</strong> (<em>str</em>) – </p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.append_agent_message">
-<span class="sig-name descname"><span class="pre">append_agent_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.append_agent_message" title="Permalink to this definition">#</a></dt>
-<dd><p>Append a new message object of type <code class="docutils literal notranslate"><span class="pre">MessageType.AGENT</span></code> to the messages list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>agent_input</strong> (<em>str</em>) – message to append.</p></li>
-<li><p><strong>is_error</strong> (<em>bool</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.append_message">
-<span class="sig-name descname"><span class="pre">append_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.append_message" title="Permalink to this definition">#</a></dt>
-<dd><p>Append a message to the messages list of this <code class="docutils literal notranslate"><span class="pre">Conversation</span></code> object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>message</strong> (<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – message to append.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.append_tool_result">
-<span class="sig-name descname"><span class="pre">append_tool_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.append_tool_result" title="Permalink to this definition">#</a></dt>
-<dd><p>Append a new message object of type <code class="docutils literal notranslate"><span class="pre">MessageType.TOOL_RESULT</span></code> to the messages list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>tool_result</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><em>ToolResult</em></a>) – message to append.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.append_user_message">
-<span class="sig-name descname"><span class="pre">append_user_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.append_user_message" title="Permalink to this definition">#</a></dt>
-<dd><p>Append a new message object of type <code class="docutils literal notranslate"><span class="pre">MessageType.USER</span></code> to the messages list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>user_input</strong> (<em>str</em>) – message to append.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.component">
-<span class="sig-name descname"><span class="pre">component</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><span class="pre">ConversationalComponent</span></a></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.component" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.conversation_id">
-<span class="sig-name descname"><span class="pre">conversation_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.conversation_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.current_step_name">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_step_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.current_step_name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_interrupts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.execute" title="Permalink to this definition">#</a></dt>
-<dd><p>Execute the conversation and get its <code class="docutils literal notranslate"><span class="pre">ExecutionStatus</span></code> based on the outcome.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">Execution</span></code> status is returned by the Assistant and indicates if the assistant yielded,
-finished the conversation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>execution_interrupts</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="interrupts.html#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt" title="wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt"><em>ExecutionInterrupt</em></a><em>] </em><em>| </em><em>None</em>) – </p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus">ExecutionStatus</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.execute_async">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">execute_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_interrupts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.execute_async" title="Permalink to this definition">#</a></dt>
-<dd><p>Execute the conversation and get its <code class="docutils literal notranslate"><span class="pre">ExecutionStatus</span></code> based on the outcome.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">Execution</span></code> status is returned by the Assistant and indicates if the assistant yielded,
-finished the conversation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>execution_interrupts</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="interrupts.html#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt" title="wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt"><em>ExecutionInterrupt</em></a><em>] </em><em>| </em><em>None</em>) – </p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus">ExecutionStatus</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.get_last_message">
-<span class="sig-name descname"><span class="pre">get_last_message</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.get_last_message" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the last message from the messages List.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a> | None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.get_messages">
-<span class="sig-name descname"><span class="pre">get_messages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.get_messages" title="Permalink to this definition">#</a></dt>
-<dd><p>Return all <code class="docutils literal notranslate"><span class="pre">Message</span></code> objects of the messages list in a python list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.inputs">
-<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.inputs" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.message_list">
-<span class="sig-name descname"><span class="pre">message_list</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><span class="pre">MessageList</span></a></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.message_list" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.plan">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plan</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ExecutionPlan</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.plan" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.state">
-<span class="sig-name descname"><span class="pre">state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ConversationExecutionState</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.state" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.status">
-<span class="sig-name descname"><span class="pre">status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><span class="pre">ExecutionStatus</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.status" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.token_usage">
-<span class="sig-name descname"><span class="pre">token_usage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.tokenusage.TokenUsage" title="wayflowcore.tokenusage.TokenUsage"><span class="pre">TokenUsage</span></a></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.token_usage" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<section id="messages">
+<h2>Messages<a class="headerlink" href="#messages" title="Permalink to this heading">#</a></h2>
 <span class="target" id="message"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.Message">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.messagelist.</span></span><span class="sig-name descname"><span class="pre">Message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_requests</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipients</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_created</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_updated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contents</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.messagelist.Message" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.messagelist.</span></span><span class="sig-name descname"><span class="pre">Message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_requests</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipients</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_created</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_updated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contents</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_prompt_cache_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_reasoning_content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.messagelist.Message" title="Permalink to this definition">#</a></dt>
 <dd><p>Messages are an exchange medium between the user, LLM agent, and controller logic.
 This helps to determine who provided what information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>content</strong> (<em>str</em>) – Content of the message.</p></li>
-<li><p><strong>message_type</strong> (<a class="reference internal" href="#wayflowcore.messagelist.MessageType" title="wayflowcore.messagelist.MessageType"><em>MessageType</em></a><em> | </em><em>None</em>) – A message type out of the following ones:
+<li><p><strong>content</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Content of the message.</p></li>
+<li><p><strong>message_type</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.messagelist.MessageType" title="wayflowcore.messagelist.MessageType"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageType</span></code></a>]) – A message type out of the following ones:
 SYSTEM, AGENT, USER, THOUGHT, INTERNAL, TOOL_REQUEST, TOOL_RESULT.</p></li>
-<li><p><strong>tool_requests</strong> (<em>List</em><em>[</em><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>wayflowcore.tools.tools.ToolRequest</em></a><em>] </em><em>| </em><em>None</em>) – A list of <code class="docutils literal notranslate"><span class="pre">ToolRequest</span></code> objects representing the tools invoked as part
+<li><p><strong>tool_requests</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a>]]) – A list of <code class="docutils literal notranslate"><span class="pre">ToolRequest</span></code> objects representing the tools invoked as part
 of this message. Each request includes the tool’s name, arguments,
 and a unique identifier.</p></li>
-<li><p><strong>tool_result</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><em>wayflowcore.tools.tools.ToolResult</em></a><em> | </em><em>None</em>) – A <code class="docutils literal notranslate"><span class="pre">ToolResult</span></code> object representing the outcome of a tool invocation.
+<li><p><strong>tool_result</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolResult</span></code></a>]) – A <code class="docutils literal notranslate"><span class="pre">ToolResult</span></code> object representing the outcome of a tool invocation.
 It includes the returned content and a reference to the related tool request ID.</p></li>
-<li><p><strong>display_only</strong> (<em>bool</em>) – If True, the message is excluded from any context. Its only purpose is to be displayed in the chat UI (e.g debugging message)</p></li>
-<li><p><strong>sender</strong> (<em>str</em><em> | </em><em>None</em>) – Sender of the message in str format.</p></li>
-<li><p><strong>recipients</strong> (<em>Set</em><em>[</em><em>str</em><em>]</em>) – Recipients of the message in str format.</p></li>
-<li><p><strong>time_created</strong> (<em>datetime.datetime</em>) – Creation timestamp of the message.</p></li>
-<li><p><strong>time_updated</strong> (<em>datetime.datetime</em>) – Update timestamp of the message.</p></li>
-<li><p><strong>contents</strong> (<em>List</em><em>[</em><em>wayflowcore.messagelist.MessageContent</em><em>]</em>) – Message content. Is a list of chunks with potentially different types</p></li>
-<li><p><strong>role</strong> (<em>Literal</em><em>[</em><em>'user'</em><em>, </em><em>'assistant'</em><em>, </em><em>'system'</em><em>]</em>) – Role of the sender of the message. Can be <cite>user</cite>, <cite>system</cite> or <cite>assistant</cite></p></li>
+<li><p><strong>display_only</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, the message is excluded from any context. Its only purpose is to be displayed in the chat UI (e.g debugging message)</p></li>
+<li><p><strong>sender</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Sender of the message in str format.</p></li>
+<li><p><strong>recipients</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Set</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Recipients of the message in str format.</p></li>
+<li><p><strong>time_created</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]) – Creation timestamp of the message.</p></li>
+<li><p><strong>time_updated</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]) – Update timestamp of the message.</p></li>
+<li><p><strong>contents</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#wayflowcore.messagelist.MessageContent" title="wayflowcore.messagelist.MessageContent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageContent</span></code></a>]]) – Message content. Is a list of chunks with potentially different types</p></li>
+<li><p><strong>role</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'user'</span></code>, <code class="docutils literal notranslate"><span class="pre">'system'</span></code>, <code class="docutils literal notranslate"><span class="pre">'assistant'</span></code>]]) – Role of the sender of the message. Can be <cite>user</cite>, <cite>system</cite> or <cite>assistant</cite></p></li>
 <li><p><strong>is_error</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>_prompt_cache_key</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>_reasoning_content</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -638,7 +469,7 @@ It includes the returned content and a reference to the related tool request ID.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.Message.contents">
-<span class="sig-name descname"><span class="pre">contents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">MessageContent</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.contents" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">contents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.messagelist.MessageContent" title="wayflowcore.messagelist.MessageContent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageContent</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.contents" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -646,18 +477,18 @@ It includes the returned content and a reference to the related tool request ID.
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.messagelist.Message.copy" title="Permalink to this definition">#</a></dt>
 <dd><p>Create a copy of the given message.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>kwargs</strong> (<em>Any</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>kwargs</strong> (<em>Any</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.Message.display_only">
-<span class="sig-name descname"><span class="pre">display_only</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.display_only" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">display_only</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.display_only" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -678,44 +509,44 @@ It includes the returned content and a reference to the related tool request ID.
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.Message.recipients">
-<span class="sig-name descname"><span class="pre">recipients</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.recipients" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">recipients</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Set</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.recipients" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.Message.role">
-<span class="sig-name descname"><span class="pre">role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'user'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'assistant'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'system'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.role" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'user'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'assistant'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'system'</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.role" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.Message.sender">
-<span class="sig-name descname"><span class="pre">sender</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.sender" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">sender</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.sender" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.Message.time_created">
-<span class="sig-name descname"><span class="pre">time_created</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.time_created" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">time_created</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></em><a class="headerlink" href="#wayflowcore.messagelist.Message.time_created" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.Message.time_updated">
-<span class="sig-name descname"><span class="pre">time_updated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.time_updated" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">time_updated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></em><a class="headerlink" href="#wayflowcore.messagelist.Message.time_updated" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.Message.tool_requests">
-<span class="sig-name descname"><span class="pre">tool_requests</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><span class="pre">ToolRequest</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.tool_requests" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_requests</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[ToolRequest]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.tool_requests" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.Message.tool_result">
-<span class="sig-name descname"><span class="pre">tool_result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><span class="pre">ToolResult</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.tool_result" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[ToolResult]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.messagelist.Message.tool_result" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <span class="target" id="messagetype"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.MessageType">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.messagelist.</span></span><span class="sig-name descname"><span class="pre">MessageType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.messagelist.MessageType" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.messagelist.</span></span><span class="sig-name descname"><span class="pre">MessageType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.messagelist.MessageType" title="Permalink to this definition">#</a></dt>
 <dd><p>Type of messages</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.MessageType.AGENT">
@@ -764,80 +595,61 @@ It includes the returned content and a reference to the related tool request ID.
 
 </dd></dl>
 
+<span class="target" id="messagecontent"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.messagelist.MessageContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.messagelist.</span></span><span class="sig-name descname"><span class="pre">MessageContent</span></span><a class="headerlink" href="#wayflowcore.messagelist.MessageContent" title="Permalink to this definition">#</a></dt>
+<dd><p>Abstract base class for message content chunks.</p>
+<p>All message content types (such as text and images) should derive from this class
+and specify a class-level ‘type’ field to distinguish content variant.
+Subclasses may also add additional fields for content-specific data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>type</strong> – Identifier for the content type, to be implemented by subclasses.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.messagelist.MessageContent.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.messagelist.MessageContent.type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <span class="target" id="textcontent"></span><dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.messagelist.</span></span><span class="sig-name descname"><span class="pre">TextContent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object py" id="wayflowcore.messagelist.TextContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.messagelist.</span></span><span class="sig-name descname"><span class="pre">TextContent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.messagelist.TextContent" title="Permalink to this definition">#</a></dt>
 <dd><p>Represents the content of a text message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>content</strong> (<em>str</em>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>content</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The textual content of the message.</p></li>
+<li><p><strong>type</strong> – Identifier for the text content type.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">content</span></span></dt>
-<dd><p>The textual content of the message.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">type</span></span></dt>
-<dd><p>Identifier for the text content type.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Literal[“text”]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em></dt>
+<dt class="sig sig-object py" id="wayflowcore.messagelist.TextContent.content">
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#wayflowcore.messagelist.TextContent.content" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'text'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'text'</span></em></dt>
+<dt class="sig sig-object py" id="wayflowcore.messagelist.TextContent.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'text'</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'text'</span></em><a class="headerlink" href="#wayflowcore.messagelist.TextContent.type" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <span class="target" id="imagecontent"></span><dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.messagelist.</span></span><span class="sig-name descname"><span class="pre">ImageContent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base64_content</span></span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object py" id="wayflowcore.messagelist.ImageContent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.messagelist.</span></span><span class="sig-name descname"><span class="pre">ImageContent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base64_content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.messagelist.ImageContent" title="Permalink to this definition">#</a></dt>
 <dd><p>Represents the content of an image message, storing image data as a base64-encoded string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>base64_content</strong> (<em>str</em>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base64_content</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – A base64-encoded string representing the image data.</p></li>
+<li><p><strong>type</strong> – Identifier for the image content type.</p></li>
+</ul>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">base64_content</span></span></dt>
-<dd><p>A base64-encoded string representing the image data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">type</span></span></dt>
-<dd><p>Identifier for the image content type.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.messagelist</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span><span class="p">,</span> <span class="n">TextContent</span><span class="p">,</span> <span class="n">ImageContent</span>
@@ -852,29 +664,29 @@ It includes the returned content and a reference to the related tool request ID.
 </pre></div>
 </div>
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">base64_content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em></dt>
+<dt class="sig sig-object py" id="wayflowcore.messagelist.ImageContent.base64_content">
+<span class="sig-name descname"><span class="pre">base64_content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.messagelist.ImageContent.base64_content" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bytes_content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object py" id="wayflowcore.messagelist.ImageContent.from_bytes">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bytes_content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.messagelist.ImageContent.from_bytes" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.messagelist.ImageContent" title="wayflowcore.messagelist.ImageContent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageContent</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>bytes_content</strong> (<em>bytes</em>) – </p></li>
 <li><p><strong>format</strong> (<em>str</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>ImageContent</em></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'image'</span></em></dt>
+<dt class="sig sig-object py" id="wayflowcore.messagelist.ImageContent.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'image'</span></em><a class="headerlink" href="#wayflowcore.messagelist.ImageContent.type" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -886,7 +698,7 @@ It includes the returned content and a reference to the related tool request ID.
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>messages</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>wayflowcore.messagelist.Message</em></a><em>]</em>) – list of messages to start from.</p></li>
+<li><p><strong>messages</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]) – list of messages to start from.</p></li>
 <li><p><strong>id</strong> (<em>str</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
 </ul>
@@ -899,12 +711,12 @@ It includes the returned content and a reference to the related tool request ID.
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>agent_input</strong> (<em>str</em>) – message to append.</p></li>
+<li><p><strong>agent_input</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – message to append.</p></li>
 <li><p><strong>is_error</strong> (<em>bool</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -915,10 +727,10 @@ It includes the returned content and a reference to the related tool request ID.
 <dd><p>Add a message to a message list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>message</strong> (<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – Message to append to the message list.</p>
+<dd class="field-odd"><p><strong>message</strong> (<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>) – Message to append to the message list.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -929,10 +741,10 @@ It includes the returned content and a reference to the related tool request ID.
 <dd><p>Append a new message object of type <code class="docutils literal notranslate"><span class="pre">MessageType.TOOL_RESULT</span></code> to the messages list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>tool_result</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><em>ToolResult</em></a>) – message to append.</p>
+<dd class="field-odd"><p><strong>tool_result</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolResult</span></code></a>) – message to append.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -943,10 +755,10 @@ It includes the returned content and a reference to the related tool request ID.
 <dd><p>Append a new message object of type <code class="docutils literal notranslate"><span class="pre">MessageType.USER</span></code> to the messages list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>user_input</strong> (<em>str</em>) – message to append.</p>
+<dd class="field-odd"><p><strong>user_input</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#wayflowcore.messagelist.MessageContent" title="wayflowcore.messagelist.MessageContent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageContent</span></code></a>]]) – message to append.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -957,7 +769,7 @@ It includes the returned content and a reference to the related tool request ID.
 <dd><p>Create a copy of the given message list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageList</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -966,26 +778,28 @@ It includes the returned content and a reference to the related tool request ID.
 <dt class="sig sig-object py" id="wayflowcore.messagelist.MessageList.from_messages">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.messagelist.MessageList.from_messages" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>messages</strong> (<em>None</em><em> | </em><em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em>]</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageList</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>messages</strong> (<em>None</em><em> | </em><em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em>]</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.MessageList.get_last_message">
-<span class="sig-name descname"><span class="pre">get_last_message</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><span class="pre">Message</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wayflowcore.messagelist.MessageList.get_last_message" title="Permalink to this definition">#</a></dt>
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">get_last_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><span class="pre">Message</span></a></span></span></dt>
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">get_last_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="k"><span class="pre">False</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><span class="pre">Message</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span></dt>
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">get_last_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><span class="pre">Message</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span></dt>
+<span class="sig-name descname"><span class="pre">get_last_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.messagelist.MessageList.get_last_message" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns the last message from the conversation.
 If strict=True, raises an exception if no messages exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>strict</strong> (<em>bool</em>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -994,14 +808,14 @@ If strict=True, raises an exception if no messages exist.</p>
 <dd><p>Returns a copy of the messages list</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.messagelist.MessageList.messages">
-<span class="sig-name descname"><span class="pre">messages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><span class="pre">Message</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.messagelist.MessageList.messages" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">messages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.messagelist.MessageList.messages" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1033,15 +847,15 @@ If strict=True, raises an exception if no messages exist.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>id</strong> (<em>str</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
-<li><p><strong>_conversation_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>_conversation_id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>message</strong> (<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p></li>
-<li><p><strong>_user_response</strong> (<em>Optional</em><em>[</em><em>'Message'</em><em>]</em>) – </p></li>
+<li><p><strong>_user_response</strong> (<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em> | </em><em>None</em>) – </p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.executors.executionstatus.UserMessageRequestStatus.message">
-<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><span class="pre">Message</span></a></em><a class="headerlink" href="#wayflowcore.executors.executionstatus.UserMessageRequestStatus.message" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Message</span></em><a class="headerlink" href="#wayflowcore.executors.executionstatus.UserMessageRequestStatus.message" title="Permalink to this definition">#</a></dt>
 <dd><p>The message from the assistant to which the user needs to answer to.</p>
 </dd></dl>
 
@@ -1050,11 +864,11 @@ If strict=True, raises an exception if no messages exist.</p>
 <span class="sig-name descname"><span class="pre">submit_user_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.executionstatus.UserMessageRequestStatus.submit_user_response" title="Permalink to this definition">#</a></dt>
 <dd><p>Submit the answer to this user message request.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>response</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>'Message'</em><em>]</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>response</strong> (<em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -1078,13 +892,13 @@ If strict=True, raises an exception if no messages exist.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.executors.executionstatus.FinishedStatus.complete_step_name">
-<span class="sig-name descname"><span class="pre">complete_step_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.executors.executionstatus.FinishedStatus.complete_step_name" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">complete_step_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional[str]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.executors.executionstatus.FinishedStatus.complete_step_name" title="Permalink to this definition">#</a></dt>
 <dd><p>The name of the last step reached if the flow returning this execution status transitioned     to a <code class="docutils literal notranslate"><span class="pre">CompleteStep</span></code>, otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.executors.executionstatus.FinishedStatus.output_values">
-<span class="sig-name descname"><span class="pre">output_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.executors.executionstatus.FinishedStatus.output_values" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">output_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict[str,</span> <span class="pre">Any]</span></em><a class="headerlink" href="#wayflowcore.executors.executionstatus.FinishedStatus.output_values" title="Permalink to this definition">#</a></dt>
 <dd><p>The outputs produced by the agent or flow returning this execution status.</p>
 </dd></dl>
 
@@ -1099,9 +913,9 @@ If strict=True, raises an exception if no messages exist.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>id</strong> (<em>str</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
-<li><p><strong>_conversation_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
-<li><p><strong>tool_requests</strong> (<em>List</em><em>[</em><em>'ToolRequest'</em><em>]</em>) – </p></li>
-<li><p><strong>_tool_results</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>'ToolResult'</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>_conversation_id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>tool_requests</strong> (<em>List</em><em>[</em><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a><em>]</em>) – </p></li>
+<li><p><strong>_tool_results</strong> (<em>List</em><em>[</em><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><em>ToolResult</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1110,11 +924,11 @@ If strict=True, raises an exception if no messages exist.</p>
 <span class="sig-name descname"><span class="pre">submit_tool_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.executionstatus.ToolRequestStatus.submit_tool_result" title="Permalink to this definition">#</a></dt>
 <dd><p>Submit the tool results to the given tool requests.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>tool_result</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><em>ToolResult</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tool_result</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><em>ToolResult</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -1124,26 +938,26 @@ If strict=True, raises an exception if no messages exist.</p>
 <span class="sig-name descname"><span class="pre">submit_tool_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_results</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.executionstatus.ToolRequestStatus.submit_tool_results" title="Permalink to this definition">#</a></dt>
 <dd><p>Submit the tool results to the given tool requests.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>tool_results</strong> (<em>List</em><em>[</em><em>'ToolResult'</em><em>]</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tool_results</strong> (<em>List</em><em>[</em><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><em>ToolResult</em></a><em>]</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.executors.executionstatus.ToolRequestStatus.tool_requests">
-<span class="sig-name descname"><span class="pre">tool_requests</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ToolRequest'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.executors.executionstatus.ToolRequestStatus.tool_requests" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_requests</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List['ToolRequest']</span></em><a class="headerlink" href="#wayflowcore.executors.executionstatus.ToolRequestStatus.tool_requests" title="Permalink to this definition">#</a></dt>
 <dd><p>The tool requests for the client tools that the client need to run.</p>
 </dd></dl>
 
 </dd></dl>
 
 </section>
-<section id="id2">
-<h2>Conversation<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<section id="conversation">
+<h2>Conversation<a class="headerlink" href="#conversation" title="Permalink to this heading">#</a></h2>
 <p>Base class for conversations. Can manipulate a conversation object, and can be serialized/deserialized.</p>
 <span class="target" id="conversationalcomponent"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.conversationalcomponent.ConversationalComponent">
@@ -1155,7 +969,7 @@ If strict=True, raises an exception if no messages exist.</p>
 <li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>]</em>) – </p></li>
 <li><p><strong>output_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>]</em>) – </p></li>
-<li><p><strong>runner</strong> (<em>type</em><em>[</em><em>'ConversationExecutor'</em><em>]</em>) – </p></li>
+<li><p><strong>runner</strong> (<em>Type</em><em>[</em><em>ConversationExecutor</em><em>]</em>) – </p></li>
 <li><p><strong>conversation_class</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
@@ -1171,17 +985,334 @@ If strict=True, raises an exception if no messages exist.</p>
 <dt class="sig sig-object py" id="wayflowcore.conversationalcomponent.ConversationalComponent.start_conversation">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start_conversation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversationalcomponent.ConversationalComponent.start_conversation" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Conversation</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>messages</strong> (<em>None</em><em> | </em><em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em>] </em><em>| </em><a class="reference internal" href="#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a>) – </p></li>
 </ul>
 </dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="id2"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.conversation.</span></span><span class="sig-name descname"><span class="pre">Conversation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation_id=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_handled=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component</strong> (<a class="reference internal" href="#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>) – </p></li>
+<li><p><strong>state</strong> (<em>ConversationExecutionState</em>) – </p></li>
+<li><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>message_list</strong> (<a class="reference internal" href="#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a>) – </p></li>
+<li><p><strong>status</strong> (<a class="reference internal" href="#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><em>ExecutionStatus</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>conversation_id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>status_handled</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.append_agent_message">
+<span class="sig-name descname"><span class="pre">append_agent_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.append_agent_message" title="Permalink to this definition">#</a></dt>
+<dd><p>Append a new message object of type <code class="docutils literal notranslate"><span class="pre">MessageType.AGENT</span></code> to the messages list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agent_input</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – message to append.</p></li>
+<li><p><strong>is_error</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation">Conversation</a></p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.append_message">
+<span class="sig-name descname"><span class="pre">append_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.append_message" title="Permalink to this definition">#</a></dt>
+<dd><p>Append a message to the messages list of this <code class="docutils literal notranslate"><span class="pre">Conversation</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>) – message to append.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.append_tool_result">
+<span class="sig-name descname"><span class="pre">append_tool_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool_result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.append_tool_result" title="Permalink to this definition">#</a></dt>
+<dd><p>Append a new message object of type <code class="docutils literal notranslate"><span class="pre">MessageType.TOOL_RESULT</span></code> to the messages list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tool_result</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolResult</span></code></a>) – message to append.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.append_user_message">
+<span class="sig-name descname"><span class="pre">append_user_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.append_user_message" title="Permalink to this definition">#</a></dt>
+<dd><p>Append a new message object of type <code class="docutils literal notranslate"><span class="pre">MessageType.USER</span></code> to the messages list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_input</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#wayflowcore.messagelist.MessageContent" title="wayflowcore.messagelist.MessageContent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageContent</span></code></a>]]) – str or list of message contents to append as a user message.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.component">
+<span class="sig-name descname"><span class="pre">component</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.component" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.conversation_id">
+<span class="sig-name descname"><span class="pre">conversation_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.conversation_id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.current_step_name">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_step_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.current_step_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_interrupts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.execute" title="Permalink to this definition">#</a></dt>
+<dd><p>Execute the conversation and get its <code class="docutils literal notranslate"><span class="pre">ExecutionStatus</span></code> based on the outcome.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Execution</span></code> status is returned by the Assistant and indicates if the assistant yielded,
+finished the conversation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionStatus</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>execution_interrupts</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="interrupts.html#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt" title="wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt"><em>ExecutionInterrupt</em></a><em>] </em><em>| </em><em>None</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.execute_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">execute_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_interrupts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.execute_async" title="Permalink to this definition">#</a></dt>
+<dd><p>Execute the conversation and get its <code class="docutils literal notranslate"><span class="pre">ExecutionStatus</span></code> based on the outcome.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Execution</span></code> status is returned by the Assistant and indicates if the assistant yielded,
+finished the conversation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionStatus</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>execution_interrupts</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="interrupts.html#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt" title="wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt"><em>ExecutionInterrupt</em></a><em>] </em><em>| </em><em>None</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.get_last_message">
+<span class="sig-name descname"><span class="pre">get_last_message</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.get_last_message" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the last message from the messages List.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.get_messages">
+<span class="sig-name descname"><span class="pre">get_messages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.conversation.Conversation.get_messages" title="Permalink to this definition">#</a></dt>
+<dd><p>Return all <code class="docutils literal notranslate"><span class="pre">Message</span></code> objects of the messages list in a python list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.inputs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.message_list">
+<span class="sig-name descname"><span class="pre">message_list</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageList</span></code></a></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.message_list" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.plan">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plan</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.planning.ExecutionPlan" title="wayflowcore.planning.ExecutionPlan"><span class="pre">ExecutionPlan</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.plan" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.state">
+<span class="sig-name descname"><span class="pre">state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ConversationExecutionState</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.state" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.status">
+<span class="sig-name descname"><span class="pre">status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionStatus</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.status" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.status_handled">
+<span class="sig-name descname"><span class="pre">status_handled</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.status_handled" title="Permalink to this definition">#</a></dt>
+<dd><p>Whether the current status associated to this conversation was already handled or not
+(messages/tool results were added to the conversation)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.conversation.Conversation.token_usage">
+<span class="sig-name descname"><span class="pre">token_usage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.tokenusage.TokenUsage" title="wayflowcore.tokenusage.TokenUsage"><code class="xref py py-class docutils literal notranslate"><span class="pre">TokenUsage</span></code></a></em><a class="headerlink" href="#wayflowcore.conversation.Conversation.token_usage" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="execution-plan">
+<h2>Execution Plan<a class="headerlink" href="#execution-plan" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.planning.ExecutionPlan">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.planning.</span></span><span class="sig-name descname"><span class="pre">ExecutionPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.planning.ExecutionPlan" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>plan</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.planning.Task" title="wayflowcore.planning.Task"><em>Task</em></a><em>] </em><em>| </em><em>None</em>) – </p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.planning.ExecutionPlan.from_str">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.planning.ExecutionPlan.from_str" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.planning.ExecutionPlan" title="wayflowcore.planning.ExecutionPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionPlan</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>plan_text</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.planning.ExecutionPlan.to_str">
+<span class="sig-name descname"><span class="pre">to_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.planning.ExecutionPlan.to_str" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.planning.Task">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.planning.</span></span><span class="sig-name descname"><span class="pre">Task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">TaskStatus.PENDING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.planning.Task" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em>) – </p></li>
+<li><p><strong>status</strong> (<a class="reference internal" href="#wayflowcore.planning.TaskStatus" title="wayflowcore.planning.TaskStatus"><em>TaskStatus</em></a>) – </p></li>
+<li><p><strong>tool</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.planning.Task.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.planning.Task.description" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.planning.Task.from_str">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.planning.Task.from_str" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.planning.Task" title="wayflowcore.planning.Task"><code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code></a>]</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>line</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.planning.Task.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.planning.Task.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.planning.Task.status">
+<span class="sig-name descname"><span class="pre">status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.planning.TaskStatus" title="wayflowcore.planning.TaskStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskStatus</span></code></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PENDING'</span></em><a class="headerlink" href="#wayflowcore.planning.Task.status" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.planning.Task.to_str">
+<span class="sig-name descname"><span class="pre">to_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.planning.Task.to_str" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.planning.Task.tool">
+<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.planning.Task.tool" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.planning.TaskStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.planning.</span></span><span class="sig-name descname"><span class="pre">TaskStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.planning.TaskStatus" title="Permalink to this definition">#</a></dt>
+<dd><p>Status of a task</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.planning.TaskStatus.CANCELLED">
+<span class="sig-name descname"><span class="pre">CANCELLED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CANCELLED'</span></em><a class="headerlink" href="#wayflowcore.planning.TaskStatus.CANCELLED" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.planning.TaskStatus.ERROR">
+<span class="sig-name descname"><span class="pre">ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ERROR'</span></em><a class="headerlink" href="#wayflowcore.planning.TaskStatus.ERROR" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.planning.TaskStatus.IN_PROGRESS">
+<span class="sig-name descname"><span class="pre">IN_PROGRESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IN_PROGRESS'</span></em><a class="headerlink" href="#wayflowcore.planning.TaskStatus.IN_PROGRESS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.planning.TaskStatus.NEEDS_REFINEMENT">
+<span class="sig-name descname"><span class="pre">NEEDS_REFINEMENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NEEDS_REFINEMENT'</span></em><a class="headerlink" href="#wayflowcore.planning.TaskStatus.NEEDS_REFINEMENT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.planning.TaskStatus.PENDING">
+<span class="sig-name descname"><span class="pre">PENDING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PENDING'</span></em><a class="headerlink" href="#wayflowcore.planning.TaskStatus.PENDING" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.planning.TaskStatus.SUCCESS">
+<span class="sig-name descname"><span class="pre">SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SUCCESS'</span></em><a class="headerlink" href="#wayflowcore.planning.TaskStatus.SUCCESS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1211,27 +1342,7 @@ If strict=True, raises an exception if no messages exist.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conversation-messages">Conversation &amp; Messages</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation"><code class="docutils literal notranslate"><span class="pre">Conversation</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.append_agent_message"><code class="docutils literal notranslate"><span class="pre">Conversation.append_agent_message()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.append_message"><code class="docutils literal notranslate"><span class="pre">Conversation.append_message()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.append_tool_result"><code class="docutils literal notranslate"><span class="pre">Conversation.append_tool_result()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.append_user_message"><code class="docutils literal notranslate"><span class="pre">Conversation.append_user_message()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.component"><code class="docutils literal notranslate"><span class="pre">Conversation.component</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.conversation_id"><code class="docutils literal notranslate"><span class="pre">Conversation.conversation_id</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.current_step_name"><code class="docutils literal notranslate"><span class="pre">Conversation.current_step_name</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.execute"><code class="docutils literal notranslate"><span class="pre">Conversation.execute()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.execute_async"><code class="docutils literal notranslate"><span class="pre">Conversation.execute_async()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.get_last_message"><code class="docutils literal notranslate"><span class="pre">Conversation.get_last_message()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.get_messages"><code class="docutils literal notranslate"><span class="pre">Conversation.get_messages()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.inputs"><code class="docutils literal notranslate"><span class="pre">Conversation.inputs</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.message_list"><code class="docutils literal notranslate"><span class="pre">Conversation.message_list</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.plan"><code class="docutils literal notranslate"><span class="pre">Conversation.plan</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.state"><code class="docutils literal notranslate"><span class="pre">Conversation.state</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.status"><code class="docutils literal notranslate"><span class="pre">Conversation.status</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.token_usage"><code class="docutils literal notranslate"><span class="pre">Conversation.token_usage</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#messages">Messages</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.Message"><code class="docutils literal notranslate"><span class="pre">Message</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.Message.content"><code class="docutils literal notranslate"><span class="pre">Message.content</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.Message.contents"><code class="docutils literal notranslate"><span class="pre">Message.contents</span></code></a></li>
@@ -1259,6 +1370,21 @@ If strict=True, raises an exception if no messages exist.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.MessageType.TOOL_REQUEST"><code class="docutils literal notranslate"><span class="pre">MessageType.TOOL_REQUEST</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.MessageType.TOOL_RESULT"><code class="docutils literal notranslate"><span class="pre">MessageType.TOOL_RESULT</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.MessageType.USER"><code class="docutils literal notranslate"><span class="pre">MessageType.USER</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.MessageContent"><code class="docutils literal notranslate"><span class="pre">MessageContent</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.MessageContent.type"><code class="docutils literal notranslate"><span class="pre">MessageContent.type</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.TextContent"><code class="docutils literal notranslate"><span class="pre">TextContent</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.TextContent.content"><code class="docutils literal notranslate"><span class="pre">TextContent.content</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.TextContent.type"><code class="docutils literal notranslate"><span class="pre">TextContent.type</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.ImageContent"><code class="docutils literal notranslate"><span class="pre">ImageContent</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.ImageContent.base64_content"><code class="docutils literal notranslate"><span class="pre">ImageContent.base64_content</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.ImageContent.from_bytes"><code class="docutils literal notranslate"><span class="pre">ImageContent.from_bytes()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.ImageContent.type"><code class="docutils literal notranslate"><span class="pre">ImageContent.type</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.messagelist.MessageList"><code class="docutils literal notranslate"><span class="pre">MessageList</span></code></a><ul class="nav section-nav flex-column">
@@ -1295,10 +1421,57 @@ If strict=True, raises an exception if no messages exist.</p>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Conversation</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conversation">Conversation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversationalcomponent.ConversationalComponent"><code class="docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversationalcomponent.ConversationalComponent.llms"><code class="docutils literal notranslate"><span class="pre">ConversationalComponent.llms</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversationalcomponent.ConversationalComponent.start_conversation"><code class="docutils literal notranslate"><span class="pre">ConversationalComponent.start_conversation()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation"><code class="docutils literal notranslate"><span class="pre">Conversation</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.append_agent_message"><code class="docutils literal notranslate"><span class="pre">Conversation.append_agent_message()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.append_message"><code class="docutils literal notranslate"><span class="pre">Conversation.append_message()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.append_tool_result"><code class="docutils literal notranslate"><span class="pre">Conversation.append_tool_result()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.append_user_message"><code class="docutils literal notranslate"><span class="pre">Conversation.append_user_message()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.component"><code class="docutils literal notranslate"><span class="pre">Conversation.component</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.conversation_id"><code class="docutils literal notranslate"><span class="pre">Conversation.conversation_id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.current_step_name"><code class="docutils literal notranslate"><span class="pre">Conversation.current_step_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.execute"><code class="docutils literal notranslate"><span class="pre">Conversation.execute()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.execute_async"><code class="docutils literal notranslate"><span class="pre">Conversation.execute_async()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.get_last_message"><code class="docutils literal notranslate"><span class="pre">Conversation.get_last_message()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.get_messages"><code class="docutils literal notranslate"><span class="pre">Conversation.get_messages()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.inputs"><code class="docutils literal notranslate"><span class="pre">Conversation.inputs</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.message_list"><code class="docutils literal notranslate"><span class="pre">Conversation.message_list</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.plan"><code class="docutils literal notranslate"><span class="pre">Conversation.plan</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.state"><code class="docutils literal notranslate"><span class="pre">Conversation.state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.status"><code class="docutils literal notranslate"><span class="pre">Conversation.status</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.status_handled"><code class="docutils literal notranslate"><span class="pre">Conversation.status_handled</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.conversation.Conversation.token_usage"><code class="docutils literal notranslate"><span class="pre">Conversation.token_usage</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#execution-plan">Execution Plan</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.ExecutionPlan"><code class="docutils literal notranslate"><span class="pre">ExecutionPlan</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.ExecutionPlan.from_str"><code class="docutils literal notranslate"><span class="pre">ExecutionPlan.from_str()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.ExecutionPlan.to_str"><code class="docutils literal notranslate"><span class="pre">ExecutionPlan.to_str()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.Task"><code class="docutils literal notranslate"><span class="pre">Task</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.Task.description"><code class="docutils literal notranslate"><span class="pre">Task.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.Task.from_str"><code class="docutils literal notranslate"><span class="pre">Task.from_str()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.Task.id"><code class="docutils literal notranslate"><span class="pre">Task.id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.Task.status"><code class="docutils literal notranslate"><span class="pre">Task.status</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.Task.to_str"><code class="docutils literal notranslate"><span class="pre">Task.to_str()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.Task.tool"><code class="docutils literal notranslate"><span class="pre">Task.tool</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.TaskStatus"><code class="docutils literal notranslate"><span class="pre">TaskStatus</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.TaskStatus.CANCELLED"><code class="docutils literal notranslate"><span class="pre">TaskStatus.CANCELLED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.TaskStatus.ERROR"><code class="docutils literal notranslate"><span class="pre">TaskStatus.ERROR</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.TaskStatus.IN_PROGRESS"><code class="docutils literal notranslate"><span class="pre">TaskStatus.IN_PROGRESS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.TaskStatus.NEEDS_REFINEMENT"><code class="docutils literal notranslate"><span class="pre">TaskStatus.NEEDS_REFINEMENT</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.TaskStatus.PENDING"><code class="docutils literal notranslate"><span class="pre">TaskStatus.PENDING</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.planning.TaskStatus.SUCCESS"><code class="docutils literal notranslate"><span class="pre">TaskStatus.SUCCESS</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1319,8 +1492,8 @@ If strict=True, raises an exception if no messages exist.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

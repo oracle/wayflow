@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -66,8 +66,8 @@
     <link rel="icon" href="../../_static/favicon.png"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="How to Enable Agents to Handle Long Contexts" href="howto_long_context.html" />
-    <link rel="prev" title="How to Install and Use Ollama" href="installing_ollama.html" />
+    <link rel="next" title="How to Connect Assistants to Your Data" href="howto_datastores.html" />
+    <link rel="prev" title="How to Create New WayFlow Components" href="howto_plugins.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="26.1" />
@@ -292,9 +292,14 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -307,6 +312,8 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -315,11 +322,8 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -331,11 +335,13 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
@@ -347,6 +353,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -619,6 +627,28 @@ To do that, just wrap the execution loop of our agent in a <a class="reference i
 </div>
 <p>You can now run our code and inspect the traces saved in your file.</p>
 </section>
+</section>
+<section id="emitting-agent-spec-traces">
+<h2>Emitting Agent Spec Traces<a class="headerlink" href="#emitting-agent-spec-traces" title="Permalink to this heading">#</a></h2>
+<p>Open Agent Specification Tracing (short: Agent Spec Tracing) is an extension of
+Agent Spec that standardizes how agent and flow executions emit traces.
+It defines a unified, implementation-agnostic semantic for, Events, Spans, Traces, and SpanProcessors, with
+the same semantic presented for WayFlow in this guide.</p>
+<p>WayFlow offers an <code class="docutils literal notranslate"><span class="pre">EventListener</span></code> called <a class="reference internal" href="../api/agentspec.html#agentspeceventlistener"><span class="std std-ref">AgentSpecEventListener</span></a> that
+makes WayFlow components emit traces according to the Agent Spec Tracing standard.
+Here’s an example of how to use it in your code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyagentspec.tracing.trace</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trace</span> <span class="k">as</span> <span class="n">AgentSpecTrace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec.tracing</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecEventListener</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.events.eventlistener</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_event_listeners</span>
+
+<span class="c1"># Here you can register the SpanProcessors that consume Agent Spec Traces emitted by WayFlow</span>
+<span class="k">with</span> <span class="n">AgentSpecTrace</span><span class="p">()</span> <span class="k">as</span> <span class="n">trace</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">register_event_listeners</span><span class="p">([</span><span class="n">AgentSpecEventListener</span><span class="p">()]):</span>
+        <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Compute 2+3&quot;</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+</pre></div>
+</div>
 </section>
 <section id="agent-spec-exporting-loading">
 <h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
@@ -1244,6 +1274,22 @@ those offered by the <a class="reference external" href="https://opentelemetry-p
 <span class="linenos">164</span>        <span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Compute 2+3&quot;</span><span class="p">)</span>
 <span class="linenos">165</span>        <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 <span class="linenos">166</span>        <span class="n">conversation_span</span><span class="o">.</span><span class="n">record_end_span_event</span><span class="p">(</span><span class="n">execution_status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="linenos">167</span>
+<span class="linenos">168</span>
+<span class="linenos">169</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">170</span><span class="c1">## Enable Agent Spec Tracing</span>
+<span class="linenos">171</span>
+<span class="linenos">172</span><span class="c1"># %%</span>
+<span class="linenos">173</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyagentspec.tracing.trace</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trace</span> <span class="k">as</span> <span class="n">AgentSpecTrace</span>
+<span class="linenos">174</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec.tracing</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecEventListener</span>
+<span class="linenos">175</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.events.eventlistener</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_event_listeners</span>
+<span class="linenos">176</span>
+<span class="linenos">177</span><span class="c1"># Here you can register the SpanProcessors that consume Agent Spec Traces emitted by WayFlow</span>
+<span class="linenos">178</span><span class="k">with</span> <span class="n">AgentSpecTrace</span><span class="p">()</span> <span class="k">as</span> <span class="n">trace</span><span class="p">:</span>
+<span class="linenos">179</span>    <span class="k">with</span> <span class="n">register_event_listeners</span><span class="p">([</span><span class="n">AgentSpecEventListener</span><span class="p">()]):</span>
+<span class="linenos">180</span>        <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">181</span>        <span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Compute 2+3&quot;</span><span class="p">)</span>
+<span class="linenos">182</span>        <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>
@@ -1279,6 +1325,7 @@ those offered by the <a class="reference external" href="https://opentelemetry-p
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tracking-an-agent">Tracking an agent</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#emitting-agent-spec-traces">Emitting Agent Spec Traces</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agent-spec-exporting-loading">Agent Spec Exporting/Loading</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-opentelemetry-spanprocessors">Using OpenTelemetry SpanProcessors</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
@@ -1299,8 +1346,8 @@ those offered by the <a class="reference external" href="https://opentelemetry-p
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

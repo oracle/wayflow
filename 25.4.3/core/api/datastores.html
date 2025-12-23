@@ -1,0 +1,1062 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Datastores &#8212; wayflowcore 25.4.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/datastores';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '25.4.3';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Warnings" href="warnings.html" />
+    <link rel="prev" title="Variables" href="variables.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.4" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 25.4.3 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 25.4.3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">How to Evaluate WayFlow Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">How to Evaluate Assistant Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="variables.html">Variables</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Datastores</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="datastores">
+<span id="id1"></span><h1>Datastores<a class="headerlink" href="#datastores" title="Permalink to this heading">#</a></h1>
+<p>Datastores connect Agents and Flows to data modelled by entity definitions.
+To see how you can use a datastore in a Flow or Agent, see <a class="reference internal" href="flows.html#datastoresteps"><span class="std std-ref">Datastore task steps</span></a>.</p>
+<section id="entity">
+<h2>Entity<a class="headerlink" href="#entity" title="Permalink to this heading">#</a></h2>
+<p>Entities define the data model of datastores.</p>
+<span class="target" id="id2"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.Entity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">Entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value=&lt;class</span> <span class="pre">'wayflowcore.property._empty_default'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enum=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_validate_default_type=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.Entity" title="Permalink to this definition">#</a></dt>
+<dd><p>An <code class="docutils literal notranslate"><span class="pre">Entity</span></code> defines the properties of an object in a collection
+manipulated by a datastore.</p>
+<p>Entities can be used to model relational entities, where their
+properties are the columns of the tables, as well as any
+other kind of entity. For example, a text file on OCI Object Storage
+can be represented as an entity with properties file name and content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – <p>Optional name of the entities described by this object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In a datastore, the relevant name is the one provided as the
+dictionary key of the <code class="docutils literal notranslate"><span class="pre">schema</span></code> parameter for the corresponding
+<code class="docutils literal notranslate"><span class="pre">Entity</span></code>.</p>
+</div>
+</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – <p>Optional description of the entity type.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>It can be helpful to put a description in the following cases:</p>
+<ul>
+<li><p>to help users know what this entity is about, and simplify the usage of a <code class="docutils literal notranslate"><span class="pre">Step</span></code> using it</p></li>
+<li><p>to help a LLM if it needs to generate values for this entity (e.g. in <code class="docutils literal notranslate"><span class="pre">DatastoreCreateStep</span></code>)</p></li>
+<li><p>to help an agent when tools are generated from the Datastore operations,
+to automatically provide a comprehensive docstring for that tool</p></li>
+</ul>
+</div>
+</p></li>
+<li><p><strong>default_value</strong> (<em>Any</em>) – Optional default value.</p></li>
+<li><p><strong>properties</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>wayflowcore.property.Property</em></a><em>]</em>) – <p>Mapping of property names and their types. Defaults to no properties.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If a property is not required (but doesn’t have a default value conforming to its type),
+use the <code class="docutils literal notranslate"><span class="pre">nullable</span></code> helper function to create a new property that can be set to <cite>None</cite>.</p>
+</div>
+</p></li>
+<li><p><strong>enum</strong> (<em>Tuple</em><em>[</em><em>Any</em><em>, </em><em>...</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>_validate_default_type</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.datastore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">nullable</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringProperty</span><span class="p">,</span> <span class="n">IntegerProperty</span>
+</pre></div>
+</div>
+<p>You can define an entity representing documents with metadata as follows:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">documents</span> <span class="o">=</span> <span class="n">Entity</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Documents in object store, including category metadata&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">properties</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">IntegerProperty</span><span class="p">(),</span>
+<span class="gp">... </span>        <span class="c1"># By default, documents are created empty</span>
+<span class="gp">... </span>        <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="c1"># Category is empty by default</span>
+<span class="gp">... </span>        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="n">nullable</span><span class="p">(</span><span class="n">StringProperty</span><span class="p">()),</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.Entity.get_entity_defaults">
+<span class="sig-name descname"><span class="pre">get_entity_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.Entity.get_entity_defaults" title="Permalink to this definition">#</a></dt>
+<dd><p>Construct a dictionary of default values for properties that
+have them.</p>
+<p>This method can be helpful to supplement default values in an
+entity object. Note that datastores already provide this
+functionality on creation of an object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary mapping each property name in the dictionary to its
+default value (if it has one, otherwise it will not be part of
+this dictionary)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="nullable-helper-function"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.nullable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">nullable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.nullable" title="Permalink to this definition">#</a></dt>
+<dd><p>Makes a property nullable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>property</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a>) – Property that can be null. If a default value is set on this
+property the resulting nullable property will have the same
+default value. If no default value is set, the default of the
+resulting property is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new property descriptor that is equivalent to the original one,
+but that can also be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="flows.html#wayflowcore.property.UnionProperty" title="wayflowcore.property.UnionProperty">UnionProperty</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="base-class">
+<h2>Base class<a class="headerlink" href="#base-class" title="Permalink to this heading">#</a></h2>
+<span class="target" id="datastore"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.Datastore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">Datastore</span></span><a class="headerlink" href="#wayflowcore.datastore.Datastore" title="Permalink to this definition">#</a></dt>
+<dd><p>Store and perform basic manipulations on collections of entities
+of various types.</p>
+<p>Provides an interface for listing, creating, deleting and updating
+collections. It also provides a way of describing the entities in
+this datastore.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.Datastore.create">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">EntityAsDictT</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">EntityAsDictT</span></span></span><a class="headerlink" href="#wayflowcore.datastore.Datastore.create" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">EntityAsDictT</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">EntityAsDictT</span><span class="p"><span class="pre">]</span></span></span></span></dt>
+<dd><p>Create new entities of the specified type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection_name</strong> – Name of the collection to create the new entities in.</p></li>
+<li><p><strong>entities</strong> – <p>One or more entities to create. Creating multiple entities
+at once may be beneficial for performance compared to
+executing multiple calls to create.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When bulk-creating entities, all entities must contain the same set of properties.
+For example, if the <code class="docutils literal notranslate"><span class="pre">Entity</span></code> “employees” has <code class="docutils literal notranslate"><span class="pre">properties</span></code> “name” (required) and
+“salary” (optional), either all entities to create define only the name, or all
+define both name and salary. Some entities defining the salary and others relying on
+its default value is not supported.)</p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The newly created entities, including any defaults not provided
+in the original entity. If the input entities were multiples,
+they will be returned as a list. Otherwise, a single dictionary
+with the newly created entity will be returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict] or dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.Datastore.delete">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.Datastore.delete" title="Permalink to this definition">#</a></dt>
+<dd><p>Delete entities based on the specified criteria.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection_name</strong> (<em>str</em>) – Name of the collection in which entities will be deleted.</p></li>
+<li><p><strong>where</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Filter criteria for the entities to delete.
+The dictionary is composed of property name and value pairs
+to filter by with exact matches. Only entities matching all
+conditions in the dictionary will be deleted. For example,
+<code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;Fido&quot;,</span> <span class="pre">&quot;breed&quot;:</span> <span class="pre">&quot;Golden</span> <span class="pre">Retriever&quot;}</span></code> will match
+all <code class="docutils literal notranslate"><span class="pre">Golden</span> <span class="pre">Retriever</span></code> dogs named <code class="docutils literal notranslate"><span class="pre">Fido</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.Datastore.describe">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.Datastore.describe" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the descriptions of the schema associated with this
+<code class="docutils literal notranslate"><span class="pre">Datastore</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The description of the schema for the <code class="docutils literal notranslate"><span class="pre">Datastore</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <a class="reference internal" href="#wayflowcore.datastore.Entity" title="wayflowcore.datastore.Entity">Entity</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.Datastore.list">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.Datastore.list" title="Permalink to this definition">#</a></dt>
+<dd><p>Retrieve a list of entities in a collection based on the
+given criteria.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection_name</strong> (<em>str</em>) – Name of the collection to list.</p></li>
+<li><p><strong>where</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – Filter criteria for the collection to list.
+The dictionary is composed of property name and value pairs
+to filter by with exact matches. Only entities matching all
+conditions in the dictionary will be listed. For example,
+<code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;Fido&quot;,</span> <span class="pre">&quot;breed&quot;:</span> <span class="pre">&quot;Golden</span> <span class="pre">Retriever&quot;}</span></code> will match
+all <code class="docutils literal notranslate"><span class="pre">Golden</span> <span class="pre">Retriever</span></code> dogs named <code class="docutils literal notranslate"><span class="pre">Fido</span></code>.</p></li>
+<li><p><strong>limit</strong> (<em>int</em><em> | </em><em>None</em>) – Maximum number of entities to retrieve, by default <code class="docutils literal notranslate"><span class="pre">None</span></code>
+(retrieve all entities).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of entities matching the specified criteria.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.Datastore.update">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.Datastore.update" title="Permalink to this definition">#</a></dt>
+<dd><p>Update existing entities that match the provided conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection_name</strong> (<em>str</em>) – Name of the collection to be updated.</p></li>
+<li><p><strong>where</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Filter criteria for the collection to update.
+The dictionary is composed of property name and value pairs
+to filter by with exact matches. Only entities matching all
+conditions in the dictionary will be updated. For example,
+<code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;Fido&quot;,</span> <span class="pre">&quot;breed&quot;:</span> <span class="pre">&quot;Golden</span> <span class="pre">Retriever&quot;}</span></code> will match
+all <code class="docutils literal notranslate"><span class="pre">Golden</span> <span class="pre">Retriever</span></code> dogs named <code class="docutils literal notranslate"><span class="pre">Fido</span></code>.</p></li>
+<li><p><strong>update</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The update to apply to the matching entities in the collection.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated entities, including any defaults or values not set in the update.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="in-memory">
+<h2>In memory<a class="headerlink" href="#in-memory" title="Permalink to this heading">#</a></h2>
+<span class="target" id="inmemorydatastore"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.InMemoryDatastore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">InMemoryDatastore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.InMemoryDatastore" title="Permalink to this definition">#</a></dt>
+<dd><p>In-memory datastore for testing and development purposes.</p>
+<p>This datastore implements basic functionalities of datastores, with
+the following properties:</p>
+<ul class="simple">
+<li><p>All schema objects manipulated by the datastore must be fully defined
+using the <code class="docutils literal notranslate"><span class="pre">Entity</span></code> property. These entities are not persisted
+across instances of <code class="docutils literal notranslate"><span class="pre">InMemoryDatastore</span></code> or Python processes;</p></li>
+<li><p>The underlying data cannot be shared across instances of this <code class="docutils literal notranslate"><span class="pre">Datastore</span></code>.</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This <code class="docutils literal notranslate"><span class="pre">Datastore</span></code> is meant only for testing and development
+purposes. Switch to a production-grade datastore (e.g.,
+<code class="docutils literal notranslate"><span class="pre">OracleDatabaseDatastore</span></code>) before deploying an assistant.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When this <code class="docutils literal notranslate"><span class="pre">Datastore</span></code> is serialized, only its configuration
+will be serialized, without any of the stored data.</p>
+</div>
+<p>Initialize an <code class="docutils literal notranslate"><span class="pre">InMemoryDatastore</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>schema</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><em>Entity</em></a><em>]</em>) – Mapping of collection names to entity definitions used by this
+datastore.</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.datastore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entity</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.datastore.inmemory</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryDatastore</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringProperty</span><span class="p">,</span> <span class="n">IntegerProperty</span>
+</pre></div>
+</div>
+<p>You can define one or more entities for your datastore and initialize it</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">document</span> <span class="o">=</span> <span class="n">Entity</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">properties</span><span class="o">=</span><span class="p">{</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">IntegerProperty</span><span class="p">(),</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">datastore</span> <span class="o">=</span> <span class="n">InMemoryDatastore</span><span class="p">({</span><span class="s2">&quot;documents&quot;</span><span class="p">:</span> <span class="n">document</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">InMemoryDatastore</span></code> can create, list, update and delete entities.
+Creation can happen for single entities as well as multiples:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datastore</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;documents&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The quick brown fox jumps over the lazy dog&quot;</span><span class="p">})</span>
+<span class="go">{&#39;content&#39;: &#39;The quick brown fox jumps over the lazy dog&#39;, &#39;id&#39;: 1}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bulk_insert_docs</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;The rat the cat the dog bit chased escaped.&quot;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;More people have been to Russia than I have.&quot;</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">datastore</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;documents&quot;</span><span class="p">,</span> <span class="n">bulk_insert_docs</span><span class="p">)</span>
+<span class="go">[{&#39;content&#39;: &#39;The rat the cat the dog bit chased escaped.&#39;, &#39;id&#39;: 2}, {&#39;content&#39;: &#39;More people have been to Russia than I have.&#39;, &#39;id&#39;: 3}]</span>
+</pre></div>
+</div>
+<p>Use <code class="docutils literal notranslate"><span class="pre">where</span></code> parameters to filter results when listing entities. When no matches are found, an empty list is returned
+Note that if multiple properties are set in the <code class="docutils literal notranslate"><span class="pre">where</span></code> dictionary, all of the values must match:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datastore</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="s2">&quot;documents&quot;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+<span class="go">[{&#39;content&#39;: &#39;More people have been to Russia than I have.&#39;, &#39;id&#39;: 3}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">datastore</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="s2">&quot;documents&quot;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Not the content of document 1&quot;</span><span class="p">})</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+<p>Use the limit parameter to reduce the size of the result set:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datastore</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="s2">&quot;documents&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">[{&#39;content&#39;: &#39;The quick brown fox jumps over the lazy dog&#39;, &#39;id&#39;: 1}]</span>
+</pre></div>
+</div>
+<p>The same <cite>where</cite> parameter can be used to determine which entities should be updated or deleted:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">datastore</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;documents&quot;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Will, will Will will Will Will&#39;s will?&quot;</span><span class="p">})</span>
+<span class="go">[{&#39;content&#39;: &quot;Will, will Will will Will Will&#39;s will?&quot;, &#39;id&#39;: 1}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">datastore</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;documents&quot;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="oracle-database">
+<h2>Oracle Database<a class="headerlink" href="#oracle-database" title="Permalink to this heading">#</a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The Oracle Database Datastore requires additional optional dependencies, which can be installed
+with the <code class="docutils literal notranslate"><span class="pre">[datastore]</span></code> installation option.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default (when using the <cite>OracleDatabaseConnectionConfig</cite> classes as-is), the <cite>python-oracledb</cite>
+client will use a thin connection to the database. If you want to use a thick connection
+(leveraging Oracle Instant Client), invoke <cite>oracledb.init_instant_client()</cite> before initializing
+any connection to the database. More information about thick and thin connection can be found in the
+<a class="reference external" href="https://python-oracledb.readthedocs.io/en/latest/api_manual/module.html#oracledb.init_oracle_client">python-oracledb documentation</a>.</p>
+</div>
+<span class="target" id="oracledatabaseconnectionconfig"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.OracleDatabaseConnectionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">OracleDatabaseConnectionConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.OracleDatabaseConnectionConfig" title="Permalink to this definition">#</a></dt>
+<dd><p>Base class used for configuring connections to Oracle Database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.OracleDatabaseConnectionConfig.get_connection">
+<span class="sig-name descname"><span class="pre">get_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.OracleDatabaseConnectionConfig.get_connection" title="Permalink to this definition">#</a></dt>
+<dd><p>Create a connection object from the configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A <cite>python-oracledb</cite> connection object</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="oracledatabasetlsconnectionconfig"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsOracleDatabaseConnectionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">TlsOracleDatabaseConnectionConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dsn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_dir=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig" title="Permalink to this definition">#</a></dt>
+<dd><p>TLS Connection Configuration to Oracle Database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user</strong> (<em>str</em>) – User used to connect to the database</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Password for the provided user</p></li>
+<li><p><strong>dsn</strong> (<em>str</em>) – Connection string for the database (e.g., created using <cite>oracledb.make_dsn</cite>)</p></li>
+<li><p><strong>config_dir</strong> (<em>str</em><em> | </em><em>None</em>) – Configuration directory for the database connection. Set this if you are using an
+alias from your tnsnames.ora files as a DSN. Make sure that the specified DSN is
+appropriate for TLS connections (as the tnsnames.ora file in a downloaded wallet
+will only include DSN entries for mTLS connections).</p></li>
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.config_dir">
+<span class="sig-name descname"><span class="pre">config_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.config_dir" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.dsn">
+<span class="sig-name descname"><span class="pre">dsn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.dsn" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.password">
+<span class="sig-name descname"><span class="pre">password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.password" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.user">
+<span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.user" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<span class="target" id="oracledatabasemtlsconnectionconfig"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">MTlsOracleDatabaseConnectionConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dsn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wallet_location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wallet_password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig" title="Permalink to this definition">#</a></dt>
+<dd><p>Mutual-TLS Connection Configuration to Oracle Database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_dir</strong> (<em>str</em>) – TNS Admin directory</p></li>
+<li><p><strong>dsn</strong> (<em>str</em>) – connection string for the database, or entry in the tnsnames.ora file</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – connection string for the database</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – password for the provided user</p></li>
+<li><p><strong>wallet_location</strong> (<em>str</em>) – location where the Oracle Database wallet is stored</p></li>
+<li><p><strong>wallet_password</strong> (<em>str</em>) – password for the provided wallet</p></li>
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.config_dir">
+<span class="sig-name descname"><span class="pre">config_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.config_dir" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.dsn">
+<span class="sig-name descname"><span class="pre">dsn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.dsn" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.password">
+<span class="sig-name descname"><span class="pre">password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.password" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.user">
+<span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.user" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_location">
+<span class="sig-name descname"><span class="pre">wallet_location</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_location" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_password">
+<span class="sig-name descname"><span class="pre">wallet_password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_password" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<span class="target" id="oracledatabasedatastore"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.OracleDatabaseDatastore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">OracleDatabaseDatastore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.OracleDatabaseDatastore" title="Permalink to this definition">#</a></dt>
+<dd><p>Datastore that uses Oracle Database as the storage mechanism.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This <code class="docutils literal notranslate"><span class="pre">Datastore</span></code> can only be used to connect to existing
+database schemas, with tables of interest already defined in the
+database.</p>
+</div>
+<p>Initialize an Oracle Database Datastore.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>schema</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><em>Entity</em></a><em>]</em>) – Mapping of collection names to entity definitions used by
+this datastore.</p></li>
+<li><p><strong>connection_config</strong> (<a class="reference internal" href="#wayflowcore.datastore.OracleDatabaseConnectionConfig" title="wayflowcore.datastore.oracle.OracleDatabaseConnectionConfig"><em>OracleDatabaseConnectionConfig</em></a>) – Configuration of connection parameters</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.OracleDatabaseDatastore.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.OracleDatabaseDatastore.query" title="Permalink to this definition">#</a></dt>
+<dd><p>Execute a query against the stored data.</p>
+<p>This method can be useful to join data or use advanced
+filtering options not provided in <code class="docutils literal notranslate"><span class="pre">Datastore.list</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>str</em>) – The query to execute, possibly parametrized with bind variables.
+The syntax for bind variables is <code class="docutils literal notranslate"><span class="pre">:variable_name</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">variable_name</span></code> must be a key in the <code class="docutils literal notranslate"><span class="pre">bind</span></code> parameter of this method</p></li>
+<li><p><strong>bind</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Bind variables for the query.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>The result of the query execution as a list of dictionaries</em></p></li>
+<li><p><em>mapping column names in the select statement to their values.</em></p></li>
+<li><p><em>.. note::</em> – If the select clause contains something other than column names,
+the literal values written in the column name are used as keys
+of the dictionary, e.g.:
+<code class="docutils literal notranslate"><span class="pre">`sql</span>
+<span class="pre">SELECT</span> <span class="pre">COUNT(DISTINCT</span> <span class="pre">ID),</span> <span class="pre">MAX(salary)</span> <span class="pre">FROM</span> <span class="pre">employees</span>
+<span class="pre">`</span></code>
+will return a list with a single element, a dictionary with
+keys <cite>“COUNT(DISTINCT ID)”</cite> and <cite>“MAX(salary)”</cite></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>List</em>[<em>Dict</em>[str, <em>Any</em>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#entity">Entity</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.Entity"><code class="docutils literal notranslate"><span class="pre">Entity</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.Entity.get_entity_defaults"><code class="docutils literal notranslate"><span class="pre">Entity.get_entity_defaults()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.nullable"><code class="docutils literal notranslate"><span class="pre">nullable</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#base-class">Base class</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.Datastore"><code class="docutils literal notranslate"><span class="pre">Datastore</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.Datastore.create"><code class="docutils literal notranslate"><span class="pre">Datastore.create()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.Datastore.delete"><code class="docutils literal notranslate"><span class="pre">Datastore.delete()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.Datastore.describe"><code class="docutils literal notranslate"><span class="pre">Datastore.describe()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.Datastore.list"><code class="docutils literal notranslate"><span class="pre">Datastore.list()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.Datastore.update"><code class="docutils literal notranslate"><span class="pre">Datastore.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#in-memory">In memory</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.InMemoryDatastore"><code class="docutils literal notranslate"><span class="pre">InMemoryDatastore</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#oracle-database">Oracle Database</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.OracleDatabaseConnectionConfig"><code class="docutils literal notranslate"><span class="pre">OracleDatabaseConnectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.OracleDatabaseConnectionConfig.get_connection"><code class="docutils literal notranslate"><span class="pre">OracleDatabaseConnectionConfig.get_connection()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig"><code class="docutils literal notranslate"><span class="pre">TlsOracleDatabaseConnectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.config_dir"><code class="docutils literal notranslate"><span class="pre">TlsOracleDatabaseConnectionConfig.config_dir</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.dsn"><code class="docutils literal notranslate"><span class="pre">TlsOracleDatabaseConnectionConfig.dsn</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.password"><code class="docutils literal notranslate"><span class="pre">TlsOracleDatabaseConnectionConfig.password</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.user"><code class="docutils literal notranslate"><span class="pre">TlsOracleDatabaseConnectionConfig.user</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig"><code class="docutils literal notranslate"><span class="pre">MTlsOracleDatabaseConnectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.config_dir"><code class="docutils literal notranslate"><span class="pre">MTlsOracleDatabaseConnectionConfig.config_dir</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.dsn"><code class="docutils literal notranslate"><span class="pre">MTlsOracleDatabaseConnectionConfig.dsn</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.password"><code class="docutils literal notranslate"><span class="pre">MTlsOracleDatabaseConnectionConfig.password</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.user"><code class="docutils literal notranslate"><span class="pre">MTlsOracleDatabaseConnectionConfig.user</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_location"><code class="docutils literal notranslate"><span class="pre">MTlsOracleDatabaseConnectionConfig.wallet_location</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_password"><code class="docutils literal notranslate"><span class="pre">MTlsOracleDatabaseConnectionConfig.wallet_password</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.OracleDatabaseDatastore"><code class="docutils literal notranslate"><span class="pre">OracleDatabaseDatastore</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.OracleDatabaseDatastore.query"><code class="docutils literal notranslate"><span class="pre">OracleDatabaseDatastore.query()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

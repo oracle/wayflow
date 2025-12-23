@@ -27,94 +27,43 @@
 
 
 import logging
-from typing import ClassVar, List, Dict
 
 logging.basicConfig(level=logging.INFO)
 
 
 # %%[markdown]
-## Define the llm
+## Define LLMS
 
 # %%
 from wayflowcore.models import VllmModel
 
-llm = VllmModel(
+summarization_llm = VllmModel(
+    model_id="SMALL_LLAMA_MODEL_ID",
+    host_port="SMALL_LLAMA_API_URL",
+)
+agent_llm = VllmModel(
     model_id="LLAMA_MODEL_ID",
     host_port="LLAMA_API_URL",
 )
 
+
 # %%[markdown]
-## Creating the message transform
+## Create MessageSummarizationTransform
 
 # %%
-from wayflowcore import Message
-from wayflowcore.tools import ToolResult
-from wayflowcore.transforms import MessageTransform
-from wayflowcore._utils.async_helpers import run_async_function_in_parallel
+from wayflowcore.transforms import MessageSummarizationTransform
 
 
-class SummarizeToolResultMessageTransform(MessageTransform):
-
-    MAX_LENGTH: ClassVar[int] = 10_000
-
-    def __init__(self):
-        super().__init__()
-        self._summarized_messages_cache: Dict[str, Message] = {}
-
-    async def call_async(self, messages: List[Message]) -> List[Message]:
-        return await run_async_function_in_parallel(
-            func_async=self._summarize_message_content_if_tool_result,
-            input_list=messages,
-        )
-
-    async def _summarize_message_content_if_tool_result(self, message: Message) -> Message:
-        # Important to use caching for this message transform to not recompute the costly
-        # summarization.
-        if message.tool_result is None:
-            return message
-        message_hash = message.hash
-        if message_hash not in self._summarized_messages_cache:
-            # Creates a new message to replace the message with a content that is too long
-            self._summarized_messages_cache[message_hash] = Message(
-                tool_result=ToolResult(
-                    content=await self._summarize_content(message.tool_result.content),
-                    tool_request_id=message.tool_result.tool_request_id,
-                ),
-            )
-            self._last_message_summarized = message
-        return self._summarized_messages_cache[message_hash]
-
-    @staticmethod
-    async def _summarize_content(content: str) -> str:
-        if len(content) < SummarizeToolResultMessageTransform.MAX_LENGTH:
-            return content
-
-        current_summary = "Nothing summarized yet"
-        chunk_size = SummarizeToolResultMessageTransform.MAX_LENGTH
-        for chunk_index in range(0, len(content), chunk_size):
-            logging.info(f"Summarizing chunk {chunk_index}/{len(content)}")
-            llm_completion = await llm.generate_async(
-                prompt=(
-                    "Please generate a new summary based on the previous summary and the added content."
-                    " The summary should be just a few sentences retaining the most important information.\n\n"
-                    "Previous summary:\n"
-                    f"{current_summary}\n\n"
-                    "Added content:\n"
-                    f"{content[chunk_index:chunk_index+chunk_size]}\n"
-                    "Reminder: your response will be replacing the whole content, so just return a summary."
-                )
-            )
-            current_summary = llm_completion.message.content
-        summarized_tool_result = (
-            f"Summarized result:\n{current_summary}"
-        )
-        logging.info(f"Message has been summarized to '''\n{summarized_tool_result}\n'''")
-        return summarized_tool_result
+transform = MessageSummarizationTransform(
+    llm=summarization_llm,
+    max_message_size=10000,
+    summarized_message_template="Summarized result:\n{{summary}}"
+)
 
 
 
 # %%[markdown]
-## Creating the agent
+## Create Agent
 
 # %%
 from wayflowcore import Agent, Message, tool
@@ -129,264 +78,165 @@ def read_logs_tool() -> str:
         + " Please pass the correct credentials.\n"
     )
 
-transform = SummarizeToolResultMessageTransform()
 agent = Agent(
-    llm=llm,
+    llm=agent_llm,
     tools=[read_logs_tool],
-    agent_template=llm.agent_template.with_additional_pre_rendering_transform(
-        transform, append=False
-    ),
+    transforms=[transform],
 )
 
 
-
 # %%[markdown]
-## Running the agent
+## Create Token Event Listener
 
 # %%
-conversation = agent.start_conversation()
-conversation.append_user_message("Can you explain the error in the system?")
-conversation.execute()
-# INFO:root:Summarizing chunk 0/480118
-# INFO:root:Summarizing chunk 100000/480118
-# INFO:root:Summarizing chunk 200000/480118
-# INFO:root:Summarizing chunk 300000/480118
-# INFO:root:Summarizing chunk 400000/480118
-# INFO:root:Message has been summarized to '''
-# This long tool result has been summarized:
-# The system is stuck in an infinite loop, repeatedly displaying "Waiting for process..." without
-# any indication of progress or completion. Additionally, an error was found due to missing
-# credentials for user kurt_andrews, requiring correct credentials to be passed.
-# '''
-conversation.append_user_message('What is the exact message repeated in a loop? No need to recall the tool')
-conversation.execute()
+from wayflowcore.events.eventlistener import EventListener
+from wayflowcore.events.event import LlmGenerationResponseEvent
+from wayflowcore.events import register_event_listeners
+from wayflowcore.tokenusage import TokenUsage
 
-
+class TokenListener(EventListener):
+    def __init__(self):
+        self.usage = TokenUsage()
+    def __call__(self, event):
+        if isinstance(event, LlmGenerationResponseEvent):
+            self.usage += event.completion.token_usage
 
 
 # %%[markdown]
-## Keep Messages Consistent
+## Run Agent With MessageSummarizationTransform
 
 # %%
-from typing import Tuple
+listener_with_transform = TokenListener()
+with register_event_listeners([listener_with_transform]):
+    from wayflowcore.executors.executionstatus import UserMessageRequestStatus
 
+    conversation = agent.start_conversation()
+    conversation.append_user_message("Can you explain the error in the system?")
+    status = conversation.execute()
+    if isinstance(status, UserMessageRequestStatus):
+        print(status.message.content)
+        # The error is likely due to a missing credential for
+        # a user named kurt_andrews. Please ensure the credentials
+        # are provided correctly for kurt_andrews to resolve the issue.
+    print(f"Token usage with MessageSummarizationTransform after 1 user message: {listener_with_transform.usage.total_tokens} tokens")
+    # Token usage with MessageSummarizationTransform after 1 user message: 8854 tokens
 
-def _split_messages_and_guarantee_tool_calling_consistency(
-    messages: List[Message], keep_x_most_recent_messages: int
-) -> Tuple[List[Message], List[Message]]:
-    """Guarantees consistency of tool requests / results"""
-    messages_to_summarize = messages[: -keep_x_most_recent_messages]
-    messages_to_keep = messages[-keep_x_most_recent_messages:]
+    conversation.append_user_message('What is the exact message repeated in a loop? Do not recall the tool')
+    status = conversation.execute()
+    if isinstance(status, UserMessageRequestStatus):
+        print(status.message.content)
+        # The tool is stuck in an infinite loop, repeatedly displaying the message "Waiting for process" until it encounters an error due to missing credentials for user "kurt_andrews".
+    print(f"Token usage with MessageSummarizationTransform after 2 user messages: {listener_with_transform.usage.total_tokens} tokens")# .. start-##_Create_Token_Event_Listener
+    # Token usage with MessageSummarizationTransform after 2 user messages: 9314 tokens
 
-    # detect tool results missing their tool request
-    missing_tool_request_ids = set()
-    tool_request_ids = set()
-    for msg in messages_to_keep:
-        if msg.tool_requests:
-            for tool_request in msg.tool_requests:
-                tool_request_ids.add(tool_request.tool_request_id)
-        if msg.tool_result:
-            tool_request_id = msg.tool_result.tool_request_id
-            if tool_request_id not in tool_request_ids:
-                missing_tool_request_ids.add(tool_request_id)
-
-    if len(missing_tool_request_ids) == 0:
-        return messages_to_summarize, messages_to_keep
-
-    # all the rest after the tool call should be summarized
-    for idx, msg in enumerate(messages_to_summarize):
-        if any(
-                tc.tool_request_id in missing_tool_request_ids for tc in (msg.tool_requests or [])
-        ):
-            return messages_to_summarize[:idx], messages_to_summarize[idx:] + messages_to_keep
-
-    raise ValueError("Should not happen")
 
 
 
 
 # %%[markdown]
-## Drop Old Message Transform
+## Create Agent Without Transform
 
 # %%
-class KeepOnlyRecentMessagesTransform(MessageTransform):
-    """Message transform that only keeps the X most recent messages."""
-    def __init__(self, keep_x_most_recent_messages: int = 10):
-        super().__init__()
-        self.keep_x_most_recent_messages = keep_x_most_recent_messages
-
-    async def call_async(self, messages: List["Message"]) -> List["Message"]:
-        old_messages, recent_messages = _split_messages_and_guarantee_tool_calling_consistency(
-            messages=messages,
-            keep_x_most_recent_messages=self.keep_x_most_recent_messages
-        )
-        return recent_messages
-
-
-
-# %%[markdown]
-## Drop Old Message Transform Run
-
-# %%
-transform = KeepOnlyRecentMessagesTransform(keep_x_most_recent_messages=1)
-agent = Agent(
-    llm=llm,
+agent_no_transform = Agent(
+    llm=agent_llm,
     tools=[read_logs_tool],
-    agent_template=llm.agent_template.with_additional_pre_rendering_transform(
-        transform, append=False
-    ),
+    transforms=[],  # no transforms
+)
+
+listener_no_transform = TokenListener()
+with register_event_listeners([listener_no_transform]):
+    conversation = agent_no_transform.start_conversation()
+    conversation.append_user_message("Can you explain the error in the system?")
+    status = conversation.execute()
+    if isinstance(status, UserMessageRequestStatus):
+        print(status.message.content)
+
+    # ... (same conversation as above)
+
+    print(f"Token usage without MessageSummarizationTransform after 1 user message: {listener_no_transform.usage.total_tokens} tokens")
+    # Token usage without MessageSummarizationTransform after 1 user message: 12757 tokens
+
+
+    conversation.append_user_message('What is the exact message repeated in a loop? Do not recall the tool')
+    status = conversation.execute()
+    if isinstance(status, UserMessageRequestStatus):
+        print(status.message.content)
+
+    print(f"Token usage without MessageSummarizationTransform after 2 user messages: {listener_no_transform.usage.total_tokens} tokens")# .. start-##_Create_Token_Event_Listener
+    # Token usage without MessageSummarizationTransform after 2 user messages: 25224 tokens
+
+
+
+
+
+# %%[markdown]
+## Create ConversationSummarizationTransform
+
+# %%
+from wayflowcore.transforms import ConversationSummarizationTransform
+
+transform = ConversationSummarizationTransform(
+    llm=summarization_llm,
+    max_num_messages=5,
+    min_num_messages=2
+)
+
+
+# %%[markdown]
+## Run Agent With ConversationSummarizationTransform
+
+# %%
+
+agent = Agent(
+    llm=agent_llm,
+    tools=[],
+    transforms=[transform],
 )
 
 conversation = agent.start_conversation()
-# message is so long that it cannot be processed, but it will be dropped because is too old
-conversation.append_user_message("Super long message: " + "..." * 1000000)
-conversation.append_agent_message("OK")
 conversation.append_user_message("What is the capital of Switzerland?")
 conversation.execute()
-
-
-
-
-# %%[markdown]
-## Summarize Old Message Transform
-
-# %%
-from typing import TypeVar, Generic, Optional
-
-from wayflowcore.models import LlmModel
-from wayflowcore._utils.hash import fast_stable_hash
-from wayflowcore._utils._templating_helpers import render_template
-
-
-T = TypeVar("T")
-
-
-class MessageTransformCache(Generic[T]):
-    def __init__(self) -> None:
-        self.state: Dict[str, T] = {}
-
-    def add(self, key: str, value: T) -> None:
-        self.state[key] = value
-
-    def remove(self, key: str) -> None:
-        raise NotImplementedError()
-
-    def get(self, key: str) -> Optional[T]:
-        return self.state.get(key, None)
-
-
-class SummarizationMessageTransform(MessageTransform):
-    """
-    Stateful message transform that summarizes the list of messages when it becomes too long. Preserves
-    consistency of tool calls/results.
-    """
-
-    def __init__(
-        self,
-        llm: LlmModel,
-        max_num_messages: int = 20,
-        min_num_messages: int = 5,
-        summarization_instruction: str = "Please make a summary of the previous messages. Include relevant information and keep it short. Your response will replace the messages, so just output the summary directly, no introduction needed.",
-        summarized_message: str = "Summarized conversation: {{summary}}",
-        _cache_implementation: type = MessageTransformCache,
-    ):
-        """
-        Parameters
-        ----------
-        llm:
-            LLM to use for the summarization.
-        max_num_messages:
-            Number of message after which we trigger summarization. Tune this parameter depending on the
-            context length of your model and the price you arem willing to pay (higher means longer conversation
-            prompts and more tokens).
-        min_num_messages:
-            Number of recent messages to keep from summarizing. Tune this parameter to prevent from summarizing
-            very recent messages and keep a very responsive and relevant agent.
-        summarization_instruction:
-            Instruction for the LLM on how th summarize the previous messages.
-        summarized_message:
-            Jinja2 template on how to present the summary (with variable `summary`) to the agent using the transform.
-
-        Examples
-        --------
-        >>> summarization_transform = SummarizationMessageTransform(
-        ...     llm=llm,
-        ...     # if the conversation reaches 30 messages, it will trigger summarization
-        ...     max_num_messages=30,
-        ...     # when summarization is triggered, it will summarize all the messages but that last 10 ones,
-        ...     min_num_messages=10,
-        ... )
-
-        """
-        self.llm = llm
-        self.summarization_instruction = summarization_instruction
-        self.summarized_message = summarized_message
-        self.max_num_messages = max_num_messages
-        self.min_num_messages = min_num_messages
-
-        self.internal_cache = _cache_implementation["Message"]()  # type: ignore
-        # a cached message means all the messages before this messages have been summarized
-
-    def _partition_cached_and_new_messages(self, messages: List["Message"]) -> List["Message"]:
-        messages_hashes = []
-        for idx, msg in enumerate(messages):
-            messages_hashes.append(msg.hash)
-            curr_hash = fast_stable_hash(messages_hashes)
-            found_msg = self.internal_cache.get(curr_hash)
-            if found_msg is not None:
-                return self._partition_cached_and_new_messages([found_msg] + messages[idx + 1 :])
-        else:
-            return messages
-
-    async def call_async(self, messages: List["Message"]) -> List["Message"]:
-        formatted_messages = self._partition_cached_and_new_messages(messages)
-
-        if len(messages) <= self.max_num_messages:
-            return formatted_messages
-
-        messages_to_summarize, messages_to_keep = _split_messages_and_guarantee_tool_calling_consistency(
-            messages=formatted_messages,
-            keep_x_most_recent_messages=self.min_num_messages,
-        )
-        summarized_message = await self._summarize(messages_to_summarize)
-
-        summarized_hash = fast_stable_hash([msg.hash for msg in messages_to_summarize])
-        self.internal_cache.add(summarized_hash, summarized_message)
-
-        return [summarized_message] + messages_to_keep
-
-    async def _summarize(self, messages: List[Message]) -> Message:
-        chat_history =  messages + [Message(role="user", content=self.summarization_instruction)]
-        prompt = await self.llm.chat_template.format_async(
-            inputs={
-                self.llm.chat_template.CHAT_HISTORY_PLACEHOLDER_NAME: chat_history,
-            }
-        )
-        completion = await self.llm.generate_async(prompt=prompt)
-        summary = completion.message.content
-        return Message(
-            content=render_template(template=self.summarized_message, inputs=dict(summary=summary)),
-            role="user",
-        )
-
+conversation.append_user_message("Tell me a fun fact about it.")
+conversation.execute()
+conversation.append_user_message("What is the population?")
+conversation.execute()
+conversation.append_user_message("What is the area?")
+conversation.execute()
+conversation.append_user_message("What languages are spoken there?")
+conversation.execute()
+# The conversation will be summarized when it exceeds 5 messages
 
 
 
 # %%[markdown]
-## Summarize Old Message Transform Run
+## Create Both Transforms
 
 # %%
-transform = SummarizationMessageTransform(llm=llm)
-agent = Agent(
-    llm=llm,
-    tools=[read_logs_tool],
-    agent_template=llm.agent_template.with_additional_pre_rendering_transform(
-        transform, append=False
+transforms = [
+    MessageSummarizationTransform(
+        llm=summarization_llm,
+        max_message_size=10000,
+        summarized_message_template="Summarized content:\n{{summary}}"
     ),
+    ConversationSummarizationTransform(
+        llm=summarization_llm,
+        max_num_messages=5,
+        min_num_messages=2
+    )
+]
+
+
+# %%[markdown]
+## Run Agent With Both Transforms
+
+# %%
+agent = Agent(
+    llm=summarization_llm,
+    tools=[read_logs_tool],
+    transforms=transforms,
 )
 
 conversation = agent.start_conversation()
-
 
 LONG_CONVERSATION = [
     {"role": "user", "content": "Hi! Can you tell me something interesting about dolphins?"},

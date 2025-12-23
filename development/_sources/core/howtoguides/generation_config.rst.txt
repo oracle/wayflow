@@ -18,7 +18,7 @@ How to Specify the Generation Configuration when Using LLMs
         Python script/notebook for this guide.
 
 Generation parameters, such as temperature, top-p, and the maximum number of output tokens, are important for achieving the desired performance with Large Language Models (LLMs).
-In WayFlow, these parameters can be configured with the :class:`LlmGenerationConfig` class.
+In WayFlow, these parameters can be configured with the :ref:`LlmGenerationConfig <llmgenerationconfig>` class.
 
 This guide will show you how to:
 
@@ -94,9 +94,9 @@ Customizing the generation configuration for a flow requires the use of the foll
     :end-before: .. end-##_Import_what_is_needed_to_build_a_flow
 
 Refer to the previous section to learn how to configure the generation parameters when initializing an LLM
-using the :class:`LlmGenerationConfig` class.
+using the :ref:`LlmGenerationConfig <llmgenerationconfig>` class.
 
-You can then create a one-step flow using the :class:`PromptExecutionStep` step.
+You can then create a one-step flow using the :ref:`PromptExecutionStep <promptexecutionstep>` step.
 
 .. literalinclude:: ../code_examples/example_generationconfig.py
     :language: python
@@ -109,13 +109,13 @@ You can then create a one-step flow using the :class:`PromptExecutionStep` step.
 Advanced usage
 ==============
 
-The :class:`LlmGenerationConfig` class is a serializable object. It can be instantiated from a dictionary or saved to one, as you will see below.
+The :ref:`LlmGenerationConfig <llmgenerationconfig>` class is a serializable object. It can be instantiated from a dictionary or saved to one, as you will see below.
 
 Apply the generation configuration from a dictionary
 ----------------------------------------------------
 
 If you have a generation configuration in a dictionary (for example, from a JSON or YAML file),
-you can instantiate the :class:`LlmGenerationConfig` class as follows:
+you can instantiate the :ref:`LlmGenerationConfig <llmgenerationconfig>` class as follows:
 
 .. literalinclude:: ../code_examples/example_generationconfig.py
     :language: python
@@ -126,7 +126,7 @@ you can instantiate the :class:`LlmGenerationConfig` class as follows:
 Save a custom generation configuration
 --------------------------------------
 
-If you would like to share your specific generation configuration, you can create a :class:`LlmGenerationConfig`
+If you would like to share your specific generation configuration, you can create a :ref:`LlmGenerationConfig <llmgenerationconfig>`
 class instance and store it to a dictionary.
 
 .. literalinclude:: ../code_examples/example_generationconfig.py

@@ -61,6 +61,8 @@ Task steps
 .. _regexextractionstep:
 .. autoclass:: wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep
 
+.. autoclass:: wayflowcore.steps.promptexecutionstep.StructuredGenerationMode
+
 .. _datastoresteps:
 
 Datastore tasks
@@ -90,7 +92,6 @@ Datastore tasks
 .. _datastorequerystep:
 .. autoclass:: wayflowcore.steps.datastoresteps.DatastoreQueryStep
 
-
 IO steps
 --------
 
@@ -111,6 +112,8 @@ IO steps
 
 .. _constantvaluesstep:
 .. autoclass:: wayflowcore.steps.ConstantValuesStep
+
+.. autoclass::  wayflowcore.steps.getchathistorystep.MessageSlice
 
 Flow steps
 ----------
@@ -147,6 +150,8 @@ Flow steps
 
 .. _apicallstep:
 .. autoclass:: wayflowcore.steps.apicallstep.ApiCallStep
+
+.. autoclass:: wayflowcore.stepdescription.StepDescription
 
 Classes for the IO system properties
 ------------------------------------
@@ -187,12 +192,17 @@ Classes for the IO system properties
 .. _nullproperty:
 .. autoclass:: wayflowcore.property.NullProperty
 
+.. autoclass:: wayflowcore.property._empty_default
+
+.. autoclass:: wayflowcore.property.JsonSchemaParam
+
 Other classes and helpers used in fixed flows
 ---------------------------------------------
 
 .. _assistantstepresult:
 .. autoclass:: wayflowcore.steps.step.StepResult
 
+.. autoclass:: wayflowcore.steps.step.StepExecutionStatus
 
 .. autoclass:: wayflowcore.flowhelpers.run_step_and_return_outputs
 

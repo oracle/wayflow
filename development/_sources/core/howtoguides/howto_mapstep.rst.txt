@@ -23,12 +23,12 @@ How to Do Map and Reduce Operations in Flows
 Map-Reduce is a programming model essential for efficiently processing large datasets across distributed systems.
 It is widely used in software engineering to enhance data processing speed and scalability by parallelizing tasks.
 
-WayFlow supports the Map and Reduce operations in Flows, using the :ref:`MapStep <MapStep>`.
+WayFlow supports the Map and Reduce operations in Flows, using the :ref:`MapStep <mapstep>`.
 This guide will show you how to:
 
-- use :ref:`MapStep <MapStep>` perform an operation on **all elements of a list**
-- use :ref:`MapStep <MapStep>` to perform an operation on **all key/value pairs of a dictionary**
-- use :ref:`MapStep <MapStep>` to **parallelize** some operations
+- use :ref:`MapStep <mapstep>` perform an operation on **all elements of a list**
+- use :ref:`MapStep <mapstep>` to perform an operation on **all key/value pairs of a dictionary**
+- use :ref:`MapStep <mapstep>` to **parallelize** some operations
 
 .. image:: ../_static/howto/mapstep.svg
     :align: center
@@ -51,7 +51,7 @@ Assuming you want to summarize a few articles.
     :start-after: .. start-##_Define_the_articles
     :end-before: .. end-##_Define_the_articles
 
-You have the option to generate the summary with the :ref:`PromptExecutionStep <PromptExecutionStep>` class, as explained already in :doc:`the separate guide <howto_promptexecutionstep>`:
+You have the option to generate the summary with the :ref:`PromptExecutionStep <promptexecutionstep>` class, as explained already in :doc:`the separate guide <howto_promptexecutionstep>`:
 
 .. literalinclude:: ../code_examples/howto_mapstep.py
     :language: python
@@ -87,7 +87,7 @@ As expected, your flow has generated summaries of three articles!
 Processing in parallel
 ======================
 
-By default, the :class:`MapStep` runs all operations sequentially in order.
+By default, the :ref:`MapStep <mapstep>` runs all operations sequentially in order.
 This is done so that any flow (including flows that yield or ask the user) can be run.
 
 In many cases (such as generating articles summary), the work is completely parallelizable because the operations are independent from each other.
@@ -112,7 +112,7 @@ This step type is equivalent to the :ref:`MapStep <mapstep>`, the only differenc
   allowing other threads to run concurrently while the I/O operation is in progress.
 
 Not all sub-flows can be executed in parallel.
-The table below summarizes the limitations of parallel execution for the :class:`MapStep`:
+The table below summarizes the limitations of parallel execution for the :ref:`MapStep <mapstep>`:
 
   .. list-table::
    :widths: 30 50 50 45
