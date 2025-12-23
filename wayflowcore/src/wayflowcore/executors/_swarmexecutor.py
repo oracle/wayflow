@@ -139,18 +139,19 @@ class SwarmRunner(ConversationExecutor):
                 )
 
             # Handle pending tool requests (if any)
-            result = SwarmRunner._handle_pending_tool_requests(
-                swarm_conversation=conversation,
-                agent_sub_conversation=agent_sub_conversation,
-                current_agent=current_agent,
-            )
+            if isinstance(agent_sub_conversation.status, ToolRequestStatus):
+                result = SwarmRunner._handle_pending_tool_requests(
+                    swarm_conversation=conversation,
+                    agent_sub_conversation=agent_sub_conversation,
+                    current_agent=current_agent,
+                )
 
-            if result == _ToolProcessSignal.RETURN:
-                if not isinstance(agent_sub_conversation.status, ToolRequestStatus):
-                    raise ValueError("Internal error: The status should be ToolRequestStatus")
-                return agent_sub_conversation.status
-            elif result == _ToolProcessSignal.START_NEW_LOOP:
-                continue
+                if result == _ToolProcessSignal.RETURN:
+                    if not isinstance(agent_sub_conversation.status, ToolRequestStatus):
+                        raise ValueError("Internal error: The status should be ToolRequestStatus")
+                    return agent_sub_conversation.status
+                elif result == _ToolProcessSignal.START_NEW_LOOP:
+                    continue
 
             # Execute agent
             logger.info(
@@ -195,14 +196,6 @@ class SwarmRunner(ConversationExecutor):
                     # Note: this is a workaround and should be fixed in the future
                 },
             ):
-                if (
-                    isinstance(agent_sub_conversation.status, ToolRequestStatus)
-                    and not agent_sub_conversation.status.tool_requests
-                ):
-                    # If the status.tool_requests is empty we need to manually reset the status to None
-                    # Otherwise, it will raise error as no tool results are present.
-                    agent_sub_conversation.status = None
-
                 status = await agent_sub_conversation.execute_async(
                     execution_interrupts=execution_interrupts,
                 )
@@ -220,12 +213,6 @@ class SwarmRunner(ConversationExecutor):
             if isinstance(status, ToolRequestStatus):
                 # 1. Agent requests communication tools (send_message/handoff) or a standard client tool
                 # These tool(s) will be handled in the next loop
-
-                # Empty status.tool_requests as we will:
-                # - For standard client tool: add only that client tool to status.tool_requests when handling it
-                # - For server and internal tool (e.g send_message, handoff_conversation): we handle it and the tool results manually -> should not appear in the status
-                status.tool_requests = []
-
                 continue
             elif isinstance(status, UserMessageRequestStatus) and current_thread.is_main_thread:
                 # 2. Agent posted to main conversation, back to the human user
@@ -257,18 +244,22 @@ class SwarmRunner(ConversationExecutor):
         agent_sub_conversation: "AgentConversation",
         current_agent: Agent,
     ) -> _ToolProcessSignal:
+        if not isinstance(agent_sub_conversation.status, ToolRequestStatus):
+            raise ValueError("Internal error: The status should be ToolRequestStatus")
+
+        if agent_sub_conversation.status._tool_results:
+            # Manually append tool results to the message list
+            for tr in agent_sub_conversation.status._tool_results:
+                agent_sub_conversation.message_list.append_tool_result(tr)
+            agent_sub_conversation.status._tool_results = None
+
         execute_tool = (
-            isinstance(agent_sub_conversation.status, ToolRequestStatus)
-            # If user submitted tool result (in case of client tool)
-            # -> need to execute the agent first to append the tool result to the message list before executing next tool request
-            and not agent_sub_conversation.status._tool_results
-            and (
-                agent_sub_conversation.state.current_tool_request
-                or agent_sub_conversation.state.tool_call_queue
-            )
+            agent_sub_conversation.state.current_tool_request
+            or agent_sub_conversation.state.tool_call_queue
         )
 
         if not execute_tool:
+            agent_sub_conversation.status = None
             return _ToolProcessSignal.EXECUTE_AGENT
 
         if not agent_sub_conversation.state.current_tool_request:
@@ -307,6 +298,7 @@ class SwarmRunner(ConversationExecutor):
 
         # Case 3: Server tool or other internal tool
         # -> Let agent handle it (agent will check the current_tool_request)
+        agent_sub_conversation.status = None
         return _ToolProcessSignal.EXECUTE_AGENT
 
     @staticmethod
