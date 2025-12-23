@@ -6,7 +6,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 from wayflowcore.agent import Agent
 from wayflowcore.conversation import Conversation
@@ -25,9 +25,11 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ManagerWorkersConversationExecutionState(ConversationExecutionState):
     current_agent_name: str
-    subconversations: Dict[str, "AgentConversation"]
+    subconversations: Dict[str, Union["AgentConversation", "ManagerWorkersConversation"]]
 
-    def _create_subconversation_for_agent(self, agent: Agent) -> "AgentConversation":
+    def _create_subconversation_for_agent(
+        self, agent: Union[Agent, ManagerWorkers]
+    ) -> Union["AgentConversation", "ManagerWorkersConversation"]:
         subconv = agent.start_conversation()
         self.subconversations[agent.name] = subconv
 
@@ -44,7 +46,9 @@ class ManagerWorkersConversation(Conversation):
         return self.component
 
     @property
-    def subconversations(self) -> Dict[str, "AgentConversation"]:
+    def subconversations(
+        self,
+    ) -> Dict[str, Union["AgentConversation", "ManagerWorkersConversation"]]:
         return self.state.subconversations
 
     @property
@@ -65,16 +69,24 @@ class ManagerWorkersConversation(Conversation):
     def __str__(self) -> str:
         return repr(self)
 
-    def _get_agent_subconversation(self, agent_name: str) -> Optional["AgentConversation"]:
+    def _get_agent_subconversation(
+        self, agent_name: str
+    ) -> Optional[Union["AgentConversation", "ManagerWorkersConversation"]]:
         return self.state.subconversations.get(agent_name)
 
     def _get_main_subconversation(
         self,
     ) -> "AgentConversation":
         "Return subconversation between the manger agent and the user"
+        from wayflowcore.agentconversation import AgentConversation
+
         main_subconv = self._get_agent_subconversation(self.component.manager_agent.name)
+
         if main_subconv is None:
             raise (ValueError(f"Internal error: Main subconversation is None"))
+        if not isinstance(main_subconv, AgentConversation):
+            raise ValueError(f"Internal error: Main subconversation should be an AgentConversation")
+
         return main_subconv
 
     def append_tool_result(self, tool_result: ToolResult) -> None:
