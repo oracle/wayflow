@@ -39,9 +39,20 @@ Message transforms
 
 .. autoclass:: wayflowcore.transforms.SplitPromptOnMarkerMessageTransform
 
+.. _messagesummarizationtransform:
+.. autoclass:: wayflowcore.transforms.MessageSummarizationTransform
+
+.. _conversationsummarizationtransform:
+.. autoclass:: wayflowcore.transforms.ConversationSummarizationTransform
 
 Helpers
 -------
 
 .. _prompttemplatehelpers:
 .. autofunction:: wayflowcore.templates.structuredgeneration.adapt_prompt_template_for_json_structured_generation
+
+.. autoclass:: wayflowcore._utils._templating_helpers.ToolRequestAsDictT
+
+.. autoclass:: wayflowcore._utils._templating_helpers.ToolResultAsDictT
+
+.. autoclass:: wayflowcore._utils._templating_helpers.MessageAsDictT

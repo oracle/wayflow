@@ -30,6 +30,7 @@ API Reference
    Events <events>
    Flows <flows>
    Agents <agent>
+   Agent Server <agentserver>
    Embedding Models <embeddingmodels>
    Context Providers <contextproviders>
    Execution Interrupts <interrupts>
@@ -41,3 +42,5 @@ API Reference
    Datastores <datastores>
    Warnings <warnings>
    Evaluation <evaluation>
+   Component <component>
+   A2A <a2a>

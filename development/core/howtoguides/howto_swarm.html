@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -292,9 +292,14 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -307,6 +312,8 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -315,11 +322,8 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -331,11 +335,13 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
@@ -347,6 +353,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -439,8 +447,8 @@
 <p class="admonition-title">Prerequisites</p>
 <p>This guide assumes familiarity with <a class="reference internal" href="../tutorials/basic_agent.html"><span class="doc">Agents</span></a>.</p>
 </div>
-<p>The Swarm pattern is a type of agentic pattern that takes inspiration from <a class="reference external" href="https://en.wikipedia.org/wiki/Swarm_intelligence">Swarm intelligence</a>.
-It is often observed in biological systems such as ant colonies, bee hives, and bird flocks.
+<p>The Swarm pattern is a type of agentic pattern that takes inspiration from <a class="reference external" href="https://en.wikipedia.org/wiki/Swarm_intelligence">Swarm intelligence</a>,
+a phenomenon commonly seen in ant colonies, bee hives, and bird flocks, where coordinated behavior emerges from many simple actors rather than a central controller.
 In this agentic pattern, each agent is assigned a specific responsibility and can delegate tasks to other specialized agents to improve overall performance.</p>
 <p><strong>When to use the Swarm pattern?</strong></p>
 <p>Compared to using a <a class="reference internal" href="howto_multiagent.html"><span class="doc">hierarchical multi-agent pattern</span></a>, the communication in <a class="reference internal" href="../api/agent.html#swarm"><span class="std std-ref">Swarm</span></a> pattern reduces the number of LLM calls
@@ -492,16 +500,15 @@ Its API and behavior are not guaranteed to be stable and may evolve in future ve
 WayFlow supports several LLM API providers.
 Select an LLM from the options below:</p>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span>
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span><span class="p">,</span> <span class="n">OCIClientConfigWithApiKey</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-
-    <span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
-        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+    <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
+    <span class="n">client_config</span><span class="o">=</span><span class="n">OCIClientConfigWithApiKey</span><span class="p">(</span>
         <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;https://url-to-service-endpoint.com&quot;</span><span class="p">,</span>
-        <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
-        <span class="n">auth_type</span><span class="o">=</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
@@ -741,10 +748,15 @@ This agent can initiate a discussion with the <strong>Pharmacist Agent</strong>.
 <li><p>The <code class="docutils literal notranslate"><span class="pre">first_agent</span></code> — the initial agent the user interacts with (in this example, the General Practitioner Agent).</p></li>
 <li><p>A list of relationships between agents.</p></li>
 </ul>
-<p>Additionally, the list of “relationships” between the agents must be defined.</p>
-<p>Each relationship is defined as a tuple of Caller Agent and Recipient Agent.</p>
-<p>In this example, the General Practitioner Doctor Agent can initiate discussions with both the Pharmacist and the Dermatologist.
-The Dermatologist can also initiate discussions with the Pharmacist.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">relationships</span></code> parameter defines the communication edges between agents.
+Each relationship is expressed as a tuple of Caller Agent → Recipient Agent, indicating that the caller is permitted to delegate work to the recipient.</p>
+<p>These relationships apply to both types of delegation supported by the Swarm:</p>
+<ul class="simple">
+<li><p>They determine which agents may contact another agent using the send-message tool.</p></li>
+<li><p>They also define which pairs of agents are eligible for a handoff, meaning the full user–agent conversation can be transferred from the caller to the recipient.</p></li>
+</ul>
+<p>In this example, the General Practitioner Doctor Agent can delegate to both the Pharmacist and the Dermatologist.
+The Dermatologist can also delegate with the Pharmacist.</p>
 <p>When invoked, each agent can either respond to its caller (a human user or another agent) or choose to initiate a discussion with
 another agent if they are given the capability to do so.</p>
 </section>
@@ -776,16 +788,28 @@ another agent if they are given the capability to do so.</p>
 </section>
 <section id="advanced-usage">
 <h2>Advanced usage<a class="headerlink" href="#advanced-usage" title="Permalink to this heading">#</a></h2>
-<section id="enabling-handoff-in-the-swarm">
-<h3>Enabling handoff in the Swarm<a class="headerlink" href="#enabling-handoff-in-the-swarm" title="Permalink to this heading">#</a></h3>
-<p>By default, communication in the <code class="docutils literal notranslate"><span class="pre">Swarm</span></code> pattern is done with agent sending blocking messages/requests to each other.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">handoff</span></code> mechanism provides an alternative: when enabled, agents can handoff the conversation — that is, transfer the message history between
-the user and one agent to another agent within the Swarm.
-Agents can still communicate with each other as they do when <code class="docutils literal notranslate"><span class="pre">handoff=False</span></code>.</p>
-<p>A key benefit of using <code class="docutils literal notranslate"><span class="pre">handoff</span></code> is reduced response latency.
-Talking to other agents increases the “distance” between the human user and the current agent.
-Transferring a conversation to another agent keeps this distance unchanged (in other words, the agent interacting with the user is different, but the user is still the same).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assistant</span> <span class="o">=</span> <span class="n">Swarm</span><span class="p">(</span>
+<section id="different-handoff-modes-in-swarm">
+<h3>Different handoff modes in Swarm<a class="headerlink" href="#different-handoff-modes-in-swarm" title="Permalink to this heading">#</a></h3>
+<p>One of the key benefits of Swarm is its handoff mechanism. When enabled, an agent can hand off its conversation — that is, transfer the entire message history between it and the human user — to another agent within the Swarm.</p>
+<p>The handoff mechanism helps reduce response latency.
+Normally, when agents talk to each other, the “distance” between the human user and the final answering agent increases, because messages must travel through multiple agents.
+Handoff avoids this by directly transferring the conversation to another agent: while the agent changes, the user’s distance to the active agent stays the same.</p>
+<p>Swarm provides three handoff modes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HandoffMode.NEVER</span></code>
+Disables the handoff mechanism. Agents can still communicate with each other, but cannot transfer the entire user conversation to another agent.
+In this mode, the  <code class="docutils literal notranslate"><span class="pre">first_agent</span></code> is the only agent that can directly interact with the human user.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HandoffMode.OPTIONAL</span></code> (default)
+Agents may perform a handoff when it is beneficial.
+A handoff is performed only when the receiving agent is able to take over and independently address the user’s request.
+This strikes a balance between multi-agent collaboration and minimizing overhead.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HandoffMode.ALWAYS</span></code>
+Agents must use the handoff mechanism whenever delegating work to another agent. Direct <em>send-message</em> tools between agents are disabled in this mode.
+This mode is useful when most user requests are best handled by a single expert agent rather than through multi-agent collaboration.</p></li>
+</ul>
+<p>To set the handoff mode, simply use <a class="reference internal" href="../api/agent.html#handoffmode"><span class="std std-ref">HandoffMode</span></a> and select the desired mode.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.swarm</span><span class="w"> </span><span class="kn">import</span> <span class="n">HandoffMode</span>
+<span class="n">assistant</span> <span class="o">=</span> <span class="n">Swarm</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Swarm&quot;</span><span class="p">,</span>
     <span class="n">first_agent</span><span class="o">=</span><span class="n">general_practitioner</span><span class="p">,</span>
     <span class="n">relationships</span><span class="o">=</span><span class="p">[</span>
@@ -793,11 +817,11 @@ Transferring a conversation to another agent keeps this distance unchanged (in o
         <span class="p">(</span><span class="n">general_practitioner</span><span class="p">,</span> <span class="n">dermatologist</span><span class="p">),</span>
         <span class="p">(</span><span class="n">dermatologist</span><span class="p">,</span> <span class="n">pharmacist</span><span class="p">),</span>
     <span class="p">],</span>
-    <span class="n">handoff</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># &lt;-- Add this</span>
+    <span class="n">handoff</span><span class="o">=</span><span class="n">HandoffMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">,</span>  <span class="c1"># &lt;-- Choose the handoff mode of your choice</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>To enable <code class="docutils literal notranslate"><span class="pre">handoff</span></code> in a Swarm, set the <code class="docutils literal notranslate"><span class="pre">handoff</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p><strong>API Reference:</strong> <a class="reference internal" href="../api/agent.html#handoffmode"><span class="std std-ref">HandoffMode</span></a></p>
 </section>
 </section>
 <section id="agent-spec-exporting-loading">
@@ -1536,39 +1560,40 @@ Transferring a conversation to another agent keeps this distance unchanged (in o
 <span class="linenos">300</span><span class="c1">## Enabling handoff in the Swarm</span>
 <span class="linenos">301</span>
 <span class="linenos">302</span><span class="c1"># %%</span>
-<span class="linenos">303</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">Swarm</span><span class="p">(</span>
-<span class="linenos">304</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Swarm&quot;</span><span class="p">,</span>
-<span class="linenos">305</span>    <span class="n">first_agent</span><span class="o">=</span><span class="n">general_practitioner</span><span class="p">,</span>
-<span class="linenos">306</span>    <span class="n">relationships</span><span class="o">=</span><span class="p">[</span>
-<span class="linenos">307</span>        <span class="p">(</span><span class="n">general_practitioner</span><span class="p">,</span> <span class="n">pharmacist</span><span class="p">),</span>
-<span class="linenos">308</span>        <span class="p">(</span><span class="n">general_practitioner</span><span class="p">,</span> <span class="n">dermatologist</span><span class="p">),</span>
-<span class="linenos">309</span>        <span class="p">(</span><span class="n">dermatologist</span><span class="p">,</span> <span class="n">pharmacist</span><span class="p">),</span>
-<span class="linenos">310</span>    <span class="p">],</span>
-<span class="linenos">311</span>    <span class="n">handoff</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># &lt;-- Add this</span>
-<span class="linenos">312</span><span class="p">)</span>
-<span class="linenos">313</span>
-<span class="linenos">314</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">315</span><span class="c1">## Export config to Agent Spec</span>
-<span class="linenos">316</span>
-<span class="linenos">317</span><span class="c1"># %%</span>
-<span class="linenos">318</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
-<span class="linenos">319</span>
-<span class="linenos">320</span><span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
-<span class="linenos">321</span>
-<span class="linenos">322</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">323</span><span class="c1">## Load Agent Spec config</span>
-<span class="linenos">324</span>
-<span class="linenos">325</span><span class="c1"># %%</span>
-<span class="linenos">326</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
-<span class="linenos">327</span>
-<span class="linenos">328</span><span class="n">TOOL_REGISTRY</span> <span class="o">=</span> <span class="p">{</span>
-<span class="linenos">329</span>    <span class="s2">&quot;symptoms_checker&quot;</span><span class="p">:</span> <span class="n">symptoms_checker</span><span class="p">,</span>
-<span class="linenos">330</span>    <span class="s2">&quot;get_medication_info&quot;</span><span class="p">:</span> <span class="n">get_medication_info</span><span class="p">,</span>
-<span class="linenos">331</span>    <span class="s2">&quot;knowledge_tool&quot;</span><span class="p">:</span> <span class="n">knowledge_tool</span><span class="p">,</span>
-<span class="linenos">332</span><span class="p">}</span>
-<span class="linenos">333</span><span class="n">assistant</span><span class="p">:</span> <span class="n">Swarm</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span>
-<span class="linenos">334</span>    <span class="n">tool_registry</span><span class="o">=</span><span class="n">TOOL_REGISTRY</span>
-<span class="linenos">335</span><span class="p">)</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
+<span class="linenos">303</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.swarm</span><span class="w"> </span><span class="kn">import</span> <span class="n">HandoffMode</span>
+<span class="linenos">304</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">Swarm</span><span class="p">(</span>
+<span class="linenos">305</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Swarm&quot;</span><span class="p">,</span>
+<span class="linenos">306</span>    <span class="n">first_agent</span><span class="o">=</span><span class="n">general_practitioner</span><span class="p">,</span>
+<span class="linenos">307</span>    <span class="n">relationships</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">308</span>        <span class="p">(</span><span class="n">general_practitioner</span><span class="p">,</span> <span class="n">pharmacist</span><span class="p">),</span>
+<span class="linenos">309</span>        <span class="p">(</span><span class="n">general_practitioner</span><span class="p">,</span> <span class="n">dermatologist</span><span class="p">),</span>
+<span class="linenos">310</span>        <span class="p">(</span><span class="n">dermatologist</span><span class="p">,</span> <span class="n">pharmacist</span><span class="p">),</span>
+<span class="linenos">311</span>    <span class="p">],</span>
+<span class="linenos">312</span>    <span class="n">handoff</span><span class="o">=</span><span class="n">HandoffMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">,</span>  <span class="c1"># &lt;-- Choose the handoff mode of your choice</span>
+<span class="linenos">313</span><span class="p">)</span>
+<span class="linenos">314</span>
+<span class="linenos">315</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">316</span><span class="c1">## Export config to Agent Spec</span>
+<span class="linenos">317</span>
+<span class="linenos">318</span><span class="c1"># %%</span>
+<span class="linenos">319</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+<span class="linenos">320</span>
+<span class="linenos">321</span><span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
+<span class="linenos">322</span>
+<span class="linenos">323</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">324</span><span class="c1">## Load Agent Spec config</span>
+<span class="linenos">325</span>
+<span class="linenos">326</span><span class="c1"># %%</span>
+<span class="linenos">327</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+<span class="linenos">328</span>
+<span class="linenos">329</span><span class="n">TOOL_REGISTRY</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">330</span>    <span class="s2">&quot;symptoms_checker&quot;</span><span class="p">:</span> <span class="n">symptoms_checker</span><span class="p">,</span>
+<span class="linenos">331</span>    <span class="s2">&quot;get_medication_info&quot;</span><span class="p">:</span> <span class="n">get_medication_info</span><span class="p">,</span>
+<span class="linenos">332</span>    <span class="s2">&quot;knowledge_tool&quot;</span><span class="p">:</span> <span class="n">knowledge_tool</span><span class="p">,</span>
+<span class="linenos">333</span><span class="p">}</span>
+<span class="linenos">334</span><span class="n">assistant</span><span class="p">:</span> <span class="n">Swarm</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span>
+<span class="linenos">335</span>    <span class="n">tool_registry</span><span class="o">=</span><span class="n">TOOL_REGISTRY</span>
+<span class="linenos">336</span><span class="p">)</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -1610,7 +1635,7 @@ Transferring a conversation to another agent keeps this distance unchanged (in o
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-usage">Advanced usage</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enabling-handoff-in-the-swarm">Enabling handoff in the Swarm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#different-handoff-modes-in-swarm">Different handoff modes in Swarm</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agent-spec-exporting-loading">Agent Spec Exporting/Loading</a></li>
@@ -1632,8 +1657,8 @@ Transferring a conversation to another agent keeps this distance unchanged (in o
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

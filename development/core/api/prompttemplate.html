@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -291,9 +291,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -306,6 +311,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -314,11 +321,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -330,11 +334,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
@@ -346,6 +352,8 @@
 <li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -434,12 +442,12 @@ The class also integrates with output parsers, tools and llm generation configur
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>messages</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em> | </em><em>MessageAsDictT</em><em>]</em>) – </p></li>
+<li><p><strong>messages</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em> | </em><a class="reference internal" href="#wayflowcore._utils._templating_helpers.MessageAsDictT" title="wayflowcore._utils._templating_helpers.MessageAsDictT"><em>MessageAsDictT</em></a><em>]</em>) – </p></li>
 <li><p><strong>output_parser</strong> (<a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>pre_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>post_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>tools</strong> (<em>List</em><em>[</em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>pre_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>post_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>tools</strong> (<em>List</em><em>[</em><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>native_tool_calling</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>response_format</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>native_structured_generation</strong> (<em>bool</em>) – </p></li>
@@ -454,26 +462,26 @@ The class also integrates with output parsers, tools and llm generation configur
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER">
-<span class="sig-name descname"><span class="pre">CHAT_HISTORY_PLACEHOLDER</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><span class="pre">Message</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Message(id='59f2b2b8-9d4b-4e36-9caf-f5c54dc2b00c',</span> <span class="pre">__metadata_info__={},</span> <span class="pre">role='system',</span> <span class="pre">contents=[TextContent(content='$$__CHAT_HISTORY_PLACEHOLDER__$$')],</span> <span class="pre">tool_requests=None,</span> <span class="pre">tool_result=None,</span> <span class="pre">display_only=False,</span> <span class="pre">sender=None,</span> <span class="pre">recipients=set())</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CHAT_HISTORY_PLACEHOLDER</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Message(id='7a63eaa5-f81e-442e-a793-7ce53f102ebb',</span> <span class="pre">__metadata_info__={},</span> <span class="pre">role='system',</span> <span class="pre">contents=[TextContent(content='$$__CHAT_HISTORY_PLACEHOLDER__$$')],</span> <span class="pre">tool_requests=None,</span> <span class="pre">tool_result=None,</span> <span class="pre">display_only=False,</span> <span class="pre">_prompt_cache_key=None,</span> <span class="pre">_reasoning_content=None,</span> <span class="pre">sender=None,</span> <span class="pre">recipients=set())</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER" title="Permalink to this definition">#</a></dt>
 <dd><p>Message placeholder in case the chat history is formatted as a chat.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME">
-<span class="sig-name descname"><span class="pre">CHAT_HISTORY_PLACEHOLDER_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__CHAT_HISTORY__'</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CHAT_HISTORY_PLACEHOLDER_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__CHAT_HISTORY__'</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME" title="Permalink to this definition">#</a></dt>
 <dd><p>Reserved name of the placeholder for the chat history, if rendered in one message.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.RESPONSE_FORMAT_PLACEHOLDER_NAME">
-<span class="sig-name descname"><span class="pre">RESPONSE_FORMAT_PLACEHOLDER_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__RESPONSE_FORMAT__'</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.RESPONSE_FORMAT_PLACEHOLDER_NAME" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">RESPONSE_FORMAT_PLACEHOLDER_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__RESPONSE_FORMAT__'</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.RESPONSE_FORMAT_PLACEHOLDER_NAME" title="Permalink to this definition">#</a></dt>
 <dd><p>Reserved name of the placeholder for the expected output format. Only used if non-native structured
 generation, to be able to specify the JSON format anywhere in the prompt.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.TOOL_PLACEHOLDER_NAME">
-<span class="sig-name descname"><span class="pre">TOOL_PLACEHOLDER_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__TOOLS__'</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.TOOL_PLACEHOLDER_NAME" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">TOOL_PLACEHOLDER_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__TOOLS__'</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.TOOL_PLACEHOLDER_NAME" title="Permalink to this definition">#</a></dt>
 <dd><p>Reserved name of the placeholder for tools.</p>
 </dd></dl>
 
@@ -483,7 +491,7 @@ generation, to be able to specify the JSON format anywhere in the prompt.</p>
 <dd><p>Returns a copy of the template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -493,11 +501,11 @@ generation, to be able to specify the JSON format anywhere in the prompt.</p>
 <span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.format" title="Permalink to this definition">#</a></dt>
 <dd><p>Formats the prompt into a list of messages to pass to the LLM</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="llmmodels.html#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Prompt</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -507,11 +515,11 @@ generation, to be able to specify the JSON format anywhere in the prompt.</p>
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.format_async" title="Permalink to this definition">#</a></dt>
 <dd><p>Synchronously formats the prompt into a list of messages to pass to the LLM</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="llmmodels.html#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Prompt</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -521,66 +529,66 @@ generation, to be able to specify the JSON format anywhere in the prompt.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_parser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_descriptors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_rendering_transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_rendering_transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tools</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_tool_calling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_structured_generation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.from_string" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates a prompt template from a string.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>template</strong> (<em>str</em>) – </p></li>
 <li><p><strong>output_parser</strong> (<a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>pre_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>post_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>tools</strong> (<em>List</em><em>[</em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>pre_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>post_rendering_transforms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.transforms.MessageTransform"><em>MessageTransform</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>tools</strong> (<em>List</em><em>[</em><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>native_tool_calling</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>response_format</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>native_structured_generation</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>generation_config</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.generation_config">
-<span class="sig-name descname"><span class="pre">generation_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><span class="pre">LlmGenerationConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.generation_config" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">generation_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[LlmGenerationConfig]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.generation_config" title="Permalink to this definition">#</a></dt>
 <dd><p>Parameters to configure the generation.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.input_descriptors">
-<span class="sig-name descname"><span class="pre">input_descriptors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><span class="pre">Property</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.input_descriptors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">input_descriptors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.input_descriptors" title="Permalink to this definition">#</a></dt>
 <dd><p>Input descriptors that will be picked up by PromptExecutionStep or AgentExecutionStep.
 Resolved by default from the variables present in the messages.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.messages">
-<span class="sig-name descname"><span class="pre">messages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><span class="pre">Message</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">MessageAsDictT</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.messages" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">messages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a><span class="pre">,</span> <a class="reference internal" href="#wayflowcore._utils._templating_helpers.MessageAsDictT" title="wayflowcore._utils._templating_helpers.MessageAsDictT"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageAsDictT</span></code></a><span class="pre">]]</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.messages" title="Permalink to this definition">#</a></dt>
 <dd><p>List of messages for the prompt.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.native_structured_generation">
-<span class="sig-name descname"><span class="pre">native_structured_generation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.native_structured_generation" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">native_structured_generation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.native_structured_generation" title="Permalink to this definition">#</a></dt>
 <dd><p>Whether to use native structured generation or not. All llm providers might not support it.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.native_tool_calling">
-<span class="sig-name descname"><span class="pre">native_tool_calling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.native_tool_calling" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">native_tool_calling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.native_tool_calling" title="Permalink to this definition">#</a></dt>
 <dd><p>Whether to use the native tool calling of the model or not. All llm providers might not support it.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.output_parser">
-<span class="sig-name descname"><span class="pre">output_parser</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><span class="pre">OutputParser</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><span class="pre">OutputParser</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.output_parser" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">output_parser</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">OutputParser</span></code></a><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">OutputParser</span></code></a><span class="pre">],</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.output_parser" title="Permalink to this definition">#</a></dt>
 <dd><p>Post-processing applied on the raw output of the LLM.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.post_rendering_transforms">
-<span class="sig-name descname"><span class="pre">post_rendering_transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><span class="pre">MessageTransform</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.post_rendering_transforms" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">post_rendering_transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.transforms.MessageTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageTransform</span></code></a><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.post_rendering_transforms" title="Permalink to this definition">#</a></dt>
 <dd><p>Message transform applied on the rendered list of messages.
 Use these to ensure the remote LLM will accept the prompt: ensuring a single system_message,
 ensuring alternating user/assistant messages, …</p>
@@ -588,20 +596,20 @@ ensuring alternating user/assistant messages, …</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.pre_rendering_transforms">
-<span class="sig-name descname"><span class="pre">pre_rendering_transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><span class="pre">MessageTransform</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.pre_rendering_transforms" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">pre_rendering_transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.transforms.MessageTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageTransform</span></code></a><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.pre_rendering_transforms" title="Permalink to this definition">#</a></dt>
 <dd><p>Message transform applied before rendering the list of messages into the template.
 Use these to summarize messages, …</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.response_format">
-<span class="sig-name descname"><span class="pre">response_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><span class="pre">Property</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.response_format" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">response_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.response_format" title="Permalink to this definition">#</a></dt>
 <dd><p>Specific format the llm answer should follow.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.tools">
-<span class="sig-name descname"><span class="pre">tools</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.tools" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tools</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.tools" title="Permalink to this definition">#</a></dt>
 <dd><p>Tools to use in the prompt.</p>
 </dd></dl>
 
@@ -610,14 +618,14 @@ Use these to summarize messages, …</p>
 <span class="sig-name descname"><span class="pre">with_additional_post_rendering_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_additional_post_rendering_transform" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a copy of the prompt template with an additional post rendering transform</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>transform</strong> (<a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a>) – </p></li>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>transform</strong> (<a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.transforms.MessageTransform"><em>MessageTransform</em></a>) – </p></li>
 <li><p><strong>append</strong> (<em>bool</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -627,14 +635,14 @@ Use these to summarize messages, …</p>
 <span class="sig-name descname"><span class="pre">with_additional_pre_rendering_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_additional_pre_rendering_transform" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a copy of the prompt template with an additional pre rendering transform</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>transform</strong> (<a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.MessageTransform"><em>MessageTransform</em></a>) – </p></li>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>transform</strong> (<a class="reference internal" href="#wayflowcore.transforms.MessageTransform" title="wayflowcore.transforms.transforms.MessageTransform"><em>MessageTransform</em></a>) – </p></li>
 <li><p><strong>append</strong> (<em>bool</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -644,14 +652,14 @@ Use these to summarize messages, …</p>
 <span class="sig-name descname"><span class="pre">with_generation_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generation_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_generation_config" title="Permalink to this definition">#</a></dt>
 <dd><p>Override: Whether the template config should be overridden or should overridden this config.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>generation_config</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmgenerationconfig.LlmGenerationConfig" title="wayflowcore.models.llmgenerationconfig.LlmGenerationConfig"><em>LlmGenerationConfig</em></a><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>override</strong> (<em>bool</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -661,11 +669,11 @@ Use these to summarize messages, …</p>
 <span class="sig-name descname"><span class="pre">with_output_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_parser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_output_parser" title="Permalink to this definition">#</a></dt>
 <dd><p>Replaces the output parser of this template.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>output_parser</strong> (<a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em>]</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>output_parser</strong> (<a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.outputparser.OutputParser" title="wayflowcore.outputparser.OutputParser"><em>OutputParser</em></a><em>]</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -676,11 +684,11 @@ Use these to summarize messages, …</p>
 <dd><p>Partially formats the prompt with the given inputs (to avoid formatting everything at each call, if some
 inputs do not change). These inputs are not rendered directly, but stored for a later call to <cite>format()</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -690,11 +698,11 @@ inputs do not change). These inputs are not rendered directly, but stored for a 
 <span class="sig-name descname"><span class="pre">with_response_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_format</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_response_format" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a copy of the template equipped with a given response format.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>response_format</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em> | </em><em>None</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>response_format</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em> | </em><em>None</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -704,11 +712,11 @@ inputs do not change). These inputs are not rendered directly, but stored for a 
 <span class="sig-name descname"><span class="pre">with_tools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tools</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.with_tools" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a copy of the template equipped with the given tools.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>tools</strong> (<em>List</em><em>[</em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.templates.template.PromptTemplate" title="wayflowcore.templates.template.PromptTemplate"><em>PromptTemplate</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tools</strong> (<em>List</em><em>[</em><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a><em>] </em><em>| </em><em>None</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -734,11 +742,11 @@ inputs do not change). These inputs are not rendered directly, but stored for a 
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.OutputParser.parse_output" title="Permalink to this definition">#</a></dt>
 <dd><p>Parses the LLM raw output</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>content</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>content</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -749,11 +757,11 @@ inputs do not change). These inputs are not rendered directly, but stored for a 
 <dd><p>Can parse the result returned by streaming
 By default does nothing until the message has been completely generated, but can implement specific stream methods if we want to stream something specific</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>content</strong> (<em>Any</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>content</strong> (<em>Any</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -798,11 +806,11 @@ By default does nothing until the message has been completely generated, but can
 <span class="sig-name descname"><span class="pre">parse_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.RegexOutputParser.parse_output" title="Permalink to this definition">#</a></dt>
 <dd><p>Parses the LLM raw output</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -813,24 +821,24 @@ By default does nothing until the message has been completely generated, but can
 <dd><p>Can parse the result returned by streaming
 By default does nothing until the message has been completely generated, but can implement specific stream methods if we want to stream something specific</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>content</strong> (<em>Any</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>content</strong> (<em>Any</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.outputparser.RegexOutputParser.regex_pattern">
-<span class="sig-name descname"><span class="pre">regex_pattern</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><span class="pre">RegexPattern</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><span class="pre">RegexPattern</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexOutputParser.regex_pattern" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">regex_pattern</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegexPattern</span></code></a><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegexPattern</span></code></a><span class="pre">]]]</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexOutputParser.regex_pattern" title="Permalink to this definition">#</a></dt>
 <dd><p>Regex pattern to use</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.outputparser.RegexOutputParser.strict">
-<span class="sig-name descname"><span class="pre">strict</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexOutputParser.strict" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">strict</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexOutputParser.strict" title="Permalink to this definition">#</a></dt>
 <dd><p>Whether to return empty string if no match is found or return the raw text</p>
 </dd></dl>
 
@@ -851,7 +859,7 @@ By default does nothing until the message has been completely generated, but can
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.outputparser.RegexPattern.flags">
-<span class="sig-name descname"><span class="pre">flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RegexFlag</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.flags" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">RegexFlag</span></code><span class="pre">,</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.flags" title="Permalink to this definition">#</a></dt>
 <dd><p>Potential regex flags to use (re.DOTALL for multiline matching for example)</p>
 </dd></dl>
 
@@ -859,27 +867,27 @@ By default does nothing until the message has been completely generated, but can
 <dt class="sig sig-object py" id="wayflowcore.outputparser.RegexPattern.from_str">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">RegexFlag.DOTALL</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.from_str" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegexPattern</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>pattern</strong> (<em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><em>RegexPattern</em></a>) – </p></li>
 <li><p><strong>flags</strong> (<em>int</em><em> | </em><em>RegexFlag</em><em> | </em><em>None</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.outputparser.RegexPattern" title="wayflowcore.outputparser.RegexPattern"><em>RegexPattern</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.outputparser.RegexPattern.match">
-<span class="sig-name descname"><span class="pre">match</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'first'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'last'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'first'</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.match" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">match</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'first'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'last'</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'first'</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.match" title="Permalink to this definition">#</a></dt>
 <dd><p>Whether to take the first match or the last match</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.outputparser.RegexPattern.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.pattern" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.outputparser.RegexPattern.pattern" title="Permalink to this definition">#</a></dt>
 <dd><p>Regex pattern to match</p>
 </dd></dl>
 
@@ -903,11 +911,11 @@ By default does nothing until the message has been completely generated, but can
 <span class="sig-name descname"><span class="pre">parse_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.JsonOutputParser.parse_output" title="Permalink to this definition">#</a></dt>
 <dd><p>Parses the LLM raw output</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>content</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>content</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -918,18 +926,18 @@ By default does nothing until the message has been completely generated, but can
 <dd><p>Can parse the result returned by streaming
 By default does nothing until the message has been completely generated, but can implement specific stream methods if we want to stream something specific</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>content</strong> (<em>Any</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>content</strong> (<em>Any</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.outputparser.JsonOutputParser.properties">
-<span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.outputparser.JsonOutputParser.properties" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.outputparser.JsonOutputParser.properties" title="Permalink to this definition">#</a></dt>
 <dd><p>Dictionary of property names and jq queries to manipulate the loaded JSON</p>
 </dd></dl>
 
@@ -942,7 +950,7 @@ By default does nothing until the message has been completely generated, but can
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tools</strong> (<em>List</em><em>[</em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>tools</strong> (<em>List</em><em>[</em><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>id</strong> (<em>str</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
 </ul>
@@ -953,11 +961,11 @@ By default does nothing until the message has been completely generated, but can
 <span class="sig-name descname"><span class="pre">parse_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.parse_output" title="Permalink to this definition">#</a></dt>
 <dd><p>Separates the raw output into thoughts and calls, and then parses the calls into ToolRequests</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -968,11 +976,11 @@ By default does nothing until the message has been completely generated, but can
 <dd><p>Can parse the result returned by streaming
 By default does nothing until the message has been completely generated, but can implement specific stream methods if we want to stream something specific</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>content</strong> (<em>Any</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>content</strong> (<em>Any</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -982,11 +990,11 @@ By default does nothing until the message has been completely generated, but can
 <span class="sig-name descname"><span class="pre">parse_thoughts_and_calls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_txt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.parse_thoughts_and_calls" title="Permalink to this definition">#</a></dt>
 <dd><p>Default function to separate thoughts and tool calls</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>raw_txt</strong> (<em>str</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Tuple</em>[str, str]</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>raw_txt</strong> (<em>str</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -995,18 +1003,18 @@ By default does nothing until the message has been completely generated, but can
 <dt class="sig sig-object py" id="wayflowcore.outputparser.ToolOutputParser.parse_tool_request_from_str">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_tool_request_from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_txt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.parse_tool_request_from_str" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>raw_txt</strong> (<em>str</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a>]</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>List</em>[<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>]</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>raw_txt</strong> (<em>str</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.outputparser.ToolOutputParser.tools">
-<span class="sig-name descname"><span class="pre">tools</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.tools" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tools</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.tools" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1014,11 +1022,11 @@ By default does nothing until the message has been completely generated, but can
 <span class="sig-name descname"><span class="pre">with_tools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tools</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.outputparser.ToolOutputParser.with_tools" title="Permalink to this definition">#</a></dt>
 <dd><p>Enhances the tool parser with some validation of the parsed tool calls according to specific tools</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>tools</strong> (<em>List</em><em>[</em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.outputparser.ToolOutputParser" title="wayflowcore.outputparser.ToolOutputParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolOutputParser</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.outputparser.ToolOutputParser" title="wayflowcore.outputparser.ToolOutputParser"><em>ToolOutputParser</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tools</strong> (<em>List</em><em>[</em><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a><em>] </em><em>| </em><em>None</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -1042,11 +1050,11 @@ message flows in the system.</p>
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.transforms.MessageTransform.call_async" title="Permalink to this definition">#</a></dt>
 <dd><p>Implement this method for asynchronous work (IO-bounded, with LLM calls, DB loading …)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>messages</strong> (<em>List</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em>]</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>List</em>[<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message">Message</a>]</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>messages</strong> (<em>List</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em>]</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -1100,6 +1108,165 @@ into multiple conversation turns for step-by-step reasoning.</p>
 </dl>
 </dd></dl>
 
+<span class="target" id="messagesummarizationtransform"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.transforms.MessageSummarizationTransform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.transforms.</span></span><span class="sig-name descname"><span class="pre">MessageSummarizationTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">llm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_message_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summarization_instructions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Please</span> <span class="pre">make</span> <span class="pre">a</span> <span class="pre">summary</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">message.</span> <span class="pre">Include</span> <span class="pre">relevant</span> <span class="pre">information</span> <span class="pre">and</span> <span class="pre">keep</span> <span class="pre">it</span> <span class="pre">short.</span> <span class="pre">Your</span> <span class="pre">response</span> <span class="pre">will</span> <span class="pre">replace</span> <span class="pre">the</span> <span class="pre">message,</span> <span class="pre">so</span> <span class="pre">just</span> <span class="pre">output</span> <span class="pre">the</span> <span class="pre">summary</span> <span class="pre">directly,</span> <span class="pre">no</span> <span class="pre">introduction</span> <span class="pre">needed.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summarized_message_template</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Summarized</span> <span class="pre">message:</span> <span class="pre">{{summary}}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_collection_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'summarized_messages_cache'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cache_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cache_lifetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14400</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.transforms.MessageSummarizationTransform" title="Permalink to this definition">#</a></dt>
+<dd><p>Summarizes oversized messages using an LLM and optionally caches summaries.</p>
+<p>This is useful for long conversations where the context can become too large for the LLM to handle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmModel</span></code></a>) – LLM to use for the summarization. If the agent’s llm supports images, then this llm should also support images.</p></li>
+<li><p><strong>max_message_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The maximum size in number of characters for the content of a message. This is converted
+to an estimated token count using heuristics (approximately max_message_size / 4). Images
+in the message are also converted to estimated token counts (assuming 16x16 patches and
+defaulting to 2048x2048 if the image type is not PNG, JPEG, or JPEG2000). Summarization
+is triggered when the total estimated token count (text + images) of a message exceeds
+this threshold.</p></li>
+<li><p><strong>summarization_instructions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Instruction for the LLM on how to summarize the messages.</p></li>
+<li><p><strong>summarized_message_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Jinja2 template on how to present the summary (with variable <cite>summary</cite>) to the agent using the transform.</p></li>
+<li><p><strong>datastore</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="datastores.html#wayflowcore.datastore.Datastore" title="wayflowcore.datastore.datastore.Datastore"><code class="xref py py-class docutils literal notranslate"><span class="pre">Datastore</span></code></a>]) – <p>Datastore on which to store the cache. If None, an in-memory Datastore will be created automatically.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The datastore needs to have a collection called <cite>cache_collection_name</cite>. This collection’s entries should be defined using
+<cite>MessageSummarizationTransform.get_entity_definition</cite> or as follows:
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">Entity({</span>
+<span class="pre">&quot;cache_key&quot;:</span> <span class="pre">StringProperty(),</span>
+<span class="pre">&quot;cache_content&quot;:</span> <span class="pre">StringProperty(),</span>
+<span class="pre">&quot;created_at&quot;:</span> <span class="pre">FloatProperty(),</span>
+<span class="pre">&quot;last_used_at&quot;:</span> <span class="pre">FloatProperty(),</span>
+<span class="pre">})</span>
+<span class="pre">`</span></code></p>
+</div>
+</p></li>
+<li><p><strong>cache_collection_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the collection/table in the cache for storing summarized messages.</p></li>
+<li><p><strong>max_cache_size</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The number of cache entries (messages) kept in the cache.
+If None, there is no limit on cache size and no eviction occurs.</p></li>
+<li><p><strong>max_cache_lifetime</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – max lifetime of a message in the cache in seconds.
+If None, cached data persists indefinitely.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageSummarizationTransform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">summarization_transform</span> <span class="o">=</span> <span class="n">MessageSummarizationTransform</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">max_message_size</span><span class="o">=</span><span class="mi">30_000</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.transforms.MessageSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME">
+<span class="sig-name descname"><span class="pre">DEFAULT_CACHE_COLLECTION_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'summarized_messages_cache'</span></em><a class="headerlink" href="#wayflowcore.transforms.MessageSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.transforms.MessageSummarizationTransform.call_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.transforms.MessageSummarizationTransform.call_async" title="Permalink to this definition">#</a></dt>
+<dd><p>Implement this method for asynchronous work (IO-bounded, with LLM calls, DB loading …)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>messages</strong> (<em>List</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em>]</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.transforms.MessageSummarizationTransform.get_entity_definition">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_entity_definition</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.transforms.MessageSummarizationTransform.get_entity_definition" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="datastores.html#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.transforms.MessageSummarizationTransform.summarize_if_needed">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">summarize_if_needed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contents</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'content'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.transforms.MessageSummarizationTransform.summarize_if_needed" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageContent" title="wayflowcore.messagelist.MessageContent"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageContent</span></code></a>]</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>contents</strong> (<em>List</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageContent" title="wayflowcore.messagelist.MessageContent"><em>MessageContent</em></a><em>]</em>) – </p></li>
+<li><p><strong>conv_id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>msg_idx</strong> (<em>int</em>) – </p></li>
+<li><p><strong>_type</strong> (<em>Literal</em><em>[</em><em>'toolres'</em><em>, </em><em>'content'</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="conversationsummarizationtransform"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.transforms.ConversationSummarizationTransform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.transforms.</span></span><span class="sig-name descname"><span class="pre">ConversationSummarizationTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">llm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_num_messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_num_messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summarization_instructions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Please</span> <span class="pre">make</span> <span class="pre">a</span> <span class="pre">summary</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">conversation.</span> <span class="pre">Include</span> <span class="pre">relevant</span> <span class="pre">information</span> <span class="pre">and</span> <span class="pre">keep</span> <span class="pre">it</span> <span class="pre">short.</span> <span class="pre">Your</span> <span class="pre">response</span> <span class="pre">will</span> <span class="pre">replace</span> <span class="pre">the</span> <span class="pre">messages,</span> <span class="pre">so</span> <span class="pre">just</span> <span class="pre">output</span> <span class="pre">the</span> <span class="pre">summary</span> <span class="pre">directly,</span> <span class="pre">no</span> <span class="pre">introduction</span> <span class="pre">needed.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summarized_conversation_template</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Summarized</span> <span class="pre">conversation:</span> <span class="pre">{{summary}}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cache_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cache_lifetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_collection_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'summarized_conversations_cache'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.transforms.ConversationSummarizationTransform" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmModel</span></code></a>) – LLM to use for the summarization.</p></li>
+<li><p><strong>max_num_messages</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of message after which we trigger summarization. Tune this parameter depending on the
+context length of your model and the price you are willing to pay (higher means longer conversation
+prompts and more tokens).</p></li>
+<li><p><strong>min_num_messages</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of recent messages to keep from summarizing. Tune this parameter to prevent from summarizing
+very recent messages and keep a very responsive and relevant agent.</p></li>
+<li><p><strong>summarization_instructions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Instruction for the LLM on how to summarize the conversation.</p></li>
+<li><p><strong>summarized_conversation_template</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Jinja2 template on how to present the summary (with variable <cite>summary</cite>) to the agent using the transform.</p></li>
+<li><p><strong>datastore</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="datastores.html#wayflowcore.datastore.Datastore" title="wayflowcore.datastore.datastore.Datastore"><code class="xref py py-class docutils literal notranslate"><span class="pre">Datastore</span></code></a>]) – Datastore on which to store the cache. If not specified, an in-memory Datastore will be created automatically.
+If None, caching is disabled (not recommended)</p></li>
+<li><p><strong>max_cache_size</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The maximum number of entries kept in the cache</p></li>
+<li><p><strong>max_cache_lifetime</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – max lifetime of an element in the cache in seconds</p></li>
+<li><p><strong>cache_collection_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – the collection in the cache datastore where summarized conversations will be stored</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConversationSummarizationTransform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">summarization_transform</span> <span class="o">=</span> <span class="n">ConversationSummarizationTransform</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">max_num_messages</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">min_num_messages</span><span class="o">=</span><span class="mi">10</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.transforms.ConversationSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME">
+<span class="sig-name descname"><span class="pre">DEFAULT_CACHE_COLLECTION_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'summarized_conversations_cache'</span></em><a class="headerlink" href="#wayflowcore.transforms.ConversationSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.transforms.ConversationSummarizationTransform.call_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.transforms.ConversationSummarizationTransform.call_async" title="Permalink to this definition">#</a></dt>
+<dd><p>Implement this method for asynchronous work (IO-bounded, with LLM calls, DB loading …)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a>]</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>messages</strong> (<em>List</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em>]</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.transforms.ConversationSummarizationTransform.get_entity_definition">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_entity_definition</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.transforms.ConversationSummarizationTransform.get_entity_definition" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="datastores.html#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="helpers">
 <h2>Helpers<a class="headerlink" href="#helpers" title="Permalink to this heading">#</a></h2>
@@ -1124,6 +1291,66 @@ output parsers configured</p>
     or the prompt template has no response format.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.ToolRequestAsDictT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore._utils._templating_helpers.</span></span><span class="sig-name descname"><span class="pre">ToolRequestAsDictT</span></span><a class="headerlink" href="#wayflowcore._utils._templating_helpers.ToolRequestAsDictT" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.ToolRequestAsDictT.args">
+<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore._utils._templating_helpers.ToolRequestAsDictT.args" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.ToolRequestAsDictT.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore._utils._templating_helpers.ToolRequestAsDictT.name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.ToolRequestAsDictT.tool_request_id">
+<span class="sig-name descname"><span class="pre">tool_request_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore._utils._templating_helpers.ToolRequestAsDictT.tool_request_id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.ToolResultAsDictT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore._utils._templating_helpers.</span></span><span class="sig-name descname"><span class="pre">ToolResultAsDictT</span></span><a class="headerlink" href="#wayflowcore._utils._templating_helpers.ToolResultAsDictT" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.ToolResultAsDictT.content">
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></em><a class="headerlink" href="#wayflowcore._utils._templating_helpers.ToolResultAsDictT.content" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.ToolResultAsDictT.tool_request_id">
+<span class="sig-name descname"><span class="pre">tool_request_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore._utils._templating_helpers.ToolResultAsDictT.tool_request_id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.MessageAsDictT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore._utils._templating_helpers.</span></span><span class="sig-name descname"><span class="pre">MessageAsDictT</span></span><a class="headerlink" href="#wayflowcore._utils._templating_helpers.MessageAsDictT" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.MessageAsDictT.content">
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore._utils._templating_helpers.MessageAsDictT.content" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.MessageAsDictT.role">
+<span class="sig-name descname"><span class="pre">role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'user'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'assistant'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'system'</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore._utils._templating_helpers.MessageAsDictT.role" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.MessageAsDictT.tool_requests">
+<span class="sig-name descname"><span class="pre">tool_requests</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore._utils._templating_helpers.ToolRequestAsDictT" title="wayflowcore._utils._templating_helpers.ToolRequestAsDictT"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequestAsDictT</span></code></a><span class="pre">]]</span></em><a class="headerlink" href="#wayflowcore._utils._templating_helpers.MessageAsDictT.tool_requests" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore._utils._templating_helpers.MessageAsDictT.tool_result">
+<span class="sig-name descname"><span class="pre">tool_result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore._utils._templating_helpers.ToolResultAsDictT" title="wayflowcore._utils._templating_helpers.ToolResultAsDictT"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolResultAsDictT</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore._utils._templating_helpers.MessageAsDictT.tool_result" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1226,10 +1453,41 @@ output parsers configured</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.RemoveEmptyNonUserMessageTransform"><code class="docutils literal notranslate"><span class="pre">RemoveEmptyNonUserMessageTransform</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.AppendTrailingSystemMessageToUserMessageTransform"><code class="docutils literal notranslate"><span class="pre">AppendTrailingSystemMessageToUserMessageTransform</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.SplitPromptOnMarkerMessageTransform"><code class="docutils literal notranslate"><span class="pre">SplitPromptOnMarkerMessageTransform</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.MessageSummarizationTransform"><code class="docutils literal notranslate"><span class="pre">MessageSummarizationTransform</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.MessageSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME"><code class="docutils literal notranslate"><span class="pre">MessageSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.MessageSummarizationTransform.call_async"><code class="docutils literal notranslate"><span class="pre">MessageSummarizationTransform.call_async()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.MessageSummarizationTransform.get_entity_definition"><code class="docutils literal notranslate"><span class="pre">MessageSummarizationTransform.get_entity_definition()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.MessageSummarizationTransform.summarize_if_needed"><code class="docutils literal notranslate"><span class="pre">MessageSummarizationTransform.summarize_if_needed()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.ConversationSummarizationTransform"><code class="docutils literal notranslate"><span class="pre">ConversationSummarizationTransform</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.ConversationSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME"><code class="docutils literal notranslate"><span class="pre">ConversationSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.ConversationSummarizationTransform.call_async"><code class="docutils literal notranslate"><span class="pre">ConversationSummarizationTransform.call_async()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.transforms.ConversationSummarizationTransform.get_entity_definition"><code class="docutils literal notranslate"><span class="pre">ConversationSummarizationTransform.get_entity_definition()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helpers">Helpers</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.templates.structuredgeneration.adapt_prompt_template_for_json_structured_generation"><code class="docutils literal notranslate"><span class="pre">adapt_prompt_template_for_json_structured_generation()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.ToolRequestAsDictT"><code class="docutils literal notranslate"><span class="pre">ToolRequestAsDictT</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.ToolRequestAsDictT.args"><code class="docutils literal notranslate"><span class="pre">ToolRequestAsDictT.args</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.ToolRequestAsDictT.name"><code class="docutils literal notranslate"><span class="pre">ToolRequestAsDictT.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.ToolRequestAsDictT.tool_request_id"><code class="docutils literal notranslate"><span class="pre">ToolRequestAsDictT.tool_request_id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.ToolResultAsDictT"><code class="docutils literal notranslate"><span class="pre">ToolResultAsDictT</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.ToolResultAsDictT.content"><code class="docutils literal notranslate"><span class="pre">ToolResultAsDictT.content</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.ToolResultAsDictT.tool_request_id"><code class="docutils literal notranslate"><span class="pre">ToolResultAsDictT.tool_request_id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.MessageAsDictT"><code class="docutils literal notranslate"><span class="pre">MessageAsDictT</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.MessageAsDictT.content"><code class="docutils literal notranslate"><span class="pre">MessageAsDictT.content</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.MessageAsDictT.role"><code class="docutils literal notranslate"><span class="pre">MessageAsDictT.role</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.MessageAsDictT.tool_requests"><code class="docutils literal notranslate"><span class="pre">MessageAsDictT.tool_requests</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore._utils._templating_helpers.MessageAsDictT.tool_result"><code class="docutils literal notranslate"><span class="pre">MessageAsDictT.tool_result</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1248,8 +1506,8 @@ output parsers configured</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

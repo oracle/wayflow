@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -291,9 +291,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -306,6 +311,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -314,11 +321,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -330,11 +334,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
@@ -346,6 +352,8 @@
 <li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -443,11 +451,11 @@ WayFlow assistants. They are useful to connect external datasources to an assist
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider.call_async" title="Permalink to this definition">#</a></dt>
 <dd><p>Default sync callable of the context provider</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -457,7 +465,7 @@ WayFlow assistants. They are useful to connect external datasources to an assist
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_output_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider.get_output_descriptors" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a>]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -469,7 +477,7 @@ WayFlow assistants. They are useful to connect external datasources to an assist
 and the values are the expected type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Dict</em>[str, type]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -491,10 +499,10 @@ and the values are the expected type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><em>ServerTool</em></a>) – The tool to be called as part of this context provider</p></li>
-<li><p><strong>output_name</strong> (<em>str</em><em> | </em><em>None</em>) – The name of the output of this context provider.
+<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerTool</span></code></a>) – The tool to be called as part of this context provider</p></li>
+<li><p><strong>output_name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the output of this context provider.
 If None is given, the name of the tool followed by <cite>_output</cite> is used.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – The name of the context provider</p></li>
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the context provider</p></li>
 <li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
@@ -503,38 +511,33 @@ If None is given, the name of the tool followed by <cite>_output</cite> is used.
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.contextproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolContextProvider</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputMessageStep</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ServerTool</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
 <span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">current_time</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@tool</span><span class="p">(</span><span class="n">description_mode</span><span class="o">=</span><span class="s1">&#39;only_docstring&#39;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">current_time</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="gp">... </span><span class="w">    </span><span class="sd">&#39;&#39;&#39;Tool that returns time&#39;&#39;&#39;</span>
 <span class="gp">... </span>    <span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">time</span>
 <span class="gp">... </span>    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">tool</span> <span class="o">=</span> <span class="n">ServerTool</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CurrentTime&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Tool that returns time&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">parameters</span><span class="o">=</span><span class="p">{},</span>
-<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
-<span class="gp">... </span>    <span class="n">func</span><span class="o">=</span><span class="n">current_time</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">context_provider</span> <span class="o">=</span> <span class="n">ToolContextProvider</span><span class="p">(</span><span class="n">tool</span><span class="o">=</span><span class="n">current_time</span><span class="p">,</span> <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;time_output_io&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tool_step&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">display_first_step_time</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;{{ time_output_io }}&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;display_first_step_time&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">display_second_step_time</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;{{ time_output_io }}&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;display_second_step_time&quot;</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">context_provider</span> <span class="o">=</span> <span class="n">ToolContextProvider</span><span class="p">(</span><span class="n">tool</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;time_output_io&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">display_first_step_time</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span><span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;{{ time_output_io }}&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">display_first_step_time</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
-<span class="gp">... </span>        <span class="s2">&quot;display_first_step_time&quot;</span><span class="p">:</span> <span class="n">display_first_step_time</span><span class="p">,</span>
-<span class="gp">... </span>        <span class="s2">&quot;display_second_step_time&quot;</span><span class="p">:</span> <span class="n">OutputMessageStep</span><span class="p">(</span>
-<span class="gp">... </span>            <span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;{{ time_output_io }}&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="n">ControlFlowEdge</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="n">source_step</span><span class="o">=</span><span class="n">display_first_step_time</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">destination_step</span><span class="o">=</span><span class="n">display_second_step_time</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="p">),</span>
-<span class="gp">... </span>    <span class="p">},</span>
-<span class="gp">... </span>    <span class="n">transitions</span><span class="o">=</span><span class="p">{</span>
-<span class="gp">... </span>        <span class="s2">&quot;display_first_step_time&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;display_second_step_time&quot;</span><span class="p">],</span>
-<span class="gp">... </span>        <span class="s2">&quot;display_second_step_time&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">display_second_step_time</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">],</span>
 <span class="gp">... </span>    <span class="n">context_providers</span><span class="o">=</span><span class="p">[</span><span class="n">context_provider</span><span class="p">],</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
@@ -544,11 +547,11 @@ If None is given, the name of the tool followed by <cite>_output</cite> is used.
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.call_async" title="Permalink to this definition">#</a></dt>
 <dd><p>Default sync callable of the context provider</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -558,7 +561,7 @@ If None is given, the name of the tool followed by <cite>_output</cite> is used.
 <span class="sig-name descname"><span class="pre">get_output_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.get_output_descriptors" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a>]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -570,7 +573,7 @@ If None is given, the name of the tool followed by <cite>_output</cite> is used.
 and the values are the expected type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Dict</em>[str, type]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -584,12 +587,12 @@ and the values are the expected type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>flow</strong> (<a class="reference internal" href="flows.html#wayflowcore.flow.Flow" title="wayflowcore.flow.Flow"><em>Flow</em></a>) – The <code class="docutils literal notranslate"><span class="pre">Flow</span></code> to be used as context. It must not require inputs and must not yield.</p></li>
-<li><p><strong>flow_output_names</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – List of output names for the context provider, to be used in the calling flow’s I/O system.
+<li><p><strong>flow</strong> (<a class="reference internal" href="flows.html#wayflowcore.flow.Flow" title="wayflowcore.flow.Flow"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flow</span></code></a>) – The <code class="docutils literal notranslate"><span class="pre">Flow</span></code> to be used as context. It must not require inputs and must not yield.</p></li>
+<li><p><strong>flow_output_names</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – List of output names for the context provider, to be used in the calling flow’s I/O system.
 This list must contain unique names.
 These names, if specified, must be a subset of the context flow’s outputs.
 If not specified, defaults to all outputs from all steps of the provided flow</p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – The name of the context provider</p></li>
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the context provider</p></li>
 <li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
@@ -598,15 +601,15 @@ If not specified, defaults to all outputs from all steps of the provided flow</p
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.contextproviders</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlowContextProvider</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowhelpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_single_step_flow</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputMessageStep</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">contextual_flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span><span class="n">OutputMessageStep</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contextual_flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="o">.</span><span class="n">from_steps</span><span class="p">([</span><span class="n">OutputMessageStep</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;The current time is 2pm.&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">output_mapping</span><span class="o">=</span><span class="p">{</span><span class="n">OutputMessageStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">:</span> <span class="s2">&quot;time_output_io&quot;</span><span class="p">},</span>
-<span class="gp">... </span><span class="p">))</span>
+<span class="gp">... </span><span class="p">)])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">context_provider</span> <span class="o">=</span> <span class="n">FlowContextProvider</span><span class="p">(</span><span class="n">contextual_flow</span><span class="p">,</span> <span class="n">flow_output_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time_output_io&quot;</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">flow</span> <span class="o">=</span> <span class="n">create_single_step_flow</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;Last time message: {{time_output_io}}&quot;</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="o">.</span><span class="n">from_steps</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="n">OutputMessageStep</span><span class="p">(</span><span class="s2">&quot;Last time message: {{time_output_io}}&quot;</span><span class="p">)],</span>
 <span class="gp">... </span>    <span class="n">context_providers</span><span class="o">=</span><span class="p">[</span><span class="n">context_provider</span><span class="p">]</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
@@ -621,11 +624,11 @@ If not specified, defaults to all outputs from all steps of the provided flow</p
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.call_async" title="Permalink to this definition">#</a></dt>
 <dd><p>Default sync callable of the context provider</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -635,7 +638,7 @@ If not specified, defaults to all outputs from all steps of the provided flow</p
 <span class="sig-name descname"><span class="pre">get_output_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.get_output_descriptors" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a>]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -647,7 +650,7 @@ If not specified, defaults to all outputs from all steps of the provided flow</p
 and the values are the expected type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Dict</em>[str, type]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -721,8 +724,8 @@ and the values are the expected type.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

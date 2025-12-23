@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -291,9 +291,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -306,6 +311,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -314,11 +321,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -330,11 +334,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
@@ -346,6 +352,8 @@
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -438,7 +446,7 @@ can be represented as an entity with properties file name and content.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – <p>Optional name of the entities described by this object.</p>
+<li><p><strong>name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – <p>Optional name of the entities described by this object.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In a datastore, the relevant name is the one provided as the
@@ -446,7 +454,7 @@ dictionary key of the <code class="docutils literal notranslate"><span class="pr
 <code class="docutils literal notranslate"><span class="pre">Entity</span></code>.</p>
 </div>
 </p></li>
-<li><p><strong>description</strong> (<em>str</em>) – <p>Optional description of the entity type.</p>
+<li><p><strong>description</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – <p>Optional description of the entity type.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>It can be helpful to put a description in the following cases:</p>
@@ -458,8 +466,8 @@ to automatically provide a comprehensive docstring for that tool</p></li>
 </ul>
 </div>
 </p></li>
-<li><p><strong>default_value</strong> (<em>Any</em>) – Optional default value.</p></li>
-<li><p><strong>properties</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>wayflowcore.property.Property</em></a><em>]</em>) – <p>Mapping of property names and their types. Defaults to no properties.</p>
+<li><p><strong>default_value</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – Optional default value.</p></li>
+<li><p><strong>properties</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]) – <p>Mapping of property names and their types. Defaults to no properties.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>If a property is not required (but doesn’t have a default value conforming to its type),
@@ -546,15 +554,13 @@ collections. It also provides a way of describing the entities in
 this datastore.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.datastore.Datastore.create">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wayflowcore.datastore.Datastore.create" title="Permalink to this definition">#</a></dt>
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entities</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.Datastore.create" title="Permalink to this definition">#</a></dt>
 <dd><p>Create new entities of the specified type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collection_name</strong> – Name of the collection to create the new entities in.</p></li>
-<li><p><strong>entities</strong> – <p>One or more entities to create. Creating multiple entities
+<li><p><strong>collection_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the collection to create the new entities in.</p></li>
+<li><p><strong>entities</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]]) – <p>One or more entities to create. Creating multiple entities
 at once may be beneficial for performance compared to
 executing multiple calls to create.</p>
 <div class="admonition important">
@@ -587,8 +593,8 @@ with the newly created entity will be returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collection_name</strong> (<em>str</em>) – Name of the collection in which entities will be deleted.</p></li>
-<li><p><strong>where</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Filter criteria for the entities to delete.
+<li><p><strong>collection_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the collection in which entities will be deleted.</p></li>
+<li><p><strong>where</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]) – Filter criteria for the entities to delete.
 The dictionary is composed of property name and value pairs
 to filter by with exact matches. Only entities matching all
 conditions in the dictionary will be deleted. For example,
@@ -597,7 +603,7 @@ all <code class="docutils literal notranslate"><span class="pre">Golden</span> <
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -625,14 +631,14 @@ given criteria.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collection_name</strong> (<em>str</em>) – Name of the collection to list.</p></li>
-<li><p><strong>where</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – Filter criteria for the collection to list.
+<li><p><strong>collection_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the collection to list.</p></li>
+<li><p><strong>where</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]) – Filter criteria for the collection to list.
 The dictionary is composed of property name and value pairs
 to filter by with exact matches. Only entities matching all
 conditions in the dictionary will be listed. For example,
 <code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;Fido&quot;,</span> <span class="pre">&quot;breed&quot;:</span> <span class="pre">&quot;Golden</span> <span class="pre">Retriever&quot;}</span></code> will match
 all <code class="docutils literal notranslate"><span class="pre">Golden</span> <span class="pre">Retriever</span></code> dogs named <code class="docutils literal notranslate"><span class="pre">Fido</span></code>.</p></li>
-<li><p><strong>limit</strong> (<em>int</em><em> | </em><em>None</em>) – Maximum number of entities to retrieve, by default <code class="docutils literal notranslate"><span class="pre">None</span></code>
+<li><p><strong>limit</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Maximum number of entities to retrieve, by default <code class="docutils literal notranslate"><span class="pre">None</span></code>
 (retrieve all entities).</p></li>
 </ul>
 </dd>
@@ -652,14 +658,14 @@ all <code class="docutils literal notranslate"><span class="pre">Golden</span> <
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>collection_name</strong> (<em>str</em>) – Name of the collection to be updated.</p></li>
-<li><p><strong>where</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Filter criteria for the collection to update.
+<li><p><strong>collection_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the collection to be updated.</p></li>
+<li><p><strong>where</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]) – Filter criteria for the collection to update.
 The dictionary is composed of property name and value pairs
 to filter by with exact matches. Only entities matching all
 conditions in the dictionary will be updated. For example,
 <code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;Fido&quot;,</span> <span class="pre">&quot;breed&quot;:</span> <span class="pre">&quot;Golden</span> <span class="pre">Retriever&quot;}</span></code> will match
 all <code class="docutils literal notranslate"><span class="pre">Golden</span> <span class="pre">Retriever</span></code> dogs named <code class="docutils literal notranslate"><span class="pre">Fido</span></code>.</p></li>
-<li><p><strong>update</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The update to apply to the matching entities in the collection.</p></li>
+<li><p><strong>update</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]) – The update to apply to the matching entities in the collection.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -703,7 +709,7 @@ will be serialized, without any of the stored data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>schema</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><em>Entity</em></a><em>]</em>) – Mapping of collection names to entity definitions used by this
+<li><p><strong>schema</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a>]) – Mapping of collection names to entity definitions used by this
 datastore.</p></li>
 <li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
@@ -755,6 +761,189 @@ Note that if multiple properties are set in the <code class="docutils literal no
 <span class="gp">&gt;&gt;&gt; </span><span class="n">datastore</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;documents&quot;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
 </pre></div>
 </div>
+</dd></dl>
+
+</section>
+<section id="relational-datastore">
+<h2>Relational Datastore<a class="headerlink" href="#relational-datastore" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore._relational.RelationalDatastore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore._relational.</span></span><span class="sig-name descname"><span class="pre">RelationalDatastore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore._relational.RelationalDatastore" title="Permalink to this definition">#</a></dt>
+<dd><p>A relational data store that supports querying data using
+SQL-like queries.</p>
+<p>This class extends the Datastore class and adds support for querying
+data using SQL-like queries.</p>
+<p>Initialize a <code class="docutils literal notranslate"><span class="pre">RelationalDatastore</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>schema</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a>]) – Mapping of entity names to entities manipulated in this
+Datastore</p></li>
+<li><p><strong>engine</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Engine</span></code>) – SQLAlchemy engine used to connect to the relational database</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore._relational.RelationalDatastore.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entities</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore._relational.RelationalDatastore.create" title="Permalink to this definition">#</a></dt>
+<dd><p>Create new entities of the specified type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the collection to create the new entities in.</p></li>
+<li><p><strong>entities</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]]) – <p>One or more entities to create. Creating multiple entities
+at once may be beneficial for performance compared to
+executing multiple calls to create.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When bulk-creating entities, all entities must contain the same set of properties.
+For example, if the <code class="docutils literal notranslate"><span class="pre">Entity</span></code> “employees” has <code class="docutils literal notranslate"><span class="pre">properties</span></code> “name” (required) and
+“salary” (optional), either all entities to create define only the name, or all
+define both name and salary. Some entities defining the salary and others relying on
+its default value is not supported.)</p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The newly created entities, including any defaults not provided
+in the original entity. If the input entities were multiples,
+they will be returned as a list. Otherwise, a single dictionary
+with the newly created entity will be returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict] or dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore._relational.RelationalDatastore.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore._relational.RelationalDatastore.delete" title="Permalink to this definition">#</a></dt>
+<dd><p>Delete entities based on the specified criteria.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the collection in which entities will be deleted.</p></li>
+<li><p><strong>where</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]) – Filter criteria for the entities to delete.
+The dictionary is composed of property name and value pairs
+to filter by with exact matches. Only entities matching all
+conditions in the dictionary will be deleted. For example,
+<code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;Fido&quot;,</span> <span class="pre">&quot;breed&quot;:</span> <span class="pre">&quot;Golden</span> <span class="pre">Retriever&quot;}</span></code> will match
+all <code class="docutils literal notranslate"><span class="pre">Golden</span> <span class="pre">Retriever</span></code> dogs named <code class="docutils literal notranslate"><span class="pre">Fido</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore._relational.RelationalDatastore.describe">
+<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore._relational.RelationalDatastore.describe" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the descriptions of the schema associated with this
+<code class="docutils literal notranslate"><span class="pre">Datastore</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The description of the schema for the <code class="docutils literal notranslate"><span class="pre">Datastore</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <a class="reference internal" href="#wayflowcore.datastore.Entity" title="wayflowcore.datastore.Entity">Entity</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore._relational.RelationalDatastore.list">
+<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore._relational.RelationalDatastore.list" title="Permalink to this definition">#</a></dt>
+<dd><p>Retrieve a list of entities in a collection based on the
+given criteria.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the collection to list.</p></li>
+<li><p><strong>where</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]) – Filter criteria for the collection to list.
+The dictionary is composed of property name and value pairs
+to filter by with exact matches. Only entities matching all
+conditions in the dictionary will be listed. For example,
+<code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;Fido&quot;,</span> <span class="pre">&quot;breed&quot;:</span> <span class="pre">&quot;Golden</span> <span class="pre">Retriever&quot;}</span></code> will match
+all <code class="docutils literal notranslate"><span class="pre">Golden</span> <span class="pre">Retriever</span></code> dogs named <code class="docutils literal notranslate"><span class="pre">Fido</span></code>.</p></li>
+<li><p><strong>limit</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Maximum number of entities to retrieve, by default <code class="docutils literal notranslate"><span class="pre">None</span></code>
+(retrieve all entities).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of entities matching the specified criteria.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore._relational.RelationalDatastore.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore._relational.RelationalDatastore.query" title="Permalink to this definition">#</a></dt>
+<dd><p>Execute a query against the stored data.</p>
+<p>This method can be useful to join data or use advanced
+filtering options not provided in <code class="docutils literal notranslate"><span class="pre">Datastore.list</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>str</em>) – The query to execute, possibly parametrized with bind variables.
+The syntax for bind variables is <code class="docutils literal notranslate"><span class="pre">:variable_name</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">variable_name</span></code> must be a key in the <code class="docutils literal notranslate"><span class="pre">bind</span></code> parameter of this method</p></li>
+<li><p><strong>bind</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Bind variables for the query.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>The result of the query execution as a list of dictionaries</em></p></li>
+<li><p><em>mapping column names in the select statement to their values.</em></p></li>
+<li><p><em>.. note::</em> – If the select clause contains something other than column names,
+the literal values written in the column name are used as keys
+of the dictionary, e.g.:
+<code class="docutils literal notranslate"><span class="pre">`sql</span>
+<span class="pre">SELECT</span> <span class="pre">COUNT(DISTINCT</span> <span class="pre">ID),</span> <span class="pre">MAX(salary)</span> <span class="pre">FROM</span> <span class="pre">employees</span>
+<span class="pre">`</span></code>
+will return a list with a single element, a dictionary with
+keys <cite>“COUNT(DISTINCT ID)”</cite> and <cite>“MAX(salary)”</cite></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore._relational.RelationalDatastore.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore._relational.RelationalDatastore.update" title="Permalink to this definition">#</a></dt>
+<dd><p>Update existing entities that match the provided conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>collection_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the collection to be updated.</p></li>
+<li><p><strong>where</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]) – Filter criteria for the collection to update.
+The dictionary is composed of property name and value pairs
+to filter by with exact matches. Only entities matching all
+conditions in the dictionary will be updated. For example,
+<code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">&quot;Fido&quot;,</span> <span class="pre">&quot;breed&quot;:</span> <span class="pre">&quot;Golden</span> <span class="pre">Retriever&quot;}</span></code> will match
+all <code class="docutils literal notranslate"><span class="pre">Golden</span> <span class="pre">Retriever</span></code> dogs named <code class="docutils literal notranslate"><span class="pre">Fido</span></code>.</p></li>
+<li><p><strong>update</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]) – The update to apply to the matching entities in the collection.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated entities, including any defaults or values not set in the update.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -810,10 +999,10 @@ any connection to the database. More information about thick and thin connection
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>user</strong> (<em>str</em>) – User used to connect to the database</p></li>
-<li><p><strong>password</strong> (<em>str</em>) – Password for the provided user</p></li>
-<li><p><strong>dsn</strong> (<em>str</em>) – Connection string for the database (e.g., created using <cite>oracledb.make_dsn</cite>)</p></li>
-<li><p><strong>config_dir</strong> (<em>str</em><em> | </em><em>None</em>) – Configuration directory for the database connection. Set this if you are using an
+<li><p><strong>user</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – User used to connect to the database</p></li>
+<li><p><strong>password</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Password for the provided user</p></li>
+<li><p><strong>dsn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Connection string for the database (e.g., created using <cite>oracledb.make_dsn</cite>)</p></li>
+<li><p><strong>config_dir</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Configuration directory for the database connection. Set this if you are using an
 alias from your tnsnames.ora files as a DSN. Make sure that the specified DSN is
 appropriate for TLS connections (as the tnsnames.ora file in a downloaded wallet
 will only include DSN entries for mTLS connections).</p></li>
@@ -826,22 +1015,22 @@ will only include DSN entries for mTLS connections).</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.config_dir">
-<span class="sig-name descname"><span class="pre">config_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.config_dir" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">config_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.config_dir" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.dsn">
-<span class="sig-name descname"><span class="pre">dsn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.dsn" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">dsn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.dsn" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.password">
-<span class="sig-name descname"><span class="pre">password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.password" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.password" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.user">
-<span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.user" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.TlsOracleDatabaseConnectionConfig.user" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -853,12 +1042,12 @@ will only include DSN entries for mTLS connections).</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config_dir</strong> (<em>str</em>) – TNS Admin directory</p></li>
-<li><p><strong>dsn</strong> (<em>str</em>) – connection string for the database, or entry in the tnsnames.ora file</p></li>
-<li><p><strong>user</strong> (<em>str</em>) – connection string for the database</p></li>
-<li><p><strong>password</strong> (<em>str</em>) – password for the provided user</p></li>
-<li><p><strong>wallet_location</strong> (<em>str</em>) – location where the Oracle Database wallet is stored</p></li>
-<li><p><strong>wallet_password</strong> (<em>str</em>) – password for the provided wallet</p></li>
+<li><p><strong>config_dir</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – TNS Admin directory</p></li>
+<li><p><strong>dsn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – connection string for the database, or entry in the tnsnames.ora file</p></li>
+<li><p><strong>user</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – connection string for the database</p></li>
+<li><p><strong>password</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – password for the provided user</p></li>
+<li><p><strong>wallet_location</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – location where the Oracle Database wallet is stored</p></li>
+<li><p><strong>wallet_password</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – password for the provided wallet</p></li>
 <li><p><strong>id</strong> (<em>str</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
 <li><p><strong>name</strong> (<em>str</em>) – </p></li>
@@ -868,32 +1057,32 @@ will only include DSN entries for mTLS connections).</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.config_dir">
-<span class="sig-name descname"><span class="pre">config_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.config_dir" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">config_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.config_dir" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.dsn">
-<span class="sig-name descname"><span class="pre">dsn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.dsn" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">dsn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.dsn" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.password">
-<span class="sig-name descname"><span class="pre">password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.password" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.password" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.user">
-<span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.user" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.user" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_location">
-<span class="sig-name descname"><span class="pre">wallet_location</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_location" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">wallet_location</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_location" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_password">
-<span class="sig-name descname"><span class="pre">wallet_password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_password" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">wallet_password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.MTlsOracleDatabaseConnectionConfig.wallet_password" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -912,9 +1101,9 @@ database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>schema</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><em>Entity</em></a><em>]</em>) – Mapping of collection names to entity definitions used by
+<li><p><strong>schema</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a>]) – Mapping of collection names to entity definitions used by
 this datastore.</p></li>
-<li><p><strong>connection_config</strong> (<a class="reference internal" href="#wayflowcore.datastore.OracleDatabaseConnectionConfig" title="wayflowcore.datastore.oracle.OracleDatabaseConnectionConfig"><em>OracleDatabaseConnectionConfig</em></a>) – Configuration of connection parameters</p></li>
+<li><p><strong>connection_config</strong> (<a class="reference internal" href="#wayflowcore.datastore.OracleDatabaseConnectionConfig" title="wayflowcore.datastore.oracle.OracleDatabaseConnectionConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">OracleDatabaseConnectionConfig</span></code></a>) – Configuration of connection parameters</p></li>
 </ul>
 </dd>
 </dl>
@@ -933,8 +1122,11 @@ The syntax for bind variables is <code class="docutils literal notranslate"><spa
 <li><p><strong>bind</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Bind variables for the query.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p><em>The result of the query execution as a list of dictionaries</em></p></li>
 <li><p><em>mapping column names in the select statement to their values.</em></p></li>
 <li><p><em>.. note::</em> – If the select clause contains something other than column names,
@@ -948,8 +1140,193 @@ keys <cite>“COUNT(DISTINCT ID)”</cite> and <cite>“MAX(salary)”</cite></p
 </ul>
 </p>
 </dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="postgres-database">
+<h2>Postgres Database<a class="headerlink" href="#postgres-database" title="Permalink to this heading">#</a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The Postgres Database Datastore requires additional optional dependencies, which can be installed
+with the <code class="docutils literal notranslate"><span class="pre">[datastore]</span></code> installation option.</p>
+</div>
+<span class="target" id="postgresdatabaseconnectionconfig"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.PostgresDatabaseConnectionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">PostgresDatabaseConnectionConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.PostgresDatabaseConnectionConfig" title="Permalink to this definition">#</a></dt>
+<dd><p>Abstract class for a PostgreSQL connection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.PostgresDatabaseConnectionConfig.get_connection">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.PostgresDatabaseConnectionConfig.get_connection" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<em>Dict</em>[str, <em>Any</em>]]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Engine</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="postgresdatabasetlsconnectionconfig"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">TlsPostgresDatabaseConnectionConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url='localhost:5432'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sslmode='require'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sslcert=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sslkey=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sslrootcert=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sslcrl=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for a PostgreSQL connection with TLS/SSL support.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>user</strong> (<em>str</em>) – </p></li>
+<li><p><strong>password</strong> (<em>str</em>) – </p></li>
+<li><p><strong>url</strong> (<em>str</em>) – </p></li>
+<li><p><strong>sslmode</strong> (<em>Literal</em><em>[</em><em>'disable'</em><em>, </em><em>'allow'</em><em>, </em><em>'prefer'</em><em>, </em><em>'require'</em><em>, </em><em>'verify-ca'</em><em>, </em><em>'verify-full'</em><em>]</em>) – </p></li>
+<li><p><strong>sslcert</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>sslkey</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>sslrootcert</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>sslcrl</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.get_connection">
+<span class="sig-name descname"><span class="pre">get_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.get_connection" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Engine</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.get_sqlalchemy_url">
+<span class="sig-name descname"><span class="pre">get_sqlalchemy_url</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.get_sqlalchemy_url" title="Permalink to this definition">#</a></dt>
+<dd><p>Builds a SQLAlchemy connection URL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.password">
+<span class="sig-name descname"><span class="pre">password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.password" title="Permalink to this definition">#</a></dt>
+<dd><p>Password of the postgres database</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslcert">
+<span class="sig-name descname"><span class="pre">sslcert</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslcert" title="Permalink to this definition">#</a></dt>
+<dd><p>Path of the client SSL certificate, replacing the default <cite>~/.postgresql/postgresql.crt</cite>.
+Ignored if an SSL connection is not made.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslcrl">
+<span class="sig-name descname"><span class="pre">sslcrl</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslcrl" title="Permalink to this definition">#</a></dt>
+<dd><p>Path of the SSL server certificate revocation list (CRL). Certificates listed will be rejected
+while attempting to authenticate the server’s certificate.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslkey">
+<span class="sig-name descname"><span class="pre">sslkey</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslkey" title="Permalink to this definition">#</a></dt>
+<dd><p>Path of the file containing the secret key used for the client certificate, replacing the default
+<cite>~/.postgresql/postgresql.key</cite>. Ignored if an SSL connection is not made.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslmode">
+<span class="sig-name descname"><span class="pre">sslmode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'disable'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'allow'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'prefer'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'require'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'verify-ca'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'verify-full'</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'require'</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslmode" title="Permalink to this definition">#</a></dt>
+<dd><p>SSL mode for the PostgreSQL connection.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslrootcert">
+<span class="sig-name descname"><span class="pre">sslrootcert</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslrootcert" title="Permalink to this definition">#</a></dt>
+<dd><p>Path of the file containing SSL certificate authority (CA) certificate(s). Used to verify server identity.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.url">
+<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'localhost:5432'</span></em><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.url" title="Permalink to this definition">#</a></dt>
+<dd><p>URL to access the postgres database</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.user">
+<span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.user" title="Permalink to this definition">#</a></dt>
+<dd><p>User of the postgres database</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="postgresdatabasedatastore"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.datastore.PostgresDatabaseDatastore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.datastore.</span></span><span class="sig-name descname"><span class="pre">PostgresDatabaseDatastore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.PostgresDatabaseDatastore" title="Permalink to this definition">#</a></dt>
+<dd><p>Datastore that uses Postgres Database as the storage mechanism.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This <code class="docutils literal notranslate"><span class="pre">Datastore</span></code> can only be used to connect to existing
+database schemas, with tables of interest already defined in the
+database.</p>
+</div>
+<p>Initialize an Postgres Database Datastore.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>schema</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="#wayflowcore.datastore.Entity" title="wayflowcore.datastore.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a>]) – Mapping of collection names to entity definitions used by
+this datastore.</p></li>
+<li><p><strong>connection_config</strong> (<a class="reference internal" href="#wayflowcore.datastore.PostgresDatabaseConnectionConfig" title="wayflowcore.datastore.postgres.PostgresDatabaseConnectionConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">PostgresDatabaseConnectionConfig</span></code></a>) – Configuration of connection parameters</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.datastore.PostgresDatabaseDatastore.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.datastore.PostgresDatabaseDatastore.query" title="Permalink to this definition">#</a></dt>
+<dd><p>Execute a query against the stored data.</p>
+<p>This method can be useful to join data or use advanced
+filtering options not provided in <code class="docutils literal notranslate"><span class="pre">Datastore.list</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>str</em>) – The query to execute, possibly parametrized with bind variables.
+The syntax for bind variables is <code class="docutils literal notranslate"><span class="pre">:variable_name</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">variable_name</span></code> must be a key in the <code class="docutils literal notranslate"><span class="pre">bind</span></code> parameter of this method</p></li>
+<li><p><strong>bind</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Bind variables for the query.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>The result of the query execution as a list of dictionaries</em></p></li>
+<li><p><em>mapping column names in the select statement to their values.</em></p></li>
+<li><p><em>.. note::</em> – If the select clause contains something other than column names,
+the literal values written in the column name are used as keys
+of the dictionary, e.g.:
+<code class="docutils literal notranslate"><span class="pre">`sql</span>
+<span class="pre">SELECT</span> <span class="pre">COUNT(DISTINCT</span> <span class="pre">ID),</span> <span class="pre">MAX(salary)</span> <span class="pre">FROM</span> <span class="pre">employees</span>
+<span class="pre">`</span></code>
+will return a list with a single element, a dictionary with
+keys <cite>“COUNT(DISTINCT ID)”</cite> and <cite>“MAX(salary)”</cite></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1005,6 +1382,18 @@ keys <cite>“COUNT(DISTINCT ID)”</cite> and <cite>“MAX(salary)”</cite></p
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.InMemoryDatastore"><code class="docutils literal notranslate"><span class="pre">InMemoryDatastore</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relational-datastore">Relational Datastore</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore._relational.RelationalDatastore"><code class="docutils literal notranslate"><span class="pre">RelationalDatastore</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore._relational.RelationalDatastore.create"><code class="docutils literal notranslate"><span class="pre">RelationalDatastore.create()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore._relational.RelationalDatastore.delete"><code class="docutils literal notranslate"><span class="pre">RelationalDatastore.delete()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore._relational.RelationalDatastore.describe"><code class="docutils literal notranslate"><span class="pre">RelationalDatastore.describe()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore._relational.RelationalDatastore.list"><code class="docutils literal notranslate"><span class="pre">RelationalDatastore.list()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore._relational.RelationalDatastore.query"><code class="docutils literal notranslate"><span class="pre">RelationalDatastore.query()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore._relational.RelationalDatastore.update"><code class="docutils literal notranslate"><span class="pre">RelationalDatastore.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#oracle-database">Oracle Database</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.OracleDatabaseConnectionConfig"><code class="docutils literal notranslate"><span class="pre">OracleDatabaseConnectionConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.OracleDatabaseConnectionConfig.get_connection"><code class="docutils literal notranslate"><span class="pre">OracleDatabaseConnectionConfig.get_connection()</span></code></a></li>
@@ -1032,6 +1421,30 @@ keys <cite>“COUNT(DISTINCT ID)”</cite> and <cite>“MAX(salary)”</cite></p
 </li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#postgres-database">Postgres Database</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.PostgresDatabaseConnectionConfig"><code class="docutils literal notranslate"><span class="pre">PostgresDatabaseConnectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.PostgresDatabaseConnectionConfig.get_connection"><code class="docutils literal notranslate"><span class="pre">PostgresDatabaseConnectionConfig.get_connection()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.get_connection"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig.get_connection()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.get_sqlalchemy_url"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig.get_sqlalchemy_url()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.password"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig.password</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslcert"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig.sslcert</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslcrl"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig.sslcrl</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslkey"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig.sslkey</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslmode"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig.sslmode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.sslrootcert"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig.sslrootcert</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.url"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig.url</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig.user"><code class="docutils literal notranslate"><span class="pre">TlsPostgresDatabaseConnectionConfig.user</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.PostgresDatabaseDatastore"><code class="docutils literal notranslate"><span class="pre">PostgresDatabaseDatastore</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.datastore.PostgresDatabaseDatastore.query"><code class="docutils literal notranslate"><span class="pre">PostgresDatabaseDatastore.query()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -1048,8 +1461,8 @@ keys <cite>“COUNT(DISTINCT ID)”</cite> and <cite>“MAX(salary)”</cite></p
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

@@ -1,0 +1,1285 @@
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>How to Build a Havingierarchical Multi-Agent System &#8212; wayflowcore 25.4.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
+
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_multiagent';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '25.4.3';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to Build a Swarm of Agents" href="howto_swarm.html" />
+    <link rel="prev" title="How to Use Agents in Flows" href="howto_agents_in_flows.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.4" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 25.4.3 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 25.4.3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">How to Evaluate WayFlow Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">How to Evaluate Assistant Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-to Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to Build a Havingierarchical Multi-Agent System</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="how-to-build-a-havingierarchical-multi-agent-system">
+<h1>How to Build a Havingierarchical Multi-Agent System<a class="headerlink" href="#how-to-build-a-havingierarchical-multi-agent-system" title="Permalink to this heading">#</a></h1>
+<div class="admonition-prerequisites admonition">
+<p class="admonition-title">Prerequisites</p>
+<p>This guide assumes familiarity with <a class="reference internal" href="../tutorials/basic_agent.html"><span class="doc">Agents</span></a>.</p>
+</div>
+<p>With the advent of increasingly powerful Large Language Models (LLMs), multi-agent systems are becoming more relevant
+and are expected to be particularly valuable in scenarios requiring high-levels of autonomy and/or processing
+of diverse sources of information.</p>
+<p>There are various types of multi-agent systems, each serving different purposes and applications.
+Some notable examples include hierarchical structures, agent swarms, and mixtures of agents.</p>
+<p>This guide demonstrates an example of a hierarchical multi-agent system (also known as manager-worker pattern) and will show you how to:</p>
+<ul class="simple">
+<li><p>Build expert agents equipped with tools;</p></li>
+<li><p>Test the expert agents individually;</p></li>
+<li><p>Build and test a hierarchical multi-agent assistant.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../../_images/howto_multiagent.svg"><img alt="Example of a multi-agent system" class="align-center" height="262" src="../../_images/howto_multiagent.svg" width="506" /></a>
+<p><strong>Diagram:</strong> Multi-agent system shown in this how-to guide, comprising a manager agent
+(customer service agent) and two expert agents equipped with tools (refund specialist
+and satisfaction surveyor).</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>To access short code snippets demonstrating how to use other agentic patterns in WayFlow,
+refer to the <a class="reference internal" href="../misc/reference_sheet.html"><span class="doc">Reference Sheet</span></a>.</p>
+</div>
+<p>To follow this guide, you need an LLM. WayFlow supports several LLM API providers.
+Select an LLM from the options below:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+        <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;https://url-to-service-endpoint.com&quot;</span><span class="p">,</span>
+        <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
+        <span class="n">auth_type</span><span class="o">=</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;model-id&quot;</span><span class="p">,</span>
+    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;VLLM_HOST_PORT&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-2" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-2" name="0-2" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OllamaModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OllamaModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;model-id&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+<section id="building-and-testing-expert-agents">
+<h2>Building and testing expert Agents<a class="headerlink" href="#building-and-testing-expert-agents" title="Permalink to this heading">#</a></h2>
+<p>In this guide you will use the following helper function to print
+messages:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">print_messages</span><span class="p">(</span><span class="n">messages</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.messagelist</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageType</span>
+
+    <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+        <span class="n">message_type</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">message_type</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message_type</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">message_type</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">USER</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message_type</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">sender</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">message_type</span> <span class="o">!=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">TOOL_REQUEST</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">tool_requests</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+</pre></div>
+</div>
+<p>API Reference: <a class="reference internal" href="../api/conversation.html#messagetype"><span class="std std-ref">MessageType</span></a></p>
+<section id="refund-specialist-agent">
+<h3>Refund specialist agent<a class="headerlink" href="#refund-specialist-agent" title="Permalink to this heading">#</a></h3>
+<section id="tools">
+<h4>Tools<a class="headerlink" href="#tools" title="Permalink to this heading">#</a></h4>
+<p>The refund specialist agent is equipped with two tools.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_refund_eligibility</span><span class="p">(</span>
+    <span class="n">order_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;The unique identifier for the order.&quot;</span><span class="p">],</span>
+    <span class="n">customer_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;The unique identifier for the customer.&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if a given order is eligible for a refund based on company policy.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary containing eligibility status and details.</span>
+<span class="sd">        Example: {&quot;eligible&quot;: True, &quot;max_refundable_amount&quot;: 50.00, &quot;reason&quot;: &quot;Within return window&quot;}</span>
+<span class="sd">                 {&quot;eligible&quot;: False, &quot;reason&quot;: &quot;Order past 30-day return window&quot;}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Simulate checking eligibility (e.g., database lookup, policy check)</span>
+    <span class="c1"># In a real system, this would interact with backend systems.</span>
+    <span class="k">if</span> <span class="s2">&quot;123&quot;</span> <span class="ow">in</span> <span class="n">order_id</span><span class="p">:</span>  <span class="c1"># Simulate eligible order</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;eligible&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;max_refundable_amount&quot;</span><span class="p">:</span> <span class="mf">50.00</span><span class="p">,</span>
+            <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;Within 30-day return window and item is returnable.&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="s2">&quot;999&quot;</span> <span class="ow">in</span> <span class="n">order_id</span><span class="p">:</span>  <span class="c1"># Simulate ineligible order</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;eligible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;Order past 30-day return window.&quot;</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Simulate item not found or other issue</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;eligible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;Order ID not found or invalid.&quot;</span><span class="p">}</span>
+
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_refund</span><span class="p">(</span>
+    <span class="n">order_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;The unique identifier for the order to be refunded.&quot;</span><span class="p">],</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;The amount to be refunded.&quot;</span><span class="p">],</span>
+    <span class="n">reason</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;The reason for the refund.&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes a refund for a specific order and amount.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary confirming the refund status.</span>
+<span class="sd">        Example: {&quot;success&quot;: True, &quot;refund_id&quot;: &quot;REF_789XYZ&quot;, &quot;message&quot;: &quot;Refund processed successfully.&quot;}</span>
+<span class="sd">                 {&quot;success&quot;: False, &quot;message&quot;: &quot;Refund processing failed due to payment gateway error.&quot;}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Simulate refund processing (e.g., calling a payment gateway API)</span>
+    <span class="c1"># In a real system, this would trigger financial transactions.</span>
+    <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">refund_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;REF_</span><span class="si">{</span><span class="n">order_id</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="si">}{</span><span class="nb">int</span><span class="p">(</span><span class="n">amount</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># Generate a pseudo-unique ID</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;refund_id&quot;</span><span class="p">:</span> <span class="n">refund_id</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Refund of $</span><span class="si">{</span><span class="n">amount</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> processed successfully.&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Refund amount must be greater than zero.&quot;</span><span class="p">}</span>
+
+
+</pre></div>
+</div>
+<p>API Reference: <a class="reference internal" href="../api/tools.html#tooldecorator"><span class="std std-ref">tool</span></a></p>
+<p>The first tool is used to check whether a given order is eligible for a refund,
+while the second is used to process the specific refund.</p>
+</section>
+<section id="system-prompt">
+<h4>System prompt<a class="headerlink" href="#system-prompt" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REFUND_SPECIALIST_SYSTEM_PROMPT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are a Refund Specialist agent whose objective is to process customer refund requests accurately and efficiently based on company policy.</span>
+
+<span class="s2"># Instructions</span>
+<span class="s2">- Receive the refund request details (e.g., order ID, customer ID, reason) from the &#39;CustomerServiceManager&#39;.</span>
+<span class="s2">- Use the `check_refund_eligibility` tool to verify if the request meets the refund policy criteria using the provided order and customer IDs.</span>
+<span class="s2">- If the check indicates eligibility, determine the correct refund amount (up to the maximum allowed from the eligibility check).</span>
+<span class="s2">- If eligible, use the `process_refund` tool to execute the refund for the determined amount, providing order ID and reason.</span>
+<span class="s2">- If ineligible based on the check, clearly note the reason provided by the tool.</span>
+<span class="s2">- Report the final outcome (e.g., &quot;Refund processed successfully, Refund ID: [ID], Amount: [Amount]&quot;, or &quot;Refund denied: [Reason from eligibility check]&quot;) back to the &#39;CustomerServiceManager&#39;.</span>
+<span class="s2">- Do not engage in general conversation; focus solely on the refund process.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The quality of the system prompt is paramount to ensuring proper behaviour of the multi-agent
+system, because slight deviations in the behaviour can lead to cascading
+unintended effects as the number of agents scales up.</p>
+</div>
+</section>
+<section id="building-the-agent">
+<h4>Building the Agent<a class="headerlink" href="#building-the-agent" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">refund_specialist_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RefundSpecialist&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Specializes in processing customer refund requests by verifying eligibility and executing the refund transaction using available tools.&quot;</span><span class="p">,</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="n">REFUND_SPECIALIST_SYSTEM_PROMPT</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">check_refund_eligibility</span><span class="p">,</span> <span class="n">process_refund</span><span class="p">],</span>
+    <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;RefundSpecialist&quot;</span><span class="p">,</span>  <span class="c1"># for the `print_messages` utility function</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>API Reference: <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a></p>
+</section>
+<section id="testing-the-agent">
+<h4>Testing the Agent<a class="headerlink" href="#testing-the-agent" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">refund_conversation</span> <span class="o">=</span> <span class="n">refund_specialist_agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">refund_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="s2">&quot;Please handle a refund request. Details: Order ID=&#39;123&#39;, Customer ID=&#39;CUST456&#39;, Reason=&#39;Item arrived damaged&#39;.&quot;</span>
+    <span class="c1"># &quot;Please handle a refund request. Details: Order ID=&#39;999&#39;, Customer ID=&#39;CUST789&#39;, Reason=&#39;No longer needed&#39;.&quot;</span>
+    <span class="c1"># &quot;Please handle a refund request. Details: Order ID=&#39;INVALID_ID&#39;, Customer ID=&#39;CUST101&#39;, Reason=&#39;Item defective&#39;.&quot;</span>
+<span class="p">)</span>
+<span class="n">refund_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">FULL CONVERSATION:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">print_messages</span><span class="p">(</span><span class="n">refund_conversation</span><span class="o">.</span><span class="n">get_messages</span><span class="p">())</span>
+
+
+<span class="c1"># USER &gt;&gt;&gt; Please handle a refund request. Details: Order ID=&#39;123&#39;, Customer ID=&#39;CUST456&#39;, Reason=&#39;Item arrived damaged&#39;.</span>
+<span class="c1"># TOOL_REQUEST (RefundSpecialist) &gt;&gt;&gt; To process the refund request, we first need to check if the order is eligible for a refund based on company policy.</span>
+<span class="c1"># [ToolRequest(name=&#39;check_refund_eligibility&#39;, args={&#39;order_id&#39;: &#39;123&#39;, &#39;customer_id&#39;: &#39;CUST456&#39;}, tool_request_id=&#39;42d8f215-e80e-4426-b8d1-9c18d6d8059e&#39;)]</span>
+<span class="c1"># TOOL_RESULT (RefundSpecialist) &gt;&gt;&gt; {&#39;eligible&#39;: True, &#39;max_refundable_amount&#39;: 50.0, &#39;reason&#39;: &#39;Within 30-day return window and item is returnable.&#39;}</span>
+<span class="c1"># TOOL_REQUEST (RefundSpecialist) &gt;&gt;&gt; The order is eligible for a refund. Now, we need to process the refund for the maximum refundable amount.</span>
+<span class="c1"># [ToolRequest(name=&#39;process_refund&#39;, args={&#39;order_id&#39;: &#39;123&#39;, &#39;amount&#39;: 50.0, &#39;reason&#39;: &#39;Item arrived damaged&#39;}, tool_request_id=&#39;6b8f07eb-2caa-4551-9ea3-dcd2b53916b8&#39;)]</span>
+<span class="c1"># TOOL_RESULT (RefundSpecialist) &gt;&gt;&gt; {&#39;success&#39;: True, &#39;refund_id&#39;: &#39;REF_1235000&#39;, &#39;message&#39;: &#39;Refund of $50.00 processed successfully.&#39;}</span>
+<span class="c1"># AGENT (RefundSpecialist) &gt;&gt;&gt; Refund processed successfully. Refund ID: REF_1235000, Amount: $50.00</span>
+</pre></div>
+</div>
+<p>Test the agents individually to ensure they perform as expected.</p>
+</section>
+</section>
+<section id="statisfaction-surveyor-agent">
+<h3>Statisfaction surveyor agent<a class="headerlink" href="#statisfaction-surveyor-agent" title="Permalink to this heading">#</a></h3>
+<section id="id1">
+<h4>Tools<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h4>
+<p>The statisfaction surveyor agent is equipped with one tool.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">record_survey_response</span><span class="p">(</span>
+    <span class="n">customer_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;The unique identifier for the customer.&quot;</span><span class="p">],</span>
+    <span class="n">satisfaction_score</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="s2">&quot;The customer&#39;s satisfaction rating (e.g., 1-5), if provided.&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">comments</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="s2">&quot;Any additional comments provided by the customer, if provided.&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Records the customer&#39;s satisfaction survey response.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary confirming the recording status.</span>
+<span class="sd">        Example: {&quot;success&quot;: True, &quot;message&quot;: &quot;Survey response recorded.&quot;}</span>
+<span class="sd">                 {&quot;success&quot;: False, &quot;message&quot;: &quot;Failed to record survey response.&quot;}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Simulate storing the response (e.g., writing to a database or logging system)</span>
+    <span class="c1"># In a real system, this would persist the feedback data.</span>
+    <span class="k">if</span> <span class="n">customer_id</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Survey response recorded successfully.&quot;</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Customer ID is required to record response.&quot;</span><span class="p">}</span>
+
+
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">record_survey_response</span></code> tool is simulating the recording of
+user feedback data.</p>
+</section>
+<section id="id2">
+<h4>System prompt<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SURVEYOR_SYSTEM_PROMPT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are a Satisfaction Surveyor agent tasked with collecting customer feedback about their recent service experience in a friendly manner.</span>
+
+<span class="s2"># Instructions</span>
+<span class="s2">- Receive the trigger to conduct a survey from the &#39;CustomerServiceManager&#39;, including context like the customer ID and the nature of the interaction if provided.</span>
+<span class="s2">- Politely ask the customer if they have a moment to provide feedback on their recent interaction.</span>
+<span class="s2">- If the customer agrees, ask 1-2 concise questions about their satisfaction (e.g., &quot;On a scale of 1 to 5, where 5 is highly satisfied, how satisfied were you with the resolution provided today?&quot;, &quot;Is there anything else you&#39;d like to share about your experience?&quot;).</span>
+<span class="s2">- Use the `record_survey_response` tool to log the customer&#39;s feedback, including the satisfaction score and any comments provided. Ensure you pass the correct customer ID.</span>
+<span class="s2">- If the customer declines to participate, thank them for their time anyway. Do not pressure them. Use the `record_survey_response` tool to log the declination if possible (e.g., score=None, comments=&quot;Declined survey&quot;).</span>
+<span class="s2">- Thank the customer for their participation if they provided feedback.</span>
+<span class="s2">- Report back to the &#39;CustomerServiceManager&#39; confirming that the survey was attempted and whether it was completed or declined.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h4>Building the Agent<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">surveyor_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SatisfactionSurveyor&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Conducts brief surveys to gather feedback on customer satisfaction following service interactions.&quot;</span><span class="p">,</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="n">SURVEYOR_SYSTEM_PROMPT</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">record_survey_response</span><span class="p">],</span>
+    <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;SatisfactionSurveyor&quot;</span><span class="p">,</span>  <span class="c1"># for the `print_messages` utility function</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h4>Testing the Agent<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">surveyor_conversation</span> <span class="o">=</span> <span class="n">surveyor_agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="s2">&quot;Engage customer for feedback. Details: Customer ID=&#39;CUST456&#39;, Context=&#39;Recent successful refund&#39;.&quot;</span>
+<span class="p">)</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">print_messages</span><span class="p">([</span><span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()])</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Hi there, I&#39;m reaching out on behalf of our Customer Service team. We&#39;re glad to hear that your recent refund was successful. If you have a moment, we&#39;d greatly appreciate any feedback you can share about your experience. It will help us improve our services. Would you be willing to answer a couple of quick questions?</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">print_messages</span><span class="p">([</span><span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()])</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; On a scale of 1 to 5, where 5 is highly satisfied, how satisfied were you with the resolution provided today?</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">print_messages</span><span class="p">([</span><span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()])</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Is there anything else you&#39;d like to share about your experience?</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Very quick!&quot;</span><span class="p">)</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">FULL CONVERSATION:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">print_messages</span><span class="p">(</span><span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">get_messages</span><span class="p">())</span>
+<span class="c1"># USER &gt;&gt;&gt; Engage customer for feedback. Details: Customer ID=&#39;CUST456&#39;, Context=&#39;Recent successful refund&#39;.</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Hi there, I&#39;m reaching out on behalf of our Customer Service team. We&#39;re glad to hear that your recent refund was successful. If you have a moment, we&#39;d greatly appreciate any feedback you can share about your experience. It will help us improve our services. Would you be willing to answer a couple of quick questions?</span>
+<span class="c1"># USER &gt;&gt;&gt; yes</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; On a scale of 1 to 5, where 5 is highly satisfied, how satisfied were you with the resolution provided today?</span>
+<span class="c1"># USER &gt;&gt;&gt; 5</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Is there anything else you&#39;d like to share about your experience?</span>
+<span class="c1"># USER &gt;&gt;&gt; Very quick!</span>
+<span class="c1"># TOOL_REQUEST (SatisfactionSurveyor) &gt;&gt;&gt; Now that we have the customer&#39;s feedback, we can record it using the record_survey_response tool.</span>
+<span class="c1"># [ToolRequest(name=&#39;record_survey_response&#39;, args={&#39;customer_id&#39;: &#39;CUST456&#39;, &#39;satisfaction_score&#39;: 5, &#39;comments&#39;: &#39;Very quick!&#39;}, tool_request_id=&#39;3d7ad387-13b0-465c-a425-42b50b7cfdd4&#39;)]</span>
+<span class="c1"># TOOL_RESULT (SatisfactionSurveyor) &gt;&gt;&gt; {&#39;success&#39;: True, &#39;message&#39;: &#39;Survey response recorded successfully.&#39;}</span>
+<span class="c1"># TOOL_REQUEST (SatisfactionSurveyor) &gt;&gt;&gt; Now that we have the customer&#39;s feedback, we can record it using the record_survey_response tool.</span>
+<span class="c1"># [ToolRequest(name=&#39;record_survey_response&#39;, args={&#39;customer_id&#39;: &#39;CUST456&#39;, &#39;satisfaction_score&#39;: 5, &#39;comments&#39;: &#39;Very quick!&#39;}, tool_request_id=&#39;e1d00a28-ecbe-4c6f-91fc-a75c13e2e467&#39;)]</span>
+<span class="c1"># TOOL_RESULT (SatisfactionSurveyor) &gt;&gt;&gt; {&#39;success&#39;: True, &#39;message&#39;: &#39;Survey response recorded successfully.&#39;}</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Thank you so much for taking the time to share your feedback with us! Your input is invaluable in helping us improve our services. Have a great day!</span>
+</pre></div>
+</div>
+<p>Again, the expert agent behaves as intended.</p>
+</section>
+</section>
+</section>
+<section id="building-and-testing-the-multi-agent-assistant">
+<h2>Building and testing the multi-agent assistant<a class="headerlink" href="#building-and-testing-the-multi-agent-assistant" title="Permalink to this heading">#</a></h2>
+<section id="manager-agent">
+<h3>Manager Agent<a class="headerlink" href="#manager-agent" title="Permalink to this heading">#</a></h3>
+<p>In WayFlow, a hierarchical multi-agent system can simply be created as
+an agent equipped with expert agents (the ones defined earlier).</p>
+<p>This agent is also known as <strong>manager</strong> or <strong>router</strong> agent.</p>
+<section id="id5">
+<h4>System prompt<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MANAGER_SYSTEM_PROMPT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are a Customer Service Manager agent tasked with handling incoming customer interactions and orchestrating the resolution process efficiently.</span>
+
+<span class="s2"># Instructions</span>
+<span class="s2">- Greet the customer politely and acknowledge their message.</span>
+<span class="s2">- Analyze the customer&#39;s message to understand their core need (e.g., refund request, general query, feedback).</span>
+<span class="s2">- Answer common informational questions (e.g., about shipping times, return policy basics) directly if you have the knowledge, before delegating.</span>
+<span class="s2">- If the request is clearly about a refund, gather necessary details (like Order ID) if missing, and then delegate the task to the &#39;RefundSpecialist&#39; agent. Provide all relevant context.</span>
+<span class="s2">- If the interaction seems successfully concluded (e.g., refund processed, query answered) and requesting feedback is appropriate, delegate the task to the &#39;SatisfactionSurveyor&#39; agent. Provide customer context.</span>
+<span class="s2">- For general queries you cannot handle directly and that don&#39;t fit the specialist agents, state your limitations clearly and politely.</span>
+<span class="s2">- Await responses or status updates from specialist agents you have delegated to.</span>
+<span class="s2">- Summarize the final outcome or confirmation for the customer based on specialist agent reports.</span>
+<span class="s2">- Maintain a helpful, empathetic, and professional tone throughout the interaction.</span>
+
+<span class="s2"># Additional Context</span>
+<span class="s2">Customer ID: {{customer_id}}</span>
+<span class="s2">Company policies:</span>
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or item in company_policy_info -%}</span>
+<span class="s2">- {{ item }}</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor -%}</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="building-the-manager-agent">
+<h4>Building the manager Agent<a class="headerlink" href="#building-the-manager-agent" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">customer_service_manager</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CustomerServiceManager&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Acts as the primary contact point for customer inquiries, analyzes the request, routes tasks to specialized agents (Refund Specialist, Satisfaction Surveyor), and ensures resolution.&quot;</span><span class="p">,</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="n">MANAGER_SYSTEM_PROMPT</span><span class="p">,</span>
+    <span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">refund_specialist_agent</span><span class="p">,</span> <span class="n">surveyor_agent</span><span class="p">],</span>
+    <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;CustomerServiceManager&quot;</span><span class="p">,</span>  <span class="c1"># for the `print_messages` utility function</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing-the-multi-agent-system">
+<h3>Testing the multi-agent system<a class="headerlink" href="#testing-the-multi-agent-system" title="Permalink to this heading">#</a></h3>
+<p>The power of mult-agent systems is their high adaptiveness.
+In the following example, it is demonstrated how the manager can decide
+not to call the expert agents for simple user queries.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">main_conversation</span> <span class="o">=</span> <span class="n">customer_service_manager</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="s2">&quot;CUST456&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;company_policy_info&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Shipping times: 3-5 business days in the US&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="s2">&quot;Hi, I was wondering what your standard shipping times are for orders within the US?&quot;</span>
+<span class="p">)</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">last_message</span> <span class="o">=</span> <span class="n">main_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">last_message</span><span class="o">.</span><span class="n">message_type</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">last_message</span><span class="o">.</span><span class="n">content</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">last_message</span><span class="o">.</span><span class="n">tool_requests</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># AGENT &gt;&gt;&gt; Hello! Thank you for reaching out to us. Our standard shipping times for orders within the US are 3-5 business days. Is there anything else I can help you with?</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Okay, thanks! Does that include weekends?&quot;</span><span class="p">)</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">last_message</span> <span class="o">=</span> <span class="n">main_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">last_message</span><span class="o">.</span><span class="n">message_type</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">last_message</span><span class="o">.</span><span class="n">content</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">last_message</span><span class="o">.</span><span class="n">tool_requests</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># AGENT &gt;&gt;&gt; Our standard shipping times of 3-5 business days are for weekdays only (Monday through Friday). Weekends and holidays are not included in that timeframe. If you have any other questions or need further assistance, feel free to ask!</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">FULL CONVERSATION:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">message_type</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">message</span><span class="o">.</span><span class="n">tool_requests</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">main_conversation</span><span class="o">.</span><span class="n">get_messages</span><span class="p">()</span>
+    <span class="p">],</span>
+    <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># USER &gt;&gt;&gt; Hi, I was wondering what your standard shipping times are for orders within the US?</span>
+<span class="c1"># AGENT &gt;&gt;&gt; Hello! Thank you for reaching out to us. Our standard shipping times for orders within the US are 3-5 business days. Is there anything else I can help you with?</span>
+<span class="c1"># USER &gt;&gt;&gt; Okay, thanks! Does that include weekends?</span>
+<span class="c1"># AGENT &gt;&gt;&gt; Our standard shipping times of 3-5 business days are for weekdays only (Monday through Friday). Weekends and holidays are not included in that timeframe. If you have any other questions or need further assistance, feel free to ask!</span>
+</pre></div>
+</div>
+<p>However, the manager is explicitly prompted to delegate to the specialized agents for more complex tasks.
+This is demonstrated in the following example.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">main_conversation</span> <span class="o">=</span> <span class="n">customer_service_manager</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="s2">&quot;CUST456&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;company_policy_info&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Shipping times: 3-5 business days in the US&quot;</span><span class="p">]</span>
+<span class="p">})</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="s2">&quot;Hi, I need to request a refund for order #123. The item wasn&#39;t what I expected.&quot;</span>
+<span class="p">)</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">print_messages</span><span class="p">([</span><span class="n">main_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()])</span>
+
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Thank you&quot;</span><span class="p">)</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="c1"># ... can continue similarly to the example above with the satisfaction surveyor</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">FULL CONVERSATION:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">print_messages</span><span class="p">(</span><span class="n">main_conversation</span><span class="o">.</span><span class="n">get_messages</span><span class="p">())</span>
+<span class="c1"># ------------------------------</span>
+<span class="c1"># FULL CONVERSATION:</span>
+<span class="c1"># ------------------------------</span>
+<span class="c1"># USER &gt;&gt;&gt; Hi, I need to request a refund for order #123. The item wasn&#39;t what I expected.</span>
+<span class="c1"># TOOL_REQUEST (CustomerServiceManager) &gt;&gt;&gt; The customer is requesting a refund for order #123 due to the item not meeting their expectations. We should delegate this task to the RefundSpecialist agent to process the refund.</span>
+<span class="c1"># [ToolRequest(name=&#39;RefundSpecialist&#39;, args={&#39;context&#39;: &quot;Customer CUST456 is requesting a refund for order #123 as the item wasn&#39;t what they expected. Please verify eligibility and process the refund.&quot;}, tool_request_id=&#39;20a31c10-f000-4053-935b-bb2c5ed38c2e&#39;)]</span>
+<span class="c1"># AGENT (CustomerServiceManager) &gt;&gt;&gt; Customer CUST456 is requesting a refund for order #123 as the item wasn&#39;t what they expected. Please verify eligibility and process the refund.</span>
+<span class="c1"># TOOL_REQUEST (RefundSpecialist) &gt;&gt;&gt; To verify the refund eligibility, we need to check if the order meets the company&#39;s refund policy criteria. We have the order ID and customer ID, so we can use the `check_refund_eligibility` tool.</span>
+<span class="c1"># [ToolRequest(name=&#39;check_refund_eligibility&#39;, args={&#39;order_id&#39;: &#39;#123&#39;, &#39;customer_id&#39;: &#39;CUST456&#39;}, tool_request_id=&#39;2bb26c7c-9467-4eb4-94f0-e47afc838535&#39;)]</span>
+<span class="c1"># TOOL_RESULT (RefundSpecialist) &gt;&gt;&gt; {&#39;eligible&#39;: True, &#39;max_refundable_amount&#39;: 50.0, &#39;reason&#39;: &#39;Within 30-day return window and item is returnable.&#39;}</span>
+<span class="c1"># TOOL_REQUEST (RefundSpecialist) &gt;&gt;&gt; Since the order is eligible for a refund and the maximum refundable amount is $50.00, we should process the refund for this amount.</span>
+<span class="c1"># [ToolRequest(name=&#39;process_refund&#39;, args={&#39;order_id&#39;: &#39;#123&#39;, &#39;amount&#39;: 50.0, &#39;reason&#39;: &#39;Item not as expected&#39;}, tool_request_id=&#39;b5f6de16-1530-4b63-b180-92764b728714&#39;)]</span>
+<span class="c1"># TOOL_RESULT (RefundSpecialist) &gt;&gt;&gt; {&#39;success&#39;: True, &#39;refund_id&#39;: &#39;REF_#125000&#39;, &#39;message&#39;: &#39;Refund of $50.00 processed successfully.&#39;}</span>
+<span class="c1"># AGENT (RefundSpecialist) &gt;&gt;&gt; Refund processed successfully, Refund ID: REF_#125000, Amount: $50.00.</span>
+<span class="c1"># TOOL_RESULT (CustomerServiceManager) &gt;&gt;&gt; Refund processed successfully, Refund ID: REF_#125000, Amount: $50.00.</span>
+<span class="c1"># AGENT (CustomerServiceManager) &gt;&gt;&gt; I&#39;ve processed your refund for order #123. You will receive $50.00 back. Your refund ID is REF_#125000.</span>
+<span class="c1"># USER &gt;&gt;&gt; Thank you</span>
+<span class="c1"># TOOL_REQUEST (CustomerServiceManager) &gt;&gt;&gt; The interaction seems successfully concluded, so I will request feedback from the customer.</span>
+<span class="c1"># [ToolRequest(name=&#39;SatisfactionSurveyor&#39;, args={&#39;context&#39;: &#39;Customer CUST456 had a refund processed for order #123 and expressed gratitude.&#39;}, tool_request_id=&#39;fa5bf287-3c20-4838-9693-58681f98fd07&#39;)]</span>
+<span class="c1"># AGENT (CustomerServiceManager) &gt;&gt;&gt; Customer CUST456 had a refund processed for order #123 and expressed gratitude.</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Hi there, thank you for choosing our service. I&#39;d love to hear about your recent experience with us. Do you have a moment to provide some quick feedback?</span>
+<span class="c1"># TOOL_RESULT (CustomerServiceManager) &gt;&gt;&gt; Hi there, thank you for choosing our service. I&#39;d love to hear about your recent experience with us. Do you have a moment to provide some quick feedback?</span>
+<span class="c1"># AGENT (CustomerServiceManager) &gt;&gt;&gt; How was your experience with the refund process?</span>
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="recap">
+<h2>Recap<a class="headerlink" href="#recap" title="Permalink to this heading">#</a></h2>
+<p>In this guide, you learned how to build a multi-agent system
+consisting of a manager agent and two expert sub-agents.</p>
+<details class="summary-below-is-the-complete-code-from-this-guide">
+<summary>Below is the complete code from this guide.</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">print_messages</span><span class="p">(</span><span class="n">messages</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.messagelist</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageType</span>
+
+    <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+        <span class="n">message_type</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">message_type</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message_type</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">message_type</span> <span class="o">==</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">USER</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message_type</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">sender</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">message_type</span> <span class="o">!=</span> <span class="n">MessageType</span><span class="o">.</span><span class="n">TOOL_REQUEST</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">tool_requests</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_refund_eligibility</span><span class="p">(</span>
+    <span class="n">order_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;The unique identifier for the order.&quot;</span><span class="p">],</span>
+    <span class="n">customer_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;The unique identifier for the customer.&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if a given order is eligible for a refund based on company policy.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary containing eligibility status and details.</span>
+<span class="sd">        Example: {&quot;eligible&quot;: True, &quot;max_refundable_amount&quot;: 50.00, &quot;reason&quot;: &quot;Within return window&quot;}</span>
+<span class="sd">                 {&quot;eligible&quot;: False, &quot;reason&quot;: &quot;Order past 30-day return window&quot;}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Simulate checking eligibility (e.g., database lookup, policy check)</span>
+    <span class="c1"># In a real system, this would interact with backend systems.</span>
+    <span class="k">if</span> <span class="s2">&quot;123&quot;</span> <span class="ow">in</span> <span class="n">order_id</span><span class="p">:</span>  <span class="c1"># Simulate eligible order</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;eligible&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;max_refundable_amount&quot;</span><span class="p">:</span> <span class="mf">50.00</span><span class="p">,</span>
+            <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;Within 30-day return window and item is returnable.&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="s2">&quot;999&quot;</span> <span class="ow">in</span> <span class="n">order_id</span><span class="p">:</span>  <span class="c1"># Simulate ineligible order</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;eligible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;Order past 30-day return window.&quot;</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Simulate item not found or other issue</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;eligible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;Order ID not found or invalid.&quot;</span><span class="p">}</span>
+
+
+<span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_refund</span><span class="p">(</span>
+    <span class="n">order_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;The unique identifier for the order to be refunded.&quot;</span><span class="p">],</span>
+    <span class="n">amount</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;The amount to be refunded.&quot;</span><span class="p">],</span>
+    <span class="n">reason</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;The reason for the refund.&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes a refund for a specific order and amount.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary confirming the refund status.</span>
+<span class="sd">        Example: {&quot;success&quot;: True, &quot;refund_id&quot;: &quot;REF_789XYZ&quot;, &quot;message&quot;: &quot;Refund processed successfully.&quot;}</span>
+<span class="sd">                 {&quot;success&quot;: False, &quot;message&quot;: &quot;Refund processing failed due to payment gateway error.&quot;}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Simulate refund processing (e.g., calling a payment gateway API)</span>
+    <span class="c1"># In a real system, this would trigger financial transactions.</span>
+    <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">refund_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;REF_</span><span class="si">{</span><span class="n">order_id</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="si">}{</span><span class="nb">int</span><span class="p">(</span><span class="n">amount</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># Generate a pseudo-unique ID</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;refund_id&quot;</span><span class="p">:</span> <span class="n">refund_id</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Refund of $</span><span class="si">{</span><span class="n">amount</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> processed successfully.&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Refund amount must be greater than zero.&quot;</span><span class="p">}</span>
+
+
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REFUND_SPECIALIST_SYSTEM_PROMPT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are a Refund Specialist agent whose objective is to process customer refund requests accurately and efficiently based on company policy.</span>
+
+<span class="s2"># Instructions</span>
+<span class="s2">- Receive the refund request details (e.g., order ID, customer ID, reason) from the &#39;CustomerServiceManager&#39;.</span>
+<span class="s2">- Use the `check_refund_eligibility` tool to verify if the request meets the refund policy criteria using the provided order and customer IDs.</span>
+<span class="s2">- If the check indicates eligibility, determine the correct refund amount (up to the maximum allowed from the eligibility check).</span>
+<span class="s2">- If eligible, use the `process_refund` tool to execute the refund for the determined amount, providing order ID and reason.</span>
+<span class="s2">- If ineligible based on the check, clearly note the reason provided by the tool.</span>
+<span class="s2">- Report the final outcome (e.g., &quot;Refund processed successfully, Refund ID: [ID], Amount: [Amount]&quot;, or &quot;Refund denied: [Reason from eligibility check]&quot;) back to the &#39;CustomerServiceManager&#39;.</span>
+<span class="s2">- Do not engage in general conversation; focus solely on the refund process.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">refund_specialist_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RefundSpecialist&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Specializes in processing customer refund requests by verifying eligibility and executing the refund transaction using available tools.&quot;</span><span class="p">,</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="n">REFUND_SPECIALIST_SYSTEM_PROMPT</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">check_refund_eligibility</span><span class="p">,</span> <span class="n">process_refund</span><span class="p">],</span>
+    <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;RefundSpecialist&quot;</span><span class="p">,</span>  <span class="c1"># for the `print_messages` utility function</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">refund_conversation</span> <span class="o">=</span> <span class="n">refund_specialist_agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">refund_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="s2">&quot;Please handle a refund request. Details: Order ID=&#39;123&#39;, Customer ID=&#39;CUST456&#39;, Reason=&#39;Item arrived damaged&#39;.&quot;</span>
+    <span class="c1"># &quot;Please handle a refund request. Details: Order ID=&#39;999&#39;, Customer ID=&#39;CUST789&#39;, Reason=&#39;No longer needed&#39;.&quot;</span>
+    <span class="c1"># &quot;Please handle a refund request. Details: Order ID=&#39;INVALID_ID&#39;, Customer ID=&#39;CUST101&#39;, Reason=&#39;Item defective&#39;.&quot;</span>
+<span class="p">)</span>
+<span class="n">refund_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">FULL CONVERSATION:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">print_messages</span><span class="p">(</span><span class="n">refund_conversation</span><span class="o">.</span><span class="n">get_messages</span><span class="p">())</span>
+
+
+<span class="c1"># USER &gt;&gt;&gt; Please handle a refund request. Details: Order ID=&#39;123&#39;, Customer ID=&#39;CUST456&#39;, Reason=&#39;Item arrived damaged&#39;.</span>
+<span class="c1"># TOOL_REQUEST (RefundSpecialist) &gt;&gt;&gt; To process the refund request, we first need to check if the order is eligible for a refund based on company policy.</span>
+<span class="c1"># [ToolRequest(name=&#39;check_refund_eligibility&#39;, args={&#39;order_id&#39;: &#39;123&#39;, &#39;customer_id&#39;: &#39;CUST456&#39;}, tool_request_id=&#39;42d8f215-e80e-4426-b8d1-9c18d6d8059e&#39;)]</span>
+<span class="c1"># TOOL_RESULT (RefundSpecialist) &gt;&gt;&gt; {&#39;eligible&#39;: True, &#39;max_refundable_amount&#39;: 50.0, &#39;reason&#39;: &#39;Within 30-day return window and item is returnable.&#39;}</span>
+<span class="c1"># TOOL_REQUEST (RefundSpecialist) &gt;&gt;&gt; The order is eligible for a refund. Now, we need to process the refund for the maximum refundable amount.</span>
+<span class="c1"># [ToolRequest(name=&#39;process_refund&#39;, args={&#39;order_id&#39;: &#39;123&#39;, &#39;amount&#39;: 50.0, &#39;reason&#39;: &#39;Item arrived damaged&#39;}, tool_request_id=&#39;6b8f07eb-2caa-4551-9ea3-dcd2b53916b8&#39;)]</span>
+<span class="c1"># TOOL_RESULT (RefundSpecialist) &gt;&gt;&gt; {&#39;success&#39;: True, &#39;refund_id&#39;: &#39;REF_1235000&#39;, &#39;message&#39;: &#39;Refund of $50.00 processed successfully.&#39;}</span>
+<span class="c1"># AGENT (RefundSpecialist) &gt;&gt;&gt; Refund processed successfully. Refund ID: REF_1235000, Amount: $50.00</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@tool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">record_survey_response</span><span class="p">(</span>
+    <span class="n">customer_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;The unique identifier for the customer.&quot;</span><span class="p">],</span>
+    <span class="n">satisfaction_score</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="s2">&quot;The customer&#39;s satisfaction rating (e.g., 1-5), if provided.&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">comments</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="s2">&quot;Any additional comments provided by the customer, if provided.&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Records the customer&#39;s satisfaction survey response.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary confirming the recording status.</span>
+<span class="sd">        Example: {&quot;success&quot;: True, &quot;message&quot;: &quot;Survey response recorded.&quot;}</span>
+<span class="sd">                 {&quot;success&quot;: False, &quot;message&quot;: &quot;Failed to record survey response.&quot;}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Simulate storing the response (e.g., writing to a database or logging system)</span>
+    <span class="c1"># In a real system, this would persist the feedback data.</span>
+    <span class="k">if</span> <span class="n">customer_id</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Survey response recorded successfully.&quot;</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Customer ID is required to record response.&quot;</span><span class="p">}</span>
+
+
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SURVEYOR_SYSTEM_PROMPT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are a Satisfaction Surveyor agent tasked with collecting customer feedback about their recent service experience in a friendly manner.</span>
+
+<span class="s2"># Instructions</span>
+<span class="s2">- Receive the trigger to conduct a survey from the &#39;CustomerServiceManager&#39;, including context like the customer ID and the nature of the interaction if provided.</span>
+<span class="s2">- Politely ask the customer if they have a moment to provide feedback on their recent interaction.</span>
+<span class="s2">- If the customer agrees, ask 1-2 concise questions about their satisfaction (e.g., &quot;On a scale of 1 to 5, where 5 is highly satisfied, how satisfied were you with the resolution provided today?&quot;, &quot;Is there anything else you&#39;d like to share about your experience?&quot;).</span>
+<span class="s2">- Use the `record_survey_response` tool to log the customer&#39;s feedback, including the satisfaction score and any comments provided. Ensure you pass the correct customer ID.</span>
+<span class="s2">- If the customer declines to participate, thank them for their time anyway. Do not pressure them. Use the `record_survey_response` tool to log the declination if possible (e.g., score=None, comments=&quot;Declined survey&quot;).</span>
+<span class="s2">- Thank the customer for their participation if they provided feedback.</span>
+<span class="s2">- Report back to the &#39;CustomerServiceManager&#39; confirming that the survey was attempted and whether it was completed or declined.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">surveyor_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SatisfactionSurveyor&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Conducts brief surveys to gather feedback on customer satisfaction following service interactions.&quot;</span><span class="p">,</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="n">SURVEYOR_SYSTEM_PROMPT</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">record_survey_response</span><span class="p">],</span>
+    <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;SatisfactionSurveyor&quot;</span><span class="p">,</span>  <span class="c1"># for the `print_messages` utility function</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">surveyor_conversation</span> <span class="o">=</span> <span class="n">surveyor_agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="s2">&quot;Engage customer for feedback. Details: Customer ID=&#39;CUST456&#39;, Context=&#39;Recent successful refund&#39;.&quot;</span>
+<span class="p">)</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">print_messages</span><span class="p">([</span><span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()])</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Hi there, I&#39;m reaching out on behalf of our Customer Service team. We&#39;re glad to hear that your recent refund was successful. If you have a moment, we&#39;d greatly appreciate any feedback you can share about your experience. It will help us improve our services. Would you be willing to answer a couple of quick questions?</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">print_messages</span><span class="p">([</span><span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()])</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; On a scale of 1 to 5, where 5 is highly satisfied, how satisfied were you with the resolution provided today?</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">print_messages</span><span class="p">([</span><span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()])</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Is there anything else you&#39;d like to share about your experience?</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Very quick!&quot;</span><span class="p">)</span>
+<span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">FULL CONVERSATION:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">print_messages</span><span class="p">(</span><span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">get_messages</span><span class="p">())</span>
+<span class="c1"># USER &gt;&gt;&gt; Engage customer for feedback. Details: Customer ID=&#39;CUST456&#39;, Context=&#39;Recent successful refund&#39;.</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Hi there, I&#39;m reaching out on behalf of our Customer Service team. We&#39;re glad to hear that your recent refund was successful. If you have a moment, we&#39;d greatly appreciate any feedback you can share about your experience. It will help us improve our services. Would you be willing to answer a couple of quick questions?</span>
+<span class="c1"># USER &gt;&gt;&gt; yes</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; On a scale of 1 to 5, where 5 is highly satisfied, how satisfied were you with the resolution provided today?</span>
+<span class="c1"># USER &gt;&gt;&gt; 5</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Is there anything else you&#39;d like to share about your experience?</span>
+<span class="c1"># USER &gt;&gt;&gt; Very quick!</span>
+<span class="c1"># TOOL_REQUEST (SatisfactionSurveyor) &gt;&gt;&gt; Now that we have the customer&#39;s feedback, we can record it using the record_survey_response tool.</span>
+<span class="c1"># [ToolRequest(name=&#39;record_survey_response&#39;, args={&#39;customer_id&#39;: &#39;CUST456&#39;, &#39;satisfaction_score&#39;: 5, &#39;comments&#39;: &#39;Very quick!&#39;}, tool_request_id=&#39;3d7ad387-13b0-465c-a425-42b50b7cfdd4&#39;)]</span>
+<span class="c1"># TOOL_RESULT (SatisfactionSurveyor) &gt;&gt;&gt; {&#39;success&#39;: True, &#39;message&#39;: &#39;Survey response recorded successfully.&#39;}</span>
+<span class="c1"># TOOL_REQUEST (SatisfactionSurveyor) &gt;&gt;&gt; Now that we have the customer&#39;s feedback, we can record it using the record_survey_response tool.</span>
+<span class="c1"># [ToolRequest(name=&#39;record_survey_response&#39;, args={&#39;customer_id&#39;: &#39;CUST456&#39;, &#39;satisfaction_score&#39;: 5, &#39;comments&#39;: &#39;Very quick!&#39;}, tool_request_id=&#39;e1d00a28-ecbe-4c6f-91fc-a75c13e2e467&#39;)]</span>
+<span class="c1"># TOOL_RESULT (SatisfactionSurveyor) &gt;&gt;&gt; {&#39;success&#39;: True, &#39;message&#39;: &#39;Survey response recorded successfully.&#39;}</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Thank you so much for taking the time to share your feedback with us! Your input is invaluable in helping us improve our services. Have a great day!</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MANAGER_SYSTEM_PROMPT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are a Customer Service Manager agent tasked with handling incoming customer interactions and orchestrating the resolution process efficiently.</span>
+
+<span class="s2"># Instructions</span>
+<span class="s2">- Greet the customer politely and acknowledge their message.</span>
+<span class="s2">- Analyze the customer&#39;s message to understand their core need (e.g., refund request, general query, feedback).</span>
+<span class="s2">- Answer common informational questions (e.g., about shipping times, return policy basics) directly if you have the knowledge, before delegating.</span>
+<span class="s2">- If the request is clearly about a refund, gather necessary details (like Order ID) if missing, and then delegate the task to the &#39;RefundSpecialist&#39; agent. Provide all relevant context.</span>
+<span class="s2">- If the interaction seems successfully concluded (e.g., refund processed, query answered) and requesting feedback is appropriate, delegate the task to the &#39;SatisfactionSurveyor&#39; agent. Provide customer context.</span>
+<span class="s2">- For general queries you cannot handle directly and that don&#39;t fit the specialist agents, state your limitations clearly and politely.</span>
+<span class="s2">- Await responses or status updates from specialist agents you have delegated to.</span>
+<span class="s2">- Summarize the final outcome or confirmation for the customer based on specialist agent reports.</span>
+<span class="s2">- Maintain a helpful, empathetic, and professional tone throughout the interaction.</span>
+
+<span class="s2"># Additional Context</span>
+<span class="s2">Customer ID: {{customer_id}}</span>
+<span class="s2">Company policies:</span>
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or item in company_policy_info -%}</span>
+<span class="s2">- {{ item }}</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor -%}</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">customer_service_manager</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CustomerServiceManager&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Acts as the primary contact point for customer inquiries, analyzes the request, routes tasks to specialized agents (Refund Specialist, Satisfaction Surveyor), and ensures resolution.&quot;</span><span class="p">,</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="n">MANAGER_SYSTEM_PROMPT</span><span class="p">,</span>
+    <span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">refund_specialist_agent</span><span class="p">,</span> <span class="n">surveyor_agent</span><span class="p">],</span>
+    <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;CustomerServiceManager&quot;</span><span class="p">,</span>  <span class="c1"># for the `print_messages` utility function</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">main_conversation</span> <span class="o">=</span> <span class="n">customer_service_manager</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="s2">&quot;CUST456&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;company_policy_info&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Shipping times: 3-5 business days in the US&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="s2">&quot;Hi, I was wondering what your standard shipping times are for orders within the US?&quot;</span>
+<span class="p">)</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">last_message</span> <span class="o">=</span> <span class="n">main_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">last_message</span><span class="o">.</span><span class="n">message_type</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">last_message</span><span class="o">.</span><span class="n">content</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">last_message</span><span class="o">.</span><span class="n">tool_requests</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># AGENT &gt;&gt;&gt; Hello! Thank you for reaching out to us. Our standard shipping times for orders within the US are 3-5 business days. Is there anything else I can help you with?</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Okay, thanks! Does that include weekends?&quot;</span><span class="p">)</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">last_message</span> <span class="o">=</span> <span class="n">main_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">last_message</span><span class="o">.</span><span class="n">message_type</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">last_message</span><span class="o">.</span><span class="n">content</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">last_message</span><span class="o">.</span><span class="n">tool_requests</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># AGENT &gt;&gt;&gt; Our standard shipping times of 3-5 business days are for weekdays only (Monday through Friday). Weekends and holidays are not included in that timeframe. If you have any other questions or need further assistance, feel free to ask!</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">FULL CONVERSATION:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">message_type</span><span class="si">}</span><span class="s2"> &gt;&gt;&gt; </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">message</span><span class="o">.</span><span class="n">tool_requests</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">main_conversation</span><span class="o">.</span><span class="n">get_messages</span><span class="p">()</span>
+    <span class="p">],</span>
+    <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># USER &gt;&gt;&gt; Hi, I was wondering what your standard shipping times are for orders within the US?</span>
+<span class="c1"># AGENT &gt;&gt;&gt; Hello! Thank you for reaching out to us. Our standard shipping times for orders within the US are 3-5 business days. Is there anything else I can help you with?</span>
+<span class="c1"># USER &gt;&gt;&gt; Okay, thanks! Does that include weekends?</span>
+<span class="c1"># AGENT &gt;&gt;&gt; Our standard shipping times of 3-5 business days are for weekdays only (Monday through Friday). Weekends and holidays are not included in that timeframe. If you have any other questions or need further assistance, feel free to ask!</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">main_conversation</span> <span class="o">=</span> <span class="n">customer_service_manager</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;customer_id&quot;</span><span class="p">:</span> <span class="s2">&quot;CUST456&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;company_policy_info&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Shipping times: 3-5 business days in the US&quot;</span><span class="p">]</span>
+<span class="p">})</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="s2">&quot;Hi, I need to request a refund for order #123. The item wasn&#39;t what I expected.&quot;</span>
+<span class="p">)</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="n">print_messages</span><span class="p">([</span><span class="n">main_conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()])</span>
+
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Thank you&quot;</span><span class="p">)</span>
+<span class="n">main_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="c1"># ... can continue similarly to the example above with the satisfaction surveyor</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">FULL CONVERSATION:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">print_messages</span><span class="p">(</span><span class="n">main_conversation</span><span class="o">.</span><span class="n">get_messages</span><span class="p">())</span>
+<span class="c1"># ------------------------------</span>
+<span class="c1"># FULL CONVERSATION:</span>
+<span class="c1"># ------------------------------</span>
+<span class="c1"># USER &gt;&gt;&gt; Hi, I need to request a refund for order #123. The item wasn&#39;t what I expected.</span>
+<span class="c1"># TOOL_REQUEST (CustomerServiceManager) &gt;&gt;&gt; The customer is requesting a refund for order #123 due to the item not meeting their expectations. We should delegate this task to the RefundSpecialist agent to process the refund.</span>
+<span class="c1"># [ToolRequest(name=&#39;RefundSpecialist&#39;, args={&#39;context&#39;: &quot;Customer CUST456 is requesting a refund for order #123 as the item wasn&#39;t what they expected. Please verify eligibility and process the refund.&quot;}, tool_request_id=&#39;20a31c10-f000-4053-935b-bb2c5ed38c2e&#39;)]</span>
+<span class="c1"># AGENT (CustomerServiceManager) &gt;&gt;&gt; Customer CUST456 is requesting a refund for order #123 as the item wasn&#39;t what they expected. Please verify eligibility and process the refund.</span>
+<span class="c1"># TOOL_REQUEST (RefundSpecialist) &gt;&gt;&gt; To verify the refund eligibility, we need to check if the order meets the company&#39;s refund policy criteria. We have the order ID and customer ID, so we can use the `check_refund_eligibility` tool.</span>
+<span class="c1"># [ToolRequest(name=&#39;check_refund_eligibility&#39;, args={&#39;order_id&#39;: &#39;#123&#39;, &#39;customer_id&#39;: &#39;CUST456&#39;}, tool_request_id=&#39;2bb26c7c-9467-4eb4-94f0-e47afc838535&#39;)]</span>
+<span class="c1"># TOOL_RESULT (RefundSpecialist) &gt;&gt;&gt; {&#39;eligible&#39;: True, &#39;max_refundable_amount&#39;: 50.0, &#39;reason&#39;: &#39;Within 30-day return window and item is returnable.&#39;}</span>
+<span class="c1"># TOOL_REQUEST (RefundSpecialist) &gt;&gt;&gt; Since the order is eligible for a refund and the maximum refundable amount is $50.00, we should process the refund for this amount.</span>
+<span class="c1"># [ToolRequest(name=&#39;process_refund&#39;, args={&#39;order_id&#39;: &#39;#123&#39;, &#39;amount&#39;: 50.0, &#39;reason&#39;: &#39;Item not as expected&#39;}, tool_request_id=&#39;b5f6de16-1530-4b63-b180-92764b728714&#39;)]</span>
+<span class="c1"># TOOL_RESULT (RefundSpecialist) &gt;&gt;&gt; {&#39;success&#39;: True, &#39;refund_id&#39;: &#39;REF_#125000&#39;, &#39;message&#39;: &#39;Refund of $50.00 processed successfully.&#39;}</span>
+<span class="c1"># AGENT (RefundSpecialist) &gt;&gt;&gt; Refund processed successfully, Refund ID: REF_#125000, Amount: $50.00.</span>
+<span class="c1"># TOOL_RESULT (CustomerServiceManager) &gt;&gt;&gt; Refund processed successfully, Refund ID: REF_#125000, Amount: $50.00.</span>
+<span class="c1"># AGENT (CustomerServiceManager) &gt;&gt;&gt; I&#39;ve processed your refund for order #123. You will receive $50.00 back. Your refund ID is REF_#125000.</span>
+<span class="c1"># USER &gt;&gt;&gt; Thank you</span>
+<span class="c1"># TOOL_REQUEST (CustomerServiceManager) &gt;&gt;&gt; The interaction seems successfully concluded, so I will request feedback from the customer.</span>
+<span class="c1"># [ToolRequest(name=&#39;SatisfactionSurveyor&#39;, args={&#39;context&#39;: &#39;Customer CUST456 had a refund processed for order #123 and expressed gratitude.&#39;}, tool_request_id=&#39;fa5bf287-3c20-4838-9693-58681f98fd07&#39;)]</span>
+<span class="c1"># AGENT (CustomerServiceManager) &gt;&gt;&gt; Customer CUST456 had a refund processed for order #123 and expressed gratitude.</span>
+<span class="c1"># AGENT (SatisfactionSurveyor) &gt;&gt;&gt; Hi there, thank you for choosing our service. I&#39;d love to hear about your recent experience with us. Do you have a moment to provide some quick feedback?</span>
+<span class="c1"># TOOL_RESULT (CustomerServiceManager) &gt;&gt;&gt; Hi there, thank you for choosing our service. I&#39;d love to hear about your recent experience with us. Do you have a moment to provide some quick feedback?</span>
+<span class="c1"># AGENT (CustomerServiceManager) &gt;&gt;&gt; How was your experience with the refund process?</span>
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+</details></section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<p>Having learned how to build a multi-agent system in WayFlow, you may now proceed to <a class="reference internal" href="create_a_tool_from_a_flow.html"><span class="doc">How to Use Agents in Flows</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-and-testing-expert-agents">Building and testing expert Agents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#refund-specialist-agent">Refund specialist agent</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#tools">Tools</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#system-prompt">System prompt</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-agent">Building the Agent</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-the-agent">Testing the Agent</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#statisfaction-surveyor-agent">Statisfaction surveyor agent</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Tools</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">System prompt</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Building the Agent</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Testing the Agent</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-and-testing-the-multi-agent-assistant">Building and testing the multi-agent assistant</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#manager-agent">Manager Agent</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">System prompt</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-manager-agent">Building the manager Agent</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-the-multi-agent-system">Testing the multi-agent system</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap">Recap</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

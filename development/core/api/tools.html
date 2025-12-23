@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -291,9 +291,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -306,6 +311,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -314,11 +321,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -330,11 +334,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
@@ -346,6 +352,8 @@
 <li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -439,6 +447,80 @@
 <p class="admonition-title">Tip</p>
 <p>Click the button above ↑ to visit the <a class="reference external" href="https://oracle.github.io/agent-spec/index.html">Agent Spec Documentation</a></p>
 </div>
+<section id="tool">
+<h2>Tool<a class="headerlink" href="#tool" title="Permalink to this heading">#</a></h2>
+<p>This is the base class for tools.</p>
+<span class="target" id="id1"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.tools.tools.Tool">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tools.tools.</span></span><span class="sig-name descname"><span class="pre">Tool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_descriptors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_descriptors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_confirmation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.tools.Tool" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em>) – </p></li>
+<li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>output_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>parameters</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="flows.html#wayflowcore.property.JsonSchemaParam" title="wayflowcore.property.JsonSchemaParam"><em>JsonSchemaParam</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>output</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.JsonSchemaParam" title="wayflowcore.property.JsonSchemaParam"><em>JsonSchemaParam</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>requires_confirmation</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.tools.tools.Tool.DEFAULT_TOOL_NAME">
+<span class="sig-name descname"><span class="pre">DEFAULT_TOOL_NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tool_output'</span></em><a class="headerlink" href="#wayflowcore.tools.tools.Tool.DEFAULT_TOOL_NAME" title="Permalink to this definition">#</a></dt>
+<dd><p>Default name of the tool output if none is provided</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.tools.tools.Tool.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tools.tools.Tool.description" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wayflowcore.tools.tools.Tool.might_yield">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">might_yield</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#wayflowcore.tools.tools.Tool.might_yield" title="Permalink to this definition">#</a></dt>
+<dd><p>Indicates that the tool might yield inside a step or a flow.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.tools.tools.Tool.requires_confirmation">
+<span class="sig-name descname"><span class="pre">requires_confirmation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#wayflowcore.tools.tools.Tool.requires_confirmation" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.tools.tools.Tool.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.tools.Tool.to_dict" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.tools.tools.Tool.to_openai_format">
+<span class="sig-name descname"><span class="pre">to_openai_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.tools.Tool.to_openai_format" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>api_type</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.openaiapitype.OpenAIAPIType" title="wayflowcore.models.openaiapitype.OpenAIAPIType"><em>OpenAIAPIType</em></a><em> | </em><em>None</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="client-tool">
 <h2>Client Tool<a class="headerlink" href="#client-tool" title="Permalink to this heading">#</a></h2>
 <span class="target" id="clienttool"></span><dl class="py class">
@@ -455,8 +537,8 @@ execution.</p>
 <li><p><strong>description</strong> (<em>str</em>) – </p></li>
 <li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>output_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>parameters</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>JsonSchemaParam</em><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>output</strong> (<em>JsonSchemaParam</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>parameters</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="flows.html#wayflowcore.property.JsonSchemaParam" title="wayflowcore.property.JsonSchemaParam"><em>JsonSchemaParam</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>output</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.JsonSchemaParam" title="wayflowcore.property.JsonSchemaParam"><em>JsonSchemaParam</em></a><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>requires_confirmation</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
@@ -473,11 +555,6 @@ execution.</p>
 <dt class="sig sig-object py" id="wayflowcore.tools.clienttools.ClientTool.description">
 <span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#wayflowcore.tools.clienttools.ClientTool.description" title="Permalink to this definition">#</a></dt>
 <dd><p>description of the tool</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -545,8 +622,8 @@ arguments. This tool is executed on the server side, with the provided callable.
 <li><p><strong>func</strong> (<em>Callable</em><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
 <li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>output_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>parameters</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>JsonSchemaParam</em><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>output</strong> (<em>JsonSchemaParam</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>parameters</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="flows.html#wayflowcore.property.JsonSchemaParam" title="wayflowcore.property.JsonSchemaParam"><em>JsonSchemaParam</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>output</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.JsonSchemaParam" title="wayflowcore.property.JsonSchemaParam"><em>JsonSchemaParam</em></a><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>requires_confirmation</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>_cpu_bounded</strong> (<em>bool</em>) – </p></li>
@@ -564,11 +641,6 @@ arguments. This tool is executed on the server side, with the provided callable.
 <dt class="sig sig-object py" id="wayflowcore.tools.servertools.ServerTool.description">
 <span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#wayflowcore.tools.servertools.ServerTool.description" title="Permalink to this definition">#</a></dt>
 <dd><p>description of the tool</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -655,14 +727,14 @@ and types, and specify the <code class="docutils literal notranslate"><span clas
 <dt class="sig sig-object py" id="wayflowcore.tools.servertools.ServerTool.from_any">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_any</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.servertools.ServerTool.from_any" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerTool</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>tool</strong> (<a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><em>ServerTool</em></a><em> | </em><a class="reference internal" href="flows.html#wayflowcore.flow.Flow" title="wayflowcore.flow.Flow"><em>Flow</em></a><em> | </em><a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><em>Step</em></a><em> | </em><a class="reference internal" href="agent.html#wayflowcore.tools.DescribedFlow" title="wayflowcore.tools.flowbasedtools.DescribedFlow"><em>DescribedFlow</em></a><em> | </em><em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool">ServerTool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -674,10 +746,10 @@ and types, and specify the <code class="docutils literal notranslate"><span clas
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>flow</strong> (<a class="reference internal" href="flows.html#wayflowcore.flow.Flow" title="wayflowcore.flow.Flow"><em>Flow</em></a>) – The flow to be executed as the tool</p></li>
-<li><p><strong>flow_name</strong> (<em>str</em>) – The name given to the flow to be used as the tool name</p></li>
-<li><p><strong>flow_description</strong> (<em>str</em>) – The description to be used as description of the tool</p></li>
-<li><p><strong>flow_output</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>str</em><em> | </em><em>None</em>) – Optional list of flow outputs to collect. By default will collect all flow outputs,
+<li><p><strong>flow</strong> (<a class="reference internal" href="flows.html#wayflowcore.flow.Flow" title="wayflowcore.flow.Flow"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flow</span></code></a>) – The flow to be executed as the tool</p></li>
+<li><p><strong>flow_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name given to the flow to be used as the tool name</p></li>
+<li><p><strong>flow_description</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The description to be used as description of the tool</p></li>
+<li><p><strong>flow_output</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Optional list of flow outputs to collect. By default will collect all flow outputs,
 otherwise will only collect the outputs which names are specified in this argument.</p></li>
 </ul>
 </dd>
@@ -686,7 +758,7 @@ otherwise will only collect the outputs which names are specified in this argume
     supported).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool">ServerTool</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerTool</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -697,10 +769,10 @@ otherwise will only collect the outputs which names are specified in this argume
 <dd><p>Converts a usual Langchain tool into a server-side tool that will be executed on the server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>tool</strong> (<em>Any</em>) – langchain tool to convert</p>
+<dd class="field-odd"><p><strong>tool</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – langchain tool to convert</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><em>ServerTool</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerTool</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -712,10 +784,10 @@ otherwise will only collect the outputs which names are specified in this argume
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>step</strong> (<a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><em>Step</em></a>) – The step to be executed as the tool</p></li>
-<li><p><strong>step_name</strong> (<em>str</em>) – The name given to the step to be used as the tool name</p></li>
-<li><p><strong>step_description</strong> (<em>str</em>) – The description to be used as description of the tool</p></li>
-<li><p><strong>step_output</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>str</em><em> | </em><em>None</em>) – Optional list of flow outputs to collect. By default will collect all flow outputs,
+<li><p><strong>step</strong> (<a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a>) – The step to be executed as the tool</p></li>
+<li><p><strong>step_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name given to the step to be used as the tool name</p></li>
+<li><p><strong>step_description</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The description to be used as description of the tool</p></li>
+<li><p><strong>step_output</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Optional list of flow outputs to collect. By default will collect all flow outputs,
 otherwise will only collect the outputs which names are specified in this argument.</p></li>
 </ul>
 </dd>
@@ -724,7 +796,7 @@ otherwise will only collect the outputs which names are specified in this argume
     supported).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool">ServerTool</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerTool</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -735,14 +807,14 @@ otherwise will only collect the outputs which names are specified in this argume
 <dd><p>Runs the tool in a synchronous manner, no matter the
 synchronous or asynchronous aspect of its <cite>func</cite> attribute.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -754,14 +826,14 @@ synchronous or asynchronous aspect of its <cite>func</cite> attribute.</p>
 synchronous or asynchronous aspect of its <cite>func</cite> attribute.
 If <cite>func</cite> is synchronous, it will run in an anyio worker thread.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -788,14 +860,14 @@ parameters to control which URLs are treated as valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – The name of the tool</p></li>
-<li><p><strong>description</strong> (<em>str</em>) – The description of the tool. This text is passed in prompt of LLMs to guide the usage of the tool</p></li>
-<li><p><strong>url</strong> (<em>str</em>) – Url to call.
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the tool</p></li>
+<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The description of the tool. This text is passed in prompt of LLMs to guide the usage of the tool</p></li>
+<li><p><strong>url</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Url to call.
 Can be templated using jinja templates.</p></li>
-<li><p><strong>method</strong> (<em>str</em>) – HTTP method to call.
+<li><p><strong>method</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – HTTP method to call.
 Common methods are: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE.
 Can be templated using jinja templates.</p></li>
-<li><p><strong>json_body</strong> (<em>Any</em><em> | </em><em>None</em>) – <p>A json-serializable object that will automatically be converted to json and sent as a body.
+<li><p><strong>json_body</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]) – <p>A json-serializable object that will automatically be converted to json and sent as a body.
 Cannot be used in combination with <code class="docutils literal notranslate"><span class="pre">data</span></code>.
 Can be templated using jinja templates.</p>
 <div class="admonition note">
@@ -808,7 +880,7 @@ Setting this parameter automatically sets the <code class="docutils literal notr
 <p>The <code class="docutils literal notranslate"><span class="pre">json_body</span></code> parameter is only relevant for http methods that allow bodies, e.g. POST, PUT, PATCH.</p>
 </div>
 </p></li>
-<li><p><strong>data</strong> (<em>Dict</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>List</em><em>[</em><em>Tuple</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>]</em><em>] </em><em>| </em><em>str</em><em> | </em><em>bytes</em><em> | </em><em>None</em>) – <p>Raw data that will be sent in the body.
+<li><p><strong>data</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – <p>Raw data that will be sent in the body.
 Semantics of this are the same as in the <code class="docutils literal notranslate"><span class="pre">requests</span></code> library.
 Cannot be used in combination with <code class="docutils literal notranslate"><span class="pre">json_body</span></code>.
 Can be templated using jinja templates.</p>
@@ -817,23 +889,23 @@ Can be templated using jinja templates.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">data</span></code> parameter is only relevant for http methods that allow bodies, e.g. POST, PUT, PATCH.</p>
 </div>
 </p></li>
-<li><p><strong>params</strong> (<em>Dict</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>List</em><em>[</em><em>Tuple</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>]</em><em>] </em><em>| </em><em>str</em><em> | </em><em>bytes</em><em> | </em><em>None</em>) – Data to send as query-parameters (i.e. the <code class="docutils literal notranslate"><span class="pre">?foo=bar&amp;gnu=gna</span></code> part of queries)
+<li><p><strong>params</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Data to send as query-parameters (i.e. the <code class="docutils literal notranslate"><span class="pre">?foo=bar&amp;gnu=gna</span></code> part of queries)
 Semantics of this are the same as in the <code class="docutils literal notranslate"><span class="pre">requests</span></code> library.
 Can be templated using jinja templates.</p></li>
-<li><p><strong>headers</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>) – <p>Explicitly set headers.
+<li><p><strong>headers</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – <p>Explicitly set headers.
 Can be templated using jinja templates.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will override any of the implicitly set headers (e.g. <code class="docutils literal notranslate"><span class="pre">Content-Type</span></code> from <code class="docutils literal notranslate"><span class="pre">json_body</span></code>).</p>
 </div>
 </p></li>
-<li><p><strong>cookies</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>) – Cookies to transmit.
+<li><p><strong>cookies</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Cookies to transmit.
 Can be templated using jinja templates.</p></li>
-<li><p><strong>output_jq_query</strong> (<em>str</em><em> | </em><em>None</em>) – A jq query to extract some data from the json response. If left to None, the whole response is returned</p></li>
-<li><p><strong>ignore_bad_http_requests</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, don’t throw an exception when query results in a bad status code (e.g. 4xx, 5xx); if <code class="docutils literal notranslate"><span class="pre">False</span></code> throws an exception.</p></li>
-<li><p><strong>num_retry_on_bad_http_request</strong> (<em>int</em>) – Number of times to retry a failed http request before continuing (depending on the <code class="docutils literal notranslate"><span class="pre">ignore_bad_http_requests</span></code> setting above).</p></li>
-<li><p><strong>allow_insecure_http</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, allows url to have a unsecured non-ssl http scheme. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code> and throws a ValueError if url is unsecure.</p></li>
-<li><p><strong>url_allow_list</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – <dl>
+<li><p><strong>output_jq_query</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – A jq query to extract some data from the json response. If left to None, the whole response is returned</p></li>
+<li><p><strong>ignore_bad_http_requests</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, don’t throw an exception when query results in a bad status code (e.g. 4xx, 5xx); if <code class="docutils literal notranslate"><span class="pre">False</span></code> throws an exception.</p></li>
+<li><p><strong>num_retry_on_bad_http_request</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of times to retry a failed http request before continuing (depending on the <code class="docutils literal notranslate"><span class="pre">ignore_bad_http_requests</span></code> setting above).</p></li>
+<li><p><strong>allow_insecure_http</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, allows url to have a unsecured non-ssl http scheme. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code> and throws a ValueError if url is unsecure.</p></li>
+<li><p><strong>url_allow_list</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – <dl>
 <dt>A list of URLs that any request URL is matched against.</dt><dd><p>If there is at least one entry in the allow list that the requested URL matches,
 the request is considered allowed.</p>
 <p>We consider URLs following the generic-URL syntax as defined in <a class="reference external" href="https://datatracker.ietf.org/doc/html/rfc1808.html">RFC 1808</a>:
@@ -859,22 +931,22 @@ the request is considered allowed.</p>
 </dd>
 </dl>
 </p></li>
-<li><p><strong>allow_credentials</strong> (<em>bool</em>) – <p>Whether to allow URLs containing credentials.
+<li><p><strong>allow_credentials</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – <p>Whether to allow URLs containing credentials.
 If set to <code class="docutils literal notranslate"><span class="pre">False</span></code>, requested URLs and those in the allow list containing credentials will be rejected.
 Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <p>Example of a URL containing credentials: “<a class="reference external" href="https://user:pass&#64;example.com/">https://user:pass&#64;example.com/</a>”</p>
 </p></li>
-<li><p><strong>allow_fragments</strong> (<em>bool</em>) – <p>Whether to allow fragments in requested URLs and in entries in the allow list.
+<li><p><strong>allow_fragments</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – <p>Whether to allow fragments in requested URLs and in entries in the allow list.
 If set to <code class="docutils literal notranslate"><span class="pre">False</span></code>, fragments will not be allowed. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <p>We consider URLs following the generic-URL syntax as defined in <a class="reference external" href="https://datatracker.ietf.org/doc/html/rfc1808.html">RFC 1808</a>:
 <code class="docutils literal notranslate"><span class="pre">&lt;scheme&gt;://&lt;net_loc&gt;/&lt;path&gt;;&lt;params&gt;?&lt;query&gt;#&lt;fragment&gt;</span></code></p>
 </p></li>
-<li><p><strong>default_ports</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>int</em><em>]</em>) – A dictionary containing default schemes and their respective ports.
+<li><p><strong>default_ports</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – A dictionary containing default schemes and their respective ports.
 These ports will be removed from URLs requested or from entries in the allow list during URL normalization.
 Default is <code class="docutils literal notranslate"><span class="pre">{'http':</span> <span class="pre">80,</span> <span class="pre">'https':</span> <span class="pre">443}</span></code>.</p></li>
-<li><p><strong>requires_confirmation</strong> (<em>bool</em>) – Flag for yielding ToolExecutionConfirmationStatus whenever the RemoteTool is called by the agent</p></li>
-<li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>]</em>) – </p></li>
-<li><p><strong>output_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>]</em>) – </p></li>
+<li><p><strong>requires_confirmation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Flag for yielding ToolExecutionConfirmationStatus whenever the RemoteTool is called by the agent</p></li>
+<li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>output_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>tool_name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>tool_description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
@@ -921,102 +993,102 @@ Additionally, you can test the tool in isolation by invoking it as below:</p>
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.allow_credentials">
-<span class="sig-name descname"><span class="pre">allow_credentials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.allow_credentials" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">allow_credentials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.allow_credentials" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.allow_fragments">
-<span class="sig-name descname"><span class="pre">allow_fragments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.allow_fragments" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">allow_fragments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.allow_fragments" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.allow_insecure_http">
-<span class="sig-name descname"><span class="pre">allow_insecure_http</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.allow_insecure_http" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">allow_insecure_http</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.allow_insecure_http" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.cookies">
-<span class="sig-name descname"><span class="pre">cookies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.cookies" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cookies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.cookies" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.data">
-<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.data" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code><span class="pre">,</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.data" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.default_ports">
-<span class="sig-name descname"><span class="pre">default_ports</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.default_ports" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">default_ports</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.default_ports" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.description">
-<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.description" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.description" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.headers">
-<span class="sig-name descname"><span class="pre">headers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.headers" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">headers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.headers" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.ignore_bad_http_requests">
-<span class="sig-name descname"><span class="pre">ignore_bad_http_requests</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.ignore_bad_http_requests" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ignore_bad_http_requests</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.ignore_bad_http_requests" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.input_descriptors">
-<span class="sig-name descname"><span class="pre">input_descriptors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><span class="pre">Property</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.input_descriptors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">input_descriptors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.input_descriptors" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.json_body">
-<span class="sig-name descname"><span class="pre">json_body</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.json_body" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">json_body</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.json_body" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.method">
-<span class="sig-name descname"><span class="pre">method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.method" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.method" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.name" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.name" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.num_retry_on_bad_http_request">
-<span class="sig-name descname"><span class="pre">num_retry_on_bad_http_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.num_retry_on_bad_http_request" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">num_retry_on_bad_http_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.num_retry_on_bad_http_request" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.output_descriptors">
-<span class="sig-name descname"><span class="pre">output_descriptors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><span class="pre">Property</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.output_descriptors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">output_descriptors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.output_descriptors" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.output_jq_query">
-<span class="sig-name descname"><span class="pre">output_jq_query</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.output_jq_query" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">output_jq_query</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.output_jq_query" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.params">
-<span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.params" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code><span class="pre">,</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.params" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.requires_confirmation">
-<span class="sig-name descname"><span class="pre">requires_confirmation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.requires_confirmation" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">requires_confirmation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.requires_confirmation" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.url">
-<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.url" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.url" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.remotetools.RemoteTool.url_allow_list">
-<span class="sig-name descname"><span class="pre">url_allow_list</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.url_allow_list" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">url_allow_list</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><a class="headerlink" href="#wayflowcore.tools.remotetools.RemoteTool.url_allow_list" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1029,12 +1101,16 @@ Additionally, you can test the tool in isolation by invoking it as below:</p>
 <dt class="sig sig-object py" id="wayflowcore.mcp.MCPTool">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.mcp.</span></span><span class="sig-name descname"><span class="pre">MCPTool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_descriptors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_descriptors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_validate_server_exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_validate_tool_exist_on_server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_confirmation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.mcp.MCPTool" title="Permalink to this definition">#</a></dt>
 <dd><p>Class to represent a MCP tool exposed by a MCP server to a ServerTool.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../howtoguides/howto_mcp.html#top-howtomcp"><span class="std std-ref">How to connect MCP tools to Assistants</span></a></p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – </p></li>
 <li><p><strong>client_transport</strong> (<a class="reference internal" href="#wayflowcore.mcp.ClientTransport" title="wayflowcore.mcp.clienttransport.ClientTransport"><em>ClientTransport</em></a>) – </p></li>
-<li><p><strong>description</strong> (<em>str</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
 <li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>output_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>_validate_server_exists</strong> (<em>bool</em>) – </p></li>
@@ -1047,7 +1123,7 @@ Additionally, you can test the tool in isolation by invoking it as below:</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.MCPTool.client_transport">
-<span class="sig-name descname"><span class="pre">client_transport</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.mcp.ClientTransport" title="wayflowcore.mcp.clienttransport.ClientTransport"><span class="pre">ClientTransport</span></a></em><a class="headerlink" href="#wayflowcore.mcp.MCPTool.client_transport" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">client_transport</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.mcp.ClientTransport" title="wayflowcore.mcp.clienttransport.ClientTransport"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClientTransport</span></code></a></em><a class="headerlink" href="#wayflowcore.mcp.MCPTool.client_transport" title="Permalink to this definition">#</a></dt>
 <dd><p>Transport to use for establishing and managing connections to the MCP server.</p>
 </dd></dl>
 
@@ -1056,14 +1132,14 @@ Additionally, you can test the tool in isolation by invoking it as below:</p>
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.mcp.MCPTool.run" title="Permalink to this definition">#</a></dt>
 <dd><p>Runs the MCP tool in a synchronous manner.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1073,14 +1149,14 @@ Additionally, you can test the tool in isolation by invoking it as below:</p>
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.mcp.MCPTool.run_async" title="Permalink to this definition">#</a></dt>
 <dd><p>Runs the MCP tool in an asynchronous manner.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1096,7 +1172,7 @@ Additionally, you can test the tool in isolation by invoking it as below:</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>id</strong> (<em>str</em>) – </p></li>
 <li><p><strong>client_transport</strong> (<a class="reference internal" href="#wayflowcore.mcp.ClientTransport" title="wayflowcore.mcp.clienttransport.ClientTransport"><em>ClientTransport</em></a>) – </p></li>
-<li><p><strong>tool_filter</strong> (<em>List</em><em>[</em><em>str</em><em> | </em><em>Tool</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>tool_filter</strong> (<em>List</em><em>[</em><em>str</em><em> | </em><a class="reference internal" href="#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
 <li><p><strong>_validate_mcp_client_transport</strong> (<em>dataclasses.InitVar</em><em>[</em><em>bool</em><em>]</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
 <li><p><strong>name</strong> (<em>str</em>) – </p></li>
@@ -1106,7 +1182,7 @@ Additionally, you can test the tool in isolation by invoking it as below:</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.MCPToolBox.client_transport">
-<span class="sig-name descname"><span class="pre">client_transport</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.mcp.ClientTransport" title="wayflowcore.mcp.clienttransport.ClientTransport"><span class="pre">ClientTransport</span></a></em><a class="headerlink" href="#wayflowcore.mcp.MCPToolBox.client_transport" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">client_transport</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.mcp.ClientTransport" title="wayflowcore.mcp.clienttransport.ClientTransport"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClientTransport</span></code></a></em><a class="headerlink" href="#wayflowcore.mcp.MCPToolBox.client_transport" title="Permalink to this definition">#</a></dt>
 <dd><p>Transport to use for establishing and managing connections to the MCP server.</p>
 </dd></dl>
 
@@ -1118,7 +1194,7 @@ Additionally, you can test the tool in isolation by invoking it as below:</p>
 of agentic components.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Sequence</em>[<a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><em>ServerTool</em></a>]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerTool</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1131,14 +1207,14 @@ of agentic components.</p>
 of agentic components.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Sequence</em>[<a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><em>ServerTool</em></a>]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerTool</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.MCPToolBox.tool_filter">
-<span class="sig-name descname"><span class="pre">tool_filter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.mcp.MCPToolBox.tool_filter" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_filter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <a class="reference internal" href="#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a><span class="pre">]]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.mcp.MCPToolBox.tool_filter" title="Permalink to this definition">#</a></dt>
 <dd><p>Optional filter to select specific tools.</p>
 <p>If None, exposes all tools from the MCP server.</p>
 <ul class="simple">
@@ -1168,7 +1244,7 @@ of agentic components.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.SessionParameters.read_timeout_seconds">
-<span class="sig-name descname"><span class="pre">read_timeout_seconds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#wayflowcore.mcp.SessionParameters.read_timeout_seconds" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">read_timeout_seconds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#wayflowcore.mcp.SessionParameters.read_timeout_seconds" title="Permalink to this definition">#</a></dt>
 <dd><p>How long, in seconds, to wait for a network read before
 aborting the operation. Adjust this to suit your network latency,
 slow clients or servers, or to enforce stricter timeouts for
@@ -1180,7 +1256,8 @@ high-throughput scenarios.</p>
 <span class="target" id="enablemcpwithoutauth"></span><dl class="py function">
 <dt class="sig sig-object py" id="wayflowcore.mcp.enable_mcp_without_auth">
 <span class="sig-prename descclassname"><span class="pre">wayflowcore.mcp.</span></span><span class="sig-name descname"><span class="pre">enable_mcp_without_auth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.mcp.enable_mcp_without_auth" title="Permalink to this definition">#</a></dt>
-<dd><p>Helper function to enable the use of client transport without authentication.</p>
+<dd><p>Helper function to enable the use of client transport without authentication.
+:rtype: <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This method should only be used in prototyping.</p>
@@ -1217,7 +1294,7 @@ to an MCP server, and providing a ClientSession within an async context.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.ClientTransport.session_parameters">
-<span class="sig-name descname"><span class="pre">session_parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.mcp.SessionParameters" title="wayflowcore.mcp.clienttransport.SessionParameters"><span class="pre">SessionParameters</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Field(name=None,type=None,default=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;,default_factory=&lt;class</span> <span class="pre">'wayflowcore.mcp.clienttransport.SessionParameters'&gt;,init=True,repr=True,hash=None,compare=True,metadata=mappingproxy({}),kw_only=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;,_field_type=None)</span></em><a class="headerlink" href="#wayflowcore.mcp.ClientTransport.session_parameters" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">session_parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.mcp.SessionParameters" title="wayflowcore.mcp.clienttransport.SessionParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionParameters</span></code></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Field(name=None,type=None,default=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;,default_factory=&lt;class</span> <span class="pre">'wayflowcore.mcp.clienttransport.SessionParameters'&gt;,init=True,repr=True,hash=None,compare=True,metadata=mappingproxy({}),kw_only=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;,_field_type=None)</span></em><a class="headerlink" href="#wayflowcore.mcp.ClientTransport.session_parameters" title="Permalink to this definition">#</a></dt>
 <dd><p>Arguments for the MCP session.</p>
 </dd></dl>
 
@@ -1253,31 +1330,31 @@ on the same machine as the client.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.StdioTransport.args">
-<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.args" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.args" title="Permalink to this definition">#</a></dt>
 <dd><p>Command line arguments to pass to the executable.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.StdioTransport.command">
-<span class="sig-name descname"><span class="pre">command</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.command" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">command</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.command" title="Permalink to this definition">#</a></dt>
 <dd><p>The executable to run to start the server.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.StdioTransport.cwd">
-<span class="sig-name descname"><span class="pre">cwd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.cwd" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cwd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.cwd" title="Permalink to this definition">#</a></dt>
 <dd><p>The working directory to use when spawning the process.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.StdioTransport.encoding">
-<span class="sig-name descname"><span class="pre">encoding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'utf-8'</span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.encoding" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">encoding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'utf-8'</span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.encoding" title="Permalink to this definition">#</a></dt>
 <dd><p>The text encoding used when sending/receiving messages to the server. Defaults to utf-8.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.StdioTransport.encoding_error_handler">
-<span class="sig-name descname"><span class="pre">encoding_error_handler</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'strict'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ignore'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'replace'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'strict'</span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.encoding_error_handler" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">encoding_error_handler</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'strict'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'ignore'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'replace'</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'strict'</span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.encoding_error_handler" title="Permalink to this definition">#</a></dt>
 <dd><p>The text encoding error handler.</p>
 <p>See <a class="reference external" href="https://docs.python.org/3/library/codecs.html#codec-base-classes">https://docs.python.org/3/library/codecs.html#codec-base-classes</a> for
 explanations of possible values.</p>
@@ -1285,7 +1362,7 @@ explanations of possible values.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.mcp.StdioTransport.env">
-<span class="sig-name descname"><span class="pre">env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.env" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.mcp.StdioTransport.env" title="Permalink to this definition">#</a></dt>
 <dd><p>The environment to use when spawning the process.</p>
 <p>If not specified, the result of get_default_environment() will be used.</p>
 </dd></dl>
@@ -1475,7 +1552,7 @@ environment variables in any production system.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>*args</strong> (<em>str</em><em> | </em><em>Callable</em><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><em>Any</em><em>]</em>) – The optional name and callable to convert to a <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code>.
 See the example section for common usage patterns.</p></li>
-<li><p><strong>description_mode</strong> (<em>Literal</em><em>[</em><em>&lt;DescriptionMode.INFER_FROM_SIGNATURE: 'infer_from_signature'&gt;</em><em>, </em><em>&lt;DescriptionMode.ONLY_DOCSTRING: 'only_docstring'&gt;</em><em>, </em><em>&lt;DescriptionMode.EXTRACT_FROM_DOCSTRING: 'extract_from_docstring'&gt;</em><em>]</em>) – <p>Determines how parameter descriptions are set:</p>
+<li><p><strong>description_mode</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">&lt;DescriptionMode.INFER_FROM_SIGNATURE:</span> <span class="pre">'infer_from_signature'&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;DescriptionMode.ONLY_DOCSTRING:</span> <span class="pre">'only_docstring'&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;DescriptionMode.EXTRACT_FROM_DOCSTRING:</span> <span class="pre">'extract_from_docstring'&gt;</span></code>]) – <p>Determines how parameter descriptions are set:</p>
 <ul>
 <li><p><cite>”infer_from_signature”</cite>: Extracted from the function signature.</p></li>
 <li><p><cite>”only_docstring”</cite>: Parameter descriptions are left empty; the full description is in the tool docstring.</p></li>
@@ -1483,13 +1560,13 @@ See the example section for common usage patterns.</p></li>
 </ul>
 <p>Defaults to <cite>“infer_from_signature”</cite>.</p>
 </p></li>
-<li><p><strong>output_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – list of properties to describe the tool outputs. Needed in case of tools with several outputs.</p></li>
+<li><p><strong>output_descriptors</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]]) – list of properties to describe the tool outputs. Needed in case of tools with several outputs.</p></li>
 <li><p><strong>requires_confirmation</strong> (<em>bool</em>) – Flag to make tool require confirmation before execution. Yields a ToolExecutionConfirmationStatus before its execution.</p></li>
 <li><p><strong>Returns</strong> – The decorated/wrapper callable as a <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><em>ServerTool</em></a> | <em>Callable</em>[[<em>Callable</em>[[…], <em>Any</em>]], <a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><em>ServerTool</em></a>]</p>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerTool</span></code></a>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]], <a class="reference internal" href="#wayflowcore.tools.servertools.ServerTool" title="wayflowcore.tools.servertools.ServerTool"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServerTool</span></code></a>]]</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -1568,11 +1645,11 @@ See the example section for common usage patterns.</p></li>
 </dd></dl>
 
 </section>
-<section id="tool-related-classes">
-<h2>Tool-related Classes<a class="headerlink" href="#tool-related-classes" title="Permalink to this heading">#</a></h2>
+<section id="tool-request-and-result-classes">
+<h2>Tool Request and Result Classes<a class="headerlink" href="#tool-request-and-result-classes" title="Permalink to this heading">#</a></h2>
 <span class="target" id="toolrequest"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.tools.tools.ToolRequest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tools.tools.</span></span><span class="sig-name descname"><span class="pre">ToolRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name:</span> <span class="pre">str,</span> <span class="pre">args:</span> <span class="pre">Dict[str,</span> <span class="pre">Any],</span> <span class="pre">tool_request_id:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">_requires_confirmation:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">_tool_execution_confirmed:</span> <span class="pre">Optional[bool]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">_tool_rejection_reason:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.tools.ToolRequest" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tools.tools.</span></span><span class="sig-name descname"><span class="pre">ToolRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_requires_confirmation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_tool_execution_confirmed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_tool_rejection_reason=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.tools.ToolRequest" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1587,24 +1664,24 @@ See the example section for common usage patterns.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.tools.ToolRequest.args">
-<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.tools.tools.ToolRequest.args" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tools.tools.ToolRequest.args" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.tools.ToolRequest.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.tools.tools.ToolRequest.name" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tools.tools.ToolRequest.name" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.tools.ToolRequest.tool_request_id">
-<span class="sig-name descname"><span class="pre">tool_request_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.tools.tools.ToolRequest.tool_request_id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_request_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tools.tools.ToolRequest.tool_request_id" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <span class="target" id="toolresult"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.tools.tools.ToolResult">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tools.tools.</span></span><span class="sig-name descname"><span class="pre">ToolResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.tools.ToolResult" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tools.tools.</span></span><span class="sig-name descname"><span class="pre">ToolResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.tools.ToolResult" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1615,12 +1692,65 @@ See the example section for common usage patterns.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.tools.ToolResult.content">
-<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#wayflowcore.tools.tools.ToolResult.content" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></em><a class="headerlink" href="#wayflowcore.tools.tools.ToolResult.content" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tools.tools.ToolResult.tool_request_id">
-<span class="sig-name descname"><span class="pre">tool_request_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.tools.tools.ToolResult.tool_request_id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_request_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tools.tools.ToolResult.tool_request_id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="toolbox">
+<h2>ToolBox<a class="headerlink" href="#toolbox" title="Permalink to this heading">#</a></h2>
+<span class="target" id="id3"></span><dl class="py class">
+<dt class="sig sig-object py" id="wayflowcore.tools.toolbox.ToolBox">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tools.toolbox.</span></span><span class="sig-name descname"><span class="pre">ToolBox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.toolbox.ToolBox" title="Permalink to this definition">#</a></dt>
+<dd><p>Class to expose a list of tools to agentic components.</p>
+<p>ToolBox is dynamic which means that agentic components equipped
+with a toolbox can may see its tools to evolve throughout its
+execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.tools.toolbox.ToolBox.get_tools">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_tools</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.toolbox.ToolBox.get_tools" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the list of tools exposed by the <code class="docutils literal notranslate"><span class="pre">ToolBox</span></code>.</p>
+<p>Will be called at every iteration in the execution loop
+of agentic components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wayflowcore.tools.toolbox.ToolBox.get_tools_async">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_tools_async</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tools.toolbox.ToolBox.get_tools_async" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the list of tools exposed by the <code class="docutils literal notranslate"><span class="pre">ToolBox</span></code> in an asynchronous manner.</p>
+<p>Will be called at every iteration in the execution loop
+of agentic components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<a class="reference internal" href="#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.tools.toolbox.ToolBox.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tools.toolbox.ToolBox.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wayflowcore.tools.toolbox.ToolBox.might_yield">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">might_yield</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#wayflowcore.tools.toolbox.ToolBox.might_yield" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1651,6 +1781,18 @@ See the example section for common usage patterns.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tool">Tool</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.Tool"><code class="docutils literal notranslate"><span class="pre">Tool</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.Tool.DEFAULT_TOOL_NAME"><code class="docutils literal notranslate"><span class="pre">Tool.DEFAULT_TOOL_NAME</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.Tool.description"><code class="docutils literal notranslate"><span class="pre">Tool.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.Tool.might_yield"><code class="docutils literal notranslate"><span class="pre">Tool.might_yield</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.Tool.requires_confirmation"><code class="docutils literal notranslate"><span class="pre">Tool.requires_confirmation</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.Tool.to_dict"><code class="docutils literal notranslate"><span class="pre">Tool.to_dict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.Tool.to_openai_format"><code class="docutils literal notranslate"><span class="pre">Tool.to_openai_format()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#client-tool">Client Tool</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.clienttools.ClientTool"><code class="docutils literal notranslate"><span class="pre">ClientTool</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.clienttools.ClientTool.name"><code class="docutils literal notranslate"><span class="pre">ClientTool.name</span></code></a></li>
@@ -1749,7 +1891,7 @@ See the example section for common usage patterns.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.toolhelpers.tool"><code class="docutils literal notranslate"><span class="pre">tool()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tool-related-classes">Tool-related Classes</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tool-request-and-result-classes">Tool Request and Result Classes</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.ToolRequest"><code class="docutils literal notranslate"><span class="pre">ToolRequest</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.ToolRequest.args"><code class="docutils literal notranslate"><span class="pre">ToolRequest.args</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.ToolRequest.name"><code class="docutils literal notranslate"><span class="pre">ToolRequest.name</span></code></a></li>
@@ -1759,6 +1901,16 @@ See the example section for common usage patterns.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.ToolResult"><code class="docutils literal notranslate"><span class="pre">ToolResult</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.ToolResult.content"><code class="docutils literal notranslate"><span class="pre">ToolResult.content</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.tools.ToolResult.tool_request_id"><code class="docutils literal notranslate"><span class="pre">ToolResult.tool_request_id</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#toolbox">ToolBox</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.toolbox.ToolBox"><code class="docutils literal notranslate"><span class="pre">ToolBox</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.toolbox.ToolBox.get_tools"><code class="docutils literal notranslate"><span class="pre">ToolBox.get_tools()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.toolbox.ToolBox.get_tools_async"><code class="docutils literal notranslate"><span class="pre">ToolBox.get_tools_async()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.toolbox.ToolBox.id"><code class="docutils literal notranslate"><span class="pre">ToolBox.id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.tools.toolbox.ToolBox.might_yield"><code class="docutils literal notranslate"><span class="pre">ToolBox.might_yield</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1779,8 +1931,8 @@ See the example section for common usage patterns.</p></li>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

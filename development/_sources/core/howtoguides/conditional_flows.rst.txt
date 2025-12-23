@@ -25,7 +25,7 @@ based on user inputs or data. This capability is essential for adapting to diver
 ensuring a seamless and responsive user experience.
 
 WayFlow enables conditional transitions in Flows too. This guide demonstrates how to use
-the :ref:`BranchingStep <BranchingStep>` to execute different flows based on specific conditions.
+the :ref:`BranchingStep <branchingstep>` to execute different flows based on specific conditions.
 
 .. image:: ../_static/howto/branchingstep.svg
     :align: center
@@ -33,8 +33,8 @@ the :ref:`BranchingStep <BranchingStep>` to execute different flows based on spe
     :alt: Flow diagram of a simple branching step
 
 WayFlow offers additional APIs for managing conditional transitions, such as
-:ref:`ChoiceSelectionStep <ChoiceSelectionStep>`, :ref:`FlowExecutionStep <FlowExecutionStep>`,
-and :ref:`RetryStep <RetryStep>`. For more information, refer to the API documentation.
+:ref:`ChoiceSelectionStep <choiceselectionstep>`, :ref:`FlowExecutionStep <flowexecutionstep>`,
+and :ref:`RetryStep <retrystep>`. For more information, refer to the API documentation.
 
 
 Basic implementation
@@ -64,8 +64,8 @@ You can check the branch name of a step using the ``step.get_branches()`` functi
     Most steps only have a single next step, so you do not need to specify a transition dictionary,
     and can just use a list with a single element.
 
-    For steps with several branches (such as :class:`BranchingStep`, :class:`ChoiceSelectionStep`,
-    :class:`RetryStep`, and :class:`FlowExecutionStep`), you need to mapping each branch name to
+    For steps with several branches (such as :ref:`BranchingStep <branchingstep>`, :ref:`ChoiceSelectionStep <choiceselectionstep>`,
+    :ref:`RetryStep <retrystep>`, and :ref:`FlowExecutionStep <flowexecutionstep>`), you need to mapping each branch name to
     the next step using an edge. Creating the flow will inform you if you are missing a branch in
     the mapping.
 
@@ -127,9 +127,9 @@ Common patterns and best practices
 Pattern 1: Branching if a token is present in a text
 ----------------------------------------------------
 
-Most of the time, you will use :class:`BranchingStep` to branch out depending on whether a token is present
+Most of the time, you will use :ref:`BranchingStep <branchingstep>` to branch out depending on whether a token is present
 in a text (for example, whether an LLM generated a token ``[SUCCESS]`` or not).
-To do this, pass :class:`RegexExtractionStep` before the :class:`BranchingStep`:
+To do this, pass :ref:`RegexExtractionStep <regexextractionstep>` before the :ref:`BranchingStep <branchingstep>`:
 
 .. literalinclude:: ../code_examples/howto_branching.py
     :language: python
@@ -146,13 +146,18 @@ Pattern 2: Branching with more advanced expressions
 ---------------------------------------------------
 
 For scenarios requiring branching based on more advanced conditions, consider using
-:ref:`TemplateRenderingStep <TemplateRenderingStep>` (which employs Jinja2) or
-:ref:`ToolExecutionStep <ToolExecutionStep>` to evaluate conditions on variables.
+:ref:`TemplateRenderingStep <templaterenderingstep>` (which employs Jinja2) or
+:ref:`ToolExecutionStep <toolexecutionstep>` to evaluate conditions on variables.
 
 .. literalinclude:: ../code_examples/howto_branching.py
     :language: python
     :start-after: .. start-##_Branching_with_a_template
     :end-before: .. end-##_Branching_with_a_template
+
+.. note::
+
+    Jinja templating introduces security concerns that are addressed by WayFlow by restricting Jinja's rendering capabilities.
+    Please check our guide on :ref:`How to write secure prompts with Jinja templating <securejinjatemplating>` for more information.
 
 Pattern 3: Branching using an LLM
 ---------------------------------
@@ -165,7 +170,7 @@ proceed with the configuration.
 .. include:: ../_components/llm_config_tabs.rst
 
 You can implement branching logic determined by the LLM by using
-:ref:`ChoiceSelectionStep <ChoiceSelectionStep>`. To do so, pass the names and descriptions of the
+:ref:`ChoiceSelectionStep <choiceselectionstep>`. To do so, pass the names and descriptions of the
 potential next branches.
 
 .. literalinclude:: ../code_examples/howto_branching.py
@@ -180,8 +185,8 @@ Pattern 4: Conditional branching with a sub-flow
 ------------------------------------------------
 
 To implement branching based on multiple possible outcomes of a sub-flow, wrap it in
-:ref:`FlowExecutionStep <FlowExecutionStep>`. It will expose one branch per one possible end.
-Mapping works the same as for :class:`BranchingStep`:
+:ref:`FlowExecutionStep <flowexecutionstep>`. It will expose one branch per one possible end.
+Mapping works the same as for :ref:`BranchingStep <branchingstep>`:
 
 .. literalinclude:: ../code_examples/howto_branching.py
     :language: python
@@ -238,12 +243,12 @@ Next steps
 
 In this guide, you explored methods for implementing conditional branching within a Flow:
 
-- :class:`BranchingStep`.
-- :class:`BranchingStep` with pattern matching.
-- more complex conditionals with :class:`ToolExecutionStep`, or :class:`TemplateRenderingStep`, and
-  :class:`BranchingStep`.
-- an LLM to decide on the condition using :class:`ChoiceSelectionStep`.
-- a sub-flow to handle the conditional logic using :class:`FlowExecutionStep`.
+- :ref:`BranchingStep <branchingstep>`.
+- :ref:`BranchingStep <branchingstep>` with pattern matching.
+- more complex conditionals with :ref:`ToolExecutionStep <toolexecutionstep>`, or :ref:`TemplateRenderingStep <templaterenderingstep>`, and
+  :ref:`BranchingStep <branchingstep>`.
+- an LLM to decide on the condition using :ref:`ChoiceSelectionStep <choiceselectionstep>`.
+- a sub-flow to handle the conditional logic using :ref:`FlowExecutionStep <flowexecutionstep>`.
 
 Having learned how to implement conditional branching in flows, you may now proceed to :doc:`Catching Exceptions <catching_exceptions>` to see how to ensure robustness in a ``Flow``.
 

@@ -33,6 +33,10 @@ In memory
     ..
         We exclude these members because they are already included in the base class
 
+Relational Datastore
+--------------------
+
+.. autoclass:: wayflowcore.datastore._relational.RelationalDatastore
 
 Oracle Database
 ---------------
@@ -59,5 +63,24 @@ Oracle Database
 
 .. _oracledatabasedatastore:
 .. autoclass:: wayflowcore.datastore.OracleDatabaseDatastore
+
+    .. automethod:: query
+
+
+Postgres Database
+-----------------
+
+.. important::
+    The Postgres Database Datastore requires additional optional dependencies, which can be installed
+    with the ``[datastore]`` installation option.
+
+.. _postgresdatabaseconnectionconfig:
+.. autoclass:: wayflowcore.datastore.PostgresDatabaseConnectionConfig
+
+.. _postgresdatabasetlsconnectionconfig:
+.. autoclass:: wayflowcore.datastore.TlsPostgresDatabaseConnectionConfig
+
+.. _postgresdatabasedatastore:
+.. autoclass:: wayflowcore.datastore.PostgresDatabaseDatastore
 
     .. automethod:: query

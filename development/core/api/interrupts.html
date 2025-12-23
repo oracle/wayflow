@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -291,9 +291,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -306,6 +311,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -314,11 +321,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -330,11 +334,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Execution Interrupts</a></li>
@@ -346,6 +352,8 @@
 <li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -454,20 +462,20 @@ that should be returned to the execution caller.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>event</strong> (<a class="reference internal" href="events.html#wayflowcore.events.event.Event" title="wayflowcore.events.event.Event"><em>Event</em></a>) – The current event happening.</p></li>
-<li><p><strong>state</strong> (<em>ConversationExecutionState</em>) – The current <code class="docutils literal notranslate"><span class="pre">ConversationExecutionState</span></code>.</p></li>
+<li><p><strong>event</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>) – The current event happening.</p></li>
+<li><p><strong>state</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationExecutionState</span></code>) – The current <code class="docutils literal notranslate"><span class="pre">ConversationExecutionState</span></code>.</p></li>
 <li><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus" title="wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterruptedExecutionStatus</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p>An instance of a <code class="docutils literal notranslate"><span class="pre">InterruptedExecutionStatus</span></code> subclass if the execution should be interrupted.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> if the execution can continue.</p></li>
 </ul>
 </p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[<a class="reference internal" href="#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus" title="wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus">InterruptedExecutionStatus</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -483,8 +491,8 @@ and the reason why the execution was stopped.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>interrupter</strong> (<a class="reference internal" href="#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt" title="wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt"><em>wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt</em></a>) – The <code class="docutils literal notranslate"><span class="pre">ExecutionInterrupt</span></code> that stopped the execution.</p></li>
-<li><p><strong>reason</strong> (<em>str</em>) – Why the execution was stopped.</p></li>
+<li><p><strong>interrupter</strong> (<a class="reference internal" href="#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt" title="wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionInterrupt</span></code></a>) – The <code class="docutils literal notranslate"><span class="pre">ExecutionInterrupt</span></code> that stopped the execution.</p></li>
+<li><p><strong>reason</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Why the execution was stopped.</p></li>
 <li><p><strong>id</strong> (<em>str</em>) – </p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
 <li><p><strong>_conversation_id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
@@ -493,7 +501,7 @@ and the reason why the execution was stopped.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.interrupter">
-<span class="sig-name descname"><span class="pre">interrupter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt" title="wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt"><span class="pre">ExecutionInterrupt</span></a></em><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.interrupter" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">interrupter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ExecutionInterrupt</span></em><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.interrupter" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -519,7 +527,7 @@ For example:
 - It does not interrupt LLM models during generation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timeout</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – The timeout in seconds after which the assistant execution should be stopped.
+<dd class="field-odd"><p><strong>timeout</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The timeout in seconds after which the assistant execution should be stopped.
 Default value set to 600 seconds (10 minutes).</p>
 </dd>
 </dl>
@@ -556,18 +564,20 @@ It stops the execution if:</p>
 <li><p>One of the LLMs reached a given token limit</p></li>
 </ul>
 <p>This is a soft limit, as it does not force the interruption of the execution at any time.
-For example:
-- It does not interrupt the execution of a step (except for <code class="docutils literal notranslate"><span class="pre">FlowExecutionStep</span></code>)
-- It does not interrupt the execution of a tool
-- It does not interrupt LLM models during generation</p>
+For example:</p>
+<ul class="simple">
+<li><p>It does not interrupt the execution of a step (except for <a class="reference internal" href="flows.html#wayflowcore.steps.flowexecutionstep.FlowExecutionStep" title="wayflowcore.steps.flowexecutionstep.FlowExecutionStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">FlowExecutionStep</span></code></a>)</p></li>
+<li><p>It does not interrupt the execution of a tool</p></li>
+<li><p>It does not interrupt LLM models during generation</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tokens_per_model</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a><em>, </em><em>int</em><em>]</em><em>]</em>) – Dictionary containing, for each model that has a limit, the maximum number of tokens
+<li><p><strong>tokens_per_model</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmModel</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – Dictionary containing, for each model that has a limit, the maximum number of tokens
 it is allowed to generate.</p></li>
-<li><p><strong>all_models</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a><em>]</em><em>]</em>) – List of all the LLMs that should be counted for the global token limit.
-When a value for this parameter is provided, also <cite>total_tokens</cite> should be specified.</p></li>
-<li><p><strong>total_tokens</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – Maximum number of tokens that should be globally generated by the LLMs in <code class="docutils literal notranslate"><span class="pre">all_models</span></code>.
+<li><p><strong>all_models</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmModel</span></code></a>]]) – List of all the LLMs that should be counted for the global token limit.
+When a value for this parameter is provided, also <code class="docutils literal notranslate"><span class="pre">total_tokens</span></code> should be specified.</p></li>
+<li><p><strong>total_tokens</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Maximum number of tokens that should be globally generated by the LLMs in <code class="docutils literal notranslate"><span class="pre">all_models</span></code>.
 When a value for this parameter is provided, also <code class="docutils literal notranslate"><span class="pre">all_models</span></code> should be specified.</p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Optional</em><em>[</em><em>MetadataType</em><em>]</em>) – </p></li>
 </ul>
@@ -666,8 +676,8 @@ When a value for this parameter is provided, also <code class="docutils literal 
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

@@ -1,11 +1,8 @@
 Conversations
 =============
 
-Conversation & Messages
------------------------
-
-.. _conversation:
-.. autoclass:: wayflowcore.conversation.Conversation
+Messages
+--------
 
 .. _message:
 .. autoclass:: wayflowcore.messagelist.Message
@@ -13,18 +10,17 @@ Conversation & Messages
 .. _messagetype:
 .. autoclass:: wayflowcore.messagelist.MessageType
 
+.. _messagecontent:
+.. autoclass:: wayflowcore.messagelist.MessageContent
+
 .. _textcontent:
 .. autoclass:: wayflowcore.messagelist.TextContent
-   :noindex:
 
 .. _imagecontent:
 .. autoclass:: wayflowcore.messagelist.ImageContent
-   :noindex:
 
 .. _messagelist:
 .. autoclass:: wayflowcore.messagelist.MessageList
-
-
 
 ExecutionStatus
 ---------------
@@ -41,11 +37,6 @@ ExecutionStatus
 .. _toolrequestexecutionstatus:
 .. autoclass:: wayflowcore.executors.executionstatus.ToolRequestStatus
 
-
-
-
-
-
 Conversation
 ------------
 
@@ -53,3 +44,15 @@ Base class for conversations. Can manipulate a conversation object, and can be s
 
 .. _conversationalcomponent:
 .. autoclass:: wayflowcore.conversationalcomponent.ConversationalComponent
+
+.. _conversation:
+.. autoclass:: wayflowcore.conversation.Conversation
+
+Execution Plan
+--------------
+
+.. autoclass:: wayflowcore.planning.ExecutionPlan
+
+.. autoclass:: wayflowcore.planning.Task
+
+.. autoclass:: wayflowcore.planning.TaskStatus

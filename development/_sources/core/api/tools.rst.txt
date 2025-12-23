@@ -21,6 +21,13 @@ This page presents all APIs and classes related to tools in WayFlow
     Click the button above ↑ to visit the `Agent Spec Documentation <https://oracle.github.io/agent-spec/index.html>`_
 
 
+Tool
+----
+
+This is the base class for tools.
+
+.. _tool:
+.. autoclass:: wayflowcore.tools.tools.Tool
 
 
 Client Tool
@@ -84,11 +91,17 @@ Tool decorator
 .. _tooldecorator:
 .. autofunction:: wayflowcore.tools.toolhelpers.tool
 
-Tool-related Classes
---------------------
+Tool Request and Result Classes
+-------------------------------
 
 .. _toolrequest:
 .. autoclass:: wayflowcore.tools.tools.ToolRequest
 
 .. _toolresult:
 .. autoclass:: wayflowcore.tools.tools.ToolResult
+
+ToolBox
+-------
+
+.. _toolbox:
+.. autoclass:: wayflowcore.tools.toolbox.ToolBox

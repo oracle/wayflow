@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -67,7 +67,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="How to Ask for User Input in Flows" href="howto_userinputinflows.html" />
-    <link rel="prev" title="How to Use OCI Generative AI Agents" href="howto_ociagent.html" />
+    <link rel="prev" title="How to Connect to A2A Agents" href="howto_a2aagent.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="26.1" />
@@ -292,9 +292,14 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-to Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -307,6 +312,8 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -315,11 +322,8 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -331,11 +335,13 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
@@ -347,6 +353,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -477,16 +485,15 @@ Using <code class="docutils literal notranslate"><span class="pre">PromptTemplat
 <p>WayFlow supports several LLM API providers.
 Select an LLM from the options below:</p>
 <div class="sphinx-tabs docutils container">
-<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span>
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">OCI GenAI</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">vLLM</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">Ollama</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OCIGenAIModel</span><span class="p">,</span> <span class="n">OCIClientConfigWithApiKey</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-
-    <span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
-        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">OCIGenAIModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;provider.model-id&quot;</span><span class="p">,</span>
+    <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
+    <span class="n">client_config</span><span class="o">=</span><span class="n">OCIClientConfigWithApiKey</span><span class="p">(</span>
         <span class="n">service_endpoint</span><span class="o">=</span><span class="s2">&quot;https://url-to-service-endpoint.com&quot;</span><span class="p">,</span>
-        <span class="n">compartment_id</span><span class="o">=</span><span class="s2">&quot;compartment-id&quot;</span><span class="p">,</span>
-        <span class="n">auth_type</span><span class="o">=</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
@@ -572,7 +579,7 @@ For example, to format the conversation as messages within a template, you can u
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">prompt_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;You are a helpful assistant. Answer the user questions.</span>
 <span class="linenos"> 2</span><span class="s2">For context, the conversation was:</span>
 <span class="linenos"> 3</span><span class="s2">{</span><span class="si">% f</span><span class="s2">or msg in __CHAT_HISTORY__ %}</span>
-<span class="linenos"> 4</span><span class="s2">{{ msg.message_type.value }} &gt;&gt; {{msg.content}}</span>
+<span class="linenos"> 4</span><span class="s2">{{ msg.message_type }} &gt;&gt; {{msg.content}}</span>
 <span class="linenos"> 5</span><span class="s2">{</span><span class="si">%- e</span><span class="s2">ndfor %}</span>
 <span class="linenos"> 6</span>
 <span class="linenos"> 7</span><span class="s2">Just answer the user question.</span>
@@ -747,7 +754,7 @@ If the LLM provider supports it, then using a template is straightforward:</p>
 <p>If the LLM provider does not support native structured generation, it is possible to prompt the LLM to produce output in the desired format manually:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">text_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Extract information about a person. The person is 65 years old, named Johnny.</span>
 <span class="linenos"> 2</span><span class="s2">Just return a json document that respects this JSON Schema:</span>
-<span class="linenos"> 3</span><span class="s2">{{__RESPONSE_FORMAT__.to_json_schema() | tojson }}</span>
+<span class="linenos"> 3</span><span class="s2">{{__RESPONSE_FORMAT__ | tojson }}</span>
 <span class="linenos"> 4</span>
 <span class="linenos"> 5</span><span class="s2">Reminder: only output the required json document, no need to repeat the title of the description, just the properties are required!</span>
 <span class="linenos"> 6</span><span class="s2">&quot;&quot;&quot;</span>
@@ -815,9 +822,9 @@ Check out the <a class="reference internal" href="../api/prompttemplate.html#pro
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span><span class="p">,</span> <span class="n">AgentSpecLoader</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec.components.template</span><span class="w"> </span><span class="kn">import</span> <span class="n">prompttemplate_serialization_plugin</span><span class="p">,</span> <span class="n">prompttemplate_deserialization_plugin</span>
+
 <span class="n">assistant</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">agent_template</span><span class="o">=</span><span class="n">prompt_template</span><span class="p">)</span>
-<span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">(</span><span class="n">plugins</span><span class="o">=</span><span class="p">[</span><span class="n">prompttemplate_serialization_plugin</span><span class="p">])</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
+<span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Here is what the <strong>Agent Spec representation will look like ↓</strong></p>
@@ -1031,7 +1038,7 @@ Check out the <a class="reference internal" href="../api/prompttemplate.html#pro
 </div>
 </div></div>
 </details><p>You can then load the configuration back to an assistant using the <code class="docutils literal notranslate"><span class="pre">AgentSpecLoader</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">new_agent</span><span class="p">:</span> <span class="n">Agent</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span><span class="n">plugins</span><span class="o">=</span><span class="p">[</span><span class="n">prompttemplate_deserialization_plugin</span><span class="p">])</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">new_agent</span><span class="p">:</span> <span class="n">Agent</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">()</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -1159,7 +1166,7 @@ from/to Agent Spec. Passing a list of plugins overrides the default ones.</p>
 <span class="linenos">100</span><span class="n">prompt_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;You are a helpful assistant. Answer the user questions.</span>
 <span class="linenos">101</span><span class="s2">For context, the conversation was:</span>
 <span class="linenos">102</span><span class="s2">{</span><span class="si">% f</span><span class="s2">or msg in __CHAT_HISTORY__ %}</span>
-<span class="linenos">103</span><span class="s2">{{ msg.message_type.value }} &gt;&gt; {{msg.content}}</span>
+<span class="linenos">103</span><span class="s2">{{ msg.message_type }} &gt;&gt; {{msg.content}}</span>
 <span class="linenos">104</span><span class="s2">{</span><span class="si">%- e</span><span class="s2">ndfor %}</span>
 <span class="linenos">105</span>
 <span class="linenos">106</span><span class="s2">Just answer the user question.</span>
@@ -1314,7 +1321,7 @@ from/to Agent Spec. Passing a list of plugins overrides the default ones.</p>
 <span class="linenos">255</span><span class="c1"># %%</span>
 <span class="linenos">256</span><span class="n">text_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Extract information about a person. The person is 65 years old, named Johnny.</span>
 <span class="linenos">257</span><span class="s2">Just return a json document that respects this JSON Schema:</span>
-<span class="linenos">258</span><span class="s2">{{__RESPONSE_FORMAT__.to_json_schema() | tojson }}</span>
+<span class="linenos">258</span><span class="s2">{{__RESPONSE_FORMAT__ | tojson }}</span>
 <span class="linenos">259</span>
 <span class="linenos">260</span><span class="s2">Reminder: only output the required json document, no need to repeat the title of the description, just the properties are required!</span>
 <span class="linenos">261</span><span class="s2">&quot;&quot;&quot;</span>
@@ -1369,15 +1376,15 @@ from/to Agent Spec. Passing a list of plugins overrides the default ones.</p>
 <span class="linenos">310</span><span class="c1"># %%</span>
 <span class="linenos">311</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
 <span class="linenos">312</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span><span class="p">,</span> <span class="n">AgentSpecLoader</span>
-<span class="linenos">313</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec.components.template</span><span class="w"> </span><span class="kn">import</span> <span class="n">prompttemplate_serialization_plugin</span><span class="p">,</span> <span class="n">prompttemplate_deserialization_plugin</span>
+<span class="linenos">313</span>
 <span class="linenos">314</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">agent_template</span><span class="o">=</span><span class="n">prompt_template</span><span class="p">)</span>
-<span class="linenos">315</span><span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">(</span><span class="n">plugins</span><span class="o">=</span><span class="p">[</span><span class="n">prompttemplate_serialization_plugin</span><span class="p">])</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
+<span class="linenos">315</span><span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
 <span class="linenos">316</span>
 <span class="linenos">317</span><span class="c1"># %%[markdown]</span>
 <span class="linenos">318</span><span class="c1">## Load Agent Spec config</span>
 <span class="linenos">319</span>
 <span class="linenos">320</span><span class="c1"># %%</span>
-<span class="linenos">321</span><span class="n">new_agent</span><span class="p">:</span> <span class="n">Agent</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span><span class="n">plugins</span><span class="o">=</span><span class="p">[</span><span class="n">prompttemplate_deserialization_plugin</span><span class="p">])</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
+<span class="linenos">321</span><span class="n">new_agent</span><span class="p">:</span> <span class="n">Agent</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">()</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -1435,8 +1442,8 @@ from/to Agent Spec. Passing a list of plugins overrides the default ones.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

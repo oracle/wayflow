@@ -164,3 +164,19 @@ with Trace(span_processors=[span_processor]):
         conversation.append_user_message("Compute 2+3")
         status = conversation.execute()
         conversation_span.record_end_span_event(execution_status=status)
+
+
+# %%[markdown]
+## Enable Agent Spec Tracing
+
+# %%
+from pyagentspec.tracing.trace import Trace as AgentSpecTrace
+from wayflowcore.agentspec.tracing import AgentSpecEventListener
+from wayflowcore.events.eventlistener import register_event_listeners
+
+# Here you can register the SpanProcessors that consume Agent Spec Traces emitted by WayFlow
+with AgentSpecTrace() as trace:
+    with register_event_listeners([AgentSpecEventListener()]):
+        conversation.execute()
+        conversation.append_user_message("Compute 2+3")
+        status = conversation.execute()

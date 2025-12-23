@@ -300,6 +300,7 @@ def run_swarm_in_command_line(assistant: Swarm):
 ## Enabling handoff in the Swarm
 
 # %%
+from wayflowcore.swarm import HandoffMode
 assistant = Swarm(
     name="Swarm",
     first_agent=general_practitioner,
@@ -308,7 +309,7 @@ assistant = Swarm(
         (general_practitioner, dermatologist),
         (dermatologist, pharmacist),
     ],
-    handoff=True,  # <-- Add this
+    handoff=HandoffMode.ALWAYS,  # <-- Choose the handoff mode of your choice
 )
 
 # %%[markdown]

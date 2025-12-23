@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -291,9 +291,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -306,6 +311,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -314,11 +321,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -330,11 +334,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
@@ -346,6 +352,8 @@
 <li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -430,7 +438,10 @@
 <dd><p>Get the Trace object active in the current context.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The active Trace object</p>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.tracing.trace.Trace" title="wayflowcore.tracing.trace.Trace"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code></a>]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The active Trace object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -453,25 +464,25 @@ a workflow of interest.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.trace.Trace.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tracing.trace.Trace.name" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tracing.trace.Trace.name" title="Permalink to this definition">#</a></dt>
 <dd><p>The name of the trace</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.trace.Trace.shutdown_on_exit">
-<span class="sig-name descname"><span class="pre">shutdown_on_exit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.tracing.trace.Trace.shutdown_on_exit" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">shutdown_on_exit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.tracing.trace.Trace.shutdown_on_exit" title="Permalink to this definition">#</a></dt>
 <dd><p>Whether to call shutdown on span processors when the trace context is closed</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.trace.Trace.span_processors">
-<span class="sig-name descname"><span class="pre">span_processors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wayflowcore.tracing.spanprocessor.SpanProcessor" title="wayflowcore.tracing.spanprocessor.SpanProcessor"><span class="pre">SpanProcessor</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.tracing.trace.Trace.span_processors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">span_processors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.tracing.spanprocessor.SpanProcessor" title="wayflowcore.tracing.spanprocessor.SpanProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpanProcessor</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tracing.trace.Trace.span_processors" title="Permalink to this definition">#</a></dt>
 <dd><p>The list of SpanProcessors active on this trace</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.trace.Trace.trace_id">
-<span class="sig-name descname"><span class="pre">trace_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.tracing.trace.Trace.trace_id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">trace_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tracing.trace.Trace.trace_id" title="Permalink to this definition">#</a></dt>
 <dd><p>A unique identifier for the trace</p>
 </dd></dl>
 
@@ -486,7 +497,10 @@ a workflow of interest.</p>
 <dd><p>Retrieve the currently active span in this context.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The active span in this context</p>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><code class="xref py py-class docutils literal notranslate"><span class="pre">Span</span></code></a>]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The active span in this context</p>
 </dd>
 </dl>
 </dd></dl>
@@ -497,10 +511,13 @@ a workflow of interest.</p>
 <dd><p>Retrieve the stack of active spans in this context.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The stack of active spans in this context</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><code class="xref py py-class docutils literal notranslate"><span class="pre">Span</span></code></a>]</p>
 </dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>return_copy</strong> (<em>bool</em>) – </p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The stack of active spans in this context</p>
+</dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>return_copy</strong> (<em>bool</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -526,34 +543,37 @@ a workflow of interest.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.Span.end">
-<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tracing.span.Span.end" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tracing.span.Span.end" title="Permalink to this definition">#</a></dt>
 <dd><p>End the span.</p>
 <p>This includes calling the <code class="docutils literal notranslate"><span class="pre">on_end</span></code> method of the active SpanProcessors,
 and recording the StartSpanEvent.</p>
 <p>If the <code class="docutils literal notranslate"><span class="pre">record_end_span_event</span></code> method was not called for this span, it is
 called automatically with a default EndSpanEvent, and a warning is raised.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>exception</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code>]) – The exception that was raised during the execution of the span.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.Span.end_time">
-<span class="sig-name descname"><span class="pre">end_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tracing.span.Span.end_time" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">end_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tracing.span.Span.end_time" title="Permalink to this definition">#</a></dt>
 <dd><p>The timestamp of when the span was closed</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.Span.events">
-<span class="sig-name descname"><span class="pre">events</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="events.html#wayflowcore.events.event.Event" title="wayflowcore.events.event.Event"><span class="pre">Event</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.tracing.span.Span.events" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">events</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="events.html#wayflowcore.events.event.Event" title="wayflowcore.events.event.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tracing.span.Span.events" title="Permalink to this definition">#</a></dt>
 <dd><p>The list of events recorded in the scope of this span</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.Span.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tracing.span.Span.name" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tracing.span.Span.name" title="Permalink to this definition">#</a></dt>
 <dd><p>The name of the span</p>
 </dd></dl>
 
@@ -563,21 +583,21 @@ called automatically with a default EndSpanEvent, and a warning is raised.</p>
 <dd><p>Record the given event as the closing event for this Span.</p>
 <p>Note that this method is supposed to be called only once per Span instance.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.Span.span_id">
-<span class="sig-name descname"><span class="pre">span_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.tracing.span.Span.span_id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">span_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.tracing.span.Span.span_id" title="Permalink to this definition">#</a></dt>
 <dd><p>A unique identifier for the span</p>
 </dd></dl>
 
@@ -589,14 +609,14 @@ called automatically with a default EndSpanEvent, and a warning is raised.</p>
 and recording the StartSpanEvent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.Span.start_time">
-<span class="sig-name descname"><span class="pre">start_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tracing.span.Span.start_time" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">start_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.tracing.span.Span.start_time" title="Permalink to this definition">#</a></dt>
 <dd><p>The timestamp of when the span was started</p>
 </dd></dl>
 
@@ -606,10 +626,13 @@ and recording the StartSpanEvent.</p>
 <dd><p>Return a serialized version of the span’s information to be used for tracing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p>
+<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary containing the serialized information of this span</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary containing the serialized information of this span</p>
 </dd>
 </dl>
 </dd></dl>
@@ -633,19 +656,19 @@ and recording the StartSpanEvent.</p>
 <li><p><strong>_span_was_appended_to_active_stack</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>_started_span_processors</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.tracing.spanprocessor.SpanProcessor" title="wayflowcore.tracing.spanprocessor.SpanProcessor"><em>SpanProcessor</em></a><em>]</em>) – </p></li>
 <li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a>) – </p></li>
-<li><p><strong>prompt</strong> (<em>Prompt</em>) – </p></li>
+<li><p><strong>prompt</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><em>Prompt</em></a>) – </p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.LlmGenerationSpan.llm">
-<span class="sig-name descname"><span class="pre">llm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><span class="pre">LlmModel</span></a></em><a class="headerlink" href="#wayflowcore.tracing.span.LlmGenerationSpan.llm" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">llm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmModel</span></code></a></em><a class="headerlink" href="#wayflowcore.tracing.span.LlmGenerationSpan.llm" title="Permalink to this definition">#</a></dt>
 <dd><p>The LLM model that is generating</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.LlmGenerationSpan.prompt">
-<span class="sig-name descname"><span class="pre">prompt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Prompt</span></em><a class="headerlink" href="#wayflowcore.tracing.span.LlmGenerationSpan.prompt" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">prompt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a></em><a class="headerlink" href="#wayflowcore.tracing.span.LlmGenerationSpan.prompt" title="Permalink to this definition">#</a></dt>
 <dd><p>The prompt that was given to the LLM</p>
 </dd></dl>
 
@@ -657,10 +680,10 @@ as the closing event for this Span.</p>
 <p>Note that this method is supposed to be called only once per Span instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>completion</strong> (<em>LlmCompletion</em>) – The completion returned by the LLM</p>
+<dd class="field-odd"><p><strong>completion</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.LlmCompletion" title="wayflowcore.models.llmmodel.LlmCompletion"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmCompletion</span></code></a>) – The completion returned by the LLM</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -671,10 +694,13 @@ as the closing event for this Span.</p>
 <dd><p>Return a serialized version of the span’s information to be used for tracing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p>
+<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary containing the serialized information of this span</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary containing the serialized information of this span</p>
 </dd>
 </dl>
 </dd></dl>
@@ -703,7 +729,7 @@ as the closing event for this Span.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.ConversationalComponentExecutionSpan.conversational_component">
-<span class="sig-name descname"><span class="pre">conversational_component</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><span class="pre">ConversationalComponent</span></a></em><a class="headerlink" href="#wayflowcore.tracing.span.ConversationalComponentExecutionSpan.conversational_component" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">conversational_component</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a></em><a class="headerlink" href="#wayflowcore.tracing.span.ConversationalComponentExecutionSpan.conversational_component" title="Permalink to this definition">#</a></dt>
 <dd><p>The ConversationalComponent being executed</p>
 </dd></dl>
 
@@ -715,10 +741,10 @@ as the closing event for this Span.</p>
 <p>Note that this method is supposed to be called only once per Span instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>execution_status</strong> (<a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><em>ExecutionStatus</em></a>) – Indicates the status of the conversation (finished, yielding, etc.)</p>
+<dd class="field-odd"><p><strong>execution_status</strong> (<a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionStatus</span></code></a>) – Indicates the status of the conversation (finished, yielding, etc.)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -729,10 +755,13 @@ as the closing event for this Span.</p>
 <dd><p>Return a serialized version of the span’s information to be used for tracing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p>
+<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary containing the serialized information of this span</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary containing the serialized information of this span</p>
 </dd>
 </dl>
 </dd></dl>
@@ -741,7 +770,7 @@ as the closing event for this Span.</p>
 
 <span class="target" id="conversation-span"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.ConversationSpan">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tracing.span.</span></span><span class="sig-name descname"><span class="pre">ConversationSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span_id:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time:</span> <span class="pre">Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time:</span> <span class="pre">Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events:</span> <span class="pre">List[wayflowcore.events.event.Event]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_parent_span:</span> <span class="pre">Optional[ForwardRef('Span')]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_end_event_was_triggered:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_span_was_appended_to_active_stack:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_started_span_processors:</span> <span class="pre">List[ForwardRef('SpanProcessor')]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation:</span> <span class="pre">wayflowcore.conversation.Conversation</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tracing.span.ConversationSpan" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tracing.span.</span></span><span class="sig-name descname"><span class="pre">ConversationSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_parent_span=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_end_event_was_triggered=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_span_was_appended_to_active_stack=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_started_span_processors=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tracing.span.ConversationSpan" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -760,7 +789,7 @@ as the closing event for this Span.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.ConversationSpan.conversation">
-<span class="sig-name descname"><span class="pre">conversation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><span class="pre">Conversation</span></a></em><a class="headerlink" href="#wayflowcore.tracing.span.ConversationSpan.conversation" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">conversation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Conversation</span></code></a></em><a class="headerlink" href="#wayflowcore.tracing.span.ConversationSpan.conversation" title="Permalink to this definition">#</a></dt>
 <dd><p>The conversation being executed</p>
 </dd></dl>
 
@@ -770,11 +799,11 @@ as the closing event for this Span.</p>
 <dd><p>Record the given event as the closing event for this Span.</p>
 <p>Note that this method is supposed to be called only once per Span instance.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>execution_status</strong> (<a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><em>ExecutionStatus</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>execution_status</strong> (<a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><em>ExecutionStatus</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -785,10 +814,13 @@ as the closing event for this Span.</p>
 <dd><p>Return a serialized version of the span’s information to be used for tracing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p>
+<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary containing the serialized information of this span</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary containing the serialized information of this span</p>
 </dd>
 </dl>
 </dd></dl>
@@ -797,7 +829,7 @@ as the closing event for this Span.</p>
 
 <span class="target" id="tool-execution-span"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.ToolExecutionSpan">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tracing.span.</span></span><span class="sig-name descname"><span class="pre">ToolExecutionSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span_id:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time:</span> <span class="pre">Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time:</span> <span class="pre">Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events:</span> <span class="pre">List[wayflowcore.events.event.Event]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_parent_span:</span> <span class="pre">Optional[ForwardRef('Span')]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_end_event_was_triggered:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_span_was_appended_to_active_stack:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_started_span_processors:</span> <span class="pre">List[ForwardRef('SpanProcessor')]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool:</span> <span class="pre">wayflowcore.tools.tools.Tool</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request:</span> <span class="pre">wayflowcore.tools.tools.ToolRequest</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tracing.span.ToolExecutionSpan" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tracing.span.</span></span><span class="sig-name descname"><span class="pre">ToolExecutionSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_parent_span=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_end_event_was_triggered=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_span_was_appended_to_active_stack=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_started_span_processors=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tracing.span.ToolExecutionSpan" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -810,7 +842,7 @@ as the closing event for this Span.</p>
 <li><p><strong>_end_event_was_triggered</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>_span_was_appended_to_active_stack</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>_started_span_processors</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.tracing.spanprocessor.SpanProcessor" title="wayflowcore.tracing.spanprocessor.SpanProcessor"><em>SpanProcessor</em></a><em>]</em>) – </p></li>
-<li><p><strong>tool</strong> (<em>Tool</em>) – </p></li>
+<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>) – </p></li>
 <li><p><strong>tool_request</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>) – </p></li>
 </ul>
 </dd>
@@ -821,11 +853,11 @@ as the closing event for this Span.</p>
 <dd><p>Record the given event as the closing event for this Span.</p>
 <p>Note that this method is supposed to be called only once per Span instance.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>output</strong> (<em>Any</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>output</strong> (<em>Any</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -836,23 +868,26 @@ as the closing event for this Span.</p>
 <dd><p>Return a serialized version of the span’s information to be used for tracing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p>
+<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary containing the serialized information of this span</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary containing the serialized information of this span</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.ToolExecutionSpan.tool">
-<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tool</span></em><a class="headerlink" href="#wayflowcore.tracing.span.ToolExecutionSpan.tool" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.tracing.span.ToolExecutionSpan.tool" title="Permalink to this definition">#</a></dt>
 <dd><p>The tool being executed</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.ToolExecutionSpan.tool_request">
-<span class="sig-name descname"><span class="pre">tool_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><span class="pre">ToolRequest</span></a></em><a class="headerlink" href="#wayflowcore.tracing.span.ToolExecutionSpan.tool_request" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a></em><a class="headerlink" href="#wayflowcore.tracing.span.ToolExecutionSpan.tool_request" title="Permalink to this definition">#</a></dt>
 <dd><p>The tool request (ID and arguments) with which the tool is being executed</p>
 </dd></dl>
 
@@ -860,7 +895,7 @@ as the closing event for this Span.</p>
 
 <span class="target" id="step-invocation-span"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.StepInvocationSpan">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tracing.span.</span></span><span class="sig-name descname"><span class="pre">StepInvocationSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span_id:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time:</span> <span class="pre">Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time:</span> <span class="pre">Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events:</span> <span class="pre">List[wayflowcore.events.event.Event]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_parent_span:</span> <span class="pre">Optional[ForwardRef('Span')]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_end_event_was_triggered:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_span_was_appended_to_active_stack:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_started_span_processors:</span> <span class="pre">List[ForwardRef('SpanProcessor')]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step:</span> <span class="pre">wayflowcore.steps.step.Step</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs:</span> <span class="pre">Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tracing.span.StepInvocationSpan" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tracing.span.</span></span><span class="sig-name descname"><span class="pre">StepInvocationSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_parent_span=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_end_event_was_triggered=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_span_was_appended_to_active_stack=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_started_span_processors=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tracing.span.StepInvocationSpan" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -880,7 +915,7 @@ as the closing event for this Span.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.StepInvocationSpan.inputs">
-<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.tracing.span.StepInvocationSpan.inputs" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.tracing.span.StepInvocationSpan.inputs" title="Permalink to this definition">#</a></dt>
 <dd><p>The inputs with which the step is being executed</p>
 </dd></dl>
 
@@ -890,18 +925,18 @@ as the closing event for this Span.</p>
 <dd><p>Record the given event as the closing event for this Span.</p>
 <p>Note that this method is supposed to be called only once per Span instance.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>step_result</strong> (<a class="reference internal" href="flows.html#wayflowcore.steps.step.StepResult" title="wayflowcore.steps.step.StepResult"><em>StepResult</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>step_result</strong> (<a class="reference internal" href="flows.html#wayflowcore.steps.step.StepResult" title="wayflowcore.steps.step.StepResult"><em>StepResult</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.StepInvocationSpan.step">
-<span class="sig-name descname"><span class="pre">step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><span class="pre">Step</span></a></em><a class="headerlink" href="#wayflowcore.tracing.span.StepInvocationSpan.step" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a></em><a class="headerlink" href="#wayflowcore.tracing.span.StepInvocationSpan.step" title="Permalink to this definition">#</a></dt>
 <dd><p>The step being executed</p>
 </dd></dl>
 
@@ -911,10 +946,13 @@ as the closing event for this Span.</p>
 <dd><p>Return a serialized version of the span’s information to be used for tracing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p>
+<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary containing the serialized information of this span</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary containing the serialized information of this span</p>
 </dd>
 </dl>
 </dd></dl>
@@ -923,7 +961,7 @@ as the closing event for this Span.</p>
 
 <span class="target" id="context-provider-execution-span"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.ContextProviderExecutionSpan">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tracing.span.</span></span><span class="sig-name descname"><span class="pre">ContextProviderExecutionSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span_id:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time:</span> <span class="pre">Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time:</span> <span class="pre">Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events:</span> <span class="pre">List[wayflowcore.events.event.Event]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_parent_span:</span> <span class="pre">Optional[ForwardRef('Span')]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_end_event_was_triggered:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_span_was_appended_to_active_stack:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_started_span_processors:</span> <span class="pre">List[ForwardRef('SpanProcessor')]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_provider:</span> <span class="pre">'ContextProvider'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tracing.span.ContextProviderExecutionSpan" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.tracing.span.</span></span><span class="sig-name descname"><span class="pre">ContextProviderExecutionSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_parent_span=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_end_event_was_triggered=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_span_was_appended_to_active_stack=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_started_span_processors=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_provider=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.tracing.span.ContextProviderExecutionSpan" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -942,7 +980,7 @@ as the closing event for this Span.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.tracing.span.ContextProviderExecutionSpan.context_provider">
-<span class="sig-name descname"><span class="pre">context_provider</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider" title="wayflowcore.contextproviders.contextprovider.ContextProvider"><span class="pre">ContextProvider</span></a></em><a class="headerlink" href="#wayflowcore.tracing.span.ContextProviderExecutionSpan.context_provider" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">context_provider</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider" title="wayflowcore.contextproviders.contextprovider.ContextProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContextProvider</span></code></a></em><a class="headerlink" href="#wayflowcore.tracing.span.ContextProviderExecutionSpan.context_provider" title="Permalink to this definition">#</a></dt>
 <dd><p>The context provider being executed</p>
 </dd></dl>
 
@@ -952,11 +990,11 @@ as the closing event for this Span.</p>
 <dd><p>Record the given event as the closing event for this Span.</p>
 <p>Note that this method is supposed to be called only once per Span instance.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>output</strong> (<em>Any</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>output</strong> (<em>Any</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -967,10 +1005,13 @@ as the closing event for this Span.</p>
 <dd><p>Return a serialized version of the span’s information to be used for tracing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p>
+<dd class="field-odd"><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary containing the serialized information of this span</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary containing the serialized information of this span</p>
 </dd>
 </dl>
 </dd></dl>
@@ -990,10 +1031,13 @@ as the closing event for this Span.</p>
 <dd><p>Export all ended spans to the configured Exporter that have not yet been exported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timeout_millis</strong> (<em>int</em>) – The time conceded to perform the flush</p>
+<dd class="field-odd"><p><strong>timeout_millis</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The time conceded to perform the flush</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>False if the timeout is exceeded, True otherwise</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>False if the timeout is exceeded, True otherwise</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1004,10 +1048,10 @@ as the closing event for this Span.</p>
 <dd><p>Called when a <cite>Span</cite> is ended.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>span</strong> (<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a>) – The spans that ends</p>
+<dd class="field-odd"><p><strong>span</strong> (<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><code class="xref py py-class docutils literal notranslate"><span class="pre">Span</span></code></a>) – The spans that ends</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1018,10 +1062,10 @@ as the closing event for this Span.</p>
 <dd><p>Called when a <cite>Span</cite> is started.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>span</strong> (<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a>) – The spans that starts</p>
+<dd class="field-odd"><p><strong>span</strong> (<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><code class="xref py py-class docutils literal notranslate"><span class="pre">Span</span></code></a>) – The spans that starts</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1032,7 +1076,7 @@ as the closing event for this Span.</p>
 <dd><p>Called when a <cite>Trace</cite> is shutdown.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1043,7 +1087,7 @@ as the closing event for this Span.</p>
 <dd><p>Called when a <cite>Trace</cite> is started.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1059,8 +1103,8 @@ passes ended spans directly to the configured <cite>SpanExporter</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>span_exporter</strong> (<a class="reference internal" href="#wayflowcore.tracing.spanexporter.SpanExporter" title="wayflowcore.tracing.spanexporter.SpanExporter"><em>SpanExporter</em></a>) – The SpanExporter to call at the end of each span</p></li>
-<li><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p></li>
+<li><p><strong>span_exporter</strong> (<a class="reference internal" href="#wayflowcore.tracing.spanexporter.SpanExporter" title="wayflowcore.tracing.spanexporter.SpanExporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpanExporter</span></code></a>) – The SpanExporter to call at the end of each span</p></li>
+<li><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p></li>
 </ul>
 </dd>
 </dl>
@@ -1070,10 +1114,13 @@ passes ended spans directly to the configured <cite>SpanExporter</cite>.</p>
 <dd><p>Export all ended spans to the configured Exporter that have not yet been exported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timeout_millis</strong> (<em>int</em>) – The time conceded to perform the flush</p>
+<dd class="field-odd"><p><strong>timeout_millis</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The time conceded to perform the flush</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>False if the timeout is exceeded, True otherwise</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>False if the timeout is exceeded, True otherwise</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1084,10 +1131,10 @@ passes ended spans directly to the configured <cite>SpanExporter</cite>.</p>
 <dd><p>Called when a <cite>Span</cite> is ended.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>span</strong> (<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a>) – The spans that ends</p>
+<dd class="field-odd"><p><strong>span</strong> (<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><code class="xref py py-class docutils literal notranslate"><span class="pre">Span</span></code></a>) – The spans that ends</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1098,10 +1145,10 @@ passes ended spans directly to the configured <cite>SpanExporter</cite>.</p>
 <dd><p>Called when a <cite>Span</cite> is started.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>span</strong> (<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a>) – The spans that starts</p>
+<dd class="field-odd"><p><strong>span</strong> (<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><code class="xref py py-class docutils literal notranslate"><span class="pre">Span</span></code></a>) – The spans that starts</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1112,7 +1159,7 @@ passes ended spans directly to the configured <cite>SpanExporter</cite>.</p>
 <dd><p>Called when a <cite>Trace</cite> is shutdown.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1123,7 +1170,7 @@ passes ended spans directly to the configured <cite>SpanExporter</cite>.</p>
 <dd><p>Called when a <cite>Trace</cite> is started.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1146,12 +1193,12 @@ the spans being recorded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>spans</strong> (<em>List</em><em>[</em><a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em>]</em>) – The spans to be exported</p></li>
-<li><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p></li>
+<li><p><strong>spans</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><code class="xref py py-class docutils literal notranslate"><span class="pre">Span</span></code></a>]) – The spans to be exported</p></li>
+<li><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1162,10 +1209,13 @@ the spans being recorded.</p>
 <dd><p>Ensure that all the pending exports are completed as soon as possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timeout_millis</strong> (<em>int</em>) – The time conceded to perform the flush</p>
+<dd class="field-odd"><p><strong>timeout_millis</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The time conceded to perform the flush</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>False if the timeout is exceeded, True otherwise</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>False if the timeout is exceeded, True otherwise</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1176,7 +1226,7 @@ the spans being recorded.</p>
 <dd><p>Shut down the exporter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1187,7 +1237,7 @@ the spans being recorded.</p>
 <dd><p>Start the exporter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1206,9 +1256,9 @@ the spans being recorded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>span_exporter</strong> (<em>SpanExporter</em>) – The OpenTelemetry SpanExporter to use to export spans.</p></li>
-<li><p><strong>resource</strong> (<em>Resource</em><em> | </em><em>None</em>) – The OpenTelemetry Resource to use in Spans.</p></li>
-<li><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p></li>
+<li><p><strong>span_exporter</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SpanExporter</span></code>) – The OpenTelemetry SpanExporter to use to export spans.</p></li>
+<li><p><strong>resource</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Resource</span></code>]) – The OpenTelemetry Resource to use in Spans.</p></li>
+<li><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p></li>
 </ul>
 </dd>
 </dl>
@@ -1223,9 +1273,9 @@ the spans being recorded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>span_exporter</strong> (<em>SpanExporter</em>) – The OpenTelemetry SpanExporter to use to export spans.</p></li>
-<li><p><strong>resource</strong> (<em>Resource</em><em> | </em><em>None</em>) – The OpenTelemetry Resource to use in Spans.</p></li>
-<li><p><strong>mask_sensitive_information</strong> (<em>bool</em>) – Whether to mask potentially sensitive information from the span and its events</p></li>
+<li><p><strong>span_exporter</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SpanExporter</span></code>) – The OpenTelemetry SpanExporter to use to export spans.</p></li>
+<li><p><strong>resource</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Resource</span></code>]) – The OpenTelemetry Resource to use in Spans.</p></li>
+<li><p><strong>mask_sensitive_information</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to mask potentially sensitive information from the span and its events</p></li>
 </ul>
 </dd>
 </dl>
@@ -1374,8 +1424,8 @@ the spans being recorded.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

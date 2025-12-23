@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -291,9 +291,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -306,6 +311,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -314,11 +321,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -330,11 +334,13 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
@@ -346,6 +352,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -478,7 +486,7 @@ from simpler building blocks.</p>
 </section>
 <section id="conversation">
 <h2>Conversation<a class="headerlink" href="#conversation" title="Permalink to this heading">#</a></h2>
-<p>A <a class="reference internal" href="../api/conversation.html#conversation"><span class="std std-ref">Conversation</span></a> is a stateful object that represents the execution state of a WayFlow assistant.
+<p>A <a class="reference internal" href="../api/conversation.html#id2"><span class="std std-ref">Conversation</span></a> is a stateful object that represents the execution state of a WayFlow assistant.
 It stores the list of <a class="reference internal" href="../api/conversation.html#message"><span class="std std-ref">messages</span></a> as well as information produced during the assistant execution (for example, tool calls, inputs/outputs produced by steps in a flow).</p>
 <p>The conversation object can be modified by the assistant through the <code class="docutils literal notranslate"><span class="pre">execute</span></code> method which updates the conversation state based on the assistant’s logic.
 It also serves as the interface from which end users can interact with WayFlow assistants (for example, by getting the current list of messages, appending a user message, and so on).</p>
@@ -492,7 +500,7 @@ It also serves as the interface from which end users can interact with WayFlow a
 </ul>
 </li>
 </ol>
-<p>For more information about how the Conversation is used, see the <a class="reference internal" href="../tutorials/index.html"><span class="doc">Tutorials</span></a>, or read the <a class="reference internal" href="../api/conversation.html#conversation"><span class="std std-ref">API reference</span></a>.</p>
+<p>For more information about how the Conversation is used, see the <a class="reference internal" href="../tutorials/index.html"><span class="doc">Tutorials</span></a>, or read the <a class="reference internal" href="../api/conversation.html#id2"><span class="std std-ref">API reference</span></a>.</p>
 </section>
 <section id="data-flow-edge">
 <h2>Data Flow Edge<a class="headerlink" href="#data-flow-edge" title="Permalink to this heading">#</a></h2>
@@ -551,7 +559,7 @@ for the list of supported models.</p>
 <p>A <a class="reference internal" href="../api/conversation.html#message"><span class="std std-ref">Message</span></a> is a core concept in WayFlow, representing a unit of communication between users and assistants. It provides a structured
 way to hold information and can contain various types of data including text, <a class="reference internal" href="../api/tools.html#toolrequest"><span class="std std-ref">tool requests</span></a>, <a class="reference internal" href="../api/tools.html#toolresult"><span class="std std-ref">results</span></a>, as well as other metadata.</p>
 <p>Messages are used throughout the library to hold information and facilitate communication between different components.
-The list of messages generated during an assistant execution can be accessed directly from a <a class="reference internal" href="../api/conversation.html#conversation"><span class="std std-ref">Conversation</span></a>.</p>
+The list of messages generated during an assistant execution can be accessed directly from a <a class="reference internal" href="../api/conversation.html#id2"><span class="std std-ref">Conversation</span></a>.</p>
 <p>Read more about messages in the <a class="reference internal" href="../api/conversation.html#message"><span class="std std-ref">API reference</span></a>.</p>
 </section>
 <section id="prompt-engineering-and-optimization">
@@ -603,10 +611,15 @@ context windows, and strategic use of examples and formatting.</p>
 <section id="prompt-template">
 <h2>Prompt Template<a class="headerlink" href="#prompt-template" title="Permalink to this heading">#</a></h2>
 <p>A prompt template is a standardized prompt structure with placeholders for variable inputs, designed to maintain consistency across similar queries
-while allowing for customization. WayFlow uses jinja-style placeholders to specify the input variables to the prompt (for more information check
-the <a class="reference external" href="https://jinja.palletsprojects.com/en/stable/templates">reference of jinja2</a>).</p>
+while allowing for customization. WayFlow uses Jinja-style placeholders to specify the input variables to the prompt (for more information check
+the <a class="reference external" href="https://jinja.palletsprojects.com/en/stable/templates">reference of Jinja2</a>).</p>
 <p>See the <a class="reference internal" href="../tutorials/index.html"><span class="doc">Tutorials and Use-Case Examples</span></a> for concrete examples, or check the
 <a class="reference internal" href="../api/flows.html#templaterenderingstep"><span class="std std-ref">TemplateRenderingStep API reference</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Jinja templating introduces security concerns that are addressed by WayFlow by restricting Jinja’s rendering capabilities.
+Please check our guide on <a class="reference internal" href="../howtoguides/howto_promptexecutionstep.html#securejinjatemplating"><span class="std std-ref">How to write secure prompts with Jinja templating</span></a> for more information.</p>
+</div>
 <p>Prompt templates can be used in WayFlow components that use LLMs, such as <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> and the <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a>.</p>
 </section>
 <section id="properties">
@@ -779,8 +792,8 @@ They can be accessed and modified throughout a Flow using <a class="reference in
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

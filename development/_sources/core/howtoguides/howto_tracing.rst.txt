@@ -1,8 +1,8 @@
 .. _top-tracing:
 
-====================================
+================================
 How to Enable Tracing in WayFlow
-====================================
+================================
 
 .. |python-icon| image:: ../../_static/icons/python-icon.svg
    :width: 40px
@@ -134,6 +134,24 @@ To do that, just wrap the execution loop of our agent in a :ref:`Trace <Trace>` 
     :end-before: .. end-##_Agent_Execution_With_Tracing
 
 You can now run our code and inspect the traces saved in your file.
+
+Emitting Agent Spec Traces
+==========================
+
+Open Agent Specification Tracing (short: Agent Spec Tracing) is an extension of
+Agent Spec that standardizes how agent and flow executions emit traces.
+It defines a unified, implementation-agnostic semantic for, Events, Spans, Traces, and SpanProcessors, with
+the same semantic presented for WayFlow in this guide.
+
+WayFlow offers an ``EventListener`` called :ref:`AgentSpecEventListener <agentspeceventlistener>` that
+makes WayFlow components emit traces according to the Agent Spec Tracing standard.
+Here's an example of how to use it in your code.
+
+.. literalinclude:: ../code_examples/howto_tracing.py
+    :language: python
+    :start-after: .. start-##_Enable_Agent_Spec_Tracing
+    :end-before: .. end-##_Enable_Agent_Spec_Tracing
+
 
 Agent Spec Exporting/Loading
 ============================

@@ -21,8 +21,6 @@ This page presents all APIs and classes related to WayFlow agents.
     Click the button above ↑ to visit the `Agent Spec Documentation <https://oracle.github.io/agent-spec/index.html>`_
 
 
-
-
 Agent related classes
 ---------------------
 
@@ -38,6 +36,13 @@ OCI Agent class
 
 .. _ociagent:
 .. autoclass:: wayflowcore.ociagent.OciAgent
+    :exclude-members: execute
+
+A2A Agent class
+~~~~~~~~~~~~~~~
+
+.. _a2aagent:
+.. autoclass:: wayflowcore.a2a.a2aagent.A2AAgent
     :exclude-members: execute
 
 DescribedFlow
@@ -58,8 +63,18 @@ Swarm class
 .. _swarm:
 .. autoclass:: wayflowcore.swarm.Swarm
 
+.. _handoffmode:
+.. autoclass:: wayflowcore.swarm.HandoffMode
+
 ManagerWorkers class
 ~~~~~~~~~~~~~~~~~~~~
 
 .. _managerworkers:
 .. autoclass:: wayflowcore.managerworkers.ManagerWorkers
+
+
+Agent Behavior Configuration
+----------------------------
+
+.. _callerinputmode:
+.. autoclass:: wayflowcore.agent.CallerInputMode

@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -330,19 +330,92 @@
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">#</a></h1>
 <section id="wayflow-26-1-0">
 <h2>WayFlow 26.1.0<a class="headerlink" href="#wayflow-26-1-0" title="Permalink to this heading">#</a></h2>
+<section id="security">
+<h3>Security<a class="headerlink" href="#security" title="Permalink to this heading">#</a></h3>
+<ul>
+<li><p><strong>Stricter environment for jinja templates rendering:</strong></p>
+<p>We now use a stricter version of the SandboxedEnvironment for rendering jinja templates.
+No access to object attributes is allowed, only key-based access to python dictionaries, lists, and main jinja LoopContext properties are allowed.</p>
+<p>Check the guide on <a class="reference internal" href="howtoguides/howto_promptexecutionstep.html#securejinjatemplating"><span class="std std-ref">How to write secure prompts with Jinja templating</span></a> for more information.</p>
+</li>
+</ul>
+</section>
+<section id="new-features">
+<h3>New features<a class="headerlink" href="#new-features" title="Permalink to this heading">#</a></h3>
+<ul>
+<li><p><strong>Agent Spec Tracing support:</strong></p>
+<p>Open Agent Specification Tracing (short: Agent Spec Tracing) is an extension of
+Agent Spec that standardizes how agent and flow executions emit traces.
+Wayflow now supports the emission of traces according to the Agent Spec Tracing standard.</p>
+<p>For more information read the guide on <a class="reference internal" href="howtoguides/howto_tracing.html"><span class="doc">How to Enable Tracing in WayFlow</span></a>.</p>
+</li>
+<li><p><strong>WayFlow Plugins:</strong></p>
+<p>Wayflow plugins allow users extending existing components (like Tools, Steps, etc.), or even creating
+new ones, and seamlessly integrate them in WayFlow and Agent Spec serialization and deserialization. For more information read the guide on <a class="reference internal" href="howtoguides/howto_plugins.html"><span class="doc">how to use WayFlow plugins</span></a>.</p>
+</li>
+<li><p><strong>OpenAI Responses API Support:</strong></p>
+<p><a class="reference internal" href="api/llmmodels.html#openaicompatiblemodel"><span class="std std-ref">OpenAICompatibleModel</span></a> now supports OpenAI Responses API, which can be configured
+using the <code class="docutils literal notranslate"><span class="pre">api_type</span></code> parameter, which accepts values from <a class="reference internal" href="api/llmmodels.html#openaiapitype"><span class="std std-ref">OpenAIAPIType</span></a>.</p>
+<p>This enhancement allows recent OpenAI models to better leverage advanced reasoning capabilities, resulting in significant performance improvements for Wayflow-powered workflows.</p>
+<p>For more information check out <a class="reference internal" href="howtoguides/llm_from_different_providers.html"><span class="doc">the how-to guide on LLMs from different providers</span></a>.</p>
+</li>
+<li><p><strong>Serve agents via OpenAI Responses API:</strong></p>
+<p>Added <a class="reference internal" href="api/agentserver.html#openairesponsesserver"><span class="std std-ref">OpenAIResponsesServer</span></a> and
+<a class="reference internal" href="api/agentserver.html#serverstorageconfig"><span class="std std-ref">ServerStorageConfig</span></a> to host WayFlow agents behind OpenAI
+Responses-compatible endpoints, with optional persistence through supported datastores.</p>
+<p>See <a class="reference internal" href="howtoguides/howto_serve_agents.html"><span class="doc">the new how-to guide on serving agents</span></a> for in-memory
+setup, datastore persistence, and Agent Spec export/reload examples.</p>
+</li>
+<li><p><strong>Serve agents via A2A protocol:</strong>
+Introduced the <a class="reference internal" href="api/agentserver.html#a2aserver"><span class="std std-ref">A2AServer</span></a> class for serving WayFlow conversational components using the A2A protocol.</p>
+<p>For more information check out <a class="reference internal" href="howtoguides/howto_a2a_serving.html"><span class="doc">how to serve assistants with A2A protocol</span></a>.</p>
+</li>
+</ul>
+</section>
 <section id="improvements">
 <h3>Improvements<a class="headerlink" href="#improvements" title="Permalink to this heading">#</a></h3>
 <ul>
+<li><p><strong>Support list, dict and tuple output types in MCP tools:</strong></p>
+<p>MCP tools now support non-string output types (list of string, dictionary of strings
+and tuple of these types)</p>
+<p>For more information see the guide on <a class="reference internal" href="howtoguides/howto_mcp.html"><span class="doc">using MCP tools</span></a>.</p>
+</li>
 <li><p><strong>Connection persistence for MCP servers:</strong></p>
 <p>MCP client sessions are now reused which improves MCP calls latency and enables
 uses where maintaining a session is required.</p>
 <p>This does not require any change to existing assistants or execution loops.</p>
+</li>
+<li><p><strong>Deserialization:</strong></p>
+<p>Deserialization of large conversations with many agents is now much faster due to optimizations in
+the deserialization code.</p>
+</li>
+<li><p><strong>Long Message Summarization including Image Support</strong></p>
+<p>Added <cite>MessageSummarizationTransform</cite> which summarizes messages (including images) exceeding a configurable length
+threshold using a specified LLM and caches the summaries in a user-provided <cite>DataStore</cite> with
+configurable size, LRU eviction, and entry lifetime.</p>
+</li>
+<li><p><strong>Long Conversation Summarization including Image Support</strong></p>
+<p>Added <cite>ConversationSummarizationTransform</cite> which summarizes conversations exceeding a configurable number of messages
+using a specified LLM and caches the summaries in a user-provided <cite>DataStore</cite> with configurable size, LRU eviction,
+and entry lifetime. This helps manage long conversation contexts by summarizing older parts while preserving recent
+messages.</p>
+<p>Transforms can now be assigned to an agent through its constructor. (This is not supported in <cite>agentspec</cite>, so attempting to convert agents with transforms to <cite>agentspec</cite> will raise a <cite>NotImplementedError</cite>)</p>
+</li>
+<li><p><strong>Improve Swarm prompt template and introduce HandoffMode:</strong></p>
+<p>Removed redundant agent descriptions from the Swarm template and added a guidance rule that encourages agents to hand off when appropriate.
+Introduced <code class="docutils literal notranslate"><span class="pre">HandoffMode</span></code> to Swarm. In addition to the existing modes (<code class="docutils literal notranslate"><span class="pre">True</span></code> → <code class="docutils literal notranslate"><span class="pre">HandoffMode.OPTIONAL</span></code>, <code class="docutils literal notranslate"><span class="pre">False</span></code> → <code class="docutils literal notranslate"><span class="pre">HandoffMode.NEVER</span></code>),
+a new mode <code class="docutils literal notranslate"><span class="pre">HandoffMode.ALWAYS</span></code> is now supported, requiring agents to always use the handoff
+mechanism when delegating tasks to other agents. Read more at <a class="reference internal" href="api/agent.html#handoffmode"><span class="std std-ref">HandoffMode</span></a>.</p>
+<p>This significantly reduces token usage and improves execution speed.</p>
 </li>
 </ul>
 </section>
 <section id="possibly-breaking-changes">
 <h3>Possibly Breaking Changes<a class="headerlink" href="#possibly-breaking-changes" title="Permalink to this heading">#</a></h3>
 <ul>
+<li><p><strong>Stricter environment for jinja templates rendering:</strong></p>
+<p>The new version of the Environment used to render templates could raise SecurityErrors on templates previously accepted.</p>
+</li>
 <li><p><strong>Removed deprecated Agent/Flow.execute:</strong></p>
 <p>Removed the deprecated method of <code class="docutils literal notranslate"><span class="pre">Agent/Flow.execute(conversation)</span></code> in favor of <code class="docutils literal notranslate"><span class="pre">conversation.execute()</span></code>.</p>
 </li>
@@ -363,10 +436,35 @@ uses where maintaining a session is required.</p>
 <section id="bug-fixes">
 <h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">#</a></h3>
 <ul>
+<li><p><strong>Fixed several issues related to event tracing serialization when containing execution state:</strong></p>
+<p>Fixed an issue where <code class="docutils literal notranslate"><span class="pre">FlowExecutionIterationStartedEvent</span></code> and
+<code class="docutils literal notranslate"><span class="pre">FlowExecutionIterationFinishedEvent</span></code> could raise when the execution state contained values that
+are not supported by the serializer. The tracing helpers now fall back to stringifying those
+values while preserving container structures.</p>
+</li>
+<li><p><strong>Recording of end span event in case of exception:</strong></p>
+<p>Fixed a bug where if an exception happened during a span, it would not be recorded and the span closing would
+raise an unwanted warning. Now properly records the exception as an ExceptionRaisedEvent and does not throw
+a warning.</p>
+</li>
+<li><p><strong>Default values in agents inputs were ignored:</strong></p>
+<p>Fixed a bug where if agents had input descriptors with default values set, these defaults were ignored and not
+used when starting a conversation. Now default values of input descriptors are used if they are set, and no
+input entry with the descriptor name is passed to the <code class="docutils literal notranslate"><span class="pre">start_conversation</span></code> method.</p>
+</li>
 <li><p><strong>Default values in tools outputs were ignored:</strong></p>
 <p>Fixed a bug where if tools had multiple output descriptors with default values set for some of them, these defaults were ignored and not
 set in the tool result if the tool execution did not produce a value for them. Tools that have a single output still ignore
 its default, as a return value is always assumed to be produced by the tool (possibly <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p>
+</li>
+<li><p><strong>Fixed warnings raised when LLM streaming generator was not properly closed:</strong></p>
+<p>Fixed a bug where streaming LLM generation in a <code class="docutils literal notranslate"><span class="pre">chainlit</span></code> app could raise warnings due to a non-closed generator. The generator is now properly
+closed and we silence the known issue on the <code class="docutils literal notranslate"><span class="pre">httpx</span></code> library.</p>
+</li>
+<li><p><strong>Continuing an agent conversation after an exception was raised could cause an exception:</strong></p>
+<p>Fixed a bug where if an exception would occur during a tool, a sub-agent or a sub-flow call of an agent, the conversation
+could not be resumed afterwards because the conversation would miss the tool results of any calls that should have
+been done after the call that raised. It now posts results mentioning the call was skipped due to a previous failure.</p>
 </li>
 <li><p><strong>Some Agent and Flow names could cause issues when used in multi-agent patterns:</strong></p>
 <p>Fixed a bug where Agents or Flows, whose name contains whitespaces or special characters, would crash upon sending a request to the LLM provider</p>
@@ -375,13 +473,17 @@ its default, as a return value is always assumed to be produced by the tool (pos
 <li><p>Now, users may specify arbitrary names for Agents and Flows. Internally, when creating Tools out of subagents and subflows, their names would be sanitized.</p></li>
 </ul>
 </li>
+<li><p><strong>Configuring Agents with PromptTemplates no longer requires custom instruction</strong></p>
+<p>Fixed a bug where instantiating an Agent with an <code class="docutils literal notranslate"><span class="pre">agent_template</span></code>, <code class="docutils literal notranslate"><span class="pre">initial_message=None</span></code> and <code class="docutils literal notranslate"><span class="pre">custom_instruction=None</span></code> would raise an exception.
+Now, users can fully specify the agent template without having to additionally specify initial messages or custom instructions.</p>
+</li>
 </ul>
 </section>
 </section>
 <section id="wayflow-25-4-2">
 <h2>WayFlow 25.4.2<a class="headerlink" href="#wayflow-25-4-2" title="Permalink to this heading">#</a></h2>
-<section id="new-features">
-<h3>New features<a class="headerlink" href="#new-features" title="Permalink to this heading">#</a></h3>
+<section id="id1">
+<h3>New features<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
 <ul>
 <li><p><strong>Agent Spec structured generation:</strong>
 Open Agent Specification introduced Structured Generation in version 25.4.2.
@@ -399,8 +501,8 @@ Introduced a new Message Transform specialization that splits prompts on a marke
 </li>
 </ul>
 </section>
-<section id="id1">
-<h3>Bug fixes<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<section id="id2">
+<h3>Bug fixes<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
 <ul>
 <li><p><strong>Flow input and output descriptors</strong></p>
 <p>Fixed a bug where Flow input and output descriptors were sometimes ignored:</p>
@@ -433,8 +535,8 @@ Upgraded <strong>MCP</strong> to <strong>1.17.0</strong> and <strong>PyYAML</str
 and <a class="reference external" href="https://github.com/advisories/GHSA-8q59-q68h-6hv4">GHSA-8q59-q68h-6hv4</a>.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3>Improvements<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<section id="id3">
+<h3>Improvements<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
 <ul>
 <li><p><strong>Use execution statuses to interact with the components</strong>
 Users can now directly see the conversation state and interact with the agent via the execution status.</p>
@@ -505,16 +607,18 @@ Modular design ensures you can rapidly build, iterate, and customize both simple
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflow-26-1-0">WayFlow 26.1.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#security">Security</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#improvements">Improvements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#possibly-breaking-changes">Possibly Breaking Changes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug fixes</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflow-25-4-2">WayFlow 25.4.2</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Bug fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">New features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Bug fixes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#miscellaneous">Miscellaneous</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Improvements</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflow-25-4-1-initial-release">WayFlow 25.4.1 — Initial release</a></li>
@@ -534,8 +638,8 @@ Modular design ensures you can rapidly build, iterate, and customize both simple
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

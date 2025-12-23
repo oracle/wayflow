@@ -13,6 +13,9 @@ Base classes
 Serialization
 -------------
 
+.. _serializationcontext:
+.. autoclass:: wayflowcore.serialization.context.SerializationContext
+
 .. _serialize:
 .. autofunction:: wayflowcore.serialization.serializer.serialize
 
@@ -20,8 +23,25 @@ Serialization
 Deserialization
 ---------------
 
+.. _deserializationcontext:
+.. autoclass:: wayflowcore.serialization.context.DeserializationContext
+
 .. _deserialize:
 .. autofunction:: wayflowcore.serialization.serializer.deserialize
 
 .. _autodeserialize:
 .. autofunction:: wayflowcore.serialization.serializer.autodeserialize
+
+
+Plugins
+-------
+
+WayFlow Plugins are the expected mean that users can use to introduce new concepts and components, or extensions to existing ones,
+such that they can be integrated seamlessly into the serialization, deserialization, and Agent Spec conversion processes
+of WayFlow.
+
+.. _wayflowserializationplugin:
+.. autoclass:: wayflowcore.serialization.plugins.WayflowSerializationPlugin
+
+.. _wayflowdeserializationplugin:
+.. autoclass:: wayflowcore.serialization.plugins.WayflowDeserializationPlugin

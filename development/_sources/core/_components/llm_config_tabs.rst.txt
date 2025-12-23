@@ -8,16 +8,15 @@
 
         .. code-block:: python
 
-            from wayflowcore.models import OCIGenAIModel
+            from wayflowcore.models import OCIGenAIModel, OCIClientConfigWithApiKey
 
-            if __name__ == "__main__":
-
-                llm = OCIGenAIModel(
-                    model_id="provider.model-id",
+            llm = OCIGenAIModel(
+                model_id="provider.model-id",
+                compartment_id="compartment-id",
+                client_config=OCIClientConfigWithApiKey(
                     service_endpoint="https://url-to-service-endpoint.com",
-                    compartment_id="compartment-id",
-                    auth_type="API_KEY",
-                )
+                ),
+            )
 
     .. tab:: vLLM
 

@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -56,7 +56,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.0.dev0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -291,9 +291,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
@@ -306,6 +311,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
@@ -314,11 +321,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
@@ -330,11 +334,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
+
 <li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agentserver.html">Agent Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
@@ -346,6 +352,8 @@
 <li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
 </ul>
 </details></li>
 </ul>
@@ -432,10 +440,10 @@ intermediate results for reuse at later stages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Name of the variable</p></li>
-<li><p><strong>type</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>wayflowcore.property.Property</em></a>) – Type of the variable</p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – Description of the variable</p></li>
-<li><p><strong>default_value</strong> (<em>Any</em>) – <p>Default value for the variable before any write operation is performed.</p>
+<li><p><strong>name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Name of the variable</p></li>
+<li><p><strong>type</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>) – Type of the variable</p></li>
+<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Description of the variable</p></li>
+<li><p><strong>default_value</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>) – <p>Default value for the variable before any write operation is performed.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Collections (lists or dictionaries) must have their default value
@@ -499,18 +507,18 @@ set to a (possibly empty) instance of that collection to enable merge and insert
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.variable.Variable.default_value">
-<span class="sig-name descname"><span class="pre">default_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.variable.Variable.default_value" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">default_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.variable.Variable.default_value" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.variable.Variable.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.variable.Variable.from_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>args</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.variable.Variable" title="wayflowcore.variable.Variable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variable</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.variable.Variable" title="wayflowcore.variable.Variable"><em>Variable</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>args</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -519,11 +527,11 @@ set to a (possibly empty) instance of that collection to enable merge and insert
 <dt class="sig sig-object py" id="wayflowcore.variable.Variable.from_property">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.variable.Variable.from_property" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>property_</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a>) – </p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wayflowcore.variable.Variable" title="wayflowcore.variable.Variable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variable</span></code></a></p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#wayflowcore.variable.Variable" title="wayflowcore.variable.Variable"><em>Variable</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>property_</strong> (<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -533,7 +541,7 @@ set to a (possibly empty) instance of that collection to enable merge and insert
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.variable.Variable.to_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Dict</em>[str, <em>Any</em>]</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -543,21 +551,21 @@ set to a (possibly empty) instance of that collection to enable merge and insert
 <span class="sig-name descname"><span class="pre">to_property</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.variable.Variable.to_property" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.variable.Variable.type">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><span class="pre">Property</span></a></em><a class="headerlink" href="#wayflowcore.variable.Variable.type" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a></em><a class="headerlink" href="#wayflowcore.variable.Variable.type" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <span class="target" id="variablewriteoperation"></span><dl class="py class">
 <dt class="sig sig-object py" id="wayflowcore.variable.VariableWriteOperation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.variable.</span></span><span class="sig-name descname"><span class="pre">VariableWriteOperation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.variable.VariableWriteOperation" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.variable.</span></span><span class="sig-name descname"><span class="pre">VariableWriteOperation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.variable.VariableWriteOperation" title="Permalink to this definition">#</a></dt>
 <dd><p>Operations that can be performed when writing a variable.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.variable.VariableWriteOperation.INSERT">
@@ -601,15 +609,15 @@ These variables are stored in a key-value store distinct from the I/O system.</p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>variable</strong> (<a class="reference internal" href="#wayflowcore.variable.Variable" title="wayflowcore.variable.Variable"><em>Variable</em></a>) – <code class="docutils literal notranslate"><span class="pre">Variable</span></code> to read from.
+<li><p><strong>variable</strong> (<a class="reference internal" href="#wayflowcore.variable.Variable" title="wayflowcore.variable.Variable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variable</span></code></a>) – <code class="docutils literal notranslate"><span class="pre">Variable</span></code> to read from.
 If the variable refers to a non-existent <code class="docutils literal notranslate"><span class="pre">Variable</span></code> (not passed into the flow), the flow constructor will throw an error.
 An exception is raised if the read returns a <code class="docutils literal notranslate"><span class="pre">None</span></code> value.</p></li>
-<li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – Input descriptors of the step. <code class="docutils literal notranslate"><span class="pre">None</span></code> means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.</p></li>
-<li><p><strong>output_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – Output descriptors of the step. <code class="docutils literal notranslate"><span class="pre">None</span></code> means the step will resolve them automatically using its static
+<li><p><strong>input_descriptors</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]]) – Input descriptors of the step. <code class="docutils literal notranslate"><span class="pre">None</span></code> means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.</p></li>
+<li><p><strong>output_descriptors</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]]) – Output descriptors of the step. <code class="docutils literal notranslate"><span class="pre">None</span></code> means the step will resolve them automatically using its static
 configuration in a best effort manner.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the step.</p></li>
-<li><p><strong>input_mapping</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – Mapping between the name of the inputs this step expects and the name to get it from in the conversation input/output dictionary.</p></li>
-<li><p><strong>output_mapping</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – Mapping between the name of the outputs this step expects and the name to get it from in the conversation input/output dictionary.</p></li>
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Name of the step.</p></li>
+<li><p><strong>input_mapping</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Mapping between the name of the inputs this step expects and the name to get it from in the conversation input/output dictionary.</p></li>
+<li><p><strong>output_mapping</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Mapping between the name of the outputs this step expects and the name to get it from in the conversation input/output dictionary.</p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
 </ul>
 </dd>
@@ -663,12 +671,12 @@ configuration in a best effort manner.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">input_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em></dt>
+<span class="sig-name descname"><span class="pre">input_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict[str,</span> <span class="pre">str]</span></em></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">output_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em></dt>
+<span class="sig-name descname"><span class="pre">output_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict[str,</span> <span class="pre">str]</span></em></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -693,9 +701,9 @@ These variables are stored in a key-value store distinct from the I/O system.</p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>variable</strong> (<a class="reference internal" href="#wayflowcore.variable.Variable" title="wayflowcore.variable.Variable"><em>Variable</em></a>) – <code class="docutils literal notranslate"><span class="pre">Variable</span></code> to write to.
+<li><p><strong>variable</strong> (<a class="reference internal" href="#wayflowcore.variable.Variable" title="wayflowcore.variable.Variable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variable</span></code></a>) – <code class="docutils literal notranslate"><span class="pre">Variable</span></code> to write to.
 If the variable refers to a non-existent Variable (not passed into the flow), the flow construction will throw an error.</p></li>
-<li><p><strong>operation</strong> (<a class="reference internal" href="#wayflowcore.variable.VariableWriteOperation" title="wayflowcore.variable.VariableWriteOperation"><em>VariableWriteOperation</em></a>) – <p>The type of write operation to perform.</p>
+<li><p><strong>operation</strong> (<a class="reference internal" href="#wayflowcore.variable.VariableWriteOperation" title="wayflowcore.variable.VariableWriteOperation"><code class="xref py py-class docutils literal notranslate"><span class="pre">VariableWriteOperation</span></code></a>) – <p>The type of write operation to perform.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><code class="docutils literal notranslate"><span class="pre">VariableWriteOperation.OVERWRITE</span></code> (or <code class="docutils literal notranslate"><span class="pre">'overwrite'</span></code>) works on any type of variable to replace its value with the incoming value.
@@ -706,12 +714,12 @@ as a default value should have been provided when constructing the <code class="
 The <code class="docutils literal notranslate"><span class="pre">VariableWriteOperation.INSERT</span></code> (or <code class="docutils literal notranslate"><span class="pre">'insert'</span></code>) operation can be used to append a single element at the end of a list.</p>
 </div>
 </p></li>
-<li><p><strong>input_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – Input descriptors of the step. <code class="docutils literal notranslate"><span class="pre">None</span></code> means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.</p></li>
-<li><p><strong>output_descriptors</strong> (<em>List</em><em>[</em><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><em>Property</em></a><em>] </em><em>| </em><em>None</em>) – Output descriptors of the step. <code class="docutils literal notranslate"><span class="pre">None</span></code> means the step will resolve them automatically using its static
+<li><p><strong>input_descriptors</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]]) – Input descriptors of the step. <code class="docutils literal notranslate"><span class="pre">None</span></code> means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.</p></li>
+<li><p><strong>output_descriptors</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]]) – Output descriptors of the step. <code class="docutils literal notranslate"><span class="pre">None</span></code> means the step will resolve them automatically using its static
 configuration in a best effort manner.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the step.</p></li>
-<li><p><strong>input_mapping</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – Mapping between the name of the inputs this step expects and the name to get it from in the conversation input/output dictionary.</p></li>
-<li><p><strong>output_mapping</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – Mapping between the name of the outputs this step expects and the name to get it from in the conversation input/output dictionary.</p></li>
+<li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Name of the step.</p></li>
+<li><p><strong>input_mapping</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Mapping between the name of the inputs this step expects and the name to get it from in the conversation input/output dictionary.</p></li>
+<li><p><strong>output_mapping</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – Mapping between the name of the outputs this step expects and the name to get it from in the conversation input/output dictionary.</p></li>
 <li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
 </ul>
 </dd>
@@ -766,12 +774,12 @@ configuration in a best effort manner.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">input_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em></dt>
+<span class="sig-name descname"><span class="pre">input_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict[str,</span> <span class="pre">str]</span></em></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">output_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em></dt>
+<span class="sig-name descname"><span class="pre">output_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict[str,</span> <span class="pre">str]</span></em></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -832,8 +840,8 @@ configuration in a best effort manner.</p></li>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

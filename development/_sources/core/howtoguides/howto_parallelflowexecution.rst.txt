@@ -23,11 +23,11 @@ How to Run Multiple Flows in Parallel
 Parallelism is a fundamental concept in computing that enables tasks to be processed concurrently,
 significantly enhancing system efficiency, scalability, and overall performance.
 
-WayFlow supports the execution of multiple Flows in parallel, using the :ref:`ParallelFlowExecutionStep <ParallelFlowExecutionStep>`.
+WayFlow supports the execution of multiple Flows in parallel, using the :ref:`ParallelFlowExecutionStep <parallelflowexecutionstep>`.
 This guide will show you how to:
 
-- use :ref:`ParallelFlowExecutionStep <ParallelFlowExecutionStep>` to run several tasks in parallel
-- use :ref:`PromptExecutionStep <PromptExecutionStep>` to summarize the outcome of the parallel tasks
+- use :ref:`ParallelFlowExecutionStep <parallelflowexecutionstep>` to run several tasks in parallel
+- use :ref:`PromptExecutionStep <promptexecutionstep>` to summarize the outcome of the parallel tasks
 
 To follow this guide, you need an LLM.
 WayFlow supports several LLM API providers.
@@ -86,7 +86,7 @@ Notes about parallelization
 ===========================
 
 Not all sub-flows can be executed in parallel.
-The table below summarizes the limitations of parallel execution for the :class:`ParallelFlowExecutionStep`:
+The table below summarizes the limitations of parallel execution for the :ref:`ParallelFlowExecutionStep <parallelflowexecutionstep>`:
 
   .. list-table::
    :widths: 30 50 50 45
