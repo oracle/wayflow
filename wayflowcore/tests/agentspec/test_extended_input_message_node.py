@@ -10,6 +10,7 @@ from pyagentspec.flows.edges import ControlFlowEdge
 from pyagentspec.flows.flow import Flow
 from pyagentspec.flows.nodes import EndNode, InputMessageNode, StartNode
 from pyagentspec.llms import VllmConfig
+from pyagentspec.property import StringProperty
 
 from wayflowcore import Flow as WayflowFlow
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
@@ -37,6 +38,36 @@ def test_input_message_node_is_deserialized_correctly() -> None:
     assert isinstance(input_step, InputMessageStep)
     assert input_step.message_template is None
     assert not input_step.rephrase
+
+
+def test_input_message_node_is_serialized_and_deserialized_correctly() -> None:
+    start_node = StartNode(name="start")
+    end_node = EndNode(name="end")
+    input_node = InputMessageNode(name="input_node", outputs=[StringProperty(title="userin")])
+    flow = Flow(
+        name="flow",
+        start_node=start_node,
+        nodes=[start_node, end_node, input_node],
+        control_flow_connections=[
+            ControlFlowEdge(name="c1", from_node=start_node, to_node=input_node),
+            ControlFlowEdge(name="c2", from_node=input_node, to_node=end_node),
+        ],
+        data_flow_connections=[],
+    )
+    wayflow_flow = cast(WayflowFlow, AgentSpecLoader().load_component(flow))
+    input_step = wayflow_flow.steps["input_node"]
+    assert isinstance(input_step, InputMessageStep)
+    assert input_step.message_template is None
+    assert not input_step.rephrase
+
+    agentspec_flow = AgentSpecExporter().to_component(wayflow_flow)
+    deserialized_input_node = next(
+        node for node in agentspec_flow.nodes if isinstance(node, InputMessageNode)
+    )
+    assert type(deserialized_input_node) is InputMessageNode  # Must be exact type, no child
+    assert deserialized_input_node.name == "input_node"
+    assert len(deserialized_input_node.outputs) == 1
+    assert deserialized_input_node.outputs[0].title == "userin"
 
 
 def test_extended_input_message_node_is_deserialized_correctly() -> None:
