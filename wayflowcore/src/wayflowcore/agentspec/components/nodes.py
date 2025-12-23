@@ -267,7 +267,7 @@ class PluginInputMessageNode(ExtendedNode, InputMessageNode):
 
     def _get_non_mapped_inferred_inputs(self) -> List[Property]:
         return get_placeholder_properties_from_string_with_jinja_loops(
-            getattr(self, "message_template", "")
+            getattr(self, "message_template", "") or ""  # message_template could be None
         )
 
     def _get_non_mapped_inferred_outputs(self) -> List[Property]:
