@@ -9,8 +9,12 @@ from pathlib import Path
 from typing import Any, Dict, Union, cast
 
 import pytest
+from pyagentspec.agent import Agent as AgentSpecAgent
+from pyagentspec.llms import VllmConfig
+from pyagentspec.serialization import AgentSpecSerializer
 
 from wayflowcore.agent import Agent as RuntimeAgent
+from wayflowcore.agent import CallerInputMode
 from wayflowcore.agentspec import AgentSpecLoader
 from wayflowcore.executors.executionstatus import ExecutionStatus, FinishedStatus
 from wayflowcore.flow import Flow as RuntimeFlow
@@ -190,3 +194,23 @@ def test_apinode_exposes_http_response_among_outputs_when_executed() -> None:
     status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     assert "http_response" in status.output_values
+
+
+@pytest.mark.parametrize(
+    "human_in_the_loop, expected_caller_input_mode",
+    [
+        (True, CallerInputMode.ALWAYS),
+        (False, CallerInputMode.NEVER),
+    ],
+)
+def test_agent_caller_input_mode(human_in_the_loop, expected_caller_input_mode) -> None:
+    agent = AgentSpecAgent(
+        name="Hello",
+        description="",
+        llm_config=VllmConfig(name="openai-llm", model_id="model-id", url="http://<url>"),
+        system_prompt="Hello",
+        human_in_the_loop=human_in_the_loop,
+    )
+    serialized_agent = AgentSpecSerializer().to_json(agent)
+    wayflow_agent = AgentSpecLoader().load_json(serialized_agent)
+    assert wayflow_agent.caller_input_mode == expected_caller_input_mode

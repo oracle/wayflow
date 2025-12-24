@@ -1873,12 +1873,6 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     != extended_agent_model_fields["max_iterations"].default
                 )
             )
-            or (
-                inputmode_default := (
-                    runtime_agent.caller_input_mode
-                    != extended_agent_model_fields["caller_input_mode"].default
-                )
-            )
             or (has_subagents := len(agents) > 0)
             or (has_subflows := len(flows) > 0)
         ):
@@ -1907,6 +1901,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 max_iterations=runtime_agent.max_iterations,
                 initial_message=runtime_agent.initial_message,
                 caller_input_mode=runtime_agent.caller_input_mode,
+                human_in_the_loop=runtime_agent.caller_input_mode == CallerInputMode.ALWAYS,
                 agent_template=(
                     self._prompttemplate_convert_to_agentspec(
                         conversion_context,
@@ -1929,6 +1924,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             inputs=inputs,
             outputs=outputs,
             metadata=metadata,
+            human_in_the_loop=runtime_agent.caller_input_mode == CallerInputMode.ALWAYS,
         )
 
     def _flow_convert_to_agentspec(
