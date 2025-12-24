@@ -203,6 +203,7 @@ class SwarmRunner(ConversationExecutor):
                     "output_descriptors": (
                         swarm_config.output_descriptors if current_thread.is_main_thread else []
                     ),
+                    "input_descriptors": swarm_config.input_descriptors,
                     "id": current_agent.name,
                     # ^Change the agent id to agent name -> message.sender = agent_id = agent_name -> easier for llm to know which agent sending the message
                     # Note: this is a workaround and should be fixed in the future

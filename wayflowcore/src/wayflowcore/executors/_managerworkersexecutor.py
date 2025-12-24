@@ -240,8 +240,58 @@ class ManagerWorkersRunner(ConversationExecutor):
                 # or tools that need confirmations of either the manager or a worker
                 return status
             else:
-                # 5. illegal agent finishing the conversation
-                raise ValueError("Conversation is finished unexpectedly.")
+                # 5. finish status: happedning when caller_input_mode == NEVER
+                return status
+
+    @staticmethod
+    def _handle_pending_tool_requests_of_manager(
+        manager: Agent,
+        manager_conversation: "AgentConversation",
+        managerworkers_conversation: "ManagerWorkersConversation",
+    ) -> _ToolProcessSignal:
+        if not isinstance(manager_conversation.status, ToolRequestStatus):
+            raise ValueError("Internal error: the status should be ToolRequestStatus")
+
+        if manager_conversation.status._tool_results:
+            manager_conversation._update_conversation_with_status()
+
+        manager_conv_state = manager_conversation.state
+        manager_conv_state._get_current_tool_request()
+        tool_request = manager_conv_state.current_tool_request
+
+        if not tool_request:
+            # no tool left to execute, resume current agent execution
+            manager_conversation.status = None
+            return _ToolProcessSignal.EXECUTE_AGENT
+
+        # Case 1: send_message tool
+        if tool_request.name == _SEND_MESSAGE_TOOL_NAME:
+            ManagerWorkersRunner._send_message_to_worker(
+                managerworkers_conversation=managerworkers_conversation,
+                managerworkers_config=managerworkers_conversation.component,
+            )
+
+            manager_conv_state.current_tool_request = None
+
+            return (
+                _ToolProcessSignal.START_NEW_LOOP
+            )  # start a new loop to handle other pending tools if any
+
+        tool = next((t for t in manager.tools if t.name == tool_request.name), None)
+
+        # Case 2: standard client tool
+        if tool and isinstance(tool, ClientTool):
+            # Only one tool request is surfaced to the user at a time, other tool calls are still in the queue
+            manager_conversation.status.tool_requests = [tool_request]
+            # This is done here instead of the agent executor as tool handling for manager agent is done here
+            manager_conv_state.current_tool_request = None
+
+            return _ToolProcessSignal.RETURN
+
+        # Case 3: Server tool or other internal tool
+        # -> Let agent handle it (agent will check the current_tool_request)
+        manager_conversation.status = None
+        return _ToolProcessSignal.EXECUTE_AGENT
 
     @staticmethod
     def _handle_pending_tool_requests_of_manager(

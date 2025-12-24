@@ -14,6 +14,7 @@ from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
+from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import IntegerProperty, Property, StringProperty
 from wayflowcore.steps import OutputMessageStep
@@ -791,3 +792,71 @@ def test_swarm_can_run_in_non_conversational_mode_with_input_and_output_descript
     conversation.execute()
     status = conversation.execute()
     assert "20" in status.output_values["output_message"]
+
+
+@retry_test(max_attempts=3)
+def test_agent_step_with_managerworkers_with_input_descriptors_can_execute(vllm_responses_llm):
+    """
+    Failure rate:          1 out of 50
+    Observed on:           2025-12-24
+    Average success time:  2.64 seconds per successful attempt
+    Average failure time:  1.14 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    """
+    llm = vllm_responses_llm
+
+    first_agent = Agent(
+        llm=llm,
+        name="first_agent",
+        description="first agent",
+        custom_instruction="You are a helpful agent. Here's what you know: {{context_1}}. You are answering an user with the name: `{{username}}`.",
+    )
+
+    second_agent = Agent(
+        llm=llm,
+        name="second_agent",
+        description="second agent",
+    )
+
+    group = ManagerWorkers(
+        group_manager=first_agent,
+        workers=[second_agent],
+        input_descriptors=[
+            StringProperty(name="context_1", default_value="Video games"),
+            StringProperty(name="username"),
+        ],  # can declare input descriptors of the manager using ManagerWorkers's input_descriptors,
+        # users can also define it within the manager agent.
+    )
+
+    agent_step = AgentExecutionStep(
+        agent=group,
+    )
+
+    flow = Flow.from_steps(steps=[agent_step])
+
+    assert len(flow.input_descriptors) == 2
+    assert {"context_1", "username"} == set(
+        descriptor.name for descriptor in flow.input_descriptors
+    )
+    context_input = next(
+        descriptor for descriptor in flow.input_descriptors if descriptor.name == "context_1"
+    )
+    assert context_input.default_value == "Video games"
+
+    conv = flow.start_conversation({"username": "John"})
+
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    status.submit_user_response("What is the name of the user you are interacting?")
+
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    last_message = status.message
+    assert "john" in last_message.content.lower()
+    status.submit_user_response("What do you know?")
+
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    last_message = status.message
+    assert "video" in last_message.content.lower() or "game" in last_message.content.lower()
