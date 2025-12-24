@@ -14,6 +14,7 @@ import yaml
 
 from wayflowcore.a2a.a2aagent import A2AAgent as RuntimeA2AAgent
 from wayflowcore.agent import Agent as RuntimeAgent
+from wayflowcore.agent import CallerInputMode
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
 from wayflowcore.flow import Flow as RuntimeFlow
 from wayflowcore.ociagent import OciAgent as RuntimeOciAgent
@@ -227,3 +228,18 @@ def test_agent2core_converter_raises_error_with_non_empty_transforms():
 
         with pytest.raises(NotImplementedError):
             agentspec_json = AgentSpecExporter().to_json(agent)
+
+
+@pytest.mark.parametrize(
+    "caller_input_mode, expected_human_in_the_loop",
+    [
+        (CallerInputMode.ALWAYS, True),
+        (CallerInputMode.NEVER, False),
+    ],
+)
+def test_agent_caller_input_mode(caller_input_mode, expected_human_in_the_loop) -> None:
+    agent = RuntimeAgent(
+        mock_llm(), custom_instruction="Hello", caller_input_mode=caller_input_mode
+    )
+    serialized_agent = AgentSpecExporter().to_component(agent)
+    assert serialized_agent.human_in_the_loop == expected_human_in_the_loop

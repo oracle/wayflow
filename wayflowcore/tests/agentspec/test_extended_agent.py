@@ -75,9 +75,18 @@ def test_extended_agent_is_serialized_correctly() -> None:
                 name="hp", description="The horsepower amount, which expresses the car's power"
             ),
         ],
+        agents=[
+            WayflowAgent(
+                name="subagent1",
+                description="subagent1",
+                llm=VllmModel(model_id="my.llm", host_port="http://my.url"),
+                custom_instruction="Car Expert",
+            )
+        ],
     )
     agentspec_agent = AgentSpecExporter().to_component(agent)
     assert isinstance(agentspec_agent, ExtendedAgent)
     assert len(agentspec_agent.outputs or []) == 3
     assert agentspec_agent.system_prompt == agent.custom_instruction
-    assert agentspec_agent.caller_input_mode == agent.caller_input_mode
+    assert agentspec_agent.human_in_the_loop == False
+    assert len(agentspec_agent.agents) == 1
