@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class SwarmUser(SerializableDataclass):
-    name: str = field(default="Human User", init=False)
+    name: str = field(default="human user", init=False)
 
 
 @dataclass
