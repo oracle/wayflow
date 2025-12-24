@@ -93,6 +93,7 @@ from wayflowcore.a2a.a2aagent import A2AAgent as RuntimeA2AAgent
 from wayflowcore.a2a.a2aagent import A2AConnectionConfig as RuntimeA2AConnectionConfig
 from wayflowcore.a2a.a2aagent import A2ASessionParameters as RuntimeA2ASessionParameters
 from wayflowcore.agent import Agent as RuntimeAgent
+from wayflowcore.agent import CallerInputMode
 from wayflowcore.agentspec.components import (
     ExtendedParallelFlowNode as AgentSpecExtendedParallelFlowNode,
 )
@@ -605,6 +606,10 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     if isinstance(agentspec_component.agent_template, AgentSpecPluginPromptTemplate)
                     else agentspec_component.agent_template
                 )
+            if agentspec_component.human_in_the_loop:
+                extra_arguments["caller_input_mode"] = CallerInputMode.ALWAYS
+            else:
+                extra_arguments["caller_input_mode"] = CallerInputMode.NEVER
 
             agent = RuntimeAgent(
                 name=agentspec_component.name,
