@@ -1,5 +1,5 @@
 image : $GITLAB_CI_CD_IMAGE_JQ
 include:
   - project: '$CI_PROJECT_NAMESPACE/wayflow'
-    ref: github
+    ref: github-1
     file: '/.gitlab-ci.yml'
