@@ -7,7 +7,7 @@
 
 # WayFlow
 
-WayFlow is a powerful, intuitive Python library for building sophisticated AI-powered assistants. It includes a standard library of plan steps to streamline the creation of AI-powered assistants, supports re-usability and is ideal for rapid development.
+WayFlow is a intuitive Python library for building sophisticated AI-powered assistants. It includes a standard library of plan steps to streamline the creation of AI-powered assistants, supports re-usability and is ideal for rapid development.
 
 
 ## Get started
