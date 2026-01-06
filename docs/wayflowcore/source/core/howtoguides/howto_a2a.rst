@@ -89,7 +89,7 @@ While each agent has limited standalone capability, combining them unlocks power
 Using :ref:`ManagerWorkers <managerworkers>`, you can implement a manager agent that efficiently coordinates tasks between different specialized agents.
 This modular, scalable architecture allows each agent to focus on specific tasks, increasing overall system capability and flexibility.
 
-In this example, you'll create two agents: one for checking if numbers are prime, and another for generating random numbers.
+In this example, you'll create two A2A agents: one for checking if numbers are prime, and another for generating random numbers.
 A manager agent will coordinate their interactions, demonstrating the plug-and-play flexibility offered by the protocol for integrating specialized agents, regardless of their implementation details.
 
 Setting up the Agents
@@ -138,10 +138,6 @@ This demonstrates how ManagerWorkers can be used to orchestrate complex interact
    :language: python
    :start-after: .. start-##_ManagerWorkers_Execution
    :end-before: .. end-##_ManagerWorkers_Execution
-
-A2A Agents in Flow
-==================
-
 
 Next Steps
 ==========
