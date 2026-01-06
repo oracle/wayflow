@@ -29,6 +29,60 @@ Events
 .. _conversationmessageaddedevent:
 .. autoclass:: wayflowcore.events.event.ConversationMessageAddedEvent
 
+.. _conversationmessagestreamstartedevent:
+.. autoclass:: wayflowcore.events.event.ConversationMessageStreamStartedEvent
+
+.. _conversationmessagestreamchunkevent:
+.. autoclass:: wayflowcore.events.event.ConversationMessageStreamChunkEvent
+
+.. _conversationmessagestreamendedevent:
+.. autoclass:: wayflowcore.events.event.ConversationMessageStreamEndedEvent
+
+.. _conversationexecutionstartedevent:
+.. autoclass:: wayflowcore.events.event.ConversationExecutionStartedEvent
+
+.. _conversationexecutionfinishedevent:
+.. autoclass:: wayflowcore.events.event.ConversationExecutionFinishedEvent
+
+.. _toolexecutionstartevent:
+.. autoclass:: wayflowcore.events.event.ToolExecutionStartEvent
+
+.. _toolexecutionresultevent:
+.. autoclass:: wayflowcore.events.event.ToolExecutionResultEvent
+
+.. _toolconfirmationrequeststartevent:
+.. autoclass:: wayflowcore.events.event.ToolConfirmationRequestStartEvent
+
+.. _toolconfirmationrequestendevent:
+.. autoclass:: wayflowcore.events.event.ToolConfirmationRequestEndEvent
+
+.. _stepinvocationstartevent:
+.. autoclass:: wayflowcore.events.event.StepInvocationStartEvent
+
+.. _stepinvocationresultevent:
+.. autoclass:: wayflowcore.events.event.StepInvocationResultEvent
+
+.. _contextproviderexecutionrequestevent:
+.. autoclass:: wayflowcore.events.event.ContextProviderExecutionRequestEvent
+
+.. _contextproviderexecutionresultevent:
+.. autoclass:: wayflowcore.events.event.ContextProviderExecutionResultEvent
+
+.. _flowexecutioniterationstartedevent:
+.. autoclass:: wayflowcore.events.event.FlowExecutionIterationStartedEvent
+
+.. _flowexecutioniterationfinishedevent:
+.. autoclass:: wayflowcore.events.event.FlowExecutionIterationFinishedEvent
+
+.. _agentexecutioniterationstartedevent:
+.. autoclass:: wayflowcore.events.event.AgentExecutionIterationStartedEvent
+
+.. _agentexecutioniterationfinishedevent:
+.. autoclass:: wayflowcore.events.event.AgentExecutionIterationFinishedEvent
+
+.. _exceptionraisedevent:
+.. autoclass:: wayflowcore.events.event.ExceptionRaisedEvent
+
 .. _agentnextactiondecisionstartevent:
 .. autoclass:: wayflowcore.events.event.AgentNextActionDecisionStartEvent
 
