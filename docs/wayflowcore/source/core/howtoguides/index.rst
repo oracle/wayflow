@@ -106,6 +106,7 @@ These guides demonstrate how to configure the components of assistants built wit
    Serialize and Deserialize Conversations <howto_serialize_conversations>
    Build a New WayFlow Component <howto_plugins>
    Enable Tracing <howto_tracing>
+   Use Event System <howto_event_system>
 
 
 Data in Assistants

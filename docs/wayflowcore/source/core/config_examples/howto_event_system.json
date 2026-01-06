@@ -1,0 +1,189 @@
+{
+    "component_type": "ExtendedAgent",
+    "id": "3ede6823-de48-4f1d-9453-ae6d259d3de8",
+    "name": "Calculator Agent",
+    "description": "",
+    "metadata": {
+        "__metadata_info__": {}
+    },
+    "inputs": [],
+    "outputs": [],
+    "llm_config": {
+        "component_type": "VllmConfig",
+        "id": "903495a0-9333-484b-b875-3e0405f3ecc6",
+        "name": "llm_86037e63__auto",
+        "description": null,
+        "metadata": {
+            "__metadata_info__": {}
+        },
+        "default_generation_parameters": null,
+        "url": "LLAMA_API_URL",
+        "model_id": "LLAMA_MODEL_ID"
+    },
+    "system_prompt": "",
+    "tools": [
+        {
+            "component_type": "ServerTool",
+            "id": "4907e7b5-7a30-48b0-9911-5f674e2a4ff2",
+            "name": "add",
+            "description": "Add two numbers.\n\nParameters:\n    a: The first number.\n    b: The second number.\n\nReturns:\n    float: The sum of the two numbers.",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [
+                {
+                    "type": "number",
+                    "title": "a"
+                },
+                {
+                    "type": "number",
+                    "title": "b"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "number",
+                    "title": "tool_output"
+                }
+            ]
+        },
+        {
+            "component_type": "ServerTool",
+            "id": "c9c2a079-b34e-44ac-93d8-864fc3ff3f87",
+            "name": "multiply",
+            "description": "Multiply two numbers.\n\nParameters:\n    a: The first number.\n    b: The second number.\n\nReturns:\n    float: The product of the two numbers.",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [
+                {
+                    "type": "number",
+                    "title": "a"
+                },
+                {
+                    "type": "number",
+                    "title": "b"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "number",
+                    "title": "tool_output"
+                }
+            ]
+        }
+    ],
+    "toolboxes": [],
+    "human_in_the_loop": true,
+    "context_providers": null,
+    "can_finish_conversation": false,
+    "raise_exceptions": false,
+    "max_iterations": 10,
+    "initial_message": "Hi! How can I help you?",
+    "caller_input_mode": "always",
+    "agents": [],
+    "flows": [],
+    "agent_template": {
+        "component_type": "PluginPromptTemplate",
+        "id": "f05c7228-c45d-4605-90eb-89e66e4fe7da",
+        "name": "",
+        "description": null,
+        "metadata": {
+            "__metadata_info__": {}
+        },
+        "messages": [
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "{% if custom_instruction %}{{custom_instruction}}{% endif %}"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2026-01-06T10:47:26.111071+00:00",
+                "time_updated": "2026-01-06T10:47:26.111071+00:00"
+            },
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "$$__CHAT_HISTORY_PLACEHOLDER__$$"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2026-01-06T10:47:26.106776+00:00",
+                "time_updated": "2026-01-06T10:47:26.106777+00:00"
+            },
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "{% if __PLAN__ %}The current plan you should follow is the following: \n{{__PLAN__}}{% endif %}"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2026-01-06T10:47:26.111096+00:00",
+                "time_updated": "2026-01-06T10:47:26.111096+00:00"
+            }
+        ],
+        "output_parser": null,
+        "inputs": [
+            {
+                "description": "\"custom_instruction\" input variable for the template",
+                "type": "string",
+                "title": "custom_instruction",
+                "default": ""
+            },
+            {
+                "description": "\"__PLAN__\" input variable for the template",
+                "type": "string",
+                "title": "__PLAN__",
+                "default": ""
+            },
+            {
+                "type": "array",
+                "items": {},
+                "title": "__CHAT_HISTORY__"
+            }
+        ],
+        "pre_rendering_transforms": null,
+        "post_rendering_transforms": [
+            {
+                "component_type": "PluginRemoveEmptyNonUserMessageTransform",
+                "id": "0a2cc909-11bc-4533-8ff1-2867938f4bb8",
+                "name": "removeemptynonusermessage_messagetransform",
+                "description": null,
+                "metadata": {
+                    "__metadata_info__": {}
+                },
+                "component_plugin_name": "MessageTransformPlugin",
+                "component_plugin_version": "26.1.0.dev5"
+            }
+        ],
+        "tools": null,
+        "native_tool_calling": true,
+        "response_format": null,
+        "native_structured_generation": true,
+        "generation_config": null,
+        "component_plugin_name": "PromptTemplatePlugin",
+        "component_plugin_version": "26.1.0.dev5"
+    },
+    "component_plugin_name": "AgentPlugin",
+    "component_plugin_version": "26.1.0.dev5",
+    "agentspec_version": "25.4.1"
+}
