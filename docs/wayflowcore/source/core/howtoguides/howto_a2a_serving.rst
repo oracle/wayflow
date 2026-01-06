@@ -129,7 +129,7 @@ Below is example Flow that is valid for serving, along with how it can be served
 Next steps
 ==========
 
-Now that you have learned how to serve WayFlow assistants using A2A protocol, you may proceed to :doc:`How to Build A2A Agents <howto_a2aagent>` to learn how consume an A2A-served agent.
+Now that you have learned how to serve WayFlow assistants using A2A protocol, you may proceed to :doc:`How to Use A2A <howto_a2a>` to learn how consume an A2A-served agent.
 
 Full code
 =========
