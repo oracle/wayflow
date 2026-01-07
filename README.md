@@ -1,7 +1,7 @@
 [![WayFlow](docs/wayflowcore/source/_static/logo-light.svg)][website-wayflow]
 
 
-[![![WayFlow docs][badge-docs]][docs] [![WayFlow Reference Sheet][badge-reference-sheet]][reference-sheet] [![License][badge-license]](#license)
+[![![WayFlow Reference Sheet][badge-reference-sheet]][reference-sheet] [![License][badge-license]](#license)
 
 
 
