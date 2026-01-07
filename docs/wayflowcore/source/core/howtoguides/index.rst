@@ -56,6 +56,7 @@ These how-to guides demonstrate how to use the main features to create and custo
    Catch Exceptions in Flows <catching_exceptions>
    Do Map and Reduce Operations in Flows <howto_mapstep>
    Run Multiple Flows in Parallel <howto_parallelflowexecution>
+   Build Flows with the Flow Builder <howto_flowbuilder>
 
 .. toctree::
    :maxdepth: 1

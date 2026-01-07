@@ -17,6 +17,12 @@ Security
 New features
 ^^^^^^^^^^^^
 
+* **Added Flow Builder to simplify programmatic creation of WayFlow Flows.**
+
+  The Flow Builder is a new chainable API to create WayFlow Flows more easily.
+
+  For more information, see the :doc:`API Reference <api/flows>` and the :ref:`Reference Sheet <flowbuilder_ref_sheet>`.
+
 * **Added User Confirmation for Tools in ToolBox:**
 
   Introduced a `requires_confirmation` flag to the base ToolBox Class. When enabled, this flag will pause tool execution of any of this toolbox's tools and emit a `ToolExecutionConfirmationStatus`, requiring explicit user confirmation before proceeding.

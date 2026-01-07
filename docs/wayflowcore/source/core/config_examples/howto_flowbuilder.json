@@ -1,0 +1,212 @@
+{
+    "component_type": "Flow",
+    "id": "99c4917a-5b5b-4b90-9eb2-4f55cf1f0c87",
+    "name": "Flow",
+    "description": "",
+    "metadata": {
+        "__metadata_info__": {}
+    },
+    "inputs": [],
+    "outputs": [
+        {
+            "description": "the message added to the messages list",
+            "type": "string",
+            "title": "output_message"
+        }
+    ],
+    "start_node": {
+        "$component_ref": "e1c08ec1-fd8a-4ee4-9e7b-e061805af104"
+    },
+    "nodes": [
+        {
+            "$component_ref": "723a3386-d1ac-45d8-a491-81b79c597a1f"
+        },
+        {
+            "$component_ref": "e3fa084f-7c93-4196-92f3-503a194d9dd7"
+        },
+        {
+            "$component_ref": "e1c08ec1-fd8a-4ee4-9e7b-e061805af104"
+        },
+        {
+            "$component_ref": "3ae47fc3-1bd7-437b-b3f5-dda3154c0c3a"
+        }
+    ],
+    "control_flow_connections": [
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "02fd1540-d1a0-494f-8df7-8cc09dd56105",
+            "name": "greet_to_reply_control_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "from_node": {
+                "$component_ref": "723a3386-d1ac-45d8-a491-81b79c597a1f"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "e3fa084f-7c93-4196-92f3-503a194d9dd7"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "51379f46-96b1-4345-81b3-e5c2e8d1f6fe",
+            "name": "__StartStep___to_greet_control_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "from_node": {
+                "$component_ref": "e1c08ec1-fd8a-4ee4-9e7b-e061805af104"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "723a3386-d1ac-45d8-a491-81b79c597a1f"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "158d2498-dbbe-45b8-9069-3c1237e1bfa7",
+            "name": "reply_to_None End node_control_flow_edge",
+            "description": null,
+            "metadata": {},
+            "from_node": {
+                "$component_ref": "e3fa084f-7c93-4196-92f3-503a194d9dd7"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "3ae47fc3-1bd7-437b-b3f5-dda3154c0c3a"
+            }
+        }
+    ],
+    "data_flow_connections": [
+        {
+            "component_type": "DataFlowEdge",
+            "id": "c130b808-5ec4-43e5-9346-91e5183c2e52",
+            "name": "greet_output_message_to_None End node_output_message_data_flow_edge",
+            "description": null,
+            "metadata": {},
+            "source_node": {
+                "$component_ref": "723a3386-d1ac-45d8-a491-81b79c597a1f"
+            },
+            "source_output": "output_message",
+            "destination_node": {
+                "$component_ref": "3ae47fc3-1bd7-437b-b3f5-dda3154c0c3a"
+            },
+            "destination_input": "output_message"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "id": "a22a544a-4ad5-41be-b3e4-83deb48a90c2",
+            "name": "reply_output_message_to_None End node_output_message_data_flow_edge",
+            "description": null,
+            "metadata": {},
+            "source_node": {
+                "$component_ref": "e3fa084f-7c93-4196-92f3-503a194d9dd7"
+            },
+            "source_output": "output_message",
+            "destination_node": {
+                "$component_ref": "3ae47fc3-1bd7-437b-b3f5-dda3154c0c3a"
+            },
+            "destination_input": "output_message"
+        }
+    ],
+    "$referenced_components": {
+        "3ae47fc3-1bd7-437b-b3f5-dda3154c0c3a": {
+            "component_type": "EndNode",
+            "id": "3ae47fc3-1bd7-437b-b3f5-dda3154c0c3a",
+            "name": "None End node",
+            "description": "End node representing all transitions to None in the WayFlow flow",
+            "metadata": {},
+            "inputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "type": "string",
+                    "title": "output_message"
+                }
+            ],
+            "outputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "type": "string",
+                    "title": "output_message"
+                }
+            ],
+            "branches": [],
+            "branch_name": "next"
+        },
+        "723a3386-d1ac-45d8-a491-81b79c597a1f": {
+            "component_type": "PluginOutputMessageNode",
+            "id": "723a3386-d1ac-45d8-a491-81b79c597a1f",
+            "name": "greet",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "type": "string",
+                    "title": "output_message"
+                }
+            ],
+            "branches": [
+                "next"
+            ],
+            "message": "Say hello",
+            "input_mapping": {},
+            "output_mapping": {},
+            "message_type": "AGENT",
+            "rephrase": false,
+            "llm_config": null,
+            "expose_message_as_output": true,
+            "component_plugin_name": "NodesPlugin",
+            "component_plugin_version": "26.1.0.dev4"
+        },
+        "e3fa084f-7c93-4196-92f3-503a194d9dd7": {
+            "component_type": "PluginOutputMessageNode",
+            "id": "e3fa084f-7c93-4196-92f3-503a194d9dd7",
+            "name": "reply",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "type": "string",
+                    "title": "output_message"
+                }
+            ],
+            "branches": [
+                "next"
+            ],
+            "message": "Say world",
+            "input_mapping": {},
+            "output_mapping": {},
+            "message_type": "AGENT",
+            "rephrase": false,
+            "llm_config": null,
+            "expose_message_as_output": true,
+            "component_plugin_name": "NodesPlugin",
+            "component_plugin_version": "26.1.0.dev4"
+        },
+        "e1c08ec1-fd8a-4ee4-9e7b-e061805af104": {
+            "component_type": "StartNode",
+            "id": "e1c08ec1-fd8a-4ee4-9e7b-e061805af104",
+            "name": "__StartStep__",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [],
+            "outputs": [],
+            "branches": [
+                "next"
+            ]
+        }
+    },
+    "agentspec_version": "25.4.1"
+}

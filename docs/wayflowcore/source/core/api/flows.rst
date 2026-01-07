@@ -209,3 +209,17 @@ Other classes and helpers used in fixed flows
 .. autoclass:: wayflowcore.flowhelpers.run_flow_and_return_outputs
 
 .. autoclass:: wayflowcore.flowhelpers.create_single_step_flow
+
+
+
+Flow Builder
+------------
+
+The Flow Builder provides a concise, chainable API to assemble WayFlow Flows programmatically.
+It helps wire control and data edges, use conditional branching, set entry/finish points,
+and serialize flows to JSON/YAML.
+
+See code examples in the :ref:`Reference Sheet <flowbuilder_ref_sheet>`.
+
+.. _flowbuilder:
+.. autoclass:: wayflowcore.flowbuilder.FlowBuilder
