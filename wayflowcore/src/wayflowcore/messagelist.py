@@ -9,7 +9,7 @@ import logging
 import warnings
 from abc import ABC
 from copy import deepcopy
-from dataclasses import dataclass, field, fields
+from dataclasses import MISSING, dataclass, field, fields
 from datetime import datetime, timezone
 from enum import Enum
 from typing import (
@@ -264,7 +264,7 @@ class Message(SerializableDataclass):
                 __metadata_info__,
             ),
         )
-        effective_role = "user"
+        effective_role = "user" if tool_requests is None else "assistant"
 
         if role_from_conversion is not None:
             if role is not None:
@@ -516,6 +516,51 @@ class Message(SerializableDataclass):
 
         if self.tool_result is not None and not isinstance(self.tool_result, ToolResult):
             raise ValueError("Message.tool_results should be of type ToolResult")
+
+
+def _prettify_tool_request(tool_request: ToolRequest) -> str:
+    return f"ToolRequest(name={tool_request.name}, args={tool_request.args}, tool_request_id={tool_request.id})"
+
+
+def _prettify_message(message: Message) -> str:
+    parts = []
+
+    for f in fields(message):
+        name = f.name
+        value = getattr(message, name)
+
+        if name.startswith("_") or name in {  # private field
+            "time_created",
+            "time_updated",
+            "id",
+        }:  # not needed
+            continue
+
+        if name == "contents":
+            if len(value) == 1 and isinstance(value[0], TextContent):
+                parts.append(f"content={value[0].content!r}")
+                continue
+
+        if f.default is not MISSING:
+            default = f.default
+        elif f.default_factory is not MISSING:
+            default = f.default_factory()
+        else:
+            parts.append(f"{name}={value!r}")
+            continue
+
+        if value != default:
+            parts.append(f"{name}={value!r}")
+
+    return f"Message({', '.join(parts)})"
+
+
+def _prettify_messages(messages: List[Message]) -> str:
+    messages_as_str = "["
+    for msg in messages:
+        messages_as_str += _prettify_message(msg) + ", "
+    messages_as_str = messages_as_str.rstrip(", ") + "]"
+    return messages_as_str
 
 
 @dataclass

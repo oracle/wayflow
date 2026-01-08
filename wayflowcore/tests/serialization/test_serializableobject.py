@@ -22,6 +22,7 @@ ALL_SERIALIZABLE_CLASSES = {
     "AgentConversation",
     "AgentConversationExecutionState",
     "AgentExecutionStep",
+    "CanonicalizationMessageTransform",
     "AnyProperty",
     "ApiCallStep",
     "AppendTrailingSystemMessageToUserMessageTransform",

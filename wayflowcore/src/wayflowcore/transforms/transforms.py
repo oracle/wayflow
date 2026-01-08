@@ -98,17 +98,12 @@ class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform, Serial
     """
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
-        from wayflowcore.messagelist import MessageType
-
         if len(messages) < 2:
             return messages
 
         last_message = messages[-1]
         penultimate_message = messages[-2].copy()
-        if (
-            last_message.message_type != MessageType.SYSTEM
-            or penultimate_message.message_type != MessageType.USER
-        ):
+        if last_message.role != "system" or penultimate_message.role != "user":
             return messages
 
         penultimate_message.contents.extend(last_message.contents)

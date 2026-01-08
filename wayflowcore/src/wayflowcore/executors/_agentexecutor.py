@@ -70,6 +70,7 @@ EXIT_CONVERSATION_TOOL_NAME = "end_conversation"
 EXIT_CONVERSATION_TOOL_MESSAGE = "Conversation has been ended by the agent."
 EXIT_CONVERSATION_CONFIRMATION_MESSAGE = "You attempted to end the conversation. If the user indeed asked to exit, please call this tool again and do not reply anything else. You are a helpful assistant; do not annoy the user; do not ask them to confirm."
 _TOOL_REJECTION_REASON = "Tool Request for tool {tool} denied due to reason: {reason}"
+_SUMMARY_OUTPUT_NAME = "summary"
 
 
 def _is_running_in_notebook() -> bool:
@@ -859,8 +860,7 @@ class AgentConversationExecutor(ConversationExecutor):
                 )
         elif isinstance(tool, ServerTool):
             with ToolExecutionSpan(
-                tool=tool,
-                tool_request=tool_request,
+                tool=tool, tool_request=tool_request, name=f"ToolExecution[{tool.name}]"
             ) as span:
                 output, serialized_output = await AgentConversationExecutor._execute_tool(
                     tool, conversation, tool_request.args
@@ -970,7 +970,10 @@ class AgentConversationExecutor(ConversationExecutor):
         try:
             with get_interrupts_event_listener_context_for_conversation(conversation):
                 conversation.state._set_execution_interrupts(execution_interrupts)
-                with AgentExecutionSpan(conversational_component=conversation.component) as span:
+                with AgentExecutionSpan(
+                    conversational_component=conversation.component,
+                    name=f"AgentExecution[{conversation.component._get_display_name()}]",
+                ) as span:
                     execution_status = await AgentConversationExecutor._execute_agent(
                         conversation, execution_interrupts
                     )
@@ -1112,9 +1115,12 @@ class AgentConversationExecutor(ConversationExecutor):
                 )
 
                 if should_yield and agent_config.caller_input_mode == CallerInputMode.NEVER:
+                    # we remind the model it should submit outputs
                     conversation.append_message(
                         _caller_input_mode_never_reminder(
-                            caller_input_mode=agent_config.caller_input_mode,
+                            submit_tool_name=AgentConversationExecutor._get_submit_tool_name(
+                                agent_config
+                            ),
                             sender=agent_config.agent_id,
                         )
                     )
@@ -1135,6 +1141,13 @@ class AgentConversationExecutor(ConversationExecutor):
                 _conversation_id=conversation.id,
             )
         return FinishedStatus(output_values={}, _conversation_id=conversation.id)
+
+    @staticmethod
+    def _get_submit_tool_name(agent_config: Agent) -> str:
+        for t in agent_config._all_static_tools:
+            if t.name in {_SUBMIT_TOOL_NAME, EXIT_CONVERSATION_TOOL_NAME}:
+                return t.name
+        raise ValueError("Agent has no tool to finish the conversation")
 
     @staticmethod
     async def _collect_tools(config: Agent, curr_iter: int) -> Optional[List[Tool]]:
@@ -1180,15 +1193,19 @@ class AgentConversationExecutor(ConversationExecutor):
         back to ask the agent to correct itself.
         """
         if len(config.output_descriptors) == 0:
-            raise ValueError("Internal error, the agent should not have the submit tool")
+            if config.caller_input_mode != CallerInputMode.NEVER:
+                raise ValueError("Internal error, the agent should not have the submit tool")
+            tool_inputs = {}
+            successful_submission = True
+        else:
+            tool_inputs = submit_tool_call.args
+            missing_inputs = [
+                o.name
+                for o in config.output_descriptors
+                if o.name not in tool_inputs and not o.has_default
+            ]
+            successful_submission = len(missing_inputs) == 0
 
-        tool_inputs = submit_tool_call.args
-        missing_inputs = [
-            o.name
-            for o in config.output_descriptors
-            if o.name not in tool_inputs and not o.has_default
-        ]
-        successful_submission = len(missing_inputs) == 0
         if successful_submission:
             tool_output_content = "The submission was successful"
         else:
@@ -1252,12 +1269,17 @@ def _convert_talk_to_user_tool_call_into_agent_message(
     return question_is_present  # False
 
 
-def _caller_input_mode_never_reminder(caller_input_mode: CallerInputMode, sender: str) -> Message:
-    content = f"I'm not available. Please achieve the task by yourself"
-    if caller_input_mode:
-        content += f" and submit using the {_SUBMIT_TOOL_NAME} function"
-    content += ". DO NOT generate pure text."
-    return Message(role="user", content=content, sender=sender)
+def _caller_input_mode_never_reminder(submit_tool_name: str, sender: str) -> Message:
+    tool_description = "The user is not available; you are not allowed to output pure text.\n"
+    tool_description += f"Please handle the task yourself and finalize it by calling the `{submit_tool_name}` tool when you confirm the task is achieved."
+    if submit_tool_name == _SUBMIT_TOOL_NAME:
+        tool_description += "\nIf the tool requires arguments, ensure you provide grounded and appropriate values without hallucinating them."
+
+    return Message(
+        role="user",
+        content=tool_description,
+        sender=sender,
+    )
 
 
 def _serialize_output(output: Any) -> str:

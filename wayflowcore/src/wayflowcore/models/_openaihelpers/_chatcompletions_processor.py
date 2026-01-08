@@ -45,26 +45,28 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
 
         return json_obj
 
-    def _convert_message_into_openai_message_dict(self, m: "Message") -> List[Dict[str, Any]]:
+    def _convert_message_into_openai_message_dict(
+        self, m: "Message", supports_tool_role: bool
+    ) -> List[Dict[str, Any]]:
         if m.tool_requests:
             if any(not isinstance(content, TextContent) for content in m.contents):
                 raise ValueError(
                     "Invalid tool request. A tool request message should only contain text contents"
                 )
-            return [
-                {
-                    "content": m.content,
-                    "role": "assistant",
-                    "tool_calls": [
-                        {
-                            "id": tc.tool_request_id,
-                            "type": "function",
-                            "function": {"name": tc.name, "arguments": json.dumps(tc.args)},
-                        }
-                        for tc in (m.tool_requests or [])
-                    ],
-                }
-            ]
+            converted_message = {
+                "role": "assistant",
+                "tool_calls": [
+                    {
+                        "id": tc.tool_request_id,
+                        "type": "function",
+                        "function": {"name": tc.name, "arguments": json.dumps(tc.args)},
+                    }
+                    for tc in (m.tool_requests or [])
+                ],
+            }
+            if m.content:
+                converted_message["content"] = m.content
+            return [converted_message]
         elif m.tool_result:
             if len(m.contents):
                 raise ValueError(
@@ -73,7 +75,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
 
             return [
                 {
-                    "role": "tool",
+                    "role": "tool" if supports_tool_role else "user",
                     "tool_call_id": m.tool_result.tool_request_id,
                     "content": stringify(m.tool_result.content),
                 }
@@ -92,18 +94,17 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 else:
                     raise RuntimeError(f"Unsupported content type: {content.__class__.__name__}")
 
-        return [{"role": role, "content": all_contents if len(all_contents) else ""}]
+            return [{"role": role, "content": all_contents if len(all_contents) else ""}]
 
-    def _convert_prompt(self, prompt: "Prompt") -> Dict[str, Any]:
+    def _convert_prompt(self, prompt: "Prompt", supports_tool_role: bool) -> Dict[str, Any]:
         payload_arguments: Dict[str, Any] = {
             "messages": [
                 m
                 for message in prompt.messages
-                for m in self._convert_message_into_openai_message_dict(message)
+                for m in self._convert_message_into_openai_message_dict(message, supports_tool_role)
             ],
+            "prompt_cache_key": self._get_prompt_cache_key_from_prompt(prompt),
         }
-
-        payload_arguments["prompt_cache_key"] = self._get_prompt_cache_key_from_prompt(prompt)
 
         if prompt.tools is not None:
             payload_arguments["tools"] = [t.to_openai_format() for t in prompt.tools]

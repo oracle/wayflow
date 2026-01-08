@@ -4,8 +4,6 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-import contextlib
-import os
 from typing import Any, Dict, Optional, Type
 
 import pytest
@@ -35,21 +33,8 @@ from wayflowcore.steps import PromptExecutionStep, StartStep
 from wayflowcore.steps.step import Step
 from wayflowcore.tools import ServerTool, ToolRequest, tool
 
+from .conftest import disable_streaming
 from .testhelpers.dummy import DoNothingStep, DummyModel, SleepStep
-
-
-@contextlib.contextmanager
-def disable_streaming():
-    """Temporarily disable message streaming of LLMs"""
-    from wayflowcore.executors._agentexecutor import _DISABLE_STREAMING
-
-    old_value = os.environ.get(_DISABLE_STREAMING, None)
-    if old_value is None:
-        os.environ[_DISABLE_STREAMING] = "true"
-    try:
-        yield
-    finally:
-        del os.environ[_DISABLE_STREAMING]
 
 
 def assert_conversations_are_equivalent(

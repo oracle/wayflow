@@ -15,7 +15,14 @@ import httpx
 import pytest
 
 from wayflowcore import Agent, Message, Tool
-from wayflowcore.models import LlmCompletion, OpenAICompatibleModel, Prompt, StreamChunkType
+from wayflowcore.models import (
+    LlmCompletion,
+    OllamaModel,
+    OpenAICompatibleModel,
+    Prompt,
+    StreamChunkType,
+    VllmModel,
+)
 from wayflowcore.models._requesthelpers import _RetryStrategy
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
@@ -626,3 +633,38 @@ def test_openai_model_does_not_raise_on_receiving_incomplete_tool_calls_from_rem
 
         if "arg1" in tool_call_args:
             assert tool_call.args.get("arg1") is not None
+
+
+@pytest.mark.parametrize("model_cls", [VllmModel, OllamaModel])
+@pytest.mark.parametrize(
+    "base_url, expected",
+    [
+        ("https://www.example.com/v1/", "https://www.example.com/v1/chat/completions"),
+        (
+            "https://www.example.com/v1/chat/completions",
+            "https://www.example.com/v1/chat/completions",
+        ),
+        ("http://www.example.com", "http://www.example.com/v1/chat/completions"),
+        ("www.example.com/v1", "http://www.example.com/v1/chat/completions"),
+        ("127.0.0.1:8080", "http://127.0.0.1:8080/v1/chat/completions"),
+    ],
+    ids=["https", "https-full", "http", "no-scheme/v1", "localhost"],
+)
+def test_vllm_ollama_with_correct_url(model_cls, base_url, expected):
+    prompt = Prompt(messages=[Message(role="user", content="hello")])
+    payload = model_cls(model_id="my.model-id", host_port=base_url)._generate_request_params(
+        prompt, stream=False
+    )
+    assert payload["url"] == expected
+    if os.environ.get("OPENAI_API_KEY") is None:
+        assert payload.get("headers", {}).get("Authorization") is None  # no api_key was specified
+
+
+@pytest.mark.parametrize("model_cls", [VllmModel, OllamaModel])
+@mock.patch.dict(os.environ, {"OPENAI_API_KEY": "sk-034-MOCKED_KEY"})
+def test_vllm_ollama_with_api_key(model_cls):
+    prompt = Prompt(messages=[Message(role="user", content="hello")])
+    model = model_cls(model_id="my.model-id", host_port="localhost:80000")
+    payload = model._generate_request_params(prompt, stream=False)
+    payload["headers"] = model._get_headers()
+    assert payload.get("headers", {}).get("Authorization") == "Bearer sk-034-MOCKED_KEY"

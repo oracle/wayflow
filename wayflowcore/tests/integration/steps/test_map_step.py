@@ -10,8 +10,9 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 
-from wayflowcore import Message, MessageType
+from wayflowcore import Agent, Message, MessageType
 from wayflowcore._threading import initialize_threadpool, shutdown_threadpool
+from wayflowcore.agent import CallerInputMode
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolRequestStatus,
@@ -25,6 +26,7 @@ from wayflowcore.flowhelpers import (
 )
 from wayflowcore.property import AnyProperty, DictProperty, ListProperty, Property, StringProperty
 from wayflowcore.steps import (
+    AgentExecutionStep,
     InputMessageStep,
     MapStep,
     OutputMessageStep,
@@ -42,6 +44,7 @@ from ...testhelpers.flowscriptrunner import (
     FlowScriptRunner,
     IODictCheck,
 )
+from ...testhelpers.testhelpers import retry_test
 
 LIST_OF_STR_INPUTS = ["hello", "world", "!"]
 
@@ -585,3 +588,68 @@ def test_subflow_can_yield_and_sub_state_is_cleaned():
     conv.append_user_message("louis")
     status = conv.execute()
     assert isinstance(status, FinishedStatus)
+
+
+@retry_test(max_attempts=4)
+def test_agent_execution_step_in_map_step(remotely_hosted_llm):
+    """
+    Failure rate:          1 out of 20
+    Observed on:           2025-12-23
+    Average success time:  1.19 seconds per successful attempt
+    Average failure time:  1.10 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.09 ** 4) ~= 6.8 / 100'000
+    """
+
+    @tool(description_mode="only_docstring")
+    def get_email(name: str) -> str:
+        """Get the work email address given an employee family name"""
+        if "@oracle.com" in name:
+            return name
+        return name + "@oracle.com"
+
+    agent = Agent(
+        llm=remotely_hosted_llm,
+        tools=[get_email],
+        custom_instruction="Please figure out this employee email from the raw data:"
+        "\n`{{person}}`.\n"
+        "Only use the `get_email` tool if the email is not fully qualified."
+        "Use the submit tool to submit your answer. Only use a single tool at a time",
+        caller_input_mode=CallerInputMode.NEVER,
+        output_descriptors=[
+            StringProperty(name="email", description="work email address"),
+        ],
+    )
+
+    agent_step = AgentExecutionStep(agent=agent, _share_conversation=False)
+
+    map_step = MapStep(
+        unpack_input={"person": "."},
+        flow=Flow.from_steps(steps=[agent_step]),
+        parallel_execution=True,
+        output_descriptors=[ListProperty(name="email")],
+    )
+
+    flow = Flow.from_steps([map_step])
+
+    conv = flow.start_conversation(
+        inputs={
+            MapStep.ITERATED_INPUT: [
+                "work_email:marty@oracle.com",
+                "family_name:lellison",
+                "family_name:jdupont",
+                "work_email:dupond@oracle.com",
+            ]
+        }
+    )
+
+    status = conv.execute()
+
+    assert isinstance(status, FinishedStatus)
+
+    assert set(s.lower() for s in status.output_values["email"]) == {
+        "marty@oracle.com",
+        "lellison@oracle.com",
+        "jdupont@oracle.com",
+        "dupond@oracle.com",
+    }

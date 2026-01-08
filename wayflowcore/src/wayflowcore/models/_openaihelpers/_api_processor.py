@@ -34,7 +34,9 @@ class _APIProcessor(ABC):
     def _extract_usage(self, response_data: Dict[str, Any]) -> Optional[TokenUsage]:
         """Extract Token Usage information from the response"""
 
-    def _generate_request_params(self, prompt: "Prompt", stream: bool) -> Dict[str, Any]:
+    def _generate_request_params(
+        self, prompt: "Prompt", stream: bool, supports_tool_role: bool
+    ) -> Dict[str, Any]:
         """Generate Request Parameters for the API type"""
         url = _build_request_url(base_url=self.base_url, api_type=self.api_type)
 
@@ -42,7 +44,7 @@ class _APIProcessor(ABC):
             "model": self.model_id,
             "store": False,
             "stream": stream,
-            **self._convert_prompt(prompt),
+            **self._convert_prompt(prompt, supports_tool_role),
             **self._convert_generation_params(prompt.generation_config),
         }
 
@@ -116,7 +118,7 @@ class _APIProcessor(ABC):
             return {}
 
     @abstractmethod
-    def _convert_prompt(self, prompt: "Prompt") -> Dict[str, Any]:
+    def _convert_prompt(self, prompt: "Prompt", supports_tool_role: bool) -> Dict[str, Any]:
         """Convert a prompt to OpenAI-Compatible Format"""
 
     @abstractmethod

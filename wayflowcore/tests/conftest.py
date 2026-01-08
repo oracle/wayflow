@@ -3,7 +3,7 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-
+import contextlib
 import logging
 import os
 import re
@@ -838,3 +838,20 @@ def pytest_sessionfinish(session, exitstatus):
             f"{t.name}: {t.daemon}, {t.is_alive()}" for t in threads
         )
         raise ValueError(text)
+
+
+@contextlib.contextmanager
+def disable_streaming():
+    """Temporarily disable message streaming of LLMs"""
+    from wayflowcore.executors._agentexecutor import _DISABLE_STREAMING
+
+    old_value = os.environ.get(_DISABLE_STREAMING, None)
+    if old_value is None:
+        os.environ[_DISABLE_STREAMING] = "true"
+    try:
+        yield
+    finally:
+        if old_value is not None:
+            os.environ[_DISABLE_STREAMING] = old_value
+        else:
+            del os.environ[_DISABLE_STREAMING]

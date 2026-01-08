@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, AsyncIterable, AsyncIterator, Dict, Optio
 
 from wayflowcore._metadata import MetadataType
 
+from ._modelhelpers import _is_gemma_model
 from ._openaihelpers import _APIProcessor, _ChatCompletionsAPIProcessor, _ResponsesAPIProcessor
 from ._requesthelpers import (
     TaggedMessageChunkTypeWithTokenUsage,
@@ -126,7 +127,7 @@ class OpenAICompatibleModel(LlmModel):
         prompt: "Prompt",
     ) -> LlmCompletion:
         prompt = self._pre_process(prompt)
-        request_params = self.api_processor._generate_request_params(prompt, stream=False)
+        request_params = self._generate_request_params(prompt, stream=False)
         request_params["headers"] = self._get_headers()
         response_data = await self._post(
             request_params=request_params, retry_strategy=self._retry_strategy, proxy=self.proxy
@@ -143,7 +144,7 @@ class OpenAICompatibleModel(LlmModel):
         self, prompt: "Prompt"
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
         prompt = self._pre_process(prompt)
-        request_args = self.api_processor._generate_request_params(prompt, stream=True)
+        request_args = self._generate_request_params(prompt, stream=True)
         request_args["headers"] = self._get_headers()
 
         def final_message_post_processing(message: "Message") -> "Message":
@@ -179,7 +180,6 @@ class OpenAICompatibleModel(LlmModel):
         return headers
 
     def _setup_api_processor(self, api_type: OpenAIAPIType) -> None:
-
         self.api_processor: _APIProcessor
         model_cls = _openai_api_type_to_processor_map[api_type]
         self.api_processor = model_cls(self.model_id, self.base_url, api_type)
@@ -229,7 +229,11 @@ class OpenAICompatibleModel(LlmModel):
 
     def _generate_request_params(self, prompt: "Prompt", stream: bool) -> Dict[str, Any]:
         """Generate Request Parameters for the API type"""
-        return self.api_processor._generate_request_params(prompt, stream=stream)
+        # gemma models do not support `tool` role, even if it's part of the openai compatible apis.
+        supports_tool_role = not _is_gemma_model(self.model_id)
+        return self.api_processor._generate_request_params(
+            prompt, stream=stream, supports_tool_role=supports_tool_role
+        )
 
 
 def _resolve_api_key(provided_api_key: Optional[str]) -> Optional[str]:

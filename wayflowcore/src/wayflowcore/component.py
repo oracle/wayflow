@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import ClassVar, Optional
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.serialization.serializer import (
     FrozenSerializableDataclass,
     SerializableDataclass,
@@ -30,6 +31,11 @@ class Component(SerializableObject, ABC):
         super().__init__(id=id, __metadata_info__=__metadata_info__)
         self.name = name or self.id
         self.description = description
+
+    def _get_display_name(self) -> str:
+        return (
+            self.name if not IdGenerator.is_auto_generated(self.name) else self.__class__.__name__
+        )
 
 
 @dataclass(kw_only=True)

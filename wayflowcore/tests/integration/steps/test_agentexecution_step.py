@@ -322,7 +322,7 @@ def test_agent_only_uses_max_iterations_in_total_during_agent_execution_step(rem
     status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert dummy_llm.output is None  # all generations used
-    assert len([m for m in conv.get_messages() if "I'm not available" in m.content]) == 3
+    assert len([m for m in conv.get_messages() if "The user is not available" in m.content]) == 3
 
 
 @retry_test(max_attempts=7)

@@ -110,7 +110,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_serialization_plugin
+from wayflowcore.agentspec.components import (
+    all_serialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -250,6 +252,9 @@ from wayflowcore.agentspec.components.transforms import (
     PluginAppendTrailingSystemMessageToUserMessageTransform as AgentSpecPluginAppendTrailingSystemMessageToUserMessageTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
+    PluginCanonicalizationMessageTransform as AgentSpecPluginCanonicalizationMessageTransform,
+)
+from wayflowcore.agentspec.components.transforms import (
     PluginCoalesceSystemMessagesTransform as AgentSpecPluginCoalesceSystemMessagesTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
@@ -263,6 +268,9 @@ from wayflowcore.agentspec.components.transforms import (
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginRemoveEmptyNonUserMessageTransform as AgentSpecPluginRemoveEmptyNonUserMessageTransform,
+)
+from wayflowcore.agentspec.components.transforms import (
+    PluginSplitPromptOnMarkerMessageTransform as AgentSpecPluginSplitPromptOnMarkerMessageTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginSwarmToolRequestAndCallsTransform as AgentSpecPluginSwarmToolRequestAndCallsTransform,
@@ -354,7 +362,9 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
-from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
+from wayflowcore.models.openaicompatiblemodel import (
+    EMPTY_API_KEY,
+)
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -436,6 +446,12 @@ from wayflowcore.transforms import (
 from wayflowcore.transforms import MessageTransform as RuntimeMessageTransform
 from wayflowcore.transforms import (
     RemoveEmptyNonUserMessageTransform as RuntimeRemoveEmptyNonUserMessageTransform,
+)
+from wayflowcore.transforms.canonicalizationtransform import (
+    CanonicalizationMessageTransform as RuntimeCanonicalizationMessageTransform,
+)
+from wayflowcore.transforms.transforms import (
+    SplitPromptOnMarkerMessageTransform as RuntimeSplitPromptOnMarkerMessageTransform,
 )
 from wayflowcore.variable import Variable as RuntimeVariable
 
@@ -1467,6 +1483,21 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     runtime_messagetransform
                 ),
             )
+        elif isinstance(runtime_messagetransform, RuntimeCanonicalizationMessageTransform):
+            return AgentSpecPluginCanonicalizationMessageTransform(
+                name="canonicalization_messagetransform",
+                metadata=_create_agentspec_metadata_from_runtime_component(
+                    runtime_messagetransform
+                ),
+            )
+        elif isinstance(runtime_messagetransform, RuntimeSplitPromptOnMarkerMessageTransform):
+            return AgentSpecPluginSplitPromptOnMarkerMessageTransform(
+                name="splitpromptonmarker_messagetransform",
+                metadata=_create_agentspec_metadata_from_runtime_component(
+                    runtime_messagetransform
+                ),
+                marker=runtime_messagetransform.marker,
+            )
         raise ValueError(
             f"Unsupported type of MessageTransform in Agent Spec: {type(runtime_messagetransform)}"
         )
@@ -1913,7 +1944,10 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                         runtime_agent.agent_template,
                         referenced_objects,
                     )
-                    if isinstance(runtime_agent.agent_template, RuntimePromptTemplate)
+                    if (
+                        isinstance(runtime_agent.agent_template, RuntimePromptTemplate)
+                        and runtime_agent.agent_template is not runtime_agent.llm.agent_template
+                    )
                     else None
                 ),
             )
