@@ -30,6 +30,7 @@ class CanonicalizationMessageTransform(MessageTransform, SerializableObject):
     * several system messages are merged
     * consecutive assistant (resp. user) messages are merged, unless there are several tool calls,
     in which case they are split and their responses are interleaving the requests.
+
     """
 
     FIRST_DUMMY_USER_TEXT = "begin"
