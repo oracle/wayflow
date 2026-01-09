@@ -692,7 +692,7 @@ def thought_signature_llm():
     )
 
 
-def test_thought_signature_with_singel_and_parallel_tool_calling(thought_signature_llm):
+def test_thought_signature_with_single_and_parallel_tool_calling(thought_signature_llm):
     prompt = Prompt(
         messages=[
             Message("You are very good at following instructions", message_type=MessageType.SYSTEM),
