@@ -17,6 +17,7 @@ from typing_extensions import NotRequired, TypedDict
 from wayflowcore.exceptions import SecurityException
 from wayflowcore.messagelist import Message, MessageContent, MessageType, TextContent
 from wayflowcore.property import AnyProperty, Property, StringProperty
+from wayflowcore.tools.tools import ExtraContentT
 
 _MAX_RECURSION_DEPTH = 50
 _DEFAULT_VARIABLE_DESCRIPTION_TEMPLATE = '"{var_name}" input variable for the template'
@@ -26,6 +27,7 @@ class ToolRequestAsDictT(TypedDict, total=True):
     tool_request_id: str
     name: str
     args: Dict[str, Any]
+    _extra_content: Optional[ExtraContentT]
 
 
 class ToolResultAsDictT(TypedDict, total=True):
