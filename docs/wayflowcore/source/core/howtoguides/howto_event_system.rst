@@ -91,7 +91,70 @@ Using the agent in a conversation:
 
 Both listeners are registered within a context manager using :ref:`register_event_listeners <registereventlisteners>` during agent execution, ensuring they capture all relevant events.
 
-Beyond the events highlighted here, WayFlow offers a wide range of events for detailed monitoring. See :ref:`Events <events>` for more information.  You can implement custom `EventListeners` for these events as shown in the examples above.
+Beyond the events highlighted here, WayFlow offers a wide range of events for detailed monitoring. Below is a table explaining various types of events in Wayflow:
+
+.. list-table:: WayFlow Event Types
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Event Name
+     - Description
+   * - :ref:`Event <event>`
+     - Base event class containing information relevant to all events.
+   * - :ref:`LlmGenerationRequestEvent <llmgenerationrequestevent>`
+     - Recorded when the LLM receives a generation request.
+   * - :ref:`LlmGenerationResponseEvent <llmgenerationresponseevent>`
+     - Recorded when the LLM generates a response.
+   * - :ref:`ConversationalComponentExecutionStartedEvent <conversationalcomponentexecutionstartedevent>`
+     - Recorded when the agent/flow execution has started.
+   * - :ref:`ConversationalComponentExecutionFinishedEvent <conversationalcomponentexecutionfinishedevent>`
+     - Recorded when the agent/flow execution has ended.
+   * - :ref:`ConversationCreatedEvent <conversationcreatedevent>`
+     - Recorded whenever a new conversation with an agent or a flow was created.
+   * - :ref:`ConversationMessageAddedEvent <conversationmessageaddedevent>`
+     - Recorded whenever a new message was added to the conversation.
+   * - :ref:`ConversationMessageStreamStartedEvent <conversationmessagestreamstartedevent>`
+     - Recorded whenever a new message starts being streamed to the conversation.
+   * - :ref:`ConversationMessageStreamChunkEvent <conversationmessagestreamchunkevent>`
+     - Recorded whenever a message is being streamed and a delta is added to the conversation.
+   * - :ref:`ConversationMessageStreamEndedEvent <conversationmessagestreamendedevent>`
+     - Recorded whenever a streamed message to the conversation ends.
+   * - :ref:`ConversationExecutionStartedEvent <conversationexecutionstartedevent>`
+     - Recorded whenever a conversation is started.
+   * - :ref:`ConversationExecutionFinishedEvent <conversationexecutionfinishedevent>`
+     - Recorded whenever a conversation execution finishes.
+   * - :ref:`ToolExecutionStartEvent <toolexecutionstartevent>`
+     - Recorded whenever a tool is executed.
+   * - :ref:`ToolExecutionResultEvent <toolexecutionresultevent>`
+     - Recorded whenever a tool has finished execution.
+   * - :ref:`ToolConfirmationRequestStartEvent <toolconfirmationrequeststartevent>`
+     - Recorded whenever a tool confirmation is required.
+   * - :ref:`ToolConfirmationRequestEndEvent <toolconfirmationrequestendevent>`
+     - Recorded whenever a tool confirmation has been handled.
+   * - :ref:`StepInvocationStartEvent <stepinvocationstartevent>`
+     - Recorded whenever a step is invoked.
+   * - :ref:`StepInvocationResultEvent <stepinvocationresultevent>`
+     - Recorded whenever a step invocation has finished.
+   * - :ref:`ContextProviderExecutionRequestEvent <contextproviderexecutionrequestevent>`
+     - Recorded whenever a context provider is called.
+   * - :ref:`ContextProviderExecutionResultEvent <contextproviderexecutionresultevent>`
+     - Recorded whenever a context provider has returned a result.
+   * - :ref:`FlowExecutionIterationStartedEvent <flowexecutioniterationstartedevent>`
+     - Recorded whenever an iteration of a flow has started executing.
+   * - :ref:`FlowExecutionIterationFinishedEvent <flowexecutioniterationfinishedevent>`
+     - Recorded whenever an iteration of a flow has finished executing.
+   * - :ref:`AgentExecutionIterationStartedEvent <agentexecutioniterationstartedevent>`
+     - Recorded whenever an iteration of an agent has started executing.
+   * - :ref:`AgentExecutionIterationFinishedEvent <agentexecutioniterationfinishedevent>`
+     - Recorded whenever an iteration of an agent has finished executing.
+   * - :ref:`ExceptionRaisedEvent <exceptionraisedevent>`
+     - Recorded whenever an exception occurs.
+   * - :ref:`AgentNextActionDecisionStartEvent <agentnextactiondecisionstartevent>`
+     - Recorded at the start of the agent taking a decision on what to do next.
+   * - :ref:`AgentDecidedNextActionEvent <agentdecidednextactionevent>`
+     - Recorded whenever the agent decided what to do next.
+
+See :ref:`Events <events>` for more information. You can implement custom `EventListeners` for these events as shown in the examples above.
 
 Agent Spec Exporting/Loading
 ============================
