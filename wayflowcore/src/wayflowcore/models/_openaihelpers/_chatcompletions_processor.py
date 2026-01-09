@@ -5,12 +5,13 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
 import logging
-from typing import Any, AsyncIterable, Callable, Dict, List, Optional
+from typing import Any, AsyncIterable, Callable, Dict, List, Optional, TypedDict
 
 from wayflowcore._utils.formatting import stringify
 from wayflowcore.messagelist import ImageContent, Message, TextContent
 from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
+from wayflowcore.tools.tools import ExtraContentT
 
 from .._requesthelpers import StreamChunkType, TaggedMessageChunkTypeWithTokenUsage
 from ..llmgenerationconfig import LlmGenerationConfig
@@ -19,6 +20,13 @@ from ._api_processor import _APIProcessor
 from ._utils import _prepare_openai_compatible_json_schema, _safe_json_loads
 
 logger = logging.getLogger(__name__)
+
+
+class OpenAIToolRequestAsDictT(TypedDict, total=True):
+    tool_request_id: str
+    name: str
+    args: str
+    _extra_content: Optional[ExtraContentT]
 
 
 class _ChatCompletionsAPIProcessor(_APIProcessor):
@@ -262,11 +270,16 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
 
     def _convert_tool_deltas_into_tool_requests(self, tool_deltas: List[Any]) -> List[ToolRequest]:
         """Gets tool deltas and return list of proper tool calls"""
-        tool_requests_dict = {}
+        tool_requests_dict: Dict[int, OpenAIToolRequestAsDictT] = {}
         for delta in tool_deltas:
             index = delta["index"]
             if index not in tool_requests_dict:
-                tool_requests_dict[index] = {"name": "", "arguments": ""}
+                tool_requests_dict[index] = {
+                    "name": "",
+                    "args": "",
+                    "tool_request_id": "",
+                    "_extra_content": None,
+                }
             if "id" in delta:
                 tool_requests_dict[index]["tool_request_id"] = delta["id"]
             if "function" in delta:
@@ -274,15 +287,15 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 if "name" in func:
                     tool_requests_dict[index]["name"] += func["name"]
                 if "arguments" in func:
-                    tool_requests_dict[index]["arguments"] += func["arguments"]
+                    tool_requests_dict[index]["args"] += func["arguments"]
             if "extra_content" in delta:
-                tool_requests_dict[index]["extra_content"] = delta["extra_content"]
+                tool_requests_dict[index]["_extra_content"] = delta["extra_content"]
         return [
             ToolRequest(
                 name=s["name"],
                 tool_request_id=s["tool_request_id"],
-                args=_safe_json_loads(s["arguments"]),
-                _extra_content=s.get("extra_content"),
+                args=_safe_json_loads(s["args"]),
+                _extra_content=s.get("_extra_content"),
             )
             for s in tool_requests_dict.values()
         ]

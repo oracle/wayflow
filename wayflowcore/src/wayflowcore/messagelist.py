@@ -40,7 +40,7 @@ from wayflowcore.serialization.serializer import (
     SerializableObject,
     autodeserialize_any_from_dict,
 )
-from wayflowcore.tools.tools import ToolRequest, ToolResult
+from wayflowcore.tools.tools import ExtraContentT, ToolRequest, ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore.models._requesthelpers import TaggedMessageChunkType
@@ -218,7 +218,7 @@ class Message(SerializableDataclass):
     time_created: datetime = field(default_factory=lambda: datetime.now(timezone.utc), repr=False)
     time_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc), repr=False)
 
-    _extra_content: Optional[Any] = None
+    _extra_content: Optional[ExtraContentT] = None
 
     def __init__(
         self,
