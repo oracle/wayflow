@@ -207,11 +207,27 @@ class MCPToolBox(ToolBox, DataclassComponent):
                     f"Invalid tool filter. Should be `str` or `Tool`, was {type(tool_)}"
                 )
 
-        return await get_server_tools_from_mcp_server(
+        server_tools = await get_server_tools_from_mcp_server(
             session=session,
             expected_signatures_by_name=expected_signatures_by_name,
             client_transport=self.client_transport,
         )
+
+        for server_tool in server_tools:
+            if self.requires_confirmation and not server_tool.requires_confirmation:
+                logger.warning(
+                    f"MCPToolBox configured with `requires_confirmation=True`, but found `ServerTool` {server_tool} with `requires_confirmation=False`."
+                    "Changing `ServerTool` {server_tool} to `requires_confirmation=True`."
+                )
+                server_tool.requires_confirmation = True
+
+            elif self.requires_confirmation is False and server_tool.requires_confirmation:
+                logger.warning(
+                    f"MCPToolBox configured with `requires_confirmation=False`, but found `ServerTool` {server_tool} with `requires_confirmation=True`."
+                    "Keeping `ServerTool` {server_tool} to `requires_confirmation=True`."
+                )
+
+        return server_tools
 
     async def get_tools_async(self) -> Sequence[ServerTool]:
         mcp_runtime = get_mcp_async_runtime()

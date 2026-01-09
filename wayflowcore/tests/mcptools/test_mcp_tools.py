@@ -6,7 +6,7 @@
 
 import logging
 import re
-from typing import Tuple, cast
+from typing import List, Tuple, cast
 
 import anyio
 import pytest
@@ -338,6 +338,121 @@ def test_agent_can_use_mcp_toolbox(mcp_fooza_toolbox, remotely_hosted_llm):
     status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     assert "7" in conv.get_last_message().content
+
+
+def _get_agent_with_mcp_toolboxes(llm, tool_boxes: List["MCPToolBox"]):
+    return Agent(
+        custom_instruction="You are an helpful assistant. Use the tools at your disposal to answer the user requests.",
+        llm=llm,
+        tools=tool_boxes,
+        agent_id="general_agent",
+        name="general_agent",
+        description="General agent that can call tools to answer some user requests",
+    )
+
+
+@retry_test(max_attempts=3)
+@pytest.mark.parametrize(
+    "tool_name, requires_confirmation, answer",
+    [
+        ("ggwp_tool", True, "6"),
+        ("ggwp_tool", False, "6"),
+        ("ggwp_tool", None, "6"),
+        ("zbuk_tool", True, "14"),
+    ],
+)
+def test_agent_can_call_tool_with_confirmation_from_mcptoolboxes(
+    tool_name,
+    requires_confirmation,
+    answer,
+    sse_client_transport,
+    with_mcp_enabled,
+    remotely_hosted_llm,
+):
+    """
+    Failure rate:          1 out of 30
+    Observed on:           2026-01-09
+    Average success time:  1.04 seconds per successful attempt
+    Average failure time:  1.11 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.06 ** 4) ~= 1.5 / 100'000
+    """
+    if tool_name == "ggwp_tool":
+        filter_entry = Tool(
+            name="ggwp_tool",
+            description="Return the result of the ggwp operation between numbers a and b. Do not use for anything else than computing a ggwp operation.",
+            input_descriptors=[IntegerProperty(name="a"), IntegerProperty(name="b")],
+            requires_confirmation=True,
+        )
+    else:
+        filter_entry = tool_name
+
+    toolbox = MCPToolBox(
+        client_transport=sse_client_transport,
+        tool_filter=[filter_entry],
+        requires_confirmation=requires_confirmation,
+    )
+
+    agent = _get_agent_with_mcp_toolboxes(remotely_hosted_llm, [toolbox])
+
+    conv = agent.start_conversation()
+    conv.append_user_message(f"compute the result the {tool_name} operation of 4 and 5")
+    status = conv.execute()
+
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.confirm_tool_execution(status.tool_requests[0])
+    conv.execute()
+
+    last_message = conv.get_last_message()
+    assert last_message is not None
+    assert answer in last_message.content
+
+
+@retry_test(max_attempts=3)
+@pytest.mark.parametrize(
+    "tool_name, requires_confirmation, answer",
+    [("zbuk_tool", False, "14"), ("zbuk_tool", None, "14")],
+)
+def test_agent_can_call_tool_without_confirmation_from_mcptoolboxes(
+    tool_name,
+    requires_confirmation,
+    answer,
+    sse_client_transport,
+    with_mcp_enabled,
+    remotely_hosted_llm,
+):
+    """
+    Failure rate:          0 out of 30
+    Observed on:           2026-01-09
+    Average success time:  1.05 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
+    """
+
+    ggwp_tool_entry = Tool(
+        name="ggwp_tool",
+        description="Return the result of the ggwp operation between numbers a and b. Do not use for anything else than computing a ggwp operation.",
+        input_descriptors=[IntegerProperty(name="a"), IntegerProperty(name="b")],
+        requires_confirmation=True,
+    )
+
+    # ggwp_tool requires confirmation, zbuk_tool does not
+    toolbox = MCPToolBox(
+        client_transport=sse_client_transport,
+        tool_filter=[tool_name, ggwp_tool_entry],
+        requires_confirmation=requires_confirmation,
+    )  # Should only call tool and not ggwp
+
+    agent = _get_agent_with_mcp_toolboxes(remotely_hosted_llm, [toolbox])
+
+    conv = agent.start_conversation()
+    conv.append_user_message(f"compute the result the {tool_name} operation of 4 and 5")
+    conv.execute()
+
+    last_message = conv.get_last_message()
+    assert last_message is not None
+    assert answer in last_message.content
 
 
 def test_mcp_tools_work_with_parallel_mapstep(mcp_fooza_toolbox):

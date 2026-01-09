@@ -7,7 +7,10 @@
 from dataclasses import dataclass, field
 from typing import Annotated, Any, Dict, List
 
+import pytest
+
 from wayflowcore.agent import Agent
+from wayflowcore.executors.executionstatus import ToolExecutionConfirmationStatus
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.tools import Tool, ToolBox, tool
@@ -37,6 +40,14 @@ def zbuk_tool(
 ) -> int:
     """Return the result of the zbuk operation between numbers a and b. Do not use for anything else than computing a zbuk operation."""
     return a + b * 2
+
+
+@tool(requires_confirmation=True)
+def ggwp_tool(
+    a: Annotated[int, "first required integer"], b: Annotated[int, "second required integer"]
+) -> int:
+    """Return the result of the ggwp operation between numbers a and b. Do not use for anything else than computing a ggwp operation."""
+    return a + b // 2
 
 
 @dataclass
@@ -104,3 +115,73 @@ def test_agent_can_call_tool_from_toolboxes(remotely_hosted_llm):
     last_message = conv.get_last_message()
     assert last_message is not None
     assert "14" in last_message.content
+
+
+@retry_test(max_attempts=3)
+@pytest.mark.parametrize(
+    "tool, requires_confirmation, answer",
+    [
+        (ggwp_tool, True, "6"),
+        (ggwp_tool, False, "6"),
+        (ggwp_tool, None, "6"),
+        (zbuk_tool, True, "14"),
+    ],
+)
+def test_agent_can_call_tool_with_confirmation_from_toolboxes(
+    tool, requires_confirmation, answer, remotely_hosted_llm
+):
+    """
+    Failure rate:          0 out of 30
+    Observed on:           2026-01-09
+    Average success time:  1.00 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
+    """
+    # ggwp_tool requires confirmation, zbuk_tool does not
+    toolbox = BasicToolBox(tools=[tool], requires_confirmation=requires_confirmation)
+
+    agent = _get_agent_with_tool_and_toolboxes(remotely_hosted_llm, [toolbox])
+
+    conv = agent.start_conversation()
+    conv.append_user_message(f"compute the result the {tool.name} operation of 4 and 5")
+    status = conv.execute()
+
+    assert isinstance(status, ToolExecutionConfirmationStatus)
+    status.confirm_tool_execution(status.tool_requests[0])
+    conv.execute()
+
+    last_message = conv.get_last_message()
+    assert last_message is not None
+    assert answer in last_message.content
+
+
+@retry_test(max_attempts=3)
+@pytest.mark.parametrize(
+    "tool, requires_confirmation, answer", [(zbuk_tool, False, "14"), (zbuk_tool, None, "14")]
+)
+def test_agent_can_call_tool_without_confirmation_from_toolboxes(
+    tool, requires_confirmation, answer, remotely_hosted_llm
+):
+    """
+    Failure rate:          0 out of 30
+    Observed on:           2026-01-09
+    Average success time:  1.07 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
+    """
+    # ggwp_tool requires confirmation, zbuk_tool does not
+    toolbox = BasicToolBox(
+        tools=[tool, ggwp_tool], requires_confirmation=requires_confirmation
+    )  # Should only call tool and not ggwp
+
+    agent = _get_agent_with_tool_and_toolboxes(remotely_hosted_llm, [toolbox])
+
+    conv = agent.start_conversation()
+    conv.append_user_message(f"compute the result the {tool.name} operation of 4 and 5")
+    conv.execute()
+
+    last_message = conv.get_last_message()
+    assert last_message is not None
+    assert answer in last_message.content

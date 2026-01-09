@@ -6,7 +6,7 @@
 
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING, Optional, Sequence
 
 from wayflowcore.component import Component
 from wayflowcore.idgeneration import IdGenerator
@@ -23,9 +23,15 @@ class ToolBox(Component):
     ToolBox is dynamic which means that agentic components equipped
     with a toolbox can may see its tools to evolve throughout its
     execution.
+
+    Parameters
+    ----------
+    requires_confirmation:
+        Flag to ask for user confirmation, yields ``ToolExecutionConfirmationStatus`` if True or if the ``Tool`` from the ``ToolBox`` requires confirmation.
     """
 
     id: str = field(default_factory=IdGenerator.get_or_generate_id, compare=False, hash=False)
+    requires_confirmation: Optional[bool] = None
 
     @abstractmethod
     def get_tools(self) -> Sequence["Tool"]:
