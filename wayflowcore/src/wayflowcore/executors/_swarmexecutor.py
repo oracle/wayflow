@@ -29,7 +29,7 @@ from wayflowcore.executors.executionstatus import (
 )
 from wayflowcore.executors.interrupts.executioninterrupt import ExecutionInterrupt
 from wayflowcore.messagelist import Message, MessageType
-from wayflowcore.swarm import Swarm
+from wayflowcore.swarm import HandoffMode, Swarm
 from wayflowcore.templates._swarmtemplate import _HANDOFF_CONFIRMATION_MESSAGE_TEMPLATE
 from wayflowcore.tools import ToolResult
 
@@ -143,10 +143,14 @@ class SwarmRunner(ConversationExecutor):
                 agent_sub_conversation = conversation.state._create_subconversation_for_thread(
                     current_thread
                 )
-
-            mutated_agent_tools = (
-                list(current_agent.tools) + swarm_config._communication_tools[current_agent.name]
-            )
+            communication_tools = swarm_config._communication_tools[current_agent.name]
+            if (
+                conversation.component.handoff == HandoffMode.OPTIONAL
+                and current_agent != conversation.state.main_thread.recipient_agent
+            ):
+                # Last would be the handoff tool
+                communication_tools = communication_tools[:-1]
+            mutated_agent_tools = list(current_agent.tools) + communication_tools
             has_talk_to_user_tool = any(
                 tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
             )
@@ -412,23 +416,7 @@ class SwarmRunner(ConversationExecutor):
                 thread_conversation = swarm_conversation._get_main_thread_conversation()
                 thread_conversation.component = recipient_agent
             else:
-                # We move to another thread
-                previous_caller_name = previous_thread.caller.name
-                try:
-                    current_thread = swarm_conversation.state.agents_and_threads[
-                        previous_caller_name
-                    ][recipient_agent_name]
-                except KeyError:  # TODO Move to init
-                    raise KeyError(
-                        f"Cannot handoff conversation from (caller='{current_thread.caller.name}', "
-                        f"recipient='{current_agent.name}') to (caller='{previous_caller_name}', "
-                        f"recipient='{recipient_agent_name}') because of missing relationship ('{previous_caller_name}', "
-                        f"'{recipient_agent_name}'). Please make sure to add this relationship when defining the Swarm."
-                    )
-                current_thread.message_list.messages[:] = (
-                    previous_thread.message_list.get_messages()
-                )  # it IS overriding the thread messagelist
-                # ^ Was overriding the MessageList object
+                raise ValueError("This should not happen.")
             logger.info(
                 "Conversation was handed off to a new agent (thread %s)",
                 current_thread.identifier,
