@@ -574,7 +574,7 @@ class AgentConversationExecutor(ConversationExecutor):
                 )
 
         if state.current_retrieved_tools is None:
-            # need to reload the tools if when reloading fthey are not present anymore
+            # need to reload the tools if when reloading they are not present anymore
             state.current_retrieved_tools = await AgentConversationExecutor._collect_tools(
                 config=config, curr_iter=state.curr_iter
             )

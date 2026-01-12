@@ -1027,7 +1027,7 @@ def get_debugger_agent(llm: LlmModel) -> Agent:
 
     return Agent(
         llm=llm,
-        custom_instruction="You are the debugger agent. Be truthful, do not make up any information. Use your tools to find information about bugs",
+        custom_instruction="You are the debugger agent. Be truthful, do not make up any information. Use your tools to find information about bugs. Do not yield to user for confirmation.",
         name="debugger_agent",
         description="can investigate bugs in the code-base of a given product",
         tools=[get_bug],
@@ -1471,7 +1471,7 @@ def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm)
     zbuk_agent = _get_zbuk_agent(llm)
     main_agent = get_first_agent(llm)
     main_agent.custom_instruction = (
-        "You are the main agent. You SHOULD output multiple tool calls at once when approriate."
+        "You are the main agent. You SHOULD output all the tool calls at once when approriate."
     )
 
     math_swarm = Swarm(

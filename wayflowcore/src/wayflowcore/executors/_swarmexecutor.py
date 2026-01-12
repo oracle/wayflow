@@ -14,7 +14,7 @@ from wayflowcore.agent import Agent
 from wayflowcore.executors._agenticpattern_helpers import (
     _HANDOFF_TOOL_NAME,
     _SEND_MESSAGE_TOOL_NAME,
-    _close_parallel_tool_requests_after_handoff_tool_request,
+    _close_multiple_tool_requests_after_handoff_tool_request,
     _get_unanswered_tool_requests_from_agent_response,
     _parse_handoff_conversation_tool_request,
     _parse_send_message_tool_request,
@@ -456,7 +456,7 @@ class SwarmRunner(ConversationExecutor):
         if len(unanswered_tool_requests) >= 1:
             # We do not allow tool requests after the handoff since the conversation is transfer to another agent
             # by append tool results saying that the tool requests are cancelled
-            _close_parallel_tool_requests_after_handoff_tool_request(
+            _close_multiple_tool_requests_after_handoff_tool_request(
                 current_thread.message_list, tool_request
             )
 
