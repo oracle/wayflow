@@ -115,7 +115,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_deserialization_plugin
+from wayflowcore.agentspec.components import (
+    all_deserialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -1867,9 +1869,12 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             if "items" in json_schema:
                 type_relevant_info["items"] = _extract_type_relevant_info(json_schema["items"])
             if "additionalProperties" in json_schema:
-                type_relevant_info["additionalProperties"] = _extract_type_relevant_info(
-                    json_schema["additionalProperties"]
-                )
+                if isinstance(json_schema["additionalProperties"], bool):
+                    type_relevant_info["additionalProperties"] = json_schema["additionalProperties"]
+                else:
+                    type_relevant_info["additionalProperties"] = _extract_type_relevant_info(
+                        json_schema["additionalProperties"]
+                    )
             return type_relevant_info
 
         return _extract_type_relevant_info(
