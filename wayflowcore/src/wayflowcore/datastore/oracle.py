@@ -116,7 +116,7 @@ class MTlsOracleDatabaseConnectionConfig(OracleDatabaseConnectionConfig, Datacla
         password for the provided wallet
     """
 
-    config_dir: str
+    config_dir: Optional[str]
     dsn: str
     user: str
     password: str
