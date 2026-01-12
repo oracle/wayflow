@@ -1165,21 +1165,7 @@ class AgentConversationExecutor(ConversationExecutor):
             for toolbox in config._toolboxes:
                 for toolbox_tool in await toolbox.get_tools_async():
                     if toolbox.requires_confirmation and not toolbox_tool.requires_confirmation:
-                        logger.warning(
-                            f"ToolBox {toolbox} configured with `requires_confirmation=True`, but found `Tool` {toolbox_tool} with `requires_confirmation=False`."
-                            f"Changing `Tool` {toolbox_tool} to `requires_confirmation=True`."
-                        )
                         toolbox_tool.requires_confirmation = True
-
-                    elif (
-                        toolbox.requires_confirmation is False
-                        and toolbox_tool.requires_confirmation
-                    ):
-                        logger.warning(
-                            f"ToolBox {toolbox} configured with `requires_confirmation=False`, but found `Tool` {toolbox_tool} with `requires_confirmation=True`."
-                            f"Keeping `Tool` {toolbox_tool} to `requires_confirmation=True`."
-                        )
-
                     toolbox_tools.append(toolbox_tool)
 
             tools = [*config._all_static_tools] + toolbox_tools

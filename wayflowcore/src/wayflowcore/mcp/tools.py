@@ -215,17 +215,7 @@ class MCPToolBox(ToolBox, DataclassComponent):
 
         for server_tool in server_tools:
             if self.requires_confirmation and not server_tool.requires_confirmation:
-                logger.warning(
-                    f"MCPToolBox configured with `requires_confirmation=True`, but found `ServerTool` {server_tool} with `requires_confirmation=False`."
-                    "Changing `ServerTool` {server_tool} to `requires_confirmation=True`."
-                )
                 server_tool.requires_confirmation = True
-
-            elif self.requires_confirmation is False and server_tool.requires_confirmation:
-                logger.warning(
-                    f"MCPToolBox configured with `requires_confirmation=False`, but found `ServerTool` {server_tool} with `requires_confirmation=True`."
-                    "Keeping `ServerTool` {server_tool} to `requires_confirmation=True`."
-                )
 
         return server_tools
 
