@@ -100,6 +100,7 @@ from pyagentspec.swarm import Swarm as AgentSpecSwarm
 from pyagentspec.tools.clienttool import ClientTool as AgentSpecClientTool
 from pyagentspec.tools.remotetool import RemoteTool as AgentSpecRemoteTool
 from pyagentspec.tools.servertool import ServerTool as AgentSpecServerTool
+from pyagentspec.transforms import MessageTransform as AgentSpecMessageTransform
 
 from wayflowcore._metadata import METADATA_ID_KEY
 from wayflowcore.a2a.a2aagent import A2AAgent as RuntimeA2AAgent
@@ -259,9 +260,6 @@ from wayflowcore.agentspec.components.transforms import (
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginLlamaMergeToolRequestAndCallsTransform as AgentSpecPluginLlamaMergeToolRequestAndCallsTransform,
-)
-from wayflowcore.agentspec.components.transforms import (
-    PluginMessageTransform as AgentSpecPluginMessageTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginReactMergeToolRequestAndCallsTransform as AgentSpecPluginReactMergeToolRequestAndCallsTransform,
@@ -1676,7 +1674,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     agentspec_component.connection_config, tool_registry, converted_components
                 ),
             )
-        elif isinstance(agentspec_component, AgentSpecPluginMessageTransform):
+        elif isinstance(agentspec_component, AgentSpecMessageTransform):
             if isinstance(agentspec_component, AgentSpecPluginCoalesceSystemMessagesTransform):
                 return RuntimewCoalesceSystemMessagesTransform()
             elif isinstance(agentspec_component, AgentSpecPluginRemoveEmptyNonUserMessageTransform):

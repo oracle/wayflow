@@ -97,6 +97,7 @@ from pyagentspec.tools import RemoteTool as AgentSpecRemoteTool
 from pyagentspec.tools import ServerTool as AgentSpecServerTool
 from pyagentspec.tools import Tool as AgentSpecTool
 from pyagentspec.tools import ToolBox as AgentSpecToolBox
+from pyagentspec.transforms import MessageTransform as AgentSpecMessageTransform
 
 from wayflowcore._metadata import METADATA_KEY
 from wayflowcore._utils._templating_helpers import MessageAsDictT as RuntimeMessageAsDictT
@@ -249,9 +250,6 @@ from wayflowcore.agentspec.components.transforms import (
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginLlamaMergeToolRequestAndCallsTransform as AgentSpecPluginLlamaMergeToolRequestAndCallsTransform,
-)
-from wayflowcore.agentspec.components.transforms import (
-    PluginMessageTransform as AgentSpecPluginMessageTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginReactMergeToolRequestAndCallsTransform as AgentSpecPluginReactMergeToolRequestAndCallsTransform,
@@ -1434,7 +1432,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         conversion_context: "WayflowToAgentSpecConversionContext",
         runtime_messagetransform: RuntimeMessageTransform,
         referenced_objects: Optional[Dict[str, Any]] = None,
-    ) -> AgentSpecPluginMessageTransform:
+    ) -> AgentSpecMessageTransform:
         if isinstance(runtime_messagetransform, RuntimewCoalesceSystemMessagesTransform):
             return AgentSpecPluginCoalesceSystemMessagesTransform(
                 name="coalescesystemmessage_messagetransform",
