@@ -43,7 +43,7 @@ it's a private message conversation between you and the other agent.
 _HANDOFF_TOOL_NAME = "handoff_conversation"
 
 _HANDOFF_TOOL_DESCRIPTION = """
-Use this tool to transfer the entire conversation with your user to another agent in your group.
+Use this tool to transfer the entire conversation with the user to another agent in your group.
 - Use this when another agent is better suited to handle the user’s request.
 - Once handed off, the receiving agent takes over the conversation entirely.
 - Specify the recipient agent’s name to complete the handoff.
@@ -229,11 +229,11 @@ def _close_parallel_tool_requests_if_necessary(
         )
 
 
-def _close_parallel_tool_requests_after_handoff_tool_request(
+def _close_multiple_tool_requests_after_handoff_tool_request(
     message_list: MessageList, tool_request: ToolRequest
 ) -> None:
     """
-    Close parallel tool request by marking other tool requests after the handoff tool (`tool_request`) as "cancelling"
+    Close multiple tool request by marking other tool requests after the handoff tool (`tool_request`) as "cancelling"
     and appending corresponding tool results to the message list.
     Example:
     message_list = [Message(tool_requests=[TR0, "handoff_conversation", TR2, TR3])]
