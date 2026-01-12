@@ -17,9 +17,14 @@ from .contextprovider import (
     contextprovider_deserialization_plugin,
     contextprovider_serialization_plugin,
 )
-from .datastores.plugin import (
-    wayflowcore_datastore_deserialization_plugin,
-    wayflowcore_datastore_serialization_plugin,
+from .datastores.nodes import (
+    PluginDatastoreCreateNode,
+    PluginDatastoreDeleteNode,
+    PluginDatastoreListNode,
+    PluginDatastoreQueryNode,
+    PluginDatastoreUpdateNode,
+    datastore_nodes_deserialization_plugin,
+    datastore_nodes_serialization_plugin,
 )
 from .embeddingmodels import (
     PluginEmbeddingConfig,
@@ -107,9 +112,9 @@ all_serialization_plugin: List[ComponentSerializationPlugin] = [
     mcp_serialization_plugin,
     tools_serialization_plugin,
     nodes_serialization_plugin,
+    datastore_nodes_serialization_plugin,
     flow_serialization_plugin,
     contextprovider_serialization_plugin,
-    wayflowcore_datastore_serialization_plugin,
     messagetransform_serialization_plugin,
     prompttemplate_serialization_plugin,
     outputparser_serialization_plugin,
@@ -124,9 +129,9 @@ all_deserialization_plugin: List[ComponentDeserializationPlugin] = [
     mcp_deserialization_plugin,
     tools_deserialization_plugin,
     nodes_deserialization_plugin,
+    datastore_nodes_deserialization_plugin,
     flow_deserialization_plugin,
     contextprovider_deserialization_plugin,
-    wayflowcore_datastore_deserialization_plugin,
     messagetransform_deserialization_plugin,
     prompttemplate_deserialization_plugin,
     outputparser_deserialization_plugin,
@@ -203,8 +208,6 @@ __all__ = [
     "PluginMessage",
     "PluginTextContent",
     "PluginImageContent",
-    "wayflowcore_datastore_serialization_plugin",
-    "wayflowcore_datastore_deserialization_plugin",
     "PluginManagerWorkers",
     "PluginAppendTrailingSystemMessageToUserMessageTransform",
     "PluginCoalesceSystemMessagesTransform",
