@@ -4,7 +4,8 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from pyagentspec.component import Component
+
+from pyagentspec.transforms import MessageTransform
 
 from wayflowcore.agentspec.components._pydantic_plugins import (
     PydanticComponentDeserializationPlugin,
@@ -12,17 +13,7 @@ from wayflowcore.agentspec.components._pydantic_plugins import (
 )
 
 
-class PluginMessageTransform(Component, abstract=True):
-    """
-    Abstract base class for message transforms.
-
-    Subclasses should implement the __call__ method to transform a list of Message objects
-    and return a new list of Message objects, typically for preprocessing or postprocessing
-    message flows in the system.
-    """
-
-
-class PluginCoalesceSystemMessagesTransform(PluginMessageTransform):
+class PluginCoalesceSystemMessagesTransform(MessageTransform):
     """
     Transform that merges consecutive system messages at the start of a message list
     into a single system message. This is useful for reducing redundancy and ensuring
@@ -30,7 +21,7 @@ class PluginCoalesceSystemMessagesTransform(PluginMessageTransform):
     """
 
 
-class PluginRemoveEmptyNonUserMessageTransform(PluginMessageTransform):
+class PluginRemoveEmptyNonUserMessageTransform(MessageTransform):
     """
     Transform that removes messages which are empty and not from the user.
 
@@ -42,7 +33,7 @@ class PluginRemoveEmptyNonUserMessageTransform(PluginMessageTransform):
     """
 
 
-class PluginAppendTrailingSystemMessageToUserMessageTransform(PluginMessageTransform):
+class PluginAppendTrailingSystemMessageToUserMessageTransform(MessageTransform):
     """
     Transform that appends the content of a trailing system message to the previous user message.
 
@@ -53,15 +44,15 @@ class PluginAppendTrailingSystemMessageToUserMessageTransform(PluginMessageTrans
     """
 
 
-class PluginLlamaMergeToolRequestAndCallsTransform(PluginMessageTransform):
+class PluginLlamaMergeToolRequestAndCallsTransform(MessageTransform):
     """Llama-specific message transform"""
 
 
-class PluginReactMergeToolRequestAndCallsTransform(PluginMessageTransform):
+class PluginReactMergeToolRequestAndCallsTransform(MessageTransform):
     """Simple message processor that joins tool requests and calls into a python-like message"""
 
 
-class PluginSwarmToolRequestAndCallsTransform(PluginMessageTransform):
+class PluginSwarmToolRequestAndCallsTransform(MessageTransform):
     """Format Tool requests as Agent messages and Tool results as User messages to have a simple User/Agent
     sequence of messages."""
 
