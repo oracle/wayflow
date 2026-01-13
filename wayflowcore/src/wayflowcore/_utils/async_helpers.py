@@ -43,6 +43,31 @@ class AsyncContext(Enum):
     SYNC_WORKER = "sync_worker"
 
 
+def _no_event_loop_exc_types() -> tuple[type[BaseException], ...]:
+    exc_types: list[type[BaseException]] = []
+
+    # anyio < 4.12.0
+    exc_types.append(AsyncLibraryNotFoundError)
+
+    # anyio == 4.12.0
+    try:
+        from anyio._core._eventloop import NoCurrentAsyncBackend  # type: ignore
+    except ImportError:
+        pass
+    else:
+        exc_types.append(NoCurrentAsyncBackend)
+
+    # anyio > 4.12.0
+    t = getattr(anyio, "NoEventLoopError", None)
+    if isinstance(t, type) and issubclass(t, BaseException):
+        exc_types.append(t)
+
+    return tuple(exc_types)
+
+
+_NO_EVENT_LOOP_EXCS = _no_event_loop_exc_types()
+
+
 def get_execution_context() -> AsyncContext:
     """
     Return one of:
@@ -53,7 +78,9 @@ def get_execution_context() -> AsyncContext:
     try:
         anyio.get_current_task()
         return AsyncContext.ASYNC
-    except AsyncLibraryNotFoundError:
+    except _NO_EVENT_LOOP_EXCS:
+        # 1. if no backend is installed
+        # 2. if no event loop is running
         current_thread = from_thread.current_thread()  # type: ignore
         worker_name = current_thread.name.lower()
         if "worker" in worker_name and "anyio" in worker_name:
