@@ -1036,14 +1036,13 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 sslcrl=runtime_postgres_db_connection_config.sslcrl,
                 id=runtime_postgres_db_connection_config.id,
                 description=runtime_postgres_db_connection_config.description,
-                name=runtime_postgres_db_connection_config.name
-                or "TlsPostgresDatabaseConnectionConfig",
+                name=runtime_postgres_db_connection_config.name,
                 metadata=_create_agentspec_metadata_from_runtime_component(
                     runtime_postgres_db_connection_config
                 ),
             )
         raise ValueError(
-            f"Unsupported type of PluginPostgresDatabaseConnectionConfig in Agent Spec: "
+            f"Unsupported type of PostgresDatabaseConnectionConfig in Agent Spec: "
             f"{type(runtime_postgres_db_connection_config)}"
         )
 
@@ -1058,7 +1057,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         ):
             return AgentSpecTlsOracleDatabaseConnectionConfig(
                 name=runtime_oracle_db_connection_config.name
-                or "PluginTlsOracleDatabaseConnectionConfig",
+                or "TlsOracleDatabaseConnectionConfig",
                 user=runtime_oracle_db_connection_config.user,
                 password=runtime_oracle_db_connection_config.password,
                 dsn=runtime_oracle_db_connection_config.dsn,
@@ -1070,7 +1069,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             runtime_oracle_db_connection_config, RuntimeMTlsOracleDatabaseConnectionConfig
         ):
             return AgentSpecMTlsOracleDatabaseConnectionConfig(
-                name="PluginMTlsOracleDatabaseConnectionConfig",
+                name="MTlsOracleDatabaseConnectionConfig",
                 config_dir=runtime_oracle_db_connection_config.config_dir,
                 dsn=runtime_oracle_db_connection_config.dsn,
                 user=runtime_oracle_db_connection_config.user,
@@ -1080,7 +1079,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 id=runtime_oracle_db_connection_config.id,
             )
         raise ValueError(
-            f"Unsupported type of PluginOracleDatabaseConnectionConfig in Agent Spec: "
+            f"Unsupported type of OracleDatabaseConnectionConfig in Agent Spec: "
             f"{type(runtime_oracle_db_connection_config)}"
         )
 
@@ -1092,7 +1091,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
     ) -> AgentSpecDatastore:
         if isinstance(runtime_datastore, RuntimeInMemoryDatastore):
             return AgentSpecInMemoryDatastore(
-                name="PluginInMemoryDatastore",
+                name="InMemoryDatastore",
                 datastore_schema={
                     k: _runtime_entity_to_pyagentspec_entity(v)
                     for k, v in runtime_datastore.schema.items()
@@ -1101,7 +1100,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             )
         elif isinstance(runtime_datastore, RuntimeOracleDatabaseDatastore):
             return AgentSpecOracleDatabaseDatastore(
-                name="PluginOracleDatabaseDatastore",
+                name="OracleDatabaseDatastore",
                 datastore_schema={
                     k: _runtime_entity_to_pyagentspec_entity(v)
                     for k, v in runtime_datastore.schema.items()
@@ -1115,7 +1114,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             )
         elif isinstance(runtime_datastore, RuntimePostgresDatabaseDatastore):
             return AgentSpecPostgresDatabaseDatastore(
-                name="AgentSpecPluginPostgresDatabaseDatastore",
+                name="AgentSpecPostgresDatabaseDatastore",
                 datastore_schema={
                     k: _runtime_entity_to_pyagentspec_entity(v)
                     for k, v in runtime_datastore.schema.items()
@@ -1127,9 +1126,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 ),
                 id=runtime_datastore.id,
             )
-        raise ValueError(
-            f"Unsupported type of PluginDatastore in Agent Spec: {type(runtime_datastore)}"
-        )
+        raise ValueError(f"Unsupported type of Datastore in Agent Spec: {type(runtime_datastore)}")
 
     def _described_agent_convert_to_agentspec(
         self,
