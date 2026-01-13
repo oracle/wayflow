@@ -124,17 +124,6 @@ def test_flow_constructor_rejects_write_step_referring_unknown_variable(
         create_single_step_flow(VariableWriteStep(variable=float_variable), "write_step")
 
 
-def test_variable_read_step_cannot_read_variable_without_default_value(
-    string_variable: Variable,
-) -> None:
-    flow_assistant = create_single_step_flow(
-        step=VariableReadStep(variable=string_variable),
-        variables=[string_variable],
-    )
-    with pytest.raises(ValueError):
-        flow_assistant.start_conversation().execute()
-
-
 @pytest.mark.parametrize(
     "variable",
     [

@@ -17,12 +17,7 @@ def _require_variable_value_from_conversation_store(
     variable: Variable,
     conversation: "FlowConversation",
 ) -> Any:
-    val = conversation._get_variable_value(variable)
-    if val is None:
-        raise ValueError(
-            f"Attempted to read from the Variable '{variable.name}' but the value was None."
-        )
-    return val
+    return conversation._get_variable_value(variable)
 
 
 def _validate_write_step_configurations(
@@ -62,15 +57,8 @@ def _compute_variable_input_descriptor(
                 or f"{value_type_description.description} (single element)",
             )
 
-        if isinstance(value_type_description, DictProperty):
-            return value_type_description.value_type.copy(
-                name=name,
-                description=value_type_description.value_type.description
-                or f"{value_type_description.description} (single element)",
-            )
-
         raise TypeError(
-            f"Can only apply insert write operation to lists and dictionaries, not {value_type_description.__class__}"
+            f"Can only apply insert write operation to lists, not {value_type_description.__class__}"
         )
 
     return value_type_description.copy(name=name)
