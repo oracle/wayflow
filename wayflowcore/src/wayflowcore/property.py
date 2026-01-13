@@ -190,7 +190,10 @@ class Property(SerializableObject, ABC):
         ----------
         openai_compatible
             Adds additional properties into the JSON schema to ensure valid
-            requests are made
+            requests are made to OpenAI compatible APIs in ``strict`` mode.
+            Note that this will make all properties required in the resulting
+            JSON schema. If you need a parameter to be optional, you can achieve
+            this behaviour by unioning it with the ``NullProperty``.
         """
         json_schema = self._type_to_json_schema(openai_compatible=openai_compatible)
         if self.name != "":
@@ -924,6 +927,10 @@ class ObjectProperty(Property):
             },
         }
         if openai_compatible:
+            # When using the strict mode, OpenAI expects additionalProperties to be false, as well
+            # as all properties to be included as required (parameters can be made optional by
+            # creating a union with the NullProperty):
+            # https://platform.openai.com/docs/guides/structured-outputs#all-fields-must-be-required
             json_schema["additionalProperties"] = False
             json_schema["required"] = list(json_schema["properties"].keys())
             for property_name, property_ in json_schema["properties"].items():
