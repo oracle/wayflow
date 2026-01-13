@@ -238,7 +238,7 @@ def test_unique_variables_with_overlap_are_accepted(
         "list_of_dicts_of_strings_variable",
     ],
 )
-def test_requires_operations_dictionary_with_no_write_var_and_no_operations(
+def test_require_operations_dictionary_with_no_write_var_and_no_operations(
     variable_name: str, request: FixtureRequest
 ) -> None:
     variable: Variable = request.getfixturevalue(variable_name)
@@ -264,7 +264,7 @@ def test_requires_operations_dictionary_with_no_write_var_and_no_operations(
     ],
 )
 @pytest.mark.parametrize("operation", [o for o in VariableWriteOperation])
-def test_requires_operations_dictionary_with_no_write_var(
+def test_require_operations_dictionary_with_no_write_var(
     variable_name: str, operation: VariableWriteOperation, request: FixtureRequest
 ) -> None:
     variable: Variable = request.getfixturevalue(variable_name)
@@ -306,7 +306,7 @@ def test_requires_operations_dictionary_with_no_write_var(
         dict(),
     ],
 )
-def test_requires_operations_dictionary_with_no_operation(
+def test_require_operations_dictionary_with_no_operation(
     variable_name: str, void_write_operations: Any, request: FixtureRequest
 ) -> None:
     variable: Variable = request.getfixturevalue(variable_name)
@@ -327,7 +327,7 @@ def test_requires_operations_dictionary_with_no_operation(
     ],
 )
 @pytest.mark.parametrize("write_operations", [o for o in VariableWriteOperation])
-def test_requires_operations_dictionary_with_general_operation(
+def test_require_operations_dictionary_with_general_operation(
     write_variables_names: List[str],
     write_operations: VariableWriteOperation,
     request: FixtureRequest,
@@ -345,7 +345,7 @@ def test_requires_operations_dictionary_with_general_operation(
 
 
 @pytest.mark.parametrize("operation", [o for o in VariableWriteOperation])
-def test_requires_operations_dictionary_with_variables_without_associated_operations(
+def test_require_operations_dictionary_with_variables_without_associated_operations(
     float_variable: Variable,
     string_variable: Variable,
     operation: VariableWriteOperation,
@@ -361,7 +361,7 @@ def test_requires_operations_dictionary_with_variables_without_associated_operat
 
 
 @pytest.mark.parametrize("operation", [o for o in VariableWriteOperation])
-def test_requires_operations_dictionary_with_operations_without_associated_variables(
+def test_require_operations_dictionary_with_operations_without_associated_variables(
     float_variable: Variable,
     string_variable: Variable,
     operation: VariableWriteOperation,
@@ -380,7 +380,7 @@ def test_requires_operations_dictionary_with_operations_without_associated_varia
 
 
 @pytest.mark.parametrize("operation", [o for o in VariableWriteOperation])
-def test_requires_operations_dictionary_with_invalid_operation_in_dict(
+def test_require_operations_dictionary_with_invalid_operation_in_dict(
     float_variable: Variable,
     string_variable: Variable,
     operation: VariableWriteOperation,
@@ -398,7 +398,7 @@ def test_requires_operations_dictionary_with_invalid_operation_in_dict(
         )
 
 
-def test_requires_operations_dictionary_with_specific_operations(
+def test_require_operations_dictionary_with_specific_operations(
     float_variable: Variable,
     string_variable: Variable,
     dict_of_floats_variable: Variable,
@@ -414,20 +414,20 @@ def test_requires_operations_dictionary_with_specific_operations(
     )
     assert isinstance(step.write_operations, dict)
     assert len(step.write_operations) == 3
-    assert step._requires_operation_of_write_var(float_variable) == VariableWriteOperation.OVERWRITE
+    assert step._require_operation_of_write_var(float_variable) == VariableWriteOperation.OVERWRITE
     assert (
-        step._requires_operation_of_write_var(dict_of_floats_variable)
+        step._require_operation_of_write_var(dict_of_floats_variable)
         == VariableWriteOperation.MERGE
     )
     assert (
-        step._requires_operation_of_write_var(list_of_floats_variable)
+        step._require_operation_of_write_var(list_of_floats_variable)
         == VariableWriteOperation.INSERT
     )
     with pytest.raises(
         RuntimeError,
         match=f"No operation found associated with variable {string_variable.name}.",
     ):
-        step._requires_operation_of_write_var(string_variable)
+        step._require_operation_of_write_var(string_variable)
 
 
 def test_variable_step_with_str_operation(float_variable: Variable) -> None:
