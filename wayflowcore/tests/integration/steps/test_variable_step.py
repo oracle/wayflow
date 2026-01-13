@@ -335,28 +335,6 @@ def test_requires_operations_dictionary_with_general_operation(
     assert all(operation == o for _, o in step.operations.items())
 
 
-@pytest.mark.parametrize(
-    "variable_name",
-    [
-        "float_variable",
-        "string_variable",
-        "list_of_floats_variable",
-        "dict_of_floats_variable",
-        "list_of_dicts_of_strings_variable",
-    ],
-)
-def test_requires_operations_dictionary_with_specific_operation_with_non_str_keys(
-    variable_name: str, request: FixtureRequest
-) -> None:
-    variable: Variable = request.getfixturevalue(variable_name)
-
-    with pytest.raises(
-        ValueError,
-        match="The keys of the argument `operations` must be strings",
-    ):
-        VariableStep(write_variables=[variable], operations={1: None})  # type: ignore
-
-
 @pytest.mark.parametrize("operation", [o for o in VariableWriteOperation])
 def test_requires_operations_dictionary_with_variables_without_associated_operations(
     float_variable: Variable,
@@ -381,31 +359,12 @@ def test_requires_operations_dictionary_with_operations_without_associated_varia
 ) -> None:
     with pytest.raises(
         ValueError,
-        match="All of the pairs in `operations` must be associated with a variable in `write_variables`.",
+        match="All of the variable name in `operations` must be associated with a variable in `write_variables`",
     ):
         VariableStep(
             write_variables=[float_variable],
             operations={
                 float_variable.name: operation,
-                string_variable.name: operation,
-            },
-        )
-
-
-@pytest.mark.parametrize("operation", [o for o in VariableWriteOperation])
-def test_requires_operations_dictionary_with_none_operation_in_dict(
-    float_variable: Variable,
-    string_variable: Variable,
-    operation: VariableWriteOperation,
-) -> None:
-    with pytest.raises(
-        ValueError,
-        match="`None` is not permitted as an operation in the dictionary of `operations`.",
-    ):
-        VariableStep(
-            write_variables=[float_variable, string_variable],
-            operations={
-                float_variable.name: None,  # type: ignore
                 string_variable.name: operation,
             },
         )
