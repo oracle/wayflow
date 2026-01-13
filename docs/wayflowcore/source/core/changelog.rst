@@ -97,7 +97,7 @@ New features
 
   Introducing VariableStep, a comprehensive step for reading from and writing on variables. This feature provides users with an easier-to-use API.
 
-  For more information check out :doc:`the how to use variables for shared state in flows guide <howtoguides/howto_variable.rst>`.
+  For more information check out :doc:`how to use variables for shared state in flows <howtoguides/howto_variable.rst>`.
 
 Improvements
 ^^^^^^^^^^^^
