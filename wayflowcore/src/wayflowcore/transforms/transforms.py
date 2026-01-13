@@ -8,13 +8,14 @@ from dataclasses import dataclass
 from typing import Any, Callable, List, Optional
 
 from wayflowcore._utils.async_helpers import is_coroutine_function, run_sync_in_thread
+from wayflowcore.component import Component
 from wayflowcore.messagelist import Message, MessageType
-from wayflowcore.serialization.serializer import SerializableCallable, SerializableObject
+from wayflowcore.serialization.serializer import SerializableCallable
 
 logger = logging.getLogger(__name__)
 
 
-class MessageTransform(SerializableCallable, SerializableObject):
+class MessageTransform(SerializableCallable, Component):
     """
     Abstract base class for message transforms.
 
@@ -22,6 +23,11 @@ class MessageTransform(SerializableCallable, SerializableObject):
     and return a new list of Message objects, typically for preprocessing or postprocessing
     message flows in the system.
     """
+
+    def __init__(
+        self, id: Optional[str] = None, name: str = "transform", description: Optional[str] = None
+    ) -> None:
+        Component.__init__(self, name=name, description=description, id=id)
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         """Implement this method for synchronous logic (CPU-bounded)"""
@@ -43,7 +49,7 @@ class CallableMessageTransform(MessageTransform):
             return await run_sync_in_thread(self.func, messages)
 
 
-class CoalesceSystemMessagesTransform(MessageTransform, SerializableObject):
+class CoalesceSystemMessagesTransform(MessageTransform):
     """
     Transform that merges consecutive system messages at the start of a message list
     into a single system message. This is useful for reducing redundancy and ensuring
@@ -65,7 +71,7 @@ class CoalesceSystemMessagesTransform(MessageTransform, SerializableObject):
         ] + messages[first_non_system_msg_idx:]
 
 
-class RemoveEmptyNonUserMessageTransform(MessageTransform, SerializableObject):
+class RemoveEmptyNonUserMessageTransform(MessageTransform):
     """
     Transform that removes messages which are empty and not from the user.
 
@@ -87,7 +93,7 @@ class RemoveEmptyNonUserMessageTransform(MessageTransform, SerializableObject):
         ]
 
 
-class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform, SerializableObject):
+class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform):
     """
     Transform that appends the content of a trailing system message to the previous user message.
 
@@ -110,7 +116,7 @@ class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform, Serial
         return messages[:-2] + [penultimate_message]
 
 
-class SplitPromptOnMarkerMessageTransform(MessageTransform, SerializableObject):
+class SplitPromptOnMarkerMessageTransform(MessageTransform):
     """
     Split prompts on a marker into multiple messages with the same role. Only apply to the messages without
     tool_requests and tool_result.
