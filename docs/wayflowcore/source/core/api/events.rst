@@ -89,6 +89,10 @@ Events
 .. _agentdecidednextactionevent:
 .. autoclass:: wayflowcore.events.event.AgentDecidedNextActionEvent
 
+.. seealso::
+   See the table of supported events with one line description for each in the :ref:`How to Use the Event System <listofsupportedevents>`.
+
+.. _eventlisteners:
 
 Event Listeners
 ---------------
