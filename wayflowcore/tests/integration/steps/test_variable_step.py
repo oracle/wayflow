@@ -187,16 +187,16 @@ def test_can_init_flow_with_variable_and_step_with_two_read_and_write(
 
 
 def test_void_variable_step_rejects() -> None:
-    with pytest.raises(ValueError, match="Void `VariableStep`"):
+    with pytest.raises(ValueError, match="Invalid `VariableStep`"):
         VariableStep()
 
-    with pytest.raises(ValueError, match="Void `VariableStep`"):
+    with pytest.raises(ValueError, match="Invalid `VariableStep`"):
         VariableStep(read_variables=[])
 
-    with pytest.raises(ValueError, match="Void `VariableStep`"):
+    with pytest.raises(ValueError, match="Invalid `VariableStep`"):
         VariableStep(write_variables=[])
 
-    with pytest.raises(ValueError, match="Void `VariableStep`"):
+    with pytest.raises(ValueError, match="Invalid `VariableStep`"):
         VariableStep(read_variables=[], write_variables=[])
 
 
@@ -207,7 +207,7 @@ def test_non_unique_variables_reject(float_variable: Variable) -> None:
         VariableStep(read_variables=[float_variable, float_variable])
 
 
-def test_unique_variables_with_overlap_accept(
+def test_unique_variables_with_overlap_are_accepted(
     float_variable: Variable,
     string_variable: Variable,
 ) -> None:
@@ -269,13 +269,22 @@ def test_requires_operations_dictionary_with_no_write_var(
 ) -> None:
     variable: Variable = request.getfixturevalue(variable_name)
 
-    with pytest.raises(ValueError, match="Non-default `write_operations` has been specified"):
+    with pytest.raises(
+        ValueError,
+        match="The VariableStep was configured with a set of write operations to perform",
+    ):
         VariableStep(read_variables=[variable], write_operations=operation)
 
-    with pytest.raises(ValueError, match="Non-default `write_operations` has been specified"):
+    with pytest.raises(
+        ValueError,
+        match="The VariableStep was configured with a set of write operations to perform",
+    ):
         VariableStep(read_variables=[variable], write_operations={variable.name: operation})
 
-    with pytest.raises(ValueError, match="Non-default `write_operations` has been specified"):
+    with pytest.raises(
+        ValueError,
+        match="The VariableStep was configured with a set of write operations to perform",
+    ):
         VariableStep(read_variables=[variable], write_operations={"out of scope name": operation})
 
 
