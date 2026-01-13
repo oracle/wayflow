@@ -692,7 +692,26 @@ def thought_signature_llm():
     )
 
 
-def test_thought_signature_with_single_and_parallel_tool_calling(thought_signature_llm):
+@pytest.fixture
+def non_reasoning_gemini_llm():
+    if "GEMINI_API_KEY" not in os.environ:
+        pytest.skip("Skipping test that requires access to a gemini model")
+
+    return OpenAICompatibleModel(
+        model_id="gemini-2.5-flash",
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        api_key=os.environ["GEMINI_API_KEY"],
+        generation_config=LlmGenerationConfig(extra_args={"reasoning_effort": "none"}),
+    )
+
+
+@pytest.fixture(params=[("thought_signature_llm", True), ("non_reasoning_gemini_llm", False)])
+def openai_compatible_gemini(request):
+    return request.getfixturevalue(request.param[0]), request.param[1]
+
+
+def test_thought_signature_with_single_and_parallel_tool_calling(openai_compatible_gemini):
+    llm, check_for_extra_content = openai_compatible_gemini
     prompt = Prompt(
         messages=[
             Message("You are very good at following instructions", message_type=MessageType.SYSTEM),
@@ -704,12 +723,15 @@ def test_thought_signature_with_single_and_parallel_tool_calling(thought_signatu
         tools=[create_dummy_server_tool()],
     )
 
-    llm_completion = thought_signature_llm.generate(prompt)
+    llm_completion = llm.generate(prompt)
 
     assert len(llm_completion.message.tool_requests) == 2
-    # For parallel tool calling, only first tool request contains extra content
-    # https://ai.google.dev/gemini-api/docs/thought-signatures#parallel_function_calling_example
-    assert llm_completion.message.tool_requests[0]._extra_content is not None
+    if check_for_extra_content:
+        # For parallel tool calling, only first tool request contains extra content
+        # https://ai.google.dev/gemini-api/docs/thought-signatures#parallel_function_calling_example
+        assert llm_completion.message.tool_requests[0]._extra_content is not None
+    else:
+        assert llm_completion.message.tool_requests[0]._extra_content is None
 
     prompt.messages.append(llm_completion.message)
     prompt.messages.extend(
@@ -729,13 +751,16 @@ def test_thought_signature_with_single_and_parallel_tool_calling(thought_signatu
         ]
     )
 
-    llm_completion = thought_signature_llm.generate(prompt)
+    llm_completion = llm.generate(prompt)
     assert len(llm_completion.message.content) > 1
 
     prompt.messages.append(Message("Now call the dummy tool with 'bappity boppity'", role="user"))
-    llm_completion = thought_signature_llm.generate(prompt)
+    llm_completion = llm.generate(prompt)
     assert len(llm_completion.message.tool_requests) == 1
-    assert llm_completion.message.tool_requests[0]._extra_content is not None
+    if check_for_extra_content:
+        assert llm_completion.message.tool_requests[0]._extra_content is not None
+    else:
+        assert llm_completion.message.tool_requests[0]._extra_content is None
     prompt.messages.append(llm_completion.message)
     prompt.messages.append(
         Message(
@@ -745,7 +770,7 @@ def test_thought_signature_with_single_and_parallel_tool_calling(thought_signatu
             )
         ),
     )
-    llm_completion = thought_signature_llm.generate(prompt)
+    llm_completion = llm.generate(prompt)
     assert len(llm_completion.message.content) > 1
 
 
