@@ -4,14 +4,14 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from collections import Counter
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.property import Property
 from wayflowcore.steps.step import Step, StepResult
 from wayflowcore.steps.variablesteps._utils import (
     _compute_variable_input_descriptor,
+    _get_non_unique_elements,
     _put_variable_value_in_conversation_store,
     _require_variable_value_from_conversation_store,
     _validate_write_step_configurations,
@@ -266,10 +266,6 @@ class VariableStep(Step):
         self._write_values(self.write_variables, inputs, conversation)
         reads_outputs = self._read_variables(self.read_variables, conversation)
         return StepResult(outputs=reads_outputs)
-
-
-def _get_non_unique_elements(iterable: Iterable[Any]) -> List[str]:
-    return [element for element, count in Counter(iterable).items() if count > 1]
 
 
 def _requires_unique_variable_names(variables: List[Variable]) -> None:
