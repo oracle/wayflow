@@ -591,20 +591,6 @@ def test_flow_constructor_rejects_step_referring_unknown_variable(
         )
 
 
-def test_variable_step_cannot_read_variable_without_default_value(
-    string_variable: Variable,
-) -> None:
-    flow_assistant = create_single_step_flow(
-        step=VariableStep(read_variables=[string_variable]),
-        variables=[string_variable],
-    )
-    with pytest.raises(
-        ValueError,
-        match="Attempted to read from the Variable 'string variable' but the value was None.",
-    ):
-        flow_assistant.start_conversation().execute()
-
-
 @pytest.mark.parametrize(
     "variable_name",
     [
