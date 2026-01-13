@@ -1882,11 +1882,6 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecAgent:
 
-        if len(runtime_agent.transforms) > 0:
-            raise NotImplementedError(
-                "Attaching transforms to an Agent will be supported for conversion in a future version."
-            )
-
         llm_config = cast(
             AgentSpecLlmConfig,
             conversion_context.convert(runtime_agent.llm, referenced_objects),
@@ -1950,6 +1945,17 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             or (has_subagents := len(agents) > 0)
             or (has_subflows := len(flows) > 0)
         ):
+            transforms = (
+                [
+                    cast(
+                        AgentSpecMessageTransform,
+                        conversion_context.convert(transform, referenced_objects),
+                    )
+                    for transform in runtime_agent.transforms
+                ]
+                if runtime_agent.transforms
+                else None
+            )
             return AgentSpecExtendedAgent(
                 name=runtime_agent.name,
                 description=runtime_agent.description,
@@ -1971,6 +1977,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     if runtime_agent.context_providers
                     else None
                 ),
+                transforms=transforms,
                 can_finish_conversation=runtime_agent.can_finish_conversation,
                 max_iterations=runtime_agent.max_iterations,
                 initial_message=runtime_agent.initial_message,
