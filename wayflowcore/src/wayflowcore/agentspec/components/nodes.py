@@ -162,11 +162,6 @@ def _get_json_schema_of_write_variable(
             json_schema["description"] = json_schema.get(
                 "description", f"{variable.description} (single element)"
             )
-        elif json_schema["type"] == "object":
-            json_schema = deepcopy(variable.json_schema["additionalProperties"])
-            json_schema["description"] = json_schema.get(
-                "description", f"{variable.description} (single element)"
-            )
         else:
             raise TypeError(
                 f"Can only apply insert write operation to lists, not to {variable.type}"
