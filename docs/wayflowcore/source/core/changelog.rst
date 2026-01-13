@@ -19,7 +19,7 @@ New features
 
 * **Added User Confirmation for Tools in ToolBox:**
 
-  Introduced a `requires_confirmation` flag to the base ToolBox Class. When enabled, this flag will pause tool execution and emit a `ToolExecutionConfirmationStatus`, requiring explicit user confirmation before proceeding.
+  Introduced a `requires_confirmation` flag to the base ToolBox Class. When enabled, this flag will pause tool execution of any of this toolbox's tools and emit a `ToolExecutionConfirmationStatus`, requiring explicit user confirmation before proceeding.
   During confirmation, users may edit the tool’s arguments or provide a rejection reason. The tool executes only after confirmation is granted.
 
 * **Agent Spec Tracing support:**

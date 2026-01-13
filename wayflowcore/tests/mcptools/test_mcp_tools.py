@@ -370,12 +370,12 @@ def test_agent_can_call_tool_with_confirmation_from_mcptoolboxes(
     remotely_hosted_llm,
 ):
     """
-    Failure rate:          1 out of 30
-    Observed on:           2026-01-09
-    Average success time:  1.04 seconds per successful attempt
-    Average failure time:  1.11 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.06 ** 4) ~= 1.5 / 100'000
+    Failure rate:          0 out of 30
+    Observed on:           2026-01-13
+    Average success time:  1.06 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
     """
     if tool_name == "ggwp_tool":
         filter_entry = Tool(
@@ -401,7 +401,8 @@ def test_agent_can_call_tool_with_confirmation_from_mcptoolboxes(
 
     assert isinstance(status, ToolExecutionConfirmationStatus)
     status.confirm_tool_execution(status.tool_requests[0])
-    conv.execute()
+    status = conv.execute()
+    assert not isinstance(status, ToolExecutionConfirmationStatus)
 
     last_message = conv.get_last_message()
     assert last_message is not None
@@ -423,7 +424,7 @@ def test_agent_can_call_tool_without_confirmation_from_mcptoolboxes(
 ):
     """
     Failure rate:          0 out of 30
-    Observed on:           2026-01-09
+    Observed on:           2026-01-13
     Average success time:  1.05 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
@@ -448,7 +449,8 @@ def test_agent_can_call_tool_without_confirmation_from_mcptoolboxes(
 
     conv = agent.start_conversation()
     conv.append_user_message(f"compute the result the {tool_name} operation of 4 and 5")
-    conv.execute()
+    status = conv.execute()
+    assert not isinstance(status, ToolExecutionConfirmationStatus)
 
     last_message = conv.get_last_message()
     assert last_message is not None
