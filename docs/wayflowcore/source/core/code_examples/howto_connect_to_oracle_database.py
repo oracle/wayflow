@@ -251,6 +251,14 @@ component_registry = {
     "oracle_datastore_connection_config.password": os.environ["ADB_DB_PASSWORD"],  # docs-skiprow
     "oracle_datastore_connection_config.dsn": os.environ["ADB_DSN"],  # docs-skiprow
 }
+if isinstance(connection_config, MTlsOracleDatabaseConnectionConfig):  # docs-skiprow
+    component_registry.update(  # docs-skiprow
+        {  # docs-skiprow
+            'oracle_datastore_connection_config.config_dir':os.environ["ADB_CONFIG_DIR"],  # docs-skiprow
+            'oracle_datastore_connection_config.wallet_location':os.environ["ADB_WALLET_DIR"],  # docs-skiprow
+            'oracle_datastore_connection_config.wallet_password':os.environ["ADB_WALLET_SECRET"]  # docs-skiprow
+        }  # docs-skiprow
+    )  # docs-skiprow
 # .. start-##_Load_Agent_Spec_config
 from wayflowcore.agentspec import AgentSpecLoader
 
