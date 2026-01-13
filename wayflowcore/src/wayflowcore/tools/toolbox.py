@@ -27,7 +27,7 @@ class ToolBox(Component):
     Parameters
     ----------
     requires_confirmation:
-        Flag to ask for user confirmation whenever executing any of this toolbox's tools, yields ``ToolExecutionConfirmationStatus`` if True or if the ``Tool`` from the ``ToolBox`` requires confirmation.
+        Flag to ask for user confirmation, yields ``ToolExecutionConfirmationStatus`` if True or if the ``Tool`` from the ``ToolBox`` requires confirmation.
     """
 
     id: str = field(default_factory=IdGenerator.get_or_generate_id, compare=False, hash=False)
