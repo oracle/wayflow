@@ -136,7 +136,7 @@ def test_variable_node_for_read_with_output_mapping_executes_correctly():
         title=var_name,
         description="variable example",
         item_type=StringProperty(),
-        default=[],
+        default=["hello"],
     )
 
     plugin_node = PluginVariableNode(
@@ -155,7 +155,7 @@ def test_variable_node_for_read_with_output_mapping_executes_correctly():
             name="read_variable_output",
             description="variable example",
             item_type=RuntimeStringProperty(),
-            default_value=[],
+            default_value=["hello"],
         )
     ]
 
@@ -165,7 +165,7 @@ def test_variable_node_for_read_with_output_mapping_executes_correctly():
     status = conversation.execute()
 
     assert isinstance(status, FinishedStatus)
-    assert status.output_values == {"read_variable_output": []}
+    assert status.output_values == {"read_variable_output": ["hello"]}
 
 
 def test_write_variable_node_with_default_write_operator_executes_correctly():
