@@ -34,10 +34,10 @@ The system follows a publish-subscribe model: events are published as they occur
 Basic Implementation
 ====================
 
-To use the event system effectively, you need to understand its two main components: `Events` and `EventListeners`.
+To use the event system effectively, you need to understand its two main components: :ref:`Events <events>` and :ref:`EventListeners <eventlisteners>`.
 
-`Events` are data structures that represent occurrences within WayFlow, organized into different types for various scenarios.
-`EventListeners` are components that react to these published events.
+- :ref:`Events <events>` are data structures that represent occurrences within WayFlow, organized into different types for various scenarios.
+- :ref:`EventListeners <eventlisteners>` are components that react to these published events.
 
 Let's explore this with two practical examples:
 
@@ -53,7 +53,7 @@ By subscribing to LLM response events, developers can aggregate and analyze toke
     :start-after: .. start-##_TokenUsage
     :end-before: .. end-##_TokenUsage
 
-In this example, `TokenUsageListener` is a custom listener that calculates total token usage by summing the tokens reported in each :ref:`LlmGenerationResponseEvent <LlmGenerationResponseEvent>`.
+In this example, ``TokenUsageListener`` is a custom listener that calculates total token usage by summing the tokens reported in each :ref:`LlmGenerationResponseEvent <LlmGenerationResponseEvent>`.
 
 Example 2: Tracking Tool Calls
 ==============================
@@ -67,7 +67,7 @@ By listening to tool execution events, you can log each call and track usage pat
     :start-after: .. start-##_Tool_Call_Listener
     :end-before: .. end-##_Tool_Call_Listener
 
-This snippet illustrates how to create a `ToolCallListener` to track tool invocations using :ref:`ToolExecutionStartEvent <toolexecutionstartevent>`.
+This snippet illustrates how to create a ``ToolCallListener`` to track tool invocations using :ref:`ToolExecutionStartEvent <toolexecutionstartevent>`.
 
 With both listeners implemented, let's apply them in a conversation with an :ref:`Agent <Agent>`.
 
@@ -93,6 +93,7 @@ Both listeners are registered within a context manager using :ref:`register_even
 
 Beyond the events highlighted here, WayFlow offers a wide range of events for detailed monitoring. Below is a table explaining various types of events in Wayflow:
 
+.. _listofsupportedevents:
 .. list-table:: WayFlow Event Types
    :header-rows: 1
    :widths: 30 70
@@ -154,7 +155,7 @@ Beyond the events highlighted here, WayFlow offers a wide range of events for de
    * - :ref:`AgentDecidedNextActionEvent <agentdecidednextactionevent>`
      - Recorded whenever the agent decided what to do next.
 
-See :ref:`Events <events>` for more information. You can implement custom `EventListeners` for these events as shown in the examples above.
+See :ref:`Events <events>` for more information. You can implement custom ``EventListener`` for these events as shown in the examples above.
 
 Agent Spec Exporting/Loading
 ============================
@@ -203,6 +204,6 @@ Full Code
 
 Click on the card at the :ref:`top of this page <top-event-system>` to download the full code for this guide or copy the code below.
 
-.. literalinclude:: ../code_examples/howto_event_system.py
+.. literalinclude:: ../end_to_end_code_examples/howto_event_system.py
     :language: python
     :linenos:
