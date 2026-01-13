@@ -272,7 +272,7 @@ class ApiCallStep(Step):
     If the response is JSON its contents can be automatically extracted using json queries.
 
     .. caution::
-        Since the Agent can generate arguments (url, method, json_body, data, params, headers, cookies) or parts of these arguments in the respective Jinja
+        Since the Agent can generate arguments (url, method, data, params, headers, cookies) or parts of these arguments in the respective Jinja
         templates, this can impose a security risk of information leakage and enable specific attack vectors like automated DDOS attacks. Please use
         ``ApiCallStep`` responsibly and ensure that only valid URLs can be given as arguments or that no sensitive information is used for any of these arguments by the agent.
         Please use the url_allow_list, allow_credentials and allow_fragments parameters to control which URLs are treated as valid.
@@ -287,8 +287,8 @@ class ApiCallStep(Step):
         self,
         url: str,
         method: str,
-        json_body: Optional[Any] = None,
-        data: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]] = None,
+        json_body: Optional[Any] = None,  # Deprecated
+        data: Optional[Any] = None,
         params: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]] = None,
         headers: Optional[Dict[str, str]] = None,
         sensitive_headers: Optional[Dict[str, str]] = None,
@@ -318,7 +318,7 @@ class ApiCallStep(Step):
 
         **Input descriptors**
 
-        This step has for input descriptors all the variables extracted from the ``url``, ``method``, ``data``, ``json_body``, ``params``, ``headers`` or ``cookies`` templates. See :ref:`TemplateRenderingStep <TemplateRenderingStep>` for concrete examples on how descriptors are extracted from text prompts.
+        This step has for input descriptors all the variables extracted from the ``url``, ``method``, ``data``, ``params``, ``headers`` or ``cookies`` templates. See :ref:`TemplateRenderingStep <TemplateRenderingStep>` for concrete examples on how descriptors are extracted from text prompts.
 
         **Output descriptors**
 
@@ -341,26 +341,25 @@ class ApiCallStep(Step):
             HTTP method to call.
             Common methods are: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE.
             Can be templated using jinja templates.
-        json_body
-            A json-serializable object that will automatically be converted to json and sent as a body.
-            Cannot be used in combination with ``data``.
-            Can be templated using jinja templates.
-
-            .. note::
-                Special case: if the ``json_body`` is a ``str`` it will be taken as a literal json string.
-                Setting this parameter automatically sets the ``Content-Type: application/json`` header.
-
-            .. warning::
-                The ``json_body`` parameter is only relevant for http methods that allow bodies, e.g. POST, PUT, PATCH.
 
         data
-            Raw data that will be sent in the body.
-            Semantics of this are the same as in the ``requests`` library.
-            Cannot be used in combination with ``json_body``.
-            Can be templated using jinja templates.
+        Data that will be sent in the body.
 
-            .. warning::
-                The ``data`` parameter is only relevant for http methods that allow bodies, e.g. POST, PUT, PATCH.
+        If the header ``Content-Type": "application/x-www-form-urlencoded"`` is provided
+        and if it is a dictionary, then it is inferred as form-data to be sent through the http request.
+
+        If such a header is not given, then it will be sent as either the JSON object or the bytes content.
+        Cannot be used in combination with the deprecated ``json_body``.
+        Can be templated using jinja templates.
+
+        .. note::
+            Special case: if the ``data`` is a ``str`` it will be tried to taken as a literal json string.
+            Setting this parameter automatically sets the ``Content-Type: application/json``
+            header if the header does not correspond to form-data (``Content-Type": "application/x-www-form-urlencoded``).
+
+        .. warning::
+            The ``data`` parameter is only relevant for http methods that allow bodies, e.g. POST, PUT, PATCH.
+
         params
             Data to send as query-parameters (i.e. the ``?foo=bar&gnu=gna`` part of queries)
             Semantics of this are the same as in the ``requests`` library.
@@ -371,7 +370,7 @@ class ApiCallStep(Step):
             Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap.
 
             .. note::
-                This will override any of the implicitly set headers (e.g. ``Content-Type`` from ``json_body``).
+                This will override any of the implicitly set headers (e.g. ``Content-Type`` from ``data``).
         sensitive_headers
             Explicitly set headers that contain sensitive information.
             These headers will behave equivalently to the ``headers`` parameter, but it will be excluded
@@ -465,7 +464,7 @@ class ApiCallStep(Step):
         Raises
         ------
         ValueError
-            Thrown when both ``json_body`` and ``data`` are set.
+            Thrown when both ``data`` and the deprecated ``json_body`` are set.
 
         Examples
         --------
@@ -486,7 +485,7 @@ class ApiCallStep(Step):
         >>> create_order_step = ApiCallStep(
         ...     url = "https://example.com/orders/{{ order_id }}",         # call the URL https://example.com/orders/{{ order_id }}
         ...     method = "POST",                            # using the POST method
-        ...     json_body = {                               # sending an object which will automatically be transformed into JSON
+        ...     data = {                               # sending an object which will automatically be transformed into JSON
         ...         "topic_id": 12345,                      # define a static body parameter
         ...         "item_id": "{{ item_id }}",             # define a templated body parameter. the value for {{ item_id }} will be taken from the IO system at runtime
         ...     },
@@ -618,6 +617,14 @@ class ApiCallStep(Step):
         if self.json_body and self.data:
             raise ValueError("Cannot set json_body and data at the same time")
 
+        if self.json_body:
+            warnings.warn(
+                "Usage of `json_body` parameter in ApiCallStep is Deprecated, use the `data` parameter instead.",
+                DeprecationWarning,
+            )
+            self.data = self.json_body
+            self.json_body = None
+
     def _render_url(self, inputs: Dict[str, Any]) -> str:
 
         def sanitize_url_param(param: Any) -> str:
@@ -645,28 +652,43 @@ class ApiCallStep(Step):
         }
         request["headers"] = {}  # for type inference
 
-        if self.json_body:
-            if isinstance(self.json_body, str):
-                request["headers"]["Content-type"] = "application/json"
-                rendered_json_string = render_nested_object_template(self.json_body, inputs)
-                # validate we generated valid json
-                json.loads(rendered_json_string)
-                request["data"] = render_nested_object_template(self.json_body, inputs).encode()
-            else:
-                request["json"] = render_nested_object_template(self.json_body, inputs)
+        if self.headers:
+            request["headers"].update(render_nested_object_template(self.headers, inputs))
 
         if self.data:
+            content_type_headers = request["headers"].get("Content-Type") or request["headers"].get(
+                "content-type"
+            )
+            expect_urlencoded_form_data = (
+                ("application/x-www-form-urlencoded" in content_type_headers)
+                if content_type_headers is not None
+                else False
+            )
             rendered_data = render_nested_object_template(self.data, inputs)
-            if isinstance(rendered_data, str):
-                rendered_data = rendered_data.encode()
-            request["data"] = rendered_data
+            target_key = "data" if expect_urlencoded_form_data else "json"
+
+            if isinstance(rendered_data, dict):
+                if target_key == "json":
+                    request["headers"]["Content-Type"] = "application/json"
+                request[target_key] = rendered_data
+            elif isinstance(rendered_data, (str, bytes)):
+                try:
+                    # validate we generated valid json
+                    json_data = json.loads(rendered_data)
+                    if target_key == "json":
+                        request["headers"]["Content-Type"] = "application/json"
+                    request[target_key] = json_data
+                except:
+                    request["content"] = rendered_data
+            else:
+                # Preserve original behavior: don't set Content-Type here, even if using JSON body
+                request[target_key] = rendered_data
 
         if self.params:
             request["params"] = render_nested_object_template(self.params, inputs)
 
         if self.headers:
             request["headers"].update(render_nested_object_template(self.headers, inputs))
-
         if self.sensitive_headers:
             request["headers"].update(render_nested_object_template(self.sensitive_headers, inputs))
 

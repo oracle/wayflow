@@ -1259,16 +1259,18 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 RuntimeApiCallStep,
                 cast(_FlowAsToolCallable, runtime_tool.func).flow.steps["single_step"],
             )
+            data_param = None
+            if inner_api_step.data:
+                data_param = inner_api_step.data
+            elif inner_api_step.json_body:
+                data_param = inner_api_step.json_body
+
             return AgentSpecRemoteTool(
                 name=runtime_tool.name,
                 description=runtime_tool.description,
                 url=runtime_tool.url,
                 http_method=inner_api_step.method,
-                data=(
-                    inner_api_step.json_body
-                    if isinstance(inner_api_step.json_body, dict)
-                    else dict()
-                ),
+                data=data_param,
                 query_params=(
                     inner_api_step.params if isinstance(inner_api_step.params, dict) else dict()
                 ),
@@ -2836,13 +2838,16 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             return AgentSpecStartNode(**step_args)
         elif runtime_step_type is RuntimeApiCallStep:
             runtime_step = cast(RuntimeApiCallStep, runtime_step)
+            data_param = None
+            if runtime_step.data:
+                data_param = runtime_step.data
+            elif runtime_step.json_body:
+                data_param = runtime_step.json_body
             return AgentSpecApiNode(
                 **step_args,
                 url=runtime_step.url,
                 http_method=runtime_step.method,
-                data=(
-                    runtime_step.json_body if isinstance(runtime_step.json_body, dict) else dict()
-                ),
+                data=data_param,
                 query_params=(
                     runtime_step.params if isinstance(runtime_step.params, dict) else dict()
                 ),

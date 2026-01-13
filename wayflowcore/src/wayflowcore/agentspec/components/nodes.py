@@ -307,7 +307,9 @@ class ExtendedLlmNode(ExtendedNode, LlmNode):
         ):
             return self.prompt_template_object.inputs
         elif hasattr(self, "prompt_template"):
-            return get_placeholder_properties_from_string(self.prompt_template)
+            return get_placeholder_properties_from_string(
+                self.prompt_template
+            )  # TODO: Replace with get_placeholder_properties_from_json_object
         else:
             return []
 
@@ -640,7 +642,9 @@ class PluginGetChatHistoryNode(ExtendedNode):
 
         inputs = [
             prop_
-            for prop_ in get_placeholder_properties_from_string(self.output_template)
+            for prop_ in get_placeholder_properties_from_string(
+                self.output_template
+            )  # TODO: Replace with get_placeholder_properties_from_json_object
             if prop_.title != self.CHAT_HISTORY
         ]
         return inputs

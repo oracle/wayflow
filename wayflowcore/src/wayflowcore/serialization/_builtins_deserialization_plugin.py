@@ -135,7 +135,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_deserialization_plugin
+from wayflowcore.agentspec.components import (
+    all_deserialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -1251,7 +1253,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 method=agentspec_component.http_method,
                 # api_spec_uri=agentspec_component.api_spec_uri,
                 # TODO improve behaviour & configurations definition of RemoteTool / ApiNode
-                json_body=agentspec_component.data if agentspec_component.data else None,
+                data=agentspec_component.data if agentspec_component.data else None,
                 params=(
                     agentspec_component.query_params if agentspec_component.query_params else None
                 ),
@@ -1435,7 +1437,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 allow_insecure_http=urllib.parse.urlparse(agentspec_component.url).scheme == "http",
                 # api_spec_uri=agentspec_component.api_spec_uri,
                 # TODO improve behaviour & configurations definition of RemoteTool / ApiNode
-                json_body=agentspec_component.data if agentspec_component.data else None,
+                data=agentspec_component.data if agentspec_component.data else None,
                 params=(
                     agentspec_component.query_params if agentspec_component.query_params else None
                 ),
