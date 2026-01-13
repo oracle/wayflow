@@ -81,8 +81,6 @@ Import the required packages:
    :start-after: .. start-##_Imports
    :end-before: .. end-##_Imports
 
-.. _llm-def:
-
 In this assistant, you need to use an LLM.
 WayFlow supports several LLM API providers.
 Select an LLM from the options below:
@@ -219,8 +217,6 @@ Finally, create the inventory management agent by combining the LLM, the datasto
 This agent can now respond to the user and perform actions on the data on their behalf.
 
 Refer to the :doc:`WayFlow Agents Tutorial <../tutorials/basic_agent>` to see how to run this Agent.
-
-.. _wayflow-export-load:
 
 Agent Spec Exporting/Loading
 ============================
