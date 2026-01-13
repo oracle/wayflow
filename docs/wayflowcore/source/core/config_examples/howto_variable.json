@@ -298,7 +298,7 @@
                 }
             ],
             "read_variables": [],
-            "operations": {
+            "write_operations": {
                 "user_feedback": "insert"
             },
             "component_plugin_name": "NodesPlugin",
@@ -337,7 +337,7 @@
                 }
             ],
             "read_variables": [],
-            "operations": {
+            "write_operations": {
                 "user_feedback": "insert"
             },
             "component_plugin_name": "NodesPlugin",
@@ -380,7 +380,7 @@
                     "default": []
                 }
             ],
-            "operations": {},
+            "write_operations": {},
             "component_plugin_name": "NodesPlugin",
             "component_plugin_version": "26.1.0.dev4"
         },

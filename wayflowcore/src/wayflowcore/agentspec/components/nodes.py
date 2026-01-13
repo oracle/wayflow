@@ -211,16 +211,16 @@ class PluginVariableNode(ExtendedNode):
     read_variables: List[Property] = []
     """The variables (which are a Property in AgentSpec) that this node will read."""
 
-    operations: Dict[str, SerializeAsEnum[PluginVariableWriteOperation]] = {}
+    write_operations: Dict[str, SerializeAsEnum[PluginVariableWriteOperation]] = {}
     """The type of write operations to perform on write variables."""
 
     def _get_non_mapped_inferred_inputs(self) -> List[Property]:
-        if not hasattr(self, "write_variables") or not hasattr(self, "operations"):
+        if not hasattr(self, "write_variables") or not hasattr(self, "write_operations"):
             return []
 
-        if {wv.title for wv in self.write_variables} != set(self.operations.keys()):
+        if {wv.title for wv in self.write_variables} != set(self.write_operations.keys()):
             raise ValueError(
-                "An operation must be defined in `operations` for all of the "
+                "An operation must be defined in `write_operations` for all of the "
                 "variables in `write_variables`, and it must not defined for "
                 "any other variables."
             )
@@ -229,7 +229,7 @@ class PluginVariableNode(ExtendedNode):
             Property(
                 json_schema=_get_json_schema_of_write_variable(
                     variable=write_variable,
-                    operation=self.operations[write_variable.title],
+                    operation=self.write_operations[write_variable.title],
                     title=write_variable.title,
                 )
             )

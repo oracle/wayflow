@@ -399,7 +399,7 @@ test_cases = [
         dict(
             name="node",
             write_variables=[example_variable],
-            operations={example_variable.title: "overwrite"},
+            write_operations={example_variable.title: "overwrite"},
             input_mapping={example_variable.title: "MY_INPUT"},
         ),
         [
@@ -417,7 +417,7 @@ test_cases = [
         dict(
             name="node",
             write_variables=[example_variable],
-            operations={example_variable.title: "insert"},
+            write_operations={example_variable.title: "insert"},
             input_mapping={example_variable.title: "MY_INPUT"},
         ),
         [
@@ -435,7 +435,7 @@ test_cases = [
             name="node",
             write_variables=[example_variable],
             read_variables=[example_variable],
-            operations={example_variable.title: "overwrite"},
+            write_operations={example_variable.title: "overwrite"},
             input_mapping={example_variable.title: "MY_INPUT"},
             output_mapping={example_variable.title: "MY_OUTPUT"},
         ),
@@ -462,7 +462,7 @@ test_cases = [
             name="node",
             write_variables=[example_variable],
             read_variables=[example_variable],
-            operations={example_variable.title: "insert"},
+            write_operations={example_variable.title: "insert"},
             input_mapping={example_variable.title: "MY_INPUT"},
             output_mapping={example_variable.title: "MY_OUTPUT"},
         ),
@@ -494,7 +494,7 @@ test_cases = [
                 example_variable,
                 extra_example_variable,
             ],
-            operations={
+            write_operations={
                 example_variable.title: "overwrite",
                 extra_example_variable.title: "insert",
             },

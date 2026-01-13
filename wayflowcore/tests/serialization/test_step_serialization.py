@@ -443,10 +443,10 @@ def test_variable_step_can_be_serde_with_read_var(list_variable: Variable) -> No
     assert isinstance(deserialized_step, VariableStep)
     assert isinstance(deserialized_step.read_variables, list)
     assert isinstance(deserialized_step.write_variables, list)
-    assert isinstance(deserialized_step.operations, dict)
+    assert isinstance(deserialized_step.write_operations, dict)
     assert len(deserialized_step.read_variables) == 1
     assert len(deserialized_step.write_variables) == 0
-    assert len(deserialized_step.operations) == 0
+    assert len(deserialized_step.write_operations) == 0
     assert deserialized_step.read_variables[0] == list_variable
     assert deserialized_step.read_variables[0].default_value == []
 
@@ -472,10 +472,10 @@ def test_variable_step_can_be_serde_with_read_vars(
     assert isinstance(deserialized_step, VariableStep)
     assert isinstance(deserialized_step.read_variables, list)
     assert isinstance(deserialized_step.write_variables, list)
-    assert isinstance(deserialized_step.operations, dict)
+    assert isinstance(deserialized_step.write_operations, dict)
     assert len(deserialized_step.read_variables) == 2
     assert len(deserialized_step.write_variables) == 0
-    assert len(deserialized_step.operations) == 0
+    assert len(deserialized_step.write_operations) == 0
     assert deserialized_step.read_variables[0] == list_variable
     assert deserialized_step.read_variables[1] == float_variable
     assert deserialized_step.read_variables[0].default_value == []
@@ -484,7 +484,7 @@ def test_variable_step_can_be_serde_with_read_vars(
 
 def test_variable_step_can_be_serde_with_write_var(list_variable: Variable) -> None:
     step = VariableStep(
-        write_variables=[list_variable], operations=VariableWriteOperation.OVERWRITE
+        write_variables=[list_variable], write_operations=VariableWriteOperation.OVERWRITE
     )
     serialized_step = serialize(step)
 
@@ -498,13 +498,15 @@ def test_variable_step_can_be_serde_with_write_var(list_variable: Variable) -> N
     assert isinstance(deserialized_step, VariableStep)
     assert isinstance(deserialized_step.read_variables, list)
     assert isinstance(deserialized_step.write_variables, list)
-    assert isinstance(deserialized_step.operations, dict)
+    assert isinstance(deserialized_step.write_operations, dict)
     assert len(deserialized_step.read_variables) == 0
     assert len(deserialized_step.write_variables) == 1
-    assert len(deserialized_step.operations) == 1
+    assert len(deserialized_step.write_operations) == 1
     assert deserialized_step.write_variables[0] == list_variable
-    assert list_variable.name in deserialized_step.operations
-    assert deserialized_step.operations[list_variable.name] == VariableWriteOperation.OVERWRITE
+    assert list_variable.name in deserialized_step.write_operations
+    assert (
+        deserialized_step.write_operations[list_variable.name] == VariableWriteOperation.OVERWRITE
+    )
     assert deserialized_step.write_variables[0].default_value == []
 
 
@@ -513,7 +515,7 @@ def test_variable_step_can_be_serde_with_write_vars(
 ) -> None:
     step = VariableStep(
         write_variables=[list_variable, float_variable],
-        operations={
+        write_operations={
             list_variable.name: VariableWriteOperation.INSERT,
             float_variable.name: VariableWriteOperation.OVERWRITE,
         },
@@ -530,16 +532,18 @@ def test_variable_step_can_be_serde_with_write_vars(
     assert isinstance(deserialized_step, VariableStep)
     assert isinstance(deserialized_step.read_variables, list)
     assert isinstance(deserialized_step.write_variables, list)
-    assert isinstance(deserialized_step.operations, dict)
+    assert isinstance(deserialized_step.write_operations, dict)
     assert len(deserialized_step.read_variables) == 0
     assert len(deserialized_step.write_variables) == 2
-    assert len(deserialized_step.operations) == 2
+    assert len(deserialized_step.write_operations) == 2
     assert deserialized_step.write_variables[0] == list_variable
     assert deserialized_step.write_variables[1] == float_variable
-    assert list_variable.name in deserialized_step.operations
-    assert float_variable.name in deserialized_step.operations
-    assert deserialized_step.operations[list_variable.name] == VariableWriteOperation.INSERT
-    assert deserialized_step.operations[float_variable.name] == VariableWriteOperation.OVERWRITE
+    assert list_variable.name in deserialized_step.write_operations
+    assert float_variable.name in deserialized_step.write_operations
+    assert deserialized_step.write_operations[list_variable.name] == VariableWriteOperation.INSERT
+    assert (
+        deserialized_step.write_operations[float_variable.name] == VariableWriteOperation.OVERWRITE
+    )
     assert deserialized_step.write_variables[0].default_value == []
     assert deserialized_step.write_variables[1].default_value == 1.2
 
@@ -548,7 +552,7 @@ def test_variable_step_can_be_serde_with_same_read_write_var(list_variable: Vari
     step = VariableStep(
         read_variables=[list_variable],
         write_variables=[list_variable],
-        operations=VariableWriteOperation.OVERWRITE,
+        write_operations=VariableWriteOperation.OVERWRITE,
     )
     serialized_step = serialize(step)
 
@@ -562,14 +566,16 @@ def test_variable_step_can_be_serde_with_same_read_write_var(list_variable: Vari
     assert isinstance(deserialized_step, VariableStep)
     assert isinstance(deserialized_step.read_variables, list)
     assert isinstance(deserialized_step.write_variables, list)
-    assert isinstance(deserialized_step.operations, dict)
+    assert isinstance(deserialized_step.write_operations, dict)
     assert len(deserialized_step.read_variables) == 1
     assert len(deserialized_step.write_variables) == 1
-    assert len(deserialized_step.operations) == 1
+    assert len(deserialized_step.write_operations) == 1
     assert deserialized_step.read_variables[0] == list_variable
     assert deserialized_step.write_variables[0] == list_variable
-    assert list_variable.name in deserialized_step.operations
-    assert deserialized_step.operations[list_variable.name] == VariableWriteOperation.OVERWRITE
+    assert list_variable.name in deserialized_step.write_operations
+    assert (
+        deserialized_step.write_operations[list_variable.name] == VariableWriteOperation.OVERWRITE
+    )
     assert deserialized_step.read_variables[0].default_value == []
     assert deserialized_step.write_variables[0].default_value == []
 
@@ -580,7 +586,7 @@ def test_variable_step_can_be_serde_with_different_read_write_var(
     step = VariableStep(
         read_variables=[list_variable],
         write_variables=[float_variable],
-        operations=VariableWriteOperation.OVERWRITE,
+        write_operations=VariableWriteOperation.OVERWRITE,
     )
     serialized_step = serialize(step)
 
@@ -594,14 +600,16 @@ def test_variable_step_can_be_serde_with_different_read_write_var(
     assert isinstance(deserialized_step, VariableStep)
     assert isinstance(deserialized_step.read_variables, list)
     assert isinstance(deserialized_step.write_variables, list)
-    assert isinstance(deserialized_step.operations, dict)
+    assert isinstance(deserialized_step.write_operations, dict)
     assert len(deserialized_step.read_variables) == 1
     assert len(deserialized_step.write_variables) == 1
-    assert len(deserialized_step.operations) == 1
+    assert len(deserialized_step.write_operations) == 1
     assert deserialized_step.read_variables[0] == list_variable
     assert deserialized_step.write_variables[0] == float_variable
-    assert float_variable.name in deserialized_step.operations
-    assert deserialized_step.operations[float_variable.name] == VariableWriteOperation.OVERWRITE
+    assert float_variable.name in deserialized_step.write_operations
+    assert (
+        deserialized_step.write_operations[float_variable.name] == VariableWriteOperation.OVERWRITE
+    )
     assert deserialized_step.read_variables[0].default_value == []
     assert deserialized_step.write_variables[0].default_value == 1.2
 
@@ -612,7 +620,7 @@ def test_variable_step_can_be_serde_with_read_write_vars(
     step = VariableStep(
         read_variables=[list_variable, float_variable],
         write_variables=[float_variable, list_variable],
-        operations={
+        write_operations={
             list_variable.name: VariableWriteOperation.INSERT,
             float_variable.name: VariableWriteOperation.OVERWRITE,
         },
@@ -629,18 +637,20 @@ def test_variable_step_can_be_serde_with_read_write_vars(
     assert isinstance(deserialized_step, VariableStep)
     assert isinstance(deserialized_step.read_variables, list)
     assert isinstance(deserialized_step.write_variables, list)
-    assert isinstance(deserialized_step.operations, dict)
+    assert isinstance(deserialized_step.write_operations, dict)
     assert len(deserialized_step.read_variables) == 2
     assert len(deserialized_step.write_variables) == 2
-    assert len(deserialized_step.operations) == 2
+    assert len(deserialized_step.write_operations) == 2
     assert deserialized_step.read_variables[0] == list_variable
     assert deserialized_step.read_variables[1] == float_variable
     assert deserialized_step.write_variables[0] == float_variable
     assert deserialized_step.write_variables[1] == list_variable
-    assert list_variable.name in deserialized_step.operations
-    assert float_variable.name in deserialized_step.operations
-    assert deserialized_step.operations[list_variable.name] == VariableWriteOperation.INSERT
-    assert deserialized_step.operations[float_variable.name] == VariableWriteOperation.OVERWRITE
+    assert list_variable.name in deserialized_step.write_operations
+    assert float_variable.name in deserialized_step.write_operations
+    assert deserialized_step.write_operations[list_variable.name] == VariableWriteOperation.INSERT
+    assert (
+        deserialized_step.write_operations[float_variable.name] == VariableWriteOperation.OVERWRITE
+    )
     assert deserialized_step.write_variables[0].default_value == 1.2
     assert deserialized_step.write_variables[1].default_value == []
 

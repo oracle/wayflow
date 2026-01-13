@@ -80,7 +80,7 @@ class Variable(FrozenDataclassComponent):
     >>> var_step_2 = VariableStep(
     ...     write_variables=[float_variable],
     ...     read_variables=[float_variable],
-    ...     operations=VariableWriteOperation.OVERWRITE,
+    ...     write_operations=VariableWriteOperation.OVERWRITE,
     ... )
     >>> output_step = OutputMessageStep("The variable is {{ variable }}")
     >>> flow = Flow(
