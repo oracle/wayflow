@@ -23,7 +23,6 @@ from wayflowcore.tools import Tool, ToolRequest
 from wayflowcore.transforms import CanonicalizationMessageTransform
 
 from ._modelhelpers import _is_llama_legacy_model
-from ._openaihelpers import _property_to_openai_schema
 from ._openaihelpers._utils import _safe_json_loads
 from ._requesthelpers import StreamChunkType, TaggedMessageChunkTypeWithTokenUsage
 from .llmgenerationconfig import LlmGenerationConfig

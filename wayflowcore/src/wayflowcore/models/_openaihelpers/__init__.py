@@ -7,11 +7,9 @@
 from ._api_processor import _APIProcessor
 from ._chatcompletions_processor import _ChatCompletionsAPIProcessor
 from ._responses_processor import _ResponsesAPIProcessor
-from ._utils import _property_to_openai_schema
 
 __all__ = [
     "_APIProcessor",
     "_ChatCompletionsAPIProcessor",
     "_ResponsesAPIProcessor",
-    "_property_to_openai_schema",
 ]
