@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 class VariableStep(Step):
     """
-    Step to perform a write, read, or both of them on one or more variables.
+    Step to perform a write and read operations on one or more variables.
     These variables are stored in a key-value store distinct from the I/O system.
     If both read and write is instructed for a variable, the step will perform write first, and read the updated value afterward.
     """
@@ -149,7 +149,7 @@ class VariableStep(Step):
 
         if len(write_variables) == len(read_variables) == 0:
             raise ValueError(
-                "Void `VariableStep`: At least one variable must be subject to read or write. "
+                "Invalid `VariableStep`: At least one variable must be subject to read or write. "
                 "Add the variables that must be read/written by this step to `read_variables`/`write_variables`. "
                 "If you don't have any variables to read/write, this step should be omitted."
             )
@@ -195,7 +195,6 @@ class VariableStep(Step):
         if op is None:
             raise RuntimeError(
                 f"No operation found associated with variable {variable.name}. "
-                "The code is guarded against this case in the class initialization checks and this should not happen in usual use cases. "
                 "Please ensure you do not modify the arguments passed to the initializer of the step after initialization."
             )
         return op
@@ -279,7 +278,7 @@ def _requires_unique_variable_names(variables: List[Variable]) -> None:
         non_unique_var_names_str = ", ".join(non_unique_var_names)
         raise ValueError(
             "Duplicate names are not allowed in `write_variables` or `read_variables`. "
-            f"Variable(s) {non_unique_var_names_str} appear(s) more than once. "
+            f"{non_unique_var_names_str} appears more than once. "
             "A variable may appear in both `read_variables` and `write_variables`, but not more than once in any of them. "
             "Each of `read_variables` and `write_variables` must contain unique variables."
         )
@@ -305,7 +304,7 @@ def _requires_write_operations_dictionary(
 
     if no_write_variable:
         raise ValueError(
-            f"Non-default `write_operations` has been specified as '{write_operations}' (type: {type(write_operations)}) while `write_variables` contains no variable. "
+            f"The VariableStep was configured with a set of write operations to perform ({write_operations}, type: {type(write_operations)}), but no variables to write."
             "This is seemingly a misuse of `VariableStep`, as the `write_operations` specify the kind of write operations that must apply to the variables in `write_variables`. "
             "If there is no intention of writing a variable in this step, you should omit passing a value to the argument `write_operations`. "
             "Otherwise, you should also declare the intended variable in `write_variables`."
