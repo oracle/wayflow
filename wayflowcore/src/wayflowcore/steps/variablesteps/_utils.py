@@ -4,13 +4,18 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from typing import TYPE_CHECKING, Any, Optional
+from collections import Counter
+from typing import TYPE_CHECKING, Any, Iterable, List, Optional
 
 from wayflowcore.property import DictProperty, ListProperty, Property
 from wayflowcore.variable import Variable, VariableWriteOperation
 
 if TYPE_CHECKING:
     from wayflowcore.executors._flowconversation import FlowConversation
+
+
+def _get_non_unique_elements(iterable: Iterable[Any]) -> List[str]:
+    return [element for element, count in Counter(iterable).items() if count > 1]
 
 
 def _require_variable_value_from_conversation_store(
