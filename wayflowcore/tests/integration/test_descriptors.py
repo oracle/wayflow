@@ -95,7 +95,26 @@ DEFAULT_DESCRIPTOR_VALUES: Dict[str, object] = {
     VariableWriteOperation.__name__: VariableWriteOperation.OVERWRITE,
 }
 
-DEFAULT_PARAMETER_VALUES: Dict[str, object] = {"llm": llm_assistant_model}
+DEFAULT_PARAMETER_VALUES: Dict[str, object] = {
+    "llm": llm_assistant_model,
+    "read_variables": [
+        Variable(
+            name="var",
+            type=ListProperty(item_type=StringProperty()),
+            description="var",
+            default_value=[],
+        )
+    ],
+    "write_variables": [
+        Variable(
+            name="var",
+            type=ListProperty(item_type=StringProperty()),
+            description="var",
+            default_value=[],
+        )
+    ],
+    "operations": VariableWriteOperation.OVERWRITE,
+}
 
 DEFAULT_CLASS_PARAMETER_VALUES: Dict[str, Dict[str, object]] = {
     ChoiceSelectionStep.__name__: {
@@ -183,6 +202,8 @@ def test_all_steps_can_be_serde_when_init_with_default_values(
         step_cls._get_step_specific_static_configuration_descriptors()
     )
     init_arguments = create_init_arguments(step_cls)
+
+    print("X", init_arguments)
 
     initialized_step = step_cls(**init_arguments)
     assert all(hasattr(initialized_step, config_name) for config_name in config_descriptors)
