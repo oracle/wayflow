@@ -101,6 +101,9 @@ from pyagentspec.tools.clienttool import ClientTool as AgentSpecClientTool
 from pyagentspec.tools.remotetool import RemoteTool as AgentSpecRemoteTool
 from pyagentspec.tools.servertool import ServerTool as AgentSpecServerTool
 from pyagentspec.transforms import MessageTransform as AgentSpecMessageTransform
+from pyagentspec.transforms.summarization import (
+    MessageSummarizationTransform as AgentSpecMessageSummarizationTransform,
+)
 
 from wayflowcore._metadata import METADATA_ID_KEY
 from wayflowcore.a2a.a2aagent import A2AAgent as RuntimeA2AAgent
@@ -423,6 +426,9 @@ from wayflowcore.transforms import (
 )
 from wayflowcore.transforms import (
     CoalesceSystemMessagesTransform as RuntimewCoalesceSystemMessagesTransform,
+)
+from wayflowcore.transforms import (
+    MessageSummarizationTransform as RuntimeMessageSummarizationTransform,
 )
 from wayflowcore.transforms import (
     RemoveEmptyNonUserMessageTransform as RuntimeRemoveEmptyNonUserMessageTransform,
@@ -1700,6 +1706,26 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 agentspec_component, AgentSpecPluginSplitPromptOnMarkerMessageTransform
             ):
                 return RuntimeSplitPromptOnMarkerMessageTransform(marker=agentspec_component.marker)
+            elif isinstance(agentspec_component, AgentSpecMessageSummarizationTransform):
+                return RuntimeMessageSummarizationTransform(
+                    llm=conversion_context.convert(
+                        agentspec_component.llm, tool_registry, converted_components
+                    ),
+                    max_message_size=agentspec_component.max_message_size,
+                    summarization_instructions=agentspec_component.summarization_instructions,
+                    summarized_message_template=agentspec_component.summarized_message_template,
+                    datastore=(
+                        conversion_context.convert(
+                            agentspec_component.datastore, tool_registry, converted_components
+                        )
+                        if agentspec_component.datastore
+                        else None
+                    ),
+                    cache_collection_name=agentspec_component.cache_collection_name,
+                    max_cache_size=agentspec_component.max_cache_size,
+                    max_cache_lifetime=agentspec_component.max_cache_lifetime,
+                    **self._get_component_arguments(agentspec_component),
+                )
             raise ValueError(f"Unsupported type of MessageTransform: {type(agentspec_component)}")
 
         elif isinstance(agentspec_component, AgentSpecPluginOutputParser):
@@ -1845,7 +1871,6 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
 
     def _convert_entity_to_runtime(self, agentspec_entity: AgentSpecEntity) -> RuntimeEntity:
         return RuntimeEntity(
-            name=agentspec_entity.title,
             description=agentspec_entity.description or "",
             properties={
                 k: self._convert_property_to_runtime(AgentSpecProperty(json_schema=v))
