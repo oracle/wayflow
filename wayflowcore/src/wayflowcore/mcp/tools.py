@@ -3,7 +3,7 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-import dataclasses
+import copy
 import logging
 from dataclasses import InitVar, dataclass, field
 from typing import Any, Dict, List, Optional, Sequence, Union
@@ -216,7 +216,8 @@ class MCPToolBox(ToolBox, DataclassComponent):
 
         for server_tool in server_tools:
             if self.requires_confirmation and not server_tool.requires_confirmation:
-                server_tool = dataclasses.replace(server_tool, requires_confirmation=True)
+                server_tool = copy.deepcopy(server_tool)
+                server_tool.requires_confirmation = True
 
         return server_tools
 
