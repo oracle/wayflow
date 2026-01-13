@@ -33,7 +33,7 @@ class VariableStep(Step):
         self,
         write_variables: Optional[List[Variable]] = None,
         read_variables: Optional[List[Variable]] = None,
-        operations: Optional[
+        write_operations: Optional[
             Union[
                 VariableWriteOperation,
                 Dict[str, VariableWriteOperation],
@@ -71,7 +71,7 @@ class VariableStep(Step):
         read_variables:
             list of ``Variable``s to read from. Leave it as default (``None``) or empty (``[]``) if you don't have a read operation in this step.
 
-        operations:
+        write_operations:
             The type of operation to perform on ``write_variables``. The keys are the name of the write variables.
 
             If ``write_variables`` is ``None`` or an empty list, the value of this variable should also be left as default, be ``None``, or an empty dictionary (``{}``).
@@ -120,7 +120,7 @@ class VariableStep(Step):
         >>> variable_step = VariableStep(
         ...     write_variables=[variable],
         ...     read_variables=[variable],
-        ...     operations=VariableWriteOperation.MERGE,
+        ...     write_operations=VariableWriteOperation.MERGE,
         ... )
         >>>
         >>> output_step = OutputMessageStep("The variable is {{ value }}.")
@@ -157,22 +157,22 @@ class VariableStep(Step):
         _requires_unique_variable_names(write_variables)
         _requires_unique_variable_names(read_variables)
 
-        operations = _requires_operations_dictionary(
+        write_operations = _requires_write_operations_dictionary(
             write_variables=write_variables,
-            operations=operations,
+            write_operations=write_operations,
         )
 
         for write_var in write_variables:
             _validate_write_step_configurations(
                 write_var,
-                VariableStep._requires_operation_of_a_var(write_var, operations),
+                VariableStep._requires_operation_of_a_var(write_var, write_operations),
             )
 
         super().__init__(
             step_static_configuration=dict(
                 write_variables=write_variables,
                 read_variables=read_variables,
-                operations=operations,
+                write_operations=write_operations,
             ),
             input_mapping=input_mapping,
             output_mapping=output_mapping,
@@ -183,15 +183,15 @@ class VariableStep(Step):
         )
         self.write_variables = write_variables
         self.read_variables = read_variables
-        self.operations = operations
+        self.write_operations = write_operations
 
     @classmethod
     def _requires_operation_of_a_var(
         cls,
         variable: Variable,
-        operations: Dict[str, VariableWriteOperation],
+        write_operations: Dict[str, VariableWriteOperation],
     ) -> VariableWriteOperation:
-        op = operations.get(variable.name, None)
+        op = write_operations.get(variable.name, None)
         if op is None:
             raise RuntimeError(
                 f"No operation found associated with variable {variable.name}. "
@@ -201,7 +201,7 @@ class VariableStep(Step):
         return op
 
     def _requires_operation_of_write_var(self, variable: Variable) -> VariableWriteOperation:
-        return VariableStep._requires_operation_of_a_var(variable, self.operations)
+        return VariableStep._requires_operation_of_a_var(variable, self.write_operations)
 
     @classmethod
     def _get_step_specific_static_configuration_descriptors(
@@ -210,7 +210,7 @@ class VariableStep(Step):
         return {
             "write_variables": List[Variable],
             "read_variables": List[Variable],
-            "operations": Dict[str, VariableWriteOperation],
+            "write_operations": Dict[str, VariableWriteOperation],
         }
 
     @classmethod
@@ -218,12 +218,12 @@ class VariableStep(Step):
         cls,
         read_variables: List[Variable],
         write_variables: List[Variable],
-        operations: Dict[str, VariableWriteOperation],
+        write_operations: Dict[str, VariableWriteOperation],
     ) -> List[Property]:
         return [
             _compute_variable_input_descriptor(
                 write_var,
-                cls._requires_operation_of_a_var(write_var, operations),
+                cls._requires_operation_of_a_var(write_var, write_operations),
             )
             for write_var in write_variables
         ]
@@ -233,7 +233,7 @@ class VariableStep(Step):
         cls,
         read_variables: List[Variable],
         write_variables: List[Variable],
-        operations: Dict[str, VariableWriteOperation],
+        write_operations: Dict[str, VariableWriteOperation],
     ) -> List[Property]:
         return [read_var.to_property().copy(name=read_var.name) for read_var in read_variables]
 
@@ -285,9 +285,9 @@ def _requires_unique_variable_names(variables: List[Variable]) -> None:
         )
 
 
-def _requires_operations_dictionary(
+def _requires_write_operations_dictionary(
     write_variables: List[Variable],
-    operations: Optional[
+    write_operations: Optional[
         Union[
             VariableWriteOperation,
             Dict[str, VariableWriteOperation],
@@ -295,7 +295,9 @@ def _requires_operations_dictionary(
     ],
 ) -> Dict[str, VariableWriteOperation]:
 
-    no_operations = operations is None or (isinstance(operations, dict) and len(operations) == 0)
+    no_operations = write_operations is None or (
+        isinstance(write_operations, dict) and len(write_operations) == 0
+    )
     no_write_variable = len(write_variables) == 0
 
     if no_write_variable and no_operations:
@@ -303,22 +305,22 @@ def _requires_operations_dictionary(
 
     if no_write_variable:
         raise ValueError(
-            f"Non-default `operations` has been specified as '{operations}' (type: {type(operations)}) while `write_variables` contains no variable. "
-            "This is seemingly a misuse of `VariableStep`, as the `operations` specify the kind of write operations that must apply to the variables in `write_variables`. "
-            "If there is no intention of writing a variable in this step, you should omit passing a value to the argument `operations`. "
+            f"Non-default `write_operations` has been specified as '{write_operations}' (type: {type(write_operations)}) while `write_variables` contains no variable. "
+            "This is seemingly a misuse of `VariableStep`, as the `write_operations` specify the kind of write operations that must apply to the variables in `write_variables`. "
+            "If there is no intention of writing a variable in this step, you should omit passing a value to the argument `write_operations`. "
             "Otherwise, you should also declare the intended variable in `write_variables`."
         )
 
     if no_operations:
         raise ValueError(
-            f"Argument `operations` cannot be `None` or empty while `write_variables` is non-empty."
+            f"Argument `write_operations` cannot be `None` or empty while `write_variables` is non-empty."
         )
 
-    if isinstance(operations, VariableWriteOperation):
-        return {var.name: operations for var in write_variables}
+    if isinstance(write_operations, VariableWriteOperation):
+        return {var.name: write_operations for var in write_variables}
 
-    if isinstance(operations, dict):
-        operations_vars_names = set(operations.keys())
+    if isinstance(write_operations, dict):
+        operations_vars_names = set(write_operations.keys())
 
         write_vars_names = {var.name for var in write_variables}
 
@@ -327,7 +329,7 @@ def _requires_operations_dictionary(
             write_variable_with_no_operation_str = ", ".join(write_variable_with_no_operation)
             raise ValueError(
                 "All of the variables in `write_variables` must have an associated operation. "
-                f"Variable(s) {write_variable_with_no_operation_str} is/are defined in `write_variables`, but there is no operation associated with them in the `operations` dictionary."
+                f"Variable(s) {write_variable_with_no_operation_str} is/are defined in `write_variables`, but there is no operation associated with them in the `write_operations` dictionary."
             )
 
         operations_with_no_declared_variables = operations_vars_names - write_vars_names
@@ -336,15 +338,15 @@ def _requires_operations_dictionary(
                 operations_with_no_declared_variables
             )
             raise ValueError(
-                "All of the variable name in `operations` must be associated with a variable in `write_variables`, "
+                "All of the variable name in `write_operations` must be associated with a variable in `write_variables`, "
                 f"but operations dictionary additionally specifies {operations_with_no_declared_variables_str}. "
-                f"There is/are operation(s) specified for variable(s) {operations_with_no_declared_variables_str} in the dictionary passed as `operations`, while these variables are not declared in `write_variables`. "
+                f"There is/are operation(s) specified for variable(s) {operations_with_no_declared_variables_str} in the dictionary passed as `write_operations`, while these variables are not declared in `write_variables`. "
                 "If you want to perform a write operation on a variable, the variable must be present in `write_variables`."
             )
 
-        return operations
+        return write_operations
 
     raise ValueError(
-        "Argument `operations` must be a VariableWriteOperation or a dictionary of str -> VariableWriteOperation. "
-        f"Found {operations} with type {type(operations)} instead."
+        "Argument `write_operations` must be a VariableWriteOperation or a dictionary of str -> VariableWriteOperation. "
+        f"Found {write_operations} with type {type(write_operations)} instead."
     )

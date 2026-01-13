@@ -2645,7 +2645,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 write_variables=self._variables_convert_to_agentspec(runtime_step.write_variables),
                 read_variables=self._variables_convert_to_agentspec(runtime_step.read_variables),
                 **step_args,
-                operations=runtime_step.operations,
+                write_operations=runtime_step.write_operations,
                 input_mapping=runtime_step.input_mapping,
                 output_mapping=runtime_step.output_mapping,
             )

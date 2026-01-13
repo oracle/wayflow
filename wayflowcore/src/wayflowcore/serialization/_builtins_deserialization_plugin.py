@@ -1170,7 +1170,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 read_variables=self._convert_properties_to_runtime_variables(
                     agentspec_component.read_variables
                 ),
-                operations=agentspec_component.operations,
+                write_operations=agentspec_component.write_operations,
                 **self._get_rt_nodes_arguments(agentspec_component, metadata_info),
             )
         elif isinstance(agentspec_component, AgentSpecPluginWriteVariableNode):

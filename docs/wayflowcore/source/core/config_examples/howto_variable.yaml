@@ -196,7 +196,7 @@ $referenced_components:
       title: user_feedback
       default: []
     read_variables: []
-    operations:
+    write_operations:
       user_feedback: insert
     component_plugin_name: NodesPlugin
     component_plugin_version: 26.1.0.dev4
@@ -224,7 +224,7 @@ $referenced_components:
       title: user_feedback
       default: []
     read_variables: []
-    operations:
+    write_operations:
       user_feedback: insert
     component_plugin_name: NodesPlugin
     component_plugin_version: 26.1.0.dev4
@@ -255,7 +255,7 @@ $referenced_components:
         type: string
       title: user_feedback
       default: []
-    operations: {}
+    write_operations: {}
     component_plugin_name: NodesPlugin
     component_plugin_version: 26.1.0.dev4
   bd2331f9-c336-446d-b6e8-5c4365e4327b:

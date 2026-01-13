@@ -119,7 +119,7 @@ def test_can_init_flow_with_variable_and_step_with_write(
         [
             VariableStep(
                 write_variables=[variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
             )
         ],
         variables=[variable],
@@ -146,7 +146,7 @@ def test_can_init_flow_with_variable_and_step_with_read_and_write(
             VariableStep(
                 read_variables=[variable],
                 write_variables=[variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
             )
         ],
         variables=[variable],
@@ -174,12 +174,12 @@ def test_can_init_flow_with_variable_and_step_with_two_read_and_write(
             VariableStep(
                 read_variables=[variable],
                 write_variables=[variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
             ),
             VariableStep(
                 read_variables=[variable],
                 write_variables=[variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
             ),
         ],
         variables=[variable],
@@ -214,17 +214,17 @@ def test_unique_variables_with_overlap_accept(
     VariableStep(
         write_variables=[float_variable, string_variable],
         read_variables=[string_variable],
-        operations=VariableWriteOperation.OVERWRITE,
+        write_operations=VariableWriteOperation.OVERWRITE,
     )
     VariableStep(
         read_variables=[string_variable, float_variable],
         write_variables=[float_variable],
-        operations=VariableWriteOperation.OVERWRITE,
+        write_operations=VariableWriteOperation.OVERWRITE,
     )
     VariableStep(
         write_variables=[float_variable, string_variable],
         read_variables=[float_variable, string_variable],
-        operations=VariableWriteOperation.OVERWRITE,
+        write_operations=VariableWriteOperation.OVERWRITE,
     )
 
 
@@ -244,13 +244,13 @@ def test_requires_operations_dictionary_with_no_write_var_and_no_operations(
     variable: Variable = request.getfixturevalue(variable_name)
 
     step = VariableStep(read_variables=[variable])
-    assert isinstance(step.operations, dict) and len(step.operations) == 0
+    assert isinstance(step.write_operations, dict) and len(step.write_operations) == 0
 
-    step = VariableStep(read_variables=[variable], operations=None)
-    assert isinstance(step.operations, dict) and len(step.operations) == 0
+    step = VariableStep(read_variables=[variable], write_operations=None)
+    assert isinstance(step.write_operations, dict) and len(step.write_operations) == 0
 
-    step = VariableStep(read_variables=[variable], operations={})
-    assert isinstance(step.operations, dict) and len(step.operations) == 0
+    step = VariableStep(read_variables=[variable], write_operations={})
+    assert isinstance(step.write_operations, dict) and len(step.write_operations) == 0
 
 
 @pytest.mark.parametrize(
@@ -269,14 +269,14 @@ def test_requires_operations_dictionary_with_no_write_var(
 ) -> None:
     variable: Variable = request.getfixturevalue(variable_name)
 
-    with pytest.raises(ValueError, match="Non-default `operations` has been specified"):
-        VariableStep(read_variables=[variable], operations=operation)
+    with pytest.raises(ValueError, match="Non-default `write_operations` has been specified"):
+        VariableStep(read_variables=[variable], write_operations=operation)
 
-    with pytest.raises(ValueError, match="Non-default `operations` has been specified"):
-        VariableStep(read_variables=[variable], operations={variable.name: operation})
+    with pytest.raises(ValueError, match="Non-default `write_operations` has been specified"):
+        VariableStep(read_variables=[variable], write_operations={variable.name: operation})
 
-    with pytest.raises(ValueError, match="Non-default `operations` has been specified"):
-        VariableStep(read_variables=[variable], operations={"out of scope name": operation})
+    with pytest.raises(ValueError, match="Non-default `write_operations` has been specified"):
+        VariableStep(read_variables=[variable], write_operations={"out of scope name": operation})
 
 
 @pytest.mark.parametrize(
@@ -290,7 +290,7 @@ def test_requires_operations_dictionary_with_no_write_var(
     ],
 )
 @pytest.mark.parametrize(
-    "void_operations",
+    "void_write_operations",
     [
         "leave-as-default",
         None,
@@ -298,15 +298,15 @@ def test_requires_operations_dictionary_with_no_write_var(
     ],
 )
 def test_requires_operations_dictionary_with_no_operation(
-    variable_name: str, void_operations: Any, request: FixtureRequest
+    variable_name: str, void_write_operations: Any, request: FixtureRequest
 ) -> None:
     variable: Variable = request.getfixturevalue(variable_name)
 
-    with pytest.raises(ValueError, match="Argument `operations` cannot be `None` or empty"):
-        if void_operations == "leave-as-default":
+    with pytest.raises(ValueError, match="Argument `write_operations` cannot be `None` or empty"):
+        if void_write_operations == "leave-as-default":
             VariableStep(write_variables=[variable])
         else:
-            VariableStep(write_variables=[variable], operations=void_operations)
+            VariableStep(write_variables=[variable], write_operations=void_write_operations)
 
 
 @pytest.mark.parametrize(
@@ -317,10 +317,10 @@ def test_requires_operations_dictionary_with_no_operation(
         ["list_of_floats_variable", "list_of_dicts_of_strings_variable"],
     ],
 )
-@pytest.mark.parametrize("operation", [o for o in VariableWriteOperation])
+@pytest.mark.parametrize("write_operations", [o for o in VariableWriteOperation])
 def test_requires_operations_dictionary_with_general_operation(
     write_variables_names: List[str],
-    operation: VariableWriteOperation,
+    write_operations: VariableWriteOperation,
     request: FixtureRequest,
 ) -> None:
     write_variables = [
@@ -328,11 +328,11 @@ def test_requires_operations_dictionary_with_general_operation(
         for write_variable_name in write_variables_names
     ]
 
-    step = VariableStep(write_variables=write_variables, operations=operation)
-    assert isinstance(step.operations, dict)
-    assert len(step.operations) == len(write_variables)
-    assert all(write_variable.name in step.operations for write_variable in write_variables)
-    assert all(operation == o for _, o in step.operations.items())
+    step = VariableStep(write_variables=write_variables, write_operations=write_operations)
+    assert isinstance(step.write_operations, dict)
+    assert len(step.write_operations) == len(write_variables)
+    assert all(write_variable.name in step.write_operations for write_variable in write_variables)
+    assert all(write_operations == o for _, o in step.write_operations.items())
 
 
 @pytest.mark.parametrize("operation", [o for o in VariableWriteOperation])
@@ -347,7 +347,7 @@ def test_requires_operations_dictionary_with_variables_without_associated_operat
     ):
         VariableStep(
             write_variables=[float_variable, string_variable],
-            operations={float_variable.name: operation},
+            write_operations={float_variable.name: operation},
         )
 
 
@@ -359,11 +359,11 @@ def test_requires_operations_dictionary_with_operations_without_associated_varia
 ) -> None:
     with pytest.raises(
         ValueError,
-        match="All of the variable name in `operations` must be associated with a variable in `write_variables`",
+        match="All of the variable name in `write_operations` must be associated with a variable in `write_variables`",
     ):
         VariableStep(
             write_variables=[float_variable],
-            operations={
+            write_operations={
                 float_variable.name: operation,
                 string_variable.name: operation,
             },
@@ -382,7 +382,7 @@ def test_requires_operations_dictionary_with_invalid_operation_in_dict(
     ):
         VariableStep(
             write_variables=[float_variable, string_variable],
-            operations={
+            write_operations={
                 float_variable.name: "append",  # type: ignore
                 string_variable.name: operation,
             },
@@ -397,14 +397,14 @@ def test_requires_operations_dictionary_with_specific_operations(
 ) -> None:
     step = VariableStep(
         write_variables=[float_variable, dict_of_floats_variable, list_of_floats_variable],
-        operations={
+        write_operations={
             float_variable.name: VariableWriteOperation.OVERWRITE,
             dict_of_floats_variable.name: VariableWriteOperation.MERGE,
             list_of_floats_variable.name: VariableWriteOperation.INSERT,
         },
     )
-    assert isinstance(step.operations, dict)
-    assert len(step.operations) == 3
+    assert isinstance(step.write_operations, dict)
+    assert len(step.write_operations) == 3
     assert step._requires_operation_of_write_var(float_variable) == VariableWriteOperation.OVERWRITE
     assert (
         step._requires_operation_of_write_var(dict_of_floats_variable)
@@ -424,9 +424,9 @@ def test_requires_operations_dictionary_with_specific_operations(
 def test_variable_step_with_str_operation(float_variable: Variable) -> None:
     with pytest.raises(
         ValueError,
-        match="Argument `operations` must be a VariableWriteOperation or a dictionary of str -> VariableWriteOperation.",
+        match="Argument `write_operations` must be a VariableWriteOperation or a dictionary of str -> VariableWriteOperation.",
     ):
-        VariableStep(write_variables=[float_variable], operations="append")  # type: ignore
+        VariableStep(write_variables=[float_variable], write_operations="append")  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -445,7 +445,7 @@ def test_variable_step_constructor_rejects_invalid_operation(
     variable: Variable = request.getfixturevalue(variable_name)
 
     with pytest.raises(ValueError, match="Invalid operation"):
-        VariableStep(write_variables=[variable], operations={variable.name: "append"})  # type: ignore
+        VariableStep(write_variables=[variable], write_operations={variable.name: "append"})  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -462,7 +462,7 @@ def test_variable_step_constructor_rejects_insert_on_incompatible_type(
     variable = request.getfixturevalue(variable_name)
 
     with pytest.raises(ValueError, match=f"If using INSERT, the variable's type must be list, *"):
-        VariableStep(write_variables=[variable], operations=VariableWriteOperation.INSERT)
+        VariableStep(write_variables=[variable], write_operations=VariableWriteOperation.INSERT)
 
 
 @pytest.mark.parametrize(
@@ -477,7 +477,7 @@ def test_variable_step_constructor_accept_insert_on_compatible_type(
 ) -> None:
     variable = request.getfixturevalue(variable_name)
 
-    VariableStep(write_variables=[variable], operations=VariableWriteOperation.INSERT)
+    VariableStep(write_variables=[variable], write_operations=VariableWriteOperation.INSERT)
 
 
 @pytest.mark.parametrize(
@@ -495,7 +495,7 @@ def test_variable_step_constructor_rejects_merge_on_incompatible_type(
     with pytest.raises(
         ValueError, match=f"If using MERGE, the variable's type must be list or dict, *"
     ):
-        VariableStep(write_variables=[variable], operations=VariableWriteOperation.MERGE)
+        VariableStep(write_variables=[variable], write_operations=VariableWriteOperation.MERGE)
 
 
 @pytest.mark.parametrize(
@@ -511,7 +511,7 @@ def test_variable_step_constructor_accept_merge_on_compatible_type(
 ) -> None:
     variable = request.getfixturevalue(variable_name)
 
-    VariableStep(write_variables=[variable], operations=VariableWriteOperation.MERGE)
+    VariableStep(write_variables=[variable], write_operations=VariableWriteOperation.MERGE)
 
 
 def test_flow_constructor_rejects_duplicated_variable_names(float_variable: Variable) -> None:
@@ -528,7 +528,7 @@ def test_flow_constructor_rejects_duplicated_variable_names(float_variable: Vari
             step=VariableStep(
                 read_variables=[float_variable],
                 write_variables=[float_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
             ),
             variables=[var1, float_variable],
         )
@@ -550,7 +550,7 @@ def test_flow_constructor_rejects_step_referring_unknown_variable(
     ):
         create_single_step_flow(
             VariableStep(
-                write_variables=[float_variable], operations=VariableWriteOperation.OVERWRITE
+                write_variables=[float_variable], write_operations=VariableWriteOperation.OVERWRITE
             ),
             "read_step",
         )
@@ -563,7 +563,7 @@ def test_flow_constructor_rejects_step_referring_unknown_variable(
             VariableStep(
                 read_variables=[float_variable],
                 write_variables=[float_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
             ),
             "read_step",
         )
@@ -576,7 +576,7 @@ def test_flow_constructor_rejects_step_referring_unknown_variable(
             VariableStep(
                 read_variables=[float_variable],
                 write_variables=[string_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
             ),
             "read_step",
         )
@@ -634,7 +634,9 @@ def test_variable_step_cannot_write_different_type(
     variable: Variable = request.getfixturevalue(variable_name)
 
     flow_assistant = create_single_step_flow(
-        step=VariableStep(write_variables=[variable], operations=VariableWriteOperation.OVERWRITE),
+        step=VariableStep(
+            write_variables=[variable], write_operations=VariableWriteOperation.OVERWRITE
+        ),
         variables=[variable],
     )
     with pytest.raises(
@@ -651,7 +653,7 @@ def test_variable_step_cannot_write_if_value_not_in_io_dict(
     flow_assistant = create_single_step_flow(
         step=VariableStep(
             write_variables=[string_variable],
-            operations=VariableWriteOperation.OVERWRITE,
+            write_operations=VariableWriteOperation.OVERWRITE,
             input_mapping={string_variable.name: io_dict_key},
         ),
         variables=[string_variable],
@@ -679,7 +681,7 @@ def test_flow_can_write_own_reads(variable_name: str, request: FixtureRequest) -
             VariableStep(read_variables=[variable], output_mapping={variable.name: "spluuk"}),
             VariableStep(
                 write_variables=[variable],
-                operations=VariableWriteOperation.MERGE,
+                write_operations=VariableWriteOperation.MERGE,
                 input_mapping={variable.name: "spluuk"},
             ),
         ],
@@ -712,7 +714,7 @@ def test_variable_readwrite_steps_work_in_flow(string_variable_with_default: Var
             VariableStep(
                 write_variables=[string_variable_with_default],
                 read_variables=[string_variable_with_default],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={string_variable_with_default.name: ToolExecutionStep.TOOL_OUTPUT},
             ),
         ],
@@ -781,12 +783,12 @@ def test_multiple_writes(float_variable: Variable, string_variable: Variable) ->
         steps=[
             VariableStep(
                 write_variables=[float_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={float_variable.name: "write-float-io"},
             ),
             VariableStep(
                 write_variables=[string_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={string_variable.name: "write-string-io"},
             ),
         ],
@@ -809,7 +811,7 @@ def test_multiple_writes_in_single_step(
         steps=[
             VariableStep(
                 write_variables=[float_variable, string_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={
                     float_variable.name: "write-float-io",
                     string_variable.name: "write-string-io",
@@ -833,12 +835,12 @@ def test_can_read_own_writes(float_variable: Variable, string_variable: Variable
         steps=[
             VariableStep(
                 write_variables=[float_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={float_variable.name: "write-float-io"},
             ),
             VariableStep(
                 write_variables=[string_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={string_variable.name: "write-string-io"},
             ),
             VariableStep(
@@ -878,14 +880,14 @@ def test_can_read_own_writes_grouped_by_variable(
             VariableStep(
                 write_variables=[float_variable],
                 read_variables=[float_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={float_variable.name: "write-float-io"},
                 output_mapping={float_variable.name: "read-float-io"},
             ),
             VariableStep(
                 write_variables=[string_variable],
                 read_variables=[string_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={string_variable.name: "write-string-io"},
                 output_mapping={string_variable.name: "read-string-io"},
             ),
@@ -921,14 +923,14 @@ def test_can_read_own_writes_grouped_by_variable_2(
             VariableStep(
                 write_variables=[float_variable],
                 read_variables=[float_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={float_variable.name: "write-float-io"},
                 output_mapping={float_variable.name: "read-float-io"},
             ),
             VariableStep(
                 write_variables=[string_variable_with_default],
                 read_variables=[string_variable_with_default],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={string_variable_with_default.name: "write-string-io"},
                 output_mapping={string_variable_with_default.name: "read-string-io"},
             ),
@@ -957,7 +959,7 @@ def test_can_read_own_writes_grouped_by_action(
         steps=[
             VariableStep(
                 write_variables=[float_variable, string_variable],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={
                     float_variable.name: "write-float-io",
                     string_variable.name: "write-string-io",
@@ -1000,7 +1002,7 @@ def test_can_read_own_writes_in_single_step(
             VariableStep(
                 write_variables=[float_variable, string_variable_with_default],
                 read_variables=[float_variable, string_variable_with_default],
-                operations=VariableWriteOperation.OVERWRITE,
+                write_operations=VariableWriteOperation.OVERWRITE,
                 input_mapping={
                     float_variable.name: "write-float-io",
                     string_variable_with_default.name: "write-string-io",
@@ -1033,7 +1035,7 @@ def test_insert_into_list(list_of_floats_variable):
         steps=[
             VariableStep(
                 write_variables=[list_of_floats_variable],
-                operations=VariableWriteOperation.INSERT,
+                write_operations=VariableWriteOperation.INSERT,
                 input_mapping={list_of_floats_variable.name: "write-float-io"},
             )
         ],
@@ -1052,12 +1054,12 @@ def test_variable_is_reused_when_flow_loops_onto_itself(list_of_floats_variable:
         steps=[
             VariableStep(
                 write_variables=[list_of_floats_variable],
-                operations=VariableWriteOperation.INSERT,
+                write_operations=VariableWriteOperation.INSERT,
                 input_mapping={list_of_floats_variable.name: "write-float-io"},
             ),
             VariableStep(
                 write_variables=[list_of_floats_variable],
-                operations=VariableWriteOperation.INSERT,
+                write_operations=VariableWriteOperation.INSERT,
                 input_mapping={list_of_floats_variable.name: "write-another-float-io"},
             ),
             VariableStep(
@@ -1094,13 +1096,13 @@ def test_variable_is_reused_when_flow_loops_onto_itself_in_itegrated_call(
             VariableStep(
                 write_variables=[list_of_floats_variable],
                 read_variables=[list_of_floats_variable],
-                operations=VariableWriteOperation.INSERT,
+                write_operations=VariableWriteOperation.INSERT,
                 input_mapping={list_of_floats_variable.name: "write-float-io"},
             ),
             VariableStep(
                 write_variables=[list_of_floats_variable],
                 read_variables=[list_of_floats_variable],
-                operations=VariableWriteOperation.INSERT,
+                write_operations=VariableWriteOperation.INSERT,
                 input_mapping={list_of_floats_variable.name: "write-another-float-io"},
                 output_mapping={list_of_floats_variable.name: "read-list-of-float-io"},
             ),
@@ -1132,7 +1134,7 @@ def test_error_on_insert_into_incompatible_variable_type(float_variable: Variabl
         create_single_step_flow(
             step=VariableStep(
                 write_variables=[float_variable],
-                operations=VariableWriteOperation.INSERT,
+                write_operations=VariableWriteOperation.INSERT,
                 input_mapping={float_variable.name: "write-float-io"},
             ),
             variables=[float_variable],

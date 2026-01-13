@@ -31,19 +31,19 @@ FEEDBACK_2 = "feedback_2"
 
 start_step = StartStep(
     name="start_step",
-    input_descriptors={StringProperty(FEEDBACK_1), StringProperty(FEEDBACK_2)},
+    input_descriptors=[StringProperty(FEEDBACK_1), StringProperty(FEEDBACK_2)],
 )
 
 write_feedback_1 = VariableStep(
     name="write_var_step_1",
     write_variables=[feedback_variable],
-    operations=VariableWriteOperation.INSERT,
+    write_operations=VariableWriteOperation.INSERT,
 )
 
 write_feedback_2 = VariableStep(
     name="write_var_step_2",
     write_variables=[feedback_variable],
-    operations=VariableWriteOperation.INSERT,
+    write_operations=VariableWriteOperation.INSERT,
 )
 
 read_feedback = VariableStep(

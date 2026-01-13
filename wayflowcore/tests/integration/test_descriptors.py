@@ -113,7 +113,7 @@ DEFAULT_PARAMETER_VALUES: Dict[str, object] = {
             default_value=[],
         )
     ],
-    "operations": {"var_write": VariableWriteOperation.OVERWRITE},
+    "write_operations": {"var_write": VariableWriteOperation.OVERWRITE},
 }
 
 DEFAULT_CLASS_PARAMETER_VALUES: Dict[str, Dict[str, object]] = {

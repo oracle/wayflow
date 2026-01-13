@@ -219,7 +219,7 @@ def test_variable_node_for_write_with_default_write_operator_executes_correctly(
     plugin_node = PluginVariableNode(
         name="VarNodeForWrite",
         write_variables=[agentspec_variable],
-        operations={var_name: PluginVariableWriteOperation.OVERWRITE},
+        write_operations={var_name: PluginVariableWriteOperation.OVERWRITE},
     )
 
     runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
@@ -301,7 +301,7 @@ def test_variable_node_for_write_with_write_operator_and_input_mapping_executes_
     plugin_node = PluginVariableNode(
         name="VarNodeForWrite",
         write_variables=[agentspec_variable],
-        operations={var_name: PluginVariableWriteOperation.INSERT},
+        write_operations={var_name: PluginVariableWriteOperation.INSERT},
         input_mapping={var_name: "write_value"},
     )
 
@@ -345,7 +345,7 @@ def test_variable_node_for_read_and_write_with_default_write_operator_executes_c
         name="VarNodeForReadWrite",
         read_variables=[agentspec_variable],
         write_variables=[agentspec_variable],
-        operations={var_name: PluginVariableWriteOperation.OVERWRITE},
+        write_operations={var_name: PluginVariableWriteOperation.OVERWRITE},
     )
 
     runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
@@ -397,7 +397,7 @@ def test_variable_node_for_read_and_write_with_write_operator_and_mapping_with_s
         name="VarNodeForReadWrite",
         read_variables=[agentspec_variable],
         write_variables=[agentspec_variable],
-        operations={var_name: PluginVariableWriteOperation.OVERWRITE},
+        write_operations={var_name: PluginVariableWriteOperation.OVERWRITE},
         input_mapping={var_name: "val"},
         output_mapping={var_name: "val"},
     )
@@ -451,7 +451,7 @@ def test_variable_node_for_read_and_write_with_write_operator_and_mapping_with_d
         name="VarNodeForReadWrite",
         read_variables=[agentspec_variable],
         write_variables=[agentspec_variable],
-        operations={var_name: PluginVariableWriteOperation.OVERWRITE},
+        write_operations={var_name: PluginVariableWriteOperation.OVERWRITE},
         input_mapping={var_name: "input-val"},
         output_mapping={var_name: "output-val"},
     )
@@ -511,7 +511,7 @@ def test_variable_node_for_read_and_write_for_two_vars_with_default_write_operat
         name="VarNodeForReadWrite",
         read_variables=[agentspec_variable_1, agentspec_variable_2],
         write_variables=[agentspec_variable_1, agentspec_variable_2],
-        operations={
+        write_operations={
             var_name_1: PluginVariableWriteOperation.OVERWRITE,
             var_name_2: PluginVariableWriteOperation.OVERWRITE,
         },
@@ -592,7 +592,7 @@ def test_variable_node_for_read_and_write_for_two_vars_with_write_operator_and_m
         name="VarNodeForReadWrite",
         read_variables=[agentspec_variable_1, agentspec_variable_2],
         write_variables=[agentspec_variable_1, agentspec_variable_2],
-        operations={
+        write_operations={
             var_name_1: PluginVariableWriteOperation.OVERWRITE,
             var_name_2: PluginVariableWriteOperation.OVERWRITE,
         },
@@ -681,7 +681,7 @@ def test_variable_node_for_read_and_write_for_two_vars_with_write_operator_and_m
         name="VarNodeForReadWrite",
         read_variables=[agentspec_variable_1, agentspec_variable_2],
         write_variables=[agentspec_variable_1, agentspec_variable_2],
-        operations={
+        write_operations={
             var_name_1: PluginVariableWriteOperation.OVERWRITE,
             var_name_2: PluginVariableWriteOperation.OVERWRITE,
         },
