@@ -246,11 +246,11 @@ component_registry = {
     "oracle_datastore_connection_config.dsn": "<db connection string>",  # e.g. "(description=(retry_count=2)..."
 }
 # .. end-##_Provide_sensitive_information_when_loading_the_Agent_Spec_config
-component_registry = {
+component_registry = {  # docs-skiprow
     "oracle_datastore_connection_config.user": os.environ["ADB_DB_USER"],  # docs-skiprow
     "oracle_datastore_connection_config.password": os.environ["ADB_DB_PASSWORD"],  # docs-skiprow
     "oracle_datastore_connection_config.dsn": os.environ["ADB_DSN"],  # docs-skiprow
-}
+}  # docs-skiprow
 if isinstance(connection_config, MTlsOracleDatabaseConnectionConfig):  # docs-skiprow
     component_registry.update(  # docs-skiprow
         {  # docs-skiprow
