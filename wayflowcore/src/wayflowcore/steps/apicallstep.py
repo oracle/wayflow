@@ -345,7 +345,7 @@ class ApiCallStep(Step):
         data
         Data that will be sent in the body.
 
-        If the header ``Content-Type": "application/x-www-form-urlencoded"`` is provided
+        If the header ``Content-Type: application/x-www-form-urlencoded`` is provided
         and if it is a dictionary, then it is inferred as form-data to be sent through the http request.
 
         If such a header is not given, then it will be sent as either the JSON object or the bytes content.
@@ -355,7 +355,7 @@ class ApiCallStep(Step):
         .. note::
             Special case: if the ``data`` is a ``str`` it will be tried to taken as a literal json string.
             Setting this parameter automatically sets the ``Content-Type: application/json``
-            header if the header does not correspond to form-data (``Content-Type": "application/x-www-form-urlencoded``).
+            header if the header does not correspond to form-data (``Content-Type: application/x-www-form-urlencoded``).
 
         .. warning::
             The ``data`` parameter is only relevant for http methods that allow bodies, e.g. POST, PUT, PATCH.
@@ -391,7 +391,7 @@ class ApiCallStep(Step):
             (useful for e.g. later extraction through a specialized step, or if the response does not require extraction or is not json)
 
             .. note::
-                By default this is ``False``, so if `output_values_json` is not set and the ``store_response`` parameter is not explicitly set to ``True``,
+                By default this is ``False``, so if ``output_values_json`` is not set and the ``store_response`` parameter is not explicitly set to ``True``,
                 this step will not return anything from the response body.
         ignore_bad_http_requests
             If ``True``, don't throw an exception when query results in a bad status code (e.g. 4xx, 5xx); if ``False`` throws an exception.
