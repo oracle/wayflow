@@ -10,8 +10,9 @@
 # docs-title: Code Example - How to Use the Event System
 
 from collections import defaultdict
+import logging
 
-from wayflowcore.events.event import LlmGenerationResponseEvent, ToolExecutionStartEvent
+from wayflowcore.events.event import Event, LlmGenerationResponseEvent, ToolExecutionStartEvent
 from wayflowcore.events.eventlistener import EventListener, register_event_listeners
 from wayflowcore.models import VllmModel
 from wayflowcore.agent import Agent
@@ -23,13 +24,13 @@ class TokenUsageListener(EventListener):
     def __init__(self):
         self.total_tokens_used = 0
 
-    def __call__(self, event: LlmGenerationResponseEvent):
+    def __call__(self, event: Event):
         if isinstance(event, LlmGenerationResponseEvent):
             token_usage = event.completion.token_usage
             if token_usage:
                 self.total_tokens_used += token_usage.total_tokens
-                print(f"Tokens used in this response: {token_usage.total_tokens}")
-                print(f"Running total tokens used: {self.total_tokens_used}")
+                logging.info(f"Tokens used in this response: {token_usage.total_tokens}")
+                logging.info(f"Running total tokens used: {self.total_tokens_used}")
 
     def get_total_tokens_used(self):
         """Return the total number of tokens used."""
