@@ -159,7 +159,8 @@ def test_agent_can_call_tool_with_confirmation_from_toolboxes(
 
 @retry_test(max_attempts=3)
 @pytest.mark.parametrize(
-    "toolbox_tool, requires_confirmation, answer", [(zbuk_tool, False, "14"), (zbuk_tool, None, "14")]
+    "toolbox_tool, requires_confirmation, answer",
+    [(zbuk_tool, False, "14"), (zbuk_tool, None, "14")],
 )
 def test_agent_can_call_tool_without_confirmation_from_toolboxes(
     toolbox_tool, requires_confirmation, answer, remotely_hosted_llm
