@@ -179,6 +179,7 @@ ALL_SERIALIZABLE_CLASSES = {
     "UserMessageRequestStatus",
     "Variable",
     "VariableReadStep",
+    "VariableStep",
     "VariableWriteStep",
     "VllmEmbeddingModel",
     "VllmModel",

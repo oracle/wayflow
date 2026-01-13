@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from wayflowcore._metadata import MetadataType
 from wayflowcore.property import Property
 from wayflowcore.steps.step import Step, StepResult
+from wayflowcore.steps.variablesteps._utils import _require_variable_value_from_conversation_store
 from wayflowcore.variable import Variable
 
 if TYPE_CHECKING:
@@ -146,11 +147,10 @@ class VariableReadStep(Step):
         inputs: Dict[str, Any],
         conversation: "FlowConversation",
     ) -> StepResult:
-        variable_value = conversation._get_variable_value(self.variable)
-        if variable_value is None:
-            raise ValueError(
-                f"Attempted to read from the Variable '{self.variable.name}' but the value was None."
-            )
         return StepResult(
-            outputs={self.VALUE: variable_value},
+            outputs={
+                self.VALUE: _require_variable_value_from_conversation_store(
+                    self.variable, conversation
+                )
+            },
         )
