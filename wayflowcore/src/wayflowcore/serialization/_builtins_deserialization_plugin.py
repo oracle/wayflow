@@ -102,6 +102,9 @@ from pyagentspec.tools.remotetool import RemoteTool as AgentSpecRemoteTool
 from pyagentspec.tools.servertool import ServerTool as AgentSpecServerTool
 from pyagentspec.transforms import MessageTransform as AgentSpecMessageTransform
 from pyagentspec.transforms.summarization import (
+    ConversationSummarizationTransform as AgentSpecConversationSummarizationTransform,
+)
+from pyagentspec.transforms.summarization import (
     MessageSummarizationTransform as AgentSpecMessageSummarizationTransform,
 )
 
@@ -426,6 +429,9 @@ from wayflowcore.transforms import (
 )
 from wayflowcore.transforms import (
     CoalesceSystemMessagesTransform as RuntimewCoalesceSystemMessagesTransform,
+)
+from wayflowcore.transforms import (
+    ConversationSummarizationTransform as RuntimeConversationSummarizationTransform,
 )
 from wayflowcore.transforms import (
     MessageSummarizationTransform as RuntimeMessageSummarizationTransform,
@@ -1714,6 +1720,27 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     max_message_size=agentspec_component.max_message_size,
                     summarization_instructions=agentspec_component.summarization_instructions,
                     summarized_message_template=agentspec_component.summarized_message_template,
+                    datastore=(
+                        conversion_context.convert(
+                            agentspec_component.datastore, tool_registry, converted_components
+                        )
+                        if agentspec_component.datastore
+                        else None
+                    ),
+                    cache_collection_name=agentspec_component.cache_collection_name,
+                    max_cache_size=agentspec_component.max_cache_size,
+                    max_cache_lifetime=agentspec_component.max_cache_lifetime,
+                    **self._get_component_arguments(agentspec_component),
+                )
+            elif isinstance(agentspec_component, AgentSpecConversationSummarizationTransform):
+                return RuntimeConversationSummarizationTransform(
+                    llm=conversion_context.convert(
+                        agentspec_component.llm, tool_registry, converted_components
+                    ),
+                    max_num_messages=agentspec_component.max_num_messages,
+                    min_num_messages=agentspec_component.min_num_messages,
+                    summarization_instructions=agentspec_component.summarization_instructions,
+                    summarized_conversation_template=agentspec_component.summarized_conversation_template,
                     datastore=(
                         conversion_context.convert(
                             agentspec_component.datastore, tool_registry, converted_components
