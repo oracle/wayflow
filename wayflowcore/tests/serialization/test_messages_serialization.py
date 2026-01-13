@@ -38,6 +38,11 @@ MESSAGES = [
         message_type=MessageType.TOOL_RESULT,
         tool_result=ToolResult(tool_request_id="tc1", content="bern"),
     ),
+    Message(
+        content="Test",
+        message_type=MessageType.AGENT,
+        _extra_content={"thought_signature": "<This is just for testing>"},
+    ),
 ]
 
 

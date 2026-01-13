@@ -237,7 +237,7 @@ class Message(SerializableDataclass):
         _prompt_cache_key: Optional[str] = None,  # Only for OpenAI Responses API
         _reasoning_content: Optional[_ReasoningContent] = None,  # Only for OpenAI Responses API
         __metadata_info__: Optional[MetadataType] = None,
-        _extra_content: Optional[Any] = None,
+        _extra_content: Optional[ExtraContentT] = None,
     ) -> None:
         if __metadata_info__ is None:
             __metadata_info__ = {}
@@ -296,13 +296,13 @@ class Message(SerializableDataclass):
         self.recipients = recipients
         self._reasoning_content = _reasoning_content
         self._prompt_cache_key = _prompt_cache_key
+        self._extra_content = _extra_content
         self.time_created = time_created
         self.time_updated = time_updated
         self._validate()
 
         self._hash_compute_time = time_updated
         self._hash: Optional[str] = None
-        self._extra_content = _extra_content
 
     def _convert_deprecated_arguments(
         self,
@@ -412,6 +412,7 @@ class Message(SerializableDataclass):
                 if self.tool_result is not None
                 else None
             ),
+            "_extra_content": self._extra_content,
         }
 
     @property
@@ -484,6 +485,8 @@ class Message(SerializableDataclass):
             message_type=(
                 MessageType(input_dict["message_type"]) if "message_type" in input_dict else None
             ),
+            # We get with default None here for backward compatibility
+            _extra_content=input_dict.get("_extra_content", None),
             __metadata_info__=input_dict["__metadata_info__"],
         )
 
