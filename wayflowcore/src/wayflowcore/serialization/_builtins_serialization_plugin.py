@@ -98,6 +98,9 @@ from pyagentspec.tools import ServerTool as AgentSpecServerTool
 from pyagentspec.tools import Tool as AgentSpecTool
 from pyagentspec.tools import ToolBox as AgentSpecToolBox
 from pyagentspec.transforms import (
+    ConversationSummarizationTransform as AgentSpecConversationSummarizationTransform,
+)
+from pyagentspec.transforms import (
     MessageSummarizationTransform as AgentSpecMessageSummarizationTransform,
 )
 from pyagentspec.transforms import MessageTransform as AgentSpecMessageTransform
@@ -431,6 +434,9 @@ from wayflowcore.transforms import (
 from wayflowcore.transforms import MessageTransform as RuntimeMessageTransform
 from wayflowcore.transforms import (
     RemoveEmptyNonUserMessageTransform as RuntimeRemoveEmptyNonUserMessageTransform,
+)
+from wayflowcore.transforms.summarization import (
+    ConversationSummarizationTransform as RuntimeConversationSummarizationTransform,
 )
 from wayflowcore.transforms.summarization import (
     MessageSummarizationTransform as RuntimeMessageSummarizationTransform,
@@ -1475,6 +1481,23 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 max_message_size=runtime_messagetransform.max_message_size,
                 summarization_instructions=runtime_messagetransform._summarizer.summarization_instructions,
                 summarized_message_template=runtime_messagetransform._summarizer.summarized_content_template,
+                max_cache_size=runtime_messagetransform.cache.max_cache_size,
+                max_cache_lifetime=runtime_messagetransform.cache.max_cache_lifetime,
+                cache_collection_name=runtime_messagetransform.cache.collection_name,
+                metadata=_create_agentspec_metadata_from_runtime_component(
+                    runtime_messagetransform
+                ),
+            )
+        elif isinstance(runtime_messagetransform, RuntimeConversationSummarizationTransform):
+            return AgentSpecConversationSummarizationTransform(
+                name=runtime_messagetransform.name or "conversation-summarizer",
+                llm=self._llm_convert_to_agentspec(
+                    conversion_context, runtime_messagetransform._summarizer.llm, referenced_objects
+                ),
+                max_num_messages=runtime_messagetransform.max_num_messages,
+                min_num_messages=runtime_messagetransform.min_num_messages,
+                summarization_instructions=runtime_messagetransform._summarizer.summarization_instructions,
+                summarized_conversation_template=runtime_messagetransform._summarizer.summarized_content_template,
                 max_cache_size=runtime_messagetransform.cache.max_cache_size,
                 max_cache_lifetime=runtime_messagetransform.cache.max_cache_lifetime,
                 cache_collection_name=runtime_messagetransform.cache.collection_name,

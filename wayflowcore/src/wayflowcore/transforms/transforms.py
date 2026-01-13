@@ -27,6 +27,10 @@ class MessageTransform(SerializableCallable, Component):
     def __init__(
         self, id: Optional[str] = None, name: str = "transform", description: Optional[str] = None
     ) -> None:
+        # TODO This is probably not the right way to do it. This is a minimal code solution.
+        # The "right" way is probably to update all transforms to accept id, name, description
+        # That should be done after confirmation that the overall approach (make transform a Component)
+        # is correct.
         Component.__init__(self, name=name, description=description, id=id)
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
