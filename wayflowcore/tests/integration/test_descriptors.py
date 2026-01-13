@@ -99,21 +99,21 @@ DEFAULT_PARAMETER_VALUES: Dict[str, object] = {
     "llm": llm_assistant_model,
     "read_variables": [
         Variable(
-            name="var",
+            name="var_read",
             type=ListProperty(item_type=StringProperty()),
-            description="var",
+            description="var_read",
             default_value=[],
         )
     ],
     "write_variables": [
         Variable(
-            name="var",
+            name="var_write",
             type=ListProperty(item_type=StringProperty()),
-            description="var",
+            description="var_write",
             default_value=[],
         )
     ],
-    "operations": VariableWriteOperation.OVERWRITE,
+    "operations": {"var_write": VariableWriteOperation.OVERWRITE},
 }
 
 DEFAULT_CLASS_PARAMETER_VALUES: Dict[str, Dict[str, object]] = {
