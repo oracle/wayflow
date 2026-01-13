@@ -9,6 +9,7 @@ import time
 import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple
 
+from wayflowcore._metadata import MetadataType
 from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore._utils.formatting import stringify
 from wayflowcore.conversation import _get_current_conversation_id
@@ -286,8 +287,18 @@ class MessageSummarizationTransform(MessageTransform):
         cache_collection_name: str = DEFAULT_CACHE_COLLECTION_NAME,
         max_cache_size: Optional[int] = 10_000,
         max_cache_lifetime: Optional[int] = 4 * 3600,
+        name: str = "message-summarization-transform",
+        id: Optional[str] = None,
+        description: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__()
+        super().__init__(name=name, id=id, description=description)
+        self.llm = llm
+        self.summarization_instructions = summarization_instructions
+        self.summarized_message_template = summarized_message_template
+        self.cache_collection_name = cache_collection_name
+        self.max_cache_size = max_cache_size
+        self.max_cache_lifetime = max_cache_lifetime
         self._summarizer = _Summarizer(llm, summarization_instructions, summarized_message_template)
         self.max_message_size = max_message_size
         if self.max_message_size <= 0:
