@@ -87,7 +87,7 @@ def multiply(a: float, b: float) -> float:
 agent = Agent(llm=llm, tools=[add, multiply], name="Calculator Agent")
 # .. end-##_Agent
 
-(agent.llm,) = _update_globals(["llm_small"])  # docs-skiprow
+(agent.llm,) = _update_globals(["vision_llm"])  # docs-skiprow
 
 # .. start-##_Conversation
 token_listener = TokenUsageListener()
@@ -114,5 +114,5 @@ serialized_assistant = AgentSpecExporter().to_json(agent)
 # .. start-##_Load_Agent_Spec_config
 from wayflowcore.agentspec import AgentSpecLoader
 
-agent = AgentSpecLoader().load_json(serialized_assistant)
+agent = AgentSpecLoader(tool_registry={'add': add, 'multiply': multiply}).load_json(serialized_assistant)
 # .. end-##_Load_Agent_Spec_config
