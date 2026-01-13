@@ -148,8 +148,11 @@ class SwarmRunner(ConversationExecutor):
                 conversation.component.handoff == HandoffMode.OPTIONAL
                 and current_agent != conversation.state.main_thread.recipient_agent
             ):
-                # Last would be the handoff tool
-                communication_tools = communication_tools[:-1]
+                # when using HandoffMode.OPTIONAL (agents can both send message and handoff)
+                # only the main agent is allowed to handoff
+                communication_tools = [
+                    t for t in communication_tools if t.name != _HANDOFF_TOOL_NAME
+                ]
             mutated_agent_tools = list(current_agent.tools) + communication_tools
             has_talk_to_user_tool = any(
                 tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
@@ -416,7 +419,9 @@ class SwarmRunner(ConversationExecutor):
                 thread_conversation = swarm_conversation._get_main_thread_conversation()
                 thread_conversation.component = recipient_agent
             else:
-                raise ValueError("This should not happen.")
+                raise ValueError(
+                    "An Agent not being the main agent is trying to handoff the conversation. This should not happen."
+                )
             logger.info(
                 "Conversation was handed off to a new agent (thread %s)",
                 current_thread.identifier,
