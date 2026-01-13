@@ -32,12 +32,10 @@ Why to use Variable?
 This guide will show you how to:
 
 - Define a :ref:`Variable <Variable>` in a Flow.
-- Read its value with :ref:`VariableReadStep <VariableReadStep>`.
-- Write to it with :ref:`VariableWriteStep <VariableWriteStep>`.
+- Read and write its value with :ref:`VariableStep <VariableStep>`.
 
 In this guide, you will see a simple example including defining a ``Variable`` that stores a list of user feedback,
-using ``VariableWriteStep`` to insert new feedback into the list, and
-using ``VariableReadStep`` to read all collected feedback.
+using ``VariableStep`` to insert new feedback into the list and read all collected feedback.
 
 Define a Variable
 =================
@@ -68,7 +66,7 @@ We will define a simple flow including the following steps.
 For simplicity, we pass initial feedback to the ``start_step``, which then routes values to ``write_feedback_1`` and ``write_feedback_2``.
 In practice, those inputs could come from other steps (e.g. :ref:`ToolExecutionStep<ToolExecutionStep>`).
 
-The :ref:`VariableWriteStep <VariableWriteStep>` requires the ``variable`` that it writes to. It also accepts the following options of write operation:
+The :ref:`VariableStep <VariableStep>` requires the ``write_variables`` that it writes to. It also accepts the following options of write operations:
 
 - ``VariableWriteOperation.OVERWRITE`` (or ``'overwrite'``) works on any type of variable to replace its value with the incoming value.
 - ``VariableWriteOperation.MERGE`` (or ``'merge'``) updates a ``Variable`` of type dict (resp. list),
@@ -87,8 +85,7 @@ Now we connect everything into a flow: two write steps add feedback, and a read 
    :start-after: .. start-##_Define_a_Flow_with_variable
    :end-before: .. end-##_Define_a_Flow_with_variable
 
-The ``VariableWriteStep`` has a single input descriptor ``VariableWriteStep.VALUE`` - the value to write to the variable it holds.
-Similarly, the ``VariableReadStep`` has a single output descriptor ``VariableReadStep.VALUE``- the value it reads from the variable it holds.
+The input and output descriptors of the read and write variables of ``VariableStep`` is the name of the variables.
 
 Remember to include your defined variables in the Flow’s ``variables`` parameter.
 

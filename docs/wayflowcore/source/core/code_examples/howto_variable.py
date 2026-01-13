@@ -22,8 +22,9 @@ feedback_variable = Variable(
 # .. end-##_Define_a_Variable
 
 # .. start-##_Define_Flow_Steps
-from wayflowcore.steps import StartStep, OutputMessageStep, VariableReadStep, VariableWriteStep
+from wayflowcore.steps import StartStep, OutputMessageStep, VariableStep
 from wayflowcore.property import StringProperty
+from wayflowcore.variable import VariableWriteOperation
 
 FEEDBACK_1 = "feedback_1"
 FEEDBACK_2 = "feedback_2"
@@ -33,19 +34,22 @@ start_step = StartStep(
     input_descriptors={StringProperty(FEEDBACK_1), StringProperty(FEEDBACK_2)},
 )
 
-write_feedback_1 = VariableWriteStep(
-    name="write_step_1",
-    variable=feedback_variable,
-    operation="insert",
+write_feedback_1 = VariableStep(
+    name="write_var_step_1",
+    write_variables=[feedback_variable],
+    operations=VariableWriteOperation.INSERT,
 )
 
-write_feedback_2 = VariableWriteStep(
-    name="write_step_2",
-    variable=feedback_variable,
-    operation="insert",
+write_feedback_2 = VariableStep(
+    name="write_var_step_2",
+    write_variables=[feedback_variable],
+    operations=VariableWriteOperation.INSERT,
 )
 
-read_feedback = VariableReadStep(variable=feedback_variable, name="read_step")
+read_feedback = VariableStep(
+    name="read_var_step",
+    read_variables=[feedback_variable],
+)
 
 output_step = OutputMessageStep("Collected feedback: {{ feedback }}", name="output_step")
 # .. end-##_Define_Flow_Steps
@@ -65,9 +69,9 @@ flow = Flow(
         ControlFlowEdge(output_step, None),
     ],
     data_flow_edges=[
-        DataFlowEdge(start_step, FEEDBACK_1, write_feedback_1, VariableWriteStep.VALUE),
-        DataFlowEdge(start_step, FEEDBACK_2, write_feedback_2, VariableWriteStep.VALUE),
-        DataFlowEdge(read_feedback, VariableReadStep.VALUE, output_step, "feedback"),
+        DataFlowEdge(start_step, FEEDBACK_1, write_feedback_1, feedback_variable.name),
+        DataFlowEdge(start_step, FEEDBACK_2, write_feedback_2, feedback_variable.name),
+        DataFlowEdge(read_feedback, feedback_variable.name, output_step, "feedback"),
     ],
     variables=[feedback_variable],
 )

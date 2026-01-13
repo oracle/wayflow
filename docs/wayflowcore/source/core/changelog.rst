@@ -93,6 +93,12 @@ New features
 
   For more information check out :doc:`how to serve assistants with A2A protocol <howtoguides/howto_a2a_serving>`.
 
+* **VariableStep:**
+
+  Introducing VariableStep, a comprehensive step for reading from and writing on variables. This feature provides users with an easier-to-use API.
+
+  For more information check out :doc:`the how to use variables for shared state in flows guide <howtoguides/howto_variable.rst>`.
+
 Improvements
 ^^^^^^^^^^^^
 

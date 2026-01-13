@@ -225,6 +225,7 @@ from wayflowcore.agentspec.components.nodes import (
 from wayflowcore.agentspec.components.nodes import PluginRegexNode as AgentSpecPluginRegexNode
 from wayflowcore.agentspec.components.nodes import PluginRetryNode as AgentSpecPluginRetryNode
 from wayflowcore.agentspec.components.nodes import PluginTemplateNode as AgentSpecPluginTemplateNode
+from wayflowcore.agentspec.components.nodes import PluginVariableNode as AgentSpecPluginVariableNode
 from wayflowcore.agentspec.components.nodes import (
     PluginWriteVariableNode as AgentSpecPluginWriteVariableNode,
 )
@@ -398,6 +399,7 @@ from wayflowcore.steps.step import Step as RuntimeStep
 from wayflowcore.steps.variablesteps.variablereadstep import (
     VariableReadStep as RuntimeVariableReadStep,
 )
+from wayflowcore.steps.variablesteps.variablestep import VariableStep as RuntimeVariableStep
 from wayflowcore.steps.variablesteps.variablewritestep import (
     VariableWriteStep as RuntimeVariableWriteStep,
 )
@@ -1160,6 +1162,17 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 variable=self._convert_property_to_runtime_variable(agentspec_component.variable),
                 **self._get_rt_nodes_arguments(agentspec_component, metadata_info),
             )
+        elif isinstance(agentspec_component, AgentSpecPluginVariableNode):
+            return RuntimeVariableStep(
+                write_variables=self._convert_properties_to_runtime_variables(
+                    agentspec_component.write_variables
+                ),
+                read_variables=self._convert_properties_to_runtime_variables(
+                    agentspec_component.read_variables
+                ),
+                operations=agentspec_component.operations,
+                **self._get_rt_nodes_arguments(agentspec_component, metadata_info),
+            )
         elif isinstance(agentspec_component, AgentSpecPluginWriteVariableNode):
             return RuntimeVariableWriteStep(
                 variable=self._convert_property_to_runtime_variable(agentspec_component.variable),
@@ -1918,6 +1931,14 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
     ) -> RuntimeVariable:
         runtime_property = self._convert_property_to_runtime(agentspec_property)
         return RuntimeVariable.from_property(runtime_property)
+
+    def _convert_properties_to_runtime_variables(
+        self, agentspec_properties: List[AgentSpecProperty]
+    ) -> List[RuntimeVariable]:
+        return [
+            self._convert_property_to_runtime_variable(agentspec_property)
+            for agentspec_property in agentspec_properties
+        ]
 
     def _convert_entity_to_runtime(self, agentspec_entity: AgentSpecEntity) -> RuntimeEntity:
         return RuntimeEntity(

@@ -214,6 +214,7 @@ from wayflowcore.agentspec.components.nodes import (
 from wayflowcore.agentspec.components.nodes import PluginRegexNode as AgentSpecPluginRegexNode
 from wayflowcore.agentspec.components.nodes import PluginRetryNode as AgentSpecPluginRetryNode
 from wayflowcore.agentspec.components.nodes import PluginTemplateNode as AgentSpecPluginTemplateNode
+from wayflowcore.agentspec.components.nodes import PluginVariableNode as AgentSpecPluginVariableNode
 from wayflowcore.agentspec.components.nodes import (
     PluginWriteVariableNode as AgentSpecPluginWriteVariableNode,
 )
@@ -403,6 +404,7 @@ from wayflowcore.steps.step import Step as RuntimeStep
 from wayflowcore.steps.variablesteps.variablereadstep import (
     VariableReadStep as RuntimeVariableReadStep,
 )
+from wayflowcore.steps.variablesteps.variablestep import VariableStep as RuntimeVariableStep
 from wayflowcore.steps.variablesteps.variablewritestep import (
     VariableWriteStep as RuntimeVariableWriteStep,
 )
@@ -849,6 +851,14 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         return _runtime_property_to_pyagentspec_property(
             RuntimeVariable.to_property(runtime_variable)
         )
+
+    def _variables_convert_to_agentspec(
+        self, runtime_variables: List[RuntimeVariable]
+    ) -> List[AgentSpecProperty]:
+        return [
+            self._variable_convert_to_agentspec(runtime_variable)
+            for runtime_variable in runtime_variables
+        ]
 
     def _contextprovider_convert_to_agentspec(
         self,
@@ -2626,6 +2636,16 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             return AgentSpecPluginReadVariableNode(
                 variable=self._variable_convert_to_agentspec(runtime_step.variable),
                 **step_args,
+                input_mapping=runtime_step.input_mapping,
+                output_mapping=runtime_step.output_mapping,
+            )
+        elif runtime_step_type is RuntimeVariableStep:
+            runtime_step = cast(RuntimeVariableStep, runtime_step)
+            return AgentSpecPluginVariableNode(
+                write_variables=self._variables_convert_to_agentspec(runtime_step.write_variables),
+                read_variables=self._variables_convert_to_agentspec(runtime_step.read_variables),
+                **step_args,
+                operations=runtime_step.operations,
                 input_mapping=runtime_step.input_mapping,
                 output_mapping=runtime_step.output_mapping,
             )

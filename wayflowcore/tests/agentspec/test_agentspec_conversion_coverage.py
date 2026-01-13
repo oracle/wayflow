@@ -129,6 +129,7 @@ EXCLUDED_COMPONENTS = {
     # the variable, stored as a agentspec property, doesn't keep the same id
     "Variable",
     "VariableReadStep",
+    "VariableStep",
     "VariableWriteStep",
     "ComponentWithInputsOutputs",
     "DataclassComponent",

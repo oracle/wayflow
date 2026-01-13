@@ -17,6 +17,7 @@ from .templaterenderingstep import TemplateRenderingStep
 from .textextractionstep.extractvaluefromjsonstep import ExtractValueFromJsonStep
 from .textextractionstep.regexextractionstep import RegexExtractionStep
 from .variablesteps.variablereadstep import VariableReadStep
+from .variablesteps.variablestep import VariableStep
 from .variablesteps.variablewritestep import VariableWriteStep
 
 # avoid cyclic imports because the steps below are composed of steps above
@@ -46,6 +47,7 @@ __all__ = [
     "RegexExtractionStep",
     "InputMessageStep",
     "VariableReadStep",
+    "VariableStep",
     "VariableWriteStep",
     "ChoiceSelectionStep",
     "MapStep",

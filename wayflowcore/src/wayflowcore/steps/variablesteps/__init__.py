@@ -5,9 +5,11 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 from .variablereadstep import VariableReadStep
+from .variablestep import VariableStep
 from .variablewritestep import VariableWriteStep
 
 __all__ = [
     "VariableReadStep",
+    "VariableStep",
     "VariableWriteStep",
 ]

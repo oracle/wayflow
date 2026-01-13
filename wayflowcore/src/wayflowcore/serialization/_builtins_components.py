@@ -174,6 +174,7 @@ _BUILTIN_COMPONENTS = {
     "UserMessageRequestStatus",
     "Variable",
     "VariableReadStep",
+    "VariableStep",
     "VariableWriteStep",
     "VllmEmbeddingModel",
     "VllmModel",
