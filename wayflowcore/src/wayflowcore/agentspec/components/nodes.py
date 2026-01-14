@@ -153,7 +153,7 @@ def _get_json_schema_of_read_variable(
 
 
 def _get_json_schema_of_write_variable(
-    variable: Property, operation: PluginVariableWriteOperation, title: str | None = None
+    variable: Property, operation: PluginVariableWriteOperation, title: str
 ) -> Dict[str, Any]:
     json_schema = {}
     if operation == PluginVariableWriteOperation.INSERT:
@@ -169,8 +169,7 @@ def _get_json_schema_of_write_variable(
     else:
         json_schema = deepcopy(variable.json_schema)
 
-    if title is not None:
-        json_schema["title"] = title
+    json_schema["title"] = title
 
     return json_schema
 
