@@ -25,7 +25,12 @@ def _require_variable_value_from_conversation_store(
     variable: Variable,
     conversation: "FlowConversation",
 ) -> Any:
-    return conversation._get_variable_value(variable)
+    val = conversation._get_variable_value(variable)
+    if val is None:
+        raise ValueError(
+            f"Attempted to read from the Variable '{variable.name}' but the value was None."
+        )
+    return val
 
 
 def _validate_write_step_configurations(
