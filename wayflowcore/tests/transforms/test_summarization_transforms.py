@@ -22,9 +22,9 @@ from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
 from ..conftest import mock_llm, patch_streaming_llm
 from ..testhelpers.patching import patch_llm
 from .conftest import (
-    _testing_message_transform,
+    CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME,
+    MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
     at_least_one_keyword_present,
-    cache_collection_names,
     execute_conversation_check_summarizer_ran,
     get_incorrect_schemas,
 )
@@ -291,7 +291,7 @@ LONG_CONVERSATION = [
 
 
 def message_summarization_transform_setup(llm: LlmModel):
-    collection_name = "cache_table"
+    collection_name = MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME
     datastore = InMemoryDatastore(
         {collection_name: MessageSummarizationTransform.get_entity_definition()}
     )
@@ -414,31 +414,26 @@ def test_transform_summarizes_long_messages_only(
         (
             {"max_message_size": 500},
             CONVERSATION_WITH_LONG_MESSAGES,
-            collection_name,
+            MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
             MessageSummarizationTransform,
-        )
-        for collection_name in cache_collection_names()
-    ]
-    + [
+        ),
         (
             {"max_num_messages": 10, "min_num_messages": 5},
             LONG_CONVERSATION,
-            collection_name,
+            CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME,
             ConversationSummarizationTransform,
-        )
-        for collection_name in cache_collection_names()
+        ),
     ],
 )
 def test_summarization_transform_caches_summarization(
     params, messages, transform_type, remotely_hosted_llm, collection_name, testing_data_store
 ):
     summarization_llm = remotely_hosted_llm
-    transform = _testing_message_transform(
+    transform = transform_type(
         llm=remotely_hosted_llm,
         datastore=testing_data_store,
-        collection_name=collection_name,
-        extra_params=params,
-        transform_type=transform_type,
+        cache_collection_name=collection_name,
+        **params,
     )
     if transform_type == MessageSummarizationTransform:
         assert len(messages[0].content) < params["max_message_size"]
@@ -465,19 +460,15 @@ def test_summarization_transform_caches_summarization(
         (
             {"max_message_size": 500, "max_cache_size": 6},
             CONVERSATION_WITH_LONG_MESSAGES[:2],
-            collection_name,
+            MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
             MessageSummarizationTransform,
-        )
-        for collection_name in cache_collection_names()
-    ]
-    + [
+        ),
         (
             {"max_num_messages": 10, "min_num_messages": 5, "max_cache_size": 6},
             LONG_CONVERSATION,
-            collection_name,
+            CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME,
             ConversationSummarizationTransform,
-        )
-        for collection_name in cache_collection_names()
+        ),
     ],
 )
 def test_summarization_transform_cache_evicts_lru(
@@ -485,12 +476,11 @@ def test_summarization_transform_cache_evicts_lru(
 ):
     summarization_llm = remotely_hosted_llm
     max_cache_size = params["max_cache_size"]
-    transform = _testing_message_transform(
+    transform = transform_type(
         llm=remotely_hosted_llm,
         datastore=testing_data_store,
-        collection_name=collection_name,
-        extra_params=params,
-        transform_type=transform_type,
+        cache_collection_name=collection_name,
+        **params,
     )
     if transform_type == MessageSummarizationTransform:
         assert len(messages[0].content) < params["max_message_size"]
@@ -589,13 +579,13 @@ def test_summarization_transform_raises_error_incorrect_inmemory_ds_schema(
             MessageSummarizationTransform,
             {"max_message_size": 500},
             CONVERSATION_WITH_LONG_MESSAGES[:2],
-            "cache_table",
+            MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
         ),
         (
             ConversationSummarizationTransform,
             {"max_num_messages": 5, "min_num_messages": 2},
             LONG_CONVERSATION[:6],
-            "cache_table",
+            CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME,
         ),
     ],
 )
@@ -606,12 +596,11 @@ def test_summarization_transform_removes_expired_messages(
         return
     summarization_llm = mock_llm()
     max_cache_lifetime = 1
-    transform = _testing_message_transform(
+    transform = transform_type(
         llm=summarization_llm,
         datastore=testing_data_store,
-        collection_name=collection_name,
-        extra_params=params | {"max_cache_lifetime": 1},
-        transform_type=transform_type,
+        cache_collection_name=collection_name,
+        **(params | {"max_cache_lifetime": 1}),
     )
 
     agent_llm = mock_llm()
@@ -736,7 +725,7 @@ def test_summarization_transform_summarizes_images(remote_gemma_llm):
     transform = MessageSummarizationTransform(
         llm=remote_gemma_llm,
         datastore=None,
-        cache_collection_name="cache_table",
+        cache_collection_name=MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
         max_message_size=500,
     )
     messages = CONVERSATION_WITH_LONG_MESSAGES
@@ -775,7 +764,7 @@ def test_conversation_summarization_transform_summarizes_images(remote_gemma_llm
     transform = ConversationSummarizationTransform(
         llm=remote_gemma_llm,
         datastore=None,
-        cache_collection_name="cache_table",
+        cache_collection_name=CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME,
         max_num_messages=4,
         min_num_messages=1,
     )

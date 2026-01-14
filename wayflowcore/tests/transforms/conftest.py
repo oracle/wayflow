@@ -56,8 +56,8 @@ def find_datastore_by_schema(pool, schema):
     return None
 
 
-def cache_collection_names() -> List[Optional[str]]:
-    return ["cache_table", None]
+MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME = "messages_cache"
+CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME = "conversations_cache"
 
 
 @pytest.fixture(scope="session")
@@ -78,11 +78,15 @@ def oracle_database_datastores_pool():
 
 def get_testing_schemas():
     return [
-        {"cache_table": MessageSummarizationTransform.get_entity_definition()},
+        {
+            MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME: MessageSummarizationTransform.get_entity_definition()
+        },
         {
             MessageSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME: MessageSummarizationTransform.get_entity_definition()
         },
-        {"cache_table": ConversationSummarizationTransform.get_entity_definition()},
+        {
+            CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME: ConversationSummarizationTransform.get_entity_definition()
+        },
         {
             ConversationSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME: ConversationSummarizationTransform.get_entity_definition()
         },
@@ -100,7 +104,7 @@ def get_incorrect_schemas():
         wrong_entity = Entity(properties=new_properties)
         wrong_entities.append(wrong_entity)
     wrong_entities.append(Entity(properties={"conversation_id": StringProperty()}))
-    correct_collection_name = cache_collection_names()[0]
+    correct_collection_name = MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME
 
     wrong_entity_but_correct_collection_name = [
         {correct_collection_name: entity} for entity in wrong_entities
@@ -128,14 +132,6 @@ def testing_inmemory_data_store(
     if not collection_name:
         collection_name = transform_type.DEFAULT_CACHE_COLLECTION_NAME
     return InMemoryDatastore({collection_name: transform_type.get_entity_definition()})
-
-
-def _testing_message_transform(llm, datastore, collection_name, extra_params, transform_type):
-    params = {"llm": llm, "datastore": datastore, **extra_params}
-
-    if collection_name:
-        params["cache_collection_name"] = collection_name
-    return transform_type(**params)
 
 
 @pytest.fixture
