@@ -42,6 +42,7 @@ These how-to guides demonstrate how to use the main features to create and custo
    Create a ReAct Agent <agents>
    How to Send Images to LLMs and Agents <howto_imagecontent>
    Use OCI Generative AI Agents <howto_ociagent>
+   How to Use A2A Agents <howto_a2aagent>
    Use Templates for Advanced Prompting Techniques <howto_prompttemplate>
 
 .. toctree::
@@ -65,8 +66,6 @@ These how-to guides demonstrate how to use the main features to create and custo
    Build a Hierarchical Multi-Agent System <howto_multiagent>
    Build a Swarm of Agents <howto_swarm>
    Build a ManagerWorkers of Agents <howto_managerworkers>
-   How to Use A2A <howto_a2a>
-
 
 .. toctree::
    :maxdepth: 1

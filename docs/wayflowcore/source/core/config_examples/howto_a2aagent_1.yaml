@@ -1,0 +1,26 @@
+component_type: A2AAgent
+id: 47b982ac-dbbe-4674-8c97-f6d82a21554c
+name: a2a_agent_a5ea926f__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+agent_url: http://<URL>
+connection_config:
+  component_type: A2AConnectionConfig
+  id: 1912133f-0bc6-4846-a140-2a5bfb5f9c42
+  name: ''
+  description: null
+  metadata: {}
+  timeout: 600.0
+  headers: null
+  verify: false
+  key_file: null
+  cert_file: null
+  ssl_ca_cert: null
+session_parameters:
+  timeout: 60.0
+  poll_interval: 2.0
+  max_retries: 5
+agentspec_version: 25.4.2
