@@ -41,7 +41,7 @@ def _validate_write_step_configurations(
         raise ValueError(
             f"If using MERGE, the variable's type must be list or dict, but got {variable.type}"
         )
-    if operation == VariableWriteOperation.INSERT and not isinstance(variable.type, (ListProperty)):
+    if operation == VariableWriteOperation.INSERT and not isinstance(variable.type, ListProperty):
         raise ValueError(
             f"If using INSERT, the variable's type must be list, but got {variable.type}"
         )
