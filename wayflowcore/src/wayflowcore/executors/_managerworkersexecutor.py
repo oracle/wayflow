@@ -58,7 +58,7 @@ def _validate_agent_unicity(agents: List[Agent]) -> Dict[str, "Agent"]:
     agent_by_name: Dict[str, "Agent"] = {}
 
     for agent in agents:
-        if not isinstance(agent, Agent) and not isinstance(agent, A2AAgent):
+        if not isinstance(agent, (Agent, A2AAgent)):
             raise TypeError(
                 f"Only Agents are supported in ManagerWorkers, got component of type '{agent.__class__.__name__}'"
             )
