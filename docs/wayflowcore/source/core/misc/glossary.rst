@@ -375,6 +375,8 @@ Variables act as the shared state or context of a Flow (often referred to as `st
 providing a way to decouple data from specific steps and make it available for use within multiple parts of the Flow.
 They can be accessed and modified throughout a Flow using :ref:`VariableStep <variablestep>`, :ref:`VariableReadStep <variablereadstep>`,
 and :ref:`VariableWriteStep <variablewritestep>` operations.
+:ref:`VariableStep <variablestep>` provides an API to read, write, or update (write and then read) multiple variables in a single step.
+:ref:`VariableReadStep <variablereadstep>` and :ref:`VariableWriteStep <variablewritestep>` are simpler steps used exclusively to read from or write to a single variable, respectively.
 
 Note that Variables are complementary to the value stored in the input/output dictionary which is specific to the steps execution.
 
