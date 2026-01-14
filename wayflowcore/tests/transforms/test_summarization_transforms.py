@@ -1020,6 +1020,42 @@ def test_conversation_summarization_trigger_and_cache_incremental(get_setup):
 
 
 @pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
+@pytest.mark.parametrize(
+    "transform_type,params",
+    [
+        (MessageSummarizationTransform, {"max_message_size": 500}),
+        (ConversationSummarizationTransform, {"max_num_messages": 10, "min_num_messages": 5}),
+    ],
+)
+def test_summarization_transform_no_caching_when_datastore_none(transform_type, params):
+    """Test that when datastore=None, no caching occurs for summarization transforms."""
+    summarization_llm = mock_llm()
+    agent_llm = mock_llm()
+
+    transform = transform_type(llm=summarization_llm, datastore=None, **params)
+    assert transform.cache is None
+
+    agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
+    conversation = agent.start_conversation()
+
+    # Add messages that trigger summarization
+    if transform_type == MessageSummarizationTransform:
+        messages = CONVERSATION_WITH_LONG_MESSAGES[:2]  # Include one short, one long message
+    else:
+        messages = LONG_CONVERSATION[:12]  # More than max_num_messages
+
+    for m in messages:
+        conversation.append_message(m)
+
+    # First execution should run summarizer
+    assert execute_conversation_check_summarizer_ran(conversation, summarization_llm, agent_llm)
+
+    # Add another message and run again - should run summarizer again since no caching
+    conversation.append_message(Message("This is another mock message."))
+    assert execute_conversation_check_summarizer_ran(conversation, summarization_llm, agent_llm)
+
+
+@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
 def test_conversation_summarization_respects_tool_request_response_consistency():
     conversation = [
         Message(

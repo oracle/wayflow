@@ -117,7 +117,7 @@ def get_incorrect_schemas():
 
 @pytest.fixture(
     scope="function",
-    params=["testing_inmemory_data_store", "testing_oracle_data_store", "testing_no_datastore"],
+    params=["testing_inmemory_data_store", "testing_oracle_data_store"],
 )
 def testing_data_store(request: pytest.FixtureRequest):
     # https://stackoverflow.com/questions/42014484/pytest-using-fixtures-as-arguments-in-parametrize
@@ -132,13 +132,6 @@ def testing_inmemory_data_store(
     if not collection_name:
         collection_name = transform_type.DEFAULT_CACHE_COLLECTION_NAME
     return InMemoryDatastore({collection_name: transform_type.get_entity_definition()})
-
-
-@pytest.fixture
-def testing_no_datastore(
-    collection_name: Optional[str], transform_type: _CachedSummarizationTransform
-):
-    return None
 
 
 @pytest.fixture
