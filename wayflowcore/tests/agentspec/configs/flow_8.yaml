@@ -1,0 +1,315 @@
+component_type: ExtendedFlow
+id: b41482ac-31b3-4117-805e-cb34931e9971
+name: flow_3fc1343f__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs:
+- type: string
+  title: feedback_1
+- type: string
+  title: feedback_2
+outputs:
+- description: list of user feedback
+  type: array
+  items:
+    type: string
+  title: user_feedback
+  default: []
+- description: the message added to the messages list
+  type: string
+  title: output_message
+start_node:
+  $component_ref: 57f93e9d-9d58-4c7b-8d53-22f6d40b2a3b
+nodes:
+- $component_ref: 57f93e9d-9d58-4c7b-8d53-22f6d40b2a3b
+- $component_ref: be27d2dc-0185-41b0-bbbc-31060306b34c
+- $component_ref: 4991b600-4fe1-4e46-82f8-6d0764989291
+- $component_ref: e8e2df93-abc9-492a-9c0b-92c4a68895b9
+- $component_ref: bd2331f9-c336-446d-b6e8-5c4365e4327b
+- $component_ref: 9834131e-83bf-4927-81bc-89965824271f
+control_flow_connections:
+- component_type: ControlFlowEdge
+  id: c98164c9-eeaa-42da-9f42-c8e574b34c4a
+  name: start_step_to_write_var_step_1_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 57f93e9d-9d58-4c7b-8d53-22f6d40b2a3b
+  from_branch: null
+  to_node:
+    $component_ref: be27d2dc-0185-41b0-bbbc-31060306b34c
+- component_type: ControlFlowEdge
+  id: 95b902ad-6e56-4587-9e92-d725c955f5b1
+  name: write_var_step_1_to_write_var_step_2_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: be27d2dc-0185-41b0-bbbc-31060306b34c
+  from_branch: null
+  to_node:
+    $component_ref: 4991b600-4fe1-4e46-82f8-6d0764989291
+- component_type: ControlFlowEdge
+  id: 57bafe45-a33c-44bc-a21a-51205da9a8d8
+  name: write_var_step_2_to_read_var_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 4991b600-4fe1-4e46-82f8-6d0764989291
+  from_branch: null
+  to_node:
+    $component_ref: e8e2df93-abc9-492a-9c0b-92c4a68895b9
+- component_type: ControlFlowEdge
+  id: 621e214c-4048-409d-920d-7af0a09dd46a
+  name: read_var_step_to_output_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: e8e2df93-abc9-492a-9c0b-92c4a68895b9
+  from_branch: null
+  to_node:
+    $component_ref: bd2331f9-c336-446d-b6e8-5c4365e4327b
+- component_type: ControlFlowEdge
+  id: 4325173c-575c-41d1-9222-8f263267ec93
+  name: output_step_to_None End node_control_flow_edge
+  description: null
+  metadata: {}
+  from_node:
+    $component_ref: bd2331f9-c336-446d-b6e8-5c4365e4327b
+  from_branch: null
+  to_node:
+    $component_ref: 9834131e-83bf-4927-81bc-89965824271f
+data_flow_connections:
+- component_type: DataFlowEdge
+  id: 29904c9b-8ff3-410c-a484-d95a9f4f9248
+  name: start_step_feedback_1_to_write_var_step_1_user_feedback_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 57f93e9d-9d58-4c7b-8d53-22f6d40b2a3b
+  source_output: feedback_1
+  destination_node:
+    $component_ref: be27d2dc-0185-41b0-bbbc-31060306b34c
+  destination_input: user_feedback
+- component_type: DataFlowEdge
+  id: 5440b896-e11b-48b3-ae83-4e0832f87bc6
+  name: start_step_feedback_2_to_write_var_step_2_user_feedback_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 57f93e9d-9d58-4c7b-8d53-22f6d40b2a3b
+  source_output: feedback_2
+  destination_node:
+    $component_ref: 4991b600-4fe1-4e46-82f8-6d0764989291
+  destination_input: user_feedback
+- component_type: DataFlowEdge
+  id: ff59cde4-e95d-4caf-b8b3-0e9097013bb2
+  name: read_var_step_user_feedback_to_output_step_feedback_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: e8e2df93-abc9-492a-9c0b-92c4a68895b9
+  source_output: user_feedback
+  destination_node:
+    $component_ref: bd2331f9-c336-446d-b6e8-5c4365e4327b
+  destination_input: feedback
+- component_type: DataFlowEdge
+  id: f003fdad-8e7c-4d24-914f-1f30fa393f0d
+  name: read_var_step_user_feedback_to_None End node_user_feedback_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: e8e2df93-abc9-492a-9c0b-92c4a68895b9
+  source_output: user_feedback
+  destination_node:
+    $component_ref: 9834131e-83bf-4927-81bc-89965824271f
+  destination_input: user_feedback
+- component_type: DataFlowEdge
+  id: 200b7819-9b5a-449e-9ce0-dbf1c78d8430
+  name: output_step_output_message_to_None End node_output_message_data_flow_edge
+  description: null
+  metadata: {}
+  source_node:
+    $component_ref: bd2331f9-c336-446d-b6e8-5c4365e4327b
+  source_output: output_message
+  destination_node:
+    $component_ref: 9834131e-83bf-4927-81bc-89965824271f
+  destination_input: output_message
+context_providers: []
+state:
+- description: list of user feedback
+  type: array
+  items:
+    type: string
+  title: user_feedback
+  default: []
+component_plugin_name: FlowPlugin
+component_plugin_version: 26.1.0.dev4
+$referenced_components:
+  57f93e9d-9d58-4c7b-8d53-22f6d40b2a3b:
+    component_type: StartNode
+    id: 57f93e9d-9d58-4c7b-8d53-22f6d40b2a3b
+    name: start_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - type: string
+      title: feedback_1
+    - type: string
+      title: feedback_2
+    outputs:
+    - type: string
+      title: feedback_1
+    - type: string
+      title: feedback_2
+    branches:
+    - next
+  be27d2dc-0185-41b0-bbbc-31060306b34c:
+    component_type: PluginVariableNode
+    id: be27d2dc-0185-41b0-bbbc-31060306b34c
+    name: write_var_step_1
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: list of user feedback (single element)
+      type: string
+      title: user_feedback
+    outputs: []
+    branches:
+    - next
+    input_mapping: {}
+    output_mapping: {}
+    write_variables:
+    - description: list of user feedback
+      type: array
+      items:
+        type: string
+      title: user_feedback
+      default: []
+    read_variables: []
+    write_operations:
+      user_feedback: insert
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 26.1.0.dev4
+  4991b600-4fe1-4e46-82f8-6d0764989291:
+    component_type: PluginVariableNode
+    id: 4991b600-4fe1-4e46-82f8-6d0764989291
+    name: write_var_step_2
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: list of user feedback (single element)
+      type: string
+      title: user_feedback
+    outputs: []
+    branches:
+    - next
+    input_mapping: {}
+    output_mapping: {}
+    write_variables:
+    - description: list of user feedback
+      type: array
+      items:
+        type: string
+      title: user_feedback
+      default: []
+    read_variables: []
+    write_operations:
+      user_feedback: insert
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 26.1.0.dev4
+  e8e2df93-abc9-492a-9c0b-92c4a68895b9:
+    component_type: PluginVariableNode
+    id: e8e2df93-abc9-492a-9c0b-92c4a68895b9
+    name: read_var_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs:
+    - description: list of user feedback
+      type: array
+      items:
+        type: string
+      title: user_feedback
+      default: []
+    branches:
+    - next
+    input_mapping: {}
+    output_mapping: {}
+    write_variables: []
+    read_variables:
+    - description: list of user feedback
+      type: array
+      items:
+        type: string
+      title: user_feedback
+      default: []
+    write_operations: {}
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 26.1.0.dev4
+  bd2331f9-c336-446d-b6e8-5c4365e4327b:
+    component_type: PluginOutputMessageNode
+    id: bd2331f9-c336-446d-b6e8-5c4365e4327b
+    name: output_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: '"feedback" input variable for the template'
+      type: string
+      title: feedback
+    outputs:
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    branches:
+    - next
+    message: 'Collected feedback: {{ feedback }}'
+    input_mapping: {}
+    output_mapping: {}
+    message_type: AGENT
+    rephrase: false
+    llm_config: null
+    expose_message_as_output: true
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 26.1.0.dev4
+  9834131e-83bf-4927-81bc-89965824271f:
+    component_type: EndNode
+    id: 9834131e-83bf-4927-81bc-89965824271f
+    name: None End node
+    description: End node representing all transitions to None in the WayFlow flow
+    metadata: {}
+    inputs:
+    - description: list of user feedback
+      type: array
+      items:
+        type: string
+      title: user_feedback
+      default: []
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    outputs:
+    - description: list of user feedback
+      type: array
+      items:
+        type: string
+      title: user_feedback
+      default: []
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    branches: []
+    branch_name: next
+agentspec_version: 25.4.2

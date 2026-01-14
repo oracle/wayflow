@@ -55,6 +55,13 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
                 "feedback_2": "Need to improve!",
             },
         ),
+        (
+            "flow_8.yaml",  # Flow uses Variable, VariableStep
+            {
+                "feedback_1": "Very good!",
+                "feedback_2": "Need to improve!",
+            },
+        ),
         ("agent_1.yaml", {}),
         ("agent_2.yaml", {}),
         # ("agent_3.yaml", {}),  # Cannot run this due to proxy
