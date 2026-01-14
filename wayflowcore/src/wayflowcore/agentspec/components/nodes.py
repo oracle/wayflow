@@ -206,7 +206,9 @@ class PluginVariableNode(ExtendedNode):
     read_variables: List[Property] = Field(default_factory=list)
     """The variables (which are a Property in AgentSpec) that this node will read."""
 
-    write_operations: Dict[str, SerializeAsEnum[PluginVariableWriteOperation]] = {}
+    write_operations: Dict[str, SerializeAsEnum[PluginVariableWriteOperation]] = Field(
+        default_factory=dict
+    )
     """The type of write operations to perform on write variables."""
 
     def _get_non_mapped_inferred_inputs(self) -> List[Property]:
