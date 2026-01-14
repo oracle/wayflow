@@ -83,7 +83,7 @@ class PluginCanonicalizationMessageTransform(PluginMessageTransform):
 
     * several system messages are merged
     * consecutive assistant (resp. user) messages are merged, unless there are several tool calls,
-    in which case they are split and their responses are interleaving the requests.
+      in which case they are split and their responses are interleaving the requests.
 
     """
 
