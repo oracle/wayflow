@@ -378,6 +378,10 @@ class MessageSummarizationTransform(MessageTransform):
 
 class ConversationSummarizationTransform(MessageTransform):
     """
+    Summarizes conversations exceeding a given number of messages using an LLM and caches conversation summaries in a ``Datastore``.
+
+    This is useful to reduce long conversation history into a concise context for downstream LLM calls.
+
     Parameters
     ----------
     llm:
@@ -395,11 +399,12 @@ class ConversationSummarizationTransform(MessageTransform):
         Jinja2 template on how to present the summary (with variable `summary`) to the agent using the transform.
     datastore:
         Datastore on which to store the cache. If not specified, an in-memory Datastore will be created automatically.
-        If None, caching is disabled (not recommended)
     max_cache_size:
         The maximum number of entries kept in the cache
+        If None, there is no limit on cache size and no eviction occurs.
     max_cache_lifetime:
         max lifetime of an element in the cache in seconds
+        If None, cached data persists indefinitely.
     cache_collection_name:
         the collection in the cache datastore where summarized conversations will be stored
 

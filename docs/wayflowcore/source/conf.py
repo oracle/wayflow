@@ -225,6 +225,7 @@ nitpick_ignore_regex = [
     ("py:class", r"(?:wayflowcore\.executors\._executor\.)?ConversationExecutor"),
     ("py:class", r"(?:wayflowcore\.executors\._executionstate\.)?ConversationExecutionState"),
     ("py:class", r"wayflowcore.executors._agentexecutor.AgentConversationExecutionState"),
+    ("py:class", r"wayflowcore.executors._flowexecutor.FlowConversationExecutionState"),
     ("py:class", r"wayflowcore.agentserver.a2a._app.A2AApp"),
 ]
 
