@@ -164,7 +164,7 @@ def _get_json_schema_of_write_variable(
             )
         else:
             raise TypeError(
-                f"Can only apply insert write operation to lists, not to {variable.type}"
+                f"Can only apply insert write operation to array, not to {variable.type}"
             )
     else:
         json_schema = deepcopy(variable.json_schema)

@@ -5,13 +5,20 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 from collections import Counter
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, TypeVar, Union
 
 from wayflowcore.property import DictProperty, ListProperty, Property
 from wayflowcore.variable import Variable, VariableWriteOperation
 
 if TYPE_CHECKING:
     from wayflowcore.executors._flowconversation import FlowConversation
+
+
+T = TypeVar("T")
+
+
+def _get_non_unique_elements(iterable: Iterable[T]) -> List[T]:
+    return [element for element, count in Counter(iterable).items() if count > 1]
 
 
 def _require_variable_value_from_conversation_store(
@@ -111,10 +118,6 @@ def _put_variable_value_in_conversation_store(
         raise ValueError(
             f"Invalid operation '{operation}', expected one of {list(VariableWriteOperation)}"
         )
-
-
-def _get_non_unique_elements(iterable: Iterable[Any]) -> List[str]:
-    return [element for element, count in Counter(iterable).items() if count > 1]
 
 
 def _require_unique_variable_names(variables: List[Variable]) -> None:
