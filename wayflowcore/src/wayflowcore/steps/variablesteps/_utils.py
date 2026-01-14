@@ -31,7 +31,7 @@ def _require_variable_value_from_conversation_store(
 def _validate_write_step_configurations(
     variable: Variable, operation: VariableWriteOperation
 ) -> None:
-    if operation not in list(VariableWriteOperation):
+    if operation not in set(VariableWriteOperation):
         raise ValueError(
             f"Invalid operation '{operation}', expected one of {list(VariableWriteOperation)}"
         )
