@@ -56,7 +56,7 @@ class VariableStep(Step):
 
         This step has an input descriptor for each variable in ``write_variables`` as follows:
 
-        * ``variable.name``: ``??``, the value to write in the variable store. Type will be resolved depending on the variable type and the type of variable write operation.
+        * ``variable.name``:  type will be resolved depending on the variable types and the type of variable write operation. The value to write in the variable store.
 
         **Output descriptors**
 
