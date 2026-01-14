@@ -349,8 +349,8 @@ def test_variable_node_for_read_and_write_executes_correctly():
     )
 
     runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
+    assert len(runtime_step.read_variables) == len(runtime_step.write_variables) == 1
     runtime_variables = runtime_step.write_variables
-    assert len(runtime_variables) == 1
     runtime_variable = runtime_variables[0]
 
     assert runtime_step.input_descriptors == [
@@ -404,7 +404,7 @@ def test_variable_node_for_read_and_write_with_write_operator_and_mapping_with_s
 
     runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
     runtime_variables = runtime_step.write_variables
-    assert len(runtime_variables) == 1
+    assert len(runtime_step.read_variables) == len(runtime_step.write_variables) == 1
     runtime_variable = runtime_variables[0]
 
     assert runtime_step.input_descriptors == [
@@ -458,7 +458,7 @@ def test_variable_node_for_read_and_write_with_write_operator_and_mapping_with_d
 
     runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
     runtime_variables = runtime_step.write_variables
-    assert len(runtime_variables) == 1
+    assert len(runtime_step.read_variables) == len(runtime_step.write_variables) == 1
     runtime_variable = runtime_variables[0]
 
     assert runtime_step.input_descriptors == [
@@ -519,7 +519,7 @@ def test_variable_node_for_read_and_write_for_two_vars_executes_correctly():
 
     runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
     runtime_variables = runtime_step.write_variables
-    assert len(runtime_variables) == 2
+    assert len(runtime_step.read_variables) == len(runtime_step.write_variables) == 2
     runtime_variable_1 = runtime_variables[0]
     runtime_variable_2 = runtime_variables[1]
 
@@ -608,7 +608,7 @@ def test_variable_node_for_read_and_write_for_two_vars_with_write_operator_and_m
 
     runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
     runtime_variables = runtime_step.write_variables
-    assert len(runtime_variables) == 2
+    assert len(runtime_step.read_variables) == len(runtime_step.write_variables) == 2
     runtime_variable_1 = runtime_variables[0]
     runtime_variable_2 = runtime_variables[1]
 
@@ -697,7 +697,7 @@ def test_variable_node_for_read_and_write_for_two_vars_with_write_operator_and_m
 
     runtime_step = AgentSpecToWayflowConversionContext().convert(plugin_node, {})
     runtime_variables = runtime_step.write_variables
-    assert len(runtime_variables) == 2
+    assert len(runtime_step.read_variables) == len(runtime_step.write_variables) == 2
     runtime_variable_1 = runtime_variables[0]
     runtime_variable_2 = runtime_variables[1]
 
