@@ -1,8 +1,8 @@
 .. _top-howtoa2a:
 
-==============
-How to Use A2A
-==============
+=====================
+How to Use A2A Agents
+=====================
 
 .. |python-icon| image:: ../../_static/icons/python-icon.svg
    :width: 40px
@@ -11,7 +11,7 @@ How to Use A2A
 .. grid:: 2
 
     .. grid-item-card:: |python-icon| Download Python Script
-        :link: ../end_to_end_code_examples/howto_a2a.py
+        :link: ../end_to_end_code_examples/howto_a2aagent.py
         :link-alt: A2A servers and clients how-to script
 
         Python script/notebook for this guide.
@@ -56,8 +56,8 @@ You can export the assistant configuration to its Agent Spec configuration using
 
 .. literalinclude:: ../code_examples/howto_a2aagent.py
     :language: python
-    :start-after: .. start-##_Export_config_to_Agent_Spec
-    :end-before: .. end-##_Export_config_to_Agent_Spec
+    :start-after: .. start-##_Export_config_to_Agent_Spec1
+    :end-before: .. end-##_Export_config_to_Agent_Spec1
 
 Here is what the **Agent Spec representation will look like ↓**
 
@@ -67,20 +67,20 @@ Here is what the **Agent Spec representation will look like ↓**
 
       .. tab:: JSON
 
-         .. literalinclude:: ../config_examples/howto_a2aagent.json
+         .. literalinclude:: ../config_examples/howto_a2aagent_1.json
             :language: json
 
       .. tab:: YAML
 
-         .. literalinclude:: ../config_examples/howto_a2aagent.yaml
+         .. literalinclude:: ../config_examples/howto_a2aagent_1.yaml
             :language: yaml
 
 You can then load the configuration back to an assistant using the ``AgentSpecLoader``.
 
 .. literalinclude:: ../code_examples/howto_a2aagent.py
     :language: python
-    :start-after: .. start-##_Load_Agent_Spec_config
-    :end-before: .. end-##_Load_Agent_Spec_config
+    :start-after: .. start-##_Load_Agent_Spec_config1
+    :end-before: .. end-##_Load_Agent_Spec_config1
 
 Manager Workers with A2A Agents
 ===============================
@@ -97,17 +97,17 @@ Setting up the Agents
 
 In this section, you'll set up servers for two agents: ``prime_agent`` checks if numbers are prime, and ``sample_agent`` generates random numbers.
 
-.. literalinclude:: ../code_examples/howto_a2a.py
+.. literalinclude:: ../code_examples/howto_a2aagent.py
    :language: python
    :start-after: .. start-##_Server_Setup_Prime_Agent
    :end-before: .. end-##_Server_Setup_Prime_Agent
 
-.. literalinclude:: ../code_examples/howto_a2a.py
+.. literalinclude:: ../code_examples/howto_a2aagent.py
    :language: python
    :start-after: .. start-##_Server_Setup_Sample_Agent
    :end-before: .. end-##_Server_Setup_Sample_Agent
 
-.. literalinclude:: ../code_examples/howto_a2a.py
+.. literalinclude:: ../code_examples/howto_a2aagent.py
    :language: python
    :start-after: .. start-##_Server_Startup_Logic
    :end-before: .. end-##_Server_Startup_Logic
@@ -116,14 +116,14 @@ For further details, see :ref:`A2AServer <a2aserver>`.
 
 On the client side, create ``A2AAgent`` instances to connect to the servers started above.
 
-.. literalinclude:: ../code_examples/howto_a2a.py
+.. literalinclude:: ../code_examples/howto_a2aagent.py
    :language: python
    :start-after: .. start-##_Client_Setup
    :end-before: .. end-##_Client_Setup
 
 Now you can use these agents in :ref:`ManagerWorkers <managerworkers>` setup.
 
-.. literalinclude:: ../code_examples/howto_a2a.py
+.. literalinclude:: ../code_examples/howto_a2aagent.py
    :language: python
    :start-after: .. start-##_Manager_Setup
    :end-before: .. end-##_Manager_Setup
@@ -134,10 +134,43 @@ Executing Tasks
 Now, execute a conversation in which the manager agent delegates tasks to the most appropriate agent based on their capabilities.
 This demonstrates how ManagerWorkers can be used to orchestrate complex interactions seamlessly.
 
-.. literalinclude:: ../code_examples/howto_a2a.py
+.. literalinclude:: ../code_examples/howto_a2aagent.py
    :language: python
    :start-after: .. start-##_ManagerWorkers_Execution
    :end-before: .. end-##_ManagerWorkers_Execution
+
+Agent Spec Exporting/Loading
+----------------------------
+
+You can export the assistant configuration to its Agent Spec configuration using the ``AgentSpecExporter``.
+
+.. literalinclude:: ../code_examples/howto_a2aagent.py
+    :language: python
+    :start-after: .. start-##_Export_config_to_Agent_Spec2
+    :end-before: .. end-##_Export_config_to_Agent_Spec2
+
+Here is what the **Agent Spec representation will look like ↓**
+
+.. collapse:: Click here to see the assistant configuration.
+
+   .. tabs::
+
+      .. tab:: JSON
+
+         .. literalinclude:: ../config_examples/howto_a2aagent_2.json
+            :language: json
+
+      .. tab:: YAML
+
+         .. literalinclude:: ../config_examples/howto_a2aagent_2.yaml
+            :language: yaml
+
+You can then load the configuration back to an assistant using the ``AgentSpecLoader``.
+
+.. literalinclude:: ../code_examples/howto_a2aagent.py
+    :language: python
+    :start-after: .. start-##_Load_Agent_Spec_config2
+    :end-before: .. end-##_Load_Agent_Spec_config2
 
 Next Steps
 ==========
@@ -149,6 +182,6 @@ Full Code
 
 Click on the card at the :ref:`top of this page <top-howtoa2a>` to download the full code for this guide or copy the code below.
 
-.. literalinclude:: ../end_to_end_code_examples/howto_a2a.py
+.. literalinclude:: ../end_to_end_code_examples/howto_a2aagent.py
     :language: python
     :linenos:
