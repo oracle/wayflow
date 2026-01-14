@@ -1,4 +1,4 @@
-.. _top-howtoa2a:
+.. _top-howtoa2agent:
 
 =====================
 How to Use A2A Agents
@@ -12,7 +12,7 @@ How to Use A2A Agents
 
     .. grid-item-card:: |python-icon| Download Python Script
         :link: ../end_to_end_code_examples/howto_a2aagent.py
-        :link-alt: A2A servers and clients how-to script
+        :link-alt: A2A Agent how-to script
 
         Python script/notebook for this guide.
 
@@ -180,7 +180,7 @@ This guide covered the basics of using A2A agents and coordinating interactions 
 Full Code
 =========
 
-Click on the card at the :ref:`top of this page <top-howtoa2a>` to download the full code for this guide or copy the code below.
+Click on the card at the :ref:`top of this page <top-howtoa2aagent>` to download the full code for this guide or copy the code below.
 
 .. literalinclude:: ../end_to_end_code_examples/howto_a2aagent.py
     :language: python
