@@ -25,7 +25,7 @@ from wayflowcore.transforms.transforms import MessageTransform
 logger = logging.getLogger(__name__)
 
 _SUMMARIZATION_WARNING_MESSAGE = (
-    "Using a SummarizationMessageTransform without specifying the datastore "
+    "Using a summarization transform without specifying the datastore "
     "will create by default an InMemoryDatastore for caching which is not recommended for production systems."
 )
 
@@ -337,6 +337,8 @@ class MessageSummarizationTransform(MessageTransform):
 
         self.cache: Optional[_MessageCache] = None
         if datastore is not None:
+            if datastore is self._DEFAULT_MESSAGE_DATASTORE:
+                warnings.warn(_SUMMARIZATION_WARNING_MESSAGE)
             self.cache = _MessageCache(
                 max_cache_size=max_cache_size,
                 max_cache_lifetime=max_cache_lifetime,
@@ -506,6 +508,8 @@ class ConversationSummarizationTransform(MessageTransform):
 
         self.cache: Optional[_MessageCache] = None
         if datastore is not None:
+            if datastore is self._DEFAULT_CONVERSATION_DATASTORE:
+                warnings.warn(_SUMMARIZATION_WARNING_MESSAGE)
             self.cache = _MessageCache(
                 max_cache_size=max_cache_size,
                 max_cache_lifetime=max_cache_lifetime,
