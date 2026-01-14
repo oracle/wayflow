@@ -10,7 +10,7 @@ import pytest
 from _pytest.fixtures import FixtureRequest
 
 from wayflowcore.executors._flowexecutor import FlowConversationExecutionState
-from wayflowcore.executors.executionstatus import FinishedStatus
+from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.property import DictProperty, FloatProperty, ListProperty, StringProperty
@@ -609,8 +609,8 @@ def test_variable_step_can_read_default_value(variable_name: str, request: Fixtu
     )
 
     status = flow_assistant.start_conversation().execute()
-
     assert isinstance(status, FinishedStatus)
+
     assert variable.name in status.output_values
     assert status.output_values[variable.name] == variable.default_value
 
@@ -684,7 +684,6 @@ def test_flow_can_write_own_reads(variable_name: str, request: FixtureRequest) -
     )
 
     status = assistant.start_conversation().execute()
-
     assert isinstance(status, FinishedStatus)
 
     outputs = status.output_values["spluuk"]
@@ -716,8 +715,8 @@ def test_variable_readwrite_steps_work_in_flow(string_variable_with_default: Var
         variables=[string_variable_with_default],
     )
     status = assistant.start_conversation().execute()
-
     assert isinstance(status, FinishedStatus)
+
     assert status.output_values[string_variable_with_default.name] == "my string value"
 
 
@@ -740,8 +739,8 @@ def test_multiple_reads(float_variable: Variable, list_of_floats_variable: Varia
     assert len(conversation.state.input_output_key_values) == 0
 
     status = conversation.execute()
-
     assert isinstance(status, FinishedStatus)
+
     assert status.output_values["read1-io"] == float_variable.default_value
     assert status.output_values["read2-io"] == list_of_floats_variable.default_value
 
@@ -767,8 +766,8 @@ def test_multiple_reads_in_single_step(
     assert len(conversation.state.input_output_key_values) == 0
 
     status = conversation.execute()
-
     assert isinstance(status, FinishedStatus)
+
     assert status.output_values["read1-io"] == float_variable.default_value
     assert status.output_values["read2-io"] == list_of_floats_variable.default_value
 
@@ -793,7 +792,8 @@ def test_multiple_writes(float_variable: Variable, string_variable: Variable) ->
     conversation = assistant.start_conversation(
         {"write-string-io": "my-string", "write-float-io": 3.14}
     )
-    conversation.execute()
+    status = conversation.execute()
+    assert isinstance(status, FinishedStatus)
 
     assert conversation.state.variable_store[float_variable.name] == 3.14
     assert conversation.state.variable_store[string_variable.name] == "my-string"
@@ -819,7 +819,8 @@ def test_multiple_writes_in_single_step(
     conversation = assistant.start_conversation(
         {"write-string-io": "my-string", "write-float-io": 3.14}
     )
-    conversation.execute()
+    status = conversation.execute()
+    assert isinstance(status, FinishedStatus)
 
     assert conversation.state.variable_store[float_variable.name] == 3.14
     assert conversation.state.variable_store[string_variable.name] == "my-string"
@@ -1038,7 +1039,8 @@ def test_insert_into_list(list_of_floats_variable):
     )
 
     conversation = assistant.start_conversation({"write-float-io": 0.1})
-    conversation.execute()
+    status = conversation.execute()
+    assert isinstance(status, FinishedStatus)
 
     expected = [4.0, 4.0, 3.0, 2.1423, 0.1]
     assert conversation.state.variable_store[list_of_floats_variable.name] == expected
@@ -1071,13 +1073,15 @@ def test_variable_is_reused_when_flow_loops_onto_itself(list_of_floats_variable:
     conversation = assistant.start_conversation(
         {"write-float-io": 0.1, "write-another-float-io": 3.14}
     )
-    conversation.execute()
+    status = conversation.execute()
+    assert isinstance(status, UserMessageRequestStatus)
 
     expected = [4.0, 4.0, 3.0, 2.1423, 0.1, 3.14]
     assert conversation.state.variable_store[list_of_floats_variable.name] == expected
 
     conversation.append_user_message("")
-    conversation.execute()
+    status = conversation.execute()
+    assert isinstance(status, UserMessageRequestStatus)
 
     expected += [0.1, 3.14]
     assert conversation.state.variable_store[list_of_floats_variable.name] == expected
@@ -1111,13 +1115,15 @@ def test_variable_is_reused_when_flow_loops_onto_itself_in_itegrated_call(
     conversation = assistant.start_conversation(
         {"write-float-io": 0.1, "write-another-float-io": 3.14}
     )
-    conversation.execute()
+    status = conversation.execute()
+    assert isinstance(status, UserMessageRequestStatus)
 
     expected = [4.0, 4.0, 3.0, 2.1423, 0.1, 3.14]
     assert conversation.state.variable_store[list_of_floats_variable.name] == expected
 
     conversation.append_user_message("")
-    conversation.execute()
+    status = conversation.execute()
+    assert isinstance(status, UserMessageRequestStatus)
 
     expected += [0.1, 3.14]
     assert conversation.state.variable_store[list_of_floats_variable.name] == expected
