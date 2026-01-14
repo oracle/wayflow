@@ -200,10 +200,10 @@ class PluginReadVariableNode(ExtendedNode):
 
 
 class PluginVariableNode(ExtendedNode):
-    write_variables: List[Property] = []
+    write_variables: List[Property] = Field(default_factory=list)
     """The variables (which are a Property in AgentSpec) that this node will write."""
 
-    read_variables: List[Property] = []
+    read_variables: List[Property] = Field(default_factory=list)
     """The variables (which are a Property in AgentSpec) that this node will read."""
 
     write_operations: Dict[str, SerializeAsEnum[PluginVariableWriteOperation]] = {}
