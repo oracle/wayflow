@@ -168,7 +168,7 @@ def test_variable_node_for_read_with_output_mapping_executes_correctly():
     assert status.output_values == {"read_variable_output": ["hello"]}
 
 
-def test_write_variable_node_with_default_write_operator_executes_correctly():
+def test_write_variable_node_executes_correctly():
     agentspec_variable = ListProperty(
         title="variable",
         description="variable example",
@@ -206,7 +206,7 @@ def test_write_variable_node_with_default_write_operator_executes_correctly():
     assert isinstance(status, FinishedStatus)
 
 
-def test_variable_node_for_write_with_default_write_operator_executes_correctly():
+def test_variable_node_for_write_executes_correctly():
     var_name = "variable_name"
 
     agentspec_variable = ListProperty(
@@ -331,7 +331,7 @@ def test_variable_node_for_write_with_write_operator_and_input_mapping_executes_
     assert isinstance(status, FinishedStatus)
 
 
-def test_variable_node_for_read_and_write_with_default_write_operator_executes_correctly():
+def test_variable_node_for_read_and_write_executes_correctly():
     var_name = "variable_name"
 
     agentspec_variable = ListProperty(
@@ -491,7 +491,7 @@ def test_variable_node_for_read_and_write_with_write_operator_and_mapping_with_d
     assert status.output_values == {"output-val": ["a", "b"]}
 
 
-def test_variable_node_for_read_and_write_for_two_vars_with_default_write_operator_executes_correctly():
+def test_variable_node_for_read_and_write_for_two_vars_executes_correctly():
     var_name_1 = "variable_name_1"
     var_name_2 = "variable_name_2"
 
