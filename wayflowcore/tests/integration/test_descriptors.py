@@ -203,8 +203,6 @@ def test_all_steps_can_be_serde_when_init_with_default_values(
     )
     init_arguments = create_init_arguments(step_cls)
 
-    print("X", init_arguments)
-
     initialized_step = step_cls(**init_arguments)
     assert all(hasattr(initialized_step, config_name) for config_name in config_descriptors)
     serialized_step = serialize(initialized_step)
