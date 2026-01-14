@@ -152,9 +152,12 @@ def _require_write_operations_dictionary(
 
     if no_write_variable:
         raise ValueError(
-            f"The VariableStep was configured with a set of write operations to perform ({write_operations}, type: {type(write_operations)}), but no variables to write."
-            "This is seemingly a misuse of `VariableStep`, as the `write_operations` specify the kind of write operations that must apply to the variables in `write_variables`. "
-            "If there is no intention of writing a variable in this step, you should omit passing a value to the argument `write_operations`. "
+            "The VariableStep was configured with a set of write operations to perform "
+            f"({write_operations}, type: {type(write_operations)}), but no variables to write. "
+            "This is seemingly a misuse of `VariableStep`, as the `write_operations` specify the kind of "
+            "write operations that must apply to the variables in `write_variables`. "
+            "If there is no intention of writing a variable in this step, "
+            "you should omit passing a value to the argument `write_operations`. "
             "Otherwise, you should also declare the intended variable in `write_variables`."
         )
 
@@ -176,7 +179,8 @@ def _require_write_operations_dictionary(
             write_variable_with_no_operation_str = ", ".join(write_variable_with_no_operation)
             raise ValueError(
                 "All of the variables in `write_variables` must have an associated operation. "
-                f"Variable(s) {write_variable_with_no_operation_str} is/are defined in `write_variables`, but there is no operation associated with them in the `write_operations` dictionary."
+                f"Variable(s) {write_variable_with_no_operation_str} is/are defined in `write_variables`, "
+                "but there is no operation associated with them in the `write_operations` dictionary."
             )
 
         operations_with_no_declared_variables = operations_vars_names - write_vars_names
@@ -187,7 +191,8 @@ def _require_write_operations_dictionary(
             raise ValueError(
                 "All of the variable name in `write_operations` must be associated with a variable in `write_variables`, "
                 f"but operations dictionary additionally specifies {operations_with_no_declared_variables_str}. "
-                f"There is/are operation(s) specified for variable(s) {operations_with_no_declared_variables_str} in the dictionary passed as `write_operations`, while these variables are not declared in `write_variables`. "
+                f"There is/are operation(s) specified for variable(s) {operations_with_no_declared_variables_str} "
+                "in the dictionary passed as `write_operations`, while these variables are not declared in `write_variables`. "
                 "If you want to perform a write operation on a variable, the variable must be present in `write_variables`."
             )
 
