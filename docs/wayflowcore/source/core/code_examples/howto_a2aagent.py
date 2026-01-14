@@ -7,7 +7,7 @@
 # isort:skip_file
 # fmt: off
 # mypy: ignore-errors
-# docs-title: How to Use A2A Agents
+# docs-title: Code Example - How to Use A2A Agents
 
 ### Basic Usage
 
