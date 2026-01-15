@@ -273,7 +273,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
             raise ValueError("RemoteTool should have a description, but got None")
         if json_body:
             warnings.warn(
-                "Usage of `json_body` parameter in RemoteTool is Deprecated, use the `data` parameter instead.",
+                "Usage of `json_body` parameter in RemoteTool is Deprecated, it will be removed in version 26.2.0, Please use the `data` parameter instead.",
                 DeprecationWarning,
             )
 

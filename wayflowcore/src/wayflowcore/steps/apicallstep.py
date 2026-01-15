@@ -619,7 +619,7 @@ class ApiCallStep(Step):
 
         if self.json_body:
             warnings.warn(
-                "Usage of `json_body` parameter in ApiCallStep is Deprecated, use the `data` parameter instead.",
+                "Usage of `json_body` parameter in ApiCallStep is Deprecated, it will be removed in version 26.2.0. Please use the `data` parameter instead.",
                 DeprecationWarning,
             )
             self.data = self.json_body
@@ -678,7 +678,7 @@ class ApiCallStep(Step):
                     if target_key == "json":
                         request["headers"]["Content-Type"] = "application/json"
                     request[target_key] = json_data
-                except:
+                except json.JSONDecodeError:
                     request["content"] = rendered_data
             else:
                 # Preserve original behavior: don't set Content-Type here, even if using JSON body
