@@ -26,6 +26,7 @@ from .test_transforms import (
 filter_inmemds_warnings = pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
 
 
+@pytest.fixture
 def _testing_agents_with_summarization_transforms():
     """Create both wayflow and agent-spec agents with summarization transforms."""
     wayflow_message_transform, agent_spec_message_transform = (
@@ -57,9 +58,11 @@ def _testing_agents_with_summarization_transforms():
 
 
 @filter_inmemds_warnings
-def test_wayflow_agent_with_summarization_transforms_can_be_converted_to_agentspec():
+def test_wayflow_agent_with_summarization_transforms_can_be_converted_to_agentspec(
+    _testing_agents_with_summarization_transforms,
+):
     # Create both agents with matching transforms
-    wayflow_agent, expected_agent_spec_agent = _testing_agents_with_summarization_transforms()
+    wayflow_agent, expected_agent_spec_agent = _testing_agents_with_summarization_transforms
 
     # Export to agent spec.
     converted_agent = AgentSpecExporter().to_component(wayflow_agent)
@@ -70,9 +73,11 @@ def test_wayflow_agent_with_summarization_transforms_can_be_converted_to_agentsp
 
 
 @filter_inmemds_warnings
-def test_agentspec_agent_with_summarization_transforms_can_be_converted_to_wayflow():
+def test_agentspec_agent_with_summarization_transforms_can_be_converted_to_wayflow(
+    _testing_agents_with_summarization_transforms,
+):
     # Create both agents with matching transforms
-    expected_wayflow_agent, agent_spec_agent = _testing_agents_with_summarization_transforms()
+    expected_wayflow_agent, agent_spec_agent = _testing_agents_with_summarization_transforms
 
     converted_agent = AgentSpecLoader().load_component(agent_spec_agent)
     assert_agents_with_summarization_transforms_are_equal(converted_agent, expected_wayflow_agent)
