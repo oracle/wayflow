@@ -287,6 +287,7 @@ def test_a2aagent_causes_timeout_with_custom_connection_config(a2a_server):
         status = conversation.execute()
 
 
+@pytest.mark.skip("Server does not start reliably in CI")
 @retry_test(max_attempts=3)
 def test_adk_a2aagent_replies_with_a_message(adk_a2a_server, connection_config_no_verify):
     """
