@@ -948,3 +948,50 @@ def test_managerworkers_without_user_input_can_execute_as_expected(vllm_response
     assert isinstance(status, FinishedStatus)
 
     assert status.output_values["result"] == 13
+
+
+def test_two_level_managerworkers_can_be_executed(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+    zbuk_agent = _get_zbuk_agent(llm)
+
+    group = ManagerWorkers(
+        group_manager=llm,
+        workers=[fooza_agent, bwip_agent, zbuk_agent],
+    )
+    
+    conv = group.start_conversation(messages="Compute the result of fooza(4, 2) and bwip(4,5)")
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(
+                    name="send_message",
+                    args={"recipient": "worker_2", "message": "calculate fooza(4,2)"},
+                ),
+                ToolRequest(
+                    name="send_message",
+                    args={"recipient": "bwip_agent", "message": "calculate bwip(4,5)"},
+                ),
+            ],  # multiple tool requests of first-level manager
+            [
+                ToolRequest(
+                    name="send_message",
+                    args={"recipient": "fooza_agent", "message": "calculate fooza(4,2)"},
+                )
+            ],  # tool request of the second-level manager
+            [
+                ToolRequest(name="fooza_tool", args={"a": 4, "b": 2})
+            ],  # tool request of the subworker
+            "subworker answers to second-level manager",
+            "worker 2 (second-level manager) answers to first-level manager",
+            "worker 1 (bwip agent) answers to first-level manager",
+            "first-level manager answers to user",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, UserMessageRequestStatus)
+        assert conv.get_last_message().content == "first-level manager answers to user"
