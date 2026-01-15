@@ -106,13 +106,10 @@ connection_config = MTlsOracleDatabaseConnectionConfig(
 )
 # .. end-##_mTLS_Connection
 connection_config = _env_cfg()  # docs-skiprow
-connection = connection_config.get_connection()  # docs-skiprow
-connection.cursor().execute("DROP TABLE IF EXISTS products")  # docs-skiprow
-connection.close() # docs-skiprow
+with connection_config.get_connection() as connection:  # docs-skiprow
+    connection.cursor().execute("DROP TABLE IF EXISTS products")  # docs-skiprow
 # Datastore and Entity definitions
 # .. start-##_Schema
-connection = connection_config.get_connection()
-
 table_definition = """CREATE TABLE products (
     ID NUMBER PRIMARY KEY,
     title VARCHAR2(255) NOT NULL,
@@ -122,8 +119,8 @@ table_definition = """CREATE TABLE products (
     external_system_id NUMBER DEFAULT NULL
 )"""
 
-connection.cursor().execute(table_definition)
-connection.close()
+with connection_config.get_connection() as connection:
+    connection.cursor().execute(table_definition)
 
 product = Entity(
     properties={
