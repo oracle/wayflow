@@ -341,7 +341,7 @@ def message_and_conversation_summarization_transforms_setup(llm: LlmModel):
 
 
 def check_transform_summarizes_long_messages_only(
-    agent, messages, long_msgs_indices, max_message_size=500, has_system_prompt=False
+    agent, messages, long_msgs_indices, max_message_size=500
 ):
     long_messages = [m.content for m in messages if len(m.content) > max_message_size]
     short_messages = [m.content for m in messages if len(m.content) <= max_message_size]
@@ -361,8 +361,6 @@ def check_transform_summarizes_long_messages_only(
             for prompt in prompts
             for message in prompt.messages
         ]
-        if has_system_prompt:
-            transformed_messages = transformed_messages[1:]
         assert len(transformed_messages) == len(messages)
 
         # These tests are not strict on purpose to avoid flakiness.
@@ -380,6 +378,114 @@ def check_transform_summarizes_long_messages_only(
                 assert original_message.content == transformed_message.content
             else:
                 assert len(transformed_message.content) < len(original_message.content)
+
+
+def check_conversation_summarization_transformer_summarizes_long_conversations(
+    agent, messages, max_num_messages=10
+):
+    # These tests are to ensure that our test cases cover both executed paths.
+    assert len(CONVERSATION_WITH_LONG_MESSAGES) < max_num_messages
+    assert len(LONG_CONVERSATION) > max_num_messages
+    conversation = agent.start_conversation()
+
+    for m in messages:
+        conversation.append_message(m)
+
+    with patch_streaming_llm(agent.llm, "This is a mock llm generation.") as patched_agent_llm:
+        conversation.execute()
+
+        # We will check that the messages passed to the llm where summarized iff they were long.
+        transformed_messages = [
+            message
+            for prompts, _ in patched_agent_llm.call_args_list
+            for prompt in prompts
+            for message in prompt.messages
+        ]
+
+        if len(messages) <= max_num_messages:
+            assert len(transformed_messages) == len(messages)
+        else:
+            assert len(transformed_messages) < len(messages)
+            summary = "\n".join([m.content for m in transformed_messages])
+            # Agent Message 1: Interesting facts about dolphins
+            assert at_least_one_keyword_present(
+                [
+                    "intelligence",
+                    "tool use",
+                    "sponges",
+                    "foraging",
+                    "social bonds",
+                    "communication",
+                    "signature whistles",
+                ],
+                summary,
+            )
+
+            # Agent Message 2: Dolphin memories and cognition
+            assert at_least_one_keyword_present(
+                [
+                    "memory",
+                    "signature whistles",
+                    "long-term",
+                    "cognitive abilities",
+                    "social groups",
+                    "learning",
+                ],
+                summary,
+            )
+
+            # Tool Result 1: Other intelligent animals
+            assert at_least_one_keyword_present(
+                [
+                    "chimpanzees",
+                    "elephants",
+                    "octopuses",
+                    "crows",
+                    "parrots",
+                    "intelligence",
+                    "tool use",
+                    "memory",
+                    "problem-solving",
+                    "communication",
+                    "emotion",
+                    "creativity",
+                ],
+                summary,
+            )
+
+            # Tool Result 2: Dolphin tool use
+            assert at_least_one_keyword_present(
+                ["tool use", "sponges", "foraging", "culture", "learning", "mother-offspring"],
+                summary,
+            )
+
+            # Tool Result 3: Dolphin personalities
+            assert at_least_one_keyword_present(
+                [
+                    "personality traits",
+                    "boldness",
+                    "curiosity",
+                    "sociability",
+                    "playfulness",
+                    "innovation",
+                    "social roles",
+                ],
+                summary,
+            )
+
+            # Tool Result 4: Dolphin long distance communication
+            assert at_least_one_keyword_present(
+                [
+                    "long distance",
+                    "communication",
+                    "vocalizations",
+                    "clicks",
+                    "whistles",
+                    "signals",
+                    "echolocation",
+                ],
+                summary,
+            )
 
 
 @pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
@@ -435,7 +541,6 @@ def test_transform_summarizes_long_messages_only_from_agentspec(
         converted_wayflow_agent_with_message_summarization_transform_from_agentspec,
         messages=CONVERSATION_WITH_LONG_MESSAGES,
         long_msgs_indices=[1, 3],
-        has_system_prompt=True,
     )
 
 
@@ -834,117 +939,30 @@ def test_conversation_summarization_transformer_summarizes_long_conversations(
     Max attempt:           4
     Justification:         (0.08 ** 4) ~= 4.8 / 100'000
     """
-    max_num_messages = 10
-
-    # These tests are to ensure that our test cases cover both executed paths.
-    assert len(CONVERSATION_WITH_LONG_MESSAGES) < max_num_messages
-    assert len(LONG_CONVERSATION) > max_num_messages
     transform = ConversationSummarizationTransform(
-        llm=remote_gemma_llm, min_num_messages=5, max_num_messages=max_num_messages
+        llm=remote_gemma_llm, min_num_messages=5, max_num_messages=10
     )
     agent_llm = mock_llm()
     agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
-    conversation = agent.start_conversation()
+    check_conversation_summarization_transformer_summarizes_long_conversations(agent, messages)
 
-    for m in messages:
-        conversation.append_message(m)
 
-    with patch_streaming_llm(agent_llm, "This is a mock llm generation.") as patched_agent_llm:
-        conversation.execute()
-
-        # We will check that the messages passed to the llm where summarized iff they were long.
-        transformed_messages = [
-            message
-            for prompts, _ in patched_agent_llm.call_args_list
-            for prompt in prompts
-            for message in prompt.messages
-        ]
-
-        if len(messages) <= max_num_messages:
-            assert len(transformed_messages) == len(messages)
-        else:
-            assert len(transformed_messages) < len(messages)
-            summary = "\n".join([m.content for m in transformed_messages])
-
-            # Agent Message 1: Interesting facts about dolphins
-            assert at_least_one_keyword_present(
-                [
-                    "intelligence",
-                    "tool use",
-                    "sponges",
-                    "foraging",
-                    "social bonds",
-                    "communication",
-                    "signature whistles",
-                ],
-                summary,
-            )
-
-            # Agent Message 2: Dolphin memories and cognition
-            assert at_least_one_keyword_present(
-                [
-                    "memory",
-                    "signature whistles",
-                    "long-term",
-                    "cognitive abilities",
-                    "social groups",
-                    "learning",
-                ],
-                summary,
-            )
-
-            # Tool Result 1: Other intelligent animals
-            assert at_least_one_keyword_present(
-                [
-                    "chimpanzees",
-                    "elephants",
-                    "octopuses",
-                    "crows",
-                    "parrots",
-                    "intelligence",
-                    "tool use",
-                    "memory",
-                    "problem-solving",
-                    "communication",
-                    "emotion",
-                    "creativity",
-                ],
-                summary,
-            )
-
-            # Tool Result 2: Dolphin tool use
-            assert at_least_one_keyword_present(
-                ["tool use", "sponges", "foraging", "culture", "learning", "mother-offspring"],
-                summary,
-            )
-
-            # Tool Result 3: Dolphin personalities
-            assert at_least_one_keyword_present(
-                [
-                    "personality traits",
-                    "boldness",
-                    "curiosity",
-                    "sociability",
-                    "playfulness",
-                    "innovation",
-                    "social roles",
-                ],
-                summary,
-            )
-
-            # Tool Result 4: Dolphin long distance communication
-            assert at_least_one_keyword_present(
-                [
-                    "long distance",
-                    "communication",
-                    "vocalizations",
-                    "clicks",
-                    "whistles",
-                    "signals",
-                    "echolocation",
-                ],
-                summary,
-            )
+@retry_test(max_attempts=4)
+@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+@pytest.mark.parametrize("messages", [CONVERSATION_WITH_LONG_MESSAGES, LONG_CONVERSATION])
+def test_conversation_summarization_transformer_summarizes_long_conversations_from_agentspec(
+    messages, converted_wayflow_agent_with_conversation_summarization_transform_from_agentspec
+):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2026-01-15
+    Average success time:  4.33 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    agent = converted_wayflow_agent_with_conversation_summarization_transform_from_agentspec
+    check_conversation_summarization_transformer_summarizes_long_conversations(agent, messages)
 
 
 def conversation_summarization_transforms_setup(llm):
