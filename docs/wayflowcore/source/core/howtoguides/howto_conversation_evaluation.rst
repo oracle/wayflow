@@ -49,8 +49,8 @@ Assume you want to evaluate the following assistant conversation, which purposef
 
 The conversation alternates user and assistant messages, simulating a scenario with misunderstandings and wrong information.
 
-In a production context, you system would be collecting conversations, and you would evaluate
-then offline. You can use serialization to serialize conversations easily in your production
+In a production context, your system would be collecting conversations, and you would evaluate
+them offline. You can use serialization to serialize conversations easily in your production
 environment, and reload them later for offline evaluation:
 
 .. literalinclude:: ../code_examples/howto_conversation_evaluation.py
