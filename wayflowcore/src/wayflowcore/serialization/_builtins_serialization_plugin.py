@@ -1510,9 +1510,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 max_message_size=runtime_messagetransform.max_message_size,
                 summarization_instructions=runtime_messagetransform._summarizer.summarization_instructions,
                 summarized_message_template=runtime_messagetransform._summarizer.summarized_content_template,
-                max_cache_size=runtime_messagetransform.cache.max_cache_size,
-                max_cache_lifetime=runtime_messagetransform.cache.max_cache_lifetime,
-                cache_collection_name=runtime_messagetransform.cache.collection_name,
+                max_cache_size=runtime_messagetransform.max_cache_size,
+                max_cache_lifetime=runtime_messagetransform.max_cache_lifetime,
+                cache_collection_name=runtime_messagetransform.cache_collection_name,
                 metadata=_create_agentspec_metadata_from_runtime_component(
                     runtime_messagetransform
                 ),
@@ -1528,9 +1528,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 min_num_messages=runtime_messagetransform.min_num_messages,
                 summarization_instructions=runtime_messagetransform._summarizer.summarization_instructions,
                 summarized_conversation_template=runtime_messagetransform._summarizer.summarized_content_template,
-                max_cache_size=runtime_messagetransform.cache.max_cache_size,
-                max_cache_lifetime=runtime_messagetransform.cache.max_cache_lifetime,
-                cache_collection_name=runtime_messagetransform.cache.collection_name,
+                max_cache_size=runtime_messagetransform.max_cache_size,
+                max_cache_lifetime=runtime_messagetransform.max_cache_lifetime,
+                cache_collection_name=runtime_messagetransform.cache_collection_name,
                 metadata=_create_agentspec_metadata_from_runtime_component(
                     runtime_messagetransform
                 ),
@@ -1914,6 +1914,13 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             _runtime_property_to_pyagentspec_property(output)
             for output in runtime_agent.output_descriptors or []
         ]
+        transforms = [
+            cast(
+                AgentSpecMessageTransform,
+                conversion_context.convert(transform, referenced_objects),
+            )
+            for transform in runtime_agent.transforms
+        ]
         metadata = _create_agentspec_metadata_from_runtime_component(runtime_agent)
         extended_agent_model_fields = AgentSpecExtendedAgent.model_fields
         if (
@@ -1945,17 +1952,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             or (has_subagents := len(agents) > 0)
             or (has_subflows := len(flows) > 0)
         ):
-            transforms = (
-                [
-                    cast(
-                        AgentSpecMessageTransform,
-                        conversion_context.convert(transform, referenced_objects),
-                    )
-                    for transform in runtime_agent.transforms
-                ]
-                if runtime_agent.transforms
-                else None
-            )
+
             return AgentSpecExtendedAgent(
                 name=runtime_agent.name,
                 description=runtime_agent.description,
@@ -2009,6 +2006,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             outputs=outputs,
             metadata=metadata,
             human_in_the_loop=runtime_agent.caller_input_mode == CallerInputMode.ALWAYS,
+            transforms=transforms,
         )
 
     def _flow_convert_to_agentspec(
