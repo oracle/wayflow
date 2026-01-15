@@ -115,7 +115,7 @@ table_definition = """CREATE TABLE products (
     title VARCHAR2(255) NOT NULL,
     description VARCHAR2(255) NOT NULL,
     price NUMBER NOT NULL,
-    category VARCHAR(255) DEFAULT NULL,
+    category VARCHAR2(255) DEFAULT NULL,
     external_system_id NUMBER DEFAULT NULL
 )"""
 
@@ -150,6 +150,7 @@ dummy_data = [
     {
         "ID": 1,
         "title": "Oranges",
+        # We introduce a typo in this entity for the Assistant to fix
         "description": "Vitamin C-filled cirus fruits",
         "price": 1.8,
         "category": "Produce",
@@ -187,12 +188,12 @@ detect_issues_prompt_template = dedent(
     """You are an inventory assistant.
 
     Your task:
-        - Summarize potential inconstencies across descriptions of products in the same category.
-          For example, identify typos and hightlight improvement opportunities
+        - Summarize potential inconsistencies across descriptions of products in the same category.
+          For example, identify typos and highlight improvement opportunities
     Important:
         - Be helpful and concise in your messages
 
-    Here are the product description:
+    Here are the product descriptions:
     {{ products }}
     """
 )

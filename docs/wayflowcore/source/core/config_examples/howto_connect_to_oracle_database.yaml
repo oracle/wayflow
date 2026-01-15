@@ -271,10 +271,10 @@ $referenced_components:
       api_type: chat_completions
       api_key: null
     prompt_template: "You are an inventory assistant.\n\n    Your task:\n        -\
-      \ Summarize potential inconstencies across descriptions of products in the same\
-      \ category.\n          For example, identify typos and hightlight improvement\
+      \ Summarize potential inconsistencies across descriptions of products in the same\
+      \ category.\n          For example, identify typos and highlight improvement\
       \ opportunities\n    Important:\n        - Be helpful and concise in your messages\n\
-      \n    Here are the product description:\n    {{ products }}\n"
+      \n    Here are the product descriptions:\n    {{ products }}\n"
   9eab48d6-a51c-412e-a459-a7fd05283e1a:
     component_type: PluginOutputMessageNode
     id: 9eab48d6-a51c-412e-a459-a7fd05283e1a
