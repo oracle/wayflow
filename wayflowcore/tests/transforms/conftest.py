@@ -12,6 +12,9 @@ from pyagentspec.agent import Agent as AgentSpecAgent
 from pyagentspec.datastores.datastore import InMemoryCollectionDatastore
 from pyagentspec.llms import VllmConfig
 from pyagentspec.transforms import (
+    ConversationSummarizationTransform as AgentSpecConversationSummarizationTransform,
+)
+from pyagentspec.transforms import (
     MessageSummarizationTransform as AgentSpecMessageSummarizationTransform,
 )
 
@@ -236,14 +239,12 @@ def _get_dll_for_deletion_of_one_entity_schema(schema: dict[str, "Entity"]) -> l
 @pytest.fixture
 def converted_wayflow_agent_with_message_summarization_transform_from_agentspec():
     collection_name = MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME
-    # Create agent-spec datastore
     agent_spec_datastore = InMemoryCollectionDatastore(
         name="test-inmemory-datastore",
         datastore_schema={
             collection_name: AgentSpecMessageSummarizationTransform.get_entity_definition()
         },
     )
-    # Create agent-spec transform
     llm_config = VllmConfig(
         name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
     )
@@ -254,14 +255,42 @@ def converted_wayflow_agent_with_message_summarization_transform_from_agentspec(
         max_message_size=500,
         cache_collection_name=collection_name,
     )
-    # Create agent-spec agent
     agent_spec_agent = AgentSpecAgent(
         name="test-agent",
-        system_prompt="Test agent",
+        system_prompt="",
         llm_config=llm_config,
         transforms=[agent_spec_transform],
     )
-    # Convert to wayflow agent
     loader = AgentSpecLoader()
     wayflow_agent = loader.load_component(agent_spec_agent)
+    return wayflow_agent
+
+
+@pytest.fixture
+def converted_wayflow_agent_with_conversation_summarization_transform_from_agentspec():
+    collection_name = CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME
+    agent_spec_datastore = InMemoryCollectionDatastore(
+        name="test-inmemory-datastore",
+        datastore_schema={
+            collection_name: AgentSpecConversationSummarizationTransform.get_entity_definition()
+        },
+    )
+    llm_config = VllmConfig(
+        name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
+    )
+    agent_spec_transform = AgentSpecConversationSummarizationTransform(
+        name="conversation-summarizer",
+        llm=llm_config,
+        datastore=agent_spec_datastore,
+        max_num_messages=10,
+        min_num_messages=5,
+        cache_collection_name=collection_name,
+    )
+    agent_spec_agent = AgentSpecAgent(
+        name="test-agent",
+        system_prompt="",
+        llm_config=llm_config,
+        transforms=[agent_spec_transform],
+    )
+    wayflow_agent = AgentSpecLoader().load_component(agent_spec_agent)
     return wayflow_agent
