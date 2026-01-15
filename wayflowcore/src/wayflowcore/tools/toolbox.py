@@ -98,3 +98,9 @@ class ToolBox(Component):
     @property
     def might_yield(self) -> bool:
         return any(t.might_yield for t in self.get_tools())
+
+    def _get_concrete_tool(self, tool_name: str) -> "Tool":
+        """
+        Return the Tool
+        """
+        raise NotImplementedError()

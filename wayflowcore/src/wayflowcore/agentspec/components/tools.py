@@ -6,7 +6,7 @@
 
 from typing import Any, Dict
 
-from pyagentspec.tools import ToolBox
+from pyagentspec.tools import Tool, ToolBox
 from pydantic import BaseModel
 
 from wayflowcore.agentspec.components._pydantic_plugins import (
@@ -40,7 +40,13 @@ class PluginToolResult(BaseModel):
     tool_request_id: str
 
 
+class PluginToolFromToolBox(Tool):
+    tool_name: str
+    toolbox: ToolBox
+
+
 TOOLS_PLUGIN_NAME = "ToolPlugin"
+TOOLFROMTOOLBOX_PLUGIN_NAME = "ToolFromToolBoxPlugin"
 
 tools_serialization_plugin = PydanticComponentSerializationPlugin(
     name=TOOLS_PLUGIN_NAME,
@@ -52,5 +58,18 @@ tools_deserialization_plugin = PydanticComponentDeserializationPlugin(
     name=TOOLS_PLUGIN_NAME,
     component_types_and_models={
         PluginToolBox.__name__: PluginToolBox,
+    },
+)
+
+toolfromtoolbox_serialization_plugin = PydanticComponentSerializationPlugin(
+    name=TOOLFROMTOOLBOX_PLUGIN_NAME,
+    component_types_and_models={
+        PluginToolFromToolBox.__name__: PluginToolFromToolBox,
+    },
+)
+toolfromtoolbox_deserialization_plugin = PydanticComponentDeserializationPlugin(
+    name=TOOLFROMTOOLBOX_PLUGIN_NAME,
+    component_types_and_models={
+        PluginToolFromToolBox.__name__: PluginToolFromToolBox,
     },
 )

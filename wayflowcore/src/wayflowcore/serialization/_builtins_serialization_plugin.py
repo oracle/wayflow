@@ -163,6 +163,12 @@ from wayflowcore.agentspec.components.datastores.nodes import (
 from wayflowcore.agentspec.components.datastores.nodes import (
     PluginDatastoreUpdateNode as AgentSpecPluginDatastoreUpdateNode,
 )
+from wayflowcore.agentspec.components.datastores.inmemory_datastore import (
+    PluginInMemoryDatastore as AgentSpecPluginInMemoryDatastore,
+)
+from wayflowcore.agentspec.components.datastores.oracle_datastore import (
+    PluginOracleDatabaseDatastore as AgentSpecPluginOracleDatabaseDatastore,
+)
 from wayflowcore.agentspec.components.flow import ExtendedFlow as AgentSpecExtendedFlow
 from wayflowcore.agentspec.components.mcp import (
     PluginSSEmTLSTransport as AgentSpecPluginSSEmTLSTransport,
@@ -239,10 +245,25 @@ from wayflowcore.agentspec.components.outputparser import (
 from wayflowcore.agentspec.components.outputparser import (
     PluginRegexPattern as AgentSpecPluginRegexPattern,
 )
+from wayflowcore.agentspec.components.search import (
+    PluginSearchConfig as AgentSpecPluginSearchConfig,
+)
+from wayflowcore.agentspec.components.search import (
+    PluginSearchToolBox as AgentSpecPluginSearchToolBox,
+)
+from wayflowcore.agentspec.components.search import (
+    PluginVectorConfig as AgentSpecPluginVectorConfig,
+)
+from wayflowcore.agentspec.components.search import (
+    PluginVectorRetrieverConfig as AgentSpecPluginVectorRetrieverConfig,
+)
 from wayflowcore.agentspec.components.template import (
     PluginPromptTemplate as AgentSpecPluginPromptTemplate,
 )
 from wayflowcore.agentspec.components.tools import PluginToolBox as AgentSpecPluginToolBox
+from wayflowcore.agentspec.components.tools import (
+    PluginToolFromToolBox as AgentSpecPluginToolFromToolBox,
+)
 from wayflowcore.agentspec.components.tools import PluginToolRequest as AgentSpecPluginToolRequest
 from wayflowcore.agentspec.components.tools import PluginToolResult as AgentSpecPluginToolResult
 from wayflowcore.agentspec.components.transforms import (
@@ -368,6 +389,10 @@ from wayflowcore.outputparser import PythonToolOutputParser as RuntimePythonTool
 from wayflowcore.outputparser import RegexOutputParser as RuntimeRegexOutputParser
 from wayflowcore.outputparser import RegexPattern as RuntimeRegexPattern
 from wayflowcore.property import Property as RuntimeProperty
+from wayflowcore.search.config import SearchConfig as RuntimeSearchConfig
+from wayflowcore.search.config import VectorConfig as RuntimeVectorConfig
+from wayflowcore.search.config import VectorRetrieverConfig as RuntimeVectorRetrieverConfig
+from wayflowcore.search.toolbox import SearchToolBox as RuntimeSearchToolBox
 from wayflowcore.serialization._builtins_components import _BUILTIN_COMPONENTS
 from wayflowcore.serialization.context import SerializationContext
 from wayflowcore.serialization.plugins import WayflowSerializationPlugin
@@ -430,6 +455,7 @@ from wayflowcore.tools import ServerTool as RuntimeServerTool
 from wayflowcore.tools import Tool as RuntimeTool
 from wayflowcore.tools import ToolBox as RuntimeToolBox
 from wayflowcore.tools.servertools import _FlowAsToolCallable
+from wayflowcore.tools.toolfromtoolbox import ToolFromToolBox as RuntimeToolFromToolBox
 from wayflowcore.transforms import (
     AppendTrailingSystemMessageToUserMessageTransform as RuntimeAppendTrailingSystemMessageToUserMessageTransform,
 )
@@ -792,6 +818,18 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             agentspec_component = self._step_convert_to_agentspec(
                 conversion_context, runtime_component, referenced_objects
             )
+        elif isinstance(runtime_component, RuntimeSearchConfig):
+            agentspec_component = self._search_config_convert_to_agentspec(
+                conversion_context, runtime_component, referenced_objects
+            )
+        elif isinstance(runtime_component, RuntimeVectorConfig):
+            agentspec_component = self._vector_config_convert_to_agentspec(
+                conversion_context, runtime_component, referenced_objects
+            )
+        elif isinstance(runtime_component, RuntimeVectorRetrieverConfig):
+            agentspec_component = self._vector_retriever_config_convert_to_agentspec(
+                conversion_context, runtime_component, referenced_objects
+            )
         elif isinstance(runtime_component, RuntimeA2AConnectionConfig):
             agentspec_component = self._a2aconnectionconfig_convert_to_agentspec(
                 runtime_component, referenced_objects
@@ -1100,28 +1138,81 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecDatastore:
         if isinstance(runtime_datastore, RuntimeInMemoryDatastore):
-            return AgentSpecInMemoryDatastore(
-                name=runtime_datastore.name or "in-memory-datastore",
-                datastore_schema={
-                    k: _runtime_entity_to_pyagentspec_entity(v)
-                    for k, v in runtime_datastore.schema.items()
-                },
-                id=runtime_datastore.id,
-            )
+            if runtime_datastore.search_configs or runtime_datastore.vector_configs:
+                return AgentSpecPluginInMemoryDatastore(
+                    name=runtime_datastore.name or "in-memory-datastore",
+                    description=runtime_datastore.description,
+                    datastore_schema={
+                        k: _runtime_entity_to_pyagentspec_entity(v)
+                        for k, v in runtime_datastore.schema.items()
+                    },
+                    id=runtime_datastore.id,
+                    search_configs=[
+                        self._search_config_convert_to_agentspec(
+                            conversion_context, config, referenced_objects
+                        )
+                        for config in runtime_datastore.search_configs
+                    ],
+                    vector_configs=[
+                        self._vector_config_convert_to_agentspec(
+                            conversion_context, config, referenced_objects
+                        )
+                        for config in runtime_datastore.vector_configs
+                    ],
+                )
+            else:
+                return AgentSpecInMemoryDatastore(
+                    name=runtime_datastore.name or "in-memory-datastore",
+                    description=runtime_datastore.description,
+                    datastore_schema={
+                        k: _runtime_entity_to_pyagentspec_entity(v)
+                        for k, v in runtime_datastore.schema.items()
+                    },
+                    id=runtime_datastore.id
+                )
         elif isinstance(runtime_datastore, RuntimeOracleDatabaseDatastore):
-            return AgentSpecOracleDatabaseDatastore(
-                name=runtime_datastore.name or "oracle-database-datastore",
-                datastore_schema={
-                    k: _runtime_entity_to_pyagentspec_entity(v)
-                    for k, v in runtime_datastore.schema.items()
-                },
-                connection_config=self._oracle_db_connection_config_convert_to_agentspec(
-                    conversion_context=conversion_context,
-                    runtime_oracle_db_connection_config=runtime_datastore.connection_config,
-                    referenced_objects=referenced_objects,
-                ),
-                id=runtime_datastore.id,
-            )
+            if runtime_datastore.search_configs or runtime_datastore.vector_configs:
+                return AgentSpecPluginOracleDatabaseDatastore(
+                    name=runtime_datastore.name or "oracle-database-datastore",
+                    description=runtime_datastore.description,
+                    datastore_schema={
+                        k: _runtime_entity_to_pyagentspec_entity(v)
+                        for k, v in runtime_datastore.schema.items()
+                    },
+                    connection_config=self._oracle_db_connection_config_convert_to_agentspec(
+                        conversion_context=conversion_context,
+                        runtime_oracle_db_connection_config=runtime_datastore.connection_config,
+                        referenced_objects=referenced_objects,
+                    ),
+                    id=runtime_datastore.id,
+                    search_configs=[
+                        self._search_config_convert_to_agentspec(
+                            conversion_context, config, referenced_objects
+                        )
+                        for config in runtime_datastore.search_configs
+                    ],
+                    vector_configs=[
+                        self._vector_config_convert_to_agentspec(
+                            conversion_context, config, referenced_objects
+                        )
+                        for config in runtime_datastore.vector_configs
+                    ],
+                )
+            else:
+                return AgentSpecOracleDatabaseDatastore(
+                    name=runtime_datastore.name or "oracle-database-datastore",
+                    description=runtime_datastore.description,
+                    datastore_schema={
+                        k: _runtime_entity_to_pyagentspec_entity(v)
+                        for k, v in runtime_datastore.schema.items()
+                    },
+                    connection_config=self._oracle_db_connection_config_convert_to_agentspec(
+                        conversion_context=conversion_context,
+                        runtime_oracle_db_connection_config=runtime_datastore.connection_config,
+                        referenced_objects=referenced_objects,
+                    ),
+                    id=runtime_datastore.id,
+                )
         elif isinstance(runtime_datastore, RuntimePostgresDatabaseDatastore):
             return AgentSpecPostgresDatabaseDatastore(
                 name=runtime_datastore.name or "postgres-database-datastore",
@@ -1339,6 +1430,18 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 ],
                 requires_confirmation=runtime_tool.requires_confirmation,
                 id=runtime_tool.id,
+            )
+        elif isinstance(runtime_tool, RuntimeToolFromToolBox):
+            return AgentSpecPluginToolFromToolBox(
+                name=runtime_tool.name,
+                description=runtime_tool.description,
+                metadata=metadata,
+                tool_name=runtime_tool.name,
+                toolbox=self._toolbox_convert_to_agentspec(
+                    conversion_context, runtime_tool.toolbox, referenced_objects
+                ),
+                id=runtime_tool.id,
+                requires_confirmation=runtime_tool.requires_confirmation,
             )
         else:
             raise ValueError(f"Unsupported type of tool in Agent Spec: {type(runtime_tool)}")
@@ -1767,6 +1870,18 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 tool_filter=tool_filter,
                 id=runtime_toolbox.id,
                 description=runtime_toolbox.description,
+            )
+        if isinstance(runtime_toolbox, RuntimeSearchToolBox):
+            return AgentSpecPluginSearchToolBox(
+                name=runtime_toolbox.name,
+                id=runtime_toolbox.id,
+                description=runtime_toolbox.description,
+                collection_names=runtime_toolbox._collection_names,
+                k=runtime_toolbox._k,
+                datastore=self._datastore_convert_to_agentspec(
+                    conversion_context, runtime_toolbox._datastore, referenced_objects
+                ),
+                search_configs=runtime_toolbox._search_configs,
             )
         else:
             raise ValueError(
@@ -3046,6 +3161,73 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 output_mapping=runtime_step.output_mapping,
             )
         raise ValueError(f"Unsupported type of step in Agent Spec: {runtime_step_type}")
+
+    def _search_config_convert_to_agentspec(
+        self,
+        conversion_context: "WayflowToAgentSpecConversionContext",
+        runtime_searchconfig: RuntimeSearchConfig,
+        referenced_objects: Optional[Dict[str, Any]] = None,
+    ) -> AgentSpecPluginSearchConfig:
+        return AgentSpecPluginSearchConfig(
+            name=runtime_searchconfig.name,
+            id=runtime_searchconfig.id,
+            retriever=self._vector_retriever_config_convert_to_agentspec(
+                conversion_context, runtime_searchconfig.retriever, referenced_objects
+            ),
+        )
+
+    def _vector_config_convert_to_agentspec(
+        self,
+        conversion_context: "WayflowToAgentSpecConversionContext",
+        runtime_vectorconfig: RuntimeVectorConfig,
+        referenced_objects: Optional[Dict[str, Any]] = None,
+    ) -> AgentSpecPluginVectorConfig:
+        return AgentSpecPluginVectorConfig(
+            model=(
+                self._embeddingmodel_convert_to_agentspec(
+                    conversion_context, runtime_vectorconfig.model, referenced_objects
+                )
+                if runtime_vectorconfig.model
+                else None
+            ),
+            name=runtime_vectorconfig.name,
+            id=runtime_vectorconfig.id,
+            collection_name=runtime_vectorconfig.collection_name,
+            vector_property=runtime_vectorconfig.vector_property,
+        )
+
+    def _vector_retriever_config_convert_to_agentspec(
+        self,
+        conversion_context: "WayflowToAgentSpecConversionContext",
+        runtime_retrieverconfig: RuntimeVectorRetrieverConfig,
+        referenced_objects: Optional[Dict[str, Any]] = None,
+    ) -> AgentSpecPluginVectorRetrieverConfig:
+        vectors: Optional[Union[str, RuntimeVectorConfig]] = runtime_retrieverconfig.vectors
+        vectors_config = None
+        if isinstance(vectors, RuntimeVectorConfig):
+            vectors_config = self._vector_config_convert_to_agentspec(
+                conversion_context, vectors, referenced_objects
+            )
+            if not isinstance(vectors_config, AgentSpecPluginVectorConfig):
+                raise ValueError(
+                    f"Expected Vector Config to be of type PluginVectorConfig, but got type: {type(vectors_config)}"
+                )
+
+        return AgentSpecPluginVectorRetrieverConfig(
+            vectors=vectors if not vectors_config else vectors_config,
+            name=runtime_retrieverconfig.collection_name,
+            id=runtime_retrieverconfig.id,
+            model=(
+                self._embeddingmodel_convert_to_agentspec(
+                    conversion_context, runtime_retrieverconfig.model, referenced_objects
+                )
+                if runtime_retrieverconfig.model
+                else None
+            ),
+            distance_metric=runtime_retrieverconfig.distance_metric,
+            collection_name=runtime_retrieverconfig.collection_name,
+            index_params=runtime_retrieverconfig.index_params,
+        )
 
     def _a2aconnectionconfig_convert_to_agentspec(
         self,

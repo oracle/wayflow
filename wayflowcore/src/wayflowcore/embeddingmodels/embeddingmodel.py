@@ -50,3 +50,20 @@ class EmbeddingModel(Component, SerializableObject, ABC):
             A list where each element is a list of floats representing the embedding
             of the corresponding text.
         """
+
+    @abstractmethod
+    async def embed_async(self, data: List[str]) -> List[List[float]]:
+        """
+        Generate embeddings for the given list of text strings in an asynchronous manner.
+
+        Parameters
+        ----------
+        data
+            A list of text strings for which to generate embeddings.
+
+        Returns
+        -------
+        List[List[float]]
+            A list where each element is a list of floats representing the embedding
+            of the corresponding text.
+        """
