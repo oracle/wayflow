@@ -7,6 +7,7 @@ import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore._utils.async_helpers import run_sync_in_thread
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.embeddingmodels.embeddingmodel import EmbeddingModel
 from wayflowcore.models.ociclientconfig import OCIClientConfig, _client_config_to_oci_client_kwargs
@@ -165,6 +166,9 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
         response = self._client.embed_text(embed_text_details=embed_text_details)
         # Cast the embeddings to the expected return type (mainly for mypy)
         return cast(List[List[float]], response.data.embeddings)
+
+    async def embed_async(self, data: List[str]) -> List[List[float]]:
+        return await run_sync_in_thread(self.embed, data)
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
         # Store minimal information needed to recreate the embedding model

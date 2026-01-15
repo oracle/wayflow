@@ -120,7 +120,7 @@ Data in Assistants
    Use Embedding Models from Different Providers <embeddingmodels_from_different_providers>
    Use Variables for Shared State in Flows <howto_variable>
    Synthesize Data in WayFlow <howto_data_synthesis>
-
+   Build RAG-Powered Assistants <howto_rag>
 
 
 Assistant Testing and Evaluation
