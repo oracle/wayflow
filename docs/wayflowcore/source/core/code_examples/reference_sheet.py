@@ -7,8 +7,6 @@
 # fmt: off
 # mypy: ignore-errors
 
-# docs-title: Reference Sheet
-
 
 import logging
 import os
