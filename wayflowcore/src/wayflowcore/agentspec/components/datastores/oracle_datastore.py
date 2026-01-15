@@ -4,16 +4,17 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from pyagentspec import Component
 from pyagentspec.sensitive_field import SensitiveField
-from pydantic import SerializeAsAny
+from pydantic import Field, SerializeAsAny
 
 from wayflowcore.agentspec.components.datastores.entity import PluginEntity
 from wayflowcore.agentspec.components.datastores.relational_datastore import (
     PluginRelationalDatastore,
 )
+from wayflowcore.agentspec.components.search import PluginSearchConfig, PluginVectorConfig
 
 
 class PluginOracleDatabaseConnectionConfig(Component, abstract=True):
@@ -61,3 +62,5 @@ class PluginOracleDatabaseDatastore(PluginRelationalDatastore):
     """Mapping of collection names to entity definitions used by this datastore."""
     connection_config: SerializeAsAny[PluginOracleDatabaseConnectionConfig]
     """Configuration of connection parameters"""
+    search_configs: List[PluginSearchConfig] = Field(default_factory=list)
+    vector_configs: List[PluginVectorConfig] = Field(default_factory=list)

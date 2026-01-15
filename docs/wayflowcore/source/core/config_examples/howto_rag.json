@@ -1,0 +1,310 @@
+{
+    "component_type": "ExtendedAgent",
+    "id": "cefee4ec-cb9d-4bc5-8361-a34860ced665",
+    "name": "agent_52e70c67__auto",
+    "description": "",
+    "metadata": {
+        "__metadata_info__": {}
+    },
+    "inputs": [],
+    "outputs": [],
+    "llm_config": {
+        "component_type": "VllmConfig",
+        "id": "1d26dfa9-f35f-4e21-8c30-248213ac0601",
+        "name": "llm_70781625__auto",
+        "description": null,
+        "metadata": {
+            "__metadata_info__": {}
+        },
+        "default_generation_parameters": {
+            "max_tokens": 512
+        },
+        "url": "host_urls.com",
+        "model_id": "meta-llama/Meta-Llama-3.1-8B-Instruct"
+    },
+    "system_prompt": "\nYou are a helpful motorcycle garage assistant with access to our motorcycle database.\n\nIMPORTANT:\n- Always search for relevant information before answering questions about motorcycles\n- Base your answers on the search results\n- If you can't find relevant information, say so clearly\n- Be specific and mention details from the search results\n\nYou have access to search tools that can find information about:\n- Motorcycle models and specifications\n- Owners of motorcycles\n- Horsepower and performance details\n- Descriptions and features\n",
+    "tools": [
+        {
+            "component_type": "PluginToolFromToolBox",
+            "id": "5c4bf7fb-79ba-4e3e-a671-e2e2945b7600",
+            "name": "search_motorcycles",
+            "description": "Search for Motorcycles in our garage in the database using semantic similarity.\n\nThis tool searches the motorcycles collection for entities that match the given query.\nIt returns exactly 3 matching records with their properties and similarity scores.\nUse this tool when you need to find information about Motorcycles in our garage.\n\nParameters\n----------\nquery : str\n    The search query string to find relevant Motorcycles in our garage.\n",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [],
+            "outputs": [],
+            "tool_name": "search_motorcycles",
+            "toolbox": {
+                "component_type": "PluginSearchToolBox",
+                "id": "54f6a02a-9dba-480a-a9f0-4d86fff937a5",
+                "name": "search_toolbox5f99358b__auto",
+                "description": null,
+                "metadata": {},
+                "collection_names": null,
+                "k": 3,
+                "datastore": {
+                    "component_type": "PluginOracleDatabaseDatastore",
+                    "id": "de87d17c-9654-47ce-a43f-0c827e52b5f6",
+                    "name": "oracle_datastoreed7b27dc__auto",
+                    "description": null,
+                    "metadata": {},
+                    "datastore_schema": {
+                        "motorcycles": {
+                            "description": "Motorcycles in our garage",
+                            "title": "",
+                            "properties": {
+                                "description": {
+                                    "type": "string",
+                                    "description": "Detailed description of the motorcycle"
+                                },
+                                "owner_name": {
+                                    "description": "Name of the motorcycle owner",
+                                    "type": "string"
+                                },
+                                "model_name": {
+                                    "description": "Motorcycle model and brand",
+                                    "type": "string"
+                                },
+                                "hp": {
+                                    "description": "Horsepower of the motorcycle",
+                                    "type": "integer"
+                                },
+                                "serialized_text": {
+                                    "description": "Concatenated string of all columns",
+                                    "type": "string"
+                                },
+                                "embeddings": {
+                                    "description": "Generated embeddings for serialized_text",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "x_vector_property": true
+                                }
+                            }
+                        }
+                    },
+                    "connection_config": {
+                        "component_type": "PluginTlsOracleDatabaseConnectionConfig",
+                        "id": "8dbd3707-cd10-44f8-bbc1-15b69ac83c14",
+                        "name": "PluginTlsOracleDatabaseConnectionConfig",
+                        "description": null,
+                        "metadata": {},
+                        "user": "user",
+                        "password": "password",
+                        "dsn": "dsn",
+                        "config_dir": null,
+                        "component_plugin_name": "DatastorePlugin",
+                        "component_plugin_version": "25.4.1"
+                    },
+                    "search_configs": [
+                        {
+                            "component_type": "PluginSearchConfig",
+                            "id": "c983247b-bc7a-43c3-af16-b952fa9714e5",
+                            "name": "motorcycle_search",
+                            "description": null,
+                            "metadata": {},
+                            "retriever": {
+                                "component_type": "PluginVectorRetrieverConfig",
+                                "id": "e26ea01e-e501-4f09-b5f4-8a96cd3daa77",
+                                "name": "motorcycles",
+                                "description": null,
+                                "metadata": {},
+                                "model": {
+                                    "component_type": "PluginVllmEmbeddingConfig",
+                                    "id": "fe1e8f74-cf16-4dea-8ba5-08f4629aea0a",
+                                    "name": "embedding_modeledf13d6a__auto",
+                                    "description": null,
+                                    "metadata": {},
+                                    "url": "model_url.com",
+                                    "model_id": "intfloat/e5-large-v2",
+                                    "component_plugin_name": "EmbeddingModelPlugin",
+                                    "component_plugin_version": "25.4.1"
+                                },
+                                "collection_name": "motorcycles",
+                                "vectors": null,
+                                "distance_metric": "cosine_distance",
+                                "index_params": {},
+                                "component_plugin_name": "VectorRetrieverConfigPlugin",
+                                "component_plugin_version": "25.4.1"
+                            },
+                            "component_plugin_name": "SearchConfigPlugin",
+                            "component_plugin_version": "25.4.1"
+                        }
+                    ],
+                    "vector_configs": [],
+                    "component_plugin_name": "DatastorePlugin",
+                    "component_plugin_version": "25.4.1"
+                },
+                "component_plugin_name": "SearchToolBoxPlugin",
+                "component_plugin_version": "25.4.1"
+            },
+            "component_plugin_name": "ToolFromToolBoxPlugin",
+            "component_plugin_version": "25.4.1"
+        }
+    ],
+    "toolboxes": [],
+    "context_providers": null,
+    "can_finish_conversation": false,
+    "max_iterations": 10,
+    "initial_message": "Hello! I'm your RAG-powered motorcycle assistant. I can search our database to answer your questions about the motorcycles in our garage.",
+    "caller_input_mode": "always",
+    "agents": [],
+    "flows": [],
+    "agent_template": {
+        "component_type": "PluginPromptTemplate",
+        "id": "c8d2fd47-ab10-468f-9c55-c8fa2c459c1a",
+        "name": "",
+        "description": null,
+        "metadata": {
+            "__metadata_info__": {}
+        },
+        "messages": [
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "{%- if __TOOLS__ -%}\nEnvironment: ipython\nCutting Knowledge Date: December 2023\n\nYou are a helpful assistant with tool calling capabilities. Only reply with a tool call if the function exists in the library provided by the user. If it doesn't exist, just reply directly in natural language. When you receive a tool call response, use the output to format an answer to the original user question.\n\nYou have access to the following functions. To call a function, please respond with JSON for a function call.\nRespond in the format {\"name\": function name, \"parameters\": dictionary of argument name and its value}.\nDo not use variables.\n\n[{% for tool in __TOOLS__%}{{tool.to_openai_format() | tojson}}{{', ' if not loop.last}}{% endfor %}]\n{%- endif -%}\n"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2025-10-29T10:19:45.987272+00:00",
+                "time_updated": "2025-10-29T10:19:45.987272+00:00"
+            },
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "{%- if custom_instruction -%}Additional instructions:\n{{custom_instruction}}{%- endif -%}"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2025-10-29T10:19:45.987302+00:00",
+                "time_updated": "2025-10-29T10:19:45.987302+00:00"
+            },
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "$$__CHAT_HISTORY_PLACEHOLDER__$$"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2025-10-29T10:19:45.983942+00:00",
+                "time_updated": "2025-10-29T10:19:45.983943+00:00"
+            },
+            {
+                "role": "system",
+                "contents": [
+                    {
+                        "type": "text",
+                        "content": "{% if __PLAN__ %}The current plan you should follow is the following: \n{{__PLAN__}}{% endif %}"
+                    }
+                ],
+                "tool_requests": null,
+                "tool_result": null,
+                "display_only": false,
+                "sender": null,
+                "recipients": [],
+                "time_created": "2025-10-29T10:19:45.987326+00:00",
+                "time_updated": "2025-10-29T10:19:45.987326+00:00"
+            }
+        ],
+        "output_parser": {
+            "component_type": "PluginJsonToolOutputParser",
+            "id": "e5ed717a-bb76-4c13-b443-640444b98d3b",
+            "name": "jsontool_outputparser",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "tools": null,
+            "component_plugin_name": "OutputParserPlugin",
+            "component_plugin_version": "25.4.1"
+        },
+        "inputs": [
+            {
+                "description": "\"__TOOLS__\" input variable for the template",
+                "title": "__TOOLS__"
+            },
+            {
+                "description": "\"custom_instruction\" input variable for the template",
+                "type": "string",
+                "title": "custom_instruction"
+            },
+            {
+                "description": "\"__PLAN__\" input variable for the template",
+                "type": "string",
+                "title": "__PLAN__",
+                "default": ""
+            },
+            {
+                "type": "array",
+                "items": {},
+                "title": "__CHAT_HISTORY__"
+            }
+        ],
+        "pre_rendering_transforms": null,
+        "post_rendering_transforms": [
+            {
+                "component_type": "PluginRemoveEmptyNonUserMessageTransform",
+                "id": "73631f33-9ade-420f-8cc1-775a24dd47d3",
+                "name": "removeemptynonusermessage_messagetransform",
+                "description": null,
+                "metadata": {
+                    "__metadata_info__": {}
+                },
+                "component_plugin_name": "MessageTransformPlugin",
+                "component_plugin_version": "25.4.1"
+            },
+            {
+                "component_type": "PluginCoalesceSystemMessagesTransform",
+                "id": "9c65df01-2987-46e0-b2d1-082b79ee9a34",
+                "name": "coalescesystemmessage_messagetransform",
+                "description": null,
+                "metadata": {
+                    "__metadata_info__": {}
+                },
+                "component_plugin_name": "MessageTransformPlugin",
+                "component_plugin_version": "25.4.1"
+            },
+            {
+                "component_type": "PluginLlamaMergeToolRequestAndCallsTransform",
+                "id": "9f3e25ea-73e9-4cee-bcbc-60b95720c023",
+                "name": "llamamergetoolrequestandcalls_messagetransform",
+                "description": null,
+                "metadata": {
+                    "__metadata_info__": {}
+                },
+                "component_plugin_name": "MessageTransformPlugin",
+                "component_plugin_version": "25.4.1"
+            }
+        ],
+        "tools": null,
+        "native_tool_calling": false,
+        "response_format": null,
+        "native_structured_generation": true,
+        "generation_config": null,
+        "component_plugin_name": "PromptTemplatePlugin",
+        "component_plugin_version": "25.4.1"
+    },
+    "component_plugin_name": "AgentPlugin",
+    "component_plugin_version": "25.4.1",
+    "agentspec_version": "25.4.1"
+}
