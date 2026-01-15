@@ -1070,7 +1070,6 @@ def test_conversation_summarization_trigger_and_cache_incremental(get_setup):
     assert execute_conversation_check_summarizer_ran(conv, summarization_llm, agent_llm)
 
 
-@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
 @pytest.mark.parametrize(
     "transform_type,params",
     [
