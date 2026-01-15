@@ -62,7 +62,7 @@ Concepts shown in this guide
    - With database Datastores, all tables relevant to the assistant must already be created in the database prior to connecting to it.
    - You may choose to only model a subset of the tables available in the database via the :ref:`Entity <entity>` construct.
    - Database Datastores offer an additional ``query`` method (and the corresponding :ref:`DatastoreQueryStep <datastorequerystep>`),
-      that enables flexible execution of SQL queries that cannot be modelled by the ``list`` operation on the in-memory datastore
+     that enables flexible execution of SQL queries that cannot be modelled by the ``list`` operation on the in-memory datastore
 
 Datastores in Flows
 ===================
@@ -301,15 +301,14 @@ and the user authenticates with username and password.
    :start-after: .. start-##_TLS_Connection
    :end-before: .. end-##_TLS_Connection
 
-======================  =============================================================
-Parameter               Meaning
-----------------------  -------------------------------------------------------------
-``user``                Database username (e.g., ``ADMIN``).
-``password``            Password for ``user``.
-``dsn``                 Easy-connect string or TNS alias identifying the service.
-                        Example:
-                        ``adb.us-ashburn-1.oraclecloud.com:1522/xyz_high``
-======================  =============================================================
+==============  =============================================================
+**Parameter**   **Meaning**
+--------------  -------------------------------------------------------------
+``user``        Database username (e.g., ``ADMIN``).
+``password``    Password for ``user``.
+``dsn``         Easy-connect string or TNS alias identifying the service.
+                (e.g., ``adb.us-ashburn-1.oraclecloud.com:1522/xyz_high``)
+==============  =============================================================
 
 When using **mTLS** (mutual TLS) both sides exchange certificates: the client proves its identity
 with a wallet (client cert + private key) in addition to the username and password.
@@ -323,7 +322,7 @@ Oracle Autonomous Database in "Require mTLS" mode.
    :end-before: .. end-##_mTLS_Connection
 
 ======================  =============================================================
-Parameter               Meaning
+**Parameter**           **Meaning**
 ----------------------  -------------------------------------------------------------
 ``user``                Database username (e.g., ``ADMIN``).
 ``password``            Password for ``user``.
@@ -349,7 +348,7 @@ Step 2. Define the data model and Datastore
    The following code snippet will create a new ``products`` table in the database.
    Ensure you are using a throwaway schema with no other table named "products" when running this example.
 
-For this guide, we use the same data model from the in-memory example.
+For this guide, we use the same data model as in the in-memory example.
 It manages products in an inventory, so a single collection is sufficient.
 Datastores also support managing multiple database tables at the same time if needed.
 
@@ -374,7 +373,7 @@ Step 3. Create datastore steps
 
 Now that the Datastore is set up, create steps to perform different operations in the flow.
 In this guide, your assistant will identify inconsistencies in product descriptions of the same category.
-To do so, you will use the ``DatastoreQueryStep`` to fetch product information, and a ``PromptExecutionStep`` to identify the issues.
+To do so, you will use the :ref:`DatastoreQueryStep <DatastoreQueryStep>` to fetch product information, and a :ref:`PromptExecutionStep <PromptExecutionStep>` to identify the issues.
 
 In particular, the ``DatastoreQueryStep`` can be used with Database Datastores to execute developer-defined SQL queries.
 These queries can optionally be parametrized with bind variables.
