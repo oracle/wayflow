@@ -337,12 +337,15 @@ class AgentConversationExecutor(ConversationExecutor):
             if tool_request.name == _TALK_TO_USER_TOOL_NAME:
                 if i == 0:
                     logger.debug(
-                        f"Multiple tool calling after {_TALK_TO_USER_TOOL_NAME} is not possible. Other tool requests are removed."
+                        "Multiple tool calling after %s is not possible. Other tool requests are removed.",
+                        _TALK_TO_USER_TOOL_NAME,
                     )
                     new_message.tool_requests = [tool_request]
                 else:
                     logger.debug(
-                        f"Multiple tool calling with {_TALK_TO_USER_TOOL_NAME} included is not possible. {_TALK_TO_USER_TOOL_NAME} and the tool requests after it are removed."
+                        "Multiple tool calling with %s included is not possible. %s and the tool requests after it are removed.",
+                        _TALK_TO_USER_TOOL_NAME,
+                        _TALK_TO_USER_TOOL_NAME,
                     )
                     new_message.tool_requests = new_message.tool_requests[:i]
                 break

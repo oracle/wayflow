@@ -46,8 +46,8 @@ You can communicate with the following entities.
 - Never mention any specific tool names to users
 - Carefully verify available tools; do not fabricate non-existent tools. Delegate when necessary.
 - Tool request/results may originate from other parts of the system; only use explicitly provided tools
-- Call MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user’s query can be broken into INDEPENDENT subtasks.
-If `handoff_conversation` is included in multiple tool calls, it must be the final tool call.
+- Calling MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user’s query can be broken into INDEPENDENT subtasks.
+If `handoff_conversation` is included in multiple tool calls, it must be the final tool call in the response.
 - {%- if handoff=="optional" -%} You SHOULD use handoff_conversation tool if you think another agent can answer to the user directly,
 as this reduces unnecessary relaying and lowers latency {%- endif -%}
 - {%- if handoff=="always" -%} You must use the handoff_conversation tool when delegating to another agent.{%- endif -%}
