@@ -332,23 +332,15 @@ class AgentConversationExecutor(ConversationExecutor):
         if new_message.tool_requests is None or len(new_message.tool_requests) == 0:
             return True
 
-        # check if tool requests include talk_to_user
-        for i, tool_request in enumerate(new_message.tool_requests):
-            if tool_request.name == _TALK_TO_USER_TOOL_NAME:
-                if i == 0:
-                    logger.debug(
-                        "Multiple tool calling after %s is not possible. Other tool requests are removed.",
-                        _TALK_TO_USER_TOOL_NAME,
-                    )
-                    new_message.tool_requests = [tool_request]
-                else:
-                    logger.debug(
-                        "Multiple tool calling with %s included is not possible. %s and the tool requests after it are removed.",
-                        _TALK_TO_USER_TOOL_NAME,
-                        _TALK_TO_USER_TOOL_NAME,
-                    )
-                    new_message.tool_requests = new_message.tool_requests[:i]
-                break
+        # fix
+        talk_to_user_request = next(
+            (tr for tr in new_message.tool_requests if tr.name == _TALK_TO_USER_TOOL_NAME), None
+        )
+        if talk_to_user_request:
+            logger.debug(
+                "Parallel tool calling is disabled when using %s tool", _TALK_TO_USER_TOOL_NAME
+            )
+            new_message.tool_requests = [talk_to_user_request]
 
         state.tool_call_queue.extend(new_message.tool_requests)
         return False
