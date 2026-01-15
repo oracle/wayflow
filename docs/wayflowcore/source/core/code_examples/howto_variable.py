@@ -15,9 +15,8 @@ from wayflowcore.property import ListProperty, StringProperty
 
 feedback_variable = Variable(
     name="user_feedback",
-    type=ListProperty(item_type=StringProperty()),
+    type=ListProperty(item_type=StringProperty(), default_value=[]),
     description="list of user feedback",
-    default_value=[],
 )
 # .. end-##_Define_a_Variable
 

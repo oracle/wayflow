@@ -678,9 +678,8 @@ from wayflowcore.tools import tool
 
 float_variable = Variable(
     name="float_variable",
-    type=FloatProperty(),
+    type=FloatProperty(default_value=5.0),
     description="a float variable",
-    default_value=5.0,
 )
 
 read_step_1 = VariableReadStep(variable=float_variable)

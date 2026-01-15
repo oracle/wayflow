@@ -85,7 +85,6 @@ DEFAULT_DESCRIPTOR_VALUES: Dict[str, object] = {
         name="var",
         type=ListProperty(item_type=StringProperty()),
         description="var",
-        default_value=[],
     ),
     Datastore.__name__: datastore,
     CallerInputMode.__name__: CallerInputMode.ALWAYS,
@@ -99,7 +98,6 @@ DEFAULT_PARAMETER_VALUES: Dict[str, object] = {
             name="var_read",
             type=ListProperty(item_type=StringProperty()),
             description="var_read",
-            default_value=[],
         )
     ],
     "write_variables": [
@@ -107,7 +105,6 @@ DEFAULT_PARAMETER_VALUES: Dict[str, object] = {
             name="var_write",
             type=ListProperty(item_type=StringProperty()),
             description="var_write",
-            default_value=[],
         )
     ],
     "write_operations": {"var_write": VariableWriteOperation.OVERWRITE},

@@ -113,9 +113,8 @@ class VariableStep(Step):
         >>> from wayflowcore.property import ListProperty, FloatProperty
         >>> variable = Variable(
         ...     name="variable",
-        ...     type=ListProperty(item_type=FloatProperty()),
+        ...     type=ListProperty(item_type=FloatProperty(), default_value=[1.0]),
         ...     description="list of floats variable",
-        ...     default_value=[1.0],
         ... )
         >>>
         >>> variable_step = VariableStep(

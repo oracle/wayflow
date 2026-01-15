@@ -85,9 +85,8 @@ class VariableReadStep(Step):
         >>>
         >>> float_variable = Variable(
         ...     name="float_variable",
-        ...     type=ListProperty(item_type=FloatProperty()),
+        ...     type=ListProperty(item_type=FloatProperty(), default_value=[1.0, 2.0, 3.0, 4.0]),
         ...     description="list of floats variable",
-        ...     default_value=[1.0, 2.0, 3.0, 4.0],
         ... )
         >>>
         >>> read_step = VariableReadStep(variable=float_variable)

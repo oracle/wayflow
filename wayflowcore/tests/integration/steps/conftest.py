@@ -14,9 +14,8 @@ from wayflowcore.variable import Variable
 def float_variable() -> Variable:
     return Variable(
         name="float_variable",
-        type=FloatProperty(),
+        type=FloatProperty(default_value=1.1),
         description="a float variable",
-        default_value=1.1,
     )
 
 
@@ -33,9 +32,8 @@ def string_variable() -> Variable:
 def string_variable_with_default() -> Variable:
     return Variable(
         name="string variable",
-        type=StringProperty(),
+        type=StringProperty(default_value="default"),
         description="my string variable",
-        default_value="default",
     )
 
 
@@ -43,9 +41,11 @@ def string_variable_with_default() -> Variable:
 def list_of_floats_variable() -> Variable:
     return Variable(
         name="list_of_floats_variable",
-        type=ListProperty(item_type=FloatProperty()),
+        type=ListProperty(
+            item_type=FloatProperty(),
+            default_value=[4.0, 4.0, 3.0, 2.1423],
+        ),
         description="list of floats variable",
-        default_value=[4.0, 4.0, 3.0, 2.1423],
     )
 
 
@@ -53,9 +53,11 @@ def list_of_floats_variable() -> Variable:
 def dict_of_floats_variable() -> Variable:
     return Variable(
         name="dict_of_floats_variable",
-        type=DictProperty(value_type=FloatProperty()),
+        type=DictProperty(
+            value_type=FloatProperty(),
+            default_value={"my_str": 22.14},
+        ),
         description="dict of floats variable",
-        default_value={"my_str": 22.14},
     )
 
 
@@ -63,7 +65,9 @@ def dict_of_floats_variable() -> Variable:
 def list_of_dicts_of_strings_variable() -> Variable:
     return Variable(
         name="list_of_dict_of_strings_variable",
-        type=ListProperty(item_type=DictProperty(value_type=StringProperty())),
+        type=ListProperty(
+            item_type=DictProperty(value_type=StringProperty()),
+            default_value=[{"my_str": "my value"}],
+        ),
         description="list of dict of strings variable",
-        default_value=[{"my_str": "my value"}],
     )

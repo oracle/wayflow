@@ -253,7 +253,6 @@ def test_can_serde_flow_with_variable_readwrite_steps():
         name="list_of_floats_variable",
         type=ListProperty(item_type=FloatProperty()),
         description="list of floats variable",
-        default_value=[],
     )
 
     float_variable = Variable(
@@ -269,7 +268,7 @@ def test_can_serde_flow_with_variable_readwrite_steps():
         _referenced_objects:
           variable/140438685963696:
             _component_type: Variable
-            default_value: []
+            default_value: null
             description: list of floats variable
             name: list_of_floats_variable
             type:
@@ -325,6 +324,7 @@ def test_can_serde_flow_with_variable_readwrite_steps():
         deserialized_flow = deserialize(Flow, serialized_flow)
 
     assert len(deserialized_flow.variables) == 2
+    print(deserialized_flow.variables, "\n\n", variables)
     assert deserialized_flow.variables == variables
     assert deserialized_flow.steps["read_step"].variable == list_variable
     assert deserialized_flow.steps["write_step"].variable == list_variable

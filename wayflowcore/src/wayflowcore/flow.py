@@ -1249,7 +1249,7 @@ class Flow(ConversationalComponent, SerializableObject):
 
         from wayflowcore.executors._flowexecutor import FlowConversationExecutionState
 
-        variable_store = {v.name: deepcopy(v.default_value) for v in self.variables}
+        variable_store = {v.name: deepcopy(v.type.default_value) for v in self.variables}
 
         for input_key in inputs.keys():
             if input_key not in self.input_descriptors_dict:

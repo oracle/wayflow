@@ -104,7 +104,6 @@ class VariableWriteStep(Step):
         ...     name="float_variable",
         ...     type=ListProperty(item_type=FloatProperty()),
         ...     description="list of floats variable",
-        ...     default_value=[],
         ... )
         >>>
         >>> write_step = VariableWriteStep(

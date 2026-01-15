@@ -7,7 +7,7 @@
 from collections import Counter
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, TypeVar, Union
 
-from wayflowcore.property import DictProperty, ListProperty, Property
+from wayflowcore.property import DictProperty, ListProperty, Property, _empty_default
 from wayflowcore.variable import Variable, VariableWriteOperation
 
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ def _require_variable_value_from_conversation_store(
     conversation: "FlowConversation",
 ) -> Any:
     val = conversation._get_variable_value(variable)
-    if val is None:
+    if val is _empty_default:
         raise ValueError(
             f"Attempted to read from the Variable '{variable.name}' but the value was None."
         )
@@ -96,7 +96,7 @@ def _put_variable_value_in_conversation_store(
                 raise TypeError(
                     f"Expected inserted value in variable {variable.name} to be of type {var_type.item_type}, got {type(value)} instead."
                 )
-        else:
+        elif operation == VariableWriteOperation.OVERWRITE and current_value is not _empty_default:
             raise ValueError(
                 f"The new value type '{type(value)}' is different from the current value type '{type(current_value)}'. "
                 "This error should have been caught by the flow executor when resolving inputs for the write step."

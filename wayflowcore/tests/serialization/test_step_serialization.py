@@ -383,9 +383,8 @@ def test_prompt_execution_step_can_be_serde(remotely_hosted_llm: VllmModel) -> N
 def list_variable():
     return Variable(
         name="list_of_floats_variable",
-        type=ListProperty(item_type=FloatProperty()),
+        type=ListProperty(item_type=FloatProperty(), default_value=[]),
         description="list of floats variable",
-        default_value=[],
     )
 
 
@@ -393,9 +392,8 @@ def list_variable():
 def float_variable():
     return Variable(
         name="floats_variable",
-        type=FloatProperty(),
+        type=FloatProperty(default_value=1.2),
         description=" variable",
-        default_value=1.2,
     )
 
 
@@ -448,7 +446,7 @@ def test_variable_step_can_be_serde_with_read_var(list_variable: Variable) -> No
     assert len(deserialized_step.write_variables) == 0
     assert len(deserialized_step.write_operations) == 0
     assert deserialized_step.read_variables[0] == list_variable
-    assert deserialized_step.read_variables[0].default_value == []
+    assert deserialized_step.read_variables[0].type.default_value == []
 
 
 def test_variable_step_can_be_serde_with_read_vars(
@@ -478,8 +476,8 @@ def test_variable_step_can_be_serde_with_read_vars(
     assert len(deserialized_step.write_operations) == 0
     assert deserialized_step.read_variables[0] == list_variable
     assert deserialized_step.read_variables[1] == float_variable
-    assert deserialized_step.read_variables[0].default_value == []
-    assert deserialized_step.read_variables[1].default_value == 1.2
+    assert deserialized_step.read_variables[0].type.default_value == []
+    assert deserialized_step.read_variables[1].type.default_value == 1.2
 
 
 def test_variable_step_can_be_serde_with_write_var(list_variable: Variable) -> None:
@@ -507,7 +505,7 @@ def test_variable_step_can_be_serde_with_write_var(list_variable: Variable) -> N
     assert (
         deserialized_step.write_operations[list_variable.name] == VariableWriteOperation.OVERWRITE
     )
-    assert deserialized_step.write_variables[0].default_value == []
+    assert deserialized_step.write_variables[0].type.default_value == []
 
 
 def test_variable_step_can_be_serde_with_write_vars(
@@ -544,8 +542,8 @@ def test_variable_step_can_be_serde_with_write_vars(
     assert (
         deserialized_step.write_operations[float_variable.name] == VariableWriteOperation.OVERWRITE
     )
-    assert deserialized_step.write_variables[0].default_value == []
-    assert deserialized_step.write_variables[1].default_value == 1.2
+    assert deserialized_step.write_variables[0].type.default_value == []
+    assert deserialized_step.write_variables[1].type.default_value == 1.2
 
 
 def test_variable_step_can_be_serde_with_same_read_write_var(list_variable: Variable) -> None:
@@ -576,8 +574,8 @@ def test_variable_step_can_be_serde_with_same_read_write_var(list_variable: Vari
     assert (
         deserialized_step.write_operations[list_variable.name] == VariableWriteOperation.OVERWRITE
     )
-    assert deserialized_step.read_variables[0].default_value == []
-    assert deserialized_step.write_variables[0].default_value == []
+    assert deserialized_step.read_variables[0].type.default_value == []
+    assert deserialized_step.write_variables[0].type.default_value == []
 
 
 def test_variable_step_can_be_serde_with_different_read_write_var(
@@ -610,8 +608,8 @@ def test_variable_step_can_be_serde_with_different_read_write_var(
     assert (
         deserialized_step.write_operations[float_variable.name] == VariableWriteOperation.OVERWRITE
     )
-    assert deserialized_step.read_variables[0].default_value == []
-    assert deserialized_step.write_variables[0].default_value == 1.2
+    assert deserialized_step.read_variables[0].type.default_value == []
+    assert deserialized_step.write_variables[0].type.default_value == 1.2
 
 
 def test_variable_step_can_be_serde_with_read_write_vars(
@@ -651,8 +649,8 @@ def test_variable_step_can_be_serde_with_read_write_vars(
     assert (
         deserialized_step.write_operations[float_variable.name] == VariableWriteOperation.OVERWRITE
     )
-    assert deserialized_step.write_variables[0].default_value == 1.2
-    assert deserialized_step.write_variables[1].default_value == []
+    assert deserialized_step.write_variables[0].type.default_value == 1.2
+    assert deserialized_step.write_variables[1].type.default_value == []
 
 
 def test_get_chat_history_with_default_arguments_can_be_serialized():

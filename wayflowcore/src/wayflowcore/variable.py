@@ -4,12 +4,13 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import warnings
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict
 
 from wayflowcore.component import FrozenDataclassComponent
-from wayflowcore.property import DictProperty, FloatProperty, ListProperty, Property
+from wayflowcore.property import DictProperty, FloatProperty, ListProperty, Property, _empty_default
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
 
@@ -52,6 +53,10 @@ class Variable(FrozenDataclassComponent):
     default_value:
         Default value for the variable before any write operation is performed.
 
+        .. note:
+
+            Passing `default_value` to `Variable` is deprecated since `wayflowcore==26.1.0`.
+
         .. note::
 
             Collections (lists or dictionaries) must have their default value
@@ -67,9 +72,8 @@ class Variable(FrozenDataclassComponent):
     >>> from wayflowcore.tools import tool
     >>> float_variable = Variable(
     ...     name="float_variable",
-    ...     type=FloatProperty(),
+    ...     type=FloatProperty(default_value=5.0),
     ...     description="a float variable",
-    ...     default_value=5.0,
     ... )
     >>> var_step_1 = VariableStep(read_variables=[float_variable])
     >>> @tool(description_mode="only_docstring")
@@ -114,8 +118,30 @@ class Variable(FrozenDataclassComponent):
         if self.name == "":
             raise ValueError(f"Name of variable {self} should not be empty.")
 
+        # TODO: this should be removed
+
+        if self.default_value is not None:
+            warnings.warn(
+                "Passing `default_value` to `Variable` is deprecated since `wayflowcore==26.1.0`. "
+                "Pass it to the property that is passed as `type` (`Variable(..., type=Property(..., default_value=...))`).",
+                DeprecationWarning,
+            )
+
+        if (
+            self.default_value != self.type.default_value
+            and self.default_value is not None
+            and self.type.default_value is not _empty_default
+        ):
+            raise ValueError(
+                "The `default_type` passed to the `Variable` initializer is not matched to the `default_type` of the property object passed as the `type` to the `Variable` initializer. "
+                "Passing `default_value` to `Variable` is deprecated since `wayflowcore==26.1.0`. "
+                "You should only pass the `default_value` to the type property.",
+            )
+
+        default_value = self.default_value or self.type.default_value
+
         # TODO: validate the type of the default_value if it's not None
-        if self.default_value is None:
+        if default_value is None:
             if isinstance(self.type, ListProperty):
                 raise ValueError(
                     "The default value for a List variable should be an empty list '[]'."
