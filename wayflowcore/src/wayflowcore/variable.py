@@ -152,11 +152,6 @@ class Variable(FrozenDataclassComponent):
             name=property_.name,
             type=property_,
             description=property_.description or None,
-            default_value=(
-                property_.default_value
-                if property_.default_value != Property.empty_default
-                else None
-            ),
             __metadata_info__=property_.__metadata_info__,
         )
 
