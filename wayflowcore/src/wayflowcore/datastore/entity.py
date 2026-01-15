@@ -4,10 +4,16 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from typing import Any, Dict
 
-from wayflowcore.property import NullProperty, ObjectProperty, Property, UnionProperty
+from wayflowcore.property import (
+    NullProperty,
+    ObjectProperty,
+    Property,
+    UnionProperty,
+    VectorProperty,
+)
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject, deserialize_from_dict
 
@@ -76,6 +82,16 @@ class Entity(ObjectProperty, SerializableObject):
     ... )
 
     """
+
+    _has_vector_properties: bool = field(init=False)
+
+    def __post_init__(self) -> None:
+        # Need to set _has_vector_properties as it is a frozen dataclass
+        object.__setattr__(
+            self,
+            "_has_vector_properties",
+            any(isinstance(prop, VectorProperty) for prop in self.properties.values()),
+        )
 
     def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
         # We just need to distinguish the exact types of Entity and ObjectProperty

@@ -248,9 +248,24 @@ from wayflowcore.agentspec.components.outputparser import (
 from wayflowcore.agentspec.components.outputparser import (
     PluginRegexPattern as AgentSpecPluginRegexPattern,
 )
+from wayflowcore.agentspec.components.search import (
+    PluginSearchConfig as AgentSpecPluginSearchConfig,
+)
+from wayflowcore.agentspec.components.search import (
+    PluginSearchToolBox as AgentSpecPluginSearchToolBox,
+)
+from wayflowcore.agentspec.components.search import (
+    PluginVectorConfig as AgentSpecPluginVectorConfig,
+)
+from wayflowcore.agentspec.components.search import (
+    PluginVectorRetrieverConfig as AgentSpecPluginVectorRetrieverConfig,
+)
 from wayflowcore.agentspec.components.swarm import PluginSwarm as AgentSpecPluginSwarm
 from wayflowcore.agentspec.components.template import (
     PluginPromptTemplate as AgentSpecPluginPromptTemplate,
+)
+from wayflowcore.agentspec.components.tools import (
+    PluginToolFromToolBox as AgentSpecPluginToolFromToolBox,
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginAppendTrailingSystemMessageToUserMessageTransform as AgentSpecPluginAppendTrailingSystemMessageToUserMessageTransform,
@@ -363,6 +378,11 @@ from wayflowcore.property import JsonSchemaParam
 from wayflowcore.property import ListProperty as RuntimeListProperty
 from wayflowcore.property import Property as RuntimeProperty
 from wayflowcore.property import UnionProperty
+from wayflowcore.search.config import SearchConfig as RuntimeSearchConfig
+from wayflowcore.search.config import VectorConfig as RuntimeVectorConfig
+from wayflowcore.search.config import VectorRetrieverConfig as RuntimeVectorRetrieverConfig
+from wayflowcore.search.metrics import SimilarityMetric as RuntimeSimilarityMetric
+from wayflowcore.search.toolbox import SearchToolBox as RuntimeSearchToolBox
 from wayflowcore.serialization._builtins_components import _BUILTIN_COMPONENTS
 from wayflowcore.serialization.context import DeserializationContext
 from wayflowcore.serialization.plugins import ToolRegistryT, WayflowDeserializationPlugin
@@ -424,6 +444,7 @@ from wayflowcore.tools import ServerTool as RuntimeServerTool
 from wayflowcore.tools import Tool as RuntimeTool
 from wayflowcore.tools import ToolRequest as RuntimeToolRequest
 from wayflowcore.tools import ToolResult as RuntimeToolResult
+from wayflowcore.tools.toolfromtoolbox import ToolFromToolBox as RuntimeToolFromToolBox
 from wayflowcore.transforms import (
     AppendTrailingSystemMessageToUserMessageTransform as RuntimeAppendTrailingSystemMessageToUserMessageTransform,
 )
@@ -747,6 +768,76 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 name=agentspec_component.name,
                 description=agentspec_component.description,
                 id=agentspec_component.id,
+            )
+        elif isinstance(agentspec_component, AgentSpecPluginSearchConfig):
+            return RuntimeSearchConfig(
+                name=agentspec_component.name,
+                retriever=conversion_context.convert(
+                    agentspec_component.retriever, tool_registry, converted_components
+                ),
+                id=agentspec_component.id,
+            )
+        elif isinstance(agentspec_component, AgentSpecPluginVectorConfig):
+            return RuntimeVectorConfig(
+                model=(
+                    conversion_context.convert(
+                        agentspec_component.model, tool_registry, converted_components
+                    )
+                    if agentspec_component.model
+                    else None
+                ),
+                name=agentspec_component.name,
+                collection_name=agentspec_component.collection_name,
+                vector_property=agentspec_component.vector_property,
+                id=agentspec_component.id,
+            )
+
+        elif isinstance(agentspec_component, AgentSpecPluginVectorRetrieverConfig):
+            vectors = agentspec_component.vectors
+            plugin_vectors = None
+            if isinstance(vectors, AgentSpecPluginVectorConfig):
+                plugin_vectors = conversion_context.convert(
+                    vectors, tool_registry, converted_components
+                )
+                if not isinstance(plugin_vectors, RuntimeVectorConfig):
+                    raise ValueError(
+                        f"Expected Vector Config to be of type VectorConfig, but got type: {type(plugin_vectors)}"
+                    )
+                vectors = None
+            return RuntimeVectorRetrieverConfig(
+                vectors=vectors if not plugin_vectors else plugin_vectors,
+                model=(
+                    conversion_context.convert(
+                        agentspec_component.model, tool_registry, converted_components
+                    )
+                    if agentspec_component.model
+                    else None
+                ),
+                collection_name=agentspec_component.collection_name,
+                index_params=agentspec_component.index_params,
+                distance_metric=RuntimeSimilarityMetric(agentspec_component.distance_metric),
+            )
+
+        elif isinstance(agentspec_component, AgentSpecPluginToolFromToolBox):
+            return RuntimeToolFromToolBox(
+                toolbox=conversion_context.convert(
+                    agentspec_component.toolbox,
+                    tool_registry=tool_registry,
+                    converted_components=converted_components,
+                ),
+                tool_name=agentspec_component.tool_name,
+            )
+        elif isinstance(agentspec_component, AgentSpecPluginSearchToolBox):
+            return RuntimeSearchToolBox(
+                datastore=conversion_context.convert(
+                    agentspec_component.datastore,
+                    tool_registry=tool_registry,
+                    converted_components=converted_components,
+                ),
+                search_configs=agentspec_component.search_configs,
+                collection_names=agentspec_component.collection_names,
+                k=agentspec_component.k,
+                **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecPluginVllmEmbeddingConfig):
             # Map to RuntimeVllmEmbeddingModel
@@ -1629,6 +1720,16 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     for k, v in agentspec_component.datastore_schema.items()
                 },
                 id=agentspec_component.id,
+                name=agentspec_component.name,
+                description=agentspec_component.description,
+                search_configs=[
+                    conversion_context.convert(config, tool_registry, converted_components)
+                    for config in agentspec_component.search_configs
+                ],
+                vector_configs=[
+                    conversion_context.convert(config, tool_registry, converted_components)
+                    for config in agentspec_component.vector_configs
+                ],
             )
         elif isinstance(agentspec_component, AgentSpecPluginTlsOracleDatabaseConnectionConfig):
             return RuntimeTlsOracleDatabaseConnectionConfig(
@@ -1657,6 +1758,17 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 connection_config=conversion_context.convert(
                     agentspec_component.connection_config, tool_registry, converted_components
                 ),
+                id=agentspec_component.id,
+                name=agentspec_component.name,
+                description=agentspec_component.description,
+                search_configs=[
+                    conversion_context.convert(config, tool_registry, converted_components)
+                    for config in agentspec_component.search_configs
+                ],
+                vector_configs=[
+                    conversion_context.convert(config, tool_registry, converted_components)
+                    for config in agentspec_component.vector_configs
+                ],
             )
         elif isinstance(agentspec_component, AgentSpecPluginTlsPostgresDatabaseConnectionConfig):
             return RuntimeTlsPostgresDatabaseConnectionConfig(

@@ -61,9 +61,14 @@ EXCLUDED_COMPONENTS = {
     "ClientTransport",
     "SSEmTLSTransport",
     "StreamableHTTPmTLSTransport",
+    "OracleDatabaseDatastore",
+    "SearchStep",
+    "SearchToolBox",
     # abstract classes
     "Component",
     "Event",
+    "Datastore",
+    "RelationalDatastore",
     "OutputParser",
     # abstract classes
     "ContextProvider",
@@ -106,6 +111,7 @@ EXCLUDED_COMPONENTS = {
     "SleepStep",
     "DoNothingStep",
     # TODO: Support these in the future
+    "ToolFromToolBox",  # Requires search config to be set up along with an embedding model
     "DatastoreQueryStep",  # requires a relational datastore, we only have oracledb and it requires a connection to create the object
     "MapStep",  # names are not equivalent, need some complex logic
     "ParallelMapStep",  # names are not equivalent, need some complex logic
