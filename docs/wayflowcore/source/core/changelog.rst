@@ -178,6 +178,13 @@ Improvements
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* **Deprecated `json_body` parameter in RemoteTool/ApiCallStep:**
+
+  Deprecated the `json_body` parameter in RemoteTool/ApiCallStep in favour of the `data` parameter. A DeprecationWarning will be raised whenever
+  the `json_body` is tried to be set, and this parameter would be removed in version 26.2.0. If `json_body` is tried to be set, it will automatically be converted
+  to `data` in RemoteTool/ApiCallStep. To migrate, simply switch the `json_body` keyword argument with `data`. `data` supports both JSON-objects and form-data for
+  HTTP requests.
+
 * **Stricter environment for jinja templates rendering:**
 
   The new version of the Environment used to render templates could raise SecurityErrors on templates previously accepted.

@@ -287,7 +287,7 @@ class ApiCallStep(Step):
         self,
         url: str,
         method: str,
-        json_body: Optional[Any] = None,  # Deprecated
+        json_body: Optional[Any] = None,  # Deprecated, will be removed in version 26.2.0
         data: Optional[Any] = None,
         params: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]] = None,
         headers: Optional[Dict[str, str]] = None,
