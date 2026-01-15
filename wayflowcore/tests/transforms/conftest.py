@@ -8,7 +8,14 @@ from typing import List, Optional
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from pyagentspec.agent import Agent as AgentSpecAgent
+from pyagentspec.datastores.datastore import InMemoryCollectionDatastore
+from pyagentspec.llms import VllmConfig
+from pyagentspec.transforms import (
+    MessageSummarizationTransform as AgentSpecMessageSummarizationTransform,
+)
 
+from wayflowcore.agentspec.runtimeloader import AgentSpecLoader
 from wayflowcore.conversation import Conversation
 from wayflowcore.datastore.entity import Entity
 from wayflowcore.datastore.inmemory import InMemoryDatastore
@@ -17,7 +24,7 @@ from wayflowcore.models.llmmodel import LlmCompletion, LlmModel
 from wayflowcore.property import FloatProperty, IntegerProperty, StringProperty
 from wayflowcore.transforms import ConversationSummarizationTransform, MessageSummarizationTransform
 
-from ..conftest import patch_streaming_llm
+from ..conftest import GEMMA_CONFIG, patch_streaming_llm
 from ..datastores.conftest import (
     cleanup_oracle_datastore,
     get_oracle_connection_config,
@@ -224,3 +231,37 @@ def _get_dll_for_deletion_of_one_entity_schema(schema: dict[str, "Entity"]) -> l
     if not entity_name:
         return [""]
     return [f"DROP TABLE IF EXISTS {entity_name}"]
+
+
+@pytest.fixture
+def converted_wayflow_agent_with_message_summarization_transform_from_agentspec():
+    collection_name = MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME
+    # Create agent-spec datastore
+    agent_spec_datastore = InMemoryCollectionDatastore(
+        name="test-inmemory-datastore",
+        datastore_schema={
+            collection_name: AgentSpecMessageSummarizationTransform.get_entity_definition()
+        },
+    )
+    # Create agent-spec transform
+    llm_config = VllmConfig(
+        name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
+    )
+    agent_spec_transform = AgentSpecMessageSummarizationTransform(
+        name="message-summarizer",
+        llm=llm_config,
+        datastore=agent_spec_datastore,
+        max_message_size=500,
+        cache_collection_name=collection_name,
+    )
+    # Create agent-spec agent
+    agent_spec_agent = AgentSpecAgent(
+        name="test-agent",
+        system_prompt="Test agent",
+        llm_config=llm_config,
+        transforms=[agent_spec_transform],
+    )
+    # Convert to wayflow agent
+    loader = AgentSpecLoader()
+    wayflow_agent = loader.load_component(agent_spec_agent)
+    return wayflow_agent

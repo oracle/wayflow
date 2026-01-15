@@ -340,6 +340,48 @@ def message_and_conversation_summarization_transforms_setup(llm: LlmModel):
     }
 
 
+def check_transform_summarizes_long_messages_only(
+    agent, messages, long_msgs_indices, max_message_size=500, has_system_prompt=False
+):
+    long_messages = [m.content for m in messages if len(m.content) > max_message_size]
+    short_messages = [m.content for m in messages if len(m.content) <= max_message_size]
+    # We have this check because this test requires short and long messages.
+    assert len(long_messages) == 2 and len(short_messages) >= 3
+    conversation = agent.start_conversation()
+    for m in messages:
+        conversation.append_message(m)
+
+    with patch_streaming_llm(agent.llm, "This is a mock llm generation.") as patched_agent_llm:
+        conversation.execute()
+
+        # We will check that the messages passed to the llm where summarized iff they were long.
+        transformed_messages = [
+            message
+            for prompts, _ in patched_agent_llm.call_args_list
+            for prompt in prompts
+            for message in prompt.messages
+        ]
+        if has_system_prompt:
+            transformed_messages = transformed_messages[1:]
+        assert len(transformed_messages) == len(messages)
+
+        # These tests are not strict on purpose to avoid flakiness.
+        assert at_least_one_keyword_present(
+            ["smart", "intelligent", "social", "information", "signature"],
+            transformed_messages[long_msgs_indices[0]].content,
+        )
+        assert at_least_one_keyword_present(
+            ["memory", "20 year", "cognitive", "memories", "migrate"],
+            transformed_messages[long_msgs_indices[1]].content,
+        )
+
+        for original_message, transformed_message in zip(messages, transformed_messages):
+            if original_message.content in short_messages:
+                assert original_message.content == transformed_message.content
+            else:
+                assert len(transformed_message.content) < len(original_message.content)
+
+
 @pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
 @retry_test(max_attempts=4)
 @pytest.mark.parametrize(
@@ -373,37 +415,28 @@ def test_transform_summarizes_long_messages_only(
     # We pass a mock_llm because we will not need the agent's generation.
     agent_llm = mock_llm()
     agent = Agent(llm=agent_llm, tools=[], transforms=transforms)
-    conversation = agent.start_conversation()
-    for m in messages:
-        conversation.append_message(m)
+    check_transform_summarizes_long_messages_only(agent, messages, long_msgs_indices)
 
-    with patch_streaming_llm(agent_llm, "This is a mock llm generation.") as patched_agent_llm:
-        conversation.execute()
 
-        # We will check that the messages passed to the llm where summarized iff they were long.
-        transformed_messages = [
-            message
-            for prompts, _ in patched_agent_llm.call_args_list
-            for prompt in prompts
-            for message in prompt.messages
-        ]
-        assert len(transformed_messages) == len(messages)
-
-        # These tests are not strict on purpose to avoid flakiness.
-        assert at_least_one_keyword_present(
-            ["smart", "intelligent", "social", "information", "signature"],
-            transformed_messages[long_msgs_indices[0]].content,
-        )
-        assert at_least_one_keyword_present(
-            ["memory", "20 year", "cognitive", "memories", "migrate"],
-            transformed_messages[long_msgs_indices[1]].content,
-        )
-
-        for original_message, transformed_message in zip(messages, transformed_messages):
-            if original_message.content in short_messages:
-                assert original_message.content == transformed_message.content
-            else:
-                assert len(transformed_message.content) < len(original_message.content)
+@retry_test(max_attempts=4)
+@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+def test_transform_summarizes_long_messages_only_from_agentspec(
+    converted_wayflow_agent_with_message_summarization_transform_from_agentspec,
+):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2026-01-15
+    Average success time:  2.33 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    check_transform_summarizes_long_messages_only(
+        converted_wayflow_agent_with_message_summarization_transform_from_agentspec,
+        messages=CONVERSATION_WITH_LONG_MESSAGES,
+        long_msgs_indices=[1, 3],
+        has_system_prompt=True,
+    )
 
 
 @pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
