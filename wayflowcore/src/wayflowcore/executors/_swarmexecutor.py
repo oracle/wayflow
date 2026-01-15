@@ -451,11 +451,12 @@ class SwarmRunner(ConversationExecutor):
         )
 
         # Get the oldest unanswered tool requests since the tool requests are processed sequentially
+        # This is the handoff tool request
         tool_request = unanswered_tool_requests[0]
 
-        if len(unanswered_tool_requests) >= 1:
-            # We do not allow tool requests after the handoff since the conversation is transfer to another agent
-            # by append tool results saying that the tool requests are cancelled
+        if len(unanswered_tool_requests) > 1:
+            # Do not allow tool requests after the handoff since the conversation is transferred to another agent
+            # Append tool results saying that the tool requests are cancelled
             _close_multiple_tool_requests_after_handoff_tool_request(
                 current_thread.message_list, tool_request
             )
