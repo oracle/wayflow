@@ -192,7 +192,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     description: str
     url: str
     method: str
-    json_body: Optional[Any]  # Deprecated
+    json_body: Optional[Any]  # Deprecated, will be removed in version 26.2.0
     data: Optional[Any]
     params: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]]
     headers: Optional[Dict[str, str]]
@@ -217,7 +217,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         method: str,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        json_body: Optional[Any] = None,  # Deprecated
+        json_body: Optional[Any] = None,  # Deprecated, will be removed in version 26.2.0
         data: Optional[Any] = None,
         params: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]] = None,
         headers: Optional[Dict[str, str]] = None,
