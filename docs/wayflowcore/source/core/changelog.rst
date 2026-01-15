@@ -176,6 +176,10 @@ Bug fixes
   Fixed a bug where instantiating an Agent with an ``agent_template``, ``initial_message=None`` and ``custom_instruction=None`` would raise an exception.
   Now, users can fully specify the agent template without having to additionally specify initial messages or custom instructions.
 
+* **Hand off in Swarms can only be done by the main agent in Optional Handoff Mode**
+
+  Fixed a bug where handoff in Swarms was not restricted properly. The ability to handoff has been removed for agents that are sent ``send_message`` in Swarms, ensuring that only the main agent can perform handoffs in ``HandoffMode.OPTIONAL`` mode.
+
 
 WayFlow 25.4.2
 --------------

@@ -679,20 +679,21 @@ def test_swarm_raises_on_missing_relationship_when_using_handoff():
             _send_message(
                 agent2, message="hey agent 2, can you do ...", thoughts="sending message to agent2"
             ),
+            "Yes, do this..",
             _handoff_message(agent3, thoughts="handing off conversation to agent3"),
-            _send_message(
-                agent1, message="hey agent 1, can you do ...", thoughts="sending message to agent1"
-            ),
+            "Yes, User..",
         ]
     )
 
     conv = swarm.start_conversation()
     conv.append_user_message("dummy")
-    with pytest.raises(
-        KeyError,
-        match=f"Cannot handoff conversation from .*'{agent1.name}', recipient='{agent2.name}'.*'{agent1.name}', recipient='{agent3.name}'.*'{agent1.name}', '{agent3.name}'",
-    ):
-        conv.execute()
+    conv.execute()
+    main_message_list = conv.state.main_thread.message_list
+    handoff_error_message = main_message_list.get_messages()[-2]
+    assert (
+        f"Recipient agent3 is not recognized. Possible recipients are: ['agent2']"
+        in handoff_error_message.content
+    )
 
 
 def test_circular_calling_warning_with_handoff():
@@ -708,18 +709,18 @@ def test_circular_calling_warning_with_handoff():
             (agent1, agent2),
             (agent1, agent3),  # required to support handoff
             (agent2, agent3),
-            (agent3, agent1),
+            (agent3, agent2),
         ],
     )
 
     llm.set_next_output(
         [
+            _handoff_message(agent3, thoughts="handing off conversation to agent3"),
             _send_message(
                 agent2, message="hey agent 2, can you do ...", thoughts="sending message to agent2"
             ),
-            _handoff_message(agent3, thoughts="handing off conversation to agent3"),
             _send_message(
-                agent1, message="hey agent 1, can you do ...", thoughts="sending message to agent1"
+                agent3, message="hey agent 3, can you do ...", thoughts="sending message to agent3"
             ),
         ]
     )
@@ -731,11 +732,11 @@ def test_circular_calling_warning_with_handoff():
         # controlled execution
         conv.execute()
 
-    agent1_agent3_message_list = conv.state.agents_and_threads[agent1.name][
-        agent3.name
+    agent3_agent2_message_list = conv.state.agents_and_threads[agent3.name][
+        agent2.name
     ].message_list
     last_message = (
-        agent1_agent3_message_list.get_last_message()
+        agent3_agent2_message_list.get_last_message()
     )  # Message warning the `agent3` about what it is doing wrong
     assert (
         f"Circular calling warning: Cannot use {_SEND_MESSAGE_TOOL_NAME} on a caller/user. Please use {_TALK_TO_USER_TOOL_NAME} instead"
