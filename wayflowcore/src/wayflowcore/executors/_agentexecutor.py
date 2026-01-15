@@ -1169,7 +1169,6 @@ class AgentConversationExecutor(ConversationExecutor):
                     for tool in await toolbox.get_tools_async()
                 ],
             ]
-
         return tools
 
     @staticmethod
