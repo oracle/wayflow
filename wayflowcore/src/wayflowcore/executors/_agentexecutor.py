@@ -4,7 +4,6 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-import copy
 import logging
 import os
 import warnings
@@ -1162,15 +1161,15 @@ class AgentConversationExecutor(ConversationExecutor):
         else:
             # The list of tools passed to the Agent includes the list of static tools
             # as well as the tools fetch from the ToolBoxes
-            toolbox_tools = []
-            for toolbox in config._toolboxes:
-                for toolbox_tool in await toolbox.get_tools_async():
-                    if toolbox.requires_confirmation and not toolbox_tool.requires_confirmation:
-                        toolbox_tool = copy.deepcopy(toolbox_tool)
-                        toolbox_tool.requires_confirmation = True
-                    toolbox_tools.append(toolbox_tool)
+            tools = [
+                *config._all_static_tools,
+                *[
+                    tool
+                    for toolbox in config._toolboxes
+                    for tool in await toolbox.get_tools_async()
+                ],
+            ]
 
-            tools = [*config._all_static_tools] + toolbox_tools
         return tools
 
     @staticmethod

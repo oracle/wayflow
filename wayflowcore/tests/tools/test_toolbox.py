@@ -63,11 +63,11 @@ class BasicToolBox(ToolBox):
 
     tools: List[Tool] = field(default_factory=list)
 
-    def get_tools(self) -> List[Tool]:
+    def _get_tools_inner(self) -> List[Tool]:
         """Return the list of tools exposed by the ``ToolBox``"""
         return self.tools
 
-    async def get_tools_async(self) -> List["Tool"]:
+    async def _get_tools_inner_async(self) -> List["Tool"]:
         return self.tools
 
 

@@ -3,7 +3,6 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-import copy
 import logging
 from dataclasses import InitVar, dataclass, field
 from typing import Any, Dict, List, Optional, Sequence, Union
@@ -208,27 +207,20 @@ class MCPToolBox(ToolBox, DataclassComponent):
                     f"Invalid tool filter. Should be `str` or `Tool`, was {type(tool_)}"
                 )
 
-        server_tools = await get_server_tools_from_mcp_server(
+        return await get_server_tools_from_mcp_server(
             session=session,
             expected_signatures_by_name=expected_signatures_by_name,
             client_transport=self.client_transport,
         )
 
-        for server_tool in server_tools:
-            if self.requires_confirmation and not server_tool.requires_confirmation:
-                server_tool = copy.deepcopy(server_tool)
-                server_tool.requires_confirmation = True
-
-        return server_tools
-
-    async def get_tools_async(self) -> Sequence[ServerTool]:
+    async def _get_tools_inner_async(self) -> Sequence[ServerTool]:
         mcp_runtime = get_mcp_async_runtime()
         # 1. Ensure session is created (from the portal)
         session = mcp_runtime.get_or_create_session(self.client_transport)
         # 2. Perform the call (from the portal)
         return await mcp_runtime.call_async(self._get_tools_async_impl, session)
 
-    def get_tools(self) -> Sequence[ServerTool]:
+    def _get_tools_inner(self) -> Sequence[ServerTool]:
         """
         Return the list of tools exposed by the ``MCPToolBox``.
 
