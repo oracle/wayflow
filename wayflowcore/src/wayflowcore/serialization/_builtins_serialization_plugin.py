@@ -24,6 +24,7 @@ from pyagentspec.datastores import (
 )
 from pyagentspec.datastores import OracleDatabaseDatastore as AgentSpecOracleDatabaseDatastore
 from pyagentspec.datastores import PostgresDatabaseDatastore as AgentSpecPostgresDatabaseDatastore
+from pyagentspec.datastores import RelationalDatastore as AgentSpecRelationalDatastore
 from pyagentspec.datastores import (
     TlsOracleDatabaseConnectionConfig as AgentSpecTlsOracleDatabaseConnectionConfig,
 )
@@ -1091,7 +1092,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
     ) -> AgentSpecDatastore:
         if isinstance(runtime_datastore, RuntimeInMemoryDatastore):
             return AgentSpecInMemoryDatastore(
-                name="InMemoryDatastore",
+                name=runtime_datastore.name or "in-memory-datastore",
                 datastore_schema={
                     k: _runtime_entity_to_pyagentspec_entity(v)
                     for k, v in runtime_datastore.schema.items()
@@ -1100,7 +1101,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             )
         elif isinstance(runtime_datastore, RuntimeOracleDatabaseDatastore):
             return AgentSpecOracleDatabaseDatastore(
-                name="OracleDatabaseDatastore",
+                name=runtime_datastore.name or "oracle-database-datastore",
                 datastore_schema={
                     k: _runtime_entity_to_pyagentspec_entity(v)
                     for k, v in runtime_datastore.schema.items()
@@ -1114,7 +1115,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             )
         elif isinstance(runtime_datastore, RuntimePostgresDatabaseDatastore):
             return AgentSpecPostgresDatabaseDatastore(
-                name="AgentSpecPostgresDatabaseDatastore",
+                name=runtime_datastore.name or "postgres-database-datastore",
                 datastore_schema={
                     k: _runtime_entity_to_pyagentspec_entity(v)
                     for k, v in runtime_datastore.schema.items()
@@ -2923,7 +2924,10 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             runtime_step = cast(RuntimeDatastoreListStep, runtime_step)
             return AgentSpecPluginDatastoreListNode(
                 **step_args,
-                datastore=conversion_context.convert(runtime_step.datastore, referenced_objects),  # type: ignore
+                datastore=cast(
+                    AgentSpecDatastore,
+                    conversion_context.convert(runtime_step.datastore, referenced_objects),
+                ),
                 collection_name=runtime_step.collection_name,
                 where=runtime_step.where,
                 limit=runtime_step.limit,
@@ -2935,7 +2939,10 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             runtime_step = cast(RuntimeDatastoreDeleteStep, runtime_step)
             return AgentSpecPluginDatastoreDeleteNode(
                 **step_args,
-                datastore=conversion_context.convert(runtime_step.datastore, referenced_objects),  # type: ignore
+                datastore=cast(
+                    AgentSpecDatastore,
+                    conversion_context.convert(runtime_step.datastore, referenced_objects),
+                ),
                 collection_name=runtime_step.collection_name,
                 where=runtime_step.where,
                 input_mapping=runtime_step.input_mapping,
@@ -2945,7 +2952,10 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             runtime_step = cast(RuntimeDatastoreUpdateStep, runtime_step)
             return AgentSpecPluginDatastoreUpdateNode(
                 **step_args,
-                datastore=conversion_context.convert(runtime_step.datastore, referenced_objects),  # type: ignore
+                datastore=cast(
+                    AgentSpecDatastore,
+                    conversion_context.convert(runtime_step.datastore, referenced_objects),
+                ),
                 collection_name=runtime_step.collection_name,
                 where=runtime_step.where,
                 input_mapping=runtime_step.input_mapping,
@@ -2955,7 +2965,10 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             runtime_step = cast(RuntimeDatastoreQueryStep, runtime_step)
             return AgentSpecPluginDatastoreQueryNode(
                 **step_args,
-                datastore=conversion_context.convert(runtime_step.datastore, referenced_objects),  # type: ignore
+                datastore=cast(
+                    AgentSpecRelationalDatastore,
+                    conversion_context.convert(runtime_step.datastore, referenced_objects),
+                ),
                 query=runtime_step.query,
                 input_mapping=runtime_step.input_mapping,
                 output_mapping=runtime_step.output_mapping,
@@ -2964,7 +2977,10 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             runtime_step = cast(RuntimeDatastoreCreateStep, runtime_step)
             return AgentSpecPluginDatastoreCreateNode(
                 **step_args,
-                datastore=conversion_context.convert(runtime_step.datastore, referenced_objects),  # type: ignore
+                datastore=cast(
+                    AgentSpecDatastore,
+                    conversion_context.convert(runtime_step.datastore, referenced_objects),
+                ),
                 collection_name=runtime_step.collection_name,
                 input_mapping=runtime_step.input_mapping,
                 output_mapping=runtime_step.output_mapping,
