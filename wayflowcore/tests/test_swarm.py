@@ -44,6 +44,14 @@ def fooza_tool(
 
 
 @tool
+def fooza_tool_2(
+    a: Annotated[int, "first required integer"], b: Annotated[int, "second required integer"]
+) -> int:
+    """Return the result of the fooza operation between numbers a and b. Do not use for anything else than computing a fooza operation."""
+    raise ValueError("Cannot compute result using fooza tool.")
+
+
+@tool
 def bwip_tool(
     a: Annotated[int, "first required integer"], b: Annotated[int, "second required integer"]
 ) -> int:
@@ -59,14 +67,16 @@ def zbuk_tool(
     return a + b * 2
 
 
-def _get_fooza_agent(llm):
+def _get_fooza_agent(llm, raise_exception_tool=False, raise_exceptions=False):
+    _tool = fooza_tool_2 if raise_exception_tool else fooza_tool
     return Agent(
         custom_instruction=(
             "You are a fooza operation specialist. The fooza operation is a linear transformation, "
             "designed by Mr. Fooza. Tackle the requests you are specialized to tackle, and let other agents take care of the rest."
         ),
         llm=llm,
-        tools=[fooza_tool],
+        tools=[_tool],
+        raise_exceptions=raise_exceptions,
         agent_id="fooza_agent",
         name="fooza_agent",
         description="An specialized AI Assistant that can answer any question/request related to the fooza operation.",
@@ -1506,3 +1516,49 @@ def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm)
 
     result = fooza_tool.func(4, 2) + bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
     assert str(result) in conv.get_last_message().content
+
+
+@pytest.mark.parametrize(
+    "raise_exceptions, expected_exception, expected_result",
+    [
+        (True, pytest.raises(ValueError, match="Cannot compute result using fooza tool."), None),
+        (False, None, lambda: bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)),
+    ],
+)
+@retry_test(max_attempts=4)
+def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception(
+    vllm_responses_llm, raise_exceptions, expected_exception, expected_result
+):
+    """
+    Failure rate:          1 out of 20
+    Observed on:           2026-01-16
+    Average success time:  17.15 seconds per successful attempt
+    Average failure time:  12.90 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.09 ** 4) ~= 6.8 / 100'000
+    """
+    llm = vllm_responses_llm
+    fooza_agent = _get_fooza_agent(
+        llm, raise_exception_tool=True, raise_exceptions=raise_exceptions
+    )
+    bwip_agent = _get_bwip_agent(llm)
+    zbuk_agent = _get_zbuk_agent(llm)
+    main_agent = get_first_agent(llm)
+    main_agent.custom_instruction = "You are the main agent. You SHOULD output all the tool calls at once when approriate. If you are unable to obtain a complete result, return the partial result instead."
+
+    math_swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent) for agent in [fooza_agent, bwip_agent, zbuk_agent]],
+    )
+
+    conv = math_swarm.start_conversation(
+        messages="Compute the result of fooza(4, 2) + bwip(4, 5) + zbuk(5, 6)"
+    )
+
+    if expected_exception:
+        with expected_exception:
+            conv.execute()
+    else:
+        conv.execute()
+        result = expected_result()
+        assert str(result) in conv.get_last_message().content
