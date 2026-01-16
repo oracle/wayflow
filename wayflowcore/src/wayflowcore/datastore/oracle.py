@@ -136,7 +136,12 @@ class OracleDatabaseDatastore(RelationalDatastore, SerializableObject):
     """
 
     def __init__(
-        self, schema: Dict[str, Entity], connection_config: OracleDatabaseConnectionConfig
+        self,
+        schema: Dict[str, Entity],
+        connection_config: OracleDatabaseConnectionConfig,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
     ):
         """Initialize an Oracle Database Datastore.
 
@@ -147,12 +152,18 @@ class OracleDatabaseDatastore(RelationalDatastore, SerializableObject):
             this datastore.
         connection_config :
             Configuration of connection parameters
+        name :
+            Name of the datastore
+        description :
+            Description of the datastore
+        id :
+            ID of the datastore
         """
         self.connection_config = connection_config
         engine = sqlalchemy.create_engine(
             "oracle+oracledb://", creator=connection_config.get_connection
         )
-        super().__init__(schema, engine)
+        super().__init__(schema, engine, name=name, description=description, id=id)
         SerializableObject.__init__(self)
 
     def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
