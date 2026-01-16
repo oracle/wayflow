@@ -7,7 +7,7 @@ pandas==2.2.3
 PyYAML==6.0.3
 pydantic==2.11.3
 httpx==0.28.1
-mcp==1.17.0
-pyagentspec==26.1.0.dev5 # Main branch of pyagentspec
+mcp==1.24.0
+pyagentspec==26.1.0 # Main branch of pyagentspec
 opentelemetry-api==1.36.0
 opentelemetry-sdk==1.36.0
