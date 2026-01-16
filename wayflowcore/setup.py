@@ -51,7 +51,7 @@ setup(
     packages=find_packages("src"),
     python_requires=">=3.10,<3.14",
     install_requires=[
-        "pyagentspec>=25.4.1",
+        "pyagentspec>=26.1.0",
         "httpx>0.28.0,<1.0.0",  # warning but no vulnerabilities
         "numpy>=1.24.3,<3.0.0",
         "pandas>=2.0.3,<3.0.0",
