@@ -6,6 +6,7 @@
 import logging
 from typing import Any, Callable, List, Optional
 
+from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import is_coroutine_function, run_sync_in_thread
 from wayflowcore.component import Component
 from wayflowcore.messagelist import Message, MessageType
@@ -24,9 +25,15 @@ class MessageTransform(SerializableCallable, Component):
     """
 
     def __init__(
-        self, id: Optional[str] = None, name: str = "transform", description: Optional[str] = None
+        self,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        Component.__init__(self, name=name, description=description, id=id)
+        Component.__init__(
+            self, name=name, description=description, id=id, __metadata_info__=__metadata_info__
+        )
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         """Implement this method for synchronous logic (CPU-bounded)"""
@@ -42,10 +49,13 @@ class CallableMessageTransform(MessageTransform):
         self,
         func: Callable[..., Any],
         id: Optional[str] = None,
-        name: str = "callable_transform",
+        name: Optional[str] = None,
         description: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(id=id, name=name, description=description)
+        super().__init__(
+            id=id, name=name, description=description, __metadata_info__=__metadata_info__
+        )
         self.func = func
 
     async def call_async(self, messages: List["Message"]) -> List["Message"]:
@@ -65,10 +75,13 @@ class CoalesceSystemMessagesTransform(MessageTransform):
     def __init__(
         self,
         id: Optional[str] = None,
-        name: str = "coalesce_system_messages_transform",
+        name: Optional[str] = None,
         description: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(id=id, name=name, description=description)
+        super().__init__(
+            id=id, name=name, description=description, __metadata_info__=__metadata_info__
+        )
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         from wayflowcore.messagelist import Message
@@ -99,10 +112,13 @@ class RemoveEmptyNonUserMessageTransform(MessageTransform):
     def __init__(
         self,
         id: Optional[str] = None,
-        name: str = "remove_empty_non_user_message_transform",
+        name: Optional[str] = None,
         description: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(id=id, name=name, description=description)
+        super().__init__(
+            id=id, name=name, description=description, __metadata_info__=__metadata_info__
+        )
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         return [
@@ -128,10 +144,13 @@ class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform):
     def __init__(
         self,
         id: Optional[str] = None,
-        name: str = "append_trailing_system_message_to_user_message_transform",
+        name: Optional[str] = None,
         description: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(id=id, name=name, description=description)
+        super().__init__(
+            id=id, name=name, description=description, __metadata_info__=__metadata_info__
+        )
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         if len(messages) < 2:
@@ -159,10 +178,13 @@ class SplitPromptOnMarkerMessageTransform(MessageTransform):
         self,
         marker: Optional[str] = None,
         id: Optional[str] = None,
-        name: str = "split_prompt_on_marker_message_transform",
+        name: Optional[str] = None,
         description: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(id=id, name=name, description=description)
+        super().__init__(
+            id=id, name=name, description=description, __metadata_info__=__metadata_info__
+        )
         self.marker = marker if marker is not None else "\n---"
 
     def __call__(self, messages: list["Message"]) -> list["Message"]:

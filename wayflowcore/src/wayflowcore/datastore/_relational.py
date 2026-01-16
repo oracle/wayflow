@@ -19,6 +19,7 @@ from typing import (
     overload,
 )
 
+from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.component import Component
 from wayflowcore.datastore._datatable import Datatable
@@ -331,6 +332,7 @@ class RelationalDatastore(Datastore, ABC):
         name: Optional[str] = None,
         description: Optional[str] = None,
         id: Optional[str] = None,
+        __metadata_info__: Optional["MetadataType"] = None,
     ):
         """Initialize a ``RelationalDatastore``
 
@@ -348,7 +350,9 @@ class RelationalDatastore(Datastore, ABC):
         id :
             ID of the datastore
         """
-        Component.__init__(self, name=name, description=description, id=id)
+        Component.__init__(
+            self, name=name, description=description, id=id, __metadata_info__=__metadata_info__
+        )
         self.engine = engine
         self.schema = schema
         normalized_entity_names = {

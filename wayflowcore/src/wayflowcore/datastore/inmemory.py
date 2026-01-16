@@ -11,7 +11,7 @@ from warnings import warn
 import numpy as np
 import pandas as pd
 
-from wayflowcore.component import Component
+from wayflowcore._metadata import MetadataType
 from wayflowcore.datastore._datatable import Datatable
 from wayflowcore.datastore._utils import (
     check_collection_name,
@@ -128,7 +128,7 @@ class _InMemoryDatatable(Datatable):
         self._data = self._data.loc[~where_filter]
 
 
-class InMemoryDatastore(Datastore, Component):
+class InMemoryDatastore(Datastore):
     """In-memory datastore for testing and development purposes.
 
     This datastore implements basic functionalities of datastores, with
@@ -156,6 +156,7 @@ class InMemoryDatastore(Datastore, Component):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
     ):
         """Initialize an ``InMemoryDatastore``.
 
@@ -216,6 +217,7 @@ class InMemoryDatastore(Datastore, Component):
             name=IdGenerator.get_or_generate_name(name, prefix="inmemory_datastore", length=8),
             id=id,
             description=description,
+            __metadata_info__=__metadata_info__,
         )
         self._validate_schema(schema)
         self.schema = schema

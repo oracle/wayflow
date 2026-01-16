@@ -318,12 +318,14 @@ class MessageSummarizationTransform(MessageTransform):
         cache_collection_name: str = DEFAULT_CACHE_COLLECTION_NAME,
         max_cache_size: Optional[int] = 10_000,
         max_cache_lifetime: Optional[int] = 4 * 3600,
-        name: str = "message-summarization-transform",
+        name: Optional[str] = None,
         id: Optional[str] = None,
         description: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(name=name, description=description, id=id)
+        super().__init__(
+            name=name, description=description, id=id, __metadata_info__=__metadata_info__
+        )
         self.llm = llm
         self.summarization_instructions = summarization_instructions
         self.summarized_message_template = summarized_message_template
@@ -481,12 +483,14 @@ class ConversationSummarizationTransform(MessageTransform):
         max_cache_size: Optional[int] = 10_000,
         max_cache_lifetime: Optional[int] = 4 * 3600,
         cache_collection_name: str = DEFAULT_CACHE_COLLECTION_NAME,
-        name: str = "conversation-summarization-transform",
+        name: Optional[str] = None,
         id: Optional[str] = None,
         description: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(name=name, description=description, id=id)
+        super().__init__(
+            name=name, description=description, id=id, __metadata_info__=__metadata_info__
+        )
         self.llm = llm
         self.summarization_instructions = summarization_instructions
         self._summarizer = _Summarizer(
