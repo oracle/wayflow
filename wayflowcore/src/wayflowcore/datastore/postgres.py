@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, cast
 
+from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.datastore.entity import Entity
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
@@ -132,6 +133,7 @@ class PostgresDatabaseDatastore(RelationalDatastore, SerializableObject):
         name: Optional[str] = None,
         description: Optional[str] = None,
         id: Optional[str] = None,
+        __metadata_info__: Optional["MetadataType"] = None,
     ):
         """Initialize an Postgres Database Datastore.
 
@@ -151,7 +153,14 @@ class PostgresDatabaseDatastore(RelationalDatastore, SerializableObject):
         """
         self.connection_config = connection_config
         engine = connection_config.get_connection()
-        super().__init__(schema, engine, name=name, description=description, id=id)
+        super().__init__(
+            schema,
+            engine,
+            name=name,
+            description=description,
+            id=id,
+            __metadata_info__=__metadata_info__,
+        )
         SerializableObject.__init__(self)
 
     def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
