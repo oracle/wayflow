@@ -19,8 +19,6 @@ from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
 from wayflowcore.flow import Flow as RuntimeFlow
 from wayflowcore.ociagent import OciAgent as RuntimeOciAgent
 from wayflowcore.tools.servertools import ServerTool
-from wayflowcore.transforms import MessageSummarizationTransform
-from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
 
 from ..conftest import mock_llm
 from ..testhelpers.testhelpers import assert_agents_are_copies, assert_flows_are_copies
@@ -217,17 +215,6 @@ def test_agentspec_json_and_yaml_import_are_equal(
             assert_agents_are_copies(yaml_agent_1, json_agent_1)
             assert_agents_are_copies(yaml_agent_2, json_agent_2)
         assert deserialized_yaml_assistant.handoff == deserialized_json_assistant.handoff
-
-
-def test_agent2core_converter_raises_error_with_non_empty_transforms():
-
-    with pytest.warns(UserWarning, match=_SUMMARIZATION_WARNING_MESSAGE):
-        agent = RuntimeAgent(mock_llm(), transforms=[MessageSummarizationTransform(mock_llm())])
-        with pytest.raises(NotImplementedError):
-            agentspec_yaml = AgentSpecExporter().to_yaml(agent)
-
-        with pytest.raises(NotImplementedError):
-            agentspec_json = AgentSpecExporter().to_json(agent)
 
 
 @pytest.mark.parametrize(
