@@ -628,14 +628,10 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 extra_arguments["caller_input_mode"] = CallerInputMode.ALWAYS
             else:
                 extra_arguments["caller_input_mode"] = CallerInputMode.NEVER
-            transforms = (
-                [
-                    conversion_context.convert(transform, tool_registry, converted_components)
-                    for transform in agentspec_component.transforms
-                ]
-                if agentspec_component.transforms
-                else None
-            )
+            transforms = [
+                conversion_context.convert(transform, tool_registry, converted_components)
+                for transform in agentspec_component.transforms
+            ]
 
             agent = RuntimeAgent(
                 name=agentspec_component.name,

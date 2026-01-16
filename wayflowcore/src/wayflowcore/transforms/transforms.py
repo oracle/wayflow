@@ -4,7 +4,6 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import logging
-from dataclasses import dataclass
 from typing import Any, Callable, List, Optional
 
 from wayflowcore._utils.async_helpers import is_coroutine_function, run_sync_in_thread
@@ -27,10 +26,6 @@ class MessageTransform(SerializableCallable, Component):
     def __init__(
         self, id: Optional[str] = None, name: str = "transform", description: Optional[str] = None
     ) -> None:
-        # TODO This is probably not the right way to do it. This is a minimal code solution.
-        # The "right" way is probably to update all transforms to accept id, name, description
-        # That should be done after confirmation that the overall approach (make transform a Component)
-        # is correct.
         Component.__init__(self, name=name, description=description, id=id)
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
@@ -42,9 +37,16 @@ class MessageTransform(SerializableCallable, Component):
         return await run_sync_in_thread(self.__call__, messages)
 
 
-@dataclass
 class CallableMessageTransform(MessageTransform):
-    func: Callable[..., Any]
+    def __init__(
+        self,
+        func: Callable[..., Any],
+        id: Optional[str] = None,
+        name: str = "callable_transform",
+        description: Optional[str] = None,
+    ) -> None:
+        super().__init__(id=id, name=name, description=description)
+        self.func = func
 
     async def call_async(self, messages: List["Message"]) -> List["Message"]:
         if is_coroutine_function(self.func):
@@ -59,6 +61,14 @@ class CoalesceSystemMessagesTransform(MessageTransform):
     into a single system message. This is useful for reducing redundancy and ensuring
     that only one system message appears at the beginning of the conversation.
     """
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        name: str = "coalesce_system_messages_transform",
+        description: Optional[str] = None,
+    ) -> None:
+        super().__init__(id=id, name=name, description=description)
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         from wayflowcore.messagelist import Message
@@ -86,6 +96,14 @@ class RemoveEmptyNonUserMessageTransform(MessageTransform):
     content is empty (with a string template such as "{% if __PLAN__ %}{{ __PLAN__ }}{% endif %}").
     """
 
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        name: str = "remove_empty_non_user_message_transform",
+        description: Optional[str] = None,
+    ) -> None:
+        super().__init__(id=id, name=name, description=description)
+
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         return [
             m
@@ -106,6 +124,14 @@ class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform):
 
     This is useful if the underlying LLM does not support system messages at the end.
     """
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        name: str = "append_trailing_system_message_to_user_message_transform",
+        description: Optional[str] = None,
+    ) -> None:
+        super().__init__(id=id, name=name, description=description)
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         if len(messages) < 2:
@@ -129,7 +155,14 @@ class SplitPromptOnMarkerMessageTransform(MessageTransform):
     into multiple conversation turns for step-by-step reasoning.
     """
 
-    def __init__(self, marker: Optional[str] = None):
+    def __init__(
+        self,
+        marker: Optional[str] = None,
+        id: Optional[str] = None,
+        name: str = "split_prompt_on_marker_message_transform",
+        description: Optional[str] = None,
+    ) -> None:
+        super().__init__(id=id, name=name, description=description)
         self.marker = marker if marker is not None else "\n---"
 
     def __call__(self, messages: list["Message"]) -> list["Message"]:

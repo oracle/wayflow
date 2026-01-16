@@ -323,7 +323,7 @@ class MessageSummarizationTransform(MessageTransform):
         description: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(name=name, id=id, description=description)
+        super().__init__(name=name, description=description, id=id)
         self.llm = llm
         self.summarization_instructions = summarization_instructions
         self.summarized_message_template = summarized_message_template
@@ -486,7 +486,7 @@ class ConversationSummarizationTransform(MessageTransform):
         description: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(name=name, id=id, description=description)
+        super().__init__(name=name, description=description, id=id)
         self.llm = llm
         self.summarization_instructions = summarization_instructions
         self._summarizer = _Summarizer(
