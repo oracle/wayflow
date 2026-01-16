@@ -143,10 +143,6 @@ Messages
 .. autoclass:: wayflowcore.agentspec.components.template.PluginPromptTemplate
     :exclude-members: model_post_init, model_config
 
-.. _agentspecmessagetransform:
-.. autoclass:: wayflowcore.agentspec.components.transforms.PluginMessageTransform
-    :exclude-members: model_post_init, model_config
-
 .. _agentspeccoalescesystemmessagestransform:
 .. autoclass:: wayflowcore.agentspec.components.transforms.PluginCoalesceSystemMessagesTransform
     :exclude-members: model_post_init, model_config
@@ -219,42 +215,6 @@ Context Providers
 
 .. _agentspeccontextprovider:
 .. autoclass:: wayflowcore.agentspec.components.contextprovider.PluginContextProvider
-    :exclude-members: model_post_init, model_config
-
-
-Datastores
-^^^^^^^^^^
-
-.. _agentspecdatastore:
-.. autoclass:: wayflowcore.agentspec.components.datastores.datastore.PluginDatastore
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecentity:
-.. autoclass:: wayflowcore.agentspec.components.datastores.entity.PluginEntity
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecinmemorydatastore:
-.. autoclass:: wayflowcore.agentspec.components.datastores.inmemory_datastore.PluginInMemoryDatastore
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecmtlsoracledatabaseconnectionconfig:
-.. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecoracledatabaseconnectionconfig:
-.. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseConnectionConfig
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecoracledatabasedatastore:
-.. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseDatastore
-    :exclude-members: model_post_init, model_config
-
-.. _agentspectlsoracledatabaseconnectionconfig:
-.. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecrelationaldatastore:
-.. autoclass:: wayflowcore.agentspec.components.datastores.relational_datastore.PluginRelationalDatastore
     :exclude-members: model_post_init, model_config
 
 Tools
