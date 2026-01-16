@@ -1623,7 +1623,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     k: self._convert_entity_to_runtime(v)
                     for k, v in agentspec_component.datastore_schema.items()
                 },
-                id=agentspec_component.id,
+                **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecTlsOracleDatabaseConnectionConfig):
             return RuntimeTlsOracleDatabaseConnectionConfig(
@@ -1652,6 +1652,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 connection_config=conversion_context.convert(
                     agentspec_component.connection_config, tool_registry, converted_components
                 ),
+                **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecTlsPostgresDatabaseConnectionConfig):
             return RuntimeTlsPostgresDatabaseConnectionConfig(
@@ -1674,6 +1675,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 connection_config=conversion_context.convert(
                     agentspec_component.connection_config, tool_registry, converted_components
                 ),
+                name=agentspec_component.name,
             )
         elif isinstance(agentspec_component, AgentSpecMessageTransform):
             if isinstance(agentspec_component, AgentSpecPluginCoalesceSystemMessagesTransform):

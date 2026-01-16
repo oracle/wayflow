@@ -7,6 +7,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union, overload
 
+from wayflowcore._metadata import MetadataType
 from wayflowcore.component import Component
 from wayflowcore.datastore.entity import Entity, EntityAsDictT
 
@@ -25,8 +26,11 @@ class Datastore(Component, ABC):
         name: Optional[str] = None,
         description: Optional[str] = None,
         id: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
     ):
-        super().__init__(name=name, description=description, id=id)
+        super().__init__(
+            name=name, description=description, id=id, __metadata_info__=__metadata_info__
+        )
 
     @abstractmethod
     def list(
