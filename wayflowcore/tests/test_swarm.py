@@ -1490,7 +1490,7 @@ def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm)
     )
 
     conv = math_swarm.start_conversation(
-        messages="Compute the result of fooza(4, 2) + bwip(4, 5) + zbuk(5, 6)"
+        messages="Compute the result of fooza(4, 2) + bwip(4, 5) + zbuk(5, 6). You should call multiple tools at once for this task."
     )
 
     conv.execute()
@@ -1503,9 +1503,7 @@ def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm)
 
     second_message = conv.get_messages()[1]
 
-    assert (
-        len(second_message.tool_requests) == 2 or len(second_message.tool_requests) == 3
-    )  # multiple tool calls, sometimes it outputs 2 instead of 3 tool calls at once.
+    assert len(second_message.tool_requests) == 3
 
     for tool_request, (expected_tool_name, expected_params) in zip(
         second_message.tool_requests, expected_tool_requests
