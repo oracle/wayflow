@@ -1923,6 +1923,13 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         ]
         metadata = _create_agentspec_metadata_from_runtime_component(runtime_agent)
         extended_agent_model_fields = AgentSpecExtendedAgent.model_fields
+        transforms = [
+            cast(
+                AgentSpecMessageTransform,
+                conversion_context.convert(transform, referenced_objects),
+            )
+            for transform in runtime_agent.transforms
+        ]
         if (
             (has_cp := runtime_agent.context_providers)
             or (
