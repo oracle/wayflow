@@ -28,6 +28,8 @@ from .test_swarm import (
     _get_bwip_agent,
     _get_fooza_agent,
     _get_zbuk_agent,
+    bwip_tool,
+    zbuk_tool,
 )
 from .testhelpers.dummy import DummyModel
 from .testhelpers.patching import patch_llm
@@ -772,9 +774,7 @@ def test_managerworkers_can_do_multiple_tool_calling_when_appropriate(vllm_respo
 
     second_message = conv.get_messages()[1]
 
-    assert (
-        len(second_message.tool_requests) == 2 or len(second_message.tool_requests) == 3
-    )  # multiple tool calls, sometimes it outputs 2 instead of 3 tool calls at once.
+    assert len(second_message.tool_requests) == 3
 
     for tool_request, (expected_tool_name, expected_params) in zip(
         second_message.tool_requests,
@@ -786,3 +786,48 @@ def test_managerworkers_can_do_multiple_tool_calling_when_appropriate(vllm_respo
             assert tool_request.args[k] == v
 
     assert "30" in conv.get_last_message().content
+
+
+@pytest.mark.parametrize(
+    "raise_exceptions, expected_exception, expected_result",
+    [
+        (True, pytest.raises(ValueError, match="Cannot compute result using fooza tool."), None),
+        (False, None, lambda: bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)),
+    ],
+)
+@retry_test(max_attempts=4)
+def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception(
+    vllm_responses_llm, raise_exceptions, expected_exception, expected_result
+):
+    """
+    Failure rate:          1 out of 20
+    Observed on:           2026-01-16
+    Average success time:  17.15 seconds per successful attempt
+    Average failure time:  12.90 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.09 ** 4) ~= 6.8 / 100'000
+    """
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(
+        llm, raise_exception_tool=True, raise_exceptions=raise_exceptions
+    )
+    bwip_agent = _get_bwip_agent(llm)
+    zbuk_agent = _get_zbuk_agent(llm)
+
+    group = ManagerWorkers(
+        group_manager=fooza_agent,
+        workers=[bwip_agent, zbuk_agent],
+    )
+
+    conv = group.start_conversation(
+        messages="Compute the result of fooza(4, 2) + bwip(4, 5) + zbuk(5, 6). You should call multiple tools at once for this task. If you are unable to obtain a complete result, return the partial result instead."
+    )
+
+    if expected_exception:
+        with expected_exception:
+            conv.execute()
+    else:
+        conv.execute()
+        result = expected_result()
+        assert str(result) in conv.get_last_message().content
