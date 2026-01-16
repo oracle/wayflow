@@ -796,7 +796,7 @@ def test_managerworkers_can_do_multiple_tool_calling_when_appropriate(vllm_respo
     ],
 )
 @retry_test(max_attempts=4)
-def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception(
+def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception(
     vllm_responses_llm, raise_exceptions, expected_exception, expected_result
 ):
     """
