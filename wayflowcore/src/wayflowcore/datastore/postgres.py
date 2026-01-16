@@ -129,6 +129,9 @@ class PostgresDatabaseDatastore(RelationalDatastore, SerializableObject):
         self,
         schema: Dict[str, Entity],
         connection_config: PostgresDatabaseConnectionConfig,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
     ):
         """Initialize an Postgres Database Datastore.
 
@@ -139,10 +142,16 @@ class PostgresDatabaseDatastore(RelationalDatastore, SerializableObject):
             this datastore.
         connection_config :
             Configuration of connection parameters
+        name :
+            Name of the datastore
+        description :
+            Description of the datastore
+        id :
+            ID of the datastore
         """
         self.connection_config = connection_config
         engine = connection_config.get_connection()
-        super().__init__(schema, engine)
+        super().__init__(schema, engine, name=name, description=description, id=id)
         SerializableObject.__init__(self)
 
     def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
