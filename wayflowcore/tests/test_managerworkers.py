@@ -29,6 +29,7 @@ from .test_swarm import (
     _get_fooza_agent,
     _get_zbuk_agent,
     bwip_tool,
+    fooza_tool,
     zbuk_tool,
 )
 from .testhelpers.dummy import DummyModel
@@ -996,7 +997,7 @@ def test_managerworkers_without_user_input_can_execute_as_expected(vllm_response
     assert status.output_values["result"] == 13
 
 
-def test_two_level_managerworkers_can_be_executed(vllm_responses_llm):
+def test_two_level_managerworkers_with_mock_outputs(vllm_responses_llm):
     llm = vllm_responses_llm
     worker_1 = _get_bwip_agent(llm)
     sub_worker = _get_fooza_agent(llm)
@@ -1044,7 +1045,7 @@ def test_two_level_managerworkers_can_be_executed(vllm_responses_llm):
             ],  # tool request of the subworker
             "fooza agent answers to second-level manager",
             "worker 2 (second-level manager) answers to first-level manager",
-            [ToolRequest(name="bwip_tool", args={"a": 4, "b": 5})],  # tool request of bwip agent
+            [ToolRequest(name="bwip_tool", args={"a": 4, "b": 5})],
             "bwip agent answers to first-level manager",
             "first-level manager answers to user",
         ],
@@ -1054,7 +1055,42 @@ def test_two_level_managerworkers_can_be_executed(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
-def test_three_level_managerworkers_can_be_executed(vllm_responses_llm):
+def test_two_level_managerworkers_with_llms(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    worker_1 = _get_bwip_agent(llm)
+
+    sub_worker = _get_fooza_agent(llm)
+    worker_2 = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are a second-level manager. Use your worker fooza for related work.",
+        ),
+        workers=[sub_worker],
+        name="worker_2",
+        description="worker 2",
+    )
+
+    group = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are a first-level manager. Use your workers for related computations.",
+        ),
+        workers=[worker_1, worker_2],
+        name="first_level_group",
+        description="First level group",
+    )
+
+    conv = group.start_conversation(
+        messages="Compute the result of fooza(4, 2) and add it with bwip(4,5)"
+    )
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    ans = fooza_tool.func(4, 2) + bwip_tool.func(4, 5)
+    assert str(ans) in conv.get_last_message().content
+
+
+def test_three_level_managerworkers_with_mock_outputs(vllm_responses_llm):
     llm = vllm_responses_llm
 
     fooza_agent = _get_fooza_agent(llm)
@@ -1122,15 +1158,13 @@ def test_three_level_managerworkers_can_be_executed(vllm_responses_llm):
                     args={"recipient": "fooza_agent", "message": "calculate fooza(4,2)"},
                 )
             ],  # tool request of the third-level manager
-            [
-                ToolRequest(name="fooza_tool", args={"a": 4, "b": 2})
-            ],  # tool request of the fooza agent
+            [ToolRequest(name="fooza_tool", args={"a": 4, "b": 2})],
             "fooza agent answers to third-level manager",
             "third-level manager answers to second-level manager",
             "second-level manager answers to first-level manager",
-            [ToolRequest(name="bwip_tool", args={"a": 4, "b": 5})],  # tool request of bwip agent
+            [ToolRequest(name="bwip_tool", args={"a": 4, "b": 5})],
             "bwip agent answers to first-level manager",
-            [ToolRequest(name="zbuk_tool", args={"a": 5, "b": 6})],  # tool request of zbuk agent
+            [ToolRequest(name="zbuk_tool", args={"a": 5, "b": 6})],
             "zbuk agent answers to first-level manager",
             "first-level manager answers to user",
         ],
@@ -1140,7 +1174,51 @@ def test_three_level_managerworkers_can_be_executed(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
-def test_linear_chain_managerworkers_can_be_executed(vllm_responses_llm):
+def test_three_level_managerworkers_with_llms(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+    zbuk_agent = _get_zbuk_agent(llm)
+
+    third_level_group = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are a third-level manager. Use your worker fooza for related work.",
+        ),
+        workers=[fooza_agent],
+        name="third_level_group",
+        description="Third level group",
+    )
+    second_level_group = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are a second-level manager. Use your third-level group for related work.",
+        ),
+        workers=[third_level_group],
+        name="second_level_group",
+        description="Second level group",
+    )
+    first_level_group = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are a first-level manager. Use your workers for related computations.",
+        ),
+        workers=[second_level_group, bwip_agent, zbuk_agent],
+        name="first_level_group",
+        description="First level group",
+    )
+
+    conv = first_level_group.start_conversation(
+        messages="Compute the result of fooza(4, 2) and add it with bwip(4,5) and zbuk(5,6)"
+    )
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    ans = fooza_tool.func(4, 2) + bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
+    assert str(ans) in conv.get_last_message().content
+
+
+def test_linear_chain_managerworkers_with_mock_outputs(vllm_responses_llm):
     llm = vllm_responses_llm
 
     fooza_agent = _get_fooza_agent(llm)
@@ -1212,13 +1290,13 @@ def test_linear_chain_managerworkers_can_be_executed(vllm_responses_llm):
                     args={"recipient": "fooza_agent", "message": "calculate fooza(4,2)"},
                 )
             ],  # tool request of third-level manager
-            [ToolRequest(name="fooza_tool", args={"a": 4, "b": 2})],  # tool request of fooza agent
+            [ToolRequest(name="fooza_tool", args={"a": 4, "b": 2})],
             "fooza agent answers to third-level manager",
             "third-level manager answers to second-level manager",
-            [ToolRequest(name="zbuk_tool", args={"a": 5, "b": 6})],  # tool request of zbuk agent
+            [ToolRequest(name="zbuk_tool", args={"a": 5, "b": 6})],
             "zbuk agent answers to second-level manager",
             "second-level manager answers to first-level manager",
-            [ToolRequest(name="bwip_tool", args={"a": 4, "b": 5})],  # tool request of bwip agent
+            [ToolRequest(name="bwip_tool", args={"a": 4, "b": 5})],
             "bwip agent answers to first-level manager",
             "first-level manager answers to user",
         ],
@@ -1228,7 +1306,52 @@ def test_linear_chain_managerworkers_can_be_executed(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
-def test_multi_managers_can_be_executed(vllm_responses_llm):
+def test_linear_chain_managerworkers_with_llms(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+    zbuk_agent = _get_zbuk_agent(llm)
+
+    # Linear chain: each level delegates to the next in a strict hierarchy
+    third_level_group = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are a third-level manager. Use your worker fooza for related work.",
+        ),
+        workers=[fooza_agent],
+        name="third_level_group",
+        description="Third level group",
+    )
+    second_level_group = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are a second-level manager. Use your workers for related computations.",
+        ),
+        workers=[third_level_group, zbuk_agent],
+        name="second_level_group",
+        description="Second level group",
+    )
+    first_level_group = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are a first-level manager. Use your workers for related computations.",
+        ),
+        workers=[second_level_group, bwip_agent],
+        name="first_level_group",
+        description="First level group",
+    )
+
+    conv = first_level_group.start_conversation(
+        messages="Compute the result of fooza(4, 2) and add it with bwip(4,5) and zbuk(5,6)"
+    )
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    ans = fooza_tool.func(4, 2) + bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
+    assert str(ans) in conv.get_last_message().content
+
+
+def test_multi_managers_with_mock_outputs(vllm_responses_llm):
     llm = vllm_responses_llm
 
     fooza_agent = _get_fooza_agent(llm)
@@ -1290,7 +1413,7 @@ def test_multi_managers_can_be_executed(vllm_responses_llm):
                     args={"recipient": "fooza_agent", "message": "calculate fooza(4,2)"},
                 )
             ],  # tool request of second-level manager 1
-            [ToolRequest(name="fooza_tool", args={"a": 4, "b": 2})],  # tool request of fooza agent
+            [ToolRequest(name="fooza_tool", args={"a": 4, "b": 2})],
             "fooza agent answers to second-level manager 1",
             "second-level manager 1 answers to first-level manager",
             [
@@ -1303,9 +1426,9 @@ def test_multi_managers_can_be_executed(vllm_responses_llm):
                     args={"recipient": "zbuk_agent", "message": "calculate zbuk(5,6)"},
                 ),
             ],  # tool requests of second-level manager 2
-            [ToolRequest(name="bwip_tool", args={"a": 4, "b": 5})],  # tool request of bwip agent
+            [ToolRequest(name="bwip_tool", args={"a": 4, "b": 5})],
             "bwip agent answers to second-level manager 2",
-            [ToolRequest(name="zbuk_tool", args={"a": 5, "b": 6})],  # tool request of zbuk agent
+            [ToolRequest(name="zbuk_tool", args={"a": 5, "b": 6})],
             "zbuk agent answers to second-level manager 2",
             "second-level manager 2 answers to first-level manager",
             "first-level manager answers to user",
@@ -1314,3 +1437,48 @@ def test_multi_managers_can_be_executed(vllm_responses_llm):
         status = conv.execute()
         assert isinstance(status, UserMessageRequestStatus)
         assert conv.get_last_message().content == "first-level manager answers to user"
+
+
+def test_multi_managers_with_llms(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+    zbuk_agent = _get_zbuk_agent(llm)
+
+    # Two second-level managers, each with their own workers
+    second_level_group_1 = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are second level group 1 manager. Use your worker fooza for related work.",
+        ),
+        workers=[fooza_agent],
+        name="second_level_group_1",
+        description="Second level group 1",
+    )
+    second_level_group_2 = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are second level group 2 manager. Use your workers bwip and zbuk for related work.",
+        ),
+        workers=[bwip_agent, zbuk_agent],
+        name="second_level_group_2",
+        description="Second level group 2",
+    )
+    first_level_group = ManagerWorkers(
+        group_manager=Agent(
+            llm=llm,
+            custom_instruction="You are first level group manager. Use your workers second level group 1 and group 2 managers for related work.",
+        ),
+        workers=[second_level_group_1, second_level_group_2],
+        name="first_level_group",
+        description="First level group",
+    )
+
+    conv = first_level_group.start_conversation(
+        messages="Compute the result of fooza(4, 2) and add it with bwip(4,5) and zbuk(5,6)"
+    )
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    ans = fooza_tool.func(4, 2) + bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
+    assert str(ans) in conv.get_last_message().content
