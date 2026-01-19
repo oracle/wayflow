@@ -65,7 +65,8 @@ def test_spans_get_exported_correctly_to_otel_collector(
             record_event(MyCustomEvent(name="MyTestCustomEvent", custom_attribute={"a": 1}))
             span.record_end_span_event(EndSpanEvent())
 
-    response = httpx.post(f"http://{otel_server}/v1/getspan", json={"span_id": span_id})
+    with httpx.Client(timeout=1.0) as client:
+        response = client.post(f"http://{otel_server}/v1/getspan", json={"span_id": span_id})
     assert 200 <= response.status_code < 300
     response_json = response.json()
     assert "name" in response_json and response_json["name"] == "Hey!"

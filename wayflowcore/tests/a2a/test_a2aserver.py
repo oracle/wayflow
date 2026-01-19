@@ -9,17 +9,17 @@ import time
 from pathlib import Path
 from typing import Optional
 
+import httpx
 import pytest
-import requests
 from fasta2a.schema import FileWithBytes
-from requests import Response
+from httpx import Response
 
 from ..testhelpers.testhelpers import retry_test
 from .start_a2a_server import AgentType
 
 
 def rpc_call(base_url: str, method: str, params: dict, id="test") -> Response:
-    return requests.post(
+    return httpx.post(
         url=base_url,
         json={
             "jsonrpc": "2.0",
@@ -426,7 +426,7 @@ def test_agent_card_is_accessible(a2a_server):
     Justification:         (0.06 ** 4) ~= 1.2 / 100'000
     """
     base_url = a2a_server
-    resp = requests.get(
+    resp = httpx.get(
         f"{base_url}/.well-known/agent-card.json"  # This is the standard endpoint specified by A2A protocol
     )
     assert resp.status_code == 200

@@ -281,9 +281,8 @@ def retry_test(
                         total_time_of_failed_runs += time.perf_counter() - start_time
                         signal.alarm(0)
                         time.sleep(wait_between_tries)
-                    finally:
-                        if time.time() - loop_start_time > FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST:
-                            break
+                    if time.time() - loop_start_time > FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST:
+                        break
 
                 num_total_attempts = success_count + failed_count
                 suggested_docstring = _get_suggested_flaky_test_docstring(

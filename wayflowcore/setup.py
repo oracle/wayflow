@@ -44,12 +44,13 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords="NLP, text generation, code generation, LLM, Assistant, Tool, Agent",
     package_dir={"": "src"},
     packages=find_packages("src"),
-    python_requires=">=3.10,<3.14",
+    python_requires=">=3.10",
     install_requires=[
         "pyagentspec>=26.1.0",
         "httpx>0.28.0,<1.0.0",  # warning but no vulnerabilities
@@ -83,7 +84,7 @@ setup(
         "typing_extensions>=4.12.2",
         "typing-inspection>=0.4.0",
         "exceptiongroup>=1.0.2",
-        "uvicorn >=0.23.1",
+        "uvicorn>=0.23.1",
         "fastapi>=0.116.2,<1.0.0",
     ],
     test_suite="tests",

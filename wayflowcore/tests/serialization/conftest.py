@@ -78,9 +78,10 @@ def _start_a2a_server(
 
 
 @pytest.fixture(scope="session", name="a2a_server")
-def a2a_server_fixture():
+@pytest.mark.xdist_group("requires-server-port")
+def a2a_server_fixture(session_tmp_path):
     host = "localhost"
-    port = get_available_port()
+    port = get_available_port(session_tmp_path)
     process, url = _start_a2a_server(host=host, port=port)
     try:
         yield url

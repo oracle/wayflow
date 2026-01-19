@@ -5,7 +5,7 @@ json_repair==0.30.0
 numpy==1.26.4
 pandas==2.2.3
 PyYAML==6.0.3
-pydantic==2.11.3
+pydantic==2.12.4
 httpx==0.28.1
 mcp==1.24.0
 pyagentspec==26.1.0

@@ -28,6 +28,7 @@ from wayflowcore.serialization.context import DeserializationContext
 from wayflowcore.steps import (
     AgentExecutionStep,
     ChoiceSelectionStep,
+    InputMessageStep,
     OutputMessageStep,
     ParallelFlowExecutionStep,
     RegexExtractionStep,
@@ -110,6 +111,7 @@ DEFAULT_CLASS_PARAMETER_VALUES: Dict[str, Dict[str, object]] = {
     },
     AgentExecutionStep.__name__: {"agent": Agent(llm=llm_assistant_model)},
     DatastoreListStep.__name__: {"limit": 1},
+    InputMessageStep.__name__: {"message_template": "Hello"},
     OutputMessageStep.__name__: {"message_type": MessageType.AGENT},
     RegexExtractionStep.__name__: {"regex_pattern": RegexPattern(pattern=".*")},
     ParallelFlowExecutionStep.__name__: {"flows": [get_single_step_flow()]},
@@ -117,6 +119,7 @@ DEFAULT_CLASS_PARAMETER_VALUES: Dict[str, Dict[str, object]] = {
 
 # Add step class names in this list if they are not meant to be actually tested
 step_cls_skiplist = [
+    "Step",
     "CallableStep",
     "DoNothingStep",
     "ObjectStep",

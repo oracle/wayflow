@@ -89,18 +89,15 @@ if not compartment_id:
 
 oracle_http_proxy = os.environ.get("ORACLE_HTTP_PROXY")
 
-import shutil
-import tempfile
-
-import pytest
-
 
 @pytest.fixture(scope="session")
-def session_tmp_path():
+def session_tmp_path(tmp_path_factory):
     """Session-scoped temp path"""
-    dirpath = tempfile.mkdtemp()
+    # This ensures that the session tmp path is shared across workers in parallel test execution
+    # Inspired by https://pytest-xdist.readthedocs.io/en/latest/how-to.html#making-session-scoped-fixtures-execute-only-once
+    dirpath = tmp_path_factory.getbasetemp().parent
     yield dirpath
-    shutil.rmtree(dirpath)
+    # No need to manually clear the directory, pytest does it automatically
 
 
 def reset_http_proxy():

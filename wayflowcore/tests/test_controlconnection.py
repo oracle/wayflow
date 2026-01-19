@@ -98,11 +98,8 @@ def test_duplicate_control_flow_edge_raises():
 
 def test_missing_one_control_flow_edge_raises():
     step_1 = BranchingStep(branch_name_mapping={"o1": "o1", "o2": "o2"})
-
-    with (
-        pytest.warns(UserWarning, match="Missing a control flow edge for branch `default` of step"),
-    ):
-        flow = Flow(
+    with pytest.warns(UserWarning) as record:
+        _ = Flow(
             begin_step=step_1,
             steps={
                 "step_1": step_1,
@@ -111,4 +108,10 @@ def test_missing_one_control_flow_edge_raises():
                 ControlFlowEdge(source_step=step_1, source_branch="o1", destination_step=None),
                 ControlFlowEdge(source_step=step_1, source_branch="o2", destination_step=None),
             ],
+        )
+        # In newer python versions, pytest checks that all the warnings raised match the `match` parameter
+        # Since this code raises more than one warning, we cannot use the `match` parameter
+        assert any(
+            "Missing a control flow edge for branch `default` of step" in str(w.message)
+            for w in record
         )

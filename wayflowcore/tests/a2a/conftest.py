@@ -12,8 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.utils import LogTee, _check_server_is_up, _terminate_process_tree, get_available_port
-
+from ..utils import LogTee, _check_server_is_up, _terminate_process_tree, get_available_port
 from .start_a2a_server import AgentType
 
 _START_SERVER_FILE_PATH = str(Path(__file__).parent / "start_a2a_server.py")
@@ -89,11 +88,13 @@ def _start_a2a_server(
 
 
 @pytest.fixture(scope="session", name="a2a_server")
-def a2a_server_fixture(request):
+@pytest.mark.xdist_group("requires-server-port")
+@pytest.mark.filterwarnings("ignore:unclosed:ResourceWarning")
+def a2a_server_fixture(request, session_tmp_path):
     agent_type = getattr(request, "param", AgentType.AGENT_WITH_SERVER_TOOL)
 
     host = "localhost"
-    port = get_available_port()
+    port = get_available_port(session_tmp_path)
     process, url = _start_a2a_server(host=host, port=port, agent_type=agent_type)
     try:
         yield url
@@ -103,9 +104,11 @@ def a2a_server_fixture(request):
 
 
 @pytest.fixture(scope="session", name="adk_a2a_server")
-def adk_a2a_server_fixture():
+@pytest.mark.xdist_group("requires-server-port")
+@pytest.mark.filterwarnings("ignore:unclosed:ResourceWarning")
+def adk_a2a_server_fixture(session_tmp_path):
     host = "localhost"
-    port = get_available_port()
+    port = get_available_port(session_tmp_path)
     process, url = _start_a2a_server(host=host, port=port, agent_type=AgentType.ADK_AGENT)
     try:
         yield url
