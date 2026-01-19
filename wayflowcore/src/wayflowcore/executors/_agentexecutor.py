@@ -113,6 +113,10 @@ class AgentConversationExecutionState(ConversationExecutionState):
     # just used in the executor, should not be serialized
     current_retrieved_tools: Optional[List[Tool]] = field(default=None, init=False)
 
+    def _get_current_tool_request(self) -> None:
+        if self.current_tool_request is None and self.tool_call_queue:
+            self.current_tool_request = self.tool_call_queue.pop(0)
+
 
 def _agent_as_client_tool(agent: Union[Agent, OciAgent]) -> ClientTool:
     agent_input_parameters: Dict[str, JsonSchemaParam] = {}
@@ -1078,7 +1082,7 @@ class AgentConversationExecutor(ConversationExecutor):
                 agent_state.current_tool_request = None
 
             elif len(agent_state.tool_call_queue) > 0:
-                agent_state.current_tool_request = agent_state.tool_call_queue.pop(0)
+                agent_state._get_current_tool_request()
             elif agent_state.curr_iter >= agent_config.max_iterations:
                 if len(agent_config.output_descriptors) > 0:
                     # need to generate some outputs
