@@ -337,77 +337,21 @@ def test_swarm_raises_when_using_flows(example_medical_agents):
 )
 def test_swarm_can_complete_task_without_specialist(example_math_agents, handoff: HandoffMode):
     """
-    The only two configurations used are:
-     * [gemma-3-27b-it][no_handoff]
-     * [gemma-3-27b-it][with_handoff]
-
-    The other results are for indicative purposes
-
-    # NO HANDOFF
-    [Llama-3.1-8B-Instruct][no_handoff]
-    Failure rate:          5 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.24 seconds per successful attempt
-    Average failure time:  1.09 seconds per failed attempt
-    Max attempt:           6
-    Justification:         (0.19 ** 6) ~= 4.3 / 100'000
-
-    [Llama-4-Maverick][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.98 seconds per successful attempt
+    # HandoffMode.NEVER
+    Failure rate:          0 out of 50
+    Observed on:           2026-01-19
+    Average success time:  2.59 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
 
-    [gemma-3-27b-it][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.84 seconds per successful attempt
+    # HandoffMode.OPTIONAL
+    Failure rate:          0 out of 50
+    Observed on:           2026-01-19
+    Average success time:  2.74 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gpt-4.1-nano][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.49 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    # WITH HANDOFF
-    [Llama-3.1-8B-Instruct][with_handoff]
-    Failure rate:          3 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.50 seconds per successful attempt
-    Average failure time:  0.75 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.12 ** 5) ~= 3.1 / 100'000
-
-    [Llama-4-Maverick][with_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  2.28 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gemma-3-27b-it][with_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.81 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gpt-4.1-nano][with_handoff]
-    Failure rate:          1 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.44 seconds per successful attempt
-    Average failure time:  0.51 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.06 ** 4) ~= 1.5 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     math_swarm = _get_math_swarm(*example_math_agents, handoff=handoff)
     conv = math_swarm.start_conversation()  # first agent is fooza
@@ -427,77 +371,21 @@ def test_swarm_can_complete_task_without_specialist(example_math_agents, handoff
 )
 def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMode):
     """
-    The only two configurations used are:
-     * [gemma-3-27b-it][no_handoff]
-     * [gemma-3-27b-it][with_handoff]
-
-    The other results are for indicative purposes.
-
-    # NO HANDOFF
-    [Llama-3.1-8B-Instruct][no_handoff]
-    Failure rate:          12 out of 30
-    Observed on:           2025-05-12
-    Average success time:  2.72 seconds per successful attempt
-    Average failure time:  2.70 seconds per failed attempt
-    Max attempt:           11
-    Justification:         (0.41 ** 11) ~= 5.0 / 100'000
-
-    [Llama-4-Maverick][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  4.08 seconds per successful attempt
+    # HandoffMode.NEVER
+    Failure rate:          0 out of 50
+    Observed on:           2026-01-19
+    Average success time:  5.57 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
 
-    [gemma-3-27b-it][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  4.25 seconds per successful attempt
+    # HandoffMode.OPTIONAL
+    Failure rate:          0 out of 50
+    Observed on:           2026-01-19
+    Average success time:  3.87 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gpt-4.1-nano][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  3.63 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    # WITH HANDOFF
-    [Llama-3.1-8B-Instruct][with_handoff]
-    Failure rate:          5 out of 30
-    Observed on:           2025-05-12
-    Average success time:  3.40 seconds per successful attempt
-    Average failure time:  1.86 seconds per failed attempt
-    Max attempt:           6
-    Justification:         (0.19 ** 6) ~= 4.3 / 100'000
-
-    [Llama-4-Maverick][with_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  4.45 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gemma-3-27b-it][with_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  3.88 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gpt-4.1-nano][with_handoff]
-    Failure rate:          1 out of 30
-    Observed on:           2025-05-12
-    Average success time:  3.10 seconds per successful attempt
-    Average failure time:  4.83 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.06 ** 4) ~= 1.5 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     math_swarm = _get_math_swarm(*example_math_agents, handoff=handoff)
     conv = math_swarm.start_conversation()  # first agent is fooza
@@ -512,19 +400,11 @@ def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMo
 @retry_test(max_attempts=5)
 @pytest.mark.parametrize(
     argnames="handoff",
-    argvalues=[HandoffMode.OPTIONAL, HandoffMode.NEVER],
-    ids=["with_handoff", "no_handoff"],
+    argvalues=[HandoffMode.NEVER, HandoffMode.OPTIONAL],
+    ids=["no_handoff", "with_handoff"],
 )
 def test_swarm_can_complete_composition_task(example_math_agents, handoff):
     """
-    # HandoffMode.OPTIONAL
-    Failure rate:          5 out of 50
-    Observed on:           2026-01-19
-    Average success time:  10.24 seconds per successful attempt
-    Average failure time:  4.74 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.12 ** 5) ~= 2.0 / 100'000
-
     # HandoffMode.NEVER
     Failure rate:          2 out of 50
     Observed on:           2026-01-19
@@ -532,6 +412,14 @@ def test_swarm_can_complete_composition_task(example_math_agents, handoff):
     Average failure time:  5.62 seconds per failed attempt
     Max attempt:           4
     Justification:         (0.06 ** 4) ~= 1.1 / 100'000
+
+    # HandoffMode.OPTIONAL
+    Failure rate:          5 out of 50
+    Observed on:           2026-01-19
+    Average success time:  10.24 seconds per successful attempt
+    Average failure time:  4.74 seconds per failed attempt
+    Max attempt:           5
+    Justification:         (0.12 ** 5) ~= 2.0 / 100'000
     """
     math_swarm = _get_math_swarm(*example_math_agents, handoff)
     conv = math_swarm.start_conversation()  # first agent is fooza
