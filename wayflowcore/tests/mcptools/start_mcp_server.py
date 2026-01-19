@@ -96,6 +96,12 @@ def create_server(host: str, port: int):
     def zbuk_tool(a: int, b: int) -> int:
         return a + b * 2
 
+    @server.tool(
+        description="Return the result of the ggwp operation between numbers a and b. Do not use for anything else than computing a ggwp operation."
+    )
+    def ggwp_tool(a: int, b: int) -> int:
+        return a + b // 2
+
     @server.tool(description="Tool to return a random string")
     def generate_random_string() -> str:
         import random

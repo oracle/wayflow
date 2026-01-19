@@ -474,10 +474,10 @@ def custom_toolbox():
     @dataclass
     class MyToolBox(ToolBox, SerializableDataclass):
 
-        def get_tools(self) -> Sequence["Tool"]:
+        def _get_tools_inner(self) -> Sequence["Tool"]:
             raise NotImplementedError()
 
-        async def get_tools_async(self) -> Sequence["Tool"]:
+        async def _get_tools_inner_async(self) -> Sequence["Tool"]:
             return [
                 ClientTool(name="my_client_tool", description="", input_descriptors=[]),
                 ServerTool(

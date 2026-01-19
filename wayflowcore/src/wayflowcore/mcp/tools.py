@@ -213,14 +213,14 @@ class MCPToolBox(ToolBox, DataclassComponent):
             client_transport=self.client_transport,
         )
 
-    async def get_tools_async(self) -> Sequence[ServerTool]:
+    async def _get_tools_inner_async(self) -> Sequence[ServerTool]:
         mcp_runtime = get_mcp_async_runtime()
         # 1. Ensure session is created (from the portal)
         session = mcp_runtime.get_or_create_session(self.client_transport)
         # 2. Perform the call (from the portal)
         return await mcp_runtime.call_async(self._get_tools_async_impl, session)
 
-    def get_tools(self) -> Sequence[ServerTool]:
+    def _get_tools_inner(self) -> Sequence[ServerTool]:
         """
         Return the list of tools exposed by the ``MCPToolBox``.
 
