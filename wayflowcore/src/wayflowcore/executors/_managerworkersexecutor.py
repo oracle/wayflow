@@ -98,6 +98,10 @@ class ManagerWorkersRunner(ConversationExecutor):
             )
 
         from wayflowcore.agent import _MutatedAgent
+        from wayflowcore.executors._agentexecutor import (
+            _TALK_TO_USER_TOOL_NAME,
+            _make_talk_to_user_tool,
+        )
 
         managerworkers_config = conversation.component
 
@@ -135,6 +139,13 @@ class ManagerWorkersRunner(ConversationExecutor):
                     list(current_agent.tools) + managerworkers_config._manager_communication_tools
                 )
 
+                has_talk_to_user_tool = any(
+                    tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
+                )
+                if not has_talk_to_user_tool:
+                    # Manager agent should have tool to talk to user
+                    mutated_agent_tools.append(_make_talk_to_user_tool())
+
                 mutated_agent_template = managerworkers_config.managerworkers_template.with_partial(
                     {
                         "name": current_agent.name,
@@ -152,6 +163,7 @@ class ManagerWorkersRunner(ConversationExecutor):
                     {
                         "tools": mutated_agent_tools,
                         "agent_template": mutated_agent_template,
+                        "_add_talk_to_user_tool": has_talk_to_user_tool,
                     },
                 ):
                     status = await current_conversation.execute_async(
@@ -179,7 +191,7 @@ class ManagerWorkersRunner(ConversationExecutor):
                 and current_agent_name == managerworkers_config.manager_agent.name
             ):
                 # 1. current agent is the manager agent and is calling tools
-                # These tool(s) will be handled in the next loop by checking the pending tools of manager
+                # These tool(s) will be handled in the next loop by checking the pending tools of the manager
                 continue
             elif (
                 isinstance(status, UserMessageRequestStatus)
@@ -200,7 +212,7 @@ class ManagerWorkersRunner(ConversationExecutor):
                 )
             elif isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus)):
                 # 4. usual client tool requests of a worker
-                # or tools that need confirm of either the manager or a worker
+                # or tools that need confirmations of either the manager or a worker
                 return status
             else:
                 # 5. illegal agent finishing the conversation
@@ -221,12 +233,13 @@ class ManagerWorkersRunner(ConversationExecutor):
                 manager_conversation.message_list.append_tool_result(tr)
             manager_conversation.status._tool_results = None
 
-        execute_tool = (
+        has_remaining_tools_to_execute = (
             manager_conversation.state.current_tool_request
             or manager_conversation.state.tool_call_queue
         )
 
-        if not execute_tool:
+        if not has_remaining_tools_to_execute:
+            # no tool left to execute, resume current agent execution
             manager_conversation.status = None
             return _ToolProcessSignal.EXECUTE_AGENT
 
@@ -263,7 +276,7 @@ class ManagerWorkersRunner(ConversationExecutor):
 
         # Case 3: server tool or other internal tool
         manager_conversation.status = None
-        return _ToolProcessSignal.EXECUTE_AGENT  # let the agent handle
+        return _ToolProcessSignal.EXECUTE_AGENT  # let the agent handle it
 
     @staticmethod
     def _send_message_to_manager(

@@ -4,14 +4,18 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from typing import Tuple
+import json
+from textwrap import shorten
+from typing import List, Tuple
 
+from wayflowcore.messagelist import Message, TextContent
 from wayflowcore.outputparser import JsonToolOutputParser
 from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.transforms import (
     AppendTrailingSystemMessageToUserMessageTransform,
     CoalesceSystemMessagesTransform,
+    MessageTransform,
 )
 
 _DEFAULT_MANAGERWORKERS_SYSTEM_PROMPT = """
@@ -89,6 +93,81 @@ _MAX_CHAR_TOOL_RESULT_HEADER = 140
 """Max number of characters in the message header when formatting a Tool Result"""
 
 
+class _ToolRequestAndCallsTransform(MessageTransform, SerializableObject):
+    def __call__(self, messages: List["Message"]) -> List["Message"]:
+        """
+        Format Tool requests as Agent messages and Tool results as User messages to have a simple User/Agent
+        sequence of messages.
+        """
+        from wayflowcore import Message, MessageType
+
+        tool_request_by_id = {  # Mapping for fast lookup
+            tool_request.tool_request_id: tool_request
+            for msg in messages
+            if msg.message_type == MessageType.TOOL_REQUEST and msg.tool_requests
+            for tool_request in msg.tool_requests
+        }
+
+        formatted_messages = []
+        for message in messages:
+            if message.message_type == MessageType.TOOL_RESULT:
+                # Find corresponding ToolRequest by tool_request_id
+                if not message.tool_result:
+                    raise ValueError(f"TOOL_RESULT message must contain tool_result: {message}")
+                tool_request_id = message.tool_result.tool_request_id
+                tool_request = tool_request_by_id.get(tool_request_id)
+                if not tool_request:
+                    raise ValueError(
+                        f"Could not find matching ToolRequest for TOOL_RESULT with id: {tool_request_id}"
+                    )
+
+                message_header_tool_info = shorten(
+                    f"name={tool_request.name}, parameters={tool_request.args}",
+                    width=_MAX_CHAR_TOOL_RESULT_HEADER,
+                    placeholder=" ...}",
+                )
+                formatted_messages.append(
+                    Message(
+                        content=(
+                            f"--- TOOL RESULT: {message_header_tool_info} ---\n"
+                            f"{message.tool_result.content!r}"
+                        ),
+                        message_type=MessageType.USER,
+                    )
+                )
+
+            elif message.message_type is MessageType.TOOL_REQUEST:
+                if not message.tool_requests:
+                    raise ValueError(
+                        "Message is of type TOOL_REQUEST but has no tool_requests. This should be reported."
+                    )
+
+                formatted_tool_calls = "\n".join(
+                    json.dumps({"name": tool_request.name, "parameters": tool_request.args})
+                    for tool_request in message.tool_requests
+                )
+                for tool_request in message.tool_requests:
+                    formatted_messages.append(
+                        Message(
+                            content=(
+                                f"--- MESSAGE: From: {message.sender} ---\n"
+                                f"{message.content}\n"
+                                f"{formatted_tool_calls}"
+                            ),
+                            message_type=MessageType.AGENT,
+                        )
+                    )
+            elif message.message_type == MessageType.SYSTEM:
+                formatted_messages.append(message)
+            else:
+                message_copy = message.copy()
+                message_copy.contents.insert(
+                    0, TextContent(f"--- MESSAGE: From: {message_copy.sender} ---\n")
+                )
+                formatted_messages.append(message_copy)
+        return formatted_messages
+
+
 class ManagerWorkersJsonToolOutputParser(JsonToolOutputParser, SerializableObject):
     def parse_thoughts_and_calls(self, raw_txt: str) -> Tuple[str, str]:
         """Mananagerworkers-specific function to separate thoughts and tool calls."""
@@ -106,6 +185,7 @@ _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE = PromptTemplate(
     ],
     native_tool_calling=False,
     post_rendering_transforms=[
+        _ToolRequestAndCallsTransform(),
         CoalesceSystemMessagesTransform(),
         AppendTrailingSystemMessageToUserMessageTransform(),
     ],
