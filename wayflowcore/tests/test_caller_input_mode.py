@@ -72,7 +72,7 @@ def _get_creative_assistant(
         caller_input_mode=caller_input_mode,
         can_finish_conversation=True,
     )
-    agent_execution_step = AgentExecutionStep(agent=agent, caller_input_mode=CallerInputMode.ALWAYS)
+    agent_execution_step = AgentExecutionStep(agent=agent)
 
     return Flow(
         begin_step=agent_execution_step,
@@ -118,7 +118,9 @@ def test_assistant_in_caller_mode_never(remotely_hosted_llm: VllmModel) -> None:
     )
 
     conversation = assistant.start_conversation()
-    conversation.append_user_message("Iterate the counter until task completion.")
+    conversation.append_user_message(
+        "Iterate the counter until task completion. Exit as soon as you reach the number"
+    )
 
     status = conversation.execute()
     assert isinstance(status, FinishedStatus)

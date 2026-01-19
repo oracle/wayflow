@@ -2003,16 +2003,23 @@ def test_caller_input_mode_never(big_llama, can_finish_conversation):
     assert len(submitted_haikus) == 1
 
 
-@retry_test(max_attempts=3)
+@retry_test(max_attempts=4)
 @pytest.mark.parametrize("can_finish_conversation", [True, False])
 def test_caller_input_mode_never_with_agent_template(big_llama, can_finish_conversation):
     """
     Failure rate:          0 out of 20
-    Observed on:           2025-07-28
-    Average success time:  4.20 seconds per successful attempt
+    Observed on:           2026-01-14
+    Average success time:  2.19 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+
+    Failure rate:          1 out of 20
+    Observed on:           2026-01-14
+    Average success time:  2.22 seconds per successful attempt
+    Average failure time:  3.74 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.09 ** 4) ~= 6.8 / 100'000
     """
     submitted_haikus = []
 
@@ -2039,7 +2046,7 @@ def test_caller_input_mode_never_with_agent_template(big_llama, can_finish_conve
         max_iterations=5,
     )
 
-    conv = agent.start_conversation(inputs={"user_input": "I want my haiku to be about trees"})
+    conv = agent.start_conversation(inputs={"user_input": "Please submit a haiku about trees"})
     status = conv.execute()
     assert isinstance(status, FinishedStatus)
     assert status.output_values["haiku_submitted"]
