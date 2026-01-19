@@ -509,10 +509,13 @@ def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMo
     assert "14" in last_message.content
 
 
-@pytest.mark.skip(
-    "just to show task ref perf"
-)  # Just to show the task with reference performance results
-def test_swarm_can_complete_composition_task(example_math_agents):
+@retry_test(max_attempts=3)
+@pytest.mark.parametrize(
+    argnames="handoff",
+    argvalues=[HandoffMode.NEVER, HandoffMode.OPTIONAL],
+    ids=["no_handoff", "with_handoff"],
+)
+def test_swarm_can_complete_composition_task(example_math_agents, handoff):
     """
     # NO HANDOFF
     [Llama-3.1-8B-Instruct][no_handoff]
@@ -604,7 +607,7 @@ def test_swarm_can_complete_composition_task(example_math_agents):
     Max attempt:           5
     Justification:         (0.16 ** 5) ~= 9.3 / 100'000
     """
-    math_swarm = _get_math_swarm(*example_math_agents)
+    math_swarm = _get_math_swarm(*example_math_agents, handoff)
     conv = math_swarm.start_conversation()  # first agent is fooza
     conv.append_user_message("compute the result of the bwip(4, zbuk(5, 6))")
     conv.execute()
@@ -1053,7 +1056,7 @@ def get_first_agent(llm: LlmModel) -> Agent:
     )
 
 
-@retry_test(6)
+@retry_test(max_attempts=6)
 def test_swarm_uses_handoff_tool_in_always_handoff_mode(vllm_responses_llm):
     """
     Failure rate:          18 out of 100
