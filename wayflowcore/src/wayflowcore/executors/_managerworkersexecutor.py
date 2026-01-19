@@ -228,27 +228,16 @@ class ManagerWorkersRunner(ConversationExecutor):
             raise ValueError("Internal error: the status should be ToolRequestStatus")
 
         if manager_conversation.status._tool_results:
-            # Manually append tool results to the message list
-            for tr in manager_conversation.status._tool_results:
-                manager_conversation.message_list.append_tool_result(tr)
-            manager_conversation.status._tool_results = None
+            manager_conversation._update_conversation_with_status()
 
-        has_remaining_tools_to_execute = (
-            manager_conversation.state.current_tool_request
-            or manager_conversation.state.tool_call_queue
-        )
+        manager_conv_state = manager_conversation.state
+        manager_conv_state._get_current_tool_request()
+        tool_request = manager_conv_state.current_tool_request
 
-        if not has_remaining_tools_to_execute:
+        if not tool_request:
             # no tool left to execute, resume current agent execution
             manager_conversation.status = None
             return _ToolProcessSignal.EXECUTE_AGENT
-
-        if not manager_conversation.state.current_tool_request:
-            manager_conversation.state.current_tool_request = (
-                manager_conversation.state.tool_call_queue.pop(0)
-            )
-
-        tool_request = manager_conversation.state.current_tool_request
 
         # Case 1: send_message tool
         if tool_request.name == _SEND_MESSAGE_TOOL_NAME:
@@ -267,16 +256,17 @@ class ManagerWorkersRunner(ConversationExecutor):
 
         # Case 2: standard client tool
         if tool and isinstance(tool, ClientTool):
-            # Return only the current tool request in the ToolRequestStatus
+            # Only one tool request is surfaced to the user at a time
             manager_conversation.status.tool_requests = [tool_request]
-
+            # This is done here instead of the agent executor as tool handling for swarms is done here
             manager_conversation.state.current_tool_request = None
 
             return _ToolProcessSignal.RETURN
 
-        # Case 3: server tool or other internal tool
+        # Case 3: Server tool or other internal tool
+        # -> Let agent handle it (agent will check the current_tool_request)
         manager_conversation.status = None
-        return _ToolProcessSignal.EXECUTE_AGENT  # let the agent handle it
+        return _ToolProcessSignal.EXECUTE_AGENT
 
     @staticmethod
     def _send_message_to_manager(
