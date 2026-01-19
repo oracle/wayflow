@@ -103,8 +103,7 @@ Improvements
   Introduced ``HandoffMode`` to Swarm. In addition to the existing modes (``True`` → ``HandoffMode.OPTIONAL``, ``False`` → ``HandoffMode.NEVER``),
   a new mode ``HandoffMode.ALWAYS`` is now supported, requiring agents to always use the handoff
   mechanism when delegating tasks to other agents. Read more at :ref:`HandoffMode <HandoffMode>`.
-  Added support for multiple tool calls in Swarm. The LLM may now emit multiple tool calls in a single response; these tools are executed sequentially,
-  and all tool results are returned together.
+  Added support for multiple tool calls in Swarm. The LLM may now emit multiple tool calls in a single response. These tools are executed sequentially, and all tool results are returned together.
 
   This significantly reduces token usage and improves execution speed.
 
