@@ -252,20 +252,13 @@ class SwarmRunner(ConversationExecutor):
             agent_sub_conversation._update_conversation_with_status()
 
         sub_conv_state = agent_sub_conversation.state
+        sub_conv_state._get_current_tool_request()
+        tool_request = sub_conv_state.current_tool_request
 
-        has_remaining_tools_to_execute = (
-            sub_conv_state.current_tool_request or sub_conv_state.tool_call_queue
-        )
-
-        if not has_remaining_tools_to_execute:
+        if not tool_request:
             agent_sub_conversation.status = None
             # no tool left to execute, resume current agent execution
             return _ToolProcessSignal.EXECUTE_AGENT
-
-        sub_conv_state._get_current_tool_request()
-        tool_request = sub_conv_state.current_tool_request
-        if tool_request is None:
-            raise ValueError("Internal error: There should be a Tool Request.")
 
         # Case 1: Communication tool (internal)
         if tool_request.name in [_SEND_MESSAGE_TOOL_NAME, _HANDOFF_TOOL_NAME]:
@@ -284,14 +277,10 @@ class SwarmRunner(ConversationExecutor):
         tool = next((t for t in current_agent.tools if t.name == tool_request.name), None)
         if tool and isinstance(tool, ClientTool):
             # It is a standard client tool request
-
-            # Return only the current tool request in the ToolRequestStatus
-            if not isinstance(agent_sub_conversation.status, ToolRequestStatus):
-                raise ValueError("Internal error: The status should be ToolRequestStatus")
+            # Only one tool request is surfaced to the user at a time
             agent_sub_conversation.status.tool_requests = [tool_request]
-
+            # This is done here instead of the agent executor as tool handling for swarms is done here
             sub_conv_state.current_tool_request = None
-
             return _ToolProcessSignal.RETURN
 
         # Case 3: Server tool or other internal tool
