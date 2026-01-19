@@ -253,13 +253,14 @@ class SwarmRunner(ConversationExecutor):
                 agent_sub_conversation.message_list.append_tool_result(tr)
             agent_sub_conversation.status._tool_results = None
 
-        execute_tool = (
+        has_remaining_tools_to_execute = (
             agent_sub_conversation.state.current_tool_request
             or agent_sub_conversation.state.tool_call_queue
         )
 
-        if not execute_tool:
+        if not has_remaining_tools_to_execute:
             agent_sub_conversation.status = None
+            # no tool left to execute, resume current agent execution
             return _ToolProcessSignal.EXECUTE_AGENT
 
         if not agent_sub_conversation.state.current_tool_request:
