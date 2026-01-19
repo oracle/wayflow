@@ -248,14 +248,13 @@ class SwarmRunner(ConversationExecutor):
             raise ValueError("Internal error: The status should be ToolRequestStatus")
 
         if agent_sub_conversation.status._tool_results:
-            # Manually append tool results to the message list
-            for tr in agent_sub_conversation.status._tool_results:
-                agent_sub_conversation.message_list.append_tool_result(tr)
-            agent_sub_conversation.status._tool_results = None
+            # Append tool results to the message list
+            agent_sub_conversation._update_conversation_with_status()
+
+        sub_conv_state = agent_sub_conversation.state
 
         has_remaining_tools_to_execute = (
-            agent_sub_conversation.state.current_tool_request
-            or agent_sub_conversation.state.tool_call_queue
+            sub_conv_state.current_tool_request or sub_conv_state.tool_call_queue
         )
 
         if not has_remaining_tools_to_execute:
@@ -263,12 +262,10 @@ class SwarmRunner(ConversationExecutor):
             # no tool left to execute, resume current agent execution
             return _ToolProcessSignal.EXECUTE_AGENT
 
-        if not agent_sub_conversation.state.current_tool_request:
-            agent_sub_conversation.state.current_tool_request = (
-                agent_sub_conversation.state.tool_call_queue.pop(0)
-            )
-
-        tool_request = agent_sub_conversation.state.current_tool_request
+        sub_conv_state._get_current_tool_request()
+        tool_request = sub_conv_state.current_tool_request
+        if tool_request is None:
+            raise ValueError("Internal error: There should be a Tool Request.")
 
         # Case 1: Communication tool (internal)
         if tool_request.name in [_SEND_MESSAGE_TOOL_NAME, _HANDOFF_TOOL_NAME]:
@@ -278,7 +275,7 @@ class SwarmRunner(ConversationExecutor):
                 current_agent=current_agent,
             )
 
-            agent_sub_conversation.state.current_tool_request = None
+            sub_conv_state.current_tool_request = None
 
             # Start a new loop to handle the next tool request if any
             return _ToolProcessSignal.START_NEW_LOOP
@@ -293,7 +290,7 @@ class SwarmRunner(ConversationExecutor):
                 raise ValueError("Internal error: The status should be ToolRequestStatus")
             agent_sub_conversation.status.tool_requests = [tool_request]
 
-            agent_sub_conversation.state.current_tool_request = None
+            sub_conv_state.current_tool_request = None
 
             return _ToolProcessSignal.RETURN
 
@@ -466,7 +463,7 @@ class SwarmRunner(ConversationExecutor):
             sub_conversation = swarm_conversation._get_subconversation_for_thread(current_thread)
             if not sub_conversation:
                 raise ValueError("Internal error: sub conversation should not be None")
-            sub_conversation.state.tool_call_queue = []
+            sub_conversation.state.tool_call_queue.clear()
 
         # Validation
         recipient_agent_name, error_message = _parse_handoff_conversation_tool_request(
