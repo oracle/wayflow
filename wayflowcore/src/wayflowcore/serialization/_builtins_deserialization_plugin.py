@@ -24,6 +24,19 @@ from pyagentspec.a2aagent import A2AAgent as AgentSpecA2AAgent
 from pyagentspec.a2aagent import A2AConnectionConfig as AgentSpecA2AConnectionConfig
 from pyagentspec.agent import Agent as AgentSpecAgent
 from pyagentspec.component import Component as AgentSpecComponent
+from pyagentspec.datastores import Entity as AgentSpecEntity
+from pyagentspec.datastores import InMemoryCollectionDatastore as AgentSpecInMemoryDatastore
+from pyagentspec.datastores import (
+    MTlsOracleDatabaseConnectionConfig as AgentSpecMTlsOracleDatabaseConnectionConfig,
+)
+from pyagentspec.datastores import OracleDatabaseDatastore as AgentSpecOracleDatabaseDatastore
+from pyagentspec.datastores import PostgresDatabaseDatastore as AgentSpecPostgresDatabaseDatastore
+from pyagentspec.datastores import (
+    TlsOracleDatabaseConnectionConfig as AgentSpecTlsOracleDatabaseConnectionConfig,
+)
+from pyagentspec.datastores import (
+    TlsPostgresDatabaseConnectionConfig as AgentSpecTlsPostgresDatabaseConnectionConfig,
+)
 from pyagentspec.flows.edges import ControlFlowEdge as AgentSpecControlFlowEdge
 from pyagentspec.flows.edges import DataFlowEdge as AgentSpecDataFlowEdge
 from pyagentspec.flows.flow import Flow as AgentSpecFlow
@@ -87,6 +100,13 @@ from pyagentspec.swarm import Swarm as AgentSpecSwarm
 from pyagentspec.tools.clienttool import ClientTool as AgentSpecClientTool
 from pyagentspec.tools.remotetool import RemoteTool as AgentSpecRemoteTool
 from pyagentspec.tools.servertool import ServerTool as AgentSpecServerTool
+from pyagentspec.transforms import MessageTransform as AgentSpecMessageTransform
+from pyagentspec.transforms.summarization import (
+    ConversationSummarizationTransform as AgentSpecConversationSummarizationTransform,
+)
+from pyagentspec.transforms.summarization import (
+    MessageSummarizationTransform as AgentSpecMessageSummarizationTransform,
+)
 
 from wayflowcore._metadata import METADATA_ID_KEY
 from wayflowcore.a2a.a2aagent import A2AAgent as RuntimeA2AAgent
@@ -115,7 +135,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_deserialization_plugin
+from wayflowcore.agentspec.components import (
+    all_deserialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -125,10 +147,6 @@ from wayflowcore.agentspec.components.contextprovider import (
 )
 from wayflowcore.agentspec.components.contextprovider import (
     PluginToolContextProvider as AgentSpecPluginToolContextProvider,
-)
-from wayflowcore.agentspec.components.datastores import PluginEntity as AgentSpecPluginEntity
-from wayflowcore.agentspec.components.datastores.inmemory_datastore import (
-    PluginInMemoryDatastore as AgentSpecPluginInMemoryDatastore,
 )
 from wayflowcore.agentspec.components.datastores.nodes import (
     PluginDatastoreCreateNode as AgentSpecPluginDatastoreCreateNode,
@@ -144,21 +162,6 @@ from wayflowcore.agentspec.components.datastores.nodes import (
 )
 from wayflowcore.agentspec.components.datastores.nodes import (
     PluginDatastoreUpdateNode as AgentSpecPluginDatastoreUpdateNode,
-)
-from wayflowcore.agentspec.components.datastores.oracle_datastore import (
-    PluginMTlsOracleDatabaseConnectionConfig as AgentSpecPluginMTlsOracleDatabaseConnectionConfig,
-)
-from wayflowcore.agentspec.components.datastores.oracle_datastore import (
-    PluginOracleDatabaseDatastore as AgentSpecPluginOracleDatabaseDatastore,
-)
-from wayflowcore.agentspec.components.datastores.oracle_datastore import (
-    PluginTlsOracleDatabaseConnectionConfig as AgentSpecPluginTlsOracleDatabaseConnectionConfig,
-)
-from wayflowcore.agentspec.components.datastores.postgres_datastore import (
-    PluginPostgresDatabaseDatastore as AgentSpecPluginPostgresDatabaseDatastore,
-)
-from wayflowcore.agentspec.components.datastores.postgres_datastore import (
-    PluginTlsPostgresDatabaseConnectionConfig as AgentSpecPluginTlsPostgresDatabaseConnectionConfig,
 )
 from wayflowcore.agentspec.components.flow import ExtendedFlow as AgentSpecExtendedFlow
 from wayflowcore.agentspec.components.managerworkers import (
@@ -260,9 +263,6 @@ from wayflowcore.agentspec.components.transforms import (
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginLlamaMergeToolRequestAndCallsTransform as AgentSpecPluginLlamaMergeToolRequestAndCallsTransform,
-)
-from wayflowcore.agentspec.components.transforms import (
-    PluginMessageTransform as AgentSpecPluginMessageTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginReactMergeToolRequestAndCallsTransform as AgentSpecPluginReactMergeToolRequestAndCallsTransform,
@@ -423,6 +423,12 @@ from wayflowcore.transforms import (
 )
 from wayflowcore.transforms import (
     CoalesceSystemMessagesTransform as RuntimewCoalesceSystemMessagesTransform,
+)
+from wayflowcore.transforms import (
+    ConversationSummarizationTransform as RuntimeConversationSummarizationTransform,
+)
+from wayflowcore.transforms import (
+    MessageSummarizationTransform as RuntimeMessageSummarizationTransform,
 )
 from wayflowcore.transforms import (
     RemoveEmptyNonUserMessageTransform as RuntimeRemoveEmptyNonUserMessageTransform,
@@ -610,6 +616,10 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 extra_arguments["caller_input_mode"] = CallerInputMode.ALWAYS
             else:
                 extra_arguments["caller_input_mode"] = CallerInputMode.NEVER
+            transforms = [
+                conversion_context.convert(transform, tool_registry, converted_components)
+                for transform in agentspec_component.transforms
+            ]
 
             agent = RuntimeAgent(
                 name=agentspec_component.name,
@@ -627,6 +637,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     for output_property in agentspec_component.outputs or []
                 ],
                 custom_instruction=agentspec_component.system_prompt or None,
+                transforms=transforms,
                 __metadata_info__=metadata_info,
                 **extra_arguments,
             )
@@ -1594,15 +1605,15 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 destination_input=agentspec_component.destination_input,
                 **self._get_component_arguments(agentspec_component),
             )
-        elif isinstance(agentspec_component, AgentSpecPluginInMemoryDatastore):
+        elif isinstance(agentspec_component, AgentSpecInMemoryDatastore):
             return RuntimeInMemoryDatastore(
                 schema={
                     k: self._convert_entity_to_runtime(v)
                     for k, v in agentspec_component.datastore_schema.items()
                 },
-                id=agentspec_component.id,
+                **self._get_component_arguments(agentspec_component),
             )
-        elif isinstance(agentspec_component, AgentSpecPluginTlsOracleDatabaseConnectionConfig):
+        elif isinstance(agentspec_component, AgentSpecTlsOracleDatabaseConnectionConfig):
             return RuntimeTlsOracleDatabaseConnectionConfig(
                 user=agentspec_component.user,
                 password=agentspec_component.password,
@@ -1610,7 +1621,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 config_dir=agentspec_component.config_dir,
                 **self._get_component_arguments(agentspec_component),
             )
-        elif isinstance(agentspec_component, AgentSpecPluginMTlsOracleDatabaseConnectionConfig):
+        elif isinstance(agentspec_component, AgentSpecMTlsOracleDatabaseConnectionConfig):
             return RuntimeMTlsOracleDatabaseConnectionConfig(
                 config_dir=agentspec_component.config_dir,
                 dsn=agentspec_component.dsn,
@@ -1620,7 +1631,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 wallet_password=agentspec_component.wallet_password,
                 **self._get_component_arguments(agentspec_component),
             )
-        elif isinstance(agentspec_component, AgentSpecPluginOracleDatabaseDatastore):
+        elif isinstance(agentspec_component, AgentSpecOracleDatabaseDatastore):
             return RuntimeOracleDatabaseDatastore(
                 schema={
                     k: self._convert_entity_to_runtime(v)
@@ -1629,8 +1640,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 connection_config=conversion_context.convert(
                     agentspec_component.connection_config, tool_registry, converted_components
                 ),
+                **self._get_component_arguments(agentspec_component),
             )
-        elif isinstance(agentspec_component, AgentSpecPluginTlsPostgresDatabaseConnectionConfig):
+        elif isinstance(agentspec_component, AgentSpecTlsPostgresDatabaseConnectionConfig):
             return RuntimeTlsPostgresDatabaseConnectionConfig(
                 user=agentspec_component.user,
                 password=agentspec_component.password,
@@ -1642,7 +1654,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 sslcrl=agentspec_component.sslcrl,
                 **self._get_component_arguments(agentspec_component),
             )
-        elif isinstance(agentspec_component, AgentSpecPluginPostgresDatabaseDatastore):
+        elif isinstance(agentspec_component, AgentSpecPostgresDatabaseDatastore):
             return RuntimePostgresDatabaseDatastore(
                 schema={
                     k: self._convert_entity_to_runtime(v)
@@ -1651,8 +1663,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 connection_config=conversion_context.convert(
                     agentspec_component.connection_config, tool_registry, converted_components
                 ),
+                name=agentspec_component.name,
             )
-        elif isinstance(agentspec_component, AgentSpecPluginMessageTransform):
+        elif isinstance(agentspec_component, AgentSpecMessageTransform):
             if isinstance(agentspec_component, AgentSpecPluginCoalesceSystemMessagesTransform):
                 return RuntimewCoalesceSystemMessagesTransform()
             elif isinstance(agentspec_component, AgentSpecPluginRemoveEmptyNonUserMessageTransform):
@@ -1672,6 +1685,47 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 return RuntimeReactMergeToolRequestAndCallsTransform()
             elif isinstance(agentspec_component, AgentSpecPluginSwarmToolRequestAndCallsTransform):
                 return RuntimeSwarmToolRequestAndCallsTransform()
+            elif isinstance(agentspec_component, AgentSpecMessageSummarizationTransform):
+                return RuntimeMessageSummarizationTransform(
+                    llm=conversion_context.convert(
+                        agentspec_component.llm, tool_registry, converted_components
+                    ),
+                    max_message_size=agentspec_component.max_message_size,
+                    summarization_instructions=agentspec_component.summarization_instructions,
+                    summarized_message_template=agentspec_component.summarized_message_template,
+                    datastore=(
+                        conversion_context.convert(
+                            agentspec_component.datastore, tool_registry, converted_components
+                        )
+                        if agentspec_component.datastore
+                        else None
+                    ),
+                    cache_collection_name=agentspec_component.cache_collection_name,
+                    max_cache_size=agentspec_component.max_cache_size,
+                    max_cache_lifetime=agentspec_component.max_cache_lifetime,
+                    **self._get_component_arguments(agentspec_component),
+                )
+            elif isinstance(agentspec_component, AgentSpecConversationSummarizationTransform):
+                return RuntimeConversationSummarizationTransform(
+                    llm=conversion_context.convert(
+                        agentspec_component.llm, tool_registry, converted_components
+                    ),
+                    max_num_messages=agentspec_component.max_num_messages,
+                    min_num_messages=agentspec_component.min_num_messages,
+                    summarization_instructions=agentspec_component.summarization_instructions,
+                    summarized_conversation_template=agentspec_component.summarized_conversation_template,
+                    datastore=(
+                        conversion_context.convert(
+                            agentspec_component.datastore, tool_registry, converted_components
+                        )
+                        if agentspec_component.datastore
+                        else None
+                    ),
+                    cache_collection_name=agentspec_component.cache_collection_name,
+                    max_cache_size=agentspec_component.max_cache_size,
+                    max_cache_lifetime=agentspec_component.max_cache_lifetime,
+                    **self._get_component_arguments(agentspec_component),
+                )
             raise ValueError(f"Unsupported type of MessageTransform: {type(agentspec_component)}")
 
         elif isinstance(agentspec_component, AgentSpecPluginOutputParser):
@@ -1815,9 +1869,8 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
         runtime_property = self._convert_property_to_runtime(agentspec_property)
         return RuntimeVariable.from_property(runtime_property)
 
-    def _convert_entity_to_runtime(self, agentspec_entity: AgentSpecPluginEntity) -> RuntimeEntity:
+    def _convert_entity_to_runtime(self, agentspec_entity: AgentSpecEntity) -> RuntimeEntity:
         return RuntimeEntity(
-            name=agentspec_entity.title,
             description=agentspec_entity.description or "",
             properties={
                 k: self._convert_property_to_runtime(AgentSpecProperty(json_schema=v))

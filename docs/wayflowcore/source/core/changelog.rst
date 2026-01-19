@@ -97,6 +97,11 @@ Improvements
 
   Transforms can now be assigned to an agent through its constructor. (This is not supported in `agentspec`, so attempting to convert agents with transforms to `agentspec` will raise a `NotImplementedError`)
 
+* **Message Summarization Transforms and Datastores can be converted between Agent Spec and Wayflow**
+
+Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
+You can now declare your agents with summarization transforms and summary caching in Agent Spec and run them in WayFlow.
+
 * **Improve Swarm prompt template and introduce HandoffMode:**
 
   Removed redundant agent descriptions from the Swarm template and added a guidance rule that encourages agents to hand off when appropriate.
