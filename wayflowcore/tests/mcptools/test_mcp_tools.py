@@ -59,6 +59,15 @@ def sse_client_transport(sse_mcp_server_http):
 
 
 @pytest.fixture
+def sse_client_transport_with_headers(sse_mcp_server_http):
+    return SSETransport(
+        url=sse_mcp_server_http,
+        headers={"custom-header": "value"},
+        sensitive_headers={"sensitive-header": "abc123"},
+    )
+
+
+@pytest.fixture
 def sse_client_transport_https(sse_mcp_server_https):
     return SSETransport(url=sse_mcp_server_https)
 
@@ -256,6 +265,15 @@ def test_non_matching_input_descriptors_of_mcp_tools_log_it(
 def mcp_fooza_tool(sse_client_transport, with_mcp_enabled):
     return MCPTool(
         name="fooza_tool", description="custom description", client_transport=sse_client_transport
+    )
+
+
+@pytest.fixture
+def mcp_fooza_tool_with_client_with_headers(sse_client_transport_with_headers, with_mcp_enabled):
+    return MCPTool(
+        name="fooza_tool",
+        description="custom description",
+        client_transport=sse_client_transport_with_headers,
     )
 
 
@@ -500,6 +518,23 @@ def test_serde_mcp_tool(mcp_fooza_tool):
     serialized_tool = serialize(mcp_fooza_tool)
     deserialized_tool = autodeserialize(serialized_tool)
     assert isinstance(deserialized_tool, MCPTool)
+    assert deserialized_tool.run(a=1, b=2) == "7"
+
+
+def test_serde_mcp_tool_with_client_with_headers(mcp_fooza_tool_with_client_with_headers):
+    serialized_tool = serialize(mcp_fooza_tool_with_client_with_headers)
+    assert "headers" in serialized_tool
+    assert "sensitive_headers" not in serialized_tool
+    deserialized_tool = autodeserialize(serialized_tool)
+    assert isinstance(deserialized_tool, MCPTool)
+    assert isinstance(deserialized_tool.client_transport, SSETransport)
+    assert type(mcp_fooza_tool_with_client_with_headers.client_transport) is type(
+        deserialized_tool.client_transport
+    )
+    assert (
+        deserialized_tool.client_transport.headers
+        == mcp_fooza_tool_with_client_with_headers.client_transport.headers
+    )
     assert deserialized_tool.run(a=1, b=2) == "7"
 
 

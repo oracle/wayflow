@@ -100,23 +100,25 @@ def test_mock_api_call_io(faked_request) -> None:
         json_body={"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]},
         params={"param": "{{ p1 }}"},
         headers={"header1": "{{ h1 }}"},
+        sensitive_headers={"sensitive_header1": "{{ sh1 }}"},
         output_values_json={
             "v1": ".value1",
             ListProperty(name="v2list", item_type=StringProperty("inner_str")): ".values[1].list",
         },
     )
 
-    assert len(step.input_descriptors) == 4
+    assert len(step.input_descriptors) == 5
     input_descriptor_names = set(
         input_descriptor.name for input_descriptor in step.input_descriptors
     )
-    assert input_descriptor_names == {"v1", "v2", "p1", "h1"}
+    assert input_descriptor_names == {"v1", "v2", "p1", "h1", "sh1"}
 
     inputs = {
         "v1": "test1",
         "v2": "test2",
         "p1": "test3",
         "h1": "test4",
+        "sh1": "test5",
     }
     outputs = run_step_and_return_outputs(step, inputs=inputs)
     assert outputs == {
@@ -136,7 +138,7 @@ def test_mock_api_call_io(faked_request) -> None:
                 "method": step.method,
                 "json": {"value": "test1", "listofvalues": ["a", "test2", "c"]},
                 "params": {"param": "test3"},
-                "headers": {"header1": "test4"},
+                "headers": {"header1": "test4", "sensitive_header1": "test5"},
             },
         )
     ]
@@ -252,11 +254,13 @@ def test_api_call_step_actual_endpoint(test_webapp: str) -> None:
         json_body={"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]},
         params={"param": "{{ p1 }}"},
         headers={"header1": "{{ h1 }}"},
+        sensitive_headers={"sensitive_header1": "{{ sh1 }}"},
         output_values_json={
             "v2": ".listofvalues[1]",
             "vl": ".listofvalues[-1]",
             "p": ".param",
             "h": ".header1",
+            "sh": ".sensitive_header1",
             "test": ".test",
             "path": ".__parsed_path",
             ListProperty(name="v2list", item_type=StringProperty("inner_str")): ".listofvalues",
@@ -269,6 +273,7 @@ def test_api_call_step_actual_endpoint(test_webapp: str) -> None:
         "v2": "test2",
         "p1": "test3",
         "h1": "test4",
+        "sh1": "test5",
         "u1": URL_TEMPLATE_VALUE,
     }
 
@@ -279,6 +284,7 @@ def test_api_call_step_actual_endpoint(test_webapp: str) -> None:
         "vl": "c",
         "p": "test3",
         "h": "test4",
+        "sh": "test5",
         "test": "test",
         "v2list": ["a", "test2", "c"],
         ApiCallStep.HTTP_STATUS_CODE: 200,
@@ -340,6 +346,7 @@ def test_api_call_step_kwargs_arguments() -> None:
             "json_body",
             "params",
             "headers",
+            "sensitive_headers",
             "cookies",
             "output_values_json",
             "store_response",

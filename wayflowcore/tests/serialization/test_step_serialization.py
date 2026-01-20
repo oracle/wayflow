@@ -455,12 +455,15 @@ def test_api_call_step_can_be_serde() -> None:
         headers={
             "session_id": "{{ session_id }}",
         },
+        sensitive_headers={"my_secret": "abc123"},
         output_values_json={
             "first_order_status": ".orders[0].status",
         },
     )
 
     serialized_step = serialize(step)
+    assert "sensitive_headers" not in serialized_step
+    assert "my_secret" not in serialized_step
 
     new_step: ApiCallStep = deserialize(Step, serialized_step)
 
