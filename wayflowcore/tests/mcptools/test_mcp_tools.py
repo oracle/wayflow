@@ -723,3 +723,14 @@ def test_mcp_tool_works_with_nested_inputs(sse_client_transport, with_mcp_enable
         "tool_output" in outputs
         and outputs["tool_output"] == "vals=['value1', 'value2'], props={'key': 'value'}"
     )
+
+
+def test_mcp_tool_works_resource_output(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="get_resource",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+    assert len(tool.output_descriptors) == 1
+    assert isinstance(tool.output_descriptors[0], StringProperty)
+    assert "user_34_response" in tool.run(user="user_34")

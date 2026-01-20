@@ -9,7 +9,8 @@ from os import PathLike
 from typing import Annotated, Literal, Optional
 
 from mcp.server.fastmcp import FastMCP as BaseFastMCP
-from pydantic import BaseModel, Field, RootModel
+from mcp.types import EmbeddedResource, TextResourceContents
+from pydantic import AnyUrl, BaseModel, Field, RootModel
 from starlette.applications import Starlette
 from typing_extensions import TypedDict
 
@@ -129,6 +130,17 @@ def create_server(host: str, port: int):
     @server.tool(description="Tool that consumes a list and a dict")
     def consumes_list_and_dict(vals: list[str], props: dict[str, str]) -> str:
         return f"vals={vals!r}, props={props!r}"
+
+    @server.tool(description="Returns the resource associated with a user")
+    def get_resource(user: str):  # on purpose not put the type to check we handle
+        return EmbeddedResource(
+            resource=TextResourceContents(
+                text=f"{user}_response",
+                uri=AnyUrl("users://{user}/profile"),
+                mimeType="text/plain",
+            ),
+            type="resource",
+        )
 
     return server
 
