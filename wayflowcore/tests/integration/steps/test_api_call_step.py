@@ -26,6 +26,8 @@ from wayflowcore.serialization.serializer import deserialize
 from wayflowcore.steps.apicallstep import ApiCallStep
 from wayflowcore.steps.step import Step
 
+from ...utils import get_available_port
+
 URL_TEMPLATE_VALUE = "a/b/c?param=baram&rama=bu77er"
 ENCODED_URL_TEMPLATE_VALUE = "a%2Fb%2Fc%3Fparam%3Dbaram%26rama%3Dbu77er"
 
@@ -213,7 +215,9 @@ def check_server_is_up(base_url: str) -> bool:
 
 
 @pytest.fixture(scope="module")
-def test_webapp(hostname: str = "localhost", port: int = 7860):
+def test_webapp():
+    hostname = "localhost"
+    port = get_available_port()
     process = Process(target=deploy_test_webapp, kwargs={"hostname": hostname, "port": port})
     process.start()
 

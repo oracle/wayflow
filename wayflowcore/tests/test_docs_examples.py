@@ -22,6 +22,7 @@ from .a2a.test_a2aagent import a2a_agent, connection_config_no_verify  # noqa
 from .mcptools.conftest import sse_mcp_server_http  # noqa
 from .mcptools.test_mcp_tools import MCP_USER_QUERY
 from .test_ociagent import agent as oci_agent  # noqa
+from .utils import get_available_port
 
 DOCS_DIR = Path(__file__).parents[2] / "docs" / "wayflowcore" / "source" / "core"
 UTILS_DIR = Path(__file__).parent / "_utils"
@@ -79,7 +80,7 @@ def mock_server():
     app = Starlette(debug=True, routes=[Route("/protected", protected_endpoint)])
 
     host = "localhost"
-    port = 8003
+    port = get_available_port()
     config = uvicorn.Config(app, host=host, port=port, log_level="warning")
     server = uvicorn.Server(config)
     thread = threading.Thread(target=server.run, daemon=True)
@@ -98,10 +99,11 @@ def mock_server():
             time.sleep(0.2)
     else:
         raise RuntimeError("Mock server did not start in time")
-
-    yield
-    server.should_exit = True
-    thread.join()
+    try:
+        yield f"http://{host}:{port}/protected"
+    finally:
+        server.should_exit = True
+        thread.join(timeout=5)
 
 
 def _read_dummy_pdf_file(file_path: str, clean_pdf: bool = False) -> str:
@@ -160,6 +162,6 @@ def test_code_examples_in_docs_can_be_successfully_run(
             pytest.skip("Docs code example is not ready to be tested")
 
     if "expired_token" in file_path:
-        request.getfixturevalue("mock_server")
+        globs["mock_server_url"] = request.getfixturevalue("mock_server")
 
     runpy.run_path(file_path, init_globals=globs)

@@ -53,7 +53,7 @@ app = Starlette(debug=True, routes=[
 
 # Start the server: Uncomment these lines
 # import uvicorn
-# uvicorn.run(app, host="localhost", port=8001)
+# uvicorn.run(app, host="localhost", port=8003)
 # .. end-##_Mock_server
 # .. start-##_Import_libraries
 from wayflowcore.property import StringProperty
@@ -114,6 +114,7 @@ call_api_step = ApiCallStep(
 # 4. End step
 end_step = CompleteStep(name="end_step")
 # .. end-##_Defining_steps
+(call_api_step.url,) = _update_globals(["mock_server_url"])  # docs-skiprow
 # .. start-##_Defining_flow
 remote_call_flow = Flow(
     name="Remote Call Flow",
