@@ -281,58 +281,6 @@ def _close_multiple_tool_requests_after_handoff_tool_request(
         )
 
 
-def _close_parallel_tool_requests_after_handoff_tool_request(
-    message_list: MessageList, tool_request: ToolRequest
-) -> None:
-    """
-    Close parallel tool request by marking other tool requests after the handoff tool (`tool_request`) as "cancelling"
-    and appending corresponding tool results to the message list.
-    Example:
-    message_list = [Message(tool_requests=[TR0, "handoff_conversation", TR2, TR3])]
-    Resulting message_list after execution:
-        [
-            Message(tool_requests=[TR0, "handoff_conversation", TR2, TR3]),
-            Message(tool_result=ToolResult(content="Calling 'TR2' after the handoff is not possible. Cancelling call to tool 'TR2')),
-            Message(tool_result=ToolResult(content="Calling 'TR3' after the handoff is not possible. Cancelling call to tool 'TR3"))
-        ]
-    """
-    message = _get_last_tool_request_message_from_agent_response(message_list)
-    if (
-        message is None
-        or message.message_type != MessageType.TOOL_REQUEST
-        or not message.tool_requests
-    ):
-        raise ValueError(f"Internal error: {message}")  # for mypy compliance
-
-    logger.debug(
-        "Calling other tools after the handoff is not possble. Cancelling other tool calls."
-    )
-
-    idx = next(
-        (
-            i
-            for i, tq in enumerate(message.tool_requests)
-            if tq.tool_request_id == tool_request.tool_request_id
-        ),
-        None,
-    )
-
-    if idx is None:
-        raise ValueError(
-            f"Internal error: Error when cancelling parallel tool calls after the handoff."
-        )
-
-    # Cancel the tool requests after the handoff tool
-    other_tool_requests = message.tool_requests[idx + 1 :]
-    for other_tool_request in other_tool_requests:
-        message_list.append_tool_result(
-            ToolResult(
-                content=f"Calling '{other_tool_request.name}' after the handoff is not possible. Cancelling call to tool '{other_tool_request.name}'",
-                tool_request_id=other_tool_request.tool_request_id,
-            )
-        )
-
-
 def _parse_send_message_tool_request(
     tool_request: ToolRequest, possible_recipient_names: List[str]
 ) -> Tuple[str, str, str]:
