@@ -78,3 +78,11 @@ def _fetch_tool_calling_support(llm: "LlmModel") -> bool:
         if "API streaming request failed after retries" not in str(e):
             raise e
     return False
+
+
+def _is_gemma_model(model_id: str) -> bool:
+    return "gemma" in model_id.lower()
+
+
+def _is_llama_legacy_model(model_id: str) -> bool:
+    return "llama" in model_id.lower() and "3." in model_id

@@ -9,6 +9,7 @@ from typing import List
 
 import pytest
 
+from wayflowcore import Agent
 from wayflowcore._utils.formatting import parse_tool_call_using_json
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.outputparser import JsonToolOutputParser, PythonToolOutputParser, RegexOutputParser
@@ -20,11 +21,15 @@ from wayflowcore.templates import (
     REACT_AGENT_TEMPLATE,
     PromptTemplate,
 )
+from wayflowcore.templates.pythoncalltemplates import GEMMA_AGENT_TEMPLATE
 from wayflowcore.templates.reacttemplates import ReactToolOutputParser
 from wayflowcore.templates.structuredgeneration import (
     adapt_prompt_template_for_json_structured_generation,
 )
 from wayflowcore.tools import ToolRequest, ToolResult, tool
+
+from .integration.test_descriptors import get_weather
+from .testhelpers.patching import patch_llm
 
 logger = logging.getLogger(__name__)
 
@@ -730,3 +735,61 @@ def test_react_template_parsing_works_with_no_whitespaces():
     assert output_message.content == thought + "\n"
     assert output_message.tool_requests[0].name == "get_altitude"
     assert output_message.tool_requests[0].args == {"place": "ABC"}
+
+
+@pytest.mark.parametrize(
+    "template",
+    [
+        NATIVE_AGENT_TEMPLATE,
+        PYTHON_CALL_AGENT_TEMPLATE,
+        LLAMA_AGENT_TEMPLATE,
+        REACT_AGENT_TEMPLATE,
+    ],
+)
+def test_template_does_not_clear_llm_cache(template: PromptTemplate, remotely_hosted_llm):
+    @tool(description_mode="only_docstring")
+    def get_weather(location: str, in_x_days: int = 0) -> str:
+        """Get the weather in a given city."""
+        return "bad"
+
+    agent = Agent(
+        llm=remotely_hosted_llm,
+        custom_instruction="Help the user regarding his weather requests",
+        agent_template=template,
+        tools=[get_weather],
+    )
+
+    conv = agent.start_conversation(
+        messages="what is the weather in Zurich now? If the weather is bad, check also in Barcelona in 3 days"
+    )
+    with patch_llm(
+        remotely_hosted_llm,
+        outputs=[
+            [ToolRequest(name="get_weather", args={"city": "Zurich"}, tool_request_id="id1")],
+            [ToolRequest(name="get_weather", args={"city": "Barcelona"}, tool_request_id="id2")],
+            "The weather is bad in both places",
+        ],
+    ) as (generate, stream_generate):
+        conv.execute()
+        assert stream_generate.call_count == 3
+
+    prev_prompt = None
+    for args_dict in stream_generate.call_args_list:
+        new_prompt = args_dict.prompt
+        if prev_prompt is not None:
+            assert new_prompt.messages[:-2] == prev_prompt.messages
+        prev_prompt = new_prompt
+
+
+def test_agent_with_gemma_template(remote_gemma_llm):
+    agent_with_tools = Agent(
+        llm=remote_gemma_llm,
+        custom_instruction="You are a helpful assistant, answering the user request about {{query}}",
+        tools=[get_weather],
+        initial_message=None,
+        agent_template=GEMMA_AGENT_TEMPLATE,
+    )
+    conv = agent_with_tools.start_conversation(inputs={"query": "what is the weather in Zurich?"})
+    conv.execute()
+    agent_output = conv.get_last_message().content.lower()
+    assert "sunny" in agent_output or "rainy" in agent_output

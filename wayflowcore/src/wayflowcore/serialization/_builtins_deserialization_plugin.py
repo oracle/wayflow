@@ -256,6 +256,9 @@ from wayflowcore.agentspec.components.transforms import (
     PluginAppendTrailingSystemMessageToUserMessageTransform as AgentSpecPluginAppendTrailingSystemMessageToUserMessageTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
+    PluginCanonicalizationMessageTransform as AgentSpecPluginCanonicalizationMessageTransform,
+)
+from wayflowcore.agentspec.components.transforms import (
     PluginCoalesceSystemMessagesTransform as AgentSpecPluginCoalesceSystemMessagesTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
@@ -269,6 +272,9 @@ from wayflowcore.agentspec.components.transforms import (
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginRemoveEmptyNonUserMessageTransform as AgentSpecPluginRemoveEmptyNonUserMessageTransform,
+)
+from wayflowcore.agentspec.components.transforms import (
+    PluginSplitPromptOnMarkerMessageTransform as AgentSpecPluginSplitPromptOnMarkerMessageTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
     PluginSwarmToolRequestAndCallsTransform as AgentSpecPluginSwarmToolRequestAndCallsTransform,
@@ -426,6 +432,12 @@ from wayflowcore.transforms import (
 )
 from wayflowcore.transforms import (
     RemoveEmptyNonUserMessageTransform as RuntimeRemoveEmptyNonUserMessageTransform,
+)
+from wayflowcore.transforms.canonicalizationtransform import (
+    CanonicalizationMessageTransform as RuntimeCanonicalizationMessageTransform,
+)
+from wayflowcore.transforms.transforms import (
+    SplitPromptOnMarkerMessageTransform as RuntimeSplitPromptOnMarkerMessageTransform,
 )
 from wayflowcore.variable import Variable as RuntimeVariable
 
@@ -1672,6 +1684,12 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 return RuntimeReactMergeToolRequestAndCallsTransform()
             elif isinstance(agentspec_component, AgentSpecPluginSwarmToolRequestAndCallsTransform):
                 return RuntimeSwarmToolRequestAndCallsTransform()
+            elif isinstance(agentspec_component, AgentSpecPluginCanonicalizationMessageTransform):
+                return RuntimeCanonicalizationMessageTransform()
+            elif isinstance(
+                agentspec_component, AgentSpecPluginSplitPromptOnMarkerMessageTransform
+            ):
+                return RuntimeSplitPromptOnMarkerMessageTransform(marker=agentspec_component.marker)
             raise ValueError(f"Unsupported type of MessageTransform: {type(agentspec_component)}")
 
         elif isinstance(agentspec_component, AgentSpecPluginOutputParser):

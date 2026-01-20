@@ -12,6 +12,7 @@ NATIVE_CHAT_TEMPLATE = PromptTemplate(
     messages=[PromptTemplate.CHAT_HISTORY_PLACEHOLDER],
     post_rendering_transforms=[RemoveEmptyNonUserMessageTransform()],
 )
+"""Native chat template. Should be prioritized if the model supports native tool calling."""
 
 NATIVE_AGENT_TEMPLATE = PromptTemplate(
     messages=[
@@ -27,3 +28,4 @@ NATIVE_AGENT_TEMPLATE = PromptTemplate(
     ],
     post_rendering_transforms=[RemoveEmptyNonUserMessageTransform()],
 )
+"""Native agent template. Should be prioritized if the model supports native tool calling."""

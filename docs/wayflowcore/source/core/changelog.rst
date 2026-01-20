@@ -186,6 +186,18 @@ Bug fixes
 
   Fixed a bug where handoff in Swarms was not restricted properly. The ability to handoff has been removed for agents that are sent ``send_message`` in Swarms, ensuring that only the main agent can perform handoffs in ``HandoffMode.OPTIONAL`` mode.
 
+* **Fixed tool calling for OCI models**
+
+  Resolved an issue that sent incorrectly formatted chat histories to OCI endpoints, degrading
+  tool-calling and agentic performance for ``google`` and ``cohere`` models.
+  All OCI models can now more reliably and efficiently leverage tool calling.
+
+* **Fixed agent termination when ``caller_input_mode`` was set to never**
+
+  Corrected an issue where agents without outputs and ``caller_input_mode=CallerInputMode.NEVER``
+  would repeatedly iterate until the maximum limit.
+  Agents can now better complete the task and exit as expected.
+
 
 WayFlow 25.4.2
 --------------

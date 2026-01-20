@@ -22,7 +22,6 @@ from wayflowcore.tracing.span import record_event
 from wayflowcore.tracing.trace import Trace
 
 from ..conftest import MyCustomEvent, MyCustomSpan
-from .conftest import OTEL_SERVER_PORT
 
 
 class OTLPSpanExporter(OtelSdkSpanExporter):
@@ -56,7 +55,7 @@ def test_spans_get_exported_correctly_to_otel_collector(
     otel_server, span_processor_class, mask_sensitive_information
 ) -> None:
     span_processor = span_processor_class(
-        span_exporter=OTLPSpanExporter(endpoint=f"localhost:{OTEL_SERVER_PORT}"),
+        span_exporter=OTLPSpanExporter(endpoint=otel_server),
         mask_sensitive_information=mask_sensitive_information,
     )
     trace_id = random.randint(1, 1000000000000)
@@ -66,9 +65,7 @@ def test_spans_get_exported_correctly_to_otel_collector(
             record_event(MyCustomEvent(name="MyTestCustomEvent", custom_attribute={"a": 1}))
             span.record_end_span_event(EndSpanEvent())
 
-    response = httpx.post(
-        f"http://localhost:{OTEL_SERVER_PORT}/v1/getspan", json={"span_id": span_id}
-    )
+    response = httpx.post(f"http://{otel_server}/v1/getspan", json={"span_id": span_id})
     assert 200 <= response.status_code < 300
     response_json = response.json()
     assert "name" in response_json and response_json["name"] == "Hey!"

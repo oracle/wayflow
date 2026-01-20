@@ -16,11 +16,15 @@ from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_sync_in_thread, sync_to_async_iterator
 from wayflowcore._utils.formatting import stringify
 from wayflowcore._utils.lazy_loader import LazyLoader
-from wayflowcore.messagelist import ImageContent, MessageType, TextContent
+from wayflowcore.idgeneration import IdGenerator
+from wayflowcore.messagelist import ImageContent, TextContent
 from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
+from wayflowcore.transforms import CanonicalizationMessageTransform
 
+from ._modelhelpers import _is_llama_legacy_model
 from ._openaihelpers import _property_to_openai_schema
+from ._openaihelpers._utils import _safe_json_loads
 from ._requesthelpers import StreamChunkType, TaggedMessageChunkTypeWithTokenUsage
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import LlmCompletion, LlmModel, Prompt
@@ -67,9 +71,12 @@ class ModelProvider(str, Enum):
     """
 
     META = "META"
-    GROK = "GROK"
+    XAI = "XAI"
     COHERE = "COHERE"
+    GOOGLE = "GOOGLE"
     OTHER = "OTHER"
+
+    GROK = "GROK"  # wrong name, should be using XAI instead
 
 
 def _detect_provider_from_model_id(model_id: str) -> ModelProvider:
@@ -82,6 +89,10 @@ def _detect_provider_from_model_id(model_id: str) -> ModelProvider:
         return ModelProvider.COHERE
     elif "meta" in provider_name.lower():
         return ModelProvider.META
+    elif "google" in provider_name.lower():
+        return ModelProvider.GOOGLE
+    elif "xai" in provider_name.lower():
+        return ModelProvider.XAI
     else:
         return ModelProvider.OTHER
 
@@ -268,7 +279,7 @@ class OCIGenAIModel(LlmModel):
         self, prompt: Prompt, generation_config: Optional[LlmGenerationConfig] = None
     ) -> "LlmCompletion":
 
-        provider = _MODEL_PROVIDER_TO_FORMATTER[self.provider]
+        provider = _MODEL_PROVIDER_TO_FORMATTER.get(self.provider, _GenericOciApiFormatter)
 
         response = await run_sync_in_thread(self._post_with_retry, provider, prompt)
         logger.debug(f"Raw remote oci genai response: {response.data}")
@@ -321,7 +332,7 @@ class OCIGenAIModel(LlmModel):
         if self._client is None or self._oci_serving_mode is None:
             raise ValueError("Could not initialize the OCI client")
 
-        provider = _MODEL_PROVIDER_TO_FORMATTER[self.provider]
+        provider = _MODEL_PROVIDER_TO_FORMATTER.get(self.provider, _GenericOciApiFormatter)
 
         request = provider.convert_prompt_into_request(prompt, self.model_id)
         logger.debug(f"Streaming request to remote oci genai endpoint: {json.loads(str(request))}")
@@ -360,9 +371,20 @@ class OCIGenAIModel(LlmModel):
 
         if self.provider == ModelProvider.COHERE:
             return NATIVE_CHAT_TEMPLATE
-        if self.provider == ModelProvider.META and "3." in self.model_id:
+        if self.provider == ModelProvider.META and _is_llama_legacy_model(self.model_id):
             # meta llama3.x works better with custom template
+            logger.debug(
+                "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_CHAT_TEMPLATE`, which yields better performance than native tool calling"
+            )
             return LLAMA_CHAT_TEMPLATE
+        if self.provider == ModelProvider.GOOGLE:
+            # google models do not support standalone system messages
+            logger.debug(
+                "Google models in OCI do not support standalone system messages. Wayflow will add an empty user message to prompts if needed."
+            )
+            return NATIVE_CHAT_TEMPLATE.with_additional_post_rendering_transform(
+                CanonicalizationMessageTransform()
+            )
         return NATIVE_CHAT_TEMPLATE
 
     @property
@@ -371,9 +393,20 @@ class OCIGenAIModel(LlmModel):
 
         if self.provider == ModelProvider.COHERE:
             return NATIVE_AGENT_TEMPLATE
-        if self.provider == ModelProvider.META and "3." in self.model_id:
+        if self.provider == ModelProvider.META and _is_llama_legacy_model(self.model_id):
+            logger.debug(
+                "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_CHAT_TEMPLATE`, which yields better performance than native tool calling"
+            )
             # llama3.x works better with custom template
             return LLAMA_AGENT_TEMPLATE
+        if self.provider == ModelProvider.GOOGLE:
+            # google models do not support standalone system messages
+            logger.debug(
+                "Google models in OCI do not support standalone system messages. Wayflow will add an empty user message to prompts if needed."
+            )
+            return NATIVE_AGENT_TEMPLATE.with_additional_post_rendering_transform(
+                CanonicalizationMessageTransform()
+            )
         return NATIVE_AGENT_TEMPLATE
 
 
@@ -462,12 +495,16 @@ class _GenericOciApiFormatter(_OciApiFormatter):
         completion_message = completion_choices[0].message
         text_content, tool_requests = "", None
         if completion_message.content is not None:
-            text_content = "".join(t.text for t in completion_message.content if t.type == "TEXT")
+            text_content = "".join(
+                t.text
+                for t in completion_message.content
+                if t.type == "TEXT" and t.text is not None
+            )
         if completion_message.tool_calls is not None and len(completion_message.tool_calls) > 0:
             tool_requests = [
                 ToolRequest(
                     name=tc.name,
-                    args=json.loads(tc.arguments),
+                    args=_safe_json_loads(tc.arguments),
                     tool_request_id=tc.id,
                 )
                 for tc in completion_message.tool_calls
@@ -505,7 +542,11 @@ class _GenericOciApiFormatter(_OciApiFormatter):
                 tool_deltas.extend(delta["toolCalls"])
 
             if "content" in delta and delta["content"] is not None:
-                text_delta = "".join(t["text"] for t in delta["content"] if t["type"] == "TEXT")
+                text_delta = "".join(
+                    t["text"]
+                    for t in delta["content"]
+                    if t["type"] == "TEXT" and t.get("text") is not None
+                )
                 accumulated_text += text_delta
 
             if text_delta != "":
@@ -626,27 +667,49 @@ def _message_to_generic_oci_message(m: "Message") -> Any:
         return oci.generative_ai_inference.models.AssistantMessage(content=contents)
 
 
+def _is_new_tool_call(raw_tool_call: Any) -> bool:
+    if raw_tool_call.get("type") != "FUNCTION":
+        return False
+    # some models return the id, in which case they only do it for the first chunk of the tool call
+    if raw_tool_call.get("id") is not None:
+        return True
+    # some other models just return a fully formed tool call
+    if "name" in raw_tool_call and "arguments" in raw_tool_call:
+        return True
+
+    return False
+
+
 def _convert_tool_deltas_into_tool_requests(tool_deltas: List[Any]) -> List[ToolRequest]:
     tool_calls = []
-    current_tool_call: Dict[str, Any] = {}
+    current_tool_call: Optional[Dict[str, Any]] = None
     for chunk in tool_deltas:
-        if "id" in chunk:
-            if "id" in current_tool_call:
+        if _is_new_tool_call(chunk):
+            if current_tool_call is not None:
                 tool_calls.append(current_tool_call)
             current_tool_call = {
                 "type": "FUNCTION",
-                "id": chunk["id"],
+                "id": chunk.get("id", IdGenerator.get_or_generate_id()),
                 "name": "",
                 "arguments": "",
             }
+        if current_tool_call is None:
+            continue
         if "name" in chunk:
             current_tool_call["name"] += chunk["name"]
         if "arguments" in chunk:
             current_tool_call["arguments"] += chunk["arguments"]
-    if "id" in current_tool_call:
+
+    if current_tool_call is not None:
         tool_calls.append(current_tool_call)
+
+    logger.debug("Found raw tool calls: %s", tool_deltas)
+    logger.debug("Collected into tool calls: %s", tool_calls)
+
     return [
-        ToolRequest(name=tc["name"], args=json.loads(tc["arguments"]), tool_request_id=tc["id"])
+        ToolRequest(
+            name=tc["name"], args=_safe_json_loads(tc["arguments"]), tool_request_id=tc["id"]
+        )
         for i, tc in enumerate(tool_calls)
     ]
 
@@ -682,13 +745,11 @@ class _CohereOciApiFormatter(_OciApiFormatter):
             text_content = "\n".join(
                 [cast(TextContent, content).content for content in msg.contents]
             )
-            if (msg.role == "user") and (len(chat_history) == 0):
-                message += text_content
-            elif (
-                msg.message_type == MessageType.TOOL_RESULT
-                and len(chat_history) == 0
-                and msg.tool_result is not None
-            ):
+            if len(chat_history) == 0 and msg.tool_result is not None:
+                if msg.tool_result.tool_request_id not in ids_to_tool_requests:
+                    raise RuntimeError(
+                        f"Cohere model got a tool result without an associated tool request: {msg.tool_result}"
+                    )
                 tool_request = ids_to_tool_requests[msg.tool_result.tool_request_id]
                 tool_results.append(
                     oci.generative_ai_inference.models.CohereToolResult(
@@ -705,6 +766,8 @@ class _CohereOciApiFormatter(_OciApiFormatter):
                         ],
                     )
                 )
+            elif (msg.role == "user") and (len(chat_history) == 0):
+                message += text_content
             else:
                 chat_history.append(
                     _convert_message_into_cohere_oci_message(
@@ -858,7 +921,7 @@ def _tools_to_oci_cohere_tools(tool: Tool) -> Any:
             parameter_name: oci.generative_ai_inference.models.CohereParameterDefinition(
                 description=parameter_json_type.get("description", ""),
                 type=parameter_json_type.get("type", ""),
-                is_required="default" in parameter_json_type,
+                is_required="default" not in parameter_json_type,
             )
             for parameter_name, parameter_json_type in tool.parameters.items()
         },
@@ -909,7 +972,6 @@ def _generation_config_to_cohere_oci_parameters(
 
 _MODEL_PROVIDER_TO_FORMATTER = {
     ModelProvider.META: _MetaOciApiFormatter,
-    ModelProvider.OTHER: _GenericOciApiFormatter,
     ModelProvider.COHERE: _CohereOciApiFormatter,
 }
 

@@ -314,16 +314,34 @@ class PromptTemplate(DataclassComponent):
             generation_config=generation_config,
         )
 
-    def format(self, inputs: Optional[Dict[str, Any]] = None) -> "Prompt":
+    def format(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        chat_history: Optional[List[Message]] = None,
+    ) -> "Prompt":
         """Formats the prompt into a list of messages to pass to the LLM"""
-        return run_async_in_sync(self.format_async, inputs, method_name="format_async")
+        return run_async_in_sync(
+            self.format_async, inputs, chat_history, method_name="format_async"
+        )
 
-    async def format_async(self, inputs: Optional[Dict[str, Any]] = None) -> "Prompt":
+    async def format_async(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        chat_history: Optional[List[Message]] = None,
+    ) -> "Prompt":
         """Synchronously formats the prompt into a list of messages to pass to the LLM"""
         from wayflowcore.models.llmmodel import Prompt
 
         inputs = deepcopy(inputs) or {}
         inputs.update(self._partial_values)
+
+        if self.CHAT_HISTORY_PLACEHOLDER_NAME in inputs and chat_history:
+            if inputs[self.CHAT_HISTORY_PLACEHOLDER_NAME] is not chat_history:
+                logger.info(
+                    "The template received the chat history both in `inputs` and `chat_history`. The value from the `inputs` will take precedence."
+                )
+        elif chat_history:
+            inputs[self.CHAT_HISTORY_PLACEHOLDER_NAME] = chat_history
 
         if not self.native_tool_calling:
             inputs[self.TOOL_PLACEHOLDER_NAME] = [

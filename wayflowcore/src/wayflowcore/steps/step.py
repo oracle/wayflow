@@ -971,8 +971,7 @@ class Step(ComponentWithInputsOutputs, SerializableObject, metaclass=_StepRegist
                 f"the provided conversation to a flow must be of type FlowConversation but was {type(conversation).__name__}"
             )
         with StepInvocationSpan(
-            step=self,
-            inputs=inputs,
+            step=self, inputs=inputs, name=f"StepInvocation[{self.name}]"
         ) as span:
             internal_inputs = self.remap_inputs(inputs)
             if self._has_async_implemented():

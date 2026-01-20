@@ -120,7 +120,9 @@ class _ResponsesAPIProcessor(_APIProcessor):
         else:
             return [openai_dict]
 
-    def _convert_message_into_openai_message_dict(self, m: Message) -> List[Dict[str, Any]]:
+    def _convert_message_into_openai_message_dict(
+        self, m: Message, supports_tool_role: bool
+    ) -> List[Dict[str, Any]]:
         """
         Convert a WayFlow ``Message`` object into a list of dictionaries compatible with the OpenAI Responses API.
 
@@ -180,12 +182,12 @@ class _ResponsesAPIProcessor(_APIProcessor):
         else:
             return self._convert_message_with_content_into_openai_message(m)
 
-    def _convert_prompt(self, prompt: "Prompt") -> Dict[str, Any]:
+    def _convert_prompt(self, prompt: "Prompt", supports_tool_role: bool) -> Dict[str, Any]:
         payload_arguments: Dict[str, Any] = {
             "input": [
                 m
                 for message in prompt.messages
-                for m in self._convert_message_into_openai_message_dict(message)
+                for m in self._convert_message_into_openai_message_dict(message, supports_tool_role)
             ],
         }
 

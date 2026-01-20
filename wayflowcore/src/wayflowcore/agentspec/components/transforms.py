@@ -4,6 +4,8 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+from typing import Optional
+
 from pyagentspec.component import Component
 
 from wayflowcore.agentspec.components._pydantic_plugins import (
@@ -66,6 +68,38 @@ class PluginSwarmToolRequestAndCallsTransform(PluginMessageTransform):
     sequence of messages."""
 
 
+class PluginCanonicalizationMessageTransform(PluginMessageTransform):
+    """
+    Produce a conversation shaped like:
+
+        System   (optional, at most one, always first if present)
+        User
+        Assistant
+        User
+        Assistant
+        ...
+
+    This is useful because some models (like Gemma) require such formatting of the messages.
+
+    * several system messages are merged
+    * consecutive assistant (resp. user) messages are merged, unless there are several tool calls,
+      in which case they are split and their responses are interleaving the requests.
+
+    """
+
+
+class PluginSplitPromptOnMarkerMessageTransform(PluginMessageTransform):
+    """
+    Split prompts on a marker into multiple messages with the same role. Only apply to the messages without
+    tool_requests and tool_result.
+
+    This transform is useful for script-based execution flows, where a single prompt script can be converted
+    into multiple conversation turns for step-by-step reasoning.
+    """
+
+    marker: Optional[str] = None
+
+
 messagetransform_serialization_plugin = PydanticComponentSerializationPlugin(
     name="MessageTransformPlugin",
     component_types_and_models={
@@ -75,6 +109,8 @@ messagetransform_serialization_plugin = PydanticComponentSerializationPlugin(
         PluginLlamaMergeToolRequestAndCallsTransform.__name__: PluginLlamaMergeToolRequestAndCallsTransform,
         PluginReactMergeToolRequestAndCallsTransform.__name__: PluginReactMergeToolRequestAndCallsTransform,
         PluginSwarmToolRequestAndCallsTransform.__name__: PluginSwarmToolRequestAndCallsTransform,
+        PluginCanonicalizationMessageTransform.__name__: PluginCanonicalizationMessageTransform,
+        PluginSplitPromptOnMarkerMessageTransform.__name__: PluginSplitPromptOnMarkerMessageTransform,
     },
 )
 messagetransform_deserialization_plugin = PydanticComponentDeserializationPlugin(
@@ -86,5 +122,7 @@ messagetransform_deserialization_plugin = PydanticComponentDeserializationPlugin
         PluginLlamaMergeToolRequestAndCallsTransform.__name__: PluginLlamaMergeToolRequestAndCallsTransform,
         PluginReactMergeToolRequestAndCallsTransform.__name__: PluginReactMergeToolRequestAndCallsTransform,
         PluginSwarmToolRequestAndCallsTransform.__name__: PluginSwarmToolRequestAndCallsTransform,
+        PluginCanonicalizationMessageTransform.__name__: PluginCanonicalizationMessageTransform,
+        PluginSplitPromptOnMarkerMessageTransform.__name__: PluginSplitPromptOnMarkerMessageTransform,
     },
 )

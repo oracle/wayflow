@@ -18,7 +18,7 @@ from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import Message, MessageList
 from wayflowcore.models.llmmodel import LlmModel
-from wayflowcore.property import Property, _cast_value_into, _empty_default
+from wayflowcore.property import Property, StringProperty, _cast_value_into, _empty_default
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.tools import DescribedAgent, DescribedFlow, Tool, ToolBox
@@ -531,6 +531,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         add_talk_to_user_tool: bool,
     ) -> List[Tool]:
         from wayflowcore.executors._agentexecutor import (
+            _SUMMARY_OUTPUT_NAME,
             _TALK_TO_USER_TOOL_NAME,
             _agent_as_client_tool,
             _get_end_conversation_tool,
@@ -582,6 +583,19 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             all_tools += [
                 _make_submit_output_tool(
                     caller_input_mode=caller_input_mode, outputs=output_descriptors
+                )
+            ]
+        elif can_finish_conversation is False and caller_input_mode == CallerInputMode.NEVER:
+            # when the agent has no outputs and caller input mode NEVER
+            # we just ask the agent to output a short summary of what was done
+            # to force the agent to reflect and act before finishing
+            summary_output_descriptor = StringProperty(
+                name=_SUMMARY_OUTPUT_NAME,
+                description="1 sentence summary of what was done to achieve the task",
+            )
+            all_tools += [
+                _make_submit_output_tool(
+                    caller_input_mode=caller_input_mode, outputs=[summary_output_descriptor]
                 )
             ]
 

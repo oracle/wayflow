@@ -167,6 +167,13 @@ Messages
 .. autoclass:: wayflowcore.agentspec.components.transforms.PluginReactMergeToolRequestAndCallsTransform
     :exclude-members: model_post_init, model_config
 
+.. _agentspeccanonicalizationmessagetransform:
+.. autoclass:: wayflowcore.agentspec.components.transforms.PluginCanonicalizationMessageTransform
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecsplitpromptonmarkermessagetransform:
+.. autoclass:: wayflowcore.agentspec.components.transforms.PluginSplitPromptOnMarkerMessageTransform
+    :exclude-members: model_post_init, model_config
 
 Nodes
 ^^^^^

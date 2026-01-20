@@ -218,7 +218,9 @@ class LlmModel(Component, SerializableObject, ABC):
 
         self._check_supports_prompt(prompt)
 
-        with LlmGenerationSpan(llm=self, prompt=prompt) as span:
+        with LlmGenerationSpan(
+            llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
+        ) as span:
             logger.debug("LLM generating: %s", prompt)
             completion = await self._generate_impl(prompt)
             logger.debug("LLM output: %s", completion.message)
@@ -280,12 +282,15 @@ class LlmModel(Component, SerializableObject, ABC):
 
         self._check_supports_prompt(prompt)
 
-        with LlmGenerationSpan(llm=self, prompt=prompt) as span:
+        with LlmGenerationSpan(
+            llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
+        ) as span:
             logger.debug("LLM generating: %s", prompt)
             final_chunk: Optional["Message"] = None
             async for chunk_type, chunk, token_usage in self._stream_generate_impl(prompt):
                 if chunk_type == StreamChunkType.END_CHUNK:
                     final_chunk = chunk
+                    logger.debug("Llm streamed the final chunk: %s", final_chunk)
                 yield chunk_type, chunk
 
             if final_chunk is None:

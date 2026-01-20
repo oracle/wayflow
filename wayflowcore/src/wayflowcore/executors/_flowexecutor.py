@@ -458,7 +458,7 @@ class FlowConversationExecutor(ConversationExecutor):
         else:
             if not value_descriptor.has_default:
                 raise ValueError(
-                    f"Step {current_step_name} with field {value_name} is not required but it does not have a default value"
+                    f"Step {current_step_name} has input field {value_name} but it was not produced yet and it does not have a default value"
                 )
             value = value_descriptor.default_value
 
@@ -698,7 +698,10 @@ class FlowConversationExecutor(ConversationExecutor):
         try:
             with get_interrupts_event_listener_context_for_conversation(conversation):
                 conversation.state._set_execution_interrupts(execution_interrupts)
-                with FlowExecutionSpan(conversational_component=conversation.component) as span:
+                with FlowExecutionSpan(
+                    conversational_component=conversation.component,
+                    name=f"FlowExecution[{conversation.component._get_display_name()}]",
+                ) as span:
                     execution_status = await FlowConversationExecutor._execute_flow(
                         conversation, execution_interrupts
                     )
