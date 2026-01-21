@@ -108,18 +108,21 @@ def test_flow_rag_with_search_step(
         llm=remotely_hosted_llm,
     )
 
+    destination_step = CompleteStep()
+
     steps = {
         "start": start_step,
         "input": user_input_step,
         "search": search_step,
         "respond": llm_response_step,
+        "last_step": destination_step,
     }
 
     control_edges = [
         ControlFlowEdge(start_step, user_input_step),
         ControlFlowEdge(user_input_step, search_step),
         ControlFlowEdge(search_step, llm_response_step),
-        ControlFlowEdge(llm_response_step, CompleteStep()),
+        ControlFlowEdge(llm_response_step, destination_step),
     ]
 
     data_edges = [
