@@ -27,7 +27,7 @@ $referenced_components:
     metadata: {}
     model_id: /storage/models/Llama-3.3-70B-Instruct
     name: llama-3.1-70b-instruct
-    url: LLAMA70B_API_URL
+    url: LLAMA70BV33_API_URL
   304cc09f-65a1-4566-b0e2-e937d5f16da7:
     component_type: ServerTool
     description: Gather user account information

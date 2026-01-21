@@ -195,7 +195,7 @@ _referenced_objects:
   vllmmodel/4384406112:
     _component_type: LlmModel
     generation_config: null
-    host_port: LLAMA70B_API_URL
+    host_port: LLAMA70BV33_API_URL
     model_id: LLAMA70B_MODEL_ID
     model_type: vllm
 begin_step_name: start_step
@@ -249,7 +249,7 @@ _referenced_objects:
   vllmmodel/4357290592:
     _component_type: LlmModel
     generation_config: null
-    host_port: LLAMA70B_API_URL
+    host_port: LLAMA70BV33_API_URL
     model_id: LLAMA70B_MODEL_ID
     model_type: vllm
 agents: []
@@ -590,7 +590,7 @@ _referenced_objects:
   vllmmodel/4426025136:
     _component_type: LlmModel
     generation_config: null
-    host_port: LLAMA70B_API_URL
+    host_port: LLAMA70BV33_API_URL
     model_id: LLAMA70B_MODEL_ID
     model_type: vllm
 agents: []

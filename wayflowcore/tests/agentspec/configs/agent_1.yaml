@@ -13,7 +13,7 @@ $referenced_components:
     metadata: {}
     model_id: /storage/models/Llama-3.3-70B-Instruct
     name: llama-3.1-70b-instruct
-    url: LLAMA70B_API_URL
+    url: LLAMA70BV33_API_URL
 agents: []
 component_type: Agent
 description: Example of Agent

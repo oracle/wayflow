@@ -59,9 +59,9 @@ oss_api_url = os.environ.get("OSS_API_URL")
 if not oss_api_url:
     raise Exception("OSS_API_URL is not set in the environment")
 
-llama70b_api_url = os.environ.get("LLAMA70B_API_URL")
-if not llama70b_api_url:
-    raise Exception("LLAMA70B_API_URL is not set in the environment")
+LLAMA70BV33_API_URL = os.environ.get("LLAMA70BV33_API_URL")
+if not LLAMA70BV33_API_URL:
+    raise Exception("LLAMA70BV33_API_URL is not set in the environment")
 
 ollama8bv31_api_url = os.environ.get("OLLAMA8BV32_API_URL")
 if not ollama8bv31_api_url:
@@ -328,7 +328,7 @@ OLLAMA_MODEL_CONFIG = {
 
 BIG_VLLM_CONFIG = {
     "model_type": "vllm",
-    "host_port": llama70b_api_url,
+    "host_port": LLAMA70BV33_API_URL,
     "model_id": "/storage/models/Llama-3.3-70B-Instruct",
     "generation_config": {"max_tokens": 512},
 }

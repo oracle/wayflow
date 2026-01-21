@@ -65,9 +65,9 @@ def test_examples_in_docstrings_can_be_successfully_ran(
         )
         populate_with_basic_entities(testing_oracle_data_store_with_data)
 
-    llama70b_api_url = os.environ.get("LLAMA70B_API_URL")
-    if not llama70b_api_url:
-        raise Exception("LLAMA70B_API_URL is not set in the environment")
+    LLAMA70BV33_API_URL = os.environ.get("LLAMA70BV33_API_URL")
+    if not LLAMA70BV33_API_URL:
+        raise Exception("LLAMA70BV33_API_URL is not set in the environment")
     # Check the docs at https://docs.python.org/3/library/doctest.html#doctest.testfile
     # if you want to understand how this test works.
     assistant = create_assistant()
@@ -79,7 +79,7 @@ def test_examples_in_docstrings_can_be_successfully_ran(
             "assistant": assistant,
             "config_file_path": CONFIGS_DIR / "tests/configs/docstring_assistant.yaml",
             "serialized_assistant_as_str": serialize(assistant),
-            "LLAMA70B_API_ENDPOINT": llama70b_api_url,
+            "LLAMA70B_API_ENDPOINT": LLAMA70BV33_API_URL,
             # Note: the docstring of the datastore query step instantiates a new datastore,
             # but we use this so that we create a new datastore in the test that connects to the
             # existing database with the data already there
