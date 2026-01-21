@@ -5,12 +5,10 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 from logging import getLogger
-from typing import Any, Dict, List, Optional, Union, cast, overload
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast, overload
 from warnings import warn
 
-import numpy as np
-import pandas as pd
-
+from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.component import Component
 from wayflowcore.datastore._datatable import Datatable
 from wayflowcore.datastore._utils import (
@@ -23,6 +21,16 @@ from wayflowcore.datastore.entity import Entity, EntityAsDictT
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject, serialize_to_dict
+
+if TYPE_CHECKING:
+    # Important: do not move these imports out of the TYPE_CHECKING
+    # Otherwise, importing the module when they are not installed would lead to an import error.
+    import numpy as np
+    import pandas as pd
+else:
+    np = LazyLoader("numpy")
+    pd = LazyLoader("pandas")
+
 
 logger = getLogger(__name__)
 

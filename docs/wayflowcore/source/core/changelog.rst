@@ -62,6 +62,12 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **Support for native Agent Spec CatchExceptionNode:**
+
+  WayFlow flows using the CatchExceptionStep now convert to the native Agent Spec
+  CatchExceptionNode when compatible (i.e., when catching all exceptions).
+
+
 * **Support list, dict and tuple output types in MCP tools:**
 
   MCP tools now support non-string output types (list of string, dictionary of strings
