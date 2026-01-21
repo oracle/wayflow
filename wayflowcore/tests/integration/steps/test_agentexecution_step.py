@@ -10,12 +10,15 @@ from pytest import fixture
 
 from wayflowcore import Message, MessageType
 from wayflowcore.agent import Agent, _MutatedAgent
+from wayflowcore.controlconnection import ControlFlowEdge
+from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
 from wayflowcore.models import LlmModel
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import IntegerProperty, Property, StringProperty
+from wayflowcore.steps import InputMessageStep, OutputMessageStep
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep, CallerInputMode
 from wayflowcore.steps.outputmessagestep import OutputMessageStep
 from wayflowcore.swarm import Swarm
@@ -601,16 +604,14 @@ def test_agent_step_with_swarm_can_execute_without_user_input_when_sub_agent_han
     assert status.output_values["zinimo_result"] == -2
 
 
-def test_agent_step_with_swarm_can_execute_with_user_input(big_llama):
-    from wayflowcore.swarm import Swarm
-
+def test_agent_step_with_swarm_can_execute_with_user_input(vllm_responses_llm):
     first_agent = Agent(
-        llm=big_llama,
+        llm=vllm_responses_llm,
         name="first_agent",
         custom_instruction="You are a helpful agent",
     )
     second_agent = Agent(
-        llm=big_llama,
+        llm=vllm_responses_llm,
         name="second_agent",
         description="Agent that can do math",
         custom_instruction="You are an agent that can do math",
@@ -630,3 +631,46 @@ def test_agent_step_with_swarm_can_execute_with_user_input(big_llama):
     status.submit_user_response("What is my name?")
     status = conv.execute()
     assert "john" in conv.get_last_message().content.lower()
+
+
+def test_agent_step_with_swarm_can_execute_with_user_input_and_outputs(vllm_responses_llm):
+    first_agent = Agent(
+        llm=vllm_responses_llm,
+        name="first_agent",
+        custom_instruction="You are a helpful agent",
+    )
+    second_agent = Agent(
+        llm=vllm_responses_llm,
+        name="second_agent",
+        description="Agent that can do math",
+        custom_instruction="You are an agent that can do math",
+    )
+    swarm = Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
+
+    response = StringProperty(name="response", default_value="")
+
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=swarm,
+        output_descriptors=[response],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    user_step = InputMessageStep(name="user_step", message_template="")
+    output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
+
+    flow = Flow(
+        begin_step=user_step,
+        control_flow_edges=[
+            ControlFlowEdge(source_step=user_step, destination_step=agent_step),
+            ControlFlowEdge(source_step=agent_step, destination_step=output_step),
+            ControlFlowEdge(source_step=output_step, destination_step=None),
+        ],
+        data_flow_edges=[DataFlowEdge(agent_step, "response", output_step, "response")],
+    )
+
+    conversation = flow.start_conversation()
+    conversation.execute()
+    conversation.append_user_message("What is 10+10?")
+    status = conversation.execute()
+    assert "20" in status.output_values["output_message"]
