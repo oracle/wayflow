@@ -365,12 +365,12 @@ class RelationalDatastore(Datastore, ABC):
             Mapping of entity names to entities manipulated in this Datastore.
         engine : sqlalchemy.Engine
             SQLAlchemy engine used to connect to the relational database.
-        id : Optional[str], default None
-            Optional unique identifier for this datastore instance.
-        name : Optional[str], default None
-            Optional name to help identify this datastore.
-        description : Optional[str], default None
-            Optional human-readable description of the datastore.
+        id : Optional[str]
+            Optional unique identifier for this datastore instance. Default is None.
+        name : Optional[str]
+            Optional name to help identify this datastore. Default is None.
+        description : Optional[str]
+            Optional human-readable description of the datastore. Default is None.
         """
         self.engine = engine
         self.schema = schema

@@ -58,7 +58,8 @@ class RetrieverConfig(ABC):
 
         Returns
         -------
-        Configuration parameters for the index.
+        dict[str, Any]
+            Configuration parameters for the index.
         """
 
 
@@ -101,7 +102,8 @@ class VectorRetrieverConfig(SerializableDataclass, RetrieverConfig):
 
         Returns
         -------
-        Configuration parameters for the vector index.
+        dict[str, Any]
+            Configuration parameters for the vector index.
         """
         config = {
             "type": "vector",
@@ -151,7 +153,8 @@ class SerializerConfig(ABC):
 
         Returns
         -------
-        Serialized string representation.
+        str
+            Serialized string representation.
         """
 
 
@@ -162,20 +165,20 @@ class ConcatSerializerConfig(SerializerConfig):
 
     Parameters
     ----------
-    separator : str, optional
+    separator : str
         String used to separate concatenated property values. Default is '\\n'.
-    pre_processors : Optional[List[Callable[[str], str]]], optional
+    pre_processors : Optional[List[Callable[[str], str]]]
         List of callables to apply sequentially to each property value before formatting. Default is None.
-    post_processors : Optional[List[Callable[[str], str]]], optional
+    post_processors : Optional[List[Callable[[str], str]]]
         List of callables to apply sequentially to the entire result after concatenation. Default is None.
-    include_property_names : bool, optional
+    include_property_names : bool
         Whether to include property names in the formatted output. Default is True.
-    skip_hidden_properties : bool, optional
+    skip_hidden_properties : bool
         If True, skip properties whose names begin with an underscore. Default is True.
-    property_name_format : str, optional
+    property_name_format : str
         String format applied when including property names, with placeholders for property key and value. Default is '{key}: {value}'.
-    columns_to_exclude: List[str], optional
-        Columns to exclude while performing serialization
+    columns_to_exclude: List[str]
+        Columns to exclude while performing serialization. Default is None.
     """
 
     separator: str = "\n"
@@ -196,7 +199,8 @@ class ConcatSerializerConfig(SerializerConfig):
 
         Returns
         -------
-        Serialized string representation.
+        str
+            Serialized string representation.
         """
         text_parts = []
 
