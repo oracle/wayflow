@@ -199,7 +199,7 @@ class SwarmRunner(ConversationExecutor):
                         if swarm_config.caller_input_mode == CallerInputMode.NEVER
                         and current_thread.is_main_thread
                         else current_agent.caller_input_mode
-                    ),  # If caller_input_mode == NEVER, set the caller input mode of the agent that is current interacting with user to NEVER
+                    ),  # If caller_input_mode == NEVER, set the caller input mode to NEVER of the agent that is currently interacting with the user
                     "output_descriptors": (
                         swarm_config.output_descriptors if current_thread.is_main_thread else []
                     ),
