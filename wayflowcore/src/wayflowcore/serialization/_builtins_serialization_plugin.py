@@ -5,7 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import uuid
-from dataclasses import MISSING, fields, is_dataclass
+from dataclasses import MISSING, fields, is_dataclass, replace
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
 from warnings import warn
 
@@ -38,6 +38,7 @@ from pyagentspec.flows.node import Node as AgentSpecNode
 from pyagentspec.flows.nodes import AgentNode as AgentSpecAgentNode
 from pyagentspec.flows.nodes import ApiNode as AgentSpecApiNode
 from pyagentspec.flows.nodes import BranchingNode as AgentSpecBranchingNode
+from pyagentspec.flows.nodes import CatchExceptionNode as AgentSpecCatchExceptionNode
 from pyagentspec.flows.nodes import EndNode as AgentSpecEndNode
 from pyagentspec.flows.nodes import FlowNode as AgentSpecFlowNode
 from pyagentspec.flows.nodes import InputMessageNode as AgentSpecInputMessageNode
@@ -2142,14 +2143,25 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         runtime_flow: RuntimeFlow,
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecFlow:
+        runtime_control_data_edges = runtime_flow.control_flow_edges
+        runtime_flow_data_edges = runtime_flow.data_flow_edges
+        runtime_flow_output_descriptors = runtime_flow.output_descriptors
+        steps_to_process_separately: Dict[str, AgentSpecNode] = {}
+        steps_to_process_together: Dict[str, AgentSpecNode] = {}
+        for node_name, runtime_node in runtime_flow.steps.items():
+            if isinstance(runtime_node, (RuntimeCompleteStep, RuntimeCatchExceptionStep)):
+                # Those nodes need to be converted with some specific logic
+                steps_to_process_separately[node_name] = runtime_node
+            else:
+                steps_to_process_together[node_name] = runtime_node
 
+        # Convert the nodes that can be converted without additional logic
         agentspec_nodes: Dict[str, AgentSpecNode] = {
             runtime_node.id: cast(
                 AgentSpecNode,
                 conversion_context.convert(runtime_node, referenced_objects),
             )
-            for node_name, runtime_node in runtime_flow.steps.items()
-            if not issubclass(type(runtime_node), RuntimeCompleteStep)
+            for runtime_node in steps_to_process_together.values()
         }
 
         start_node = next(
@@ -2160,17 +2172,104 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
 
         # End nodes are created separately because we need to infer the outputs for them.
         # We assume that all the steps are going to expose all the outputs of the flow
-        for node_name, runtime_node in runtime_flow.steps.items():
+        for node_name, runtime_node in steps_to_process_separately.items():
+            step_args = _get_step_args(runtime_node)
             if issubclass(type(runtime_node), RuntimeCompleteStep):
                 agentspec_nodes[runtime_node.id] = AgentSpecEndNode(
                     name=node_name,
                     branch_name=runtime_node.branch_name or node_name,  # type: ignore
                     outputs=[
                         _runtime_property_to_pyagentspec_property(property_)
-                        for property_ in runtime_flow.output_descriptors
+                        for property_ in runtime_flow_output_descriptors
                     ],
                     metadata=_create_agentspec_metadata_from_runtime_component(runtime_node),
                     id=runtime_node.id,
+                )
+            elif isinstance(
+                runtime_node, RuntimeCatchExceptionStep
+            ) and _flow_with_catchexceptionstep_requires_plugin(runtime_node, runtime_flow):
+                agentspec_nodes[runtime_node.id] = AgentSpecPluginCatchExceptionNode(
+                    **step_args,
+                    flow=cast(
+                        AgentSpecFlow,
+                        conversion_context.convert(runtime_node.flow, referenced_objects),
+                    ),
+                    catch_all_exceptions=runtime_node.catch_all_exceptions,
+                    except_on=runtime_node.except_on,
+                    input_mapping=runtime_node.input_mapping,
+                    output_mapping=runtime_node.output_mapping,
+                )
+            elif isinstance(runtime_node, RuntimeCatchExceptionStep):
+                subflow = cast(
+                    AgentSpecFlow,
+                    conversion_context.convert(runtime_node.flow, referenced_objects),
+                )
+                # need to add _type_default_value when needed
+                # The flow is compatible with the native CatchExceptionNode. Still, we need
+                # to drop the extra fields from the WayFlow CatchExceptionStep
+                # and handle any renaming so that this can be used in Agent Spec.
+                del step_args["inputs"]
+                del step_args["outputs"]
+
+                # update control flow edges for branch renaming
+                for i, control_flow_edge in enumerate(runtime_control_data_edges):
+                    if (
+                        control_flow_edge.source_step.name == runtime_node.name
+                        and control_flow_edge.source_branch
+                        == RuntimeCatchExceptionStep.DEFAULT_EXCEPTION_BRANCH
+                    ):
+                        control_flow_edge_copy = replace(control_flow_edge)
+                        object.__setattr__(
+                            control_flow_edge_copy,
+                            "source_branch",
+                            AgentSpecCatchExceptionNode.CAUGHT_EXCEPTION_BRANCH,
+                        )
+                        # ^ controlled setattr to inject the branch name that will be accepted by Agent Spec
+                        runtime_control_data_edges[i] = control_flow_edge_copy
+
+                # update data flow edges to revert mapping and rename if needed (done here to keep code logic local)
+                mapped_payload_output_name = runtime_node.output_mapping.get(
+                    RuntimeCatchExceptionStep.EXCEPTION_PAYLOAD_OUTPUT_NAME,
+                    RuntimeCatchExceptionStep.EXCEPTION_PAYLOAD_OUTPUT_NAME,
+                )
+                for i, data_flow_edge in enumerate(runtime_flow_data_edges):
+                    if data_flow_edge.source_output == mapped_payload_output_name:
+                        data_flow_edge_copy = replace(data_flow_edge)
+                        object.__setattr__(
+                            data_flow_edge_copy,
+                            "source_output",
+                            AgentSpecCatchExceptionNode.DEFAULT_EXCEPTION_INFO_VALUE,
+                        )
+                        # ^ controlled setattr to inject the output name that will be accepted by Agent Spec
+                        runtime_flow_data_edges[i] = data_flow_edge_copy
+
+                # update flow output descriptors (remove the exception name output, rename the payload output)
+                mapped_exception_output_name = runtime_node.output_mapping.get(
+                    RuntimeCatchExceptionStep.EXCEPTION_NAME_OUTPUT_NAME,
+                    RuntimeCatchExceptionStep.EXCEPTION_NAME_OUTPUT_NAME,
+                )
+                idx_to_remove: int | None = None
+                for i, property_ in enumerate(runtime_flow_output_descriptors):
+                    if property_.name == mapped_exception_output_name:
+                        idx_to_remove = i
+                    elif property_.name == mapped_payload_output_name:
+                        output_property_copy = replace(property_)
+                        object.__setattr__(
+                            output_property_copy,
+                            "name",
+                            AgentSpecCatchExceptionNode.DEFAULT_EXCEPTION_INFO_VALUE,
+                        )
+                        # ^ controlled setattr to inject the output name that will be accepted by Agent Spec
+                        runtime_flow_output_descriptors[i] = output_property_copy
+
+                if idx_to_remove:
+                    runtime_flow_output_descriptors.pop(idx_to_remove)
+
+                runtime_flow_output_descriptors
+
+                agentspec_nodes[runtime_node.id] = AgentSpecCatchExceptionNode(
+                    **step_args,
+                    subflow=subflow,
                 )
 
         # Overwrite the temp names assigned by the conversion
@@ -2191,7 +2290,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 metadata=_create_agentspec_metadata_from_runtime_component(control_flow_edge),
                 id=control_flow_edge.id,
             )
-            for control_flow_edge in runtime_flow.control_flow_edges
+            for control_flow_edge in runtime_control_data_edges
             if control_flow_edge.destination_step is not None
         ]
         context_providers_dict = {}
@@ -2206,7 +2305,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 )
 
         data_flow_connections: List[AgentSpecDataFlowEdge] = []
-        for runtime_data_flow_edge in runtime_flow.data_flow_edges:
+        for runtime_data_flow_edge in runtime_flow_data_edges:
             source_step_id = runtime_data_flow_edge.source_step.id
             destination_node = agentspec_nodes[runtime_data_flow_edge.destination_step.id]
             if source_step_id in agentspec_nodes:
@@ -2235,7 +2334,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         node_name = f"None End node"
         end_node_outputs = [
             _runtime_property_to_pyagentspec_property(property_)
-            for property_ in runtime_flow.output_descriptors
+            for property_ in runtime_flow_output_descriptors
         ]
         new_end_node = AgentSpecEndNode(
             name=node_name,
@@ -2310,7 +2409,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         all_nodes = list(agentspec_nodes.values())
         # As currently we do not always have end steps in wayflowcore, we create them if there aren't and we connect them
         end_node_added = False
-        for control_flow_edge in runtime_flow.control_flow_edges:
+        for control_flow_edge in runtime_control_data_edges:
             if control_flow_edge.destination_step is None and not isinstance(
                 control_flow_edge.source_step, RuntimeCompleteStep
             ):
@@ -2451,7 +2550,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         # Or we again check the renamed names when converting from flow outputs
         # Below is the latter option
         flow_outputs: List[AgentSpecProperty] = []
-        for flow_output in runtime_flow.output_descriptors or []:
+        for flow_output in runtime_flow_output_descriptors or []:
             if flow_output.name in renamed_outputs:
                 original_property = _runtime_property_to_pyagentspec_property(flow_output)
                 json_schema = original_property.json_schema
@@ -2585,29 +2684,8 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         runtime_step: RuntimeStep,
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecNode:
-        # The runtime steps do not contain the name, but it is mandatory to buildAgent Spec Nodes
-        # We give a temp name, and we assume that who knows the node's name will overwrite it
-        node_name = runtime_step.name or runtime_step.__metadata_info__.get("name", "_temp_name_")
-        node_description = runtime_step.__metadata_info__.get("description", "")
+        step_args = _get_step_args(runtime_step)
         runtime_step_type = type(runtime_step)
-        metadata = _create_agentspec_metadata_from_runtime_component(runtime_step)
-        inputs = [
-            _runtime_property_to_pyagentspec_property(output)
-            for output in runtime_step.input_descriptors or []
-        ]
-        outputs = [
-            _runtime_property_to_pyagentspec_property(output)
-            for output in runtime_step.output_descriptors or []
-        ]
-        node_id = runtime_step.id
-        step_args = dict(
-            name=node_name,
-            description=node_description,
-            inputs=inputs,
-            outputs=outputs,
-            metadata=metadata,
-            id=node_id,
-        )
         # We compare the type directly instead of using isinstance in order to avoid
         # undesired, multiple node type matches due to class inheritance
         if runtime_step_type is RuntimePromptExecutionStep:
@@ -3040,17 +3118,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 output_mapping=runtime_step.output_mapping,
             )
         elif runtime_step_type is RuntimeCatchExceptionStep:
-            runtime_step = cast(RuntimeCatchExceptionStep, runtime_step)
-            return AgentSpecPluginCatchExceptionNode(
-                **step_args,
-                flow=cast(
-                    AgentSpecFlow,
-                    conversion_context.convert(runtime_step.flow, referenced_objects),
-                ),
-                catch_all_exceptions=runtime_step.catch_all_exceptions,
-                except_on=runtime_step.except_on,
-                input_mapping=runtime_step.input_mapping,
-                output_mapping=runtime_step.output_mapping,
+            raise ValueError(
+                "CatchExceptionStep cannot be converted by itself, please make "
+                "sure to convert at least the Flow using this step."
             )
         elif runtime_step_type is RuntimeDatastoreListStep:
             runtime_step = cast(RuntimeDatastoreListStep, runtime_step)
@@ -3277,3 +3347,46 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             ],
             metadata=_create_agentspec_metadata_from_runtime_component(runtime_a2aagent),
         )
+
+
+def _flow_with_catchexceptionstep_requires_plugin(
+    step: RuntimeCatchExceptionStep, flow: RuntimeFlow
+) -> bool:
+    # 1. If the step catch specific exceptions
+    # we need to use the plugin
+    if not step.catch_all_exceptions:
+        return True
+    # 2. If the main flow uses the EXCEPTION_NAME_OUTPUT_NAME data
+    # we need to use the plugin (missing in the Agent Spec node)
+    non_mapped_output_name = step.EXCEPTION_NAME_OUTPUT_NAME
+    mapped_output_name = step.output_mapping.get(non_mapped_output_name, non_mapped_output_name)
+    if any(
+        d.source_output == mapped_output_name for d in flow.data_flow_edges if d.source_step is step
+    ):
+        return True
+    return False
+
+
+def _get_step_args(runtime_step: RuntimeStep) -> dict[str, Any]:
+    # The runtime steps do not contain the name, but it is mandatory to buildAgent Spec Nodes
+    # We give a temp name, and we assume that who knows the node's name will overwrite it
+    node_name = runtime_step.name or runtime_step.__metadata_info__.get("name", "_temp_name_")
+    node_description = runtime_step.__metadata_info__.get("description", "")
+    metadata = _create_agentspec_metadata_from_runtime_component(runtime_step)
+    inputs = [
+        _runtime_property_to_pyagentspec_property(output)
+        for output in runtime_step.input_descriptors or []
+    ]
+    outputs = [
+        _runtime_property_to_pyagentspec_property(output)
+        for output in runtime_step.output_descriptors or []
+    ]
+    node_id = runtime_step.id
+    return dict(
+        name=node_name,
+        description=node_description,
+        inputs=inputs,
+        outputs=outputs,
+        metadata=metadata,
+        id=node_id,
+    )

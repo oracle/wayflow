@@ -6,12 +6,10 @@
 
 import warnings
 from logging import getLogger
-from typing import Any, Dict, List, Optional, Union, cast, overload
-
-import numpy as np
-import pandas as pd
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast, overload
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.datastore._datatable import Datatable
 from wayflowcore.datastore._utils import (
     check_collection_name,
@@ -34,6 +32,16 @@ from wayflowcore.search import (
 )
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import serialize_to_dict
+
+if TYPE_CHECKING:
+    # Important: do not move these imports out of the TYPE_CHECKING
+    # Otherwise, importing the module when they are not installed would lead to an import error.
+    import numpy as np
+    import pandas as pd
+else:
+    np = LazyLoader("numpy")
+    pd = LazyLoader("pandas")
+
 
 logger = getLogger(__name__)
 
