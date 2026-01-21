@@ -18,12 +18,12 @@ from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecu
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.property import Property
 from wayflowcore.steps.step import Step, StepExecutionStatus, StepResult
+from wayflowcore.swarm import Swarm, _MutatedSwarm
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
     from wayflowcore.executors._flowconversation import FlowConversation
-    from wayflowcore.swarm import Swarm
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class AgentExecutionStep(Step):
 
     def __init__(
         self,
-        agent: Union[Agent, OciAgent, "Swarm"],
+        agent: Union[Agent, OciAgent, Swarm],
         caller_input_mode: Optional[CallerInputMode] = None,
         input_descriptors: Optional[List[Property]] = None,
         output_descriptors: Optional[List[Property]] = None,
@@ -183,8 +183,6 @@ class AgentExecutionStep(Step):
         >>> # {'name': 'Oracle', 'creation_date': 1977, 'CEO': 'Safra A. Catz', 'country': 'US'}
 
         """
-        from wayflowcore.swarm import Swarm
-
         if caller_input_mode == CallerInputMode.NEVER and (
             output_descriptors is None or len(output_descriptors) == 0
         ):
@@ -208,7 +206,7 @@ class AgentExecutionStep(Step):
                 )
 
         super().__init__(
-            llm=None,
+            llm=self.agent.llm if isinstance(self.agent, Agent) else None,
             step_static_configuration=dict(
                 agent=agent,
                 caller_input_mode=caller_input_mode,
@@ -259,8 +257,6 @@ class AgentExecutionStep(Step):
     # override
     @property
     def might_yield(self) -> bool:
-        from wayflowcore.swarm import Swarm
-
         if isinstance(self.agent, Agent):
             return self.agent.might_yield or self.caller_input_mode == CallerInputMode.ALWAYS
         elif isinstance(self.agent, Swarm):
@@ -302,7 +298,6 @@ class AgentExecutionStep(Step):
         conversation: "FlowConversation",
     ) -> StepResult:
         from wayflowcore.executors._flowexecutor import FlowConversationExecutor
-        from wayflowcore.swarm import Swarm, _MutatedSwarm
 
         SUB_CONVERSATION_ID = (
             f"agent_sub_conversation_{self.name}" + FlowConversationExecutor._SUB_CONVERSATION_KEY
