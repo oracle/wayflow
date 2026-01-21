@@ -28,7 +28,8 @@ class VectorGenerator(ABC):
 
         Returns
         -------
-        List of vectors, one per entity.
+        vectors
+            List of vectors, one per entity.
         """
 
 
@@ -70,7 +71,8 @@ class SimpleVectorGenerator(VectorGenerator):
 
         Returns
         -------
-        List of vectors, one per entity.
+        vectors
+            List of vectors, one per entity.
         """
 
         texts = [self.serializer.serialize(entity) for entity in entities]

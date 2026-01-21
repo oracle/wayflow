@@ -207,7 +207,8 @@ class BaseInMemoryVectorIndex(VectorIndex):
 
         Returns
         -------
-        List of matching items with scores.
+        results: List[Dict[str, Any]]
+            List of matching items with scores.
         """
         # Early exit for empty index avoids unnecessary computation
         if self.vectors is None or self.num_vectors == 0 or len(self.items) == 0:
