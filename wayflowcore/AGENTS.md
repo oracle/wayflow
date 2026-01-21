@@ -12,53 +12,76 @@ task. Treat everything else as the living field guide.
    write `Questions: None`.
 2. **Validation loop** – `pytest wayflowcore/tests/<specific_file>`. Only run the tests associated to the feature that is being developed.
 3. **Bounded actions** – No background processes, no guessing commands. Ask for missing info in the plan.
-4. **Repo hygiene** – Only create artifacts under sanctioned dirs (`build/`, `dist/`, `testing_scripts/tmp`).
-5. **Scope discipline** – Touch only relevant files; mirror each code change with matching tests/docs when applicable.
+4. **Scope discipline** – Touch only relevant files; mirror each code change with matching tests/docs when applicable.
+5. **Report** - Summarize your actions (a few words) and add entry in changelog (`docs/wayflowcore/source/core/changelog.rst`)
 
 
 ## Project Snapshot
 
 - **Purpose** – Provide a composable runtime for agents, flows, swarms, and tooling across multiple LLM providers (OCI, OpenAI, Ollama, VLLM, etc.).
 - **Packaging** – Ships to PyPI as `wayflowcore`; source under `src/wayflowcore/`.
-- **Key abstractions** – Agent (`agent.py`), Flow (`flow.py`), Swarm (`swarm.py`), Manager worker pool (`managerworkers.py`), OCI Agent (`ociagent.py`).
+- **Key abstractions** – Agent (`agent.py`), Flow (`flow.py`), Swarm (`swarm.py`), Manager worker (`managerworkers.py`), OCI Agent (`ociagent.py`).
 - **Primary services** – Tooling layer (`tools/`), model integrations (`models/`), agent server (`agentserver/`), persistence (`datastore/`), evaluation/telemetry (`evaluation/`, `events/`, `tracing/`).
+- **AgentSpec adapters** - Layer to convert agent spec components into wayflow and the other way around.
 
+Different types of conversational components can be built, such as:
+- Agents for autonomous and/or conversational task completion with tools
+- Flows for completing tasks with a structured sequence of steps
+- Multi-agent patterns (Swarms, ManagerWorkers)
+
+All conversational components have inputs and outputs. They run using a conversation:
+```python
+from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus, ToolRequestStatus
+
+conversation = component.start_conversation()
+status = conversation.execute()
+if isinstance(status, UserMessageRequestStatus):
+    status.submit_user_response('response_from_the_user')
+elif isinstance(status, FinishedStatus):
+    outputs = status.output_values
+elif isinstance(status, ToolRequestStatus):
+    for tool_request in status.tool_requests:
+        status.submit_tool_result("tool_execution_result")
+status = conversation.execute() # to continue given the results ...
+```
 
 ## Repository Map
 
-| Area | Location | Notes |
-| --- | --- | --- |
-| Agents & Conversations | `agent.py`, `agentconversation.py`, `conversation.py`, `messagelist.py`, `tokenusage.py` | Manages agent prompts, descriptors, token accounting. |
-| Flows & Steps | `flow.py`, `flowconversation.py`, `steps/`, `flowhelpers.py`, `stepdescription.py`, `controlconnection.py`, `dataconnection.py` | Flow graphs, transitions, data edges, descriptor resolution. |
-| Swarms & A2A | `swarm.py`, `a2a/`, `managerworkers.py`, `_threading.py` | Multi-agent orchestration, worker lifecycle, scheduling. |
-| Tools | `tools/`, `toolbox.py`, `servertools.py`, `remotetools.py`, `toolhelpers.py`, `mcp/` | Tool definitions (client/server), MCP adapters, conversion helpers. |
-| Models | `models/` | OCI (`ocigenaimodel.py`), OpenAI (`openaimodel.py`), Ollama, VLLM, factory + generation configs. |
-| OCI Integrations | `ociagent.py`, `models/ociclientconfig.py`, `datastore/` | Handles tenancy, compartments, Oracle DB/Postgres persistence. |
-| Agent Server & CLI | `agentserver/`, `cli/` | FastAPI app + command-line runner (`wayflow`). |
-| Serialization & Utils | `serialization/`, `_utils/`, `idgeneration.py`, `outputparser.py`, `planning.py`, `variable.py`, `property.py` | Core helpers for data handling, planning, descriptors. |
-| Evaluation & Telemetry | `evaluation/`, `events/`, `tracing/`, `transforms/` | Benchmarking, event streaming, tracing instrumentation, message transforms. |
-| Tests | `tests/` (mirrors packages), `tests_fuzz/` | Pytest suite, security harness, PythonFuzz. |
-| Tooling Assets | `dev_scripts/`, `testing_scripts/`, `model_test_results*/`, `support_matrix*.html`, `res.md`, `improvements.jsonl` | Schema generators, debugging scripts, regression tracking, flow validation notes. |
+| Area                        | Location                                                                                                       | Notes                                                                                            |
+|-----------------------------|----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| Agents & Conversations      | `agent.py`, `conversation.py`, `messagelist.py`, `tokenusage.py`                                               | Manages agent prompts, descriptors, token accounting.                                            |
+| Flows & Steps               | `flow.py`, `steps/`, `flowhelpers.py`, `controlconnection.py`, `dataconnection.py`                             | Flow graphs, transitions, data edges, descriptor resolution.                                     |
+| Swarms & A2A                | `swarm.py`, `a2a/`, `ociagent.py`, `managerworkers.py`, `_threading.py`                                        | Multi-agent orchestration, A2A agent protocol, OCI agents                                        |
+| Execution logic             | `executors/`                                                                                                   | Execution logic of all classes.                                                                  |
+| Tools                       | `tools/`, `toolbox.py`, `servertools.py`, `remotetools.py`, `toolhelpers.py`, `mcp/`                           | Tool definitions (client/server), MCP adapters (Model context protocol), conversion helpers.     |
+| Models                      | `models/`                                                                                                      | OCI (`ocigenaimodel.py`), OpenAI (`openaimodel.py`), Ollama, VLLM, factory + generation configs. |
+| Prompts & Templates         | `templates/`, `outputparser.py`, `transforms/`,                                                                | Schema generators, debugging scripts, regression tracking, flow validation notes.                |
+| Data handling & Persistence | `datastore/`                                                                                                   | Handles connection to databases, Oracle DB/Postgres persistence.                                 |
+| Agent Server & CLI          | `agentserver/`, `cli/`                                                                                         | FastAPI app + command-line runner (`wayflow`) for openai responses and a2a servers.              |
+| Serialization & Utils       | `serialization/`, `_utils/`, `idgeneration.py`, `outputparser.py`, `planning.py`, `variable.py`, `property.py` | Core helpers for data handling, planning, descriptors.                                           |
+| Evaluation & Telemetry      | `evaluation/`, `events/`, `tracing/`,                                                                          | Benchmarking, event streaming, tracing instrumentation,                                          |
+| Tests                       | `tests/` (mirrors packages), `tests_fuzz/`                                                                     | Pytest suite                                                                                     |
 
+Documentation of the package lives in another folder `../docs/wayflowcore/source`.
 
 ## Execution & Architecture
 
 ### Agent Lifecycle
 1. **Construction** – `Agent(llm, tools, flows, agents, ...)`. `ToolBox` converts legacy tool configs. Input/output descriptors auto-inferred from templates; manual overrides require `_update_internal_state()`.
-2. **Conversation start** – `start_conversation()` returning `AgentConversation`. `ConversationExecutor` handles reason/act loop, using `ManagerWorkerPool` for asynchronous steps.
-3. **Context** – `ContextProvider` classes populate variables, orchestrated via `property.py` and `variable.py`.
-4. **Tooling** – Tools resolved through `Tool`, `ToolBox`, `ServerTool`. Server tools convert older schemas via `_convert_previously_supported_tools_if_needed`.
+2. **Conversation start** – `start_conversation()` returning `AgentConversation`. `AgentConversationExecutor` handles reason/act loop.
+3. **Context** – `ContextProvider` classes populate inputs that need to be refreshed each turn when required, configured via `property.py`.
+4. **Tooling** – Tools resolved through `Tool`, `ToolBox`, `ServerTool`.
 5. **Persistence & Events** – `events/` capture message history, tool calls; `datastore/` stores conversation state when server mode is enabled.
 
 ### Flow Lifecycle
 1. **Definition** – Steps (e.g., `InputMessageStep`, `PromptExecutionStep`, `OutputMessageStep`) wired by control and data edges.
-2. **Validation** – `res.md` lists warnings (missing transitions, duplicate inputs). Keep flows spec-compliant; no ad-hoc hacks.
-3. **Execution** – `FlowConversation` orchestrates step activation while `FlowConversationExecutor` enforces descriptors and data propagation.
+2. **Context** – `ContextProvider` classes populate inputs that need to be refreshed each turn when required, configured via `property.py`.
+3. **Execution** – `FlowConversationExecutor` implements the flow execution loop.
 
 ### Swarms & A2A
 - `swarm.py` coordinates multi-agent delegations, merging outputs with aggregator logic.
 - `a2a/` implements agent-to-agent RPC and server interaction patterns.
-- `managerworkers.py` ensures pooled workers remain bounded and cancellable.
+- `managerworkers.py` uses a manager agent that delegates work to worker agents.
 
 ### Agent Server
 - `cli/serve.py` exposes agents via OpenAI Responses or A2A. Configure via CLI flags or YAML files.
@@ -94,7 +117,8 @@ task. Treat everything else as the living field guide.
   - `pytest tests/path/to/test_file.py`
   - `DISABLE_RETRY=y pytest tests -k <keyword>` to disable the retry on some tests (`@retry_test` decorator).
 - Use the `retry_test` decorator when the test relies on a particular behavior of the LLM. When using this test, you need first to compute the docstring using `FLAKY_TEST_EVALUATION_MODE=20 pytest tests/test_file.py::test_name` that will return the content of the docstring.
-- Use the `remotely_hosted_llm` fixture for usual llm tests, and `big_llama` for tests that require slightly more reasoning.
+- Use the `patch_llm` context manager to mock LLM calls when possible in unit tests
+- For integration tests, the `remotely_hosted_llm` fixture is used usually, and `big_llama` for tests that require slightly more reasoning.
 - Integration tests require env vars (see `tests/conftest.py`): `LLAMA_API_URL`, `OCI_REASONING_MODEL`, `COMPARTMENT_ID`, `GEMMA_API_URL`, etc. Document absences.
 - Fuzz testing: `python -m pythonfuzz.tests_fuzz.test_fuzz` (long-running; only run when necessary).
 
@@ -118,7 +142,6 @@ task. Treat everything else as the living field guide.
   - Update descriptor lists (`input_descriptors`, `output_descriptors`).
   - Refresh caches via `_update_internal_state` or equivalent.
   - Extend serializer/deserializer logic (`serialization/serializer.py`).
-  - Add regression tests for serialization/deserialization paths.
 
 ### Logging & Warnings
 - Use `logging.getLogger(__name__)`. No `print()` in library code.
@@ -127,25 +150,3 @@ task. Treat everything else as the living field guide.
 ### Security & Credentials
 - All OCI credentials must flow through `OCIClientConfig*` and `ociagent.py`.
 - Never hardcode secrets. Tests rely on environment variables or fixtures.
-
-
-## Workflow Expectations
-
-1. **Plan** – concise bullets + open questions.
-2. **Inspect** – identify relevant modules/tests before coding.
-3. **Implement** – small, cohesive diffs. Update docs/matrices when behavior changes.
-4. **Validate** – run formatting, linting, targeted tests (document any skips).
-5. **Summarize** – final message lists changes, add entry in changelog (`docs/wayflowcore/source/core/changelog.rst`), validation, follow-ups.
-
-If blocked, surface the question in the plan and pause.
-
-
-## Resources & References
-
-- `README.md` – High-level overview + quick start.
-- `wayflowcore/src` – Source code of the model.
-- `wayflowcore/tests` – All tests.
-- `dev_scripts/openai-models-gen/` – Model schema generation utilities.
-- `nosec_ignore.csv` – Security exceptions log (keep minimal).
-
-When uncertain, ask. The best teammates surface gaps early and keep the loop tight.
