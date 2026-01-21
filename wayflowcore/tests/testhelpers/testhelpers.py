@@ -10,6 +10,9 @@ import os
 import re
 import time
 import traceback
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeout
+from concurrent.futures import as_completed
 from dataclasses import dataclass
 from datetime import date, datetime
 from functools import wraps
@@ -245,13 +248,18 @@ def retry_test(
         def repeat_evaluate_and_generate_docstring_decorator(
             test_func: Callable[..., Any],
         ) -> Callable[..., Any]:
-            import signal
-            from types import FrameType
-
             from wayflowcore._utils.print import bcolors
 
-            def _time_handler(signum: int, frame: Optional[FrameType]) -> None:
-                raise TimeoutError("Max time for test execution exceeded.")
+            logger = logging.getLogger(__name__)
+
+            def _attempt_worker(func, args, kwargs):
+                start = time.perf_counter()
+                try:
+                    func(*args, **kwargs)
+                    return ("success", time.perf_counter() - start, None, None)
+                except BaseException as e:
+                    # IMPORTANT: keep the pytest "DID NOT WARN" message
+                    return ("failed", time.perf_counter() - start, type(e).__name__, str(e))
 
             @wraps(test_func)
             def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -259,31 +267,59 @@ def retry_test(
                 failed_count = 0
                 total_time_of_successful_runs = 0.0
                 total_time_of_failed_runs = 0.0
-                signal.signal(signal.SIGALRM, _time_handler)
-                signal.alarm(FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST)
+
                 loop_start_time = time.time()
-                for _ in range(repeat_count):
+                max_workers = min(10, repeat_count)
+
+                futures = []
+                failures_preview = []  # keep a few samples for logging/debug
+
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    for _ in range(repeat_count):
+                        if time.time() - loop_start_time > FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST:
+                            break
+                        futures.append(executor.submit(_attempt_worker, test_func, args, kwargs))
+
                     try:
-                        start_time = time.perf_counter()
-                        test_func(*args, **kwargs)
-                        total_time_of_successful_runs += time.perf_counter() - start_time
-                        success_count += 1
-                        signal.alarm(0)  # Clear alarm after successful execution
-                    except TimeoutError:
+                        for future in as_completed(
+                            futures, timeout=FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST
+                        ):
+                            try:
+                                status, duration, exc_type, exc_msg = future.result(timeout=0)
+                            except FutureTimeout:
+                                logger.warning(
+                                    "Reached maximum execution time of %s minutes",
+                                    FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST // 60,
+                                )
+                                break
+
+                            if status == "success":
+                                success_count += 1
+                                total_time_of_successful_runs += duration
+                            else:
+                                failed_count += 1
+                                total_time_of_failed_runs += duration
+                                if exc_type is not None:
+                                    failures_preview.append((exc_type, exc_msg))
+                                if wait_between_tries:
+                                    time.sleep(wait_between_tries)
+
+                            if (
+                                time.time() - loop_start_time
+                                > FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST
+                            ):
+                                break
+                    except FutureTimeout:
                         logger.warning(
                             "Reached maximum execution time of %s minutes",
                             FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST // 60,
                         )
-                        signal.alarm(0)
-                        break
-                    except Exception as exception_error:
-                        failed_count += 1
-                        total_time_of_failed_runs += time.perf_counter() - start_time
-                        signal.alarm(0)
-                        time.sleep(wait_between_tries)
-                    finally:
-                        if time.time() - loop_start_time > FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST:
-                            break
+
+                        # optional: log what kinds of failures happened (including DID NOT WARN)
+                    if failures_preview:
+                        logger.info(
+                            "Sample failures in evaluation mode: %s", list(set(failures_preview))
+                        )
 
                 num_total_attempts = success_count + failed_count
                 suggested_docstring = _get_suggested_flaky_test_docstring(
@@ -293,7 +329,8 @@ def retry_test(
                     total_time_of_failed_runs,
                 )
                 timeout_message = (
-                    f" (achieved {num_total_attempts} retry due to time limit of {FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST // 60:.2f} minutes)"
+                    f" (achieved {num_total_attempts} retry due to time limit of "
+                    f"{FLAKY_TEST_MAX_EXECUTION_TIME_PER_TEST // 60:.2f} minutes)"
                     if repeat_count != num_total_attempts
                     else ""
                 )
