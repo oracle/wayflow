@@ -281,13 +281,6 @@ class ServerTool(Tool):
             except Exception as e:
                 output, serialized_output = e, str(e)
 
-            if isinstance(output, Exception):
-                if raise_exceptions:
-                    # Raise error in tool execution
-                    raise output
-                else:
-                    output = str(output)
-
             tool_result = ToolResult(content=output, tool_request_id=tool_request.tool_request_id)
 
             if append_message:

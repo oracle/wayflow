@@ -852,6 +852,29 @@ class AgentConversationExecutor(ConversationExecutor):
             # Should not happen but we check anyway
             raise ValueError("ToolResult was not added to the conversation properly")
 
+        output = tool_result.content
+        raised_exception = output if isinstance(output, Exception) else None
+
+        if raised_exception:
+            if config.raise_exceptions:
+                logger.info(
+                    f"Tool `{tool.name}` raised an error during exception, the current tool requests will be cleaned before raising the error."
+                )
+                AgentConversationExecutor._clear_tool_queue_state_before_raising_error(
+                    state=conversation.state,
+                    tool_name=tool.name,
+                    messages=messages,
+                    config=config,
+                )
+                raise raised_exception
+        else:
+            logger.debug(
+                'Tool "%s" (id=%s) returned: %s',
+                tool_request.name,
+                tool_request.tool_request_id,
+                _serialize_output(output),
+            )
+
         return None
 
     @staticmethod
