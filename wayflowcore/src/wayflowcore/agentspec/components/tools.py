@@ -41,19 +41,8 @@ class PluginToolResult(BaseModel):
 
 
 class PluginToolFromToolBox(Tool):
-    """
-    Tool wrapper that delegates to a tool retrieved from a ``PluginToolBox``.
-
-    Attributes
-    ----------
-    tool_name : str
-        Name of the tool in the toolbox to invoke.
-    toolbox : PluginToolBox
-        Toolbox that owns the tool. Documented as a literal to avoid Sphinx cross-reference issues.
-    """
-
     tool_name: str
-    toolbox: PluginToolBox
+    toolbox: ToolBox
 
 
 TOOLS_PLUGIN_NAME = "ToolPlugin"
