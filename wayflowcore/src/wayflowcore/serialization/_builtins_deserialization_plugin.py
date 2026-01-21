@@ -115,7 +115,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_deserialization_plugin
+from wayflowcore.agentspec.components import (
+    all_deserialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -644,24 +646,39 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             )
             return agent
         elif isinstance(agentspec_component, (AgentSpecMCPTool, AgentSpecPluginMCPTool)):
+            mcp_tool_misses_description_and_inputs = (
+                not agentspec_component.description and not agentspec_component.inputs
+            )
             return RuntimeMCPTool(
                 name=agentspec_component.name,
                 client_transport=conversion_context.convert(
                     agentspec_component.client_transport, tool_registry, converted_components
                 ),
-                description=agentspec_component.description,
-                input_descriptors=[
-                    self._convert_property_to_runtime(input_property)
-                    for input_property in agentspec_component.inputs or []
-                ],
-                output_descriptors=[
-                    self._convert_property_to_runtime(output_property)
-                    for output_property in agentspec_component.outputs or []
-                ],
+                description=(
+                    agentspec_component.description
+                    if not mcp_tool_misses_description_and_inputs
+                    else None
+                ),
+                input_descriptors=(
+                    [
+                        self._convert_property_to_runtime(input_property)
+                        for input_property in agentspec_component.inputs or []
+                    ]
+                    if not mcp_tool_misses_description_and_inputs
+                    else None
+                ),
+                output_descriptors=(
+                    [
+                        self._convert_property_to_runtime(output_property)
+                        for output_property in agentspec_component.outputs or []
+                    ]
+                    if not mcp_tool_misses_description_and_inputs
+                    else None
+                ),
                 requires_confirmation=agentspec_component.requires_confirmation,
                 id=agentspec_component.id,
-                _validate_server_exists=False,
-                _validate_tool_exist_on_server=False,
+                _validate_server_exists=mcp_tool_misses_description_and_inputs,
+                _validate_tool_exist_on_server=mcp_tool_misses_description_and_inputs,
             )
         elif isinstance(agentspec_component, AgentSpecPluginConstantValuesNode):
             # Map PluginConstantValuesNode -> RuntimeConstantValuesStep
