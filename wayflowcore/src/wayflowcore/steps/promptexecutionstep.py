@@ -158,7 +158,7 @@ class PromptExecutionStep(Step):
         >>> from wayflowcore.steps import PromptExecutionStep
         >>> from wayflowcore.flowhelpers import create_single_step_flow
         >>> from wayflowcore.models.llmmodelfactory import LlmModelFactory
-        >>> VLLM_CONFIG = {"model_type": "vllm", "host_port": LLAMA70B_API_ENDPOINT, "model_id": "/storage/models/Llama-3.1-70B-Instruct",}
+        >>> VLLM_CONFIG = {"model_type": "vllm", "host_port": LLAMA70B_API_ENDPOINT, "model_id": "/storage/models/Llama-3.3-70B-Instruct",}
         >>> llm = LlmModelFactory.from_config(VLLM_CONFIG)
         >>> step = PromptExecutionStep(
         ...     prompt_template="What is the capital of {{ country }} The answer is among {% for city in cities %}- {{city}}\\n{% endfor %}",

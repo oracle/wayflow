@@ -54,7 +54,7 @@ class SoftTimeoutExecutionInterrupt(
         >>> from wayflowcore.executors.executionstatus import ExecutionStatus
         >>> from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
         >>> from wayflowcore.models.llmmodelfactory import LlmModelFactory
-        >>> VLLM_CONFIG = {"model_type": "vllm", "host_port": LLAMA70B_API_ENDPOINT, "model_id": "/storage/models/Llama-3.1-70B-Instruct",}
+        >>> VLLM_CONFIG = {"model_type": "vllm", "host_port": LLAMA70B_API_ENDPOINT, "model_id": "/storage/models/Llama-3.3-70B-Instruct",}
         >>> llm = LlmModelFactory.from_config(VLLM_CONFIG)
         >>> assistant = Agent(llm=llm, custom_instruction="You are a helpful assistant")
         >>> conversation = assistant.start_conversation()

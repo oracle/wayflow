@@ -57,7 +57,7 @@ from wayflowcore.models import VllmModel
 
 if __name__ == "__main__":
 
-    VLLM_MODEL_ID = "/storage/models/Llama-3.1-70B-Instruct"
+    VLLM_MODEL_ID = "/storage/models/Llama-3.3-70B-Instruct"
 
     generation_config = LlmGenerationConfig(max_tokens=512, temperature=1.0, top_p=1.0)
 
@@ -165,7 +165,7 @@ if __name__ == "__main__":
         generation_config=generation_config,
     )
 
-    VLLM_MODEL_ID = "/storage/models/Llama-3.1-70B-Instruct"
+    VLLM_MODEL_ID = "/storage/models/Llama-3.3-70B-Instruct"
     VLLM_HOST_PORT = "lVLLM_HOST_PORT"
 
     generation_config = LlmGenerationConfig(max_tokens=512, temperature=1.0, top_p=1.0)

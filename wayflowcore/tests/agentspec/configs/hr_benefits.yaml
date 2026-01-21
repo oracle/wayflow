@@ -77,7 +77,7 @@ $referenced_components:
     description: null
     id: b366bef7-2fbc-4bf7-bd8b-43727c5c9169
     metadata: {}
-    model_id: /storage/models/Llama-3.1-70B-Instruct
+    model_id: /storage/models/Llama-3.3-70B-Instruct
     name: llama-3.1-70b-instruct
     url: LLAMA70B_API_URL
   b8553f8b-789d-4e10-bfc2-5c331aafb80d:

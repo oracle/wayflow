@@ -90,5 +90,5 @@ $referenced_components:
       __metadata_info__: {}
     default_generation_parameters: null
     url: LLAMA70B_API_URL
-    model_id: /storage/models/Llama-3.1-70B-Instruct
+    model_id: /storage/models/Llama-3.3-70B-Instruct
 agentspec_version: 25.4.2

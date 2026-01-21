@@ -329,7 +329,7 @@ OLLAMA_MODEL_CONFIG = {
 BIG_VLLM_CONFIG = {
     "model_type": "vllm",
     "host_port": llama70b_api_url,
-    "model_id": "/storage/models/Llama-3.1-70B-Instruct",
+    "model_id": "/storage/models/Llama-3.3-70B-Instruct",
     "generation_config": {"max_tokens": 512},
 }
 

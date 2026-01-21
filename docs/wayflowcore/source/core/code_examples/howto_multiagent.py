@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.CRITICAL)
 warnings.filterwarnings("ignore")
 
 llm = VllmModel(
-    model_id="/storage/models/Llama-3.1-70B-Instruct",
+    model_id="/storage/models/Llama-3.3-70B-Instruct",
     host_port=os.environ["VLLM_HOST_PORT"],
 )
 llm.agent_template = REACT_AGENT_TEMPLATE

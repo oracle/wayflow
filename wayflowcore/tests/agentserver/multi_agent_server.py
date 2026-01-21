@@ -53,7 +53,7 @@ tool_confirmation_agent = Agent(
 )
 
 vision_llm = VllmModel(
-    model_id="/storage/models/Llama-3.1-70B-Instruct", host_port=os.environ.get("LLAMA70B_API_URL")
+    model_id="/storage/models/Llama-3.3-70B-Instruct", host_port=os.environ.get("LLAMA70B_API_URL")
 )
 
 image_agent = Agent(
