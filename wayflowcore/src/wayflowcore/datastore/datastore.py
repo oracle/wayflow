@@ -333,6 +333,7 @@ class Datastore(Component, SerializableObject, ABC):
         collection_names: Optional[List[str]] = None,
         search_configs: Optional[List[str]] = None,
         k: int = _DEFAULT_K,
+        requires_confirmation: Optional[bool] = None,
     ) -> ToolBox:
         """Get search toolbox for entities to pass into an Agent.
 
@@ -345,6 +346,8 @@ class Datastore(Component, SerializableObject, ABC):
         k
             Number of results to return for search tools (will be fixed, not changeable by Agent).
             It is only configurable by the user as `k` heavily impacts speed and cost: searching for more leads to more being put in the context of the next LLM call.
+        requires_confirmation:
+            Flag to ask for user confirmation whenever executing any of this toolbox's tools, yields ``ToolExecutionConfirmationStatus`` if True or if the ``Tool`` from the ``ToolBox`` requires confirmation.
 
         Returns
         -------
@@ -354,7 +357,11 @@ class Datastore(Component, SerializableObject, ABC):
         from wayflowcore.search.toolbox import SearchToolBox
 
         return SearchToolBox(
-            datastore=self, collection_names=collection_names, search_configs=search_configs, k=k
+            datastore=self,
+            collection_names=collection_names,
+            search_configs=search_configs,
+            k=k,
+            requires_confirmation=requires_confirmation,
         )
 
     def get_search_tools(
@@ -362,6 +369,7 @@ class Datastore(Component, SerializableObject, ABC):
         collection_names: Optional[List[str]] = None,
         search_configs: Optional[List[str]] = None,
         k: int = _DEFAULT_K,
+        requires_confirmation: Optional[bool] = None,
     ) -> Sequence[Tool]:
         """Get search tools for entities to pass into an Agent.
 
@@ -372,13 +380,17 @@ class Datastore(Component, SerializableObject, ABC):
         k
             Number of results to return for search tools (will be fixed, not changeable by Agent).
             It is only configurable by the user as `k` heavily impacts speed and cost: searching for more leads to more being put in the context of the next LLM call.
+        requires_confirmation:
+            Flag to ask for user confirmation whenever executing any of this toolbox's tools, yields ``ToolExecutionConfirmationStatus`` if True or if the ``Tool`` from the ``ToolBox`` requires confirmation.
 
         Returns
         -------
         List[Tool]
             A list containing search tools for the specified collections.
         """
-        toolbox = self.get_search_toolbox(collection_names, search_configs, k)
+        toolbox = self.get_search_toolbox(
+            collection_names, search_configs, k, requires_confirmation
+        )
         return toolbox.get_tools()
 
     def _build_config_maps(self) -> None:

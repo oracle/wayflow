@@ -54,6 +54,7 @@ class SearchToolBox(ToolBox, Component, SerializableObject):
         collection_names: Optional[List[str]] = None,
         search_configs: Optional[List[str]] = None,
         k: int = _DEFAULT_K,
+        requires_confirmation: Optional[bool] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
@@ -75,6 +76,8 @@ class SearchToolBox(ToolBox, Component, SerializableObject):
             If no search config is given for a collection, a default search configuration is inferred for that collection.
         k
             Number of results to return for search tools.
+        requires_confirmation:
+            Flag to ask for user confirmation whenever executing any of this toolbox's tools, yields ``ToolExecutionConfirmationStatus`` if True or if the ``Tool`` from the ``ToolBox`` requires confirmation.
         """
         self._datastore = datastore
         self._collection_names = collection_names
@@ -83,7 +86,7 @@ class SearchToolBox(ToolBox, Component, SerializableObject):
         self._tool_name_prefix = "search_"
         self._tool_name_sep = "_"
         self._tool_registry: Dict[str, Tuple[str, Optional[str]]] = dict()
-        super().__init__()
+        super().__init__(requires_confirmation=requires_confirmation)
         Component.__init__(
             self,
             id=id,
@@ -95,7 +98,7 @@ class SearchToolBox(ToolBox, Component, SerializableObject):
         )
         self.get_tools()  # Run once to populate tool registry. Will rebuild tools for each call so this does not change behaviour.
 
-    async def get_tools_async(self) -> Sequence[Tool]:
+    async def _get_tools_inner_async(self) -> Sequence[Tool]:
         # Regenerate tools on each call to support dynamic behavior
         collection_names = self._collection_names or list(self._datastore.schema.keys())
         search_configs = self._search_configs or []
@@ -177,7 +180,7 @@ class SearchToolBox(ToolBox, Component, SerializableObject):
 
         return tools
 
-    def get_tools(self) -> Sequence[Tool]:
+    def _get_tools_inner(self) -> Sequence[Tool]:
         """Return the list of search tools.
 
         This method dynamically generates tools on each call, allowing
