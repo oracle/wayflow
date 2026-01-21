@@ -10,9 +10,7 @@ task. Treat everything else as the living field guide.
 
 1. **Plan mode** – Max 4 bullets, ≤6 words each. End with open questions or
    write `Questions: None`.
-2. **Validation loop** – `python -m pip install -e .[oci,datastore,a2a]`
-   → `ruff --fix src tests` → `black src tests` → `tox -e lint`
-   → `tests/run_tests.sh [--parallel]`. If you skip anything, state why and the next step.
+2. **Validation loop** – `pytest wayflowcore/tests/<specific_file>`. Only run the tests associated to the feature that is being developed.
 3. **Bounded actions** – No background processes, no guessing commands. Ask for missing info in the plan.
 4. **Repo hygiene** – Only create artifacts under sanctioned dirs (`build/`, `dist/`, `testing_scripts/tmp`).
 5. **Scope discipline** – Touch only relevant files; mirror each code change with matching tests/docs when applicable.
@@ -77,11 +75,11 @@ task. Treat everything else as the living field guide.
 - Installation scripts (`install-dev.sh`, `install.sh`) rely on pip; **do not introduce `uv`**.
 
 ### Formatting & Linting
-- `ruff --fix src tests` for lint fixes.
-- `black src tests` (88 char limit). Keep import order consistent with `ruff` configuration; no isort script exists, so rely on `ruff`.
+- Formatting is done by the git hook. Use the usual git commands but expect it to fail and reformat code.
 
 ### Type Checking
-- `mypy` (root config) + supplemental datasets under `mypy-precision/`.
+- Type checking is also done by the git hook
+- `mypy` is used
 - Add type stubs via `requirements-dev.txt` entries when needed.
 
 ### Security
@@ -92,19 +90,20 @@ task. Treat everything else as the living field guide.
 ## Testing Playbook
 
 ### Core Commands
-- `tests/run_tests.sh` – main entry point. Supports `--parallel`; automatically runs the security script afterward.
 - Direct pytest (during iteration):
   - `pytest tests/path/to/test_file.py`
-  - `pytest tests --maxfail=1 -k <keyword>`
+  - `DISABLE_RETRY=y pytest tests -k <keyword>` to disable the retry on some tests (`@retry_test` decorator).
+- Use the `retry_test` decorator when the test relies on a particular behavior of the LLM. When using this test, you need first to compute the docstring using `FLAKY_TEST_EVALUATION_MODE=20 pytest tests/test_file.py::test_name` that will return the content of the docstring.
+- Use the `remotely_hosted_llm` fixture for usual llm tests, and `big_llama` for tests that require slightly more reasoning.
 - Integration tests require env vars (see `tests/conftest.py`): `LLAMA_API_URL`, `OCI_REASONING_MODEL`, `COMPARTMENT_ID`, `GEMMA_API_URL`, etc. Document absences.
 - Fuzz testing: `python -m pythonfuzz.tests_fuzz.test_fuzz` (long-running; only run when necessary).
 
 ### Fixtures & Helpers
 - `tests/_utils/`, `tests/testhelpers/`, `tests/utils.py` provide mocked models, message builders, datastore stubs.
-- `tests/conftest.py` configures environment, threadpool cleanup (`shutdown_threadpool`). Use fixtures like `session_tmp_path`, OCI configs, or dummy models.
+- `tests/conftest.py` configures environment, threadpool cleanup (`shutdown_threadpool`). Use fixtures like `session_tmp_path`, OCI configs, or patched llms (`patch_llm` context manager).
 
 ### Security Harness
-- `tests/security/` wraps logging and filesystem checks. Never bypass.
+- `tests/security/` wraps logging and filesystem checks.
 - For new security-sensitive features, add targeted tests or update `logging_tests.sh`.
 
 
@@ -125,22 +124,9 @@ task. Treat everything else as the living field guide.
 - Use `logging.getLogger(__name__)`. No `print()` in library code.
 - If a feature intentionally emits warnings, cover them using `pytest.warns`.
 
-### Concurrency & Background Work
-- Use `managerworkers.ManagerWorkerPool` or `_threading` helpers for threads.
-- Always trigger `shutdown_threadpool()` in teardown (see tests) to avoid leaks.
-- Do not spawn raw threads or asynchronous tasks outside these utilities.
-
 ### Security & Credentials
 - All OCI credentials must flow through `OCIClientConfig*` and `ociagent.py`.
 - Never hardcode secrets. Tests rely on environment variables or fixtures.
-
-
-## Packaging & Release
-
-- Build artifacts using `python -m build` or `python setup.py sdist bdist_wheel`.
-- Distribution metadata stored in `_metadata.py`; override via `BUILD_VERSION` env var if triggered by CI.
-- `MANIFEST.in` ensures licenses and generated assets are included. Update when adding new static resources.
-- Maintain compatibility docs: update `support_matrix*.html` and `model_test_results*/` when broadening provider support or adjusting defaults.
 
 
 ## Workflow Expectations
@@ -149,42 +135,16 @@ task. Treat everything else as the living field guide.
 2. **Inspect** – identify relevant modules/tests before coding.
 3. **Implement** – small, cohesive diffs. Update docs/matrices when behavior changes.
 4. **Validate** – run formatting, linting, targeted tests (document any skips).
-5. **Summarize** – final message lists changes, validation, follow-ups.
+5. **Summarize** – final message lists changes, add entry in changelog (`docs/wayflowcore/source/core/changelog.rst`), validation, follow-ups.
 
 If blocked, surface the question in the plan and pause.
-
-
-## Common Playbooks
-
-### Adding a Tool
-1. Create tool implementation in `tools/` (client/server). Follow existing patterns (`Tool`, `ToolBox`).
-2. Update tool registry if needed (`servertools.py`, `toolbox.py`).
-3. Wire new tool into agent/server configs.
-4. Add tests under `tests/tools/` or relevant integration directory.
-
-### Extending a Flow
-1. Modify step definitions in `steps/` or compose new ones in `flowhelpers.py`.
-2. Update flow graph: transitions (`ControlFlowEdge`), data edges (`DataFlowEdge`).
-3. Regenerate descriptors if templates changed.
-4. Run flow-specific tests (`tests/test_flowconversation.py`, etc.) and update `res.md` if new warnings apply.
-
-### Adding an LLM Provider
-1. Implement new model class under `models/` (+ request helpers if needed).
-2. Register provider with `LlmModelFactory`.
-3. Update token usage helpers, generation configs.
-4. Document in README + support matrix; add tests under `tests/models/`.
-
-### Updating Agent Server Behavior
-1. Modify FastAPI app (`agentserver/app.py`) or storage helpers.
-2. Adjust CLI flags in `cli/serve.py` if the interface changes.
-3. Update documentation (README + AGENTS.md if workflow shifts).
-4. Extend tests under `tests/agentserver/` and security harness if needed.
 
 
 ## Resources & References
 
 - `README.md` – High-level overview + quick start.
-- `testing_scripts/` – Flaky analyzer, REPL for serialized graphs, templates.
+- `wayflowcore/src` – Source code of the model.
+- `wayflowcore/tests` – All tests.
 - `dev_scripts/openai-models-gen/` – Model schema generation utilities.
 - `nosec_ignore.csv` – Security exceptions log (keep minimal).
 
