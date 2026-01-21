@@ -28,7 +28,7 @@ class VectorGenerator(ABC):
 
         Returns
         -------
-        vectors
+        List[List[float]]
             List of vectors, one per entity.
         """
 
@@ -71,7 +71,7 @@ class SimpleVectorGenerator(VectorGenerator):
 
         Returns
         -------
-        vectors
+        List[List[float]]
             List of vectors, one per entity.
         """
 
