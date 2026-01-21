@@ -855,6 +855,31 @@ class AgentConversationExecutor(ConversationExecutor):
         return None
 
     @staticmethod
+    def _clear_tool_queue_state_before_raising_error(
+        state: AgentConversationExecutionState, tool_name: str, messages: MessageList, config: Agent
+    ) -> None:
+        # Before raising, add error responses for any remaining tools in queue
+        # This prevents "missing tool_call_id" errors when using llm parallel tool calling
+        if state.tool_call_queue:
+            logger.debug(
+                "Tool exception occurred with %d remaining tools in queue. "
+                "Adding error responses for remaining tools to prevent missing tool_call_ids.",
+                len(state.tool_call_queue),
+            )
+
+            for remaining_tool_request in state.tool_call_queue:
+                messages.append_message(
+                    AgentConversationExecutor._get_tool_response_message(
+                        f"Tool execution skipped due to previous tool failure on tool: {tool_name}",
+                        remaining_tool_request.tool_request_id,
+                        config.agent_id,
+                    )
+                )
+            state.tool_call_queue.clear()
+
+        state.current_tool_request = None
+
+    @staticmethod
     def _get_all_open_client_tool_requests(
         config: Agent,
         state: AgentConversationExecutionState,
