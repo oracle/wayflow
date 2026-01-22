@@ -148,12 +148,10 @@ Documentation of the package lives in another folder `../docs/wayflowcore/source
 - If a feature intentionally emits warnings, cover them using `pytest.warns`.
 
 ### Security & Credentials
-- All OCI credentials must flow through `OCIClientConfig*` and `ociagent.py`.
 - Never hardcode secrets. Tests rely on environment variables or fixtures.
 
 
 ## Workflow additional guidelines
 
-- for new features, a how-to guide should be added in the documentation
-- any new feature / improvement / bugfix should be referenced in the `changelog.md`
--
+- For new features, a how-to guide should be added in the documentation
+- Any new feature / improvement / bugfix should be referenced in the `changelog.md`
