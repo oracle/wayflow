@@ -246,7 +246,7 @@ class ManagerWorkersRunner(ConversationExecutor):
                 managerworkers_config=managerworkers_conversation.component,
             )
 
-            manager_conversation.state.current_tool_request = None
+            manager_conv_state.current_tool_request = None
 
             return (
                 _ToolProcessSignal.START_NEW_LOOP
@@ -256,10 +256,10 @@ class ManagerWorkersRunner(ConversationExecutor):
 
         # Case 2: standard client tool
         if tool and isinstance(tool, ClientTool):
-            # Only one tool request is surfaced to the user at a time
+            # Only one tool request is surfaced to the user at a time, other tool calls are still in the queue
             manager_conversation.status.tool_requests = [tool_request]
-            # This is done here instead of the agent executor as tool handling for swarms is done here
-            manager_conversation.state.current_tool_request = None
+            # This is done here instead of the agent executor as tool handling for manager agent is done here
+            manager_conv_state.current_tool_request = None
 
             return _ToolProcessSignal.RETURN
 
@@ -286,8 +286,7 @@ class ManagerWorkersRunner(ConversationExecutor):
         # Get the oldest unanswered tool requests since the tool requests are processed sequentially
         tool_request_id = unanswered_tool_requests[0].tool_request_id
 
-        # Manually append tool result directly to the message list (not via status._tool_results)
-        manager_subconversation.message_list.append_tool_result(
+        manager_subconversation.append_tool_result(
             ToolResult(message.content, tool_request_id=tool_request_id)
         )
 
