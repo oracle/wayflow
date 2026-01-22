@@ -1695,30 +1695,48 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             )
         elif isinstance(agentspec_component, AgentSpecMessageTransform):
             if isinstance(agentspec_component, AgentSpecPluginCoalesceSystemMessagesTransform):
-                return RuntimewCoalesceSystemMessagesTransform()
+                return RuntimewCoalesceSystemMessagesTransform(
+                    **self._get_component_arguments(agentspec_component)
+                )
             elif isinstance(agentspec_component, AgentSpecPluginRemoveEmptyNonUserMessageTransform):
-                return RuntimeRemoveEmptyNonUserMessageTransform()
+                return RuntimeRemoveEmptyNonUserMessageTransform(
+                    **self._get_component_arguments(agentspec_component)
+                )
             elif isinstance(
                 agentspec_component,
                 AgentSpecPluginAppendTrailingSystemMessageToUserMessageTransform,
             ):
-                return RuntimeAppendTrailingSystemMessageToUserMessageTransform()
+                return RuntimeAppendTrailingSystemMessageToUserMessageTransform(
+                    **self._get_component_arguments(agentspec_component)
+                )
             elif isinstance(
                 agentspec_component, AgentSpecPluginLlamaMergeToolRequestAndCallsTransform
             ):
-                return RuntimeLlamaMergeToolRequestAndCallsTransform()
+                return RuntimeLlamaMergeToolRequestAndCallsTransform(
+                    **self._get_component_arguments(agentspec_component)
+                )
             elif isinstance(
                 agentspec_component, AgentSpecPluginReactMergeToolRequestAndCallsTransform
             ):
-                return RuntimeReactMergeToolRequestAndCallsTransform()
+                return RuntimeReactMergeToolRequestAndCallsTransform(
+                    **self._get_component_arguments(agentspec_component)
+                )
             elif isinstance(agentspec_component, AgentSpecPluginSwarmToolRequestAndCallsTransform):
-                return RuntimeSwarmToolRequestAndCallsTransform()
+                return RuntimeSwarmToolRequestAndCallsTransform(
+                    **self._get_component_arguments(agentspec_component)
+                )
             elif isinstance(agentspec_component, AgentSpecPluginCanonicalizationMessageTransform):
-                return RuntimeCanonicalizationMessageTransform()
+                return RuntimeCanonicalizationMessageTransform(
+                    **self._get_component_arguments(agentspec_component)
+                )
             elif isinstance(
                 agentspec_component, AgentSpecPluginSplitPromptOnMarkerMessageTransform
             ):
-                return RuntimeSplitPromptOnMarkerMessageTransform(marker=agentspec_component.marker)
+                return RuntimeSplitPromptOnMarkerMessageTransform(
+                    marker=agentspec_component.marker, 
+                    **self._get_component_arguments(agentspec_component)
+                )
+                
             elif isinstance(agentspec_component, AgentSpecMessageSummarizationTransform):
                 return RuntimeMessageSummarizationTransform(
                     llm=conversion_context.convert(
