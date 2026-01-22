@@ -118,17 +118,17 @@ def _get_approximate_num_reasoning_tokens_from_wayflowcore_message(message: "Mes
     """Count approximate reasoning tokens from WayFlow message. This is a very rough estimate, most models with summaries will return their exact token counts anyway"""
     if message._reasoning_content:
         total_count = 0
-        if "content" in message._reasoning_content and len(
+        if message._reasoning_content.get("content") and len(
             message._reasoning_content["content"][0]["text"]
         ):
             total_count += _count_tokens_in_str(message._reasoning_content["content"][0]["text"])
 
-        elif "encrypted_content" in message._reasoning_content and len(
+        elif message._reasoning_content.get("encrypted_content") and len(
             message._reasoning_content["encrypted_content"]
         ):
             total_count += _count_tokens_in_str(message._reasoning_content["encrypted_content"])
 
-        elif "summary" in message._reasoning_content and len(
+        elif message._reasoning_content.get("summary") and len(
             message._reasoning_content["summary"][0]["text"]
         ):
             total_count += _count_tokens_in_str(message._reasoning_content["summary"][0]["text"])

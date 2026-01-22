@@ -337,6 +337,41 @@ def _client_config_to_oci_client_kwargs(client_config: OCIClientConfig) -> Dict[
     return client_kwargs
 
 
+def _client_config_to_oci_openai_client_auth(client_config: OCIClientConfig) -> Any:
+    from oci_openai import (  # type: ignore
+        HttpxOciAuth,
+        OciInstancePrincipalAuth,
+        OciResourcePrincipalAuth,
+        OciUserPrincipalAuth,
+    )
+
+    if isinstance(client_config, OCIClientConfigWithUserAuthentication):
+        raise NotImplementedError(
+            "OCIClientConfigWithUserAuthentication is not usable with api_type != OciAPIType.OCI"
+        )
+    elif isinstance(client_config, OCIClientConfigWithApiKey):
+        return OciUserPrincipalAuth(
+            config_file=client_config.auth_file_location,
+            profile_name=client_config.auth_profile,
+        )
+    elif isinstance(client_config, OCIClientConfigWithSecurityToken):
+        oci_config = oci.config.from_file(
+            file_location=client_config.auth_file_location,
+            profile_name=client_config.auth_profile,
+        )
+        pk = oci.signer.load_private_key_from_file(oci_config.get("key_file"), None)
+        with open(oci_config.get("security_token_file"), encoding="utf-8") as f:
+            st_string = f.read()
+
+        return HttpxOciAuth(signer=oci.auth.signers.SecurityTokenSigner(st_string, pk))
+    elif isinstance(client_config, OCIClientConfigWithInstancePrincipal):
+        return OciInstancePrincipalAuth()
+    elif isinstance(client_config, OCIClientConfigWithResourcePrincipal):
+        return OciResourcePrincipalAuth()
+    else:
+        raise NotImplementedError()
+
+
 def _convert_arguments_into_client_config(
     compartment_id: Optional[str],
     service_endpoint: Optional[str],
