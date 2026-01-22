@@ -140,6 +140,8 @@ EXCLUDED_COMPONENTS = {
     "ToolBox",
     # Runtime components that can't be serialized to agentspec
     "CallableMessageTransform",  # takes a callable function which is not serializable
+    "RelationalDatastore",
+    "Datastore",
 }
 
 ALL_ADDITIONAL_SUBCLASSES = list(
