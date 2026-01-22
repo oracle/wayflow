@@ -127,7 +127,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         name: Optional[str] = None,
         description: str = "",
         agent_template: Optional[PromptTemplate] = None,
-        transforms: List[MessageTransform] = [],
+        transforms: Optional[List[MessageTransform]] = None,
         _add_talk_to_user_tool: bool = True,
         __metadata_info__: Optional[MetadataType] = None,
     ):
@@ -309,7 +309,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self.caller_input_mode = caller_input_mode
         self._add_talk_to_user_tool = _add_talk_to_user_tool
 
-        self.transforms = transforms
+        self.transforms = transforms or []
         agent_template = agent_template or llm.agent_template
 
         # Log the transforms being combined for user awareness if template has transforms
