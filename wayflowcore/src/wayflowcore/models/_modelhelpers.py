@@ -85,4 +85,8 @@ def _is_gemma_model(model_id: str) -> bool:
 
 
 def _is_llama_legacy_model(model_id: str) -> bool:
-    return "llama" in model_id.lower() and "3." in model_id
+    return "llama" in model_id.lower() and ("3." in model_id or "-3" in model_id)
+
+
+def _is_recent_llama_model(model_id: str) -> bool:
+    return "llama" in model_id.lower() and ("4." in model_id or "-4" in model_id)

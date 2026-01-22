@@ -22,7 +22,7 @@ from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
 from wayflowcore.transforms import CanonicalizationMessageTransform
 
-from ._modelhelpers import _is_llama_legacy_model
+from ._modelhelpers import _is_llama_legacy_model, _is_recent_llama_model
 from ._openaihelpers import _property_to_openai_schema
 from ._openaihelpers._utils import _safe_json_loads
 from ._requesthelpers import StreamChunkType, TaggedMessageChunkTypeWithTokenUsage
@@ -393,11 +393,17 @@ class OCIGenAIModel(LlmModel):
 
         if self.provider == ModelProvider.COHERE:
             return NATIVE_AGENT_TEMPLATE
+        if self.provider == ModelProvider.META and _is_recent_llama_model(self.model_id):
+            logger.debug(
+                "Llama-4.x models have limited performance with native tool calling. Wayflow will instead use the `PYTHON_CALL_AGENT_TEMPLATE`, which yields better performance than native tool calling"
+            )
+            from wayflowcore.templates.llama4template import LLAMA4_PYTHONIC_AGENT_TEMPLATE
+
+            return LLAMA4_PYTHONIC_AGENT_TEMPLATE
         if self.provider == ModelProvider.META and _is_llama_legacy_model(self.model_id):
             logger.debug(
                 "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_AGENT_TEMPLATE`, which yields better performance than native tool calling"
             )
-            # llama3.x works better with custom template
             return LLAMA_AGENT_TEMPLATE
         if self.provider == ModelProvider.GOOGLE:
             # google models do not support standalone system messages

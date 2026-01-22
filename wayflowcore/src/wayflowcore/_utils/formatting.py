@@ -8,7 +8,7 @@ import ast
 import json
 import logging
 import uuid
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from json_repair import json_repair
 
@@ -296,37 +296,116 @@ def generate_tool_id() -> str:
     return str(uuid.uuid4())
 
 
+_UNPARSE_ERRORS = (AttributeError, ValueError, TypeError)
+
+
 # AST visitor class to parse tool calls
 class CallVisitor(ast.NodeVisitor):
-    def __init__(self) -> None:
-        self.tool_calls: List[Tuple[str, Dict[str, Any]]] = []
+    """
+    Collects function call expressions.
+
+    Design goals:
+    - Never crash on weird AST shapes
+    - Preserve python values where safe (ast.literal_eval), otherwise fall back to source strings
+    - Keep explicit *args/**kwargs separate (they aren't normal positional/keyword args)
+    """
+
+    def __init__(
+        self,
+        *,
+        allowed_names: Optional[Sequence[str]] = None,
+    ) -> None:
+        self.tool_calls: List[ToolRequest] = []
+        self.allowed_names = set(allowed_names) if allowed_names else None
+
+    def _safe_value(self, expr: ast.AST) -> Any:
+        """
+        Return a real python value if it's a literal (numbers, strings, dict/list literals, etc.),
+        otherwise return source code string.
+        """
+        try:
+            return ast.literal_eval(expr)
+        except (ValueError, SyntaxError, TypeError):
+            try:
+                return ast.unparse(expr)
+            except _UNPARSE_ERRORS:
+                return ast.dump(expr, include_attributes=False)
+
+    def _call_name(self, func: ast.AST) -> str:
+        """
+        Best-effort fully qualified-ish name:
+          - Name: foo
+          - Attribute chain: pkg.mod.foo or obj.method
+          - Other callables: <expr>
+        """
+        # Name: foo
+        if isinstance(func, ast.Name):
+            return func.id
+
+        # Attribute: x.y (possibly chained)
+        if isinstance(func, ast.Attribute):
+            parts: List[str] = []
+            cur: ast.AST = func
+            while isinstance(cur, ast.Attribute):
+                parts.append(cur.attr)
+                cur = cur.value
+
+            if isinstance(cur, ast.Name):
+                parts.append(cur.id)
+                return ".".join(reversed(parts))
+
+            # Something like (get_obj()).method -> can't name base cleanly
+            try:
+                base = ast.unparse(cur)
+            except _UNPARSE_ERRORS:
+                return "<attribute>"
+
+            # parts currently holds attrs from outer->inner, reversed gives inner->outer.
+            # For (get_obj()).method, parts would be ["method"] so this becomes "base.method".
+            return f"{base}." + ".".join(reversed(parts))
+
+        # Subscript call: fns[i](...)
+        if isinstance(func, ast.Subscript):
+            try:
+                return ast.unparse(func)
+            except _UNPARSE_ERRORS:
+                return "<subscript>"
+
+        # Lambda / Call / etc.
+        try:
+            return ast.unparse(func)
+        except _UNPARSE_ERRORS:
+            return "<expr>"
 
     def visit_Call(self, node: ast.Call) -> None:
-        arg_dict = {}
-
-        # first parse children to enqueue recursive tool calls first
         self.generic_visit(node)
 
-        # positional arguments
-        for i, arg in enumerate(node.args):
-            if isinstance(arg, ast.AST):
-                key = f"arg{i}"
-                arg_dict[key] = ast.unparse(arg)
+        name = self._call_name(node.func)
+        if self.allowed_names is not None and name not in self.allowed_names:
+            return
 
-        # keyword arguments
+        kwargs: Dict[str, Any] = {}
+        starred_kwargs: List[str] = []
+
         for kw in node.keywords:
-            if isinstance(kw, ast.keyword):
-                key = kw.arg if kw.arg else "**"
-                arg_dict[key] = (
-                    kw.value.value if isinstance(kw.value, ast.Constant) else ast.unparse(kw.value)
-                )
+            if kw.arg is None:
+                try:
+                    starred_kwargs.append(ast.unparse(kw.value))
+                except _UNPARSE_ERRORS:
+                    try:
+                        starred_kwargs.append(ast.dump(kw.value, include_attributes=False))
+                    except TypeError:
+                        starred_kwargs.append("<kwargs>")
+            else:
+                kwargs[kw.arg] = self._safe_value(kw.value)
 
-        if isinstance(node.func, ast.Attribute):
-            name = f"{getattr(node.func.value, 'id')}.{node.func.attr}"
-        else:
-            name = getattr(node.func, "id")
-
-        self.tool_calls.append((name, arg_dict))
+        self.tool_calls.append(
+            ToolRequest(
+                name=name,
+                args=kwargs,
+                tool_request_id=generate_tool_id(),
+            )
+        )
 
 
 def parse_tool_call_using_ast(raw_txt: str) -> List[ToolRequest]:
@@ -334,15 +413,8 @@ def parse_tool_call_using_ast(raw_txt: str) -> List[ToolRequest]:
         ast_tree = ast.parse(raw_txt)
         visitor = CallVisitor()
         visitor.visit(ast_tree)
-        return [
-            ToolRequest(
-                name=name,
-                args=args,
-                tool_request_id=generate_tool_id(),
-            )
-            for name, args in visitor.tool_calls
-        ]
-    except Exception as e:
+        return visitor.tool_calls
+    except (SyntaxError, ValueError, TypeError, RecursionError) as e:
         logger.debug("Could not find any tool call in %s (%s)", raw_txt, str(e))
         return []
 
