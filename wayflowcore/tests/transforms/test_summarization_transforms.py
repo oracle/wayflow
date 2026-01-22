@@ -1077,7 +1077,7 @@ def test_conversation_summarization_trigger_and_cache_incremental(get_setup):
         (ConversationSummarizationTransform, {"max_num_messages": 10, "min_num_messages": 5}),
     ],
 )
-def test_summarization_transform_no_caching_when_datastore_none(transform_type, params):
+def test_summarization_transform_does_not_cache_when_datastore_none(transform_type, params):
     """Test that when datastore=None, no caching occurs for summarization transforms."""
     summarization_llm = mock_llm()
     agent_llm = mock_llm()
