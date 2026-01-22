@@ -739,6 +739,67 @@ def test_multiple_tool_calls_including_server_tool_can_be_executed(vllm_response
         assert conv.get_last_message().content == "fooza answers to user"
 
 
+def test_multiple_tool_calls_including_with_nonexistent_tools(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+
+    group = ManagerWorkers(
+        group_manager=fooza_agent,
+        workers=[bwip_agent],
+    )
+
+    conv = group.start_conversation(messages="Compute bwip(4,2), fooza(4,3)")
+
+    fooza_tool_requests = [
+        ToolRequest(
+            name="send_message",
+            args={
+                "recipient": "bwip_agent",
+                "message": "calculate bwip(4,2)",
+            },
+        ),
+        ToolRequest(
+            name="fooza_tool",
+            args={"a": 4, "b": 3},
+        ),
+    ]
+
+    bwip_tool_requests = [
+        ToolRequest(
+            name="bwip_tool",
+            args={"a": 4, "b": 2},
+        ),
+        ToolRequest(
+            name="non_existent_tool",
+            args={"a": 4, "b": 3},
+        ),
+    ]
+
+    with patch_llm(
+        llm,
+        outputs=[
+            fooza_tool_requests,
+            bwip_tool_requests,
+            "bwip answers to fooza",
+            "fooza answers to user",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, UserMessageRequestStatus)
+        assert conv.get_last_message().content == "fooza answers to user"
+        tool_result_messages = [
+            m
+            for m in conv.state.subconversations["bwip_agent"].get_messages()
+            if m.tool_result is not None
+        ]
+        assert (
+            "Tool named non_existent_tool is not in the list of available tools."
+            in tool_result_messages[-1].tool_result.content
+        )
+
+
 @retry_test(max_attempts=4)
 def test_managerworkers_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
     """
