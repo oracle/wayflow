@@ -152,6 +152,9 @@ class SwarmRunner(ConversationExecutor):
                     return agent_sub_conversation.status
                 elif result == _ToolProcessSignal.START_NEW_LOOP:
                     continue
+                else:
+                    # _ToolProcessSignal.EXECUTE_AGENT -> we continue this loop with a new call to the current agent
+                    pass
 
             # Execute agent
             logger.info(
