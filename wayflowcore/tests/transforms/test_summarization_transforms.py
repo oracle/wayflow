@@ -1186,6 +1186,7 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
             assert len(transformed_messages) == 5
 
 
+<<<<<<< HEAD
 @pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
 def test_agent_transforms_should_run_before_canonicalization_with_gemma(remote_gemma_llm):
 
@@ -1231,3 +1232,12 @@ def test_agent_transforms_should_run_before_canonicalization_with_gemma(remote_g
             assert mock_generate_summary.call_count > 0
             # The messages received by the LLM were summarized.
             assert len(transformed_messages[0].content) <= len(main_content) * 2
+=======
+@pytest.mark.parametrize(
+    "transform_cls", [MessageSummarizationTransform, ConversationSummarizationTransform]
+)
+def test_summarization_transform_have_default_inmemory_datastore(transform_cls):
+    llm = mock_llm()
+    with pytest.warns(UserWarning, match=_SUMMARIZATION_WARNING_MESSAGE):
+        transform = transform_cls(llm=llm)
+>>>>>>> acb7a030 (fix: remove mutable defaults)
