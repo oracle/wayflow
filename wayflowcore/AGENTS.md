@@ -22,7 +22,7 @@ task. Treat everything else as the living field guide.
 - **Packaging** – Ships to PyPI as `wayflowcore`; source under `src/wayflowcore/`.
 - **Key abstractions** – Agent (`agent.py`), Flow (`flow.py`), Swarm (`swarm.py`), Manager worker (`managerworkers.py`), OCI Agent (`ociagent.py`).
 - **Primary services** – Tooling layer (`tools/`), model integrations (`models/`), agent server (`agentserver/`), persistence (`datastore/`), evaluation/telemetry (`evaluation/`, `events/`, `tracing/`).
-- **AgentSpec adapters** - Layer to convert agent spec components into wayflow and the other way around.
+- **AgentSpec adapters** - Layer to convert agent spec components into wayflow and the other way around. AgentSpec is a python SDK for an agentic specification. Most abstractions are common between AgentSpec and WayFlow, but have small differences.
 
 Different types of conversational components can be built, such as:
 - Agents for autonomous and/or conversational task completion with tools
@@ -67,7 +67,7 @@ Documentation of the package lives in another folder `../docs/wayflowcore/source
 ## Execution & Architecture
 
 ### Agent Lifecycle
-1. **Construction** – `Agent(llm, tools, flows, agents, ...)`. `ToolBox` converts legacy tool configs. Input/output descriptors auto-inferred from templates; manual overrides require `_update_internal_state()`.
+1. **Construction** – `Agent(llm, tools, flows, agents, ...)`. `ToolBox` discovers tools are runtime. Input/output descriptors auto-inferred from templates; manual overrides in Agent require `_update_internal_state()`.
 2. **Conversation start** – `start_conversation()` returning `AgentConversation`. `AgentConversationExecutor` handles reason/act loop.
 3. **Context** – `ContextProvider` classes populate inputs that need to be refreshed each turn when required, configured via `property.py`.
 4. **Tooling** – Tools resolved through `Tool`, `ToolBox`, `ServerTool`.
@@ -150,3 +150,10 @@ Documentation of the package lives in another folder `../docs/wayflowcore/source
 ### Security & Credentials
 - All OCI credentials must flow through `OCIClientConfig*` and `ociagent.py`.
 - Never hardcode secrets. Tests rely on environment variables or fixtures.
+
+
+## Workflow additional guidelines
+
+- for new features, a how-to guide should be added in the documentation
+- any new feature / improvement / bugfix should be referenced in the `changelog.md`
+-
