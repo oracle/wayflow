@@ -134,6 +134,9 @@ class ManagerWorkersRunner(ConversationExecutor):
                         return current_conversation.status
                     elif result == _ToolProcessSignal.START_NEW_LOOP:
                         continue
+                    else:
+                        # _ToolProcessSignal.EXECUTE_AGENT -> we continue this loop with a new call to the current agent
+                        pass
 
                 mutated_agent_tools = (
                     list(current_agent.tools) + managerworkers_config._manager_communication_tools
