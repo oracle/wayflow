@@ -109,8 +109,11 @@ class OciAPIType(str, Enum):
     """Enumeration of API Types."""
 
     OPENAI_CHAT_COMPLETIONS = "openai_chat_completions"
+    """Use the chat completion endpoint from OCI GenAI"""
     OPENAI_RESPONSES = "openai_responses"
+    """Use the responses endpoint form OCI GenAI"""
     OCI = "oci"
+    """Use the original oci SDK endpoint"""
 
 
 _DEFAULT_MAX_RETRIES = 1
@@ -155,6 +158,10 @@ class OCIGenAIModel(LlmModel):
             Name of the provider of the underlying model, to adapt the request.
             Needs to be specified in ``ServingMode.DEDICATED``. Is auto-detected when in ``ServingMode.ON_DEMAND``
             based on the ``model_id``.
+        api_type:
+            API type to use to call the OCI LLM provider.
+        conversation_store_id:
+            Optional store ID to use to store conversations from turn to turn.
         generation_config:
             default parameters for text generation with this model
         id:
