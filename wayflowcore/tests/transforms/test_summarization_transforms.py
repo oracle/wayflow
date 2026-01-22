@@ -1180,3 +1180,12 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
             ]
 
             assert len(transformed_messages) == 5
+
+
+@pytest.mark.parametrize(
+    "transform_cls", [MessageSummarizationTransform, ConversationSummarizationTransform]
+)
+def test_summarization_transform_have_default_inmemory_datastore(transform_cls):
+    llm = mock_llm()
+    with pytest.warns(UserWarning, match=_SUMMARIZATION_WARNING_MESSAGE):
+        transform = transform_cls(llm=llm)
