@@ -182,18 +182,12 @@ def get_available_port(tmp_path: str):
             fcntl.flock(lockf.fileno(), fcntl.LOCK_EX)
             try:
                 # Read last used port
-                last = None
                 try:
                     with open(state_path, "r") as sf:
                         content = sf.read().strip()
-                        if content:
-                            last = int(content)
-                except FileNotFoundError:
-                    pass
-                if last is None or last < base or last >= base + span:
+                    candidate = int(content) + 1
+                except (FileNotFoundError, TypeError, ValueError):
                     candidate = base
-                else:
-                    candidate = last + 1
 
                 # Probe within window
                 for _ in range(span):
