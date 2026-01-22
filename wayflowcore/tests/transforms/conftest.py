@@ -9,8 +9,10 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from pyagentspec.agent import Agent as AgentSpecAgent
-from pyagentspec.datastores.datastore import InMemoryCollectionDatastore
-from pyagentspec.llms import VllmConfig
+from pyagentspec.datastores.datastore import (
+    InMemoryCollectionDatastore as AgentSpecInMemoryCollection,
+)
+from pyagentspec.llms import VllmConfig as AgentSpecVllmConfig
 from pyagentspec.transforms import (
     ConversationSummarizationTransform as AgentSpecConversationSummarizationTransform,
 )
@@ -239,13 +241,13 @@ def _get_dll_for_deletion_of_one_entity_schema(schema: dict[str, "Entity"]) -> l
 @pytest.fixture
 def converted_wayflow_agent_with_message_summarization_transform_from_agentspec():
     collection_name = MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME
-    agent_spec_datastore = InMemoryCollectionDatastore(
+    agent_spec_datastore = AgentSpecInMemoryCollection(
         name="test-inmemory-datastore",
         datastore_schema={
             collection_name: AgentSpecMessageSummarizationTransform.get_entity_definition()
         },
     )
-    llm_config = VllmConfig(
+    llm_config = AgentSpecVllmConfig(
         name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
     )
     agent_spec_transform = AgentSpecMessageSummarizationTransform(
@@ -269,13 +271,13 @@ def converted_wayflow_agent_with_message_summarization_transform_from_agentspec(
 @pytest.fixture
 def converted_wayflow_agent_with_conversation_summarization_transform_from_agentspec():
     collection_name = CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME
-    agent_spec_datastore = InMemoryCollectionDatastore(
+    agent_spec_datastore = AgentSpecInMemoryCollection(
         name="test-inmemory-datastore",
         datastore_schema={
             collection_name: AgentSpecConversationSummarizationTransform.get_entity_definition()
         },
     )
-    llm_config = VllmConfig(
+    llm_config = AgentSpecVllmConfig(
         name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
     )
     agent_spec_transform = AgentSpecConversationSummarizationTransform(
