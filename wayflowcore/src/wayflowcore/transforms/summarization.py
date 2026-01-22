@@ -70,8 +70,7 @@ class _MessageCache:
         self.entity_def = entity_def
 
         self.datastore = datastore
-        # Validate that the user provided datastore corresponds has the required
-        # fields.
+        # Validate that the user provided datastore has the required fields.
         self._validate_datastore_schema()
 
     def _get_cache_schema(self, collection_name: str, entity_def: Entity) -> dict[str, Entity]:
