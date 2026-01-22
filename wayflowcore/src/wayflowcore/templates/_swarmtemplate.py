@@ -43,17 +43,17 @@ You can communicate with the following entities.
 
 <response_rules>
 <tool_use_rules>
-- Always respond using a single tool call; plain text responses are forbidden
 - Never mention any specific tool names to users
 - Carefully verify available tools; do not fabricate non-existent tools. Delegate when necessary.
 - Tool request/results may originate from other parts of the system; only use explicitly provided tools
-- Call EXACTLY ONE tool per response. The system does not support parallel tool calling.
+- Calling MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user’s query can be broken into INDEPENDENT subtasks.
+If `handoff_conversation` is included in multiple tool calls, it must be the final tool call in the response.
 - {%- if handoff=="optional" -%} You SHOULD use handoff_conversation tool if you think another agent can answer to the user directly,
 as this reduces unnecessary relaying and lowers latency {%- endif -%}
 - {%- if handoff=="always" -%} You must use the handoff_conversation tool when delegating to another agent.{%- endif -%}
 </tool_use_rules>
 
-Always structure your response as a thought followed by a function call using JSON compliant syntax.
+Always structure your response as a thought followed by one or multiple tool calls using JSON compliant syntax.
 The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
 -> Put **internal-only** information in the thoughts
 -> Put all necessary information in the tool calls to communicate to user/other entity.
@@ -87,7 +87,7 @@ You are a helpful AI Agent, your name: {{name}}. Your user/caller is: {{caller_n
 
 The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
 
-Always structure your response as a thought followed by a function call using JSON compliant syntax.
+Always structure your response as a thought followed by one or multiple function calls using JSON compliant syntax.
 Do not use variables in the function call. Here's the structure:
 
 YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; NOT VISIBLE TO THE USER)
@@ -165,17 +165,24 @@ class _ToolRequestAndCallsTransform(MessageTransform, SerializableObject):
                     json.dumps({"name": tool_request.name, "parameters": tool_request.args})
                     for tool_request in message.tool_requests
                 )
-                for tool_request in message.tool_requests:
-                    formatted_messages.append(
-                        Message(
-                            content=(
-                                f"--- MESSAGE: From: {message.sender} ---\n"
-                                f"{message.content}\n"
-                                f"{formatted_tool_calls}"
-                            ),
-                            message_type=MessageType.AGENT,
-                        )
+
+                header = f"--- MESSAGE: From: {message.sender} ---\n"
+                content = (
+                    message.content  # sometimes the llm outputs this header automatically -> no need to add it.
+                    if message.content.startswith(header)
+                    else f"{header}{message.content}"
+                )
+
+                formatted_messages.append(
+                    Message(
+                        content=(
+                            f"{content}\n{formatted_tool_calls}"
+                            if formatted_tool_calls not in content
+                            else f"{content}"
+                        ),
+                        message_type=MessageType.AGENT,
                     )
+                )
             elif message.message_type == MessageType.SYSTEM:
                 formatted_messages.append(message)
             else:
@@ -194,7 +201,7 @@ class _ToolRequestAndCallsTransform(MessageTransform, SerializableObject):
 class SwarmJsonToolOutputParser(JsonToolOutputParser, SerializableObject):
     def parse_thoughts_and_calls(self, raw_txt: str) -> Tuple[str, str]:
         """Swarm-specific function to separate thoughts and tool calls."""
-        if "{" not in raw_txt:  # Will need to be adapted for parallel tool calls
+        if "{" not in raw_txt:
             return "", raw_txt
         thoughts, raw_tool_calls = raw_txt.split("{", maxsplit=1)
         return thoughts.strip(), "{" + raw_tool_calls.replace("args={", "parameters={")

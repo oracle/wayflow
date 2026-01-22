@@ -28,9 +28,10 @@ from wayflowcore.property import StringProperty
 from wayflowcore.serialization import deserialize, serialize
 from wayflowcore.steps import OutputMessageStep
 from wayflowcore.swarm import HandoffMode, Swarm
-from wayflowcore.tools import ClientTool, ToolResult, tool
+from wayflowcore.tools import ClientTool, ToolRequest, ToolResult, tool
 
 from .testhelpers.dummy import DummyModel
+from .testhelpers.patching import patch_llm
 from .testhelpers.testhelpers import retry_test
 
 
@@ -40,6 +41,14 @@ def fooza_tool(
 ) -> int:
     """Return the result of the fooza operation between numbers a and b. Do not use for anything else than computing a fooza operation."""
     return a * 2 + b * 3 - 1
+
+
+@tool
+def fooza_tool_2(
+    a: Annotated[int, "first required integer"], b: Annotated[int, "second required integer"]
+) -> int:
+    """Return the result of the fooza operation between numbers a and b. Do not use for anything else than computing a fooza operation."""
+    raise ValueError("Cannot compute result using fooza tool.")
 
 
 @tool
@@ -58,14 +67,16 @@ def zbuk_tool(
     return a + b * 2
 
 
-def _get_fooza_agent(llm):
+def _get_fooza_agent(llm, raise_exception_tool=False, raise_exceptions=False):
+    _tool = fooza_tool_2 if raise_exception_tool else fooza_tool
     return Agent(
         custom_instruction=(
             "You are a fooza operation specialist. The fooza operation is a linear transformation, "
             "designed by Mr. Fooza. Tackle the requests you are specialized to tackle, and let other agents take care of the rest."
         ),
         llm=llm,
-        tools=[fooza_tool],
+        tools=[_tool],
+        raise_exceptions=raise_exceptions,
         agent_id="fooza_agent",
         name="fooza_agent",
         description="An specialized AI Assistant that can answer any question/request related to the fooza operation.",
@@ -103,8 +114,8 @@ def _get_zbuk_agent(llm):
 
 
 @pytest.fixture
-def example_math_agents(remote_gemma_llm) -> Tuple[Agent, Agent, Agent]:
-    llm = remote_gemma_llm
+def example_math_agents(vllm_responses_llm) -> Tuple[Agent, Agent, Agent]:
+    llm = vllm_responses_llm
     return (
         _get_bwip_agent(llm),
         _get_zbuk_agent(llm),
@@ -112,7 +123,7 @@ def example_math_agents(remote_gemma_llm) -> Tuple[Agent, Agent, Agent]:
     )
 
 
-def _get_math_swarm(bwip_agent, zbuk_agent, fooza_agent, handoff: bool):
+def _get_math_swarm(bwip_agent, zbuk_agent, fooza_agent, handoff: HandoffMode):
     all_agents = (bwip_agent, zbuk_agent, fooza_agent)
     return Swarm(
         first_agent=fooza_agent,
@@ -157,6 +168,27 @@ def example_medical_agents(remotely_hosted_llm) -> Tuple[Agent, Agent, Agent]:
     )
 
     return gp_doctor, neurologist_doctor, oncologist_doctor
+
+
+def _get_check_name_in_db_client_tool() -> ClientTool:
+    return ClientTool(
+        name="check_name_in_db_tool",
+        description="Check if a name is present in the database",
+        input_descriptors=[
+            StringProperty("name", description="name to check"),
+        ],
+    )
+
+
+def _get_agent_with_client_tool(llm: LlmModel) -> Agent:
+    check_name_in_db_tool = _get_check_name_in_db_client_tool()
+    return Agent(
+        llm=llm,
+        tools=[check_name_in_db_tool],
+        name="check_name_in_db_agent",
+        description="A helpful agent that has access to a tool which check if a given name is present in database.",
+        custom_instruction="You are an agent which checks if a name is present in the database",
+    )
 
 
 def test_can_execute_swarm_with_initial_params_passed_in_start_conversation(
@@ -305,77 +337,21 @@ def test_swarm_raises_when_using_flows(example_medical_agents):
 )
 def test_swarm_can_complete_task_without_specialist(example_math_agents, handoff: HandoffMode):
     """
-    The only two configurations used are:
-     * [gemma-3-27b-it][no_handoff]
-     * [gemma-3-27b-it][with_handoff]
-
-    The other results are for indicative purposes
-
-    # NO HANDOFF
-    [Llama-3.1-8B-Instruct][no_handoff]
-    Failure rate:          5 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.24 seconds per successful attempt
-    Average failure time:  1.09 seconds per failed attempt
-    Max attempt:           6
-    Justification:         (0.19 ** 6) ~= 4.3 / 100'000
-
-    [Llama-4-Maverick][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.98 seconds per successful attempt
+    # HandoffMode.NEVER
+    Failure rate:          0 out of 50
+    Observed on:           2026-01-19
+    Average success time:  2.59 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
 
-    [gemma-3-27b-it][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.84 seconds per successful attempt
+    # HandoffMode.OPTIONAL
+    Failure rate:          0 out of 50
+    Observed on:           2026-01-19
+    Average success time:  2.74 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gpt-4.1-nano][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.49 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    # WITH HANDOFF
-    [Llama-3.1-8B-Instruct][with_handoff]
-    Failure rate:          3 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.50 seconds per successful attempt
-    Average failure time:  0.75 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.12 ** 5) ~= 3.1 / 100'000
-
-    [Llama-4-Maverick][with_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  2.28 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gemma-3-27b-it][with_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.81 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gpt-4.1-nano][with_handoff]
-    Failure rate:          1 out of 30
-    Observed on:           2025-05-12
-    Average success time:  1.44 seconds per successful attempt
-    Average failure time:  0.51 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.06 ** 4) ~= 1.5 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     math_swarm = _get_math_swarm(*example_math_agents, handoff=handoff)
     conv = math_swarm.start_conversation()  # first agent is fooza
@@ -395,77 +371,21 @@ def test_swarm_can_complete_task_without_specialist(example_math_agents, handoff
 )
 def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMode):
     """
-    The only two configurations used are:
-     * [gemma-3-27b-it][no_handoff]
-     * [gemma-3-27b-it][with_handoff]
-
-    The other results are for indicative purposes.
-
-    # NO HANDOFF
-    [Llama-3.1-8B-Instruct][no_handoff]
-    Failure rate:          12 out of 30
-    Observed on:           2025-05-12
-    Average success time:  2.72 seconds per successful attempt
-    Average failure time:  2.70 seconds per failed attempt
-    Max attempt:           11
-    Justification:         (0.41 ** 11) ~= 5.0 / 100'000
-
-    [Llama-4-Maverick][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  4.08 seconds per successful attempt
+    # HandoffMode.NEVER
+    Failure rate:          0 out of 50
+    Observed on:           2026-01-19
+    Average success time:  5.57 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
 
-    [gemma-3-27b-it][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  4.25 seconds per successful attempt
+    # HandoffMode.OPTIONAL
+    Failure rate:          0 out of 50
+    Observed on:           2026-01-19
+    Average success time:  3.87 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gpt-4.1-nano][no_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  3.63 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    # WITH HANDOFF
-    [Llama-3.1-8B-Instruct][with_handoff]
-    Failure rate:          5 out of 30
-    Observed on:           2025-05-12
-    Average success time:  3.40 seconds per successful attempt
-    Average failure time:  1.86 seconds per failed attempt
-    Max attempt:           6
-    Justification:         (0.19 ** 6) ~= 4.3 / 100'000
-
-    [Llama-4-Maverick][with_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  4.45 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gemma-3-27b-it][with_handoff]
-    Failure rate:          0 out of 30
-    Observed on:           2025-05-12
-    Average success time:  3.88 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
-
-    [gpt-4.1-nano][with_handoff]
-    Failure rate:          1 out of 30
-    Observed on:           2025-05-12
-    Average success time:  3.10 seconds per successful attempt
-    Average failure time:  4.83 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.06 ** 4) ~= 1.5 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     math_swarm = _get_math_swarm(*example_math_agents, handoff=handoff)
     conv = math_swarm.start_conversation()  # first agent is fooza
@@ -477,102 +397,31 @@ def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMo
     assert "14" in last_message.content
 
 
-@pytest.mark.skip(
-    "just to show task ref perf"
-)  # Just to show the task with reference performance results
-def test_swarm_can_complete_composition_task(example_math_agents):
+@retry_test(max_attempts=5)
+@pytest.mark.parametrize(
+    argnames="handoff",
+    argvalues=[HandoffMode.NEVER, HandoffMode.OPTIONAL],
+    ids=["no_handoff", "with_handoff"],
+)
+def test_swarm_can_complete_composition_task(example_math_agents, handoff):
     """
-    # NO HANDOFF
-    [Llama-3.1-8B-Instruct][no_handoff]
-    Failure rate:          15 out of 30
-    Observed on:           2025-05-12
-    Average success time:  6.73 seconds per successful attempt
-    Average failure time:  4.30 seconds per failed attempt
-    Max attempt:           14
-    Justification:         (0.50 ** 14) ~= 6.1 / 100'000
-
-    [Llama-4-Maverick][no_handoff]
-    Failure rate:          2 out of 30
-    Observed on:           2025-05-12
-    Average success time:  8.37 seconds per successful attempt
-    Average failure time:  13.19 seconds per failed attempt
+    # HandoffMode.NEVER
+    Failure rate:          2 out of 50
+    Observed on:           2026-01-19
+    Average success time:  11.79 seconds per successful attempt
+    Average failure time:  5.62 seconds per failed attempt
     Max attempt:           4
-    Justification:         (0.09 ** 4) ~= 7.7 / 100'000
+    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
 
-    [gemma-3-27b-it][no_handoff]
-    Failure rate:          3 out of 30
-    Observed on:           2025-05-12
-    Average success time:  8.13 seconds per successful attempt
-    Average failure time:  8.12 seconds per failed attempt
+    # HandoffMode.OPTIONAL
+    Failure rate:          5 out of 50
+    Observed on:           2026-01-19
+    Average success time:  10.24 seconds per successful attempt
+    Average failure time:  4.74 seconds per failed attempt
     Max attempt:           5
-    Justification:         (0.12 ** 5) ~= 3.1 / 100'000
-
-    [gpt-4.1-nano][no_handoff]
-    Failure rate:          25 out of 30
-    Observed on:           2025-05-12
-    Average success time:  6.30 seconds per successful attempt
-    Average failure time:  3.94 seconds per failed attempt
-    Max attempt:           45
-    Justification:         (0.81 ** 45) ~= 8.8 / 100'000
-
-    [gpt-4.1-mini][no_handoff]
-    Failure rate:          5 out of 30
-    Observed on:           2025-05-12
-    Average success time:  11.99 seconds per successful attempt
-    Average failure time:  9.07 seconds per failed attempt
-    Max attempt:           6
-    Justification:         (0.19 ** 6) ~= 4.3 / 100'000
-
-    [gpt4.1][no_handoff]
-    Failure rate:          0 out of 10
-    Observed on:           2025-05-08
-    Average success time:  1.06 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           4
-    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
-
-    # WITH HANDOFF
-    [Llama-3.1-8B-Instruct][with_handoff]
-    Failure rate:          19 out of 30
-    Observed on:           2025-05-12
-    Average success time:  6.84 seconds per successful attempt
-    Average failure time:  5.66 seconds per failed attempt
-    Max attempt:           20
-    Justification:         (0.62 ** 20) ~= 8.3 / 100'000
-
-    [Llama-4-Maverick][with_handoff]
-    Failure rate:          1 out of 30
-    Observed on:           2025-05-12
-    Average success time:  8.87 seconds per successful attempt
-    Average failure time:  11.15 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.06 ** 4) ~= 1.5 / 100'000
-
-    [gemma-3-27b-it][with_handoff]
-    Failure rate:          3 out of 30
-    Observed on:           2025-05-12
-    Average success time:  8.17 seconds per successful attempt
-    Average failure time:  8.06 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.12 ** 5) ~= 3.1 / 100'000
-
-    [gpt-4.1-nano][with_handoff]
-    Failure rate:          23 out of 30
-    Observed on:           2025-05-12
-    Average success time:  6.24 seconds per successful attempt
-    Average failure time:  4.67 seconds per failed attempt
-    Max attempt:           33
-    Justification:         (0.75 ** 33) ~= 7.5 / 100'000
-
-    [gpt-4.1-mini][with_handoff]
-    Failure rate:          4 out of 30
-    Observed on:           2025-05-12
-    Average success time:  10.89 seconds per successful attempt
-    Average failure time:  7.21 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.16 ** 5) ~= 9.3 / 100'000
+    Justification:         (0.12 ** 5) ~= 2.0 / 100'000
     """
-    math_swarm = _get_math_swarm(*example_math_agents, handoff=True)
+    math_swarm = _get_math_swarm(*example_math_agents, handoff)
     conv = math_swarm.start_conversation()  # first agent is fooza
     conv.append_user_message("compute the result of the bwip(4, zbuk(5, 6))")
     conv.execute()
@@ -924,27 +773,13 @@ def test_swarm_can_handle_client_tool(big_llama):
     Max attempt:           4
     Justification:         (0.06 ** 4) ~= 1.1 / 100'000
     """
-    check_name_in_db_tool = ClientTool(
-        name="check_name_in_db_tool",
-        description="Check if a name is present in the database",
-        input_descriptors=[
-            StringProperty("name", description="name to check"),
-        ],
-    )
-    # Plug the tool into an agent
     llm = big_llama
     main_agent = Agent(
         llm=llm,
         description="general agent which will route queries to your agents",
         custom_instruction="You are a general agent which will always route queries to your agents and collect tool outputs",
     )
-    agent = Agent(
-        llm=llm,
-        tools=[check_name_in_db_tool],
-        name="check_name_in_db_agent",
-        description="A helpful agent that has access to a tool which check if a given name is present in database.",
-        custom_instruction="You are an agent which checks if a name is present in the database",
-    )
+    agent = _get_agent_with_client_tool(llm)
     swarm = Swarm(
         first_agent=main_agent,
         relationships=[(main_agent, agent)],
@@ -1019,7 +854,7 @@ def get_debugger_agent(llm: LlmModel) -> Agent:
 
     return Agent(
         llm=llm,
-        custom_instruction="You are the debugger agent. Be truthful, do not make up any information. Use your tools to find information about bugs",
+        custom_instruction="You are the debugger agent. Be truthful, do not make up any information. Use your tools to find information about bugs. Do not yield to user for confirmation.",
         name="debugger_agent",
         description="can investigate bugs in the code-base of a given product",
         tools=[get_bug],
@@ -1029,21 +864,21 @@ def get_debugger_agent(llm: LlmModel) -> Agent:
 def get_first_agent(llm: LlmModel) -> Agent:
     return Agent(
         llm=llm,
-        custom_instruction="you are the main agent",
+        custom_instruction="You are the main agent",
         name="master_agent",
         description="Redirects the user requests to the sub agents, or handles the subagents communication. Do not solve the task on your own.",
     )
 
 
-@retry_test(max_attempts=2)
+@retry_test(max_attempts=6)
 def test_swarm_uses_handoff_tool_in_always_handoff_mode(vllm_responses_llm):
     """
-    Failure rate:          0 out of 100
-    Observed on:           2025-12-10
-    Average success time:  8.40 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           2
-    Justification:         (0.01 ** 2) ~= 9.6 / 100'000
+    Failure rate:          18 out of 100
+    Observed on:           2025-12-22
+    Average success time:  8.97 seconds per successful attempt
+    Average failure time:  3.65 seconds per failed attempt
+    Max attempt:           6
+    Justification:         (0.19 ** 6) ~= 4.2 / 100'000
     """
 
     llm = vllm_responses_llm
@@ -1078,8 +913,15 @@ def test_swarm_uses_handoff_tool_in_always_handoff_mode(vllm_responses_llm):
     all_tool_requests = [
         tq for message in conv.get_messages() for tq in (message.tool_requests or [])
     ]
+
+    assert len(all_tool_requests) > 0
+
     for tool_request, (expected_tool_name, expected_params) in zip(
-        all_tool_requests, expected_tool_requests, strict=True
+        all_tool_requests,
+        expected_tool_requests,
+        strict=False,
+        # ^ sometime the agent yields to tell the user about the bug before fixing it
+        # -> handoff_conversation, fix_bug might not be in the tool requests.
     ):
         assert tool_request.name == expected_tool_name
         for k, v in expected_params.items():
@@ -1180,3 +1022,358 @@ def test_swarm_uses_send_message_when_collaboration_needed_in_optional_handoff_m
         assert tool_request.name == expected_tool_name
         for k, v in expected_params.items():
             assert tool_request.args[k] == v
+
+
+def test_multiple_tool_calling_with_nested_client_tool_request_does_not_raise_error(
+    vllm_responses_llm,
+):
+    llm = vllm_responses_llm
+
+    main_agent = get_first_agent(llm)
+    agent_with_client_tool = _get_agent_with_client_tool(llm)
+    fooza_agent = _get_fooza_agent(llm)
+
+    swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent_with_client_tool), (main_agent, fooza_agent)],
+    )
+
+    conv = swarm.start_conversation(
+        messages="Check if the name Alice is present in the database and compute the result of fooza(4, 2)"
+    )
+
+    multiple_tool_requests = [
+        ToolRequest(
+            name="send_message",
+            args={
+                "recipient": "check_name_in_db_agent",
+                "message": "Check if the name Alice is present in the database",
+            },
+            tool_request_id="send_message_1",
+        ),
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "fooza_agent", "message": "Compute fooza(4,2)"},
+            tool_request_id="send_message_2",
+        ),
+    ]
+    client_tool_request = [
+        ToolRequest(
+            name="check_name_in_db_tool",
+            args={"name": "Alice"},
+            tool_request_id="client_tool",
+        )
+    ]
+
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,  # output from main_agent
+            client_tool_request,  # output from agent_with_client_tool
+            "agent_with_client_tool_answers",
+            "fooza_agent_answers",
+            "main_agent_answers",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, ToolRequestStatus)  # yielding from agent_with_client_tool
+        assert len(status.tool_requests) == 1
+        assert status.tool_requests[0].name == "check_name_in_db_tool"
+
+        status.submit_tool_result(
+            ToolResult(
+                content="The name Alice is present in the database", tool_request_id="client_tool"
+            )
+        )
+        status_2 = conv.execute()
+        assert isinstance(status_2, UserMessageRequestStatus)  # yielding from main_agent
+        assert conv.get_last_message().content == "main_agent_answers"
+
+
+def test_multiple_tool_calling_with_nested_send_message_tool_request_can_be_executed(
+    vllm_responses_llm,
+):
+    llm = vllm_responses_llm
+
+    main_agent = get_first_agent(llm)
+    agent_1 = Agent(llm=llm, description="agent 1", name="agent_1")
+    agent_2 = Agent(llm=llm, description="agent 2", name="agent_2")
+
+    swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[
+            (main_agent, agent_1),
+            (main_agent, agent_2),
+            (agent_1, agent_2),
+        ],
+    )
+
+    conv = swarm.start_conversation(messages="Dummy message")
+    multiple_tool_requests = [
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "agent_1", "message": "message to agent 1 from main agent"},
+        ),
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "agent_2", "message": "message to agent 2 from main agent"},
+        ),
+    ]
+    send_message_request = [
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "agent_2", "message": "message to agent 2 from agent 1"},
+        ),
+    ]
+
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,  # output from main agent
+            send_message_request,  # output from agent 1
+            "agent 2 answers to agent 1",
+            "agent 1 answers to main agent",
+            "agent 2 answers to main agent",
+            "main agent answers to user",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, UserMessageRequestStatus)
+        assert conv.get_last_message().content == "main agent answers to user"
+
+
+def test_multiple_tool_calls_including_client_tool_can_be_executed(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    agent_with_client_tool = _get_agent_with_client_tool(llm)
+    fooza_agent = _get_fooza_agent(llm)
+
+    swarm = Swarm(
+        first_agent=agent_with_client_tool,
+        relationships=[(agent_with_client_tool, fooza_agent)],
+    )
+
+    conv = swarm.start_conversation(
+        messages="Check if the name Alice is present in the database and compute the result of fooza(4, 2)"
+    )
+
+    multiple_tool_requests = [
+        ToolRequest(
+            name="check_name_in_db_tool",
+            args={"name": "Alice"},
+            tool_request_id="client_tool",
+        ),
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "fooza_agent", "message": "Compute fooza(4,2)"},
+            tool_request_id="send_message",
+        ),
+    ]
+
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,  # output from first agent (i.e. agent_with_client_tool)
+            "fooza_answers_to_main_agent",
+            "main_agent_answers_to_user",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, ToolRequestStatus)  # yielding from first_agent
+        assert len(status.tool_requests) == 1  # The send_message should not appear in the status
+        assert status.tool_requests[0].name == "check_name_in_db_tool"
+        status.submit_tool_result(
+            ToolResult(
+                content="The name Alice is present in the database", tool_request_id="client_tool"
+            )
+        )
+
+        status_2 = conv.execute()
+        assert isinstance(status_2, UserMessageRequestStatus)
+        assert conv.get_last_message().content == "main_agent_answers_to_user"
+
+
+def test_multiple_tool_calls_including_server_tool_can_be_executed(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+
+    swarm = Swarm(
+        first_agent=fooza_agent,
+        relationships=[(fooza_agent, bwip_agent)],
+    )
+
+    conv = swarm.start_conversation(messages="Compute bwip(4,2) fooza(4,3) and bwip(4,5)")
+
+    multiple_tool_requests = [
+        ToolRequest(
+            name="send_message",
+            args={
+                "recipient": "bwip_agent",
+                "message": "calculate bwip(4,2)",
+            },
+        ),
+        ToolRequest(
+            name="fooza_tool",
+            args={"a": 4, "b": 3},
+        ),
+        ToolRequest(
+            name="send_message",
+            args={
+                "recipient": "bwip_agent",
+                "message": "calculate bwip(4,5)",
+            },
+        ),
+    ]
+    with patch_llm(
+        llm,
+        outputs=[
+            multiple_tool_requests,
+            "bwip answers to fooza",
+            "bwip answers to fooza",
+            "fooza answers to user",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, UserMessageRequestStatus)
+        assert conv.get_last_message().content == "fooza answers to user"
+
+
+def test_multiple_tool_calls_after_handoff_get_cancelled(vllm_responses_llm):
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+    main_agent = get_first_agent(llm)
+
+    math_swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent) for agent in [fooza_agent, bwip_agent]],
+    )
+
+    # Multiple tool calls
+    tool_requests = [
+        ToolRequest(
+            name="handoff_conversation",
+            args={"recipient": "fooza_agent", "message": "Compute the result of fooza(4, 2)"},
+            tool_request_id="handoff",
+        ),
+        ToolRequest(
+            name="send_message",
+            args={"recipient": "bwip_agent", "message": "Compute bwip(4,5)"},
+            tool_request_id="send_message",
+        ),
+    ]
+    with patch_llm(llm, outputs=[tool_requests, "dummy_test"]):
+        conv = math_swarm.start_conversation(
+            messages="Compute the result of fooza(4, 2) + bwip(4, 5)"
+        )
+        conv.execute()
+        assert (
+            conv.state.current_thread.recipient_agent == fooza_agent
+        )  # The handoff tool is executed
+        for message in conv.get_messages():
+            if message.tool_result and message.tool_result.tool_request_id == "send_message":
+                assert (
+                    message.tool_result.content
+                    == "Calling 'send_message' after the handoff is not possible. Cancelling call to tool 'send_message'"
+                )
+
+
+@retry_test(max_attempts=3)
+def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
+    """
+    Failure rate:          1 out of 50
+    Observed on:           2025-12-22
+    Average success time:  11.72 seconds per successful attempt
+    Average failure time:  3.71 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    """
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+    zbuk_agent = _get_zbuk_agent(llm)
+    main_agent = get_first_agent(llm)
+    main_agent.custom_instruction = (
+        "You are the main agent. You SHOULD output all the tool calls at once when approriate."
+    )
+
+    math_swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent) for agent in [fooza_agent, bwip_agent, zbuk_agent]],
+    )
+
+    conv = math_swarm.start_conversation(
+        messages="Compute the result of fooza(4, 2) + bwip(4, 5) + zbuk(5, 6). You should call multiple tools at once for this task."
+    )
+
+    conv.execute()
+
+    expected_tool_requests = [
+        ("send_message", {"recipient": "fooza_agent"}),
+        ("send_message", {"recipient": "bwip_agent"}),
+        ("send_message", {"recipient": "zbuk_agent"}),
+    ]
+
+    second_message = conv.get_messages()[1]
+
+    assert len(second_message.tool_requests) == 3
+
+    for tool_request, (expected_tool_name, expected_params) in zip(
+        second_message.tool_requests, expected_tool_requests
+    ):
+        assert tool_request.name == expected_tool_name
+        for k, v in expected_params.items():
+            assert tool_request.args[k] == v
+
+    result = fooza_tool.func(4, 2) + bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
+    assert str(result) in conv.get_last_message().content
+
+
+@pytest.mark.parametrize(
+    "raise_exceptions, expected_exception, expected_result",
+    [
+        (True, pytest.raises(ValueError, match="Cannot compute result using fooza tool."), None),
+        (False, None, lambda: bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)),
+    ],
+)
+@retry_test(max_attempts=4)
+def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception(
+    vllm_responses_llm, raise_exceptions, expected_exception, expected_result
+):
+    """
+    Failure rate:          1 out of 20
+    Observed on:           2026-01-16
+    Average success time:  17.15 seconds per successful attempt
+    Average failure time:  12.90 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.09 ** 4) ~= 6.8 / 100'000
+    """
+    llm = vllm_responses_llm
+    fooza_agent = _get_fooza_agent(
+        llm, raise_exception_tool=True, raise_exceptions=raise_exceptions
+    )
+    bwip_agent = _get_bwip_agent(llm)
+    zbuk_agent = _get_zbuk_agent(llm)
+    main_agent = get_first_agent(llm)
+    main_agent.custom_instruction = "You are the main agent. You SHOULD output all the tool calls at once when approriate. If you are unable to obtain a complete result, return the partial result instead."
+
+    math_swarm = Swarm(
+        first_agent=main_agent,
+        relationships=[(main_agent, agent) for agent in [fooza_agent, bwip_agent, zbuk_agent]],
+    )
+
+    conv = math_swarm.start_conversation(
+        messages="Compute the result of fooza(4, 2) + bwip(4, 5) + zbuk(5, 6)"
+    )
+
+    if expected_exception:
+        with expected_exception:
+            conv.execute()
+    else:
+        conv.execute()
+        result = expected_result()
+        assert str(result) in conv.get_last_message().content

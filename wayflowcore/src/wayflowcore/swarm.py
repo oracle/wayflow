@@ -219,7 +219,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 logger.debug("Agent '%s' does not have any recipient", agent_name)
                 continue
 
-            send_message_tools = _create_communication_tools(agent, agent_recipients, self.handoff)
+            send_message_tools = _create_communication_tools(self.handoff)
             self._communication_tools[agent_name].extend(send_message_tools)
 
         self.first_agent = first_agent
