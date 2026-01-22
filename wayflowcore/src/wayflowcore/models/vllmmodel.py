@@ -154,7 +154,7 @@ class VllmModel(OpenAICompatibleModel):
         if _is_llama_legacy_model(self.model_id):
             # llama3.x works better with custom template
             logger.debug(
-                "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_CHAT_TEMPLATE`, which yields better performance than native tool calling"
+                "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_AGENT_TEMPLATE`, which yields better performance than native tool calling"
             )
             return LLAMA_AGENT_TEMPLATE
         if _is_gemma_model(self.model_id):

@@ -26,7 +26,7 @@ from wayflowcore.models import VllmModel
 
 llm = VllmModel(
     model_id="LLAMA70B_MODEL_ID",
-    host_port="LLAMA70B_API_URL",
+    host_port="LLAMA70BV33_API_URL",
 )
 # .. end-##_Configure_your_LLM
 # .. start-##_Defining_a_tool_for_the_agent

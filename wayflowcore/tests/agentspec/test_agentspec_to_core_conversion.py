@@ -134,12 +134,12 @@ def run_example(
     loader = AgentSpecLoader(tool_registry=mock_tool_registry)
 
     gemma_endpoint = os.environ.get("GEMMA_API_URL")
-    llama70b_endpoint = os.environ.get("LLAMA70B_API_URL")
+    llama70b_endpoint = os.environ.get("LLAMA70BV33_API_URL")
     llama70bv33_endpoint = os.environ.get("LLAMA70BV33_API_URL")
 
     if not any((gemma_endpoint, llama70b_endpoint, llama70bv33_endpoint)):
         raise Exception(
-            "Make sure GEMMA_API_URL, LLAMA70B_API_URL and LLAMA70BV33_API_URL are set in the environment"
+            "Make sure GEMMA_API_URL, LLAMA70BV33_API_URL and LLAMA70BV33_API_URL are set in the environment"
         )
     oracle_process_helper_agent_endpoint_id = os.environ.get(
         "ORACLE_PROCESS_HELPER_AGENT_ENDPOINT_ID"
@@ -150,7 +150,7 @@ def run_example(
     with open(CONFIGS_DIR / filename, "r") as file:
         text = file.read()
         text = text.replace("GEMMA_API_URL", gemma_endpoint)
-        text = text.replace("LLAMA70B_API_URL", llama70b_endpoint)
+        text = text.replace("LLAMA70BV33_API_URL", llama70b_endpoint)
         text = text.replace("LLAMA70BV33_API_URL", llama70bv33_endpoint)
         text = text.replace("OLLAMA8BV31_API_ENDPOINT", OLLAMA_MODEL_CONFIG["host_port"])
         text = text.replace(

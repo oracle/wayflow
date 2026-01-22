@@ -129,12 +129,12 @@ def test_agents_provide_inputs_to_subagent(big_llama):
     """
     Test added for the bug. Error was "ValueError: Missing some contextual variables in conversation, {}, {'user_request'}"
 
-    Failure rate:          0 out of 10
-    Observed on:           2025-04-01
-    Average success time:  9.21 seconds per successful attempt
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-21
+    Average success time:  7.92 seconds per successful attempt
     Average failure time:  No time measurement
-    Max attempt:           4
-    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
     """
     llm = big_llama
 
@@ -148,16 +148,14 @@ def test_agents_provide_inputs_to_subagent(big_llama):
         name="ManagerAgent",
         description="Manager Agent",
         llm=llm,
-        custom_instruction="You are a helpful LLM assistant, please use the experts at your dispoal to answer user queries",
+        custom_instruction="You are a helpful LLM assistant, please use the experts at your disposal to answer user queries",
         agents=[coding_agent],
     )
     conversation = parent_agent.start_conversation()
     conversation.append_user_message(
         "I have a coding question: Explain to me in one sentence what `inspect.getframeinfo` enables."
     )
-
     conversation.execute()
-
     assert any(
         message.message_type == MessageType.TOOL_REQUEST
         and message.tool_requests  # has tool requests

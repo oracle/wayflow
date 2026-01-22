@@ -71,9 +71,8 @@ You have access to the following functions. To call a function, please respond w
 Respond in the format {"name": function name, "parameters": dictionary of argument name and its value}.
 Do not use variables.
 
-[
-{% for tool in __TOOLS__%}- {{tool | tojson}}{{ ",
-" }}{% endfor %}]
+{% for tool in __TOOLS__%}- {{tool["function"] | tojson}}{{ "
+" }}{% endfor %}
 {%- endif -%}
 """
 

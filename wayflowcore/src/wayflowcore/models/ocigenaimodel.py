@@ -395,7 +395,7 @@ class OCIGenAIModel(LlmModel):
             return NATIVE_AGENT_TEMPLATE
         if self.provider == ModelProvider.META and _is_llama_legacy_model(self.model_id):
             logger.debug(
-                "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_CHAT_TEMPLATE`, which yields better performance than native tool calling"
+                "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_AGENT_TEMPLATE`, which yields better performance than native tool calling"
             )
             # llama3.x works better with custom template
             return LLAMA_AGENT_TEMPLATE
