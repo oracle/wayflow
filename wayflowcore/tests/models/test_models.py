@@ -37,6 +37,8 @@ from ..conftest import (
     COHERE_OCI_API_KEY_CONFIG,
     GEMMA_CONFIG,
     GROK_OCI_API_KEY_CONFIG,
+    GROK_OCI_CHAT_COMPLETIONS_API_KEY_CONFIG,
+    GROK_OCI_RESPONSE_API_KEY_CONFIG,
     LLAMA_4_OCI_API_KEY_CONFIG,
     LLAMA_OCI_API_KEY_CONFIG,
     OCI_REASONING_MODEL_API_KEY_CONFIG,
@@ -79,13 +81,13 @@ CHAT_PROMPT_WITH_TOOLS = [
             ToolRequest(
                 name="get_location",
                 args={"company_name": "OHOH", "useless6": "", "useless8": 0},
-                tool_request_id="tc1",
+                tool_request_id="fc_47384958",
             )
         ],
     ),
     Message(
         message_type=MessageType.TOOL_RESULT,
-        tool_result=ToolResult(tool_request_id="tc1", content="zurich"),
+        tool_result=ToolResult(tool_request_id="fc_47384958", content="zurich"),
     ),
     Message(message_type=MessageType.AGENT, content="'OHOH' is based in Zurich"),
     Message(message_type=MessageType.USER, content="And in what city is my company 'AHAH' based?"),
@@ -96,13 +98,13 @@ CHAT_PROMPT_WITH_TOOLS = [
             ToolRequest(
                 name="get_location",
                 args={"company_name": "AHAH", "useless6": "", "useless8": 0},
-                tool_request_id="tc2",
+                tool_request_id="fc_40468258",
             )
         ],
     ),
     Message(
         message_type=MessageType.TOOL_RESULT,
-        tool_result=ToolResult(tool_request_id="tc2", content="bern"),
+        tool_result=ToolResult(tool_request_id="fc_40468258", content="bern"),
     ),
 ]
 CHAT_PROMPT_BEFORE_TOOL_CALL = [
@@ -268,6 +270,12 @@ def find_all_available_models(
         available_models.append(("llama_oci", LLAMA_OCI_API_KEY_CONFIG))  # llama oci
         if not with_stop_parameter:
             available_models.append(("grok_oci", GROK_OCI_API_KEY_CONFIG))  # grok oci
+            available_models.append(
+                ("grok_oci_responses", GROK_OCI_RESPONSE_API_KEY_CONFIG)
+            )  # grok oci
+            available_models.append(
+                ("grok_oci_chat_completions", GROK_OCI_CHAT_COMPLETIONS_API_KEY_CONFIG)
+            )  # grok oci
 
     if with_tool_calling_modes:
         available_models.append(
@@ -330,7 +338,8 @@ with_all_llm_configs_with_stop_parameter = pytest.mark.parametrize(
     "llm_config", **find_all_available_models(with_stop_parameter=True)
 )
 with_all_llm_configs_with_temperature_parameter = pytest.mark.parametrize(
-    "llm_config", **find_all_available_models(with_temperature_parameter=True)
+    "llm_config",
+    **find_all_available_models(with_temperature_parameter=True, with_stop_parameter=True),
 )
 with_all_llm_tool_calling_configs = pytest.mark.parametrize(
     "llm_config", **find_all_available_models(with_tool_calling_modes=True)
@@ -465,7 +474,7 @@ def test_model_chat_stream(llm_config: Dict[str, str], prompt: List[Message]) ->
 
 
 @with_all_llm_tool_calling_configs
-@retry_test(max_attempts=7, wait_between_tries=1)
+@retry_test(max_attempts=7)
 def test_model_chat_with_tools(llm_config: Dict[str, str], request) -> None:
     """
     vllm_llama
@@ -766,7 +775,7 @@ def test_model_factory_and_direct_instantiation_are_equivalent():
 
 
 @with_all_llm_tool_calling_configs
-@retry_test(max_attempts=7, wait_between_tries=1)
+@retry_test(max_attempts=7)
 def test_can_generate_tool_call(llm_config) -> None:
     """
     vllm_llama
@@ -875,7 +884,7 @@ def test_can_generate_tool_call(llm_config) -> None:
 
 
 @with_all_llm_tool_calling_configs
-@retry_test(max_attempts=7, wait_between_tries=1)
+@retry_test(max_attempts=7)
 def test_can_generate_tool_call_stream(llm_config, request) -> None:
     """
     vllm_llama
@@ -1000,7 +1009,7 @@ def test_model_cannot_generate_tool_call_without_tool(llm_config: Dict[str, str]
     ],
     ids=["vllm_llama", "vllm_native", "vllm_react"],
 )
-@retry_test(max_attempts=5, wait_between_tries=1)
+@retry_test(max_attempts=5)
 def test_can_generate_ambiguous_tool_call(llm_config) -> None:
     """
     vllm_llama
@@ -1143,7 +1152,7 @@ def test_react_model_can_parse_several_tool_call(
 
 
 @with_all_llm_configs
-@retry_test(max_attempts=6, wait_between_tries=1)
+@retry_test(max_attempts=6)
 def test_structured_generation(llm_config, request):
     """
     vllm_llama
@@ -1219,7 +1228,7 @@ def test_structured_generation(llm_config, request):
 
 
 @with_all_llm_configs
-@retry_test(max_attempts=3, wait_between_tries=1)
+@retry_test(max_attempts=3)
 def test_structured_generation_with_multiple_outputs(llm_config, request):
     """
     vllm_llama
@@ -1481,7 +1490,7 @@ async def test_async_call_model_inside_coroutine(remotely_hosted_llm):
 
 
 @with_all_llm_configs_with_temperature_parameter
-@retry_test(max_attempts=4, wait_between_tries=1)
+@retry_test(max_attempts=4)
 def test_generate_works_with_frequency_penalty(llm_config):
     """
     vllm_llama

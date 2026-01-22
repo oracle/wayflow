@@ -299,7 +299,7 @@ LLAMA_4_OCI_API_KEY_CONFIG = {
 
 GROK_OCI_API_KEY_CONFIG = {
     "model_type": "ocigenai",
-    "model_id": "xai.grok-3-mini",
+    "model_id": "xai.grok-3-fast",
     "client_config": {
         "service_endpoint": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
         "compartment_id": compartment_id,
@@ -307,6 +307,31 @@ GROK_OCI_API_KEY_CONFIG = {
     },
     "generation_config": {"max_tokens": 1024},
 }
+
+GROK_OCI_RESPONSE_API_KEY_CONFIG = {
+    "model_type": "ocigenai",
+    "model_id": "xai.grok-3-fast",
+    "client_config": {
+        "service_endpoint": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
+        "compartment_id": compartment_id,
+        "auth_type": "API_KEY",
+    },
+    "generation_config": {"max_tokens": 1024},
+    "api_type": "openai_responses",
+}
+
+GROK_OCI_CHAT_COMPLETIONS_API_KEY_CONFIG = {
+    "model_type": "ocigenai",
+    "model_id": "xai.grok-3-fast",
+    "client_config": {
+        "service_endpoint": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
+        "compartment_id": compartment_id,
+        "auth_type": "API_KEY",
+    },
+    "generation_config": {"max_tokens": 1024},
+    "api_type": "openai_chat_completions",
+}
+
 
 OCI_REASONING_MODEL_API_KEY_CONFIG = {
     "model_type": "ocigenai",
