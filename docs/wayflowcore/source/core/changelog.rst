@@ -25,6 +25,21 @@ New features
 
 * **Added User Confirmation for Tools in ToolBox:**
 
+  Added support for the new OCI responses API service. You can simply configure this on the `OciGenAIModel`:
+
+  .. code-block:: python
+
+    from wayflowcore.models import OciGenAIModel, OciAPIType
+
+    llm = OciGenAIModel(
+        ...,
+        api_type=OciAPIType.OPENAI_RESPONSES, # to use the responses API service
+    )
+
+
+
+* **Added User Confirmation for Tools in ToolBox:**
+
   Introduced a `requires_confirmation` flag to the base ToolBox Class. When enabled, this flag will pause tool execution of any of this toolbox's tools and emit a `ToolExecutionConfirmationStatus`, requiring explicit user confirmation before proceeding.
   During confirmation, users may edit the tool’s arguments or provide a rejection reason. The tool executes only after confirmation is granted. This flag helps to let users enforce
   confirmation for the entire toolbox without having to set ``requires_confirmation=True`` on every tool it provides.

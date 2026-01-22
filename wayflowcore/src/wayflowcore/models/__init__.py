@@ -21,7 +21,7 @@ from .ociclientconfig import (
     OCIClientConfigWithUserAuthentication,
     OCIUserAuthenticationConfig,
 )
-from .ocigenaimodel import OCIGenAIModel
+from .ocigenaimodel import ModelProvider, OciAPIType, OCIGenAIModel, ServingMode
 from .ollamamodel import OllamaModel
 from .openaiapitype import OpenAIAPIType
 from .openaicompatiblemodel import OpenAICompatibleModel
@@ -50,4 +50,7 @@ __all__ = [
     "OCIClientConfigWithUserAuthentication",
     "OCIUserAuthenticationConfig",
     "OCIClientConfig",
+    "ServingMode",
+    "ModelProvider",
+    "OciAPIType",
 ]
