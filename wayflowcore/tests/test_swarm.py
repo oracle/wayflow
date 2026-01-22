@@ -134,27 +134,6 @@ def _get_math_swarm(bwip_agent, zbuk_agent, fooza_agent, handoff: HandoffMode):
     )
 
 
-def _get_check_name_in_db_client_tool() -> ClientTool:
-    return ClientTool(
-        name="check_name_in_db_tool",
-        description="Check if a name is present in the database",
-        input_descriptors=[
-            StringProperty("name", description="name to check"),
-        ],
-    )
-
-
-def _get_agent_with_client_tool(llm: LlmModel) -> Agent:
-    check_name_in_db_tool = _get_check_name_in_db_client_tool()
-    return Agent(
-        llm=llm,
-        tools=[check_name_in_db_tool],
-        name="check_name_in_db_agent",
-        description="A helpful agent that has access to a tool which check if a given name is present in database.",
-        custom_instruction="You are an agent which checks if a name is present in the database",
-    )
-
-
 @pytest.fixture
 def example_medical_agents(remotely_hosted_llm) -> Tuple[Agent, Agent, Agent]:
     llm = remotely_hosted_llm
