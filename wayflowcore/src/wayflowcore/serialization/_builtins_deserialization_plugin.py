@@ -1691,7 +1691,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 connection_config=conversion_context.convert(
                     agentspec_component.connection_config, tool_registry, converted_components
                 ),
-                name=agentspec_component.name,
+                **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecMessageTransform):
             if isinstance(agentspec_component, AgentSpecPluginCoalesceSystemMessagesTransform):
