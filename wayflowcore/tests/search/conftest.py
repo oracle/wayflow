@@ -10,8 +10,6 @@ from importlib.resources import files
 from typing import Dict, List, Optional
 
 import pytest
-from sqlalchemy import Index
-from sqlalchemy.dialects.oracle import VectorDistanceType, VectorIndexConfig, VectorIndexType
 
 from wayflowcore.datastore import InMemoryDatastore, OracleDatabaseDatastore
 from wayflowcore.datastore.entity import Entity
@@ -455,24 +453,6 @@ def populate_oracledb_with_basic_entities(
     entities_json = compute_serial_text_and_embeddings(embedding_model)
     datastore.create("motorcycles", entities_json["motorcycles"])
     datastore.create("cars", entities_json["cars"])
-
-    for collection_name in ["motorcycles", "cars"]:
-        table = datastore.data_tables[collection_name].sqlalchemy_table
-        vector_index = Index(
-            f"hnsw_vector_index_{collection_name}",
-            table.c.embeddings,
-            oracle_vector=VectorIndexConfig(
-                index_type=VectorIndexType.HNSW,
-                distance=VectorDistanceType.COSINE,
-                accuracy=90,
-                hnsw_neighbors=5,
-                hnsw_efconstruction=20,
-                parallel=10,
-            ),
-        )
-        with datastore.engine.connect() as connection:
-            vector_index.create(connection)
-            connection.commit()
 
 
 @pytest.fixture(scope="function")
