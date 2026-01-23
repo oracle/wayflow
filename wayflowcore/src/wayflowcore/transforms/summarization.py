@@ -431,6 +431,7 @@ class ConversationSummarizationTransform(MessageTransform):
         Jinja2 template on how to present the summary (with variable `summary`) to the agent using the transform.
     datastore:
         Datastore on which to store the cache. If not specified, an in-memory Datastore will be created automatically.
+        If None, caching is disabled (not recommended)
     max_cache_size:
         The maximum number of entries kept in the cache
         If None, there is no limit on cache size and no eviction occurs.
