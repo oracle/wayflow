@@ -95,8 +95,6 @@ Improvements
   and entry lifetime. This helps manage long conversation contexts by summarizing older parts while preserving recent
   messages.
 
-  Transforms can now be assigned to an agent through its constructor. (This is not supported in `agentspec`, so attempting to convert agents with transforms to `agentspec` will raise a `NotImplementedError`)
-
 * **Message Summarization Transforms and Datastores can be converted between Agent Spec and Wayflow**
 
 Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
