@@ -8,7 +8,8 @@ import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore.agent import Agent, CallerInputMode, _MutatedAgent
+from wayflowcore.agent import Agent, CallerInputMode
+from wayflowcore.conversationalcomponent import _mutate
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolExecutionConfirmationStatus,
@@ -18,7 +19,7 @@ from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecu
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.property import Property
 from wayflowcore.steps.step import Step, StepExecutionStatus, StepResult
-from wayflowcore.swarm import Swarm, _MutatedSwarm
+from wayflowcore.swarm import Swarm
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
@@ -313,16 +314,11 @@ class AgentExecutionStep(Step):
         if self.caller_input_mode is not None:
             mutated_agent_parameters["caller_input_mode"] = self.caller_input_mode
 
-        if isinstance(self.agent, Agent):
-            context_manager = _MutatedAgent(
-                agent=self.agent,
+        if isinstance(self.agent, (Agent, Swarm)):
+            context_manager = _mutate(
+                component=self.agent,
                 attributes=mutated_agent_parameters,
             )
-        elif isinstance(self.agent, Swarm):
-            context_manager = _MutatedSwarm(
-                swarm=self.agent,
-                attributes=mutated_agent_parameters,
-            )  # type: ignore
         else:
             # ignoring the type because mypy doesn't recognize nullcontext as a proper context manager to typing fails
             context_manager = contextlib.nullcontext()  # type: ignore

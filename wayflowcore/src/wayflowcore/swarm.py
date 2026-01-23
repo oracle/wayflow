@@ -12,7 +12,12 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent, CallerInputMode
-from wayflowcore.conversationalcomponent import ConversationalComponent
+from wayflowcore.conversationalcomponent import (
+    ConversationalComponent,
+    T,
+    _MutatedConversationalComponent,
+    _registers,
+)
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
 from wayflowcore.property import Property
@@ -305,24 +310,6 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         return all_tools
 
 
-class _MutatedSwarm:
-    def __init__(
-        self,
-        swarm: Swarm,
-        attributes: Dict[str, Any],
-    ):
-        self.swarm = swarm
-        self.attributes = attributes
-        self.old_config: Dict[str, Any] = {}
-
-    def __enter__(self) -> Swarm:
-        self.old_config.clear()
-        for attribute_name, attribute_value in self.attributes.items():
-            self.old_config[attribute_name] = getattr(self.swarm, attribute_name)
-            setattr(self.swarm, attribute_name, attribute_value)
-        return self.swarm
-
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        attribute_names = list(self.old_config.keys())
-        for attribute_name in attribute_names:
-            setattr(self.swarm, attribute_name, self.old_config.pop(attribute_name))
+@_registers(Swarm)
+class _MutatedSwarm(_MutatedConversationalComponent[T]):
+    pass

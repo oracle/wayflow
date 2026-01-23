@@ -7,7 +7,19 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Type, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Set,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
@@ -108,3 +120,63 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         Returns a dictionary of all tools that are present in this component's configuration, including tools
         nested in subcomponents, with the keys being the tool IDs, and the values being the tools.
         """
+
+
+# Define a TypeVar that represents the component's type
+T = TypeVar("T", bound="ConversationalComponent")
+
+
+class _MutatedConversationalComponent(Generic[T]):
+    def __init__(self, component: T, attributes: Dict[str, Any]):
+        self.component = component
+        self.attributes = attributes
+        self.old_config: Dict[str, Any] = {}
+
+    def _on_change(self) -> None:
+        """Hook for subclasses to implement specific refresh logic."""
+
+    def __enter__(self) -> T:
+        self.old_config.clear()
+        for attr, value in self.attributes.items():
+            self.old_config[attr] = getattr(self.component, attr)
+            setattr(self.component, attr, value)
+        self._on_change()
+        return self.component
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        for attr, value in self.old_config.items():
+            setattr(self.component, attr, value)
+        self.old_config.clear()
+        self._on_change()
+
+
+_MUTATOR_REGISTRY: Dict[
+    Type[ConversationalComponent], Type[_MutatedConversationalComponent[Any]]
+] = {}
+
+
+# Register decorator
+def _registers(
+    component_type: Type[ConversationalComponent],
+) -> Callable[
+    [Type[_MutatedConversationalComponent[Any]]], Type[_MutatedConversationalComponent[Any]]
+]:
+    """Decorator to link a Mutator class to a Component class."""
+
+    def decorator(
+        cls: Type[_MutatedConversationalComponent[Any]],
+    ) -> Type[_MutatedConversationalComponent[Any]]:
+        _MUTATOR_REGISTRY[component_type] = cls
+        return cls
+
+    return decorator
+
+
+# Unified factory
+def _mutate(component: T, attributes: Dict[str, Any]) -> _MutatedConversationalComponent[T]:
+    """
+    Looks up the registered mutator for the component type.
+    Returns the context manager.
+    """
+    mutator_cls = _MUTATOR_REGISTRY.get(type(component), _MutatedConversationalComponent)
+    return mutator_cls(component, attributes)

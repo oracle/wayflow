@@ -13,7 +13,12 @@ from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Sequence,
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils._templating_helpers import get_variables_names_and_types_from_template
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
-from wayflowcore.conversationalcomponent import ConversationalComponent
+from wayflowcore.conversationalcomponent import (
+    ConversationalComponent,
+    T,
+    _MutatedConversationalComponent,
+    _registers,
+)
 from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import Message, MessageList
@@ -679,30 +684,12 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         return might_ask_question_to_user or has_yielding_tools or has_yielding_flows
 
 
-class _MutatedAgent:
-    def __init__(
-        self,
-        agent: Agent,
-        attributes: Dict[str, Any],
-    ):
-        self.agent = agent
-        self.attributes = attributes
-        self.old_config: Dict[str, Any] = {}
-
-    def __enter__(self) -> Agent:
-        self.old_config.clear()
-        for attribute_name, attribute_value in self.attributes.items():
-            self.old_config[attribute_name] = getattr(self.agent, attribute_name)
-            setattr(self.agent, attribute_name, attribute_value)
-        self.agent._update_internal_state()
-
-        return self.agent
-
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        attribute_names = list(self.old_config.keys())
-        for attribute_name in attribute_names:
-            setattr(self.agent, attribute_name, self.old_config.pop(attribute_name))
-        self.agent._update_internal_state()
+@_registers(Agent)
+class _MutatedAgent(_MutatedConversationalComponent[T]):
+    def _on_change(self) -> Any:
+        if not hasattr(self.component, "_update_internal_state"):
+            raise ValueError("Internal error")
+        return self.component._update_internal_state()
 
 
 def _convert_described_agent_into_named_agent(
