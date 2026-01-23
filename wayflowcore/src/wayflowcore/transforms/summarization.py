@@ -7,6 +7,7 @@
 import logging
 import time
 import warnings
+from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
@@ -35,8 +36,10 @@ if TYPE_CHECKING:
     from wayflowcore.models import LlmModel
 
 
-class _UnspecifiedDatastore:
-    """Sentinel class to indicate that no datastore was specified."""
+class _UnspecifiedDatastore(Enum):
+    """Sentinel enum to indicate that no datastore was specified."""
+
+    DEFAULT_VALUE = "default"
 
 
 class _MessageCache:
@@ -270,7 +273,7 @@ class MessageSummarizationTransform(MessageTransform):
     """
 
     DEFAULT_CACHE_COLLECTION_NAME = "summarized_messages_cache"
-    _DEFAULT_MESSAGE_DATASTORE = _UnspecifiedDatastore()
+    _DEFAULT_MESSAGE_DATASTORE = _UnspecifiedDatastore.DEFAULT_VALUE
 
     def __init__(
         self,
@@ -450,7 +453,7 @@ class ConversationSummarizationTransform(MessageTransform):
 
     DEFAULT_CACHE_COLLECTION_NAME = "summarized_conversations_cache"
     _TOKENS_PER_CHUNK = CountTokensHeuristics.tokens_in_chars(20000)
-    _DEFAULT_CONVERSATION_DATASTORE = _UnspecifiedDatastore()
+    _DEFAULT_CONVERSATION_DATASTORE = _UnspecifiedDatastore.DEFAULT_VALUE
 
     def __init__(
         self,
