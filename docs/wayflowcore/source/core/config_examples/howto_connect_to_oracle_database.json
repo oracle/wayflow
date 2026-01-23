@@ -1,0 +1,497 @@
+{
+    "component_type": "Flow",
+    "id": "e1ce33a4-df88-4652-9714-6b51fea8871b",
+    "name": "flow_2b8b504d__auto",
+    "description": "",
+    "metadata": {
+        "__metadata_info__": {}
+    },
+    "inputs": [
+        {
+            "type": "object",
+            "properties": {
+                "product_category": {
+                    "type": "string"
+                }
+            },
+            "title": "bind_variables"
+        }
+    ],
+    "outputs": [
+        {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": {},
+                "key_type": {
+                    "type": "string"
+                }
+            },
+            "title": "result"
+        },
+        {
+            "description": "the generated text",
+            "type": "string",
+            "title": "output"
+        },
+        {
+            "description": "the message added to the messages list",
+            "type": "string",
+            "title": "output_message"
+        }
+    ],
+    "start_node": {
+        "$component_ref": "9162d8ad-cf00-4fc2-bed7-a73ffed79b32"
+    },
+    "nodes": [
+        {
+            "$component_ref": "85190204-2604-4fd0-b94a-6b4eb8e37f4f"
+        },
+        {
+            "$component_ref": "309c4bda-986e-4fd6-82b8-a83a91168d8d"
+        },
+        {
+            "$component_ref": "9eab48d6-a51c-412e-a459-a7fd05283e1a"
+        },
+        {
+            "$component_ref": "9162d8ad-cf00-4fc2-bed7-a73ffed79b32"
+        },
+        {
+            "$component_ref": "992516a7-a3f8-4cac-ac0d-0b1cac4eb936"
+        }
+    ],
+    "control_flow_connections": [
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "153fa298-b907-4453-84e4-7fa334fce680",
+            "name": "product_selection_step_to_step_PromptExecutionStep_8f995292__auto_control_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "from_node": {
+                "$component_ref": "85190204-2604-4fd0-b94a-6b4eb8e37f4f"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "309c4bda-986e-4fd6-82b8-a83a91168d8d"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "bbb9d505-4aa6-4b58-8e8d-d50b1f4cc659",
+            "name": "step_PromptExecutionStep_8f995292__auto_to_step_OutputMessageStep_2c68bdae__auto_control_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "from_node": {
+                "$component_ref": "309c4bda-986e-4fd6-82b8-a83a91168d8d"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "9eab48d6-a51c-412e-a459-a7fd05283e1a"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "8c4158f0-f48e-4a7b-8686-999efb70b7cb",
+            "name": "__StartStep___to_product_selection_step_control_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "from_node": {
+                "$component_ref": "9162d8ad-cf00-4fc2-bed7-a73ffed79b32"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "85190204-2604-4fd0-b94a-6b4eb8e37f4f"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "05d5f99c-be1a-4f70-b0e2-4e85331016e1",
+            "name": "step_OutputMessageStep_2c68bdae__auto_to_None End node_control_flow_edge",
+            "description": null,
+            "metadata": {},
+            "from_node": {
+                "$component_ref": "9eab48d6-a51c-412e-a459-a7fd05283e1a"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "992516a7-a3f8-4cac-ac0d-0b1cac4eb936"
+            }
+        }
+    ],
+    "data_flow_connections": [
+        {
+            "component_type": "DataFlowEdge",
+            "id": "b34e1582-9c08-4ad2-871b-628edf98a0ee",
+            "name": "product_selection_step_result_to_step_PromptExecutionStep_8f995292__auto_products_data_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "source_node": {
+                "$component_ref": "85190204-2604-4fd0-b94a-6b4eb8e37f4f"
+            },
+            "source_output": "result",
+            "destination_node": {
+                "$component_ref": "309c4bda-986e-4fd6-82b8-a83a91168d8d"
+            },
+            "destination_input": "products"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "id": "d29d24f2-d0d1-469f-9ab4-fa12af5e76ee",
+            "name": "step_PromptExecutionStep_8f995292__auto_output_to_step_OutputMessageStep_2c68bdae__auto_issues_data_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "source_node": {
+                "$component_ref": "309c4bda-986e-4fd6-82b8-a83a91168d8d"
+            },
+            "source_output": "output",
+            "destination_node": {
+                "$component_ref": "9eab48d6-a51c-412e-a459-a7fd05283e1a"
+            },
+            "destination_input": "issues"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "id": "bc7a1760-8c23-4d0b-a985-b5b2cc14a90d",
+            "name": "__StartStep___bind_variables_to_product_selection_step_bind_variables_data_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "source_node": {
+                "$component_ref": "9162d8ad-cf00-4fc2-bed7-a73ffed79b32"
+            },
+            "source_output": "bind_variables",
+            "destination_node": {
+                "$component_ref": "85190204-2604-4fd0-b94a-6b4eb8e37f4f"
+            },
+            "destination_input": "bind_variables"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "id": "b3b92de4-10df-4abf-a9b0-149079c46408",
+            "name": "product_selection_step_result_to_None End node_result_data_flow_edge",
+            "description": null,
+            "metadata": {},
+            "source_node": {
+                "$component_ref": "85190204-2604-4fd0-b94a-6b4eb8e37f4f"
+            },
+            "source_output": "result",
+            "destination_node": {
+                "$component_ref": "992516a7-a3f8-4cac-ac0d-0b1cac4eb936"
+            },
+            "destination_input": "result"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "id": "fa6df9aa-3e40-4923-a1d4-58cd7428c588",
+            "name": "step_PromptExecutionStep_8f995292__auto_output_to_None End node_output_data_flow_edge",
+            "description": null,
+            "metadata": {},
+            "source_node": {
+                "$component_ref": "309c4bda-986e-4fd6-82b8-a83a91168d8d"
+            },
+            "source_output": "output",
+            "destination_node": {
+                "$component_ref": "992516a7-a3f8-4cac-ac0d-0b1cac4eb936"
+            },
+            "destination_input": "output"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "id": "aa996728-8289-48d2-a7b0-004d371b2d64",
+            "name": "step_OutputMessageStep_2c68bdae__auto_output_message_to_None End node_output_message_data_flow_edge",
+            "description": null,
+            "metadata": {},
+            "source_node": {
+                "$component_ref": "9eab48d6-a51c-412e-a459-a7fd05283e1a"
+            },
+            "source_output": "output_message",
+            "destination_node": {
+                "$component_ref": "992516a7-a3f8-4cac-ac0d-0b1cac4eb936"
+            },
+            "destination_input": "output_message"
+        }
+    ],
+    "$referenced_components": {
+        "9162d8ad-cf00-4fc2-bed7-a73ffed79b32": {
+            "component_type": "StartNode",
+            "id": "9162d8ad-cf00-4fc2-bed7-a73ffed79b32",
+            "name": "__StartStep__",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "product_category": {
+                            "type": "string"
+                        }
+                    },
+                    "title": "bind_variables"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "product_category": {
+                            "type": "string"
+                        }
+                    },
+                    "title": "bind_variables"
+                }
+            ],
+            "branches": [
+                "next"
+            ]
+        },
+        "85190204-2604-4fd0-b94a-6b4eb8e37f4f": {
+            "component_type": "PluginDatastoreQueryNode",
+            "id": "85190204-2604-4fd0-b94a-6b4eb8e37f4f",
+            "name": "product_selection_step",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "product_category": {
+                            "type": "string"
+                        }
+                    },
+                    "title": "bind_variables"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "key_type": {
+                            "type": "string"
+                        }
+                    },
+                    "title": "result"
+                }
+            ],
+            "branches": [
+                "next"
+            ],
+            "input_mapping": {},
+            "output_mapping": {},
+            "datastore": {
+                "component_type": "PluginOracleDatabaseDatastore",
+                "id": "2515997a-1dbf-47cb-9dfb-d1dd2dca1cee",
+                "name": "PluginOracleDatabaseDatastore",
+                "description": null,
+                "metadata": {},
+                "datastore_schema": {
+                    "products": {
+                        "description": "",
+                        "title": "",
+                        "properties": {
+                            "description": {
+                                "type": "string"
+                            },
+                            "ID": {
+                                "description": "Unique product identifier",
+                                "type": "integer"
+                            },
+                            "title": {
+                                "description": "Brief summary of the product",
+                                "type": "string"
+                            },
+                            "price": {
+                                "type": "number",
+                                "default": 0.1
+                            },
+                            "category": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ],
+                                "default": null
+                            }
+                        }
+                    }
+                },
+                "connection_config": {
+                    "component_type": "PluginTlsOracleDatabaseConnectionConfig",
+                    "id": "13f2fc32-f442-49fb-b7cc-142a240bb8bc",
+                    "name": "PluginTlsOracleDatabaseConnectionConfig",
+                    "description": null,
+                    "metadata": {},
+                    "user": {
+                        "$component_ref": "13f2fc32-f442-49fb-b7cc-142a240bb8bc.user"
+                    },
+                    "password": {
+                        "$component_ref": "13f2fc32-f442-49fb-b7cc-142a240bb8bc.password"
+                    },
+                    "dsn": {
+                        "$component_ref": "13f2fc32-f442-49fb-b7cc-142a240bb8bc.dsn"
+                    },
+                    "config_dir": null,
+                    "component_plugin_name": "DatastorePlugin",
+                    "component_plugin_version": "26.1.0.dev0"
+                },
+                "component_plugin_name": "DatastorePlugin",
+                "component_plugin_version": "26.1.0.dev0"
+            },
+            "query": "SELECT title, description FROM products WHERE category = :product_category",
+            "RESULT": "result",
+            "component_plugin_name": "DatastorePlugin",
+            "component_plugin_version": "26.1.0.dev0"
+        },
+        "309c4bda-986e-4fd6-82b8-a83a91168d8d": {
+            "component_type": "LlmNode",
+            "id": "309c4bda-986e-4fd6-82b8-a83a91168d8d",
+            "name": "step_PromptExecutionStep_8f995292__auto",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [
+                {
+                    "description": "\"products\" input variable for the template",
+                    "type": "string",
+                    "title": "products"
+                }
+            ],
+            "outputs": [
+                {
+                    "description": "the generated text",
+                    "type": "string",
+                    "title": "output"
+                }
+            ],
+            "branches": [
+                "next"
+            ],
+            "llm_config": {
+                "component_type": "VllmConfig",
+                "id": "115a6849-0e1b-4b1b-8bd2-be872c9bc64b",
+                "name": "llm_41795d1f__auto",
+                "description": null,
+                "metadata": {
+                    "__metadata_info__": {}
+                },
+                "default_generation_parameters": null,
+                "url": "LLAMA_API_URL",
+                "model_id": "LLAMA_MODEL_ID",
+                "api_type": "chat_completions",
+                "api_key": null
+            },
+            "prompt_template": "You are an inventory assistant.\n\n    Your task:\n        - Summarize potential inconsistencies across descriptions of products in the same category.\n          For example, identify typos and highlight improvement opportunities\n    Important:\n        - Be helpful and concise in your messages\n\n    Here are the product descriptions:\n    {{ products }}\n"
+        },
+        "9eab48d6-a51c-412e-a459-a7fd05283e1a": {
+            "component_type": "PluginOutputMessageNode",
+            "id": "9eab48d6-a51c-412e-a459-a7fd05283e1a",
+            "name": "step_OutputMessageStep_2c68bdae__auto",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [
+                {
+                    "description": "\"issues\" input variable for the template",
+                    "type": "string",
+                    "title": "issues"
+                }
+            ],
+            "outputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "type": "string",
+                    "title": "output_message"
+                }
+            ],
+            "branches": [
+                "next"
+            ],
+            "message": "The following issues have been identified: {{ issues }}",
+            "input_mapping": {},
+            "output_mapping": {},
+            "message_type": "AGENT",
+            "rephrase": false,
+            "llm_config": null,
+            "expose_message_as_output": true,
+            "component_plugin_name": "NodesPlugin",
+            "component_plugin_version": "26.1.0.dev0"
+        },
+        "992516a7-a3f8-4cac-ac0d-0b1cac4eb936": {
+            "component_type": "EndNode",
+            "id": "992516a7-a3f8-4cac-ac0d-0b1cac4eb936",
+            "name": "None End node",
+            "description": "End node representing all transitions to None in the WayFlow flow",
+            "metadata": {},
+            "inputs": [
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "key_type": {
+                            "type": "string"
+                        }
+                    },
+                    "title": "result"
+                },
+                {
+                    "description": "the generated text",
+                    "type": "string",
+                    "title": "output"
+                },
+                {
+                    "description": "the message added to the messages list",
+                    "type": "string",
+                    "title": "output_message"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": {},
+                        "key_type": {
+                            "type": "string"
+                        }
+                    },
+                    "title": "result"
+                },
+                {
+                    "description": "the generated text",
+                    "type": "string",
+                    "title": "output"
+                },
+                {
+                    "description": "the message added to the messages list",
+                    "type": "string",
+                    "title": "output_message"
+                }
+            ],
+            "branches": [],
+            "branch_name": "next"
+        }
+    },
+    "agentspec_version": "26.1.0"
+}

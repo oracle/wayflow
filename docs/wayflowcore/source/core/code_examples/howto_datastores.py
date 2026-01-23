@@ -264,7 +264,7 @@ delete_product_flow = Flow.from_steps(
     description="Delete a product in the data source by its title.",
 )
 # .. end-##_Create_agent_flows
-# .. start-##_Create_agent
+# .. start-##_Create_the_agent
 agent = Agent(
     llm=llm,
     flows=[
@@ -276,7 +276,7 @@ agent = Agent(
     ],
     custom_instruction=AGENT_PROMPT,
 )
-# .. end-##_Create_agent
+# .. end-##_Create_the_agent
 # .. start-##_Export_config_to_Agent_Spec
 from wayflowcore.agentspec import AgentSpecExporter
 
