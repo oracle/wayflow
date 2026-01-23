@@ -1,0 +1,450 @@
+component_type: Flow
+id: 0db01cf3-d0f7-424a-ac37-744ba7f99a94
+name: flow_b1784ff0__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs:
+- description: the message added to the messages list
+  type: string
+  title: output_message
+- description: level of severity of the disease. Can be "HIGH", "MEDIUM" or "LOW"
+  type: string
+  title: severity_level
+  default: ''
+start_node:
+  $component_ref: 91792ebb-159b-4017-9b29-35ba282dd1d7
+nodes:
+- $component_ref: d094a96b-c3d4-4799-b1c7-dbfe5f53e24d
+- $component_ref: 6fce39d0-ece6-4b80-bcb4-68af50997844
+- $component_ref: 91792ebb-159b-4017-9b29-35ba282dd1d7
+- $component_ref: 39e6a3b6-81fd-4ca9-8dfa-74caccf31a2c
+control_flow_connections:
+- component_type: ControlFlowEdge
+  id: a7cdea50-18da-4cc2-8564-d76759b701d8
+  name: agent_step_to_output_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: d094a96b-c3d4-4799-b1c7-dbfe5f53e24d
+  from_branch: null
+  to_node:
+    $component_ref: 6fce39d0-ece6-4b80-bcb4-68af50997844
+- component_type: ControlFlowEdge
+  id: d778155b-d434-450d-90a2-5ab0815e2e2d
+  name: __StartStep___to_agent_step_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 91792ebb-159b-4017-9b29-35ba282dd1d7
+  from_branch: null
+  to_node:
+    $component_ref: d094a96b-c3d4-4799-b1c7-dbfe5f53e24d
+- component_type: ControlFlowEdge
+  id: c1e0009b-9d16-4f29-8b89-c7b8e0e372fa
+  name: output_step_to_None End node_control_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  from_node:
+    $component_ref: 6fce39d0-ece6-4b80-bcb4-68af50997844
+  from_branch: null
+  to_node:
+    $component_ref: 39e6a3b6-81fd-4ca9-8dfa-74caccf31a2c
+data_flow_connections:
+- component_type: DataFlowEdge
+  id: 069d3126-8e2d-4dd3-95a8-2fd4989a116d
+  name: agent_step_severity_level_to_output_step_severity_level_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: d094a96b-c3d4-4799-b1c7-dbfe5f53e24d
+  source_output: severity_level
+  destination_node:
+    $component_ref: 6fce39d0-ece6-4b80-bcb4-68af50997844
+  destination_input: severity_level
+- component_type: DataFlowEdge
+  id: fd0581fb-d4a7-4277-8cf1-275cff414f87
+  name: output_step_output_message_to_None End node_output_message_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: 6fce39d0-ece6-4b80-bcb4-68af50997844
+  source_output: output_message
+  destination_node:
+    $component_ref: 39e6a3b6-81fd-4ca9-8dfa-74caccf31a2c
+  destination_input: output_message
+- component_type: DataFlowEdge
+  id: 94eacd45-b60f-4ca9-ba62-5b59156fcc92
+  name: agent_step_severity_level_to_None End node_severity_level_data_flow_edge
+  description: null
+  metadata:
+    __metadata_info__: {}
+  source_node:
+    $component_ref: d094a96b-c3d4-4799-b1c7-dbfe5f53e24d
+  source_output: severity_level
+  destination_node:
+    $component_ref: 39e6a3b6-81fd-4ca9-8dfa-74caccf31a2c
+  destination_input: severity_level
+$referenced_components:
+  91792ebb-159b-4017-9b29-35ba282dd1d7:
+    component_type: StartNode
+    id: 91792ebb-159b-4017-9b29-35ba282dd1d7
+    name: __StartStep__
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs: []
+    branches:
+    - next
+  d094a96b-c3d4-4799-b1c7-dbfe5f53e24d:
+    component_type: ExtendedAgentNode
+    id: d094a96b-c3d4-4799-b1c7-dbfe5f53e24d
+    name: agent_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs: []
+    outputs:
+    - description: level of severity of the disease. Can be "HIGH", "MEDIUM" or "LOW"
+      type: string
+      title: severity_level
+      default: ''
+    branches:
+    - next
+    agent:
+      component_type: Swarm
+      id: b92f4c23-852a-482f-a1c1-54dc390465b6
+      name: Swarm
+      description: null
+      metadata:
+        __metadata_info__: {}
+      inputs: []
+      outputs: []
+      first_agent:
+        $component_ref: c087dc77-2906-47e5-bd54-c4a7786d0b12
+      relationships:
+      - - $component_ref: c087dc77-2906-47e5-bd54-c4a7786d0b12
+        - $component_ref: 0d540d81-99dd-4681-99fb-e0a51e40de02
+      - - $component_ref: c087dc77-2906-47e5-bd54-c4a7786d0b12
+        - $component_ref: d9284501-c17a-48c1-a071-8d543a28e799
+      - - $component_ref: d9284501-c17a-48c1-a071-8d543a28e799
+        - $component_ref: 0d540d81-99dd-4681-99fb-e0a51e40de02
+      handoff: always
+      $referenced_components:
+        c087dc77-2906-47e5-bd54-c4a7786d0b12:
+          component_type: ExtendedAgent
+          id: c087dc77-2906-47e5-bd54-c4a7786d0b12
+          name: GeneralPractitioner
+          description: General Practitioner. Primary point of contact for patients,
+            handles general medical inquiries, provides initial diagnoses, and manages
+            referrals.
+          metadata:
+            __metadata_info__: {}
+          inputs: []
+          outputs: []
+          llm_config:
+            $component_ref: 2ae71892-c494-4a9a-b4f3-ec0af36db69d
+          system_prompt: "You are an helpful general practitioner LLM doctor responsible\
+            \ for handling patient consultations.\nYour goal is to assess patients'\
+            \ symptoms, provide initial diagnoses, pescribe medication for\nmild conditions\
+            \ or refer to other specialists as needed.\n\n## When to Use Each Tool\n\
+            - symptoms_checker: Use this to look up possible conditions based on symptoms\
+            \ reported by the patient.\n\n## When to query other Agents\n- Pharmacist:\
+            \ Every time you need to prescribe some medication, give the condition\
+            \ description and prescription to the Pharmacist.\n- Dermatologist: If\
+            \ the patient has a skin condition, ask expert advice/diagnosis to the\
+            \ Dermatologist after the initial exchange.\n\n# Specific instructions\n\
+            ## Initial exchange\nWhen a patient first shares symptoms ask about for\
+            \ exactly 1 round of questions, consisting of asking about medical history\
+            \ and\nsimple questions (e.g. do they have known allergies, when did the\
+            \ symptoms started, did they already tried some treatment/medication,\
+            \ etc)).\nAlways ask for this one round of information to the user before\
+            \ prescribing medication / referring to other agents.\n\n## Identifying\
+            \ condition\nUse the symptoms checker to confirm the condition (for mild\
+            \ conditions only. For other conditions, refer to specialists).\n\n##\
+            \ Mild conditions\n* If the patient has a mild cold, prescribe medicationA.\n\
+            \    - Give the condition description and prescription to the Pharmacist.\n\
+            \n## Skin conditions\n* If the patient has a skin condition, ask for expert\
+            \ advice/diagnosis from the Dermatologist.\nHere, you don't need to ask\
+            \ for the user confirmation. Directly call the Dermatologist\n    - Provide\
+            \ the patient's symptoms/initial hypothesis to the Dermatologist and ask\
+            \ for a diagnosis.\n    - The Dermatologist may query the Pharmacist to\
+            \ confirm the availability of the prescribed medication.\n    - Once the\
+            \ treatment is confirmed, pass on the prescription to the patient and\
+            \ ask them to follow the instructions."
+          tools:
+          - component_type: ServerTool
+            id: aaab97a0-97ad-4bae-a34f-837758bf326e
+            name: symptoms_checker
+            description: 'Checks symptoms against the medical knowledge base.
+
+              Existing entries for "fever", "cough" and "headache".
+
+              For other symptoms, you may need to refer to a specialist.
+
+
+              Parameters:
+
+              symptoms (list): List of symptoms reported by the patient.
+
+
+              Returns:
+
+              list: Possible conditions based on the symptoms.'
+            metadata:
+              __metadata_info__: {}
+            inputs:
+            - type: array
+              items:
+                type: string
+              title: symptoms
+            outputs:
+            - type: array
+              items:
+                type: string
+              title: tool_output
+            requires_confirmation: false
+          toolboxes: []
+          human_in_the_loop: true
+          transforms: []
+          context_providers: null
+          can_finish_conversation: false
+          raise_exceptions: false
+          max_iterations: 10
+          initial_message: Hi! How can I help you?
+          caller_input_mode: always
+          agents: []
+          flows: []
+          agent_template: null
+          component_plugin_name: AgentPlugin
+          component_plugin_version: 26.2.0.dev0
+        2ae71892-c494-4a9a-b4f3-ec0af36db69d:
+          component_type: VllmConfig
+          id: 2ae71892-c494-4a9a-b4f3-ec0af36db69d
+          name: llm_37012f27__auto
+          description: null
+          metadata:
+            __metadata_info__: {}
+          default_generation_parameters: null
+          url: LLAMA_API_URL
+          model_id: LLAMA_MODEL_ID
+          api_type: chat_completions
+          api_key: null
+        0d540d81-99dd-4681-99fb-e0a51e40de02:
+          component_type: ExtendedAgent
+          id: 0d540d81-99dd-4681-99fb-e0a51e40de02
+          name: Pharmacist
+          description: Pharmacist. Gives availability and information about specific
+            medication.
+          metadata:
+            __metadata_info__: {}
+          inputs: []
+          outputs: []
+          llm_config:
+            $component_ref: 2ae71892-c494-4a9a-b4f3-ec0af36db69d
+          system_prompt: 'You are an helpful Pharmacist LLM Agent responsible for
+            giving information about medication.
+
+            Your goal is to answer queries from the General Practitioner Doctor about
+            medication information
+
+            and availabilities.
+
+
+            ## When to Use Each Tool
+
+            - get_medication_info: Use this to look up availability and information
+            about a specific medication.'
+          tools:
+          - component_type: ServerTool
+            id: 7ed6d1c3-5524-4586-a7d1-0a957d52f490
+            name: get_medication_info
+            description: 'Provides availability and information about a medication.
+
+              Known information for "medicationA", "medicationB", "medicationC" and
+              "creamA".
+
+
+              Parameters:
+
+              drug_name (str): Name of the drug.
+
+
+              Returns:
+
+              str: Information about the drug.'
+            metadata:
+              __metadata_info__: {}
+            inputs:
+            - type: string
+              title: drug_name
+            outputs:
+            - type: string
+              title: tool_output
+            requires_confirmation: false
+          toolboxes: []
+          human_in_the_loop: true
+          transforms: []
+          context_providers: null
+          can_finish_conversation: false
+          raise_exceptions: false
+          max_iterations: 10
+          initial_message: Hi! How can I help you?
+          caller_input_mode: always
+          agents: []
+          flows: []
+          agent_template: null
+          component_plugin_name: AgentPlugin
+          component_plugin_version: 26.2.0.dev0
+        d9284501-c17a-48c1-a071-8d543a28e799:
+          component_type: ExtendedAgent
+          id: d9284501-c17a-48c1-a071-8d543a28e799
+          name: Dermatologist
+          description: Dermatologist. Diagnoses and treats skin conditions.
+          metadata:
+            __metadata_info__: {}
+          inputs: []
+          outputs: []
+          llm_config:
+            $component_ref: 2ae71892-c494-4a9a-b4f3-ec0af36db69d
+          system_prompt: 'You are an helpful Dermatologist LLM Agent responsible for
+            diagnosing and treating skin conditions.
+
+            Your goal is to assess patients'' symptoms, provide accurate diagnoses,
+            and prescribe effective treatments.
+
+
+            ## When to Use Each Tool
+
+            - knowledge_tool: Use this to look up diagnosis and treatment information
+            for specific skin conditions.
+
+
+            ## When to query other Agents
+
+            - Pharmacist: Every time you need to prescribe some medication, give the
+            condition description and prescription to the Pharmacist.
+
+
+            # Specific instructions
+
+            ## Initial exchange
+
+            When a patient''s symptoms are referred to you by the General Practitioner,
+            review the symptoms and use the knowledge tool to confirm the diagnosis.
+
+            ## Prescription
+
+            Prescribe the recommended treatment for the diagnosed condition and query
+            the Pharmacist to confirm the availability of the prescribed medication.
+
+
+            When answering back to the General Practitioner, describe your diagnosis
+            and the prescription.
+
+            Tell the General Practitioner that you already checked with the pharmacist
+            for availability.'
+          tools:
+          - component_type: ServerTool
+            id: 03592ad0-b2e9-430d-a1eb-048ed5557f10
+            name: knowledge_tool
+            description: 'Provides diagnosis and treatment information for skin conditions.
+
+              Existing entries for "eczema" and "acne".
+
+
+              Parameters:
+
+              condition (str): Name of the skin condition.
+
+
+              Returns:
+
+              str: Diagnosis and treatment information.'
+            metadata:
+              __metadata_info__: {}
+            inputs:
+            - type: string
+              title: condition
+            outputs:
+            - type: string
+              title: tool_output
+            requires_confirmation: false
+          toolboxes: []
+          human_in_the_loop: true
+          transforms: []
+          context_providers: null
+          can_finish_conversation: false
+          raise_exceptions: false
+          max_iterations: 10
+          initial_message: Hi! How can I help you?
+          caller_input_mode: always
+          agents: []
+          flows: []
+          agent_template: null
+          component_plugin_name: AgentPlugin
+          component_plugin_version: 26.2.0.dev0
+    input_mapping: {}
+    output_mapping: {}
+    caller_input_mode: always
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 26.2.0.dev0
+  6fce39d0-ece6-4b80-bcb4-68af50997844:
+    component_type: PluginOutputMessageNode
+    id: 6fce39d0-ece6-4b80-bcb4-68af50997844
+    name: output_step
+    description: ''
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: '"severity_level" input variable for the template'
+      type: string
+      title: severity_level
+    outputs:
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    branches:
+    - next
+    message: '{{severity_level}}'
+    input_mapping: {}
+    output_mapping: {}
+    message_type: AGENT
+    rephrase: false
+    llm_config: null
+    expose_message_as_output: true
+    component_plugin_name: NodesPlugin
+    component_plugin_version: 26.2.0.dev0
+  39e6a3b6-81fd-4ca9-8dfa-74caccf31a2c:
+    component_type: EndNode
+    id: 39e6a3b6-81fd-4ca9-8dfa-74caccf31a2c
+    name: None End node
+    description: null
+    metadata:
+      __metadata_info__: {}
+    inputs:
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    - description: level of severity of the disease. Can be "HIGH", "MEDIUM" or "LOW"
+      type: string
+      title: severity_level
+      default: ''
+    outputs:
+    - description: the message added to the messages list
+      type: string
+      title: output_message
+    - description: level of severity of the disease. Can be "HIGH", "MEDIUM" or "LOW"
+      type: string
+      title: severity_level
+      default: ''
+    branches: []
+    branch_name: next
+agentspec_version: 26.2.0

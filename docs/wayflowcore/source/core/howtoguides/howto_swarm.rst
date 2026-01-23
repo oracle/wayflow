@@ -283,7 +283,7 @@ To set the handoff mode, simply use :ref:`HandoffMode <handoffmode>` and select 
 **API Reference:** :ref:`HandoffMode <handoffmode>`
 
 Agent Spec Exporting/Loading
-============================
+----------------------------
 
 You can export the assistant configuration to its Agent Spec configuration using the ``AgentSpecExporter``.
 
@@ -315,6 +315,60 @@ You can then load the configuration back to an assistant using the ``AgentSpecLo
     :language: python
     :start-after: .. start-##_Load_Agent_Spec_config
     :end-before: .. end-##_Load_Agent_Spec_config
+
+Using Swarm within a Flow
+=========================
+
+The ``Swarm`` pattern can be integrated into a larger :ref:`Flow <flow>` using the :ref:`AgentExecutionStep <agentexecutionstep>`.
+
+Here's an example of how to integrate a swarm into a flow:
+
+.. literalinclude:: ../code_examples/howto_swarm.py
+    :language: python
+    :start-after: .. start-##_Using_Swarm_within_a_Flow
+    :end-before: .. end-##_Using_Swarm_within_a_Flow
+
+You can run the flow with:
+
+.. literalinclude:: ../code_examples/howto_swarm.py
+    :language: python
+    :start-after: .. start-##_Run_Swarm_within_a_Flow
+    :end-before: .. end-##_Run_Swarm_within_a_Flow
+
+Agent Spec Exporting/Loading
+----------------------------
+
+You can export the flow configuration to its Agent Spec configuration using the ``AgentSpecExporter``.
+
+.. literalinclude:: ../code_examples/howto_swarm.py
+    :language: python
+    :start-after: .. start-##_Export_config_to_Agent_Spec2
+    :end-before: .. end-##_Export_config_to_Agent_Spec2
+
+
+Here is what the **Agent Spec representation will look like ↓**
+
+.. collapse:: Click here to see the assistant configuration.
+
+   .. tabs::
+
+      .. tab:: JSON
+
+         .. literalinclude:: ../config_examples/howto_swarm2.json
+            :language: json
+
+      .. tab:: YAML
+
+         .. literalinclude:: ../config_examples/howto_swarm2.yaml
+            :language: yaml
+
+You can then load the configuration back to a flow using the ``AgentSpecLoader``.
+
+.. literalinclude:: ../code_examples/howto_swarm.py
+    :language: python
+    :start-after: .. start-##_Load_Agent_Spec_config2
+    :end-before: .. end-##_Load_Agent_Spec_config2
+
 
 Next steps
 ==========

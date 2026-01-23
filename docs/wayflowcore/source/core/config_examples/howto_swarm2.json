@@ -1,0 +1,480 @@
+{
+    "component_type": "Flow",
+    "id": "33f78e41-52d0-437d-9192-aac771db6701",
+    "name": "flow_f4d4d19d__auto",
+    "description": "",
+    "metadata": {
+        "__metadata_info__": {}
+    },
+    "inputs": [],
+    "outputs": [
+        {
+            "description": "the message added to the messages list",
+            "type": "string",
+            "title": "output_message"
+        },
+        {
+            "description": "level of severity of the disease. Can be \"HIGH\", \"MEDIUM\" or \"LOW\"",
+            "type": "string",
+            "title": "severity_level",
+            "default": ""
+        }
+    ],
+    "start_node": {
+        "$component_ref": "f2af74df-3b90-44d2-86a5-606e7da243ee"
+    },
+    "nodes": [
+        {
+            "$component_ref": "592c061c-a68a-49c3-ad2a-8e96d7be6dec"
+        },
+        {
+            "$component_ref": "793fced3-20b2-40e2-836b-04d8e2310d16"
+        },
+        {
+            "$component_ref": "f2af74df-3b90-44d2-86a5-606e7da243ee"
+        },
+        {
+            "$component_ref": "8e0894a6-5940-4528-b518-22ab7ee3e6ff"
+        }
+    ],
+    "control_flow_connections": [
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "9207760e-1ba5-4a83-b0ee-55f0de082119",
+            "name": "agent_step_to_output_step_control_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "from_node": {
+                "$component_ref": "592c061c-a68a-49c3-ad2a-8e96d7be6dec"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "793fced3-20b2-40e2-836b-04d8e2310d16"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "66265aee-39f5-4f48-a027-804199358011",
+            "name": "__StartStep___to_agent_step_control_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "from_node": {
+                "$component_ref": "f2af74df-3b90-44d2-86a5-606e7da243ee"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "592c061c-a68a-49c3-ad2a-8e96d7be6dec"
+            }
+        },
+        {
+            "component_type": "ControlFlowEdge",
+            "id": "22b29e5f-e246-413a-bd09-c96c224d4932",
+            "name": "output_step_to_None End node_control_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "from_node": {
+                "$component_ref": "793fced3-20b2-40e2-836b-04d8e2310d16"
+            },
+            "from_branch": null,
+            "to_node": {
+                "$component_ref": "8e0894a6-5940-4528-b518-22ab7ee3e6ff"
+            }
+        }
+    ],
+    "data_flow_connections": [
+        {
+            "component_type": "DataFlowEdge",
+            "id": "2889eada-d663-42b7-aff2-948d51e143e0",
+            "name": "agent_step_severity_level_to_output_step_severity_level_data_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "source_node": {
+                "$component_ref": "592c061c-a68a-49c3-ad2a-8e96d7be6dec"
+            },
+            "source_output": "severity_level",
+            "destination_node": {
+                "$component_ref": "793fced3-20b2-40e2-836b-04d8e2310d16"
+            },
+            "destination_input": "severity_level"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "id": "85a020be-6b81-4b56-b0ae-cee9729dc289",
+            "name": "output_step_output_message_to_None End node_output_message_data_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "source_node": {
+                "$component_ref": "793fced3-20b2-40e2-836b-04d8e2310d16"
+            },
+            "source_output": "output_message",
+            "destination_node": {
+                "$component_ref": "8e0894a6-5940-4528-b518-22ab7ee3e6ff"
+            },
+            "destination_input": "output_message"
+        },
+        {
+            "component_type": "DataFlowEdge",
+            "id": "55de7cad-dd3f-4bb3-bdd6-6a2fc2429ee4",
+            "name": "agent_step_severity_level_to_None End node_severity_level_data_flow_edge",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "source_node": {
+                "$component_ref": "592c061c-a68a-49c3-ad2a-8e96d7be6dec"
+            },
+            "source_output": "severity_level",
+            "destination_node": {
+                "$component_ref": "8e0894a6-5940-4528-b518-22ab7ee3e6ff"
+            },
+            "destination_input": "severity_level"
+        }
+    ],
+    "$referenced_components": {
+        "793fced3-20b2-40e2-836b-04d8e2310d16": {
+            "component_type": "PluginOutputMessageNode",
+            "id": "793fced3-20b2-40e2-836b-04d8e2310d16",
+            "name": "output_step",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [
+                {
+                    "description": "\"severity_level\" input variable for the template",
+                    "type": "string",
+                    "title": "severity_level"
+                }
+            ],
+            "outputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "type": "string",
+                    "title": "output_message"
+                }
+            ],
+            "branches": [
+                "next"
+            ],
+            "message": "{{severity_level}}",
+            "input_mapping": {},
+            "output_mapping": {},
+            "message_type": "AGENT",
+            "rephrase": false,
+            "llm_config": null,
+            "expose_message_as_output": true,
+            "component_plugin_name": "NodesPlugin",
+            "component_plugin_version": "26.2.0.dev0"
+        },
+        "592c061c-a68a-49c3-ad2a-8e96d7be6dec": {
+            "component_type": "ExtendedAgentNode",
+            "id": "592c061c-a68a-49c3-ad2a-8e96d7be6dec",
+            "name": "agent_step",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [],
+            "outputs": [
+                {
+                    "description": "level of severity of the disease. Can be \"HIGH\", \"MEDIUM\" or \"LOW\"",
+                    "type": "string",
+                    "title": "severity_level",
+                    "default": ""
+                }
+            ],
+            "branches": [
+                "next"
+            ],
+            "agent": {
+                "component_type": "Swarm",
+                "id": "fcccae0f-f896-47f0-8c91-c9d9d9243feb",
+                "name": "Swarm",
+                "description": null,
+                "metadata": {
+                    "__metadata_info__": {}
+                },
+                "inputs": [],
+                "outputs": [],
+                "first_agent": {
+                    "$component_ref": "112822d1-afa1-424f-8306-74c943950ec8"
+                },
+                "relationships": [
+                    [
+                        {
+                            "$component_ref": "112822d1-afa1-424f-8306-74c943950ec8"
+                        },
+                        {
+                            "$component_ref": "b599769f-fc6d-4657-a53a-65d8db461bf1"
+                        }
+                    ],
+                    [
+                        {
+                            "$component_ref": "112822d1-afa1-424f-8306-74c943950ec8"
+                        },
+                        {
+                            "$component_ref": "9c208b64-66dc-40d7-b574-dd1b494322e0"
+                        }
+                    ],
+                    [
+                        {
+                            "$component_ref": "9c208b64-66dc-40d7-b574-dd1b494322e0"
+                        },
+                        {
+                            "$component_ref": "b599769f-fc6d-4657-a53a-65d8db461bf1"
+                        }
+                    ]
+                ],
+                "handoff": "always",
+                "$referenced_components": {
+                    "112822d1-afa1-424f-8306-74c943950ec8": {
+                        "component_type": "ExtendedAgent",
+                        "id": "112822d1-afa1-424f-8306-74c943950ec8",
+                        "name": "GeneralPractitioner",
+                        "description": "General Practitioner. Primary point of contact for patients, handles general medical inquiries, provides initial diagnoses, and manages referrals.",
+                        "metadata": {
+                            "__metadata_info__": {}
+                        },
+                        "inputs": [],
+                        "outputs": [],
+                        "llm_config": {
+                            "$component_ref": "c1687f76-2526-4f77-aeed-6468e433fbba"
+                        },
+                        "system_prompt": "You are an helpful general practitioner LLM doctor responsible for handling patient consultations.\nYour goal is to assess patients' symptoms, provide initial diagnoses, pescribe medication for\nmild conditions or refer to other specialists as needed.\n\n## When to Use Each Tool\n- symptoms_checker: Use this to look up possible conditions based on symptoms reported by the patient.\n\n## When to query other Agents\n- Pharmacist: Every time you need to prescribe some medication, give the condition description and prescription to the Pharmacist.\n- Dermatologist: If the patient has a skin condition, ask expert advice/diagnosis to the Dermatologist after the initial exchange.\n\n# Specific instructions\n## Initial exchange\nWhen a patient first shares symptoms ask about for exactly 1 round of questions, consisting of asking about medical history and\nsimple questions (e.g. do they have known allergies, when did the symptoms started, did they already tried some treatment/medication, etc)).\nAlways ask for this one round of information to the user before prescribing medication / referring to other agents.\n\n## Identifying condition\nUse the symptoms checker to confirm the condition (for mild conditions only. For other conditions, refer to specialists).\n\n## Mild conditions\n* If the patient has a mild cold, prescribe medicationA.\n    - Give the condition description and prescription to the Pharmacist.\n\n## Skin conditions\n* If the patient has a skin condition, ask for expert advice/diagnosis from the Dermatologist.\nHere, you don't need to ask for the user confirmation. Directly call the Dermatologist\n    - Provide the patient's symptoms/initial hypothesis to the Dermatologist and ask for a diagnosis.\n    - The Dermatologist may query the Pharmacist to confirm the availability of the prescribed medication.\n    - Once the treatment is confirmed, pass on the prescription to the patient and ask them to follow the instructions.",
+                        "tools": [
+                            {
+                                "component_type": "ServerTool",
+                                "id": "7a29c1a0-7118-4cb7-ac9e-df662a917fcd",
+                                "name": "symptoms_checker",
+                                "description": "Checks symptoms against the medical knowledge base.\nExisting entries for \"fever\", \"cough\" and \"headache\".\nFor other symptoms, you may need to refer to a specialist.\n\nParameters:\nsymptoms (list): List of symptoms reported by the patient.\n\nReturns:\nlist: Possible conditions based on the symptoms.",
+                                "metadata": {
+                                    "__metadata_info__": {}
+                                },
+                                "inputs": [
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "title": "symptoms"
+                                    }
+                                ],
+                                "outputs": [
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "title": "tool_output"
+                                    }
+                                ],
+                                "requires_confirmation": false
+                            }
+                        ],
+                        "toolboxes": [],
+                        "human_in_the_loop": true,
+                        "transforms": [],
+                        "context_providers": null,
+                        "can_finish_conversation": false,
+                        "raise_exceptions": false,
+                        "max_iterations": 10,
+                        "initial_message": "Hi! How can I help you?",
+                        "caller_input_mode": "always",
+                        "agents": [],
+                        "flows": [],
+                        "agent_template": null,
+                        "component_plugin_name": "AgentPlugin",
+                        "component_plugin_version": "26.2.0.dev0"
+                    },
+                    "c1687f76-2526-4f77-aeed-6468e433fbba": {
+                        "component_type": "VllmConfig",
+                        "id": "c1687f76-2526-4f77-aeed-6468e433fbba",
+                        "name": "llm_4eef046b__auto",
+                        "description": null,
+                        "metadata": {
+                            "__metadata_info__": {}
+                        },
+                        "default_generation_parameters": null,
+                        "url": "LLAMA_API_URL",
+                        "model_id": "LLAMA_MODEL_ID",
+                        "api_type": "chat_completions",
+                        "api_key": null
+                    },
+                    "b599769f-fc6d-4657-a53a-65d8db461bf1": {
+                        "component_type": "ExtendedAgent",
+                        "id": "b599769f-fc6d-4657-a53a-65d8db461bf1",
+                        "name": "Pharmacist",
+                        "description": "Pharmacist. Gives availability and information about specific medication.",
+                        "metadata": {
+                            "__metadata_info__": {}
+                        },
+                        "inputs": [],
+                        "outputs": [],
+                        "llm_config": {
+                            "$component_ref": "c1687f76-2526-4f77-aeed-6468e433fbba"
+                        },
+                        "system_prompt": "You are an helpful Pharmacist LLM Agent responsible for giving information about medication.\nYour goal is to answer queries from the General Practitioner Doctor about medication information\nand availabilities.\n\n## When to Use Each Tool\n- get_medication_info: Use this to look up availability and information about a specific medication.",
+                        "tools": [
+                            {
+                                "component_type": "ServerTool",
+                                "id": "5494c169-d684-41cb-b8c4-57e7568c66d3",
+                                "name": "get_medication_info",
+                                "description": "Provides availability and information about a medication.\nKnown information for \"medicationA\", \"medicationB\", \"medicationC\" and \"creamA\".\n\nParameters:\ndrug_name (str): Name of the drug.\n\nReturns:\nstr: Information about the drug.",
+                                "metadata": {
+                                    "__metadata_info__": {}
+                                },
+                                "inputs": [
+                                    {
+                                        "type": "string",
+                                        "title": "drug_name"
+                                    }
+                                ],
+                                "outputs": [
+                                    {
+                                        "type": "string",
+                                        "title": "tool_output"
+                                    }
+                                ],
+                                "requires_confirmation": false
+                            }
+                        ],
+                        "toolboxes": [],
+                        "human_in_the_loop": true,
+                        "transforms": [],
+                        "context_providers": null,
+                        "can_finish_conversation": false,
+                        "raise_exceptions": false,
+                        "max_iterations": 10,
+                        "initial_message": "Hi! How can I help you?",
+                        "caller_input_mode": "always",
+                        "agents": [],
+                        "flows": [],
+                        "agent_template": null,
+                        "component_plugin_name": "AgentPlugin",
+                        "component_plugin_version": "26.2.0.dev0"
+                    },
+                    "9c208b64-66dc-40d7-b574-dd1b494322e0": {
+                        "component_type": "ExtendedAgent",
+                        "id": "9c208b64-66dc-40d7-b574-dd1b494322e0",
+                        "name": "Dermatologist",
+                        "description": "Dermatologist. Diagnoses and treats skin conditions.",
+                        "metadata": {
+                            "__metadata_info__": {}
+                        },
+                        "inputs": [],
+                        "outputs": [],
+                        "llm_config": {
+                            "$component_ref": "c1687f76-2526-4f77-aeed-6468e433fbba"
+                        },
+                        "system_prompt": "You are an helpful Dermatologist LLM Agent responsible for diagnosing and treating skin conditions.\nYour goal is to assess patients' symptoms, provide accurate diagnoses, and prescribe effective treatments.\n\n## When to Use Each Tool\n- knowledge_tool: Use this to look up diagnosis and treatment information for specific skin conditions.\n\n## When to query other Agents\n- Pharmacist: Every time you need to prescribe some medication, give the condition description and prescription to the Pharmacist.\n\n# Specific instructions\n## Initial exchange\nWhen a patient's symptoms are referred to you by the General Practitioner, review the symptoms and use the knowledge tool to confirm the diagnosis.\n## Prescription\nPrescribe the recommended treatment for the diagnosed condition and query the Pharmacist to confirm the availability of the prescribed medication.\n\nWhen answering back to the General Practitioner, describe your diagnosis and the prescription.\nTell the General Practitioner that you already checked with the pharmacist for availability.",
+                        "tools": [
+                            {
+                                "component_type": "ServerTool",
+                                "id": "7e483336-ac47-4f04-a4b9-d6701dfe5dc6",
+                                "name": "knowledge_tool",
+                                "description": "Provides diagnosis and treatment information for skin conditions.\nExisting entries for \"eczema\" and \"acne\".\n\nParameters:\ncondition (str): Name of the skin condition.\n\nReturns:\nstr: Diagnosis and treatment information.",
+                                "metadata": {
+                                    "__metadata_info__": {}
+                                },
+                                "inputs": [
+                                    {
+                                        "type": "string",
+                                        "title": "condition"
+                                    }
+                                ],
+                                "outputs": [
+                                    {
+                                        "type": "string",
+                                        "title": "tool_output"
+                                    }
+                                ],
+                                "requires_confirmation": false
+                            }
+                        ],
+                        "toolboxes": [],
+                        "human_in_the_loop": true,
+                        "transforms": [],
+                        "context_providers": null,
+                        "can_finish_conversation": false,
+                        "raise_exceptions": false,
+                        "max_iterations": 10,
+                        "initial_message": "Hi! How can I help you?",
+                        "caller_input_mode": "always",
+                        "agents": [],
+                        "flows": [],
+                        "agent_template": null,
+                        "component_plugin_name": "AgentPlugin",
+                        "component_plugin_version": "26.2.0.dev0"
+                    }
+                }
+            },
+            "input_mapping": {},
+            "output_mapping": {},
+            "caller_input_mode": "always",
+            "component_plugin_name": "NodesPlugin",
+            "component_plugin_version": "26.2.0.dev0"
+        },
+        "f2af74df-3b90-44d2-86a5-606e7da243ee": {
+            "component_type": "StartNode",
+            "id": "f2af74df-3b90-44d2-86a5-606e7da243ee",
+            "name": "__StartStep__",
+            "description": "",
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [],
+            "outputs": [],
+            "branches": [
+                "next"
+            ]
+        },
+        "8e0894a6-5940-4528-b518-22ab7ee3e6ff": {
+            "component_type": "EndNode",
+            "id": "8e0894a6-5940-4528-b518-22ab7ee3e6ff",
+            "name": "None End node",
+            "description": null,
+            "metadata": {
+                "__metadata_info__": {}
+            },
+            "inputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "type": "string",
+                    "title": "output_message"
+                },
+                {
+                    "description": "level of severity of the disease. Can be \"HIGH\", \"MEDIUM\" or \"LOW\"",
+                    "type": "string",
+                    "title": "severity_level",
+                    "default": ""
+                }
+            ],
+            "outputs": [
+                {
+                    "description": "the message added to the messages list",
+                    "type": "string",
+                    "title": "output_message"
+                },
+                {
+                    "description": "level of severity of the disease. Can be \"HIGH\", \"MEDIUM\" or \"LOW\"",
+                    "type": "string",
+                    "title": "severity_level",
+                    "default": ""
+                }
+            ],
+            "branches": [],
+            "branch_name": "next"
+        }
+    },
+    "agentspec_version": "26.2.0"
+}
