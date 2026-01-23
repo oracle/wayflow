@@ -31,7 +31,7 @@ from wayflowcore.transforms import (
     MessageSummarizationTransform as WayflowMessageSummarizationTransform,
 )
 
-from ..conftest import mock_llm, mock_llm_config
+from ..conftest import MOCK_LLM_CONFIG, mock_llm
 
 filter_inmemds_warnings = pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
 
@@ -65,7 +65,7 @@ def _testing_message_summarization_transforms():
 
     # Create agent-spec transform with matching custom values
     llm_config = VllmConfig(
-        name="vllm", model_id=mock_llm_config["model_id"], url=mock_llm_config["host_port"]
+        name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
     )
     agent_spec_datastore = InMemoryCollectionDatastore(
         name="custom-inmemory-datastore",
@@ -121,7 +121,7 @@ def _testing_conversation_summarization_transforms():
 
     # Create agent-spec transform with matching custom values
     llm_config = VllmConfig(
-        name="vllm", model_id=mock_llm_config["model_id"], url=mock_llm_config["host_port"]
+        name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
     )
     agent_spec_datastore = InMemoryCollectionDatastore(
         name="custom-inmemory-datastore-conversations",

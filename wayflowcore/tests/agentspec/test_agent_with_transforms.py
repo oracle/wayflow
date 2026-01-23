@@ -15,7 +15,7 @@ from wayflowcore.agentspec.runtimeloader import AgentSpecLoader
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.models import VllmModel
 
-from ..conftest import mock_llm_config
+from ..conftest import MOCK_LLM_CONFIG
 from .test_transforms import (
     _testing_conversation_summarization_transforms,
     _testing_message_summarization_transforms,
@@ -38,14 +38,14 @@ def _testing_agents_with_summarization_transforms():
 
     # Create wayflow agent with both transforms
     wayflow_agent = WayflowAgent(
-        llm=VllmModel(model_id=mock_llm_config["model_id"], host_port=mock_llm_config["host_port"]),
+        llm=VllmModel(model_id=MOCK_LLM_CONFIG["model_id"], host_port=MOCK_LLM_CONFIG["host_port"]),
         custom_instruction="Test agent with transforms",
         transforms=[wayflow_message_transform, wayflow_conversation_transform],
     )
 
     # Create agent-spec agent with matching transforms
     llm_config = VllmConfig(
-        name="vllm", model_id=mock_llm_config["model_id"], url=mock_llm_config["host_port"]
+        name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
     )
     agent_spec_agent = AgentSpecAgent(
         name="test-agent-with-transforms",
