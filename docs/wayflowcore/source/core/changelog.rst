@@ -199,6 +199,9 @@ Bug fixes
   would repeatedly iterate until the maximum limit.
   Agents can now better complete the task and exit as expected.
 
+* **Structured generation with nested ObjectProperties**
+
+  Fixed a bug that was raising an error on structured generation of nested ObjectProperties with OpenAI-compatible Models.
 
 WayFlow 25.4.2
 --------------

@@ -20,22 +20,8 @@ def _prepare_openai_compatible_json_schema(response_format: Property) -> Dict[st
     return {
         "name": response_format.name,
         "strict": True,
-        "schema": _property_to_openai_schema(response_format),
+        "schema": response_format.to_json_schema(openai_compatible=True),
     }
-
-
-def _property_to_openai_schema(property_: Property) -> Dict[str, Any]:
-    schema = dict(property_.to_json_schema())
-    if "properties" in schema and isinstance(schema["properties"], dict):
-        # openai requires all properties to be marked required
-        # https://platform.openai.com/docs/guides/structured-outputs#all-fields-must-be-required,
-        schema["required"] = list(schema["properties"].keys())
-        # logs a message for each default value to indicate to the user that it will not be used
-        _logs_about_default_values_not_used(schema)
-    if "additionalProperties" not in schema:
-        # openai requires to always pass additionalProperties
-        schema["additionalProperties"] = False
-    return schema
 
 
 def _logs_about_default_values_not_used(schema: Dict[str, Any]) -> None:

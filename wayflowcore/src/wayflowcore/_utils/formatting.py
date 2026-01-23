@@ -98,7 +98,12 @@ def correct_type(value: Any, json_schema: JsonSchemaParam, catch_exception: bool
                     schema_param = json_schema["additionalProperties"]
                 else:
                     schema_param = json_schema["properties"][key]
-                result[key] = correct_type(value, schema_param)
+
+                # additionalProperties may be bool for OpenAI-compatible JSONSchema
+                if isinstance(schema_param, bool):
+                    result[key] = schema_param
+                else:
+                    result[key] = correct_type(value, schema_param)
             return result
 
         else:

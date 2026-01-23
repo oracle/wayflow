@@ -22,7 +22,7 @@ from wayflowcore.flowhelpers import (
 from wayflowcore.models import LlmCompletion
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import Prompt
-from wayflowcore.property import IntegerProperty, ObjectProperty, StringProperty
+from wayflowcore.property import IntegerProperty, ListProperty, ObjectProperty, StringProperty
 from wayflowcore.serialization import autodeserialize, serialize
 from wayflowcore.steps import (
     GetChatHistoryStep,
@@ -217,6 +217,46 @@ def test_structured_generation(remotely_hosted_llm):
     )
     outputs = _run_single_step_to_finish(step)
     assert "last_name" in outputs
+
+
+@retry_test(max_attempts=4)
+def test_structured_generation_with_nested_object_properties(gpt_llm):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-09
+    Average success time:  2.14 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    people = ObjectProperty(
+        name="response",
+        properties={
+            "people": ListProperty(
+                description="Personal details of all the people requested",
+                item_type=ObjectProperty(
+                    name="personal_details",
+                    properties={"birth_date": StringProperty(), "employment": StringProperty()},
+                ),
+            )
+        },
+    )
+    step = PromptExecutionStep(
+        prompt_template="Provide information about Bugs Bunny and Duffy Duck?",
+        llm=gpt_llm,
+        output_descriptors=[people],
+        _structured_generation_mode=StructuredGenerationMode.CONSTRAINED_GENERATION,
+    )
+    result = _run_single_step_to_finish(step)
+    assert "response" in result
+    assert "people" in result["response"]
+    assert isinstance(result["response"]["people"], list)
+    assert all(
+        [
+            "birth_date" in person and "employment" in person
+            for person in result["response"]["people"]
+        ]
+    )
 
 
 @retry_test(max_attempts=4)

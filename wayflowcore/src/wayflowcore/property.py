@@ -31,7 +31,7 @@ JsonSchemaParam = TypedDict(
         "description": Optional[str],
         "enum": List[Any],
         "items": "JsonSchemaParam",
-        "additionalProperties": "JsonSchemaParam",
+        "additionalProperties": Union["JsonSchemaParam", bool],
         "properties": Dict[str, "JsonSchemaParam"],
         "anyOf": List["JsonSchemaParam"],
         "key_type": "JsonSchemaParam",  # added by us, to support types of key in dicts
@@ -183,9 +183,19 @@ class Property(SerializableObject, ABC):
     ) -> "SerializableObject":
         return Property.from_json_schema(cast(JsonSchemaParam, input_dict))
 
-    def to_json_schema(self) -> JsonSchemaParam:
-        """Convert this ``Property`` object into a corresponding JSON Schema"""
-        json_schema = self._type_to_json_schema()
+    def to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
+        """Convert this ``Property`` object into a corresponding JSON Schema.
+
+        Parameters
+        ----------
+        openai_compatible
+            Adds additional properties into the JSON schema to ensure valid
+            requests are made to OpenAI compatible APIs in ``strict`` mode.
+            Note that this will make all properties required in the resulting
+            JSON schema. If you need a parameter to be optional, you can achieve
+            this behaviour by unioning it with the ``NullProperty``.
+        """
+        json_schema = self._type_to_json_schema(openai_compatible=openai_compatible)
         if self.name != "":
             json_schema["title"] = self.name
         if self.description != "":
@@ -344,7 +354,7 @@ class Property(SerializableObject, ABC):
         return AnyProperty(**kwargs)
 
     @abstractmethod
-    def _type_to_json_schema(self) -> JsonSchemaParam:
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         raise NotImplementedError()
 
     def copy(
@@ -446,7 +456,7 @@ class BooleanProperty(Property):
     def _type_default_value(self) -> Any:
         return False
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         return {"type": "boolean"}
 
 
@@ -493,7 +503,7 @@ class FloatProperty(Property):
     def _type_default_value(self) -> Any:
         return 0.0
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         return {"type": "number"}
 
 
@@ -543,7 +553,7 @@ class MessageProperty(Property):
 
         return Message(content="", message_type=MessageType.AGENT)
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         return {"type": "object"}
 
 
@@ -590,7 +600,7 @@ class IntegerProperty(Property):
     def _type_default_value(self) -> Any:
         return 0
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         return {"type": "integer"}
 
 
@@ -637,7 +647,7 @@ class StringProperty(Property):
     def _type_default_value(self) -> Any:
         return ""
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         return {"type": "string"}
 
 
@@ -683,7 +693,7 @@ class AnyProperty(Property):
     def _type_default_value(self) -> Any:
         return None
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         return {}
 
 
@@ -738,8 +748,11 @@ class ListProperty(Property):
     def _type_default_value(self) -> Any:
         return []
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
-        return {"type": "array", "items": self.item_type.to_json_schema()}
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
+        return {
+            "type": "array",
+            "items": self.item_type.to_json_schema(openai_compatible=openai_compatible),
+        }
 
     def get_type_str(self) -> str:
         return f"{self.__class__.__name__}[{self.item_type.get_type_str()}]"
@@ -800,7 +813,7 @@ class DictProperty(Property):
     def _type_default_value(self) -> Any:
         return dict()
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         # does not support non string keys
         if not isinstance(self.key_type, (StringProperty, AnyProperty)):
             raise ValueError(
@@ -809,9 +822,11 @@ class DictProperty(Property):
 
         return {
             "type": "object",
-            "additionalProperties": self.value_type.to_json_schema(),
+            "additionalProperties": self.value_type.to_json_schema(
+                openai_compatible=openai_compatible
+            ),
             **(
-                {"key_type": self.key_type.to_json_schema()}
+                {"key_type": self.key_type.to_json_schema(openai_compatible=openai_compatible)}
                 if not self.key_type == AnyProperty()
                 else {}
             ),
@@ -903,14 +918,31 @@ class ObjectProperty(Property):
             )
         return new_dict
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
-        return {
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
+        json_schema: JsonSchemaParam = {
             "type": "object",
             "properties": {
-                prop_name: property_.to_json_schema()
+                prop_name: property_.to_json_schema(openai_compatible=openai_compatible)
                 for prop_name, property_ in self.properties.items()
             },
         }
+        if openai_compatible:
+            # When using the strict mode, OpenAI expects additionalProperties to be false, as well
+            # as all properties to be included as required (parameters can be made optional by
+            # creating a union with the NullProperty):
+            # https://platform.openai.com/docs/guides/structured-outputs#all-fields-must-be-required
+            json_schema["additionalProperties"] = False
+            json_schema["required"] = list(json_schema["properties"].keys())
+            for property_name, property_ in json_schema["properties"].items():
+                if "default" in property_:
+                    logger.info(
+                        "The LLM cannot access the default value of the property `%s=%s`. "
+                        "If you need to preserve this behavior, define the property as a union "
+                        "with `NullProperty` and handle the default manually.",
+                        property_name,
+                        property_["default"],
+                    )
+        return json_schema
 
     def get_type_str(self) -> str:
         field_types_str = "\n".join(
@@ -929,7 +961,7 @@ class NullProperty(Property):
     def _type_default_value(self) -> Any:
         return None
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         return {"type": "null"}
 
 
@@ -948,8 +980,13 @@ class UnionProperty(Property):
     def _type_default_value(self) -> Any:
         return self.any_of[0]._type_default_value
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
-        return {"anyOf": [property_.to_json_schema() for property_ in self.any_of]}
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
+        return {
+            "anyOf": [
+                property_.to_json_schema(openai_compatible=openai_compatible)
+                for property_ in self.any_of
+            ]
+        }
 
     def get_type_str(self) -> str:
         union_types_str = ", ".join(property_.get_type_str() for property_ in self.any_of)
