@@ -102,7 +102,7 @@ Improvements
 Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
 You can now declare your agents with summarization transforms and summary caching in Agent Spec and run them in WayFlow.
 
-* **Improve Swarm prompt template and introduce HandoffMode:**
+* **Improve Swarm prompt template, introduce HandoffMode and support multiple tool calls in Swarm:**
 
   Removed redundant agent descriptions from the Swarm template and added a guidance rule that encourages agents to hand off when appropriate.
   Introduced ``HandoffMode`` to Swarm. In addition to the existing modes (``True`` → ``HandoffMode.OPTIONAL``, ``False`` → ``HandoffMode.NEVER``),
