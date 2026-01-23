@@ -88,7 +88,6 @@ def _start_a2a_server(
 
 
 @pytest.fixture(scope="session", name="a2a_server")
-@pytest.mark.xdist_group("requires-server-port")
 @pytest.mark.filterwarnings("ignore:unclosed:ResourceWarning")
 def a2a_server_fixture(request, session_tmp_path):
     agent_type = getattr(request, "param", AgentType.AGENT_WITH_SERVER_TOOL)
@@ -104,7 +103,6 @@ def a2a_server_fixture(request, session_tmp_path):
 
 
 @pytest.fixture(scope="session", name="adk_a2a_server")
-@pytest.mark.xdist_group("requires-server-port")
 @pytest.mark.filterwarnings("ignore:unclosed:ResourceWarning")
 def adk_a2a_server_fixture(session_tmp_path):
     host = "localhost"

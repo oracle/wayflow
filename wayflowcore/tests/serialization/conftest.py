@@ -78,7 +78,6 @@ def _start_a2a_server(
 
 
 @pytest.fixture(scope="session", name="a2a_server")
-@pytest.mark.xdist_group("requires-server-port")
 def a2a_server_fixture(session_tmp_path):
     host = "localhost"
     port = get_available_port(session_tmp_path)

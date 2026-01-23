@@ -215,7 +215,6 @@ def check_server_is_up(base_url: str) -> bool:
 
 
 @pytest.fixture(scope="module")
-@pytest.mark.xdist_group("requires-server-port")
 def test_webapp(session_tmp_path: str):
     hostname = "localhost"
     port = get_available_port(session_tmp_path)

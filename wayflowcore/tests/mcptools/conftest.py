@@ -205,7 +205,6 @@ def register_mcp_server_fixture(
             tee.stop()  # this needs to be stopped after the
             # MCP server so that the stdout is closed.
 
-    _fixture = pytest.mark.xdist_group("requires-server-port")(_fixture)
     return pytest.fixture(scope="session", name=name)(_fixture)
 
 

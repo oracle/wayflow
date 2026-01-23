@@ -64,7 +64,6 @@ class SimpleOTLPHandler(BaseHTTPRequestHandler):
 
 
 @pytest.fixture(scope="session")
-@pytest.mark.xdist_group("requires-server-port")
 def otel_server(session_tmp_path: str):
     host = "localhost"
     port = get_available_port(session_tmp_path)

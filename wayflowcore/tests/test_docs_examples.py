@@ -33,7 +33,6 @@ sys.path.insert(0, os.path.abspath(UTILS_DIR))
 
 
 @pytest.fixture(scope="session")
-@pytest.mark.xdist_group("requires-server-port")
 def mock_server(session_tmp_path):
     "Start a mock server for testing howto_remote_tool_expired_token document."
     import threading

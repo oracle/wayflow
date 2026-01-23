@@ -218,7 +218,6 @@ def register_wayflow_server_fixture(
 
                 _delete_table(connection_config)
 
-    _fixture = pytest.mark.xdist_group("requires-server-port")(_fixture)
     return pytest.fixture(scope="session", name=name)(_fixture)
 
 
@@ -269,7 +268,6 @@ wayflow_server_http_oracle = register_wayflow_server_fixture(
 
 
 @pytest.fixture(scope="session")
-@pytest.mark.xdist_group("requires-server-port")
 def multi_agent_inmemory_server(session_tmp_path):
     available_port = get_available_port(session_tmp_path)
     print(f"Starting a multi-agent server on port {available_port}")
@@ -298,7 +296,6 @@ def oracle_db_with_names():
 
 
 @pytest.fixture(scope="session")
-@pytest.mark.xdist_group("requires-server-port")
 def datastore_agent_inmemory_server(oracle_db_with_names, session_tmp_path):
     available_port = get_available_port(session_tmp_path)
     print(f"Starting datastore agent server on port {available_port}")
