@@ -445,14 +445,14 @@ from wayflowcore.transforms import (
 from wayflowcore.transforms.canonicalizationtransform import (
     CanonicalizationMessageTransform as RuntimeCanonicalizationMessageTransform,
 )
-from wayflowcore.transforms.transforms import (
-    SplitPromptOnMarkerMessageTransform as RuntimeSplitPromptOnMarkerMessageTransform
-)
 from wayflowcore.transforms.summarization import (
     ConversationSummarizationTransform as RuntimeConversationSummarizationTransform,
 )
 from wayflowcore.transforms.summarization import (
     MessageSummarizationTransform as RuntimeMessageSummarizationTransform,
+)
+from wayflowcore.transforms.transforms import (
+    SplitPromptOnMarkerMessageTransform as RuntimeSplitPromptOnMarkerMessageTransform,
 )
 from wayflowcore.variable import Variable as RuntimeVariable
 
@@ -1490,8 +1490,8 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         elif isinstance(runtime_messagetransform, RuntimeCanonicalizationMessageTransform):
             return AgentSpecPluginCanonicalizationMessageTransform(
                 name="canonicalization_messagetransform",
-                    metadata=_create_agentspec_metadata_from_runtime_component(
-                        runtime_messagetransform
+                metadata=_create_agentspec_metadata_from_runtime_component(
+                    runtime_messagetransform
                 ),
             )
         elif isinstance(runtime_messagetransform, RuntimeSplitPromptOnMarkerMessageTransform):
@@ -1506,11 +1506,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             return AgentSpecMessageSummarizationTransform(
                 name=runtime_messagetransform.name or "message-summarizer",
                 llm=self._llm_convert_to_agentspec(
-                    conversion_context, runtime_messagetransform._summarizer.llm, referenced_objects
+                    conversion_context, runtime_messagetransform.llm, referenced_objects
                 ),
                 max_message_size=runtime_messagetransform.max_message_size,
-                summarization_instructions=runtime_messagetransform._summarizer.summarization_instructions,
-                summarized_message_template=runtime_messagetransform._summarizer.summarized_content_template,
+                summarization_instructions=runtime_messagetransform.summarization_instructions,
+                summarized_message_template=runtime_messagetransform.summarized_message_template,
                 max_cache_size=runtime_messagetransform.max_cache_size,
                 max_cache_lifetime=runtime_messagetransform.max_cache_lifetime,
                 cache_collection_name=runtime_messagetransform.cache_collection_name,
@@ -1523,12 +1523,12 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             return AgentSpecConversationSummarizationTransform(
                 name=runtime_messagetransform.name or "conversation-summarizer",
                 llm=self._llm_convert_to_agentspec(
-                    conversion_context, runtime_messagetransform._summarizer.llm, referenced_objects
+                    conversion_context, runtime_messagetransform.llm, referenced_objects
                 ),
                 max_num_messages=runtime_messagetransform.max_num_messages,
                 min_num_messages=runtime_messagetransform.min_num_messages,
-                summarization_instructions=runtime_messagetransform._summarizer.summarization_instructions,
-                summarized_conversation_template=runtime_messagetransform._summarizer.summarized_content_template,
+                summarization_instructions=runtime_messagetransform.summarization_instructions,
+                summarized_conversation_template=runtime_messagetransform.summarized_conversation_template,
                 max_cache_size=runtime_messagetransform.max_cache_size,
                 max_cache_lifetime=runtime_messagetransform.max_cache_lifetime,
                 cache_collection_name=runtime_messagetransform.cache_collection_name,
