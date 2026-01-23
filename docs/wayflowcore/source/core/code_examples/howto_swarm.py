@@ -18,6 +18,7 @@ from typing import List
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
+    UserMessageRequestStatus,
 )
 from wayflowcore.agent import Agent
 from wayflowcore.swarm import Swarm
@@ -218,12 +219,12 @@ conversation = assistant.start_conversation()
 conversation.append_user_message(
     "My skin has been itching for some about a week, can you help me understand what is going on?"
 )
-# status = conversation.execute()
-# if isinstance(status, UserMessageRequestStatus):
-#     assistant_reply = conversation.get_last_message()
-#     print(f"---\nAssistant >>> {assistant_reply.content}\n---")
-# else:
-#     print(f"Invalid execution status, expected UserMessageRequestStatus, received {type(status)}")
+status = conversation.execute()
+if isinstance(status, UserMessageRequestStatus):
+    assistant_reply = conversation.get_last_message()
+    print(f"---\nAssistant >>> {assistant_reply.content}\n---")
+else:
+    print(f"Invalid execution status, expected UserMessageRequestStatus, received {type(status)}")
 
 # then continue the conversation
 # .. end-##_Running_the_Swarm
@@ -310,8 +311,8 @@ def swarm_in_flow(swarm):
 flow = swarm_in_flow(assistant)
 conversation = flow.start_conversation()
 conversation.append_user_message("My skin has been itching for some about a week. Can you tell me how severe it is?")
-# status = conversation.execute()
-# print(status.output_values["output_message"])
+status = conversation.execute()
+print(status.output_values["output_message"])
 # .. end-##_Run_Swarm_within_a_Flow
 # .. start-##_Export_config_to_Agent_Spec2
 from wayflowcore.agentspec import AgentSpecExporter
