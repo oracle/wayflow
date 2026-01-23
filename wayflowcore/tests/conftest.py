@@ -435,7 +435,7 @@ def remotely_hosted_llm():
     return LlmModelFactory.from_config(VLLM_MODEL_CONFIG)
 
 
-mock_llm_config = {
+MOCK_LLM_CONFIG = {
     "model_type": "vllm",
     "host_port": "mock.com",
     "model_id": "super-smart",
@@ -443,7 +443,7 @@ mock_llm_config = {
 
 
 def mock_llm():
-    return LlmModelFactory.from_config(mock_llm_config)
+    return LlmModelFactory.from_config(MOCK_LLM_CONFIG)
 
 
 ToolRequestT = TypedDict(

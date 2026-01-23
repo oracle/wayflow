@@ -29,7 +29,7 @@ from wayflowcore.models.llmmodel import LlmCompletion, LlmModel
 from wayflowcore.property import FloatProperty, IntegerProperty, StringProperty
 from wayflowcore.transforms import ConversationSummarizationTransform, MessageSummarizationTransform
 
-from ..conftest import GEMMA_CONFIG, patch_streaming_llm
+from ..conftest import GEMMA_CONFIG, MOCK_LLM_CONFIG, patch_streaming_llm
 from ..datastores.conftest import (
     cleanup_oracle_datastore,
     get_oracle_connection_config,
@@ -247,20 +247,23 @@ def converted_wayflow_agent_with_message_summarization_transform_from_agentspec(
             collection_name: AgentSpecMessageSummarizationTransform.get_entity_definition()
         },
     )
-    llm_config = AgentSpecVllmConfig(
+    summarization_llm_config = AgentSpecVllmConfig(
         name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
     )
     agent_spec_transform = AgentSpecMessageSummarizationTransform(
         name="message-summarizer",
-        llm=llm_config,
+        llm=summarization_llm_config,
         datastore=agent_spec_datastore,
         max_message_size=500,
         cache_collection_name=collection_name,
     )
+    agent_llm_config = AgentSpecVllmConfig(
+        name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
+    )
     agent_spec_agent = AgentSpecAgent(
         name="test-agent",
         system_prompt="",
-        llm_config=llm_config,
+        llm_config=agent_llm_config,
         transforms=[agent_spec_transform],
     )
     loader = AgentSpecLoader()
@@ -277,21 +280,24 @@ def converted_wayflow_agent_with_conversation_summarization_transform_from_agent
             collection_name: AgentSpecConversationSummarizationTransform.get_entity_definition()
         },
     )
-    llm_config = AgentSpecVllmConfig(
+    summarization_llm_config = AgentSpecVllmConfig(
         name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
     )
     agent_spec_transform = AgentSpecConversationSummarizationTransform(
         name="conversation-summarizer",
-        llm=llm_config,
+        llm=summarization_llm_config,
         datastore=agent_spec_datastore,
         max_num_messages=10,
         min_num_messages=5,
         cache_collection_name=collection_name,
     )
+    agent_llm_config = AgentSpecVllmConfig(
+        name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
+    )
     agent_spec_agent = AgentSpecAgent(
         name="test-agent",
         system_prompt="",
-        llm_config=llm_config,
+        llm_config=agent_llm_config,
         transforms=[agent_spec_transform],
     )
     wayflow_agent = AgentSpecLoader().load_component(agent_spec_agent)
