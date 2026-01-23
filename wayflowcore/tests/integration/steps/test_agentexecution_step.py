@@ -718,3 +718,50 @@ def test_swarm_can_run_in_non_conversational_mode_with_output_descriptors_in_swa
     conversation.append_user_message("What is 10+10?")
     status = conversation.execute()
     assert "20" in status.output_values["output_message"]
+
+
+def test_swarm_can_run_in_non_conversational_mode_with_input_and_output_descriptors_in_swarm(
+    vllm_responses_llm,
+):
+    input_message = StringProperty(name="input_message", default_value="")
+    response = StringProperty(name="response", default_value="")
+    first_agent = Agent(
+        llm=vllm_responses_llm,
+        name="first_agent",
+        custom_instruction="You are a helpful agent. Look at the message in {{input_message}}",
+    )
+    second_agent = Agent(
+        llm=vllm_responses_llm,
+        name="second_agent",
+        description="Agent that can do math",
+        custom_instruction="You are an agent that can do math.",
+    )
+
+    swarm = Swarm(
+        first_agent=first_agent,
+        relationships=[(first_agent, second_agent)],
+        input_descriptors=[input_message],
+        output_descriptors=[response],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=swarm,
+    )
+
+    output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
+
+    flow = Flow(
+        begin_step=agent_step,
+        control_flow_edges=[
+            ControlFlowEdge(source_step=agent_step, destination_step=output_step),
+            ControlFlowEdge(source_step=output_step, destination_step=None),
+        ],
+        data_flow_edges=[DataFlowEdge(agent_step, "response", output_step, "response")],
+    )
+
+    conversation = flow.start_conversation(inputs={"input_message": "What is 10+10?"})
+    conversation.execute()
+    status = conversation.execute()
+    assert "20" in status.output_values["output_message"]
