@@ -387,7 +387,7 @@ def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMo
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
-    math_swarm = _get_math_swarm(*example_math_agents, handoff=handoff)
+    math_swarm = _get_math_swarm(*example_math_agents, handoff)
     conv = math_swarm.start_conversation()  # first agent is fooza
     conv.append_user_message("compute the result the zbuk operation of 4 and 5")
     conv.execute()

@@ -15,7 +15,6 @@ from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
-from wayflowcore.models import LlmModel
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import IntegerProperty, Property, StringProperty
 from wayflowcore.steps import InputMessageStep, OutputMessageStep
@@ -34,9 +33,10 @@ from ..test_agentcomposability import zinimo_tool
 from ..test_assistanttester import make_sequential_assistant_with_context_provider
 
 
-def get_zinimo_agent(llm: LlmModel):
+@fixture
+def zinimo_agent(vllm_responses_llm):
     return Agent(
-        llm=llm,
+        llm=vllm_responses_llm,
         custom_instruction=(
             "You need to compute the zinimo operation of 2 provided numbers (if not provided, you should ask the user)"
             "and submit the tool result to the user using the `submit_result` function (and not as a agent message). "
@@ -47,11 +47,6 @@ def get_zinimo_agent(llm: LlmModel):
         description="Agent that can compute the zinimo operation of 2 provided numbers.",
         initial_message=None,
     )
-
-
-@fixture
-def zinimo_agent(remotely_hosted_llm):
-    return get_zinimo_agent(remotely_hosted_llm)
 
 
 zinimo_result_description = IntegerProperty(
@@ -553,10 +548,11 @@ def test_agent_step_that_uses_agent_with_default_input_values_works(big_llama):
     assert "videogame" in last_message.content.lower()
 
 
-def test_agent_step_with_swarm_can_execute_without_user_input_when_first_agent_handles_task(
+def test_agent_step_with_swarm_can_execute_when_first_agent_handles_task(
+    zinimo_agent,
     vllm_responses_llm,
 ):
-    first_agent = get_zinimo_agent(vllm_responses_llm)
+    first_agent = zinimo_agent
 
     second_agent = Agent(
         llm=vllm_responses_llm,
@@ -579,7 +575,8 @@ def test_agent_step_with_swarm_can_execute_without_user_input_when_first_agent_h
     assert status.output_values["zinimo_result"] == -2
 
 
-def test_agent_step_with_swarm_can_execute_without_user_input_when_sub_agent_handles_task(
+def test_agent_step_with_swarm_can_execute_when_sub_agent_handles_task(
+    zinimo_agent,
     vllm_responses_llm,
 ):
     first_agent = Agent(
@@ -588,7 +585,7 @@ def test_agent_step_with_swarm_can_execute_without_user_input_when_sub_agent_han
         description="Redirects the user requests to the sub agents, or handles the subagents communication. Do not solve the task on your own.",
         custom_instruction="You are the main agent",
     )
-    second_agent = get_zinimo_agent(vllm_responses_llm)
+    second_agent = zinimo_agent
 
     swarm = Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
     step = AgentExecutionStep(
@@ -604,7 +601,7 @@ def test_agent_step_with_swarm_can_execute_without_user_input_when_sub_agent_han
     assert status.output_values["zinimo_result"] == -2
 
 
-def test_agent_step_with_swarm_can_execute_with_user_input(vllm_responses_llm):
+def test_agent_step_with_swarm_in_conversational_mode(vllm_responses_llm):
     first_agent = Agent(
         llm=vllm_responses_llm,
         name="first_agent",
@@ -633,7 +630,7 @@ def test_agent_step_with_swarm_can_execute_with_user_input(vllm_responses_llm):
     assert "john" in conv.get_last_message().content.lower()
 
 
-def test_agent_step_with_swarm_can_execute_with_user_input_and_outputs(vllm_responses_llm):
+def test_swarm_can_run_in_non_conversational_mode(vllm_responses_llm):
     first_agent = Agent(
         llm=vllm_responses_llm,
         name="first_agent",
@@ -654,6 +651,53 @@ def test_agent_step_with_swarm_can_execute_with_user_input_and_outputs(vllm_resp
         agent=swarm,
         output_descriptors=[response],
         caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    user_step = InputMessageStep(name="user_step", message_template="")
+    output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
+
+    flow = Flow(
+        begin_step=user_step,
+        control_flow_edges=[
+            ControlFlowEdge(source_step=user_step, destination_step=agent_step),
+            ControlFlowEdge(source_step=agent_step, destination_step=output_step),
+            ControlFlowEdge(source_step=output_step, destination_step=None),
+        ],
+        data_flow_edges=[DataFlowEdge(agent_step, "response", output_step, "response")],
+    )
+
+    conversation = flow.start_conversation()
+    conversation.execute()
+    conversation.append_user_message("What is 10+10?")
+    status = conversation.execute()
+    assert "20" in status.output_values["output_message"]
+
+
+def test_swarm_can_run_in_non_conversational_mode_with_output_descriptors_in_swarm(
+    vllm_responses_llm,
+):
+    first_agent = Agent(
+        llm=vllm_responses_llm,
+        name="first_agent",
+        custom_instruction="You are a helpful agent",
+    )
+    second_agent = Agent(
+        llm=vllm_responses_llm,
+        name="second_agent",
+        description="Agent that can do math",
+        custom_instruction="You are an agent that can do math",
+    )
+    response = StringProperty(name="response", default_value="")
+    swarm = Swarm(
+        first_agent=first_agent,
+        relationships=[(first_agent, second_agent)],
+        output_descriptors=[response],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=swarm,
     )
 
     user_step = InputMessageStep(name="user_step", message_template="")
