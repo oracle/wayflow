@@ -51,7 +51,7 @@ setup(
     packages=find_packages("src"),
     python_requires=">=3.10,<3.14",
     install_requires=[
-        "pyagentspec>=25.4.1",
+        "pyagentspec>=26.1.0",
         "httpx>0.28.0,<1.0.0",  # warning but no vulnerabilities
         "numpy>=1.24.3,<3.0.0",
         "pandas>=2.0.3,<3.0.0",
@@ -61,7 +61,7 @@ setup(
         "json_repair>=0.30.0,<0.45.0",
         "PyYAML>=5.4,<7.0.0",
         "pydantic>=2.7.4,<3.0.0",
-        "mcp>=1.12.0,<1.18.0",
+        "mcp>=1.24.0,<1.25.0",
         # 4rth party dependencies version bounds, for CVE patching
         "annotated-types>=0.6.0",
         "anyio>=4.10.0,<4.12.0",
