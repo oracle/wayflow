@@ -24,7 +24,7 @@ from wayflowcore.executors.executionstatus import (
 from wayflowcore.flow import Flow
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models import LlmModel
-from wayflowcore.property import StringProperty
+from wayflowcore.property import IntegerProperty, StringProperty
 from wayflowcore.serialization import deserialize, serialize
 from wayflowcore.steps import OutputMessageStep
 from wayflowcore.swarm import HandoffMode, Swarm
@@ -387,7 +387,7 @@ def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMo
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
-    math_swarm = _get_math_swarm(*example_math_agents, handoff)
+    math_swarm = _get_math_swarm(*example_math_agents, handoff=handoff)
     conv = math_swarm.start_conversation()  # first agent is fooza
     conv.append_user_message("compute the result the zbuk operation of 4 and 5")
     conv.execute()
@@ -1390,9 +1390,16 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_does_not
     assert str(result) in conv.get_last_message().content
 
 
+@retry_test(max_attempts=4)
 def test_swarm_without_user_input_can_execute_as_expected(vllm_responses_llm):
-    from wayflowcore.property import IntegerProperty
-
+    """
+    Failure rate:          3 out of 50
+    Observed on:           2025-12-24
+    Average success time:  9.38 seconds per successful attempt
+    Average failure time:  3.74 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 3.5 / 100'000
+    """
     llm = vllm_responses_llm
 
     fooza_agent = _get_fooza_agent(llm)
