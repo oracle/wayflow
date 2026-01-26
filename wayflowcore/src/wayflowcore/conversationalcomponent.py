@@ -154,8 +154,8 @@ def _mutate(component: T, attributes: Dict[str, Any]) -> _MutatedConversationalC
     Returns a context manager for mutating the component with the provided attributes.
     Selects the appropriate mutator class based on the component type.
     """
-    from wayflowcore.agent import Agent, _MutatedAgent
-    from wayflowcore.swarm import Swarm, _MutatedSwarm
+    from wayflowcore.agent import _MutatedAgent, Agent
+    from wayflowcore.swarm import _MutatedSwarm, Swarm
 
     if isinstance(component, Agent):
         return _MutatedAgent(component, attributes)  # type: ignore
