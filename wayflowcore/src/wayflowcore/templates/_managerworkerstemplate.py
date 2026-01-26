@@ -55,7 +55,7 @@ The user can only see the content of the messages sent with `talk_to_user` and w
 
 Do not use variables in the function call. Here's the structure:
 
-YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; NOT VISIBLE TO THE USER)
+YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT SEE THOSE!)
 
 {"name": function name, "parameters": dictionary of argument name and its value}
 </response_rules>
@@ -84,7 +84,7 @@ The user can only see the content of the messages sent with `talk_to_user` and w
 Always structure your response as a thought followed by one or multiple tool calls using JSON compliant syntax.
 Do not use variables in the function call. Here's the structure:
 
-YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; NOT VISIBLE TO THE USER)
+YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT SEE THOSE!)
 
 {"name": function name, "parameters": dictionary of argument name and its value}
 """.strip()
