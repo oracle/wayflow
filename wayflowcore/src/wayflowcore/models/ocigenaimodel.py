@@ -28,7 +28,6 @@ from wayflowcore.transforms import CanonicalizationMessageTransform
 from ._modelhelpers import _is_gemma_model, _is_llama_legacy_model
 from ._openaihelpers import (
     _ChatCompletionsAPIProcessor,
-    _property_to_openai_schema,
     _ResponsesAPIProcessor,
 )
 from ._openaihelpers._utils import _safe_json_loads
