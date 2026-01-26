@@ -121,8 +121,12 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 for message in prompt.messages
                 for m in self._convert_message_into_openai_message_dict(message, supports_tool_role)
             ],
-            "prompt_cache_key": self._get_prompt_cache_key_from_prompt(prompt),
         }
+
+        if self._is_openai_endpoint():
+            payload_arguments["prompt_cache_key"] = (
+                self._get_prompt_cache_key_from_prompt(prompt),
+            )
 
         if prompt.tools is not None:
             payload_arguments["tools"] = [t.to_openai_format() for t in prompt.tools]
