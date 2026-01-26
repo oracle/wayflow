@@ -15,6 +15,7 @@ import httpx
 import pytest
 
 from wayflowcore import Agent, Message, Tool
+from wayflowcore.messagelist import MessageType
 from wayflowcore.models import (
     LlmCompletion,
     OllamaModel,
@@ -23,10 +24,6 @@ from wayflowcore.models import (
     StreamChunkType,
     VllmModel,
 )
-from wayflowcore.models import LlmCompletion, OpenAICompatibleModel, Prompt, StreamChunkType
-from wayflowcore import Message, Tool
-from wayflowcore.messagelist import MessageType
-from wayflowcore.models import LlmCompletion, OpenAICompatibleModel, Prompt, StreamChunkType
 from wayflowcore.models._requesthelpers import _RetryStrategy
 from wayflowcore.models.llmmodel import LlmGenerationConfig
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
@@ -679,6 +676,7 @@ def test_vllm_ollama_with_api_key(model_cls):
     payload["headers"] = model._get_headers()
     assert payload.get("headers", {}).get("Authorization") == "Bearer sk-034-MOCKED_KEY"
 
+
 @pytest.fixture
 def thought_signature_llm():
     if "GEMINI_API_KEY" not in os.environ:
@@ -711,6 +709,10 @@ def openai_compatible_gemini(request):
 
 
 def test_thought_signature_with_single_and_parallel_tool_calling(openai_compatible_gemini):
+    # NOTE: This test may be flaky (the model may still choose not to do parallel tool calling).
+    # However, we do not add retries here because it's a rather slow test to get a meaningful
+    # estimation for the number of retries. This is not an issue currently, because the test is not
+    # run in the CI, and developers can retry locally as needed.
     llm, check_for_extra_content = openai_compatible_gemini
     prompt = Prompt(
         messages=[
