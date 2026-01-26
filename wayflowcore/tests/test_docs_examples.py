@@ -106,7 +106,7 @@ def mock_server(session_tmp_path):
         yield f"http://{host}:{port}/protected"
     finally:
         server.should_exit = True
-        thread.join(timeout=3.0)
+        thread.join(timeout=5.0)
 
 
 def _read_dummy_pdf_file(file_path: str, clean_pdf: bool = False) -> str:

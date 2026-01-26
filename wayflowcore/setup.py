@@ -50,7 +50,7 @@ setup(
     keywords="NLP, text generation, code generation, LLM, Assistant, Tool, Agent",
     package_dir={"": "src"},
     packages=find_packages("src"),
-    python_requires=">=3.10",
+    python_requires=">=3.10,<3.15",
     install_requires=[
         "pyagentspec>=26.1.0",
         "httpx>0.28.0,<1.0.0",  # warning but no vulnerabilities

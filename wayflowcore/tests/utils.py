@@ -179,6 +179,8 @@ def get_available_port(tmp_path: str):
         import fcntl
 
         with open(lock_path, "a+") as lockf:
+            # We take an exclusive lock on the file, so that we ensure that no other thread/process
+            # is going to try to get an available port at the same time
             fcntl.flock(lockf.fileno(), fcntl.LOCK_EX)
             try:
                 # Read last used port

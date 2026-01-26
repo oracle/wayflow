@@ -177,8 +177,6 @@ def create_init_arguments(step_cls: Type[Step]) -> Dict[str, Any]:
 def test_all_steps_can_be_serde_when_init_with_default_values(
     step_cls: Any, deserialization_context_with_tool
 ) -> None:
-    if step_cls is Step:
-        pytest.skip()
     config_descriptors: Dict[str, Any] = (
         step_cls._get_step_specific_static_configuration_descriptors()
     )

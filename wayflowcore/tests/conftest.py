@@ -96,7 +96,7 @@ def session_tmp_path(tmp_path_factory):
     # This ensures that the session tmp path is shared across workers in parallel test execution
     # Inspired by https://pytest-xdist.readthedocs.io/en/latest/how-to.html#making-session-scoped-fixtures-execute-only-once
     dirpath = tmp_path_factory.getbasetemp().parent
-    yield dirpath
+    yield str(dirpath)
     # No need to manually clear the directory, pytest does it automatically
 
 
