@@ -206,6 +206,7 @@ def test_mock_api_call_io(faked_request, data, headers, expected_io) -> None:
     expected_io["url"] = step.url
     expected_io["method"] = step.method
     expected_io["params"] = {"param": "test3"}
+    expected_io["headers"]["sensitive_header1"] = "test5"
 
     output_descriptor_keys = {key.name for key in step.output_descriptors}
     assert output_descriptor_keys == outputs.keys()
