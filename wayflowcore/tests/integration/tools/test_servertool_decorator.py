@@ -470,6 +470,7 @@ def test_many_parameters():
         param8: Annotated[Union[int, str], "Param 8 desc"] = "union",
         param9: Annotated[List[Dict[str, int]], "Param 9 desc"] = [{"a": 1}],
         param10: Annotated[Dict[str, List[str]], "Param 10 desc"] = {"b": ["c"]},
+        param11: Annotated[int | str, "Param 11 desc"] = "uniontype",
     ) -> Annotated[str, "Output description"]:
         """Many parameters tool description"""
         return "result"
@@ -538,6 +539,12 @@ def test_many_parameters():
             "default": {"b": ["c"]},
             "additionalProperties": {"type": "array", "items": {"type": "string"}},
             "title": "Param10",
+        },
+        "param11": {
+            "description": "Param 11 desc",
+            "default": "uniontype",
+            "anyOf": [{"type": "integer"}, {"type": "string"}],
+            "title": "Param11",
         },
     }
 
