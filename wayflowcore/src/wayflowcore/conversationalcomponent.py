@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
     Generic,
     List,
@@ -150,33 +149,16 @@ class _MutatedConversationalComponent(Generic[T]):
         self._on_change()
 
 
-_MUTATOR_REGISTRY: Dict[
-    Type[ConversationalComponent], Type[_MutatedConversationalComponent[Any]]
-] = {}
-
-
-# Register decorator
-def _registers(
-    component_type: Type[ConversationalComponent],
-) -> Callable[
-    [Type[_MutatedConversationalComponent[Any]]], Type[_MutatedConversationalComponent[Any]]
-]:
-    """Decorator to link a Mutator class to a Component class."""
-
-    def decorator(
-        cls: Type[_MutatedConversationalComponent[Any]],
-    ) -> Type[_MutatedConversationalComponent[Any]]:
-        _MUTATOR_REGISTRY[component_type] = cls
-        return cls
-
-    return decorator
-
-
-# Unified factory
 def _mutate(component: T, attributes: Dict[str, Any]) -> _MutatedConversationalComponent[T]:
     """
-    Looks up the registered mutator for the component type.
-    Returns the context manager.
+    Returns a context manager for mutating the component with the provided attributes.
+    Selects the appropriate mutator class based on the component type.
     """
-    mutator_cls = _MUTATOR_REGISTRY.get(type(component), _MutatedConversationalComponent)
-    return mutator_cls(component, attributes)
+    from wayflowcore.agent import Agent, _MutatedAgent
+    from wayflowcore.swarm import Swarm, _MutatedSwarm
+
+    if isinstance(component, Agent):
+        return _MutatedAgent(component, attributes)  # type: ignore
+    elif isinstance(component, Swarm):
+        return _MutatedSwarm(component, attributes)  # type: ignore
+    return _MutatedConversationalComponent(component, attributes)

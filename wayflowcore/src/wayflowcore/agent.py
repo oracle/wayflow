@@ -17,7 +17,6 @@ from wayflowcore.conversationalcomponent import (
     ConversationalComponent,
     T,
     _MutatedConversationalComponent,
-    _registers,
 )
 from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.idgeneration import IdGenerator
@@ -684,7 +683,6 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         return might_ask_question_to_user or has_yielding_tools or has_yielding_flows
 
 
-@_registers(Agent)
 class _MutatedAgent(_MutatedConversationalComponent[T]):
     def _on_change(self) -> Any:
         if not hasattr(self.component, "_update_internal_state"):

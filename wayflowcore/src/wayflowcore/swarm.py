@@ -16,7 +16,6 @@ from wayflowcore.conversationalcomponent import (
     ConversationalComponent,
     T,
     _MutatedConversationalComponent,
-    _registers,
 )
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
@@ -310,6 +309,5 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         return all_tools
 
 
-@_registers(Swarm)
 class _MutatedSwarm(_MutatedConversationalComponent[T]):
     pass
