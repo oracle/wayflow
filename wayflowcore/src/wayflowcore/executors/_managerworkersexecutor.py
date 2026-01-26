@@ -86,6 +86,63 @@ class _ToolProcessSignal(Enum):
 
 class ManagerWorkersRunner(ConversationExecutor):
     @staticmethod
+    async def _run_manager_round(
+        current_agent: Agent,
+        managerworkers_config: "ManagerWorkers",
+        current_conversation: "AgentConversation",
+        execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
+    ) -> ExecutionStatus:
+        from wayflowcore.agent import _MutatedAgent
+        from wayflowcore.executors._agentexecutor import (
+            _TALK_TO_USER_TOOL_NAME,
+            _make_talk_to_user_tool,
+        )
+
+        mutated_agent_tools = (
+            list(current_agent.tools) + managerworkers_config._manager_communication_tools
+        )
+
+        has_talk_to_user_tool = any(
+            tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
+        )
+        if not has_talk_to_user_tool:
+            # Manager agent should have tool to talk to user
+            mutated_agent_tools.append(_make_talk_to_user_tool())
+
+        mutated_agent_template = managerworkers_config.managerworkers_template.with_partial(
+            {
+                "name": current_agent.name,
+                "description": current_agent.description,
+                "other_agents": [
+                    {"name": worker.name, "description": worker.description}
+                    for worker in managerworkers_config.workers
+                ],
+                "caller_name": "HUMAN USER",
+            }
+        )
+
+        with _MutatedAgent(
+            current_agent,
+            {
+                "tools": mutated_agent_tools,
+                "agent_template": mutated_agent_template,
+                "_add_talk_to_user_tool": has_talk_to_user_tool,
+            },
+        ):
+            return await current_conversation.execute_async(
+                execution_interrupts=execution_interrupts,
+            )
+
+    @staticmethod
+    async def _run_worker_round(
+        current_conversation: "AgentConversation",
+        execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
+    ) -> ExecutionStatus:
+        return await current_conversation.execute_async(
+            execution_interrupts=execution_interrupts,
+        )
+
+    @staticmethod
     async def execute_async(
         conversation: Conversation,
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
@@ -96,12 +153,6 @@ class ManagerWorkersRunner(ConversationExecutor):
             raise ValueError(
                 f"Conversation should be of type ManagerWorkersConversation, but got {type(conversation)}"
             )
-
-        from wayflowcore.agent import _MutatedAgent
-        from wayflowcore.executors._agentexecutor import (
-            _TALK_TO_USER_TOOL_NAME,
-            _make_talk_to_user_tool,
-        )
 
         managerworkers_config = conversation.component
 
@@ -118,63 +169,34 @@ class ManagerWorkersRunner(ConversationExecutor):
                 current_agent_name,
                 "-" * 30,
             )
-
             if current_agent_name == managerworkers_config.manager_agent.name:
                 current_agent = managerworkers_config.manager_agent
 
                 # Handle pending tool requests of manager
                 if isinstance(current_conversation.status, ToolRequestStatus):
-                    result = ManagerWorkersRunner._handle_pending_tool_requests_of_manager(
+                    signal = ManagerWorkersRunner._handle_pending_tool_requests_of_manager(
                         manager=current_agent,
                         manager_conversation=current_conversation,
                         managerworkers_conversation=conversation,
                     )
 
-                    if result == _ToolProcessSignal.RETURN:
+                    if signal == _ToolProcessSignal.RETURN:
                         return current_conversation.status
-                    elif result == _ToolProcessSignal.START_NEW_LOOP:
+                    elif signal == _ToolProcessSignal.START_NEW_LOOP:
                         continue
                     else:
                         # _ToolProcessSignal.EXECUTE_AGENT -> we continue this loop with a new call to the current agent
                         pass
 
-                mutated_agent_tools = (
-                    list(current_agent.tools) + managerworkers_config._manager_communication_tools
+                status = await ManagerWorkersRunner._run_manager_round(
+                    current_agent=current_agent,
+                    managerworkers_config=managerworkers_config,
+                    current_conversation=current_conversation,
+                    execution_interrupts=execution_interrupts,
                 )
-
-                has_talk_to_user_tool = any(
-                    tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
-                )
-                if not has_talk_to_user_tool:
-                    # Manager agent should have tool to talk to user
-                    mutated_agent_tools.append(_make_talk_to_user_tool())
-
-                mutated_agent_template = managerworkers_config.managerworkers_template.with_partial(
-                    {
-                        "name": current_agent.name,
-                        "description": current_agent.description,
-                        "other_agents": [
-                            {"name": worker.name, "description": worker.description}
-                            for worker in managerworkers_config.workers
-                        ],
-                        "caller_name": "HUMAN USER",
-                    }
-                )
-
-                with _MutatedAgent(
-                    current_agent,
-                    {
-                        "tools": mutated_agent_tools,
-                        "agent_template": mutated_agent_template,
-                        "_add_talk_to_user_tool": has_talk_to_user_tool,
-                    },
-                ):
-                    status = await current_conversation.execute_async(
-                        execution_interrupts=execution_interrupts,
-                    )
-
-            else:  # Current agent is a worker
-                status = await current_conversation.execute_async(
+            else:
+                status = await ManagerWorkersRunner._run_worker_round(
+                    current_conversation=current_conversation,
                     execution_interrupts=execution_interrupts,
                 )
 
