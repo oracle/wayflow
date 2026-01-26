@@ -352,13 +352,13 @@ class ApiCallStep(Step):
             Cannot be used in combination with the deprecated ``json_body``.
             Can be templated using jinja templates.
 
-        .. note::
-            Special case: if the ``data`` is a ``str`` it will be tried to taken as a literal json string.
-            Setting this parameter automatically sets the ``Content-Type: application/json``
-            header if the header does not correspond to form-data (``Content-Type: application/x-www-form-urlencoded``).
+            .. note::
+                Special case: if the ``data`` is a ``str`` it will be tried to taken as a literal json string.
+                Setting this parameter automatically sets the ``Content-Type: application/json``
+                header if the header does not correspond to form-data (``Content-Type: application/x-www-form-urlencoded``).
 
-        .. warning::
-            The ``data`` parameter is only relevant for http methods that allow bodies, e.g. POST, PUT, PATCH.
+            .. warning::
+                The ``data`` parameter is only relevant for http methods that allow bodies, e.g. POST, PUT, PATCH.
 
         params
             Data to send as query-parameters (i.e. the ``?foo=bar&gnu=gna`` part of queries)
