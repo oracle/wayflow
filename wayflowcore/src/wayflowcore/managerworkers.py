@@ -8,7 +8,6 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
-from wayflowcore import Tool
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.conversationalcomponent import (
@@ -24,6 +23,7 @@ from wayflowcore.property import Property
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.templates._managerworkerstemplate import _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
+from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 @dataclass(init=False)
 class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, SerializableObject):
     group_manager: Union[LlmModel, Agent]
-    workers: List[Union[Agent, "ManagerWorkers"]]
+    workers: List[Agent]
     caller_input_mode: CallerInputMode
     managerworkers_template: "PromptTemplate"
     input_descriptors: List["Property"]
@@ -48,7 +48,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
     def __init__(
         self,
         group_manager: Union[LlmModel, Agent],
-        workers: List[Union[Agent, "ManagerWorkers"]],
+        workers: List[Agent],
         caller_input_mode: CallerInputMode = CallerInputMode.ALWAYS,
         managerworkers_template: Optional["PromptTemplate"] = None,
         input_descriptors: Optional[List["Property"]] = None,
