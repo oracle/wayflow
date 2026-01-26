@@ -28,7 +28,7 @@ from pyagentspec.property import (
     json_schemas_have_same_type,
     properties_have_same_type,
 )
-from pyagentspec.templating import get_placeholder_properties_from_string
+from pyagentspec.templating import get_placeholder_properties_from_json_object
 from pyagentspec.validation_helpers import model_validator_with_error_accumulation
 from pydantic import ConfigDict, Field, SerializeAsAny
 from typing_extensions import Self
@@ -307,9 +307,7 @@ class ExtendedLlmNode(ExtendedNode, LlmNode):
         ):
             return self.prompt_template_object.inputs
         elif hasattr(self, "prompt_template"):
-            return get_placeholder_properties_from_string(
-                self.prompt_template
-            )  # TODO: Replace with get_placeholder_properties_from_json_object
+            return get_placeholder_properties_from_json_object(self.prompt_template)
         else:
             return []
 
@@ -642,9 +640,7 @@ class PluginGetChatHistoryNode(ExtendedNode):
 
         inputs = [
             prop_
-            for prop_ in get_placeholder_properties_from_string(
-                self.output_template
-            )  # TODO: Replace with get_placeholder_properties_from_json_object
+            for prop_ in get_placeholder_properties_from_json_object(self.output_template)
             if prop_.title != self.CHAT_HISTORY
         ]
         return inputs
