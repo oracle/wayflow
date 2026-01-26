@@ -242,40 +242,39 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         from wayflowcore.steps import ApiCallStep
 
         step_output = ApiCallStep.HTTP_RESPONSE if output_jq_query is None else "step_output"
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore", message=f"Usage of `json_body` parameter in ApiCallStep is Deprecated*"
+        if json_body:
+            warnings.warn(
+                "Usage of `json_body` parameter in RemoteTool is Deprecated, it will be removed in version 26.2.0, Please use the `data` parameter instead.",
+                DeprecationWarning,
             )
-            api_call_step = ApiCallStep(
-                url=url,
-                method=method,
-                json_body=json_body,
-                data=data,
-                params=params,
-                headers=headers,
-                sensitive_headers=sensitive_headers,
+            data = json_body
+            json_body = None
+
+        api_call_step = ApiCallStep(
+            url=url,
+            method=method,
+            json_body=json_body,
+            data=data,
+            params=params,
+            headers=headers,
+            sensitive_headers=sensitive_headers,
             cookies=cookies,
-                ignore_bad_http_requests=ignore_bad_http_requests,
-                num_retry_on_bad_http_request=num_retry_on_bad_http_request,
-                allow_insecure_http=allow_insecure_http,
-                url_allow_list=url_allow_list,
-                allow_credentials=allow_credentials,
-                allow_fragments=allow_fragments,
-                default_ports=default_ports,
-                store_response=True if output_jq_query is None else False,
-                output_values_json={step_output: output_jq_query} if output_jq_query else None,
-            )
+            ignore_bad_http_requests=ignore_bad_http_requests,
+            num_retry_on_bad_http_request=num_retry_on_bad_http_request,
+            allow_insecure_http=allow_insecure_http,
+            url_allow_list=url_allow_list,
+            allow_credentials=allow_credentials,
+            allow_fragments=allow_fragments,
+            default_ports=default_ports,
+            store_response=True if output_jq_query is None else False,
+            output_values_json={step_output: output_jq_query} if output_jq_query else None,
+        )
         name = name or tool_name
         description = description or tool_description
         if name is None:
             raise ValueError("RemoteTool should have a name, but got None")
         if description is None:
             raise ValueError("RemoteTool should have a description, but got None")
-        if json_body:
-            warnings.warn(
-                "Usage of `json_body` parameter in RemoteTool is Deprecated, it will be removed in version 26.2.0, Please use the `data` parameter instead.",
-                DeprecationWarning,
-            )
 
         tmp_tool = ServerTool.from_step(api_call_step, name, description, step_output)
         super().__init__(
