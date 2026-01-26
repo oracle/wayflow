@@ -525,3 +525,34 @@ They let you store and reuse information across different steps in Flows.
 **API Reference:** :ref:`ControlFlowEdge <controlflowedge>` | :ref:`DataFlowEdge <dataflowedge>` | :ref:`Flow <flow>` | :ref:`ListProperty <listproperty>` | :ref:`FloatProperty <floatproperty>` | :ref:`VariableReadStep <variablereadstep>` | :ref:`VariableWriteStep <variablewritestep>` | :ref:`OutputMessageStep <outputmessagestep>` | :ref:`Variable <variable>`
 
 Learn more by reading the :ref:`Variables API reference <variable>`.
+
+
+
+.. _flowbuilder_ref_sheet:
+
+Flow Builder quick snippets
+---------------------------
+
+Build a sequence, then entry/finish:
+
+.. literalinclude:: ../code_examples/howto_flowbuilder.py
+   :language: python
+   :start-after: .. start-##_Build_a_linear_flow
+   :end-before: .. end-##_Build_a_linear_flow
+
+API Reference: :ref:`FlowBuilder <flowbuilder>`
+
+Build a linear flow in one line:
+
+.. literalinclude:: ../code_examples/howto_flowbuilder.py
+   :language: python
+   :start-after: .. start-##_Build_a_linear_flow_equivalent
+   :end-before: .. end-##_Build_a_linear_flow_equivalent
+
+
+Add a conditional using a step output as key, with a default branch:
+
+.. literalinclude:: ../code_examples/howto_flowbuilder.py
+   :language: python
+   :start-after: .. start-##_Build_a_flow_with_a_conditional
+   :end-before: .. end-##_Build_a_flow_with_a_conditional
