@@ -27,7 +27,9 @@ def get_weather(location: str) -> str:
     """Get the weather for the given specified location"""
     if "zurich" in location.lower():
         return "snowy"
-    return random.choice(["sunny", "cloudy", "windy"])  # nosec
+    return random.choice(
+        ["sunny", "cloudy", "windy"]
+    )  # nosec0004 # the reported issue by pybandit indicates use of non-cryptographic randomness; this randomness is only used to return a demo weather condition for tests
 
 
 def test_single_assistant_run(remotely_hosted_llm: VllmModel) -> None:
