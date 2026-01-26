@@ -702,8 +702,8 @@ def test_multiple_tool_calls_including_server_tool_can_be_executed(vllm_response
         group_manager=fooza_agent,
         workers=[bwip_agent],
     )
-
-    conv = group.start_conversation(messages="Compute bwip(4,2) fooza(4,3) and bwip(4,5)")
+    prompt = "Compute bwip(4,2) fooza(4,3) and bwip(4,5)"
+    conv = group.start_conversation(messages=prompt)
 
     multiple_tool_requests = [
         ToolRequest(
@@ -730,13 +730,23 @@ def test_multiple_tool_calls_including_server_tool_can_be_executed(vllm_response
         outputs=[
             multiple_tool_requests,  # fooza's output
             "bwip answers to fooza",
-            "bwip answers to fooza",
+            "bwip answers to second fooza call",
             "fooza answers to user",
         ],
     ):
         status = conv.execute()
         assert isinstance(status, UserMessageRequestStatus)
-        assert conv.get_last_message().content == "fooza answers to user"
+        messages = conv.get_messages()
+        assert messages[0].content == prompt
+        assert messages[1].tool_requests[0].name == "send_message"
+        assert messages[1].tool_requests[0].args["recipient"] == "bwip_agent"
+        assert messages[1].tool_requests[1].name == "fooza_tool"
+        assert messages[1].tool_requests[2].name == "send_message"
+        assert messages[1].tool_requests[2].args["recipient"] == "bwip_agent"
+        assert messages[2].content == "bwip answers to fooza"
+        assert messages[3].content == "16"  # Fooza tool
+        assert messages[4].content == "bwip answers to second fooza call"
+        assert messages[5].content == "fooza answers to user"
 
 
 def test_multiple_tool_calls_including_with_nonexistent_tools(vllm_responses_llm):
