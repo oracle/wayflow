@@ -319,7 +319,7 @@ You can then load the configuration back to an assistant using the ``AgentSpecLo
 Using Swarm within a Flow
 =========================
 
-The ``Swarm`` pattern can be integrated into a larger :ref:`Flow <flow>` using the :ref:`AgentExecutionStep <agentexecutionstep>`.
+The ``Swarm`` pattern can be integrated into a :ref:`Flow <flow>` using the :ref:`AgentExecutionStep <agentexecutionstep>`.
 
 Here's an example of how to integrate a swarm into a flow:
 

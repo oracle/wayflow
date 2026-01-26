@@ -310,7 +310,7 @@ def swarm_in_flow(swarm):
 # .. start-##_Run_Swarm_within_a_Flow
 flow = swarm_in_flow(assistant)
 conversation = flow.start_conversation()
-conversation.append_user_message("My skin has been itching for some about a week. Can you tell me how severe it is?")
+conversation.append_user_message("My skin has been itching for about a week. Can you tell me how severe it is?")
 status = conversation.execute()
 print(status.output_values["output_message"])
 # .. end-##_Run_Swarm_within_a_Flow
