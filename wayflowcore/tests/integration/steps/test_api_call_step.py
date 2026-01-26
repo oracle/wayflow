@@ -236,7 +236,13 @@ def test_url_param_encoding(faked_request) -> None:
 def deploy_test_webapp(hostname: str, port: int):
     class RequestHandler(BaseHTTPRequestHandler):
 
-        def create_content(self):
+        def _make_echo_payload(self):
+            """Create a simple echo response from the incoming request.
+
+            - Reads headers, query params, and the request body (JSON, form, or plain text).
+            - Combines them into one dict.
+            - Adds the request URL, path, and whether JSON was received.
+            """
             path = urlparse(self.path)
             query = dict(parse_qsl(path.query, keep_blank_values=True))
             body_values = {}
@@ -325,7 +331,7 @@ def deploy_test_webapp(hostname: str, port: int):
             self.respond()
 
         def respond(self, content=None):
-            content = content or self.create_content()
+            content = content or self._make_echo_payload()
             content_text = json.dumps(content).encode()
             if content.get("fail"):
                 self.send_response(HTTPStatus.IM_A_TEAPOT)
