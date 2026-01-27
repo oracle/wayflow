@@ -3,7 +3,7 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-
+import json
 import logging
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -98,8 +98,20 @@ def _extract_text_content_from_tool_result(result: types.CallToolResult) -> str:
     for content in result.content:
         if content.type == "text":
             text_content += content.text
+        elif content.type == "resource" and isinstance(
+            content.resource, types.TextResourceContents
+        ):
+            resource = content.resource
+            content_as_json = {
+                "uri": str(resource.uri),
+                "mimeType": resource.mimeType,
+                "text": resource.text,
+            }
+            text_content += json.dumps(content_as_json)
         else:
-            raise ValueError(f"Only `text` content type is supported, was {content.type}")
+            raise ValueError(
+                f"Only `text` and text `resource` content type is supported, was {content.type}"
+            )
     return text_content
 
 

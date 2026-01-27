@@ -98,7 +98,7 @@ def streamablehttp_client_transport_mtls(
 def run_toolbox_test(transport: ClientTransport) -> None:
     toolbox = MCPToolBox(client_transport=transport)
     tools = toolbox.get_tools()  # need
-    assert len(tools) == 10
+    assert len(tools) == 11
     mcp_tool = next(t for t in tools if t.name == "fooza_tool")
     assert mcp_tool.run(a=1, b=2) == "7"
     assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
@@ -723,3 +723,14 @@ def test_mcp_tool_works_with_nested_inputs(sse_client_transport, with_mcp_enable
         "tool_output" in outputs
         and outputs["tool_output"] == "vals=['value1', 'value2'], props={'key': 'value'}"
     )
+
+
+def test_mcp_tool_works_resource_output(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="get_resource",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+    assert len(tool.output_descriptors) == 1
+    assert isinstance(tool.output_descriptors[0], StringProperty)
+    assert "user_34_response" in tool.run(user="user_34")
