@@ -180,7 +180,8 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
     session_parameters: SessionParameters = field(default_factory=SessionParameters)
     """Arguments for the MCP session."""
 
-    def _merge_headers(self) -> Optional[Dict[str, str]]:
+    @property
+    def _merged_headers(self) -> Optional[Dict[str, str]]:
         # Merge sensitive and non-sensitive headers (if any) in a single dictionary
         merged_headers: Dict[str, str] = {}
         if self.headers:
@@ -277,7 +278,7 @@ class SSETransport(RemoteBaseTransport, ClientTransportWithAuth, SerializableObj
     def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
         return sse_client(
             url=self.url,
-            headers=self._merge_headers(),
+            headers=self._merged_headers,
             timeout=self.timeout,
             sse_read_timeout=self.sse_read_timeout,
             auth=self.auth,
@@ -348,7 +349,7 @@ class SSEmTLSTransport(HTTPmTLSBaseTransport, ClientTransportWithAuth, Serializa
     def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
         return sse_client(
             self.url,
-            headers=self._merge_headers(),
+            headers=self._merged_headers,
             timeout=self.timeout,
             sse_read_timeout=self.sse_read_timeout,
             auth=self.auth,
@@ -382,7 +383,7 @@ class StreamableHTTPTransport(RemoteBaseTransport, ClientTransportWithAuth, Seri
     def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
         return streamablehttp_client(
             url=self.url,
-            headers=self._merge_headers(),
+            headers=self._merged_headers,
             timeout=datetime.timedelta(seconds=self.timeout),
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
             auth=self.auth,
@@ -434,7 +435,7 @@ class StreamableHTTPmTLSTransport(
     def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
         return streamablehttp_client(
             url=self.url,
-            headers=self._merge_headers(),
+            headers=self._merged_headers,
             timeout=datetime.timedelta(seconds=self.timeout),
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
             auth=self.auth,

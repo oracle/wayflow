@@ -1,6 +1,25 @@
 Changelog
 =========
 
+WayFlow |release|
+-----------------
+
+New features
+^^^^^^^^^^^^
+
+Improvements
+^^^^^^^^^^^^
+
+* **Added ``sensitive_headers`` in components that perform remote calls:**
+
+  ``ApiCallStep``, ``RemoteTool``, and MCP ``RemoteBaseTransport`` now have a new attribute ``sensitive_headers``.
+  This new attribute should be used for headers that might contain sensitive information (e.g., authentication).
+  Its value is merged with ``headers`` when the remote call is performed, and its value is never serialized.
+
+Bug fixes
+^^^^^^^^^
+
+
 WayFlow 26.1.0
 --------------
 

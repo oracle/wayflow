@@ -142,6 +142,7 @@ def test_import_component_with_incomplete_missing_sensitive_fields_fails(
     incomplete_components_registry = {
         "oci-client-config.auth_file_location": "path/to/abcdexyz.json",
         "remote-tool-id.sensitive_headers": {"Authorization": "Bearer abcdexyz"},
+        # We remove from the registry the following expected field values to make deserialization fail
         # "mcp-toolbox-client-transport-id.key_file": "path/to/abcdexyz.json",
         # "mcp-toolbox-client-transport-id.cert_file": "path/to/abcdexyz.pem",
         "mcp-toolbox-client-transport-id.ca_file": "path/to/abcdexyz.pem",
