@@ -116,6 +116,14 @@ Improvements
 
   This significantly reduces token usage and improves execution speed.
 
+
+* **Added support for reasoning for certain OpenAI compatible models**
+
+  The ``extra_content`` returned by some OpenAI-compatible APIs is now tracked
+  as part of messages and tool_requests. Some models may see improved performance
+  from having access to additional reasoning signatures from previous rounds in the conversation.
+
+
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

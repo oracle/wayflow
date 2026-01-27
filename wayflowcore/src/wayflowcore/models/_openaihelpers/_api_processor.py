@@ -30,6 +30,12 @@ class _APIProcessor(ABC):
         self.model_id = model_id
         self.api_type = api_type
 
+    def _is_openai_endpoint(self) -> bool:
+        # Mimics how OpenAI Agents SDK decides if the "store" and other parameters
+        # should be passed to the chat completions API or not
+        # Ref: https://github.com/openai/openai-agents-python/blob/main/src/agents/models/chatcmpl_helpers.py#L26
+        return self.base_url.startswith("https://api.openai.com")
+
     @abstractmethod
     def _extract_usage(self, response_data: Dict[str, Any]) -> Optional[TokenUsage]:
         """Extract Token Usage information from the response"""
