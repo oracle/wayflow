@@ -9,8 +9,9 @@ import pytest
 from pytest import fixture
 
 from wayflowcore import Message, MessageType
-from wayflowcore.agent import Agent, _MutatedAgent
+from wayflowcore.agent import Agent
 from wayflowcore.controlconnection import ControlFlowEdge
+from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
 from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
@@ -72,7 +73,7 @@ def test_agent_step_raises_when_outputs_are_not_properly_configured(outputs, zin
 
 def run_zinimo(agent: Agent, output: Property):
     # hack to only enable a single round
-    with _MutatedAgent(agent=agent, attributes=dict(max_iterations=2)) as agent:
+    with _MutatedConversationalComponent(agent=agent, attributes=dict(max_iterations=2)) as agent:
 
         step = AgentExecutionStep(
             agent=agent,
