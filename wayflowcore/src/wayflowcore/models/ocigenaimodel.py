@@ -112,7 +112,7 @@ class OciAPIType(str, Enum):
     """Use the original oci SDK endpoint"""
 
 
-_DEFAULT_MAX_RETRIES = 1
+_DEFAULT_MAX_RETRIES = 2
 
 
 class OCIGenAIModel(LlmModel):
@@ -278,6 +278,12 @@ class OCIGenAIModel(LlmModel):
 
     def _init_client(self) -> None:
         if self.api_type in [OciAPIType.OPENAI_RESPONSES, OciAPIType.OPENAI_CHAT_COMPLETIONS]:
+
+            if self.serving_mode == ServingMode.DEDICATED:
+                warnings.warn(
+                    "Serving mode DEDICATED is not supported with OciAPIType.OPENAI_RESPONSES or OciAPIType.OPENAI_CHAT_COMPLETIONS. Please set OciAPIType.OCI  to use the dedicated serving mode."
+                )
+
             self._client = None
             model_cls = _OCI_API_TYPE_TO_PROCESSOR[self.api_type]
             openai_api_type_equivalent = _OCI_API_TYPE_TO_OPENAI_API_TYPE[self.api_type]
@@ -469,19 +475,14 @@ class OCIGenAIModel(LlmModel):
         # oci doesn't support this parameter
         openai_parameters.pop("prompt_cache_key")
 
+        client_args = dict(model=self.model_id, store=False, stream=True, **openai_parameters)
+
         async with self._create_openai_client() as openai_client:
             # depending on the api_type, we need to call a specific endpoint
             if self.api_type == OciAPIType.OPENAI_RESPONSES:
-                stream = await openai_client.responses.create(
-                    model=self.model_id, store=False, stream=True, **openai_parameters
-                )
+                stream = await openai_client.responses.create(**client_args)
             elif self.api_type == OciAPIType.OPENAI_CHAT_COMPLETIONS:
-                stream = await openai_client.chat.completions.create(
-                    model=self.model_id,
-                    store=False,
-                    stream=True,
-                    **openai_parameters,
-                )
+                stream = await openai_client.chat.completions.create(**client_args)
             else:
                 raise ValueError("Internal error: unsupported API type")
 
@@ -746,7 +747,7 @@ def _generation_config_to_generic_oci_parameters(
             kwargs["max_completion_tokens"] = generation_config.max_tokens
     if generation_config.stop is not None:
         kwargs["stop"] = generation_config.stop
-    if generation_config.frequency_penalty is not None and meta_model:  # or True:
+    if generation_config.frequency_penalty is not None and meta_model:
         # only meta models support frequency penalty
         kwargs["frequency_penalty"] = generation_config.frequency_penalty
     if generation_config.extra_args:
