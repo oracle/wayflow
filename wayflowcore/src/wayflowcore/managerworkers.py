@@ -237,3 +237,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
                 )
 
         return all_tools
+
+    def _update_internal_state(self) -> None:
+        # This method would need to be implemented if needed
+        pass

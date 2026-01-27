@@ -1773,3 +1773,6 @@ class Flow(ConversationalComponent, SerializableObject):
                 )
 
         return all_tools
+
+    def _update_internal_state(self) -> None:
+        pass

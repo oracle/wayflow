@@ -13,11 +13,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Sequence,
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils._templating_helpers import get_variables_names_and_types_from_template
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
-from wayflowcore.conversationalcomponent import (
-    ConversationalComponent,
-    T,
-    _MutatedConversationalComponent,
-)
+from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import Message, MessageList
@@ -681,13 +677,6 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         has_yielding_tools = any(tool.might_yield for tool in self.tools)
         has_yielding_flows = any(flow.might_yield for flow in self.flows)
         return might_ask_question_to_user or has_yielding_tools or has_yielding_flows
-
-
-class _MutatedAgent(_MutatedConversationalComponent[T]):
-    def _on_change(self) -> Any:
-        if not hasattr(self.component, "_update_internal_state"):
-            raise ValueError("Internal error")
-        return self.component._update_internal_state()
 
 
 def _convert_described_agent_into_named_agent(

@@ -112,7 +112,7 @@ class SwarmRunner(ConversationExecutor):
         conversation: Conversation,
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
-        from wayflowcore.agent import _MutatedAgent
+        from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
         from wayflowcore.executors._swarmconversation import SwarmConversation
 
         if not isinstance(conversation, SwarmConversation):
@@ -189,7 +189,7 @@ class SwarmRunner(ConversationExecutor):
                     "handoff": swarm_config.handoff.value,  # type: ignore
                 }
             )
-            with _MutatedAgent(
+            with _MutatedConversationalComponent(
                 current_agent,
                 {
                     "tools": mutated_agent_tools,

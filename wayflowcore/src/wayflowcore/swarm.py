@@ -12,11 +12,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent, CallerInputMode
-from wayflowcore.conversationalcomponent import (
-    ConversationalComponent,
-    T,
-    _MutatedConversationalComponent,
-)
+from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
 from wayflowcore.property import Property
@@ -308,6 +304,6 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
 
         return all_tools
 
-
-class _MutatedSwarm(_MutatedConversationalComponent[T]):
-    pass
+    def _update_internal_state(self) -> None:
+        # This method would need to be implemented if needed
+        pass

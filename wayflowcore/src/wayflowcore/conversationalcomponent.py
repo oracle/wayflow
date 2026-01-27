@@ -120,45 +120,45 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         nested in subcomponents, with the keys being the tool IDs, and the values being the tools.
         """
 
+    @abstractmethod
+    def _update_internal_state(self) -> None:
+        """
+        Method to update the attributes inside.
+        """
+
 
 # Define a TypeVar that represents the component's type
-T = TypeVar("T", bound="ConversationalComponent")
+ConversationalComponentTypeT = TypeVar(
+    "ConversationalComponentTypeT", bound="ConversationalComponent"
+)
 
 
-class _MutatedConversationalComponent(Generic[T]):
-    def __init__(self, component: T, attributes: Dict[str, Any]):
+class _MutatedConversationalComponent(Generic[ConversationalComponentTypeT]):
+    def __init__(self, component: ConversationalComponentTypeT, attributes: Dict[str, Any]):
         self.component = component
         self.attributes = attributes
         self.old_config: Dict[str, Any] = {}
 
-    def _on_change(self) -> None:
-        """Hook for subclasses to implement specific refresh logic."""
-
-    def __enter__(self) -> T:
+    def __enter__(self) -> ConversationalComponentTypeT:
         self.old_config.clear()
         for attr, value in self.attributes.items():
             self.old_config[attr] = getattr(self.component, attr)
             setattr(self.component, attr, value)
-        self._on_change()
+        self.component._update_internal_state()
         return self.component
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         for attr, value in self.old_config.items():
             setattr(self.component, attr, value)
         self.old_config.clear()
-        self._on_change()
+        self.component._update_internal_state()
 
 
-def _mutate(component: T, attributes: Dict[str, Any]) -> _MutatedConversationalComponent[T]:
+def _mutate(
+    component: ConversationalComponentTypeT, attributes: Dict[str, Any]
+) -> _MutatedConversationalComponent[ConversationalComponentTypeT]:
     """
     Returns a context manager for mutating the component with the provided attributes.
     Selects the appropriate mutator class based on the component type.
     """
-    from wayflowcore.agent import _MutatedAgent, Agent
-    from wayflowcore.swarm import _MutatedSwarm, Swarm
-
-    if isinstance(component, Agent):
-        return _MutatedAgent(component, attributes)  # type: ignore
-    elif isinstance(component, Swarm):
-        return _MutatedSwarm(component, attributes)  # type: ignore
     return _MutatedConversationalComponent(component, attributes)

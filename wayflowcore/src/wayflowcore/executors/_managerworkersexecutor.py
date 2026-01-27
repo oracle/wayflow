@@ -92,7 +92,7 @@ class ManagerWorkersRunner(ConversationExecutor):
         current_conversation: "AgentConversation",
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
-        from wayflowcore.agent import _MutatedAgent
+        from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
         from wayflowcore.executors._agentexecutor import (
             _TALK_TO_USER_TOOL_NAME,
             _make_talk_to_user_tool,
@@ -121,7 +121,7 @@ class ManagerWorkersRunner(ConversationExecutor):
             }
         )
 
-        with _MutatedAgent(
+        with _MutatedConversationalComponent(
             current_agent,
             {
                 "tools": mutated_agent_tools,
