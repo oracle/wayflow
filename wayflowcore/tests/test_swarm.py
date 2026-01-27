@@ -1393,12 +1393,12 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_does_not
 @retry_test(max_attempts=4)
 def test_swarm_without_user_input_can_execute_as_expected(vllm_responses_llm):
     """
-    Failure rate:          3 out of 50
-    Observed on:           2025-12-24
-    Average success time:  9.38 seconds per successful attempt
-    Average failure time:  3.74 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.08 ** 4) ~= 3.5 / 100'000
+    Failure rate:          0 out of 50
+    Observed on:           2026-01-27
+    Average success time:  9.92 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     llm = vllm_responses_llm
 

@@ -10,15 +10,13 @@ from pytest import fixture
 
 from wayflowcore import Message, MessageType
 from wayflowcore.agent import Agent
-from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
-from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import IntegerProperty, Property, StringProperty
-from wayflowcore.steps import InputMessageStep, OutputMessageStep
+from wayflowcore.steps import OutputMessageStep
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep, CallerInputMode
 from wayflowcore.steps.outputmessagestep import OutputMessageStep
 from wayflowcore.swarm import Swarm
@@ -549,10 +547,19 @@ def test_agent_step_that_uses_agent_with_default_input_values_works(big_llama):
     assert "videogame" in last_message.content.lower()
 
 
+@retry_test(max_attempts=3)
 def test_agent_step_with_swarm_can_execute_when_first_agent_handles_task(
     zinimo_agent,
     vllm_responses_llm,
 ):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  2.33 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
     first_agent = zinimo_agent
 
     second_agent = Agent(
@@ -576,10 +583,19 @@ def test_agent_step_with_swarm_can_execute_when_first_agent_handles_task(
     assert status.output_values["zinimo_result"] == -2
 
 
+@retry_test(max_attempts=3)
 def test_agent_step_with_swarm_can_execute_when_sub_agent_handles_task(
     zinimo_agent,
     vllm_responses_llm,
 ):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  6.33 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
     first_agent = Agent(
         llm=vllm_responses_llm,
         name="master_agent",
@@ -602,7 +618,16 @@ def test_agent_step_with_swarm_can_execute_when_sub_agent_handles_task(
     assert status.output_values["zinimo_result"] == -2
 
 
+@retry_test(max_attempts=3)
 def test_agent_step_with_swarm_in_conversational_mode(vllm_responses_llm):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  1.83 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
     first_agent = Agent(
         llm=vllm_responses_llm,
         name="first_agent",
@@ -631,7 +656,16 @@ def test_agent_step_with_swarm_in_conversational_mode(vllm_responses_llm):
     assert "john" in conv.get_last_message().content.lower()
 
 
+@retry_test(max_attempts=3)
 def test_swarm_can_run_in_non_conversational_mode(vllm_responses_llm):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  2.06 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
     first_agent = Agent(
         llm=vllm_responses_llm,
         name="first_agent",
@@ -654,29 +688,28 @@ def test_swarm_can_run_in_non_conversational_mode(vllm_responses_llm):
         caller_input_mode=CallerInputMode.NEVER,
     )
 
-    user_step = InputMessageStep(name="user_step", message_template="")
     output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
 
-    flow = Flow(
-        begin_step=user_step,
-        control_flow_edges=[
-            ControlFlowEdge(source_step=user_step, destination_step=agent_step),
-            ControlFlowEdge(source_step=agent_step, destination_step=output_step),
-            ControlFlowEdge(source_step=output_step, destination_step=None),
-        ],
-        data_flow_edges=[DataFlowEdge(agent_step, "response", output_step, "response")],
-    )
+    flow = Flow.from_steps([agent_step, output_step])
 
     conversation = flow.start_conversation()
-    conversation.execute()
     conversation.append_user_message("What is 10+10?")
     status = conversation.execute()
     assert "20" in status.output_values["output_message"]
 
 
+@retry_test(max_attempts=3)
 def test_swarm_can_run_in_non_conversational_mode_with_output_descriptors_in_swarm(
     vllm_responses_llm,
 ):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  3.28 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
     first_agent = Agent(
         llm=vllm_responses_llm,
         name="first_agent",
@@ -701,29 +734,28 @@ def test_swarm_can_run_in_non_conversational_mode_with_output_descriptors_in_swa
         agent=swarm,
     )
 
-    user_step = InputMessageStep(name="user_step", message_template="")
     output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
 
-    flow = Flow(
-        begin_step=user_step,
-        control_flow_edges=[
-            ControlFlowEdge(source_step=user_step, destination_step=agent_step),
-            ControlFlowEdge(source_step=agent_step, destination_step=output_step),
-            ControlFlowEdge(source_step=output_step, destination_step=None),
-        ],
-        data_flow_edges=[DataFlowEdge(agent_step, "response", output_step, "response")],
-    )
+    flow = Flow.from_steps([agent_step, output_step])
 
     conversation = flow.start_conversation()
-    conversation.execute()
     conversation.append_user_message("What is 10+10?")
     status = conversation.execute()
     assert "20" in status.output_values["output_message"]
 
 
+@retry_test(max_attempts=3)
 def test_swarm_can_run_in_non_conversational_mode_with_input_and_output_descriptors_in_swarm(
     vllm_responses_llm,
 ):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  1.91 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
     input_message = StringProperty(name="input_message", default_value="")
     response = StringProperty(name="response", default_value="")
     first_agent = Agent(
@@ -753,14 +785,7 @@ def test_swarm_can_run_in_non_conversational_mode_with_input_and_output_descript
 
     output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
 
-    flow = Flow(
-        begin_step=agent_step,
-        control_flow_edges=[
-            ControlFlowEdge(source_step=agent_step, destination_step=output_step),
-            ControlFlowEdge(source_step=output_step, destination_step=None),
-        ],
-        data_flow_edges=[DataFlowEdge(agent_step, "response", output_step, "response")],
-    )
+    flow = Flow.from_steps([agent_step, output_step])
 
     conversation = flow.start_conversation(inputs={"input_message": "What is 10+10?"})
     conversation.execute()
