@@ -10,12 +10,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent, CallerInputMode
-from wayflowcore.conversationalcomponent import (
-    ConversationalComponent,
-    T,
-    _MutatedConversationalComponent,
-    _registers,
-)
+from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
 from wayflowcore.models import LlmModel
