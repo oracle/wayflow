@@ -1399,7 +1399,7 @@ class VectorProperty(Property):
             return [0.0] * self.dimensions
         return []
 
-    def _type_to_json_schema(self) -> JsonSchemaParam:
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         """Convert to JSON schema representation."""
         schema: JsonSchemaParam = {
             "type": "array",
