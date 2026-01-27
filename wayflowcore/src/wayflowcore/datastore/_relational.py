@@ -19,6 +19,8 @@ from typing import (
     overload,
 )
 
+from sqlalchemy.dialects import oracle
+
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.datastore._datatable import Datatable
 from wayflowcore.datastore._utils import check_collection_name
@@ -119,7 +121,7 @@ def to_sqlalchemy_type(property_: Property) -> Any:
         IntegerProperty: sqlalchemy.Integer,
         StringProperty: (sqlalchemy.Text, sqlalchemy.String),
         BooleanProperty: sqlalchemy.Boolean,
-        VectorProperty: sqlalchemy.dialects.oracle.vector.VECTOR,
+        VectorProperty: oracle.vector.VECTOR,
     }
     wayflowcore_type = type(property_)
     if wayflowcore_type not in type_map:
