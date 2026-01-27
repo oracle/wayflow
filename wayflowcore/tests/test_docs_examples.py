@@ -22,6 +22,7 @@ from .a2a.test_a2aagent import a2a_agent, connection_config_no_verify  # noqa
 from .mcptools.conftest import sse_mcp_server_http  # noqa
 from .mcptools.test_mcp_tools import MCP_USER_QUERY
 from .test_ociagent import agent as oci_agent  # noqa
+from .testhelpers.testhelpers import retry_test
 from .utils import get_available_port
 
 DOCS_DIR = Path(__file__).parents[2] / "docs" / "wayflowcore" / "source" / "core"
@@ -31,8 +32,8 @@ EXAMPLE_DOCUMENT_PATH = DOCS_DIR / "_static" / "howto" / "example_document.md"
 sys.path.insert(0, os.path.abspath(UTILS_DIR))
 
 
-@pytest.fixture()
-def mock_server():
+@pytest.fixture(scope="session")
+def mock_server(session_tmp_path):
     "Start a mock server for testing howto_remote_tool_expired_token document."
     import threading
     import time
@@ -80,7 +81,7 @@ def mock_server():
     app = Starlette(debug=True, routes=[Route("/protected", protected_endpoint)])
 
     host = "localhost"
-    port = get_available_port()
+    port = get_available_port(session_tmp_path)
     config = uvicorn.Config(app, host=host, port=port, log_level="warning")
     server = uvicorn.Server(config)
     thread = threading.Thread(target=server.run, daemon=True)
@@ -90,20 +91,22 @@ def mock_server():
     url = f"http://{host}:{port}/protected?user=test"
     headers = {"Authorization": "Bearer valid-token"}
 
-    for _ in range(50):  # up to 5 seconds
-        try:
-            r = httpx.get(url, headers=headers, timeout=0.2)
-            if r.status_code in {400, 200, 401}:
-                break
-        except Exception:
-            time.sleep(0.2)
-    else:
-        raise RuntimeError("Mock server did not start in time")
+    with httpx.Client(timeout=0.2) as client:
+        for _ in range(50):  # up to 5 seconds
+            try:
+                response = client.get(url, headers=headers)
+                if response.status_code in {400, 200, 401}:
+                    break
+            except Exception:
+                time.sleep(0.2)
+        else:
+            raise RuntimeError("Mock server did not start in time")
+
     try:
         yield f"http://{host}:{port}/protected"
     finally:
         server.should_exit = True
-        thread.join(timeout=5)
+        thread.join(timeout=5.0)
 
 
 def _read_dummy_pdf_file(file_path: str, clean_pdf: bool = False) -> str:
@@ -133,8 +136,14 @@ def make_update_globals(test_globs: Dict[str, Any], pytest_request):
     return _update_globals
 
 
+# We retry code example tests as some of them rely on LLMs, but we keep the retry number low.
+# We should not increase the max attempts beyond 2 because flakiness of docs should be minimal.
+# If you are considering raising this number, please make your documentation example more robust instead.
+@retry_test(max_attempts=2)
 @pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
 @pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+@pytest.mark.filterwarnings("ignore:websockets.legacy is deprecated:DeprecationWarning")
+@pytest.mark.filterwarnings("ignore:websockets.server.WebSocketServerProtocol:DeprecationWarning")
 @pytest.mark.parametrize(
     "file_path", get_all_code_examples_files(), ids=get_all_code_examples_files()
 )
@@ -147,6 +156,14 @@ def test_code_examples_in_docs_can_be_successfully_run(
     test_with_llm_fixture,
     request,
 ) -> None:
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2025-12-03
+    Average success time:  6.18 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
     globs = {
         "llm_small": remotely_hosted_llm,
         "tmp_path": tmp_path,

@@ -3,8 +3,7 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-import inspect
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, List, Optional, Type
 
 import pytest
 
@@ -24,8 +23,7 @@ from wayflowcore.property import (
     Property,
     StringProperty,
 )
-from wayflowcore.steps import ApiCallStep, OutputMessageStep, PromptExecutionStep
-from wayflowcore.steps.step import _StepRegistry
+from wayflowcore.steps import OutputMessageStep, PromptExecutionStep
 from wayflowcore.tools import ClientTool
 
 from ..conftest import VLLM_MODEL_CONFIG
@@ -105,26 +103,6 @@ def check_input_and_output_descriptors(
     assert isinstance(component.output_descriptors[0], output_type)
 
 
-@pytest.fixture
-def default_class_parameter_values(datastore) -> Dict[str, Dict[str, object]]:
-    return {
-        ApiCallStep.__name__: {},
-        OutputMessageStep.__name__: {},
-        PromptExecutionStep.__name__: {},
-    }
-
-
-# import all wayflowcoresteps
-from wayflowcore.steps import __all__ as all_wayflowcore_step_names
-
-steps_to_check = [
-    cls
-    for cls in _StepRegistry._REGISTRY.values()
-    if not inspect.isabstract(cls) and cls.__name__ in all_wayflowcore_step_names
-    # and cls != SearchStep  # required searchable datastore
-]
-
-
 def run_step_descriptors_test(init_arguments, step_cls):
     auto_detected_input_descriptors = step_cls._compute_input_descriptors_from_static_config(
         **init_arguments
@@ -160,10 +138,8 @@ def run_step_descriptors_test(init_arguments, step_cls):
 
 
 @pytest.mark.parametrize("step_cls", steps_to_check)
-def test_all_steps_can_override_auto_detected_io_descriptors(
-    step_cls: Any, default_class_parameter_values
-) -> None:
-    init_arguments = create_init_arguments(step_cls, default_class_parameter_values)
+def test_all_steps_can_override_auto_detected_io_descriptors(step_cls: Any) -> None:
+    init_arguments = create_init_arguments(step_cls)
     run_step_descriptors_test(init_arguments, step_cls)
 
 
@@ -371,12 +347,13 @@ def test_type_can_be_precised_from_any_to_some_specific_type():
 @pytest.mark.parametrize("step_cls", steps_to_check)
 def test_all_steps_can_override_auto_detected_io_descriptors(step_cls: Any) -> None:
     init_arguments = create_init_arguments(step_cls)
+    step = step_cls(**init_arguments)
 
     auto_detected_input_descriptors = step_cls._compute_input_descriptors_from_static_config(
-        **init_arguments
+        **{**step._step_static_configuration, **init_arguments}
     )
     auto_detected_output_descriptors = step_cls._compute_output_descriptors_from_static_config(
-        **init_arguments
+        **{**step._step_static_configuration, **init_arguments}
     )
 
     DESCRIPTION = "some_very_special_description"

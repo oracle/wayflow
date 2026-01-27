@@ -175,12 +175,22 @@ def _start_mcp_server(
 
 
 def register_mcp_server_fixture(
-    name: str, url_suffix: str, start_kwargs: dict, deps: tuple[str, ...] = ()
+    name: str,
+    url_suffix: str,
+    start_kwargs: dict,
+    deps: tuple[str, ...] = (),
+    host: str = "localhost",
+    port: Optional[int] = None,
 ):
     def _fixture(request):
         # Resolve any dependent fixtures by name and merge into kwargs
         resolved = {name: request.getfixturevalue(name) for name in deps}
-        kwargs = {**start_kwargs, **resolved}
+        kwargs = {
+            **start_kwargs,
+            **resolved,
+            "host": host,
+            "port": port or get_available_port(request.getfixturevalue("session_tmp_path")),
+        }
 
         process, url, tee = _start_mcp_server(**kwargs)
         try:
@@ -210,71 +220,41 @@ _MCP_SERVER_FIXTURE_DEPS = (
 sse_mcp_server_http = register_mcp_server_fixture(
     name="sse_mcp_server_http",
     url_suffix="sse",
-    start_kwargs=dict(
-        host="localhost",
-        port=get_available_port(),
-        mode="sse",
-        ssl_cert_reqs=0,
-    ),
+    start_kwargs=dict(mode="sse", ssl_cert_reqs=0),
     deps=(),
 )
 
 streamablehttp_mcp_server_http = register_mcp_server_fixture(
     name="streamablehttp_mcp_server_http",
     url_suffix="mcp",
-    start_kwargs=dict(
-        host="localhost",
-        port=get_available_port(),
-        mode="streamable-http",
-        ssl_cert_reqs=int(ssl.CERT_NONE),
-    ),
+    start_kwargs=dict(mode="streamable-http", ssl_cert_reqs=int(ssl.CERT_NONE)),
     deps=(),
 )
 
 sse_mcp_server_https = register_mcp_server_fixture(
     name="sse_mcp_server_https",
     url_suffix="sse",
-    start_kwargs=dict(
-        host="localhost",
-        port=get_available_port(),
-        mode="sse",
-        ssl_cert_reqs=int(ssl.CERT_NONE),
-    ),
+    start_kwargs=dict(mode="sse", ssl_cert_reqs=int(ssl.CERT_NONE)),
     deps=_MCP_SERVER_FIXTURE_DEPS,
 )
 
 streamablehttp_mcp_server_https = register_mcp_server_fixture(
     name="streamablehttp_mcp_server_https",
     url_suffix="mcp",
-    start_kwargs=dict(
-        host="localhost",
-        port=get_available_port(),
-        mode="streamable-http",
-        ssl_cert_reqs=int(ssl.CERT_NONE),
-    ),
+    start_kwargs=dict(mode="streamable-http", ssl_cert_reqs=int(ssl.CERT_NONE)),
     deps=_MCP_SERVER_FIXTURE_DEPS,
 )
 
 sse_mcp_server_mtls = register_mcp_server_fixture(
     name="sse_mcp_server_mtls",
     url_suffix="sse",
-    start_kwargs=dict(
-        host="localhost",
-        port=get_available_port(),
-        mode="sse",
-        ssl_cert_reqs=int(ssl.CERT_REQUIRED),
-    ),
+    start_kwargs=dict(mode="sse", ssl_cert_reqs=int(ssl.CERT_REQUIRED)),
     deps=_MCP_SERVER_FIXTURE_DEPS,
 )
 
 streamablehttp_mcp_server_mtls = register_mcp_server_fixture(
     name="streamablehttp_mcp_server_mtls",
     url_suffix="mcp",
-    start_kwargs=dict(
-        host="localhost",
-        port=get_available_port(),
-        mode="streamable-http",
-        ssl_cert_reqs=int(ssl.CERT_REQUIRED),
-    ),
+    start_kwargs=dict(mode="streamable-http", ssl_cert_reqs=int(ssl.CERT_REQUIRED)),
     deps=_MCP_SERVER_FIXTURE_DEPS,
 )

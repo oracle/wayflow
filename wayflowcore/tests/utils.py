@@ -141,9 +141,80 @@ def _check_server_is_up(
     return False
 
 
-def get_available_port():
-    """Finds an available port to run a server"""
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(("", 0))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        return s.getsockname()[1]
+def get_available_port(tmp_path: str):
+    """
+    Allocate a TCP port in a way that is safe across multiple pytest processes and
+    across concurrent jobs running on the same machine.
+
+    Strategy:
+    - Use a per-namespace monotonic counter persisted in a file under pytest tmp folder,
+      protected by an OS file lock, to avoid collisions between independent Python interpreters.
+    - The namespace is based on environment variables:
+        WAYFLOW_TEST_PORT_BASE  base port (int), default is 10000
+        WAYFLOW_TEST_PORT_SPAN  size of the port window starting at BASE (int), default is 500
+    - Within the critical section, probe ports by attempting a bind; skip ports already in use.
+
+    The parameter tmp_path is where the file used for the lock is located. It should be consistent
+    across threads in order to ensure that they acquire the lock on the same file, so we should
+    always call this method passing the value of the `session_tmp_path` fixture.
+    """
+
+    base = int(os.environ.get("WAYFLOW_TEST_PORT_BASE", 10000))
+    span = int(os.environ.get("WAYFLOW_TEST_PORT_SPAN", 500))
+
+    state_path = f"{tmp_path}/wayflow_ports.state"
+    lock_path = f"{tmp_path}/wayflow_ports.lock"
+
+    def _bindable(port: int) -> bool:
+        try:
+            with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                s.bind(("127.0.0.1", port))
+            return True
+        except OSError:
+            return False
+
+    # Acquire an interprocess lock, POSIX only. On non-POSIX, degrade to probing loop.
+    if os.name == "posix":
+        import fcntl
+
+        with open(lock_path, "a+") as lockf:
+            # We take an exclusive lock on the file, so that we ensure that no other thread/process
+            # is going to try to get an available port at the same time
+            fcntl.flock(lockf.fileno(), fcntl.LOCK_EX)
+            try:
+                # Read last used port
+                try:
+                    with open(state_path, "r") as sf:
+                        content = sf.read().strip()
+                    candidate = int(content) + 1
+                except (FileNotFoundError, TypeError, ValueError):
+                    candidate = base
+
+                # Probe within window
+                for _ in range(span):
+                    if candidate >= base + span or candidate < base:
+                        candidate = base
+                    if _bindable(candidate):
+                        # Persist chosen port for next allocation
+                        with open(state_path, "w") as sf:
+                            sf.write(str(candidate))
+                        return candidate
+                    candidate += 1
+                # Fallback to kernel-chosen ephemeral if window exhausted
+                with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+                    s.bind(("", 0))
+                    return s.getsockname()[1]
+            finally:
+                fcntl.flock(lockf.fileno(), fcntl.LOCK_UN)
+    else:
+        # Non-POSIX fallback: try a few random ports, then kernel ephemeral
+        for _ in range(50):
+            with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+                s.bind(("", 0))
+                p = s.getsockname()[1]
+            if _bindable(p):
+                return p
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+            s.bind(("", 0))
+            return s.getsockname()[1]

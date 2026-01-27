@@ -6,6 +6,7 @@
 
 import inspect
 from enum import Enum
+from types import UnionType
 from typing import (
     Annotated,
     Any,
@@ -77,7 +78,7 @@ def _get_partial_schema_from_annotation(arg_type: Type[Any]) -> JsonSchemaParam:
         }
 
     # Handle Union[X, Y, Z]
-    if origin is Union:
+    if origin in (UnionType, Union):
         return {"anyOf": [_get_partial_schema_from_annotation(t) for t in args]}
 
     # Handle Literal[X, Y, Z] (convert to anyOf with underlying types)

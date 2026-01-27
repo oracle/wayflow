@@ -20,7 +20,7 @@ llm = VllmModel(
     host_port="LLAMA_API_URL",
 )
 # .. end-##_Define_the_llm
-(llm,) = _update_globals(["llm_small"])  # docs-skiprow # type: ignore
+(llm,) = _update_globals(["llm_big"])  # docs-skiprow # type: ignore
 # .. start-##_Create_the_flow_using_the_prompt_execution_step
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
@@ -52,9 +52,14 @@ flow = Flow(
 # .. end-##_Create_the_flow_using_the_prompt_execution_step
 
 # .. start-##_Run_the_flow_to_get_the_summary
+from wayflowcore.executors.executionstatus import FinishedStatus
+
 conversation = flow.start_conversation(inputs={"article": article})
 status = conversation.execute()
-print(status.output_values["summary"])
+if isinstance(status, FinishedStatus):
+    print(status.output_values["summary"])
+else:
+    print(f"Invalid execution status, expected FinishedStatus, received {type(status)}")
 # Sea turtles face threats from poaching, habitat loss, and pollution globally.
 # .. end-##_Run_the_flow_to_get_the_summary
 
@@ -107,7 +112,10 @@ flow = Flow(
 
 conversation = flow.start_conversation(inputs={"article": article})
 status = conversation.execute()
-print(status.output_values)
+if isinstance(status, FinishedStatus):
+    print(status.output_values)
+else:
+    print(f"Invalid execution status, expected FinishedStatus, received {type(status)}")
 # {'threats': ['poaching', 'habitat loss', 'pollution'], 'danger_level': 'HIGH', 'animal_name': 'Sea turtles'}
 # .. end-##_Use_structured_generation_to_extract_formatted_information
 
@@ -167,7 +175,10 @@ flow = Flow(
 
 conversation = flow.start_conversation(inputs={"article": article})
 status = conversation.execute()
-print(status.output_values)
+if isinstance(status, FinishedStatus):
+    print(status.output_values)
+else:
+    print(f"Invalid execution status, expected FinishedStatus, received {type(status)}")
 # {'animal_object': {'animal_name': 'Sea turtles', 'danger_level': 'MEDIUM', 'threats': ['Poaching', 'Habitat loss', 'Pollution']}}
 # .. end-##_Use_structured_generation_with_JSON_schema
 
@@ -204,7 +215,10 @@ flow = Flow(
 conversation = flow.start_conversation()
 conversation.append_user_message("Here is the article: " + article)
 status = conversation.execute()
-print(status.output_values)
+if isinstance(status, FinishedStatus):
+    print(status.output_values)
+else:
+    print(f"Invalid execution status, expected FinishedStatus, received {type(status)}")
 # {'animal_name': 'Sea turtles', 'danger_level': 'HIGH', 'threats': ['poaching', 'habitat loss', 'pollution']}
 # .. end-##_Use_structured_generation_with_Agents_in_flows
 

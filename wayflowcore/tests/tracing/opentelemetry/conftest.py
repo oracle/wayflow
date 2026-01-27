@@ -64,9 +64,9 @@ class SimpleOTLPHandler(BaseHTTPRequestHandler):
 
 
 @pytest.fixture(scope="session")
-def otel_server():
+def otel_server(session_tmp_path: str):
     host = "localhost"
-    port = get_available_port()
+    port = get_available_port(session_tmp_path)
     url = f"{host}:{port}"
 
     server = HTTPServer((host, port), SimpleOTLPHandler)

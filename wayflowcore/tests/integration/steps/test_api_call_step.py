@@ -215,9 +215,9 @@ def check_server_is_up(base_url: str) -> bool:
 
 
 @pytest.fixture(scope="module")
-def test_webapp():
+def test_webapp(session_tmp_path: str):
     hostname = "localhost"
-    port = get_available_port()
+    port = get_available_port(session_tmp_path)
     process = Process(target=deploy_test_webapp, kwargs={"hostname": hostname, "port": port})
     process.start()
 

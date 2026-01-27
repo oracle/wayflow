@@ -1,7 +1,7 @@
 # We fix the mypy version to ensure consistency across all developers and avoid some issue with
 # some of the more recent versions.
 mypy==1.11.2
-pydantic==2.11.7
+pydantic==2.12.4
 
 # pre-commit is used for installing commit hooks which ensure code quality
 # Learn more at: https://pre-commit.com/

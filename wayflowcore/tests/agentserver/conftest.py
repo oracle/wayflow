@@ -185,7 +185,7 @@ def register_wayflow_server_fixture(
 
         start_kwargs = {
             "host": host,
-            "port": get_available_port(),
+            "port": get_available_port(request.getfixturevalue("session_tmp_path")),
             "server_storage": server_storage,
             "agent_configs": new_agent_files,
             "agent_ids": agent_ids,
@@ -268,8 +268,8 @@ wayflow_server_http_oracle = register_wayflow_server_fixture(
 
 
 @pytest.fixture(scope="session")
-def multi_agent_inmemory_server():
-    available_port = get_available_port()
+def multi_agent_inmemory_server(session_tmp_path):
+    available_port = get_available_port(session_tmp_path)
     print(f"Starting a multi-agent server on port {available_port}")
     cmd = ["python", str(TEST_DIR / "multi_agent_server.py"), "--port", str(available_port)]
     url = f"http://127.0.0.1:{available_port}"
@@ -296,8 +296,8 @@ def oracle_db_with_names():
 
 
 @pytest.fixture(scope="session")
-def datastore_agent_inmemory_server(oracle_db_with_names):
-    available_port = get_available_port()
+def datastore_agent_inmemory_server(oracle_db_with_names, session_tmp_path):
+    available_port = get_available_port(session_tmp_path)
     print(f"Starting datastore agent server on port {available_port}")
     cmd = ["python", str(TEST_DIR / "datastore_agent_server.py"), "--port", str(available_port)]
     url = f"http://127.0.0.1:{available_port}"

@@ -75,6 +75,9 @@ Improvements
 
   For more information see the guide on :doc:`using MCP tools <howtoguides/howto_mcp>`.
 
+* **Python 3.14 support**
+
+  Introduced support for python version 3.14.
 
 * **Connection persistence for MCP servers:**
 
