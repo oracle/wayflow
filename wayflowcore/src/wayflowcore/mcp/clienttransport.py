@@ -157,11 +157,12 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
     """The URL of the server."""
 
     headers: Optional[Dict[str, str]] = None
-    """The headers to send to the server."""
+    """The headers to send to the server. Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap."""
 
     sensitive_headers: Optional[Dict[str, str]] = None
     """The sensitive headers to send to the server, joined with the ones defined in the ``headers``.
-    They will be excluded from any serialization for security reasons."""
+    They will be excluded from any serialization for security reasons.
+    Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap."""
 
     timeout: float = 5
     """The timeout for the HTTP request. Defaults to 5 seconds."""
@@ -179,6 +180,14 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
 
     session_parameters: SessionParameters = field(default_factory=SessionParameters)
     """Arguments for the MCP session."""
+
+    def __post_init__(self) -> None:
+        repeated_headers = set(self.headers or {}).intersection(set(self.sensitive_headers or {}))
+        if repeated_headers:
+            raise ValueError(
+                f"Some headers have been specified in both `headers` and "
+                f"`sensitive_headers`: {repeated_headers}. This is not allowed."
+            )
 
     @property
     def _merged_headers(self) -> Optional[Dict[str, str]]:

@@ -446,6 +446,20 @@ def test_api_call_step_throws_if_disallowed_fragments(faked_request):
         run_single_step(step)
 
 
+def test_api_call_step_headers_and_sensitive_headers_cannot_overlap():
+    with pytest.raises(
+        ValueError,
+        match="Some headers have been specified in both `headers` and `sensitive_headers`",
+    ):
+        _ = ApiCallStep(
+            name="get_example_tool",
+            url="https://example.com/endpoint",
+            method="GET",
+            headers={"exclusive_key_1": "value", "shared_key": 1},
+            sensitive_headers={"exclusive_key_2": "value", "shared_key": 1},
+        )
+
+
 def _create_step_and_run(url, method, url_allow_list):
     step = ApiCallStep(url=url, method=method, url_allow_list=url_allow_list)
     return run_single_step(step)

@@ -76,6 +76,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     headers
         Explicitly set headers.
         Can be templated using jinja templates.
+        Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap.
 
         .. note::
             This will override any of the implicitly set headers (e.g. ``Content-Type`` from ``json_body``).
@@ -83,6 +84,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         Explicitly set headers that contain sensitive information.
         These headers will behave equivalently to the ``headers`` parameter, but it will be excluded
         from any serialization for security reasons.
+        Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap.
     cookies
         Cookies to transmit.
         Can be templated using jinja templates.

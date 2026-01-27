@@ -53,6 +53,18 @@ def test_mcp_without_auth_raises_without_explicit_user_confirmation() -> None:
         _ = MCPToolBox(client_transport=SSETransport(url="anything"))
 
 
+def test_mcp_client_transport_headers_and_sensitive_headers_cannot_overlap(sse_mcp_server_http):
+    with pytest.raises(
+        ValueError,
+        match="Some headers have been specified in both `headers` and `sensitive_headers`",
+    ):
+        _ = SSETransport(
+            url=sse_mcp_server_http,
+            headers={"exclusive_key_1": "value", "shared_key": 1},
+            sensitive_headers={"exclusive_key_2": "value", "shared_key": 1},
+        )
+
+
 @pytest.fixture
 def sse_client_transport(sse_mcp_server_http):
     return SSETransport(url=sse_mcp_server_http)
