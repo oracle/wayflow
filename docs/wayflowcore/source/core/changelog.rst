@@ -23,7 +23,7 @@ New features
 
   For more information, see the :doc:`API Reference <api/flows>` and the :ref:`Reference Sheet <flowbuilder_ref_sheet>`.
 
-* **Added User Confirmation for Tools in ToolBox:**
+* **Added support for OCI responses API:**
 
   Added support for the new OCI responses API service. You can simply configure this on the `OciGenAIModel`:
 
