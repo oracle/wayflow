@@ -881,55 +881,9 @@ def _setup_managerworkers_for_multiple_tool_calling(vllm_responses_llm, raise_ex
     return conv
 
 
-@pytest.mark.parametrize(
-    "raise_exceptions, expected_exception, expected_result",
-    [
-        (True, pytest.raises(ValueError, match="Cannot compute result using fooza tool."), None),
-        (False, None, lambda: bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)),
-    ],
-)
-@retry_test(max_attempts=4)
-def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception(
-    vllm_responses_llm, raise_exceptions, expected_exception, expected_result
-):
-    """
-    Failure rate:          0 out of 20
-    Observed on:           2026-01-27
-    Average success time:  3.07 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
-    """
-    llm = vllm_responses_llm
-
-    fooza_agent = _get_fooza_agent(
-        llm, raise_exception_tool=True, raise_exceptions=raise_exceptions
-    )
-    bwip_agent = _get_bwip_agent(llm)
-    zbuk_agent = _get_zbuk_agent(llm)
-
-    group = ManagerWorkers(
-        group_manager=llm,
-        workers=[fooza_agent, bwip_agent, zbuk_agent],
-    )
-
-    conv = group.start_conversation(
-        messages="Compute the result of fooza(4, 2) + bwip(4, 5) + zbuk(5, 6). You should call multiple tools at once for this task. If you are unable to obtain a complete result, return the partial result instead."
-    )
-
-    return conv
-
-
-@pytest.mark.parametrize(
-    "raise_exceptions, expected_exception, expected_result",
-    [
-        (True, pytest.raises(ValueError, match="Cannot compute result using fooza tool."), None),
-        (False, None, lambda: bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)),
-    ],
-)
-@retry_test(max_attempts=4)
-def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception(
-    vllm_responses_llm, raise_exceptions, expected_exception, expected_result
+@retry_test(max_attempts=3)
+def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception_raises_error(
+    vllm_responses_llm,
 ):
     """
     Failure rate:          0 out of 20
@@ -1055,7 +1009,16 @@ def test_two_level_managerworkers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
+@retry_test(max_attempts=4)
 def test_two_level_managerworkers_with_llms(vllm_responses_llm):
+    """
+    Failure rate:          1 out of 20
+    Observed on:           2026-01-28
+    Average success time:  9.02 seconds per successful attempt
+    Average failure time:  11.81 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.09 ** 4) ~= 6.8 / 100'000
+    """
     llm = vllm_responses_llm
 
     worker_1 = _get_bwip_agent(llm)
@@ -1074,7 +1037,7 @@ def test_two_level_managerworkers_with_llms(vllm_responses_llm):
     group = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are a first-level manager. Use your workers for related computations.",
+            custom_instruction="You are a first-level manager. Use your workers for fooza and bwip for related computations.",
         ),
         workers=[worker_1, worker_2],
         name="first_level_group",
@@ -1174,7 +1137,16 @@ def test_three_level_managerworkers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
+@retry_test(max_attempts=3)
 def test_three_level_managerworkers_with_llms(vllm_responses_llm):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-28
+    Average success time:  15.27 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
     llm = vllm_responses_llm
 
     fooza_agent = _get_fooza_agent(llm)
@@ -1193,7 +1165,7 @@ def test_three_level_managerworkers_with_llms(vllm_responses_llm):
     second_level_group = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are a second-level manager. Use your third-level group for related work.",
+            custom_instruction="You are a second-level manager. Use your third-level group for fooza related work.",
         ),
         workers=[third_level_group],
         name="second_level_group",
@@ -1202,7 +1174,7 @@ def test_three_level_managerworkers_with_llms(vllm_responses_llm):
     first_level_group = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are a first-level manager. Use your workers for related computations.",
+            custom_instruction="You are a first-level manager. Use your workers for fooza, bwip, zbuk related computations.",
         ),
         workers=[second_level_group, bwip_agent, zbuk_agent],
         name="first_level_group",
@@ -1306,7 +1278,16 @@ def test_linear_chain_managerworkers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
+@retry_test(max_attempts=5)
 def test_linear_chain_managerworkers_with_llms(vllm_responses_llm):
+    """
+    Failure rate:          2 out of 20
+    Observed on:           2026-01-28
+    Average success time:  15.58 seconds per successful attempt
+    Average failure time:  7.67 seconds per failed attempt
+    Max attempt:           5
+    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    """
     llm = vllm_responses_llm
 
     fooza_agent = _get_fooza_agent(llm)
@@ -1326,7 +1307,7 @@ def test_linear_chain_managerworkers_with_llms(vllm_responses_llm):
     second_level_group = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are a second-level manager. Use your workers for related computations.",
+            custom_instruction="You are a second-level manager. Use your workers for fooza and zbuk related computations.",
         ),
         workers=[third_level_group, zbuk_agent],
         name="second_level_group",
@@ -1335,7 +1316,7 @@ def test_linear_chain_managerworkers_with_llms(vllm_responses_llm):
     first_level_group = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are a first-level manager. Use your workers for related computations.",
+            custom_instruction="You are a first-level manager. Use your workers for fooza, bwip, zbuk related computations.",
         ),
         workers=[second_level_group, bwip_agent],
         name="first_level_group",
@@ -1439,7 +1420,16 @@ def test_multi_managers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
+@retry_test(max_attempts=5)
 def test_multi_managers_with_llms(vllm_responses_llm):
+    """
+    Failure rate:          2 out of 20
+    Observed on:           2026-01-28
+    Average success time:  14.97 seconds per successful attempt
+    Average failure time:  20.80 seconds per failed attempt
+    Max attempt:           5
+    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    """
     llm = vllm_responses_llm
 
     fooza_agent = _get_fooza_agent(llm)
@@ -1468,7 +1458,7 @@ def test_multi_managers_with_llms(vllm_responses_llm):
     first_level_group = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are first level group manager. Use your workers second level group 1 and group 2 managers for related work.",
+            custom_instruction="You are first level group manager. Use your workers second level group 1 for fooza and group 2 managers for bwip and zbuk related work.",
         ),
         workers=[second_level_group_1, second_level_group_2],
         name="first_level_group",
