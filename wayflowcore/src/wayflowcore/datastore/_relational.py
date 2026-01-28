@@ -19,6 +19,8 @@ from typing import (
     overload,
 )
 
+from sqlalchemy.dialects import oracle
+
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.datastore._datatable import Datatable
 from wayflowcore.datastore._utils import check_collection_name
@@ -38,7 +40,9 @@ from wayflowcore.property import (
     Property,
     StringProperty,
     UnionProperty,
+    VectorProperty,
 )
+from wayflowcore.search import SearchConfig, VectorConfig
 
 if TYPE_CHECKING:
     # Important: do not move these imports out of the TYPE_CHECKING
@@ -117,6 +121,7 @@ def to_sqlalchemy_type(property_: Property) -> Any:
         IntegerProperty: sqlalchemy.Integer,
         StringProperty: (sqlalchemy.Text, sqlalchemy.String),
         BooleanProperty: sqlalchemy.Boolean,
+        VectorProperty: oracle.vector.VECTOR,
     }
     wayflowcore_type = type(property_)
     if wayflowcore_type not in type_map:
@@ -206,6 +211,19 @@ class _RelationalDatatable(Datatable):
             columns.append(column_with_alias)
         return columns
 
+    def _get_columns_with_case_sensitive_aliases_without_vectors(
+        self,
+    ) -> List["sqlalchemy.Label[Any]"]:
+        columns = []
+        for property_, property_type in self.entity_description.properties.items():
+            if isinstance(property_type, VectorProperty):  # Do not return Vectors
+                continue
+            case_insensitive_property_name = _case_insensitive(property_)
+            column = self.sqlalchemy_table.columns[case_insensitive_property_name]
+            column_with_alias = column.label(sqlalchemy.quoted_name(property_, quote=True))
+            columns.append(column_with_alias)
+        return columns
+
     def list(
         self, where: Optional[Dict[str, Any]] = None, limit: Optional[int] = None
     ) -> List[EntityAsDictT]:
@@ -224,6 +242,10 @@ class _RelationalDatatable(Datatable):
     def create(
         self, entities: Union[EntityAsDictT, List[EntityAsDictT]]
     ) -> Union[EntityAsDictT, List[EntityAsDictT]]:
+        """
+        Adds new rows to the Database table
+        It also returns the added rows without including any VectorProperty columns in the returned values.
+        """
         return_single_element = False
         if not isinstance(entities, list):
             entities = [entities]
@@ -261,16 +283,20 @@ class _RelationalDatatable(Datatable):
 
         return (
             self.sqlalchemy_table.insert().returning(
-                *self._get_columns_with_case_sensitive_aliases()
+                *self._get_columns_with_case_sensitive_aliases_without_vectors()
             ),
             entities,
         )
 
     def _update_query(self, where: Dict[str, Any], update: EntityAsDictT) -> "sqlalchemy.Update":
+        """
+        Update a Database table and corresponding Database table based on entities.
+        It also returns the updated rows without inlcuding any VectorProperty columns in the returned values.
+        """
         query = sqlalchemy.update(self.sqlalchemy_table)
         query = self._apply_where_clause(query, where)
         return query.values(**_case_insensitive_entity_dict(update)).returning(
-            *self._get_columns_with_case_sensitive_aliases()
+            *self._get_columns_with_case_sensitive_aliases_without_vectors()
         )
 
     def update(self, where: Dict[str, Any], update: EntityAsDictT) -> List[EntityAsDictT]:
@@ -323,16 +349,30 @@ class RelationalDatastore(Datastore, ABC):
     data using SQL-like queries.
     """
 
-    def __init__(self, schema: Dict[str, Entity], engine: "sqlalchemy.Engine"):
+    def __init__(
+        self,
+        schema: Dict[str, Entity],
+        engine: "sqlalchemy.Engine",
+        search_configs: Optional[List["SearchConfig"]] = None,
+        vector_configs: Optional[List["VectorConfig"]] = None,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+    ):
         """Initialize a ``RelationalDatastore``
 
         Parameters
         ----------
-        schema :
-            Mapping of entity names to entities manipulated in this
-            Datastore
-        engine :
-            SQLAlchemy engine used to connect to the relational database
+        schema : dict[str, Entity]
+            Mapping of entity names to entities manipulated in this Datastore.
+        engine : sqlalchemy.Engine
+            SQLAlchemy engine used to connect to the relational database.
+        id : Optional[str]
+            Optional unique identifier for this datastore instance. Default is None.
+        name : Optional[str]
+            Optional name to help identify this datastore. Default is None.
+        description : Optional[str]
+            Optional human-readable description of the datastore. Default is None.
         """
         self.engine = engine
         self.schema = schema
@@ -345,6 +385,14 @@ class RelationalDatastore(Datastore, ABC):
                 "These are indistinguishable at the database level and should be disambiguated."
             )
         self.data_tables = self._create_data_tables_from_entities()
+        super().__init__(
+            schema=schema,
+            search_configs=search_configs,
+            vector_configs=vector_configs,
+            id=id,
+            name=name,
+            description=description,
+        )
 
     def _create_data_tables_from_entities(self) -> Dict[str, _RelationalDatatable]:
         metadata = sqlalchemy.MetaData()

@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "owner_name": "John Smith",
+        "model_name": "Harley-Davidson Street Glide",
+        "description": "A powerful touring cruiser with classic American styling. Features a Milwaukee-Eight 114 engine, Boom! Box GTS infotainment system, and comfortable touring amenities for long-distance rides.",
+        "hp": 90
+    },
+    {
+        "id": 2,
+        "owner_name": "Sarah Johnson",
+        "model_name": "Yamaha YZF-R6",
+        "description": "High-performance supersport motorcycle designed for the track. Features advanced electronics including traction control, quick shifter, and multiple riding modes. Perfect for riders seeking pure sport performance.",
+        "hp": 119
+    },
+    {
+        "id": 3,
+        "owner_name": "Mike Williams",
+        "model_name": "BMW R 1250 GS Adventure",
+        "description": "The ultimate adventure touring motorcycle with legendary reliability. Equipped with dynamic ESA suspension, hill start control, and a boxer twin engine that delivers smooth power across all terrains.",
+        "hp": 136
+    },
+    {
+        "id": 4,
+        "owner_name": "Emily Davis",
+        "model_name": "Honda CRF450L",
+        "description": "Street-legal dirt bike built for serious off-road adventures. Lightweight chassis, long-travel suspension, and electric start make it perfect for conquering trails and exploring backcountry routes.",
+        "hp": 53
+    },
+    {
+        "id": 5,
+        "owner_name": "John Smith",
+        "model_name": "Harley-Davidson Road King",
+        "description": "Classic American touring motorcycle with timeless styling. Features detachable windshield, hard saddlebags, and the iconic Harley-Davidson rumble. Built for comfort on long highway journeys.",
+        "hp": 87
+    }
+]

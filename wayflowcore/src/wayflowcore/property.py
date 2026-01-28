@@ -11,6 +11,8 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Type, TypedDict, Union, cast
 
+import numpy as np
+
 from wayflowcore._metadata import MetadataType
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
@@ -36,6 +38,7 @@ JsonSchemaParam = TypedDict(
         "anyOf": List["JsonSchemaParam"],
         "key_type": "JsonSchemaParam",  # added by us, to support types of key in dicts
         "required": List[str],
+        "x_vector_property": bool,  # Added by us, to distinguish VectorProperty from ListProperty
     },
     total=False,
 )
@@ -308,6 +311,10 @@ class Property(SerializableObject, ABC):
                 schema=schema.get("items", {}),
                 validate_default_type=validate_default_type,
             )
+            is_vector_property = schema.get("x_vector_property", False)
+            if is_vector_property:
+                return VectorProperty(**kwargs)
+
             return ListProperty(**kwargs, item_type=item_type)
 
         if not json_type_as_string == "object":
@@ -1319,3 +1326,117 @@ def _output_properties_to_response_format_property(outputs: List[Property]) -> P
         description="the expected output of the generation",
         properties={property_.name: property_ for property_ in outputs},
     )
+
+
+@dataclass(frozen=True)
+class VectorProperty(Property):
+    """
+    Class to describe a vector (embedding) input/output value for a component (flow or agent).
+    Vectors are typically used for semantic search and similarity computations.
+
+    Its JSON type equivalent is ``array``.
+
+    Parameters
+    ----------
+    name:
+        Name of the property.
+    description:
+        Optional description of the variable.
+
+        .. important::
+
+            It can be helpful to put a description in two cases:
+
+            * to help potential users to know what this property is about, and simplify the usage of a potential ``Step`` using it
+            * to help a LLM if it needs to generate values for this property (e.g. in ``PromptExecutionStep`` or ``AgentExecutionStep``).
+    default_value:
+        Optional default value. By default, there is no default value (``Property.empty_default``), meaning that if a component has this property
+        as input, the value will need to be produced or passed before (it will appear as an input of an
+        ``Agent``/``Flow`` OR it needs to be produced by a previous ``Step`` in a ``Flow``).
+
+        .. important::
+
+            Setting a default value might be needed in several cases but is NOT recommended:
+
+            * when **generating a value for a property** (e.g. ``PromptExecutionStep`` or ``AgentExecutionStep``), it is
+              possible that the LLM is not able to generate the value. In this case, the default value of the given property
+              type will be used, but you can specify your own ``default_value``.
+            * when **a value might not be yet produced / not passed as input** in a ``Flow`` (e.g. caught exception, some other branch execution, ...),
+              but you still want the flow to execute. Putting a default value helps ensuring that whatever happens before,
+              the flow can always execute properly with some defaults if needed.
+    dimensions:
+        Optional number of dimensions for the vector. If specified, will validate that vectors have the correct size.
+    hidden:
+        Whether this property should be hidden from users (e.g., for auto-generated embeddings). Defaults to False.
+    """
+
+    dimensions: Optional[int] = None
+    hidden: bool = False
+
+    def _is_value_of_expected_type(self, value: Any) -> bool:
+        """Check if value is a valid vector (list of numbers or numpy array)."""
+
+        if isinstance(value, np.ndarray):
+            return True
+
+        if not isinstance(value, list):
+            return False
+
+        # Check all elements are numbers (int or float)
+        if not all(isinstance(x, (int, float)) for x in value):
+            return False
+
+        # Check dimensions if specified
+        if self.dimensions is not None and len(value) != self.dimensions:
+            return False
+
+        return True
+
+    @property
+    def _type_default_value(self) -> Any:
+        """Return default empty vector."""
+        if self.dimensions is not None:
+            return [0.0] * self.dimensions
+        return []
+
+    def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
+        """Convert to JSON schema representation."""
+        schema: JsonSchemaParam = {
+            "type": "array",
+            "items": {"type": "number"},
+            "x_vector_property": True,
+        }
+
+        return schema
+
+    def _validate_or_return_default_value(self, value: Any) -> Any:
+        """Validate value or return default, with special handling for numpy arrays."""
+        # Handle numpy arrays
+        if isinstance(value, np.ndarray) and hasattr(value, "tolist"):
+            # Convert numpy array to list
+            value = value.tolist()
+
+        # Handle other array-like objects
+        if hasattr(value, "__iter__") and not isinstance(value, (str, dict)):
+            try:
+                value = list(value)
+            except:
+                pass
+
+        return super()._validate_or_return_default_value(value)
+
+    def __post_init__(self) -> None:
+        """Additional validation after initialization."""
+        super().__post_init__()
+
+        # Validate dimensions if specified
+        if self.dimensions is not None and self.dimensions <= 0:
+            raise ValueError(f"Vector dimensions must be positive, got {self.dimensions}")
+
+        # Validate default value dimensions if both are specified
+        if self.has_default and self.dimensions is not None:
+            if isinstance(self.default_value, list) and len(self.default_value) != self.dimensions:
+                raise ValueError(
+                    f"Default value has {len(self.default_value)} dimensions but "
+                    f"VectorProperty specifies {self.dimensions} dimensions"
+                )
