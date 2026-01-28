@@ -1333,25 +1333,7 @@ def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm)
     assert str(result) in conv.get_last_message().content
 
 
-@pytest.mark.parametrize(
-    "raise_exceptions, expected_exception, expected_result",
-    [
-        (True, pytest.raises(ValueError, match="Cannot compute result using fooza tool."), None),
-        (False, None, lambda: bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)),
-    ],
-)
-@retry_test(max_attempts=4)
-def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception(
-    vllm_responses_llm, raise_exceptions, expected_exception, expected_result
-):
-    """
-    Failure rate:          1 out of 20
-    Observed on:           2026-01-16
-    Average success time:  17.15 seconds per successful attempt
-    Average failure time:  12.90 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.09 ** 4) ~= 6.8 / 100'000
-    """
+def _setup_swarm_for_multiple_tool_calling(vllm_responses_llm, raise_exceptions):
     llm = vllm_responses_llm
     fooza_agent = _get_fooza_agent(
         llm, raise_exception_tool=True, raise_exceptions=raise_exceptions
@@ -1370,10 +1352,39 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception(
         messages="Compute the result of fooza(4, 2) + bwip(4, 5) + zbuk(5, 6)"
     )
 
-    if expected_exception:
-        with expected_exception:
-            conv.execute()
-    else:
+    return conv
+
+
+@retry_test(max_attempts=3)
+def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_raises_error(
+    vllm_responses_llm,
+):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-28
+    Average success time:  5.19 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    conv = _setup_swarm_for_multiple_tool_calling(vllm_responses_llm, raise_exceptions=True)
+    with pytest.raises(ValueError, match="Cannot compute result using fooza tool."):
         conv.execute()
-        result = expected_result()
-        assert str(result) in conv.get_last_message().content
+
+
+@retry_test(max_attempts=5)
+def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_does_not_raise_error(
+    vllm_responses_llm,
+):
+    """
+    Failure rate:          2 out of 20
+    Observed on:           2026-01-28
+    Average success time:  14.45 seconds per successful attempt
+    Average failure time:  21.04 seconds per failed attempt
+    Max attempt:           5
+    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    """
+    conv = _setup_swarm_for_multiple_tool_calling(vllm_responses_llm, raise_exceptions=False)
+    conv.execute()
+    result = bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
+    assert str(result) in conv.get_last_message().content
