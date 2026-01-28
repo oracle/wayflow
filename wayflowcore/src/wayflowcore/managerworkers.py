@@ -21,7 +21,7 @@ from wayflowcore.templates._managerworkerstemplate import _DEFAULT_MANAGERWORKER
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
-    from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
+    from wayflowcore.conversation import Conversation
     from wayflowcore.messagelist import Message
 
 logger = logging.getLogger(__name__)
@@ -155,7 +155,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
         conversation_name: Optional[str] = None,
-    ) -> "ManagerWorkersConversation":
+    ) -> "Conversation":
         """
         Initializes a conversation with the managerworkers.
 

@@ -146,7 +146,7 @@ class ManagerWorkersRunner(ConversationExecutor):
 
     @staticmethod
     async def _run_worker_round(
-        current_conversation: "AgentConversation",
+        current_conversation: Union["AgentConversation", "ManagerWorkersConversation"],
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
         return await current_conversation.execute_async(
@@ -182,6 +182,11 @@ class ManagerWorkersRunner(ConversationExecutor):
             )
             if current_agent_name == managerworkers_config.manager_agent.name:
                 current_agent = managerworkers_config.manager_agent
+
+                if isinstance(current_conversation, ManagerWorkersConversation):
+                    raise ValueError(
+                        "Manager Conversation cannot be of type `ManagerWorkersConversation`."
+                    )
 
                 # Handle pending tool requests of manager
                 if isinstance(current_conversation.status, ToolRequestStatus):
@@ -257,7 +262,7 @@ class ManagerWorkersRunner(ConversationExecutor):
     @staticmethod
     def _handle_pending_tool_requests_of_manager(
         manager: Agent,
-        manager_conversation: Union["AgentConversation"],
+        manager_conversation: "AgentConversation",
         managerworkers_conversation: "ManagerWorkersConversation",
     ) -> _ToolProcessSignal:
         if not isinstance(manager_conversation.status, ToolRequestStatus):
