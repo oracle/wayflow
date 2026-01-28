@@ -23,7 +23,9 @@ from .test_transforms import (
     assert_message_summarization_transforms_are_equal,
 )
 
-filter_inmemds_warnings = pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+filter_in_memory_datastore_warnings = pytest.mark.filterwarnings(
+    f"ignore:{_INMEMORY_USER_WARNING}:UserWarning"
+)
 
 
 @pytest.fixture
@@ -57,7 +59,7 @@ def _testing_agents_with_summarization_transforms():
     return wayflow_agent, agent_spec_agent
 
 
-@filter_inmemds_warnings
+@filter_in_memory_datastore_warnings
 def test_wayflow_agent_with_summarization_transforms_can_be_converted_to_agentspec(
     _testing_agents_with_summarization_transforms,
 ):
@@ -72,7 +74,7 @@ def test_wayflow_agent_with_summarization_transforms_can_be_converted_to_agentsp
     )
 
 
-@filter_inmemds_warnings
+@filter_in_memory_datastore_warnings
 def test_agentspec_agent_with_summarization_transforms_can_be_converted_to_wayflow(
     _testing_agents_with_summarization_transforms,
 ):
