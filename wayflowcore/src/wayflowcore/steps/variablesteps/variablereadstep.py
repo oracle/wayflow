@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from wayflowcore._metadata import MetadataType
 from wayflowcore.property import Property
 from wayflowcore.steps.step import Step, StepResult
+from wayflowcore.steps.variablesteps._utils import _require_variable_value_from_conversation_store
 from wayflowcore.variable import Variable
 
 if TYPE_CHECKING:
@@ -84,9 +85,8 @@ class VariableReadStep(Step):
         >>>
         >>> float_variable = Variable(
         ...     name="float_variable",
-        ...     type=ListProperty(item_type=FloatProperty()),
+        ...     type=ListProperty(item_type=FloatProperty(), default_value=[1.0, 2.0, 3.0, 4.0]),
         ...     description="list of floats variable",
-        ...     default_value=[1.0, 2.0, 3.0, 4.0],
         ... )
         >>>
         >>> read_step = VariableReadStep(variable=float_variable)
@@ -146,11 +146,10 @@ class VariableReadStep(Step):
         inputs: Dict[str, Any],
         conversation: "FlowConversation",
     ) -> StepResult:
-        variable_value = conversation._get_variable_value(self.variable)
-        if variable_value is None:
-            raise ValueError(
-                f"Attempted to read from the Variable '{self.variable.name}' but the value was None."
-            )
         return StepResult(
-            outputs={self.VALUE: variable_value},
+            outputs={
+                self.VALUE: _require_variable_value_from_conversation_store(
+                    self.variable, conversation
+                )
+            },
         )

@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -88,14 +88,30 @@ DEFAULT_DESCRIPTOR_VALUES: Dict[str, object] = {
         name="var",
         type=ListProperty(item_type=StringProperty()),
         description="var",
-        default_value=[],
     ),
     Datastore.__name__: datastore,
     CallerInputMode.__name__: CallerInputMode.ALWAYS,
     VariableWriteOperation.__name__: VariableWriteOperation.OVERWRITE,
 }
 
-DEFAULT_PARAMETER_VALUES: Dict[str, object] = {"llm": llm_assistant_model}
+DEFAULT_PARAMETER_VALUES: Dict[str, object] = {
+    "llm": llm_assistant_model,
+    "read_variables": [
+        Variable(
+            name="var_read",
+            type=ListProperty(item_type=StringProperty()),
+            description="var_read",
+        )
+    ],
+    "write_variables": [
+        Variable(
+            name="var_write",
+            type=ListProperty(item_type=StringProperty()),
+            description="var_write",
+        )
+    ],
+    "write_operations": {"var_write": VariableWriteOperation.OVERWRITE},
+}
 
 DEFAULT_CLASS_PARAMETER_VALUES: Dict[str, Dict[str, object]] = {
     ChoiceSelectionStep.__name__: {

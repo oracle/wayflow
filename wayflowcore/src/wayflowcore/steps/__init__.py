@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -17,6 +17,7 @@ from .templaterenderingstep import TemplateRenderingStep
 from .textextractionstep.extractvaluefromjsonstep import ExtractValueFromJsonStep
 from .textextractionstep.regexextractionstep import RegexExtractionStep
 from .variablesteps.variablereadstep import VariableReadStep
+from .variablesteps.variablestep import VariableStep
 from .variablesteps.variablewritestep import VariableWriteStep
 
 # avoid cyclic imports because the steps below are composed of steps above
@@ -46,6 +47,7 @@ __all__ = [
     "RegexExtractionStep",
     "InputMessageStep",
     "VariableReadStep",
+    "VariableStep",
     "VariableWriteStep",
     "ChoiceSelectionStep",
     "MapStep",
