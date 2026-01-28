@@ -59,7 +59,9 @@ with warnings.catch_warnings():
 @tool
 def get_weather(location: Annotated[str, "The location to get the weather from"]) -> str:
     """Returns the weather in the provided location"""
-    return random.choice(["sunny", "rainy"])  # nosec
+    return random.choice(
+        ["sunny", "rainy"]
+    )  # nosec0004 # the reported issue by pybandit indicates use of non-cryptographic randomness; this randomness is only used to return a demo weather condition for tests
 
 
 @pytest.fixture

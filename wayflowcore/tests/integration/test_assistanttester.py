@@ -56,7 +56,9 @@ def get_weather_assistant(
         """Get the weather for the given specified location"""
         if location and "zurich" in location.lower():
             return "wintry"
-        return random.choice(["sunny", "cloudy", "windy"])  # nosec
+        return random.choice(
+            ["sunny", "cloudy", "windy"]
+        )  # nosec0004 # the reported issue by pybandit indicates use of non-cryptographic randomness; this randomness is only used to return a demo weather condition for tests
 
     @tool(description_mode="only_docstring")
     def get_largest_city(country: str) -> str:

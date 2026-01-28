@@ -59,7 +59,9 @@ def create_weather_server_tool():
         location: str
             The location to get the weather from
         """
-        return random.choice(["sunny", "rainy"])  # nosec
+        return random.choice(
+            ["sunny", "rainy"]
+        )  # nosec0004 # the reported issue by pybandit indicates use of non-cryptographic randomness; this randomness is only used to return a demo weather condition for tests
 
     return get_weather
 
