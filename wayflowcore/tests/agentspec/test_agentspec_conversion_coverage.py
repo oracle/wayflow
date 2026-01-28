@@ -113,7 +113,6 @@ EXCLUDED_COMPONENTS = {
     "SleepStep",
     "DoNothingStep",
     # internal transforms not supported in AgentSpec
-    "SplitPromptOnMarkerMessageTransform",
     "_PythonMergeToolRequestAndCallsTransform",
     "_ToolRequestAndCallsTransform",
     # TODO: Support these in the future
