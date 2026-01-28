@@ -262,7 +262,7 @@ class AgentExecutionStep(Step):
         if isinstance(self.agent, Agent):
             return self.agent.might_yield or self.caller_input_mode == CallerInputMode.ALWAYS
         elif isinstance(self.agent, (Swarm, ManagerWorkers)):
-            # Swarm's caller_input_mode enforces whether the agent is conversational or not
+            # Swarm/ManagerWorker's caller_input_mode enforces whether the agent is conversational or not
             return (
                 self.agent.caller_input_mode == CallerInputMode.ALWAYS
                 or self.caller_input_mode == CallerInputMode.ALWAYS
