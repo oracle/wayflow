@@ -311,8 +311,10 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
 
         self.transforms = transforms or []
         agent_template = agent_template or llm.agent_template
-        for transform in self.transforms:
-            agent_template = agent_template.with_additional_post_rendering_transform(transform)
+        for transform in self.transforms[::-1]:
+            agent_template = agent_template.with_additional_post_rendering_transform(
+                transform, append=False
+            )
         self.agent_template = agent_template
 
         self._used_provided_input_descriptors = input_descriptors or []
