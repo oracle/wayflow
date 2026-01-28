@@ -11,7 +11,11 @@ from pytest import fixture
 from wayflowcore import Message, MessageType
 from wayflowcore.agent import Agent
 from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
-from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
+from wayflowcore.executors.executionstatus import (
+    FinishedStatus,
+    ToolExecutionConfirmationStatus,
+    UserMessageRequestStatus,
+)
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
 from wayflowcore.managerworkers import ManagerWorkers
@@ -21,9 +25,10 @@ from wayflowcore.steps import OutputMessageStep
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep, CallerInputMode
 from wayflowcore.steps.outputmessagestep import OutputMessageStep
 from wayflowcore.swarm import Swarm
-from wayflowcore.tools import ClientTool, ToolRequest
+from wayflowcore.tools import ClientTool, ServerTool, ToolRequest
 
 from ...testhelpers.dummy import DummyModel
+from ...testhelpers.patching import patch_llm
 from ...testhelpers.testhelpers import retry_test
 from ..test_agent import (  # noqa
     agent_with_yielding_subflow,
@@ -285,6 +290,44 @@ def test_agent_executor_step_can_read_previous_messages(
             assert message_with_secret not in str(args)
         else:
             assert message_with_secret in str(args)
+
+
+def test_tool_confirmation_from_agents_in_flow_works(vllm_responses_llm):
+    llm = vllm_responses_llm
+    random_func = lambda name: name
+    name_tool = ServerTool(
+        func=random_func,
+        name="name_tool",
+        description="Ask the user for some name",
+        parameters={"name": {"type": "string"}},
+        requires_confirmation=True,
+    )
+    agent = Agent(llm=llm, tools=[name_tool])
+    flow = Flow.from_steps([AgentExecutionStep(name="agent", agent=agent)])
+
+    conversation = flow.start_conversation()
+    conversation.append_user_message("Please call the tool with name 'Alice'")
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(
+                    name="name_tool",
+                    args={"name": "Alice"},
+                    tool_request_id="server_tool",
+                )
+            ],
+            "executed tool",
+        ],
+    ):
+        status = conversation.execute()
+
+        assert isinstance(status, ToolExecutionConfirmationStatus)
+        status.confirm_tool_execution(tool_request=status.tool_requests[0])
+        status_2 = conversation.execute()
+
+        assert isinstance(status_2, UserMessageRequestStatus)
+        assert conversation.get_last_message().content == "executed tool"
 
 
 def test_agent_only_uses_max_iterations_in_total_during_agent_execution_step(remotely_hosted_llm):
