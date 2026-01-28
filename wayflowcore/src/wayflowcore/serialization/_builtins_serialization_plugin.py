@@ -357,7 +357,9 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
-from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
+from wayflowcore.models.openaicompatiblemodel import (
+    EMPTY_API_KEY,
+)
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -597,7 +599,7 @@ def _runtime_entity_to_pyagentspec_entity(
     return AgentSpecProperty(
         json_schema={
             "type": "object",
-            "title": runtime_entity.name,
+            "title": runtime_entity.name or "entity",
             "description": runtime_entity.description,
             "properties": properties,
         }
