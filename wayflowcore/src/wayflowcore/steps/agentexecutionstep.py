@@ -85,11 +85,15 @@ class AgentExecutionStep(Step):
         Parameters
         ----------
         agent:
-            Agent that will be used in the step
+            Agent that will be used in the step.
         caller_input_mode:
             Whether the agent is allowed to ask the user questions (CallerInputMode.ALWAYS) or not (CallerInputMode.NEVER).
-            If set to NEVER, the step won't be able to yield. Defaults to ``None``, which means it will use the ``call_input_mode``
+            If set to NEVER, the step won't be able to yield. Defaults to ``None``, which means it will use the ``caller_input_mode``
             of the underlying agent.
+
+            .. warning::
+                This overrides ``caller_input_mode`` of the ``agent``.
+
         input_descriptors:
             Input descriptors of the step. ``None`` means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.
 
