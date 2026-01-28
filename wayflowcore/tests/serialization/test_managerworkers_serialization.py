@@ -92,7 +92,10 @@ def assert_managerworkers_are_equal(old_instance: ManagerWorkers, new_instance: 
 
     assert len(old_instance.workers) == len(new_instance.workers)
     for old_worker, new_worker in zip(old_instance.workers, new_instance.workers):
-        assert_managerworkers_agents_are_equal(old_worker, new_worker)
+        if isinstance(old_worker, ManagerWorkers) and isinstance(new_worker, ManagerWorkers):
+            assert_managerworkers_are_equal(old_worker, new_worker)
+        else:
+            assert_managerworkers_agents_are_equal(old_worker, new_worker)
 
     assert old_instance.__metadata_info__ == new_instance.__metadata_info__
 
@@ -216,6 +219,92 @@ def test_can_continue_a_deserialized_conversation_in_flow(simple_managerworkers_
     conv_length_before = len(conv.get_messages())
     ser_conv = serialize(conv)
     deser_conv = deserialize(FlowConversation, ser_conv)
+    assert len(deser_conv.get_messages()) == conv_length_before
+    deser_conv.append_user_message("Hello")
+    deser_conv.execute()
+
+
+@pytest.fixture
+def multi_managerworkers(simple_math_agents_example, remotely_hosted_llm) -> ManagerWorkers:
+    addition_agent, multiplication_agent = simple_math_agents_example
+    worker = ManagerWorkers(
+        workers=[multiplication_agent],
+        group_manager=remotely_hosted_llm,
+    )
+    return ManagerWorkers(
+        workers=[addition_agent, worker],
+        group_manager=remotely_hosted_llm,
+    )
+
+
+@pytest.fixture
+def multi_conversation(multi_managerworkers: ManagerWorkers) -> ManagerWorkersConversation:
+    return multi_managerworkers.start_conversation()
+
+
+@pytest.fixture
+def multi_state(
+    multi_conversation: ManagerWorkersConversation,
+) -> ManagerWorkersConversationExecutionState:
+    return multi_conversation.state
+
+
+def test_can_serialize_multi_managerworkers(multi_managerworkers: ManagerWorkers):
+    serialized_managerworkers = serialize(multi_managerworkers)
+    assert isinstance(serialized_managerworkers, str)
+
+
+def test_can_deserialize_multi_managerworkers(multi_managerworkers: ManagerWorkers):
+    new_managerworkers = deserialize(ManagerWorkers, serialize(multi_managerworkers))
+
+    _assert_config_are_equal(
+        serialize_to_dict(multi_managerworkers),
+        serialize_to_dict(new_managerworkers),
+    )
+
+    assert_managerworkers_are_equal(multi_managerworkers, new_managerworkers)
+
+
+def test_can_serialize_multi_state(multi_state: ManagerWorkersConversationExecutionState):
+    serialized_state = serialize(multi_state)
+    assert isinstance(serialized_state, str)
+
+
+def test_can_deserialize_multi_state(multi_state: ManagerWorkersConversationExecutionState):
+    new_state = deserialize(ManagerWorkersConversationExecutionState, serialize(multi_state))
+
+    assert_managerworkers_conversation_states_are_equal(multi_state, new_state)
+
+
+def test_can_serialize_multi_conversation(multi_conversation: ManagerWorkersConversation):
+    serialized_conversation = serialize(multi_conversation)
+    assert isinstance(serialized_conversation, str)
+
+
+def test_can_deserialize_a_multi_serialized_conversation(
+    multi_conversation: ManagerWorkersConversation, simple_math_agents_example
+):
+    addition_agent, _ = simple_math_agents_example
+    multi_conversation.subconversations[addition_agent.name] = addition_agent.start_conversation()
+    new_conversation = deserialize(ManagerWorkersConversation, serialize(multi_conversation))
+
+    assert_managerworkers_conversations_are_equal(multi_conversation, new_conversation)
+
+    s1 = serialize_to_dict(multi_conversation)
+    s2 = serialize_to_dict(new_conversation)
+    _assert_config_are_equal(s1, s2)
+
+
+def test_can_continue_a_deserialized_multi_conversation(multi_managerworkers: ManagerWorkers):
+    conv = multi_managerworkers.start_conversation()
+    conv.append_user_message("Hello")
+
+    conv.execute()
+    conv_length_before = len(conv.get_messages())
+
+    ser_conv = serialize(conv)
+    deser_conv = deserialize(ManagerWorkersConversation, ser_conv)
+
     assert len(deser_conv.get_messages()) == conv_length_before
     deser_conv.append_user_message("Hello")
     deser_conv.execute()
