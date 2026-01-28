@@ -311,7 +311,11 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
 
         self.transforms = transforms or []
         agent_template = agent_template or llm.agent_template
+
+        # Iterate in reverse order to keep the original order of transforms as we are prepending.
         for transform in self.transforms[::-1]:
+            # Prepend to make sure that user defined transforms are applied before default template transforms.
+            # This ensures a more predictable outcome for users.
             agent_template = agent_template.with_additional_post_rendering_transform(
                 transform, append=False
             )
