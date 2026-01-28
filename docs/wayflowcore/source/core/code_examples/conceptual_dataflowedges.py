@@ -63,18 +63,18 @@ from wayflowcore.property import StringProperty
 # Looping flow
 producer = OutputMessageStep(
     name="Step 1",
-    message_template="value{{optional_value}}",
-    output_mapping={OutputMessageStep.OUTPUT: "A"},
-    input_descriptors=[StringProperty(name="optional_value", default_value="")],
+    message_template="value{{A}}",
+    output_mapping={OutputMessageStep.OUTPUT: "B"},
+    input_descriptors=[StringProperty(name="A", default_value="")],
 )
 condition = BranchingStep(
     name="Branching",
-    input_mapping={BranchingStep.NEXT_BRANCH_NAME: "A"},
+    input_mapping={BranchingStep.NEXT_BRANCH_NAME: "B"},
     branch_name_mapping={"value": "branch1", "valueextra": "branch2"},
 )
 add_extra = OutputMessageStep(
     name="Step 2",
-    output_mapping={OutputMessageStep.OUTPUT: "optional_value"},
+    output_mapping={OutputMessageStep.OUTPUT: "A"},
     message_template="extra",
 )
 
