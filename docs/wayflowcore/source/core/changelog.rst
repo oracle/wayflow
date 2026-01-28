@@ -116,6 +116,10 @@ Improvements
 
   This significantly reduces token usage and improves execution speed.
 
+* **Support multiple tool calls for the manager agent in ManagerWorkers**
+
+  Added support for multiple tool calls for the manager agent in ``ManagerWorkers``. The LLM may now emit multiple tool calls in a single response. These tools are executed sequentially, and all tool results are returned together.
+
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

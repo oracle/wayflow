@@ -289,6 +289,6 @@ Full code
 
 Click on the card at the :ref:`top of this page <top-howtoserializeconversations>` to download the full code for this guide or copy the code below.
 
-.. literalinclude:: ../end_to_end_code_examples/tutorial_agent.py
+.. literalinclude:: ../end_to_end_code_examples/howto_serialize_conversations.py
    :language: python
    :linenos:

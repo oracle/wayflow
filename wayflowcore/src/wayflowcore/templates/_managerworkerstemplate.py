@@ -36,23 +36,19 @@ Your user/caller is: {{caller_name}}.
 <other_entities>
 You can communicate with the following entities.
 {% for agent in other_agents %}
-<expert_agent>
-{{agent.name}}: {{agent.description}}
-</expert_agent>
+- {{agent.name}}: {{agent.description}}
 {% endfor %}
 </other_entities>
 </environment>
 
 <response_rules>
 <tool_use_rules>
-- You must respond with a tool use (function calling); plain text responses are forbidden
-- Do not mention any specific tool names to users in messages
+- Do not mention any specific tool names to users
 - Carefully verify available tools; do not fabricate non-existent tools. Delegate when necessary.
-- Tool request/results may originate from other parts of the system; only use explicitly provided tools
-- Call a single tool per response.
+- Call MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user’s query can be broken into INDEPENDENT subtasks.
 </tool_use_rules>
 
-Responses should be structured as a thought followed by a your response function call using JSON compliant syntax.
+Always structure your response as as a thought followed by one or multiple tool calls using JSON compliant syntax.
 The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
 -> Put **internal-only** information in the thoughts
 -> Put all necessary information in the tool calls to communicate to user/other entity.
@@ -82,11 +78,10 @@ Here are the instructions specific to your role.:
 _DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER = """
 --- SYSTEM REMINDER ---
 You are an helpful AI Agent, your name: {{name}}. Your user/caller is: {{caller_name}}.
-The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
--> Put **internal-only** information in the thoughts
--> Put all necessary information in the tool calls to communicate to user/other entity.
 
-Responses should be structured as a thought followed by a your response function call using JSON compliant syntax.
+The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
+
+Always structure your response as a thought followed by one or multiple tool calls using JSON compliant syntax.
 Do not use variables in the function call. Here's the structure:
 
 YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT SEE THOSE!)
@@ -176,7 +171,7 @@ class _ToolRequestAndCallsTransform(MessageTransform, SerializableObject):
 class ManagerWorkersJsonToolOutputParser(JsonToolOutputParser, SerializableObject):
     def parse_thoughts_and_calls(self, raw_txt: str) -> Tuple[str, str]:
         """Mananagerworkers-specific function to separate thoughts and tool calls."""
-        if "{" not in raw_txt:  # Will need to be adapted for parallel tool calls
+        if "{" not in raw_txt:
             return "", raw_txt
         thoughts, raw_tool_calls = raw_txt.split("{", maxsplit=1)
         return thoughts.strip(), "{" + raw_tool_calls.replace("args={", "parameters={")

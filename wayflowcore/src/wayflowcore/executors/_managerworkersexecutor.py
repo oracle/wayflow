@@ -5,15 +5,13 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import logging
+from enum import Enum, auto
 from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Union
 
 from wayflowcore import Conversation
 from wayflowcore.agent import Agent
 from wayflowcore.executors._agenticpattern_helpers import (
     _SEND_MESSAGE_TOOL_NAME,
-    _close_parallel_tool_requests_if_necessary,
-    _get_last_tool_request_message_from_agent_response,
-    _get_tool_request_from_message,
     _get_unanswered_tool_requests_from_agent_response,
     _parse_send_message_tool_request,
 )
@@ -28,9 +26,10 @@ from wayflowcore.executors.interrupts.executioninterrupt import ExecutionInterru
 from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models import LlmModel
-from wayflowcore.tools import ToolResult
+from wayflowcore.tools import ClientTool, ToolResult
 
 if TYPE_CHECKING:
+    from wayflowcore.agentconversation import AgentConversation
     from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
 
 logger = logging.getLogger(__name__)
@@ -79,7 +78,70 @@ def _validate_agent_unicity(agents: List[Agent]) -> Dict[str, "Agent"]:
     return agent_by_name
 
 
+class _ToolProcessSignal(Enum):
+    RETURN = auto()  # Break the while loop and return the status to user
+    START_NEW_LOOP = auto()  # Equivalent to `continue` in the while loop
+    EXECUTE_AGENT = auto()  # Go to the agent execution
+
+
 class ManagerWorkersRunner(ConversationExecutor):
+    @staticmethod
+    async def _run_manager_round(
+        current_agent: Agent,
+        managerworkers_config: "ManagerWorkers",
+        current_conversation: "AgentConversation",
+        execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
+    ) -> ExecutionStatus:
+        from wayflowcore.agent import _MutatedAgent
+        from wayflowcore.executors._agentexecutor import (
+            _TALK_TO_USER_TOOL_NAME,
+            _make_talk_to_user_tool,
+        )
+
+        mutated_agent_tools = (
+            list(current_agent.tools) + managerworkers_config._manager_communication_tools
+        )
+
+        has_talk_to_user_tool = any(
+            tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
+        )
+        if not has_talk_to_user_tool:
+            # Manager agent should have tool to talk to user
+            mutated_agent_tools.append(_make_talk_to_user_tool())
+
+        mutated_agent_template = managerworkers_config.managerworkers_template.with_partial(
+            {
+                "name": current_agent.name,
+                "description": current_agent.description,
+                "other_agents": [
+                    {"name": worker.name, "description": worker.description}
+                    for worker in managerworkers_config.workers
+                ],
+                "caller_name": "HUMAN USER",
+            }
+        )
+
+        with _MutatedAgent(
+            current_agent,
+            {
+                "tools": mutated_agent_tools,
+                "agent_template": mutated_agent_template,
+                "_add_talk_to_user_tool": has_talk_to_user_tool,
+            },
+        ):
+            return await current_conversation.execute_async(
+                execution_interrupts=execution_interrupts,
+            )
+
+    @staticmethod
+    async def _run_worker_round(
+        current_conversation: "AgentConversation",
+        execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
+    ) -> ExecutionStatus:
+        return await current_conversation.execute_async(
+            execution_interrupts=execution_interrupts,
+        )
+
     @staticmethod
     async def execute_async(
         conversation: Conversation,
@@ -91,12 +153,6 @@ class ManagerWorkersRunner(ConversationExecutor):
             raise ValueError(
                 f"Conversation should be of type ManagerWorkersConversation, but got {type(conversation)}"
             )
-
-        from wayflowcore.agent import _MutatedAgent
-        from wayflowcore.executors._agentexecutor import (
-            _TALK_TO_USER_TOOL_NAME,
-            _make_talk_to_user_tool,
-        )
 
         managerworkers_config = conversation.component
 
@@ -113,46 +169,34 @@ class ManagerWorkersRunner(ConversationExecutor):
                 current_agent_name,
                 "-" * 30,
             )
-
             if current_agent_name == managerworkers_config.manager_agent.name:
                 current_agent = managerworkers_config.manager_agent
-                mutated_agent_tools = (
-                    list(current_agent.tools) + managerworkers_config._manager_communication_tools
-                )
 
-                has_talk_to_user_tool = any(
-                    tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
-                )
-                if not has_talk_to_user_tool:
-                    # Manager agent should have tool to talk to user
-                    mutated_agent_tools.append(_make_talk_to_user_tool())
-
-                mutated_agent_template = managerworkers_config.managerworkers_template.with_partial(
-                    {
-                        "name": current_agent.name,
-                        "description": current_agent.description,
-                        "other_agents": [
-                            {"name": worker.name, "description": worker.description}
-                            for worker in managerworkers_config.workers
-                        ],
-                        "caller_name": "HUMAN USER",
-                    }
-                )
-
-                with _MutatedAgent(
-                    current_agent,
-                    {
-                        "tools": mutated_agent_tools,
-                        "agent_template": mutated_agent_template,
-                        "_add_talk_to_user_tool": has_talk_to_user_tool,
-                    },
-                ):
-                    status = await current_conversation.execute_async(
-                        execution_interrupts=execution_interrupts,
+                # Handle pending tool requests of manager
+                if isinstance(current_conversation.status, ToolRequestStatus):
+                    signal = ManagerWorkersRunner._handle_pending_tool_requests_of_manager(
+                        manager=current_agent,
+                        manager_conversation=current_conversation,
+                        managerworkers_conversation=conversation,
                     )
 
-            else:  # Current agent is a worker
-                status = await current_conversation.execute_async(
+                    if signal == _ToolProcessSignal.RETURN:
+                        return current_conversation.status
+                    elif signal == _ToolProcessSignal.START_NEW_LOOP:
+                        continue
+                    else:
+                        # _ToolProcessSignal.EXECUTE_AGENT -> we continue this loop with a new call to the current agent
+                        pass
+
+                status = await ManagerWorkersRunner._run_manager_round(
+                    current_agent=current_agent,
+                    managerworkers_config=managerworkers_config,
+                    current_conversation=current_conversation,
+                    execution_interrupts=execution_interrupts,
+                )
+            else:
+                status = await ManagerWorkersRunner._run_worker_round(
+                    current_conversation=current_conversation,
                     execution_interrupts=execution_interrupts,
                 )
 
@@ -167,14 +211,13 @@ class ManagerWorkersRunner(ConversationExecutor):
                     f"is not of type {ToolRequestStatus}, {ToolExecutionConfirmationStatus} (is '{type(status)}')"
                 )
 
-            if isinstance(status, ToolRequestStatus) and any(
-                t.name == _SEND_MESSAGE_TOOL_NAME for t in status.tool_requests
+            if (
+                isinstance(status, ToolRequestStatus)
+                and current_agent_name == managerworkers_config.manager_agent.name
             ):
-                # 1. current agent is the manager agent and is sending a message to a worker
-                ManagerWorkersRunner._send_message_to_worker(
-                    managerworkers_conversation=conversation,
-                    managerworkers_config=managerworkers_config,
-                )
+                # 1. current agent is the manager agent and is calling tools
+                # These tool(s) will be handled in the next loop by checking the pending tools of the manager
+                continue
             elif (
                 isinstance(status, UserMessageRequestStatus)
                 and current_agent_name == managerworkers_config.manager_agent.name
@@ -193,11 +236,62 @@ class ManagerWorkersRunner(ConversationExecutor):
                     managerworkers_conversation=conversation,
                 )
             elif isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus)):
-                # 4. usual client/server tool requests of either manager agent or the worker
+                # 4. usual client tool requests of a worker
+                # or tools that need confirmations of either the manager or a worker
                 return status
             else:
                 # 5. illegal agent finishing the conversation
                 raise ValueError("Conversation is finished unexpectedly.")
+
+    @staticmethod
+    def _handle_pending_tool_requests_of_manager(
+        manager: Agent,
+        manager_conversation: "AgentConversation",
+        managerworkers_conversation: "ManagerWorkersConversation",
+    ) -> _ToolProcessSignal:
+        if not isinstance(manager_conversation.status, ToolRequestStatus):
+            raise ValueError("Internal error: the status should be ToolRequestStatus")
+
+        if manager_conversation.status._tool_results:
+            manager_conversation._update_conversation_with_status()
+
+        manager_conv_state = manager_conversation.state
+        manager_conv_state._get_current_tool_request()
+        tool_request = manager_conv_state.current_tool_request
+
+        if not tool_request:
+            # no tool left to execute, resume current agent execution
+            manager_conversation.status = None
+            return _ToolProcessSignal.EXECUTE_AGENT
+
+        # Case 1: send_message tool
+        if tool_request.name == _SEND_MESSAGE_TOOL_NAME:
+            ManagerWorkersRunner._send_message_to_worker(
+                managerworkers_conversation=managerworkers_conversation,
+                managerworkers_config=managerworkers_conversation.component,
+            )
+
+            manager_conv_state.current_tool_request = None
+
+            return (
+                _ToolProcessSignal.START_NEW_LOOP
+            )  # start a new loop to handle other pending tools if any
+
+        tool = next((t for t in manager.tools if t.name == tool_request.name), None)
+
+        # Case 2: standard client tool
+        if tool and isinstance(tool, ClientTool):
+            # Only one tool request is surfaced to the user at a time, other tool calls are still in the queue
+            manager_conversation.status.tool_requests = [tool_request]
+            # This is done here instead of the agent executor as tool handling for manager agent is done here
+            manager_conv_state.current_tool_request = None
+
+            return _ToolProcessSignal.RETURN
+
+        # Case 3: Server tool or other internal tool
+        # -> Let agent handle it (agent will check the current_tool_request)
+        manager_conversation.status = None
+        return _ToolProcessSignal.EXECUTE_AGENT
 
     @staticmethod
     def _send_message_to_manager(
@@ -214,18 +308,11 @@ class ManagerWorkersRunner(ConversationExecutor):
             manager_subconversation.message_list
         )
 
-        # There should be exactly one unanswered tool request in the manager's conversation
-        # as the manager uses `send_message` tool to send messages to the worker.
-        # For parallel tool calling that might be implemented later, we will allow more than 1 unanswered tool request.
-        if len(unanswered_tool_requests) != 1:
-            raise ValueError(
-                f"Internal error, should have exactly one unanswered tool request, has {len(unanswered_tool_requests)}"
-            )
-
-        last_tool_request_id = unanswered_tool_requests[0].tool_request_id
+        # Get the oldest unanswered tool requests since the tool requests are processed sequentially
+        tool_request_id = unanswered_tool_requests[0].tool_request_id
 
         manager_subconversation.append_tool_result(
-            ToolResult(message.content, tool_request_id=last_tool_request_id)
+            ToolResult(message.content, tool_request_id=tool_request_id)
         )
 
         logger.info(
@@ -243,19 +330,12 @@ class ManagerWorkersRunner(ConversationExecutor):
     ) -> None:
         manager_subconversation = managerworkers_conversation._get_main_subconversation()
 
-        last_tool_request_message = _get_last_tool_request_message_from_agent_response(
+        unanswered_tool_requests = _get_unanswered_tool_requests_from_agent_response(
             manager_subconversation.message_list
         )
 
-        tool_request = _get_tool_request_from_message(
-            message=last_tool_request_message,
-            tool_name=_SEND_MESSAGE_TOOL_NAME,
-        )
-
-        _close_parallel_tool_requests_if_necessary(
-            manager_subconversation.message_list, tool_request
-        )
-        # ^ We currently do not support parallel tool calling --> need to cancel other tool requests if existing.
+        # Get the oldest unanswered tool requests since the tool requests are processed sequentially
+        tool_request = unanswered_tool_requests[0]
 
         recipient_agent_name, message, error_message = _parse_send_message_tool_request(
             tool_request,
