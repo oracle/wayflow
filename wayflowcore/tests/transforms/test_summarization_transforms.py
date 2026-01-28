@@ -18,6 +18,7 @@ from wayflowcore.models.llmmodel import LlmCompletion, LlmModel
 from wayflowcore.tools import ToolRequest, ToolResult, tool
 from wayflowcore.transforms import ConversationSummarizationTransform, MessageSummarizationTransform
 from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
+from wayflowcore.transforms.transforms import RemoveEmptyNonUserMessageTransform
 
 from ..conftest import mock_llm, patch_streaming_llm
 from .conftest import (
@@ -614,7 +615,12 @@ def test_summarization_transform_removes_expired_messages(
     )
 
     agent_llm = mock_llm()
-    agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
+    agent = Agent(
+        llm=agent_llm,
+        tools=[],
+        transforms=[transform],
+        custom_instruction="You are a helpful agent.",
+    )
 
     first_conv = agent.start_conversation()
     if transform_type == MessageSummarizationTransform:
@@ -627,7 +633,9 @@ def test_summarization_transform_removes_expired_messages(
 
     cache_key = ""
     if transform_type == MessageSummarizationTransform:
-        cache_key = str(first_conv.id) + "_1_content"  # second message is the long one.
+        cache_key = (
+            str(first_conv.id) + "_2_content"
+        )  # second message in the list is the long one. Which is thrid overall (system prompt)
     elif transform_type == ConversationSummarizationTransform:
         cache_key = str(first_conv.id)
 
@@ -961,7 +969,11 @@ def test_conversation_summarization_trigger_and_cache_incremental(get_setup):
     summarization_llm = setup["summarization_llm"]
 
     agent_llm = mock_llm()
-    agent = Agent(llm=agent_llm, tools=[], transforms=transforms)
+    # RemoveEmptyNonUserMessageTransform is necessary to remove the empty system prompt
+    # which makes the messages numbers calculation in the rest of the test correct.
+    agent = Agent(
+        llm=agent_llm, tools=[], transforms=[RemoveEmptyNonUserMessageTransform()] + transforms
+    )
 
     # Mock summary generation
     summary = "Dolphins are the best."
@@ -1075,14 +1087,19 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
             ),
         ),
     ]
-
+    # we have a total of 6 messages: system prompt + 5 messages above.
     # even if min_num_messages = 2, we can't summarize the last 3 together because they lack tool request with id: id1.
     summarization_llm = mock_llm()
     transform = ConversationSummarizationTransform(
-        llm=summarization_llm, max_num_messages=3, min_num_messages=2
+        llm=summarization_llm, max_num_messages=4, min_num_messages=3
     )
     agent_llm = mock_llm()
-    agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
+    agent = Agent(
+        llm=agent_llm,
+        tools=[],
+        transforms=[transform],
+        custom_instruction="You are a helpful agent.",
+    )
 
     conv = agent.start_conversation()
     for message in conversation:
@@ -1105,3 +1122,50 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
             ]
 
             assert len(transformed_messages) == 5
+
+
+@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
+def test_agent_transforms_should_run_before_canonicalization_with_gemma(remote_gemma_llm):
+
+    main_content = (
+        "Absolutely! Dolphins are fascinating creatures, famous for their intelligence and complex behavior. "
+        "For example, they have been observed using tools, such as covering their snouts with sponges to protect themselves "
+        "while foraging on the seafloor"
+    )
+    messages = [Message(role="user", content=main_content) for _ in range(4)]
+
+    summarization_transform = ConversationSummarizationTransform(
+        llm=remote_gemma_llm,
+        max_num_messages=3,
+        min_num_messages=1,
+    )
+
+    agent = Agent(llm=remote_gemma_llm, tools=[], transforms=[summarization_transform])
+
+    conv = agent.start_conversation()
+    for m in messages:
+        conv.append_message(m)
+
+    summary = "Summarized conversation"
+    mock_generate_summary = AsyncMock(
+        side_effect=lambda prompt: LlmCompletion(Message(summary), None)
+    )
+
+    with patch_streaming_llm(remote_gemma_llm, "Mock Gemma response") as patched_gemma_llm:
+        with patch.object(remote_gemma_llm, "generate_async", mock_generate_summary):
+            conv.execute()
+
+            transformed_messages = [
+                message
+                for prompts, _ in patched_gemma_llm.call_args_list
+                for prompt in prompts
+                for message in prompt.messages
+            ]
+
+            # CanonicalizationMessageTransform should merge the summary and the last message into a single message.
+            assert len(transformed_messages) == 1
+            # If CanonicalizationMessageTransform runs AFTER ConversationSummarizationTransform
+            # then summarization should happen.
+            assert mock_generate_summary.call_count > 0
+            # The messages received by the LLM were summarized.
+            assert len(transformed_messages[0].content) <= len(main_content) * 2

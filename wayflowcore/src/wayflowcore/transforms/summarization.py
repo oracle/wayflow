@@ -471,7 +471,7 @@ class ConversationSummarizationTransform(MessageTransform):
         messages_to_summarize = messages[:-keep_x_most_recent_messages]
         messages_to_keep = messages[-keep_x_most_recent_messages:]
 
-        # detect tool results missing their tool request
+        # detect tool results in messages_to_keep missing their tool request
         missing_tool_request_ids = set()
         tool_request_ids = set()
         for msg in messages_to_keep:
@@ -486,12 +486,15 @@ class ConversationSummarizationTransform(MessageTransform):
         if len(missing_tool_request_ids) == 0:
             return messages_to_summarize, messages_to_keep
 
-        # all the rest after the tool call should be summarized
         for idx, msg in enumerate(messages_to_summarize):
+            # if a message has the tool request of a tool result in messages_to_keep that misses
+            # its tool request, then this message and the ones after should be kept
             if any(
                 tc.tool_request_id in missing_tool_request_ids for tc in (msg.tool_requests or [])
             ):
+                # all the rest after the tool call should be summarized
                 return messages_to_summarize[:idx], messages_to_summarize[idx:] + messages_to_keep
+
         return messages_to_summarize, messages_to_keep
 
     def _construct_messages_using_cache(
