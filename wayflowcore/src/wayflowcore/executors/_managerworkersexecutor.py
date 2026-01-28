@@ -133,6 +133,8 @@ class ManagerWorkersRunner(ConversationExecutor):
             {
                 "tools": mutated_agent_tools,
                 "agent_template": mutated_agent_template,
+                "output_descriptors": managerworkers_config.output_descriptors,
+                "caller_input_mode": managerworkers_config.caller_input_mode,
                 "_add_talk_to_user_tool": has_talk_to_user_tool,
             },
         ):
