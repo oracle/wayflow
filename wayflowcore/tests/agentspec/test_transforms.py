@@ -33,7 +33,9 @@ from wayflowcore.transforms import (
 
 from ..conftest import MOCK_LLM_CONFIG, mock_llm
 
-filter_inmemds_warnings = pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+filter_in_memory_datastore_warnings = pytest.mark.filterwarnings(
+    f"ignore:{_INMEMORY_USER_WARNING}:UserWarning"
+)
 
 
 def _testing_message_summarization_transforms():
@@ -145,7 +147,7 @@ def _testing_conversation_summarization_transforms():
     return wayflow_transform, agent_spec_transform
 
 
-@filter_inmemds_warnings
+@filter_in_memory_datastore_warnings
 def test_wayflow_summarization_message_transform_can_be_converted_to_agentspec():
     # Create both transforms with matching custom values
     wayflow_transform, expected_agent_spec_transform = _testing_message_summarization_transforms()
@@ -158,7 +160,7 @@ def test_wayflow_summarization_message_transform_can_be_converted_to_agentspec()
     )
 
 
-@filter_inmemds_warnings
+@filter_in_memory_datastore_warnings
 def test_agentspec_summarization_message_transform_can_be_converted_to_wayflow():
     # Create both transforms with matching custom values
     expected_wayflow_transform, agent_spec_transform = _testing_message_summarization_transforms()
@@ -169,7 +171,7 @@ def test_agentspec_summarization_message_transform_can_be_converted_to_wayflow()
     )
 
 
-@filter_inmemds_warnings
+@filter_in_memory_datastore_warnings
 def test_wayflow_summarization_conversation_transform_can_be_converted_to_agentspec():
     # Create both transforms with matching custom values
     wayflow_transform, expected_agent_spec_transform = (
@@ -184,7 +186,7 @@ def test_wayflow_summarization_conversation_transform_can_be_converted_to_agents
     )
 
 
-@filter_inmemds_warnings
+@filter_in_memory_datastore_warnings
 def test_agentspec_summarization_conversation_transform_can_be_converted_to_wayflow():
     # Create both transforms with matching custom values
     expected_wayflow_transform, agent_spec_transform = (
