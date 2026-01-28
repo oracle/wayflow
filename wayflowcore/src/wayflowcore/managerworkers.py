@@ -8,9 +8,8 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
-from wayflowcore import Tool
 from wayflowcore._metadata import MetadataType
-from wayflowcore.agent import Agent
+from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
@@ -19,6 +18,7 @@ from wayflowcore.property import Property
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.templates._managerworkerstemplate import _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
+from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, SerializableObject):
     group_manager: Union[LlmModel, Agent]
     workers: List[Agent]
+    caller_input_mode: CallerInputMode
     managerworkers_template: "PromptTemplate"
     input_descriptors: List["Property"]
     output_descriptors: List["Property"]
@@ -43,6 +44,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         self,
         group_manager: Union[LlmModel, Agent],
         workers: List[Agent],
+        caller_input_mode: CallerInputMode = CallerInputMode.ALWAYS,
         managerworkers_template: Optional["PromptTemplate"] = None,
         input_descriptors: Optional[List["Property"]] = None,
         output_descriptors: Optional[List["Property"]] = None,
@@ -64,6 +66,9 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         group_manager:
             Can either be an LLM or an agent that manages the group. If an LLM is passed, a manager agent
             will be created using that LLM.
+        caller_input_mode:
+            Whether the manager can ask the user for additional information or needs to handle the task internally within the team.
+            This overrides manager agent's ``caller_input_mode``.
         input_descriptors:
             Input descriptors of the ManagerWorkers. ``None`` means the ManagerWorks will resolve the input descriptors automatically in a best effort manner.
 
@@ -77,9 +82,6 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
                 a warning will be raised and the ManagerWorkers is not guaranteed to work properly.
         output_descriptors:
             Output descriptors of the ManagerWorkers. ``None`` means the ManagerWorkers will resolve them automatically in a best effort manner.
-            .. warning::
-
-                Setting output descriptors for the Swarm is currently not supported.
         name:
             name of the ManagerWorkers, used for composition
         description:
@@ -118,11 +120,6 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         if len(workers) == 0:
             raise ValueError("Cannot define a group with no worker agent.")
 
-        if output_descriptors:
-            raise ValueError(
-                "`output_descriptors` is not supported yet for the ManagerWorkers pattern."
-            )
-
         self.group_manager = group_manager
         self.manager_agent = _create_manager_agent(self.group_manager)
 
@@ -138,6 +135,8 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         self.managerworkers_template = (
             managerworkers_template or _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
         )
+
+        self.caller_input_mode = caller_input_mode
 
         super().__init__(
             name=IdGenerator.get_or_generate_name(name, prefix="managerworkers_", length=8),

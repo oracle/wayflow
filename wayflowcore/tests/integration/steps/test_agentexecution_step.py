@@ -14,6 +14,7 @@ from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
+from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import IntegerProperty, Property, StringProperty
 from wayflowcore.steps import OutputMessageStep
@@ -781,6 +782,220 @@ def test_swarm_can_run_in_non_conversational_mode_with_input_and_output_descript
     agent_step = AgentExecutionStep(
         name="agent_step",
         agent=swarm,
+    )
+
+    output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
+
+    flow = Flow.from_steps([agent_step, output_step])
+
+    conversation = flow.start_conversation(inputs={"input_message": "What is 10+10?"})
+    conversation.execute()
+    status = conversation.execute()
+    assert "20" in status.output_values["output_message"]
+
+
+@retry_test(max_attempts=3)
+def test_agent_step_with_managerworkers_in_conversational_mode(vllm_responses_llm):
+    """
+    Failure rate:          1 out of 50
+    Observed on:           2025-12-24
+    Average success time:  2.64 seconds per successful attempt
+    Average failure time:  1.14 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    """
+    llm = vllm_responses_llm
+
+    first_agent = Agent(
+        llm=llm,
+        name="first_agent",
+        description="first agent",
+        custom_instruction="You are a helpful agent. Here's what you know: {{context_1}}. You are answering an user with the name: `{{username}}`.",
+    )
+
+    second_agent = Agent(
+        llm=llm,
+        name="second_agent",
+        description="second agent",
+    )
+
+    group = ManagerWorkers(
+        group_manager=first_agent,
+        workers=[second_agent],
+        input_descriptors=[
+            StringProperty(name="context_1", default_value="Video games"),
+            StringProperty(name="username"),
+        ],  # can declare input descriptors of the manager using ManagerWorkers's input_descriptors,
+        # users can also define it within the manager agent.
+    )
+
+    agent_step = AgentExecutionStep(
+        agent=group,
+    )
+
+    flow = Flow.from_steps(steps=[agent_step])
+
+    assert len(flow.input_descriptors) == 2
+    assert {"context_1", "username"} == set(
+        descriptor.name for descriptor in flow.input_descriptors
+    )
+    context_input = next(
+        descriptor for descriptor in flow.input_descriptors if descriptor.name == "context_1"
+    )
+    assert context_input.default_value == "Video games"
+
+    conv = flow.start_conversation({"username": "John"})
+
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    status.submit_user_response("What is the name of the user you are interacting?")
+
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    last_message = status.message
+    assert "john" in last_message.content.lower()
+    status.submit_user_response("What do you know?")
+
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    last_message = status.message
+    assert "video" in last_message.content.lower() or "game" in last_message.content.lower()
+
+
+@retry_test(max_attempts=3)
+def test_managerworkers_can_run_in_non_conversational_mode(vllm_responses_llm):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  2.59 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    llm = vllm_responses_llm
+
+    manager_agent = Agent(
+        llm=llm,
+        name="manager_agent",
+        custom_instruction="You are a helpful manager agent coordinating tasks.",
+    )
+    worker_agent = Agent(
+        llm=llm,
+        name="worker_agent",
+        description="Worker agent that can do math",
+        custom_instruction="You are a worker agent that can do math",
+    )
+    group = ManagerWorkers(
+        group_manager=manager_agent,
+        workers=[worker_agent],
+    )
+
+    response = StringProperty(name="response", default_value="")
+
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=group,
+        output_descriptors=[response],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
+
+    flow = Flow.from_steps([agent_step, output_step])
+
+    conversation = flow.start_conversation()
+    conversation.append_user_message("What is 10+10?")
+    status = conversation.execute()
+    assert "20" in status.output_values["output_message"]
+
+
+@retry_test(max_attempts=3)
+def test_managerworkers_can_run_in_non_conversational_mode_with_output_descriptors(
+    vllm_responses_llm,
+):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  2.81 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    llm = vllm_responses_llm
+
+    manager_agent = Agent(
+        llm=llm,
+        name="manager_agent",
+        custom_instruction="You are a helpful manager agent coordinating tasks.",
+    )
+    worker_agent = Agent(
+        llm=llm,
+        name="worker_agent",
+        description="Worker agent that can do math",
+        custom_instruction="You are a worker agent that can do math",
+    )
+    response = StringProperty(name="response", default_value="")
+    group = ManagerWorkers(
+        group_manager=manager_agent,
+        workers=[worker_agent],
+        output_descriptors=[response],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=group,
+    )
+
+    output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
+
+    flow = Flow.from_steps([agent_step, output_step])
+
+    conversation = flow.start_conversation()
+    conversation.append_user_message("What is 10+10?")
+    status = conversation.execute()
+    assert "20" in status.output_values["output_message"]
+
+
+@retry_test(max_attempts=3)
+def test_managerworkers_can_run_in_non_conversational_mode_with_input_and_output_descriptors(
+    vllm_responses_llm,
+):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  2.37 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    llm = vllm_responses_llm
+
+    input_message = StringProperty(name="input_message", default_value="")
+    response = StringProperty(name="response", default_value="")
+    manager_agent = Agent(
+        llm=llm,
+        name="manager_agent",
+        custom_instruction="You are a helpful manager agent. Look at the message in {{input_message}}",
+    )
+    worker_agent = Agent(
+        llm=llm,
+        name="worker_agent",
+        description="Worker agent that can do math",
+        custom_instruction="You are a worker agent that can do math.",
+    )
+
+    group = ManagerWorkers(
+        group_manager=manager_agent,
+        workers=[worker_agent],
+        input_descriptors=[input_message],
+        output_descriptors=[response],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=group,
     )
 
     output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")

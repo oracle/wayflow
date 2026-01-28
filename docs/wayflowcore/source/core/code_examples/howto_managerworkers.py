@@ -365,3 +365,69 @@ deserialized_group: ManagerWorkers = AgentSpecLoader(
     tool_registry=TOOL_REGISTRY
 ).load_yaml(serialized_group)
 # .. end-##_Load_Agent_Spec_config
+
+# .. start-##_Using_ManagerWorkers_within_a_Flow
+from wayflowcore.steps.agentexecutionstep import AgentExecutionStep, CallerInputMode
+from wayflowcore.flow import Flow
+from wayflowcore.steps import OutputMessageStep
+from wayflowcore.dataconnection import DataFlowEdge
+from wayflowcore.controlconnection import ControlFlowEdge
+from wayflowcore.property import StringProperty
+
+# Example of using a ManagerWorkers within a Flow in non-conversational mode
+def managerworkers_in_flow():
+    customer_id = StringProperty(name="customer_id", default_value="")
+    company_policy_info = StringProperty(name="company_policy_info", default_value="")
+    refunds_days = StringProperty(name="refunds_days", default_value="", description='Number of days before getting back the refund.')
+    managerworkers = ManagerWorkers(
+        group_manager=customer_service_manager,
+        workers=[refund_specialist_agent, surveyor_agent],
+        input_descriptors=[customer_id, company_policy_info],
+        output_descriptors=[refunds_days],
+        caller_input_mode=CallerInputMode.NEVER
+    )
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=managerworkers
+    )
+    output_step = OutputMessageStep(name="output_step", message_template="{{refunds_days}}")
+
+    flow = Flow(
+        begin_step=agent_step,
+        control_flow_edges=[
+            ControlFlowEdge(source_step=agent_step, destination_step=output_step),
+            ControlFlowEdge(source_step=output_step, destination_step=None),
+        ],
+        data_flow_edges=[DataFlowEdge(agent_step, "refunds_days", output_step, "refunds_days")],
+    )
+    return flow
+# .. end-##_Using_ManagerWorkers_within_a_Flow
+
+# .. start-##_Run_ManagerWorkers_within_a_Flow
+flow = managerworkers_in_flow()
+conversation = flow.start_conversation(inputs={
+    "customer_id": "CUST456",
+})
+conversation.append_user_message("Hi, I need to request a refund for order #123. The item wasn't what I expected. In how many days will I expect a refund?")
+status = conversation.execute()
+print(status.output_values["output_message"])
+# .. end-##_Run_ManagerWorkers_within_a_Flow
+
+# .. start-##_Export_config_to_Agent_Spec2
+from wayflowcore.agentspec import AgentSpecExporter
+
+serialized_flow = AgentSpecExporter().to_yaml(flow)
+# .. end-##_Export_config_to_Agent_Spec2
+
+# .. start-##_Load_Agent_Spec_config2
+from wayflowcore.agentspec import AgentSpecLoader
+
+TOOL_REGISTRY = {
+    "record_survey_response": record_survey_response,
+    "check_refund_eligibility": check_refund_eligibility,
+    "process_refund": process_refund,
+}
+flow: Flow = AgentSpecLoader(
+    tool_registry=TOOL_REGISTRY
+).load_yaml(serialized_flow)
+# .. end-##_Load_Agent_Spec_config2
