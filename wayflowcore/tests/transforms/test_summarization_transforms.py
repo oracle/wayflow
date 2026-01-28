@@ -635,7 +635,7 @@ def test_summarization_transform_removes_expired_messages(
     if transform_type == MessageSummarizationTransform:
         cache_key = (
             str(first_conv.id) + "_2_content"
-        )  # second message in the list is the long one. Which is thrid overall (system prompt)
+        )  # second message in the list is the long one. Which is third overall (system prompt)
     elif transform_type == ConversationSummarizationTransform:
         cache_key = str(first_conv.id)
 
