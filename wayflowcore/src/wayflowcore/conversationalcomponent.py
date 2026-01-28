@@ -7,7 +7,7 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Set, Type, TypeVar, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
@@ -108,3 +108,46 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         Returns a dictionary of all tools that are present in this component's configuration, including tools
         nested in subcomponents, with the keys being the tool IDs, and the values being the tools.
         """
+
+    @abstractmethod
+    def _update_internal_state(self) -> None:
+        """
+        Method to update the attributes inside.
+        """
+
+
+# Define a TypeVar that represents the component's type
+ConversationalComponentTypeT = TypeVar(
+    "ConversationalComponentTypeT", bound="ConversationalComponent"
+)
+
+
+class _MutatedConversationalComponent(Generic[ConversationalComponentTypeT]):
+    def __init__(self, component: ConversationalComponentTypeT, attributes: Dict[str, Any]):
+        self.component = component
+        self.attributes = attributes
+        self.old_config: Dict[str, Any] = {}
+
+    def __enter__(self) -> ConversationalComponentTypeT:
+        self.old_config.clear()
+        for attr, value in self.attributes.items():
+            self.old_config[attr] = getattr(self.component, attr)
+            setattr(self.component, attr, value)
+        self.component._update_internal_state()
+        return self.component
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        for attr, value in self.old_config.items():
+            setattr(self.component, attr, value)
+        self.old_config.clear()
+        self.component._update_internal_state()
+
+
+def _mutate(
+    component: ConversationalComponentTypeT, attributes: Dict[str, Any]
+) -> _MutatedConversationalComponent[ConversationalComponentTypeT]:
+    """
+    Returns a context manager for mutating the component with the provided attributes.
+    Selects the appropriate mutator class based on the component type.
+    """
+    return _MutatedConversationalComponent(component, attributes)

@@ -8,7 +8,8 @@ import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore.agent import Agent, CallerInputMode, _MutatedAgent
+from wayflowcore.agent import Agent, CallerInputMode
+from wayflowcore.conversationalcomponent import _mutate
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolExecutionConfirmationStatus,
@@ -18,6 +19,7 @@ from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecu
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.property import Property
 from wayflowcore.steps.step import Step, StepExecutionStatus, StepResult
+from wayflowcore.swarm import Swarm
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
@@ -34,7 +36,7 @@ class AgentExecutionStep(Step):
 
     def __init__(
         self,
-        agent: Union[Agent, OciAgent],
+        agent: Union[Agent, OciAgent, Swarm],
         caller_input_mode: Optional[CallerInputMode] = None,
         input_descriptors: Optional[List[Property]] = None,
         output_descriptors: Optional[List[Property]] = None,
@@ -182,7 +184,6 @@ class AgentExecutionStep(Step):
         >>> # {'name': 'Oracle', 'creation_date': 1977, 'CEO': 'Safra A. Catz', 'country': 'US'}
 
         """
-
         if caller_input_mode == CallerInputMode.NEVER and (
             output_descriptors is None or len(output_descriptors) == 0
         ):
@@ -191,18 +192,18 @@ class AgentExecutionStep(Step):
             )
 
         self.caller_input_mode = caller_input_mode
-        self.agent: Union[Agent, OciAgent] = agent
+        self.agent = agent
         self._share_conversation = _share_conversation
         """Whether the calling flow shares its messages with the Agent or not."""
 
-        if not isinstance(self.agent, Agent):
+        if not isinstance(self.agent, (Agent, Swarm)):
             if output_descriptors is not None and len(output_descriptors) > 0:
                 raise ValueError(
-                    f"Only `Agent` in `AgentExecutionStep` supports setting outputs, but you used: `{self.agent}` for {output_descriptors}. Please use an `Agent` or set the outputs to `None`"
+                    f"Only `Agent` and `Swarm` in `AgentExecutionStep` supports setting outputs, but you used: `{self.agent}` for {output_descriptors}. Please use an `Agent` or a `Swarm` or set the outputs to `None`"
                 )
             if caller_input_mode != CallerInputMode.ALWAYS:
                 raise ValueError(
-                    f"Only `Agent` in `AgentExecutionStep` supports setting a caller input mode, but you used: `{self.agent}` for {caller_input_mode}. Please use an `Agent` or set the outputs to `None`"
+                    f"Only `Agent` and `Swarm` in `AgentExecutionStep` supports setting a caller input mode, but you used: `{self.agent}` for {caller_input_mode}. Please use an `Agent` or a `Swarm` or set the outputs to `None`"
                 )
 
         super().__init__(
@@ -259,6 +260,12 @@ class AgentExecutionStep(Step):
     def might_yield(self) -> bool:
         if isinstance(self.agent, Agent):
             return self.agent.might_yield or self.caller_input_mode == CallerInputMode.ALWAYS
+        elif isinstance(self.agent, Swarm):
+            # Swarm's caller_input_mode enforces whether the agent is conversational or not
+            return (
+                self.agent.caller_input_mode == CallerInputMode.ALWAYS
+                or self.caller_input_mode == CallerInputMode.ALWAYS
+            )
         elif isinstance(self.agent, OciAgent):
             return True
         else:
@@ -307,16 +314,17 @@ class AgentExecutionStep(Step):
         }
         if self.caller_input_mode is not None:
             mutated_agent_parameters["caller_input_mode"] = self.caller_input_mode
-        context_manager = (
-            _MutatedAgent(
-                agent=self.agent,
+
+        if isinstance(self.agent, (Agent, Swarm)):
+            context_manager = _mutate(
+                component=self.agent,
                 attributes=mutated_agent_parameters,
             )
-            if isinstance(self.agent, Agent)
-            else contextlib.nullcontext()
-        )
-        # ignoring the type because mypy doesn't recognize nullcontext as a proper context manager to typing fails
-        with context_manager:  # type: ignore
+        else:
+            # ignoring the type because mypy doesn't recognize nullcontext as a proper context manager to typing fails
+            context_manager = contextlib.nullcontext()  # type: ignore
+
+        with context_manager:
             status = await agent_sub_conversation.execute_async()
 
         logger.debug(f"Agent of AgentExecutionStep returned status: {status}")

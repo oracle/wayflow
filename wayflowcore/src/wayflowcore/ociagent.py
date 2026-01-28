@@ -154,3 +154,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         self, recursive: bool, visited_set: Set[str]
     ) -> Dict[str, "Tool"]:
         return {}
+
+    def _update_internal_state(self) -> None:
+        # This method would need to be implemented if needed
+        pass

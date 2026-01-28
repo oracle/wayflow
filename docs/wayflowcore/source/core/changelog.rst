@@ -120,6 +120,10 @@ Improvements
 
   Added support for multiple tool calls for the manager agent in ``ManagerWorkers``. The LLM may now emit multiple tool calls in a single response. These tools are executed sequentially, and all tool results are returned together.
 
+* **Support Swarm in Flows:**
+
+  Swarms can be used in ``AgentExecutionStep`` and integrated into Flows. ``caller_input_mode`` is added to Swarms, similar to Agents.
+
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -9,14 +9,17 @@ import pytest
 from pytest import fixture
 
 from wayflowcore import Message, MessageType
-from wayflowcore.agent import Agent, _MutatedAgent
+from wayflowcore.agent import Agent
+from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import IntegerProperty, Property, StringProperty
+from wayflowcore.steps import OutputMessageStep
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep, CallerInputMode
 from wayflowcore.steps.outputmessagestep import OutputMessageStep
+from wayflowcore.swarm import Swarm
 from wayflowcore.tools import ClientTool, ToolRequest
 
 from ...testhelpers.dummy import DummyModel
@@ -30,16 +33,17 @@ from ..test_assistanttester import make_sequential_assistant_with_context_provid
 
 
 @fixture
-def zinimo_agent(remotely_hosted_llm):
+def zinimo_agent(vllm_responses_llm):
     return Agent(
-        llm=remotely_hosted_llm,
+        llm=vllm_responses_llm,
         custom_instruction=(
-            "You should ask the user for 2 numbers, compute their zinimo operation, "
+            "You need to compute the zinimo operation of 2 provided numbers (if not provided, you should ask the user)"
             "and submit the tool result to the user using the `submit_result` function (and not as a agent message). "
             "IMPORTANT: Never make up arguments, ask the user if you have a question. "
             "Only output a single function call at a time if needed."
         ),
         tools=[zinimo_tool],
+        description="Agent that can compute the zinimo operation of 2 provided numbers.",
         initial_message=None,
     )
 
@@ -67,7 +71,7 @@ def test_agent_step_raises_when_outputs_are_not_properly_configured(outputs, zin
 
 def run_zinimo(agent: Agent, output: Property):
     # hack to only enable a single round
-    with _MutatedAgent(agent=agent, attributes=dict(max_iterations=2)) as agent:
+    with _MutatedConversationalComponent(agent=agent, attributes=dict(max_iterations=2)) as agent:
 
         step = AgentExecutionStep(
             agent=agent,
@@ -541,3 +545,249 @@ def test_agent_step_that_uses_agent_with_default_input_values_works(big_llama):
     assert isinstance(status, UserMessageRequestStatus)
     last_message = status.message
     assert "videogame" in last_message.content.lower()
+
+
+@retry_test(max_attempts=3)
+def test_agent_step_with_swarm_can_execute_when_first_agent_handles_task(
+    zinimo_agent,
+    vllm_responses_llm,
+):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  2.33 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    first_agent = zinimo_agent
+
+    second_agent = Agent(
+        llm=vllm_responses_llm,
+        name="second_agent",
+        description="second agent",
+        custom_instruction="You are a helpful agent",
+    )
+
+    swarm = Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
+    step = AgentExecutionStep(
+        agent=swarm,
+        output_descriptors=[zinimo_result_description],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+    flow = create_single_step_flow(step)
+    conv = flow.start_conversation()
+    conv.append_user_message("Calculate zinimo operation between 2 and 5")
+    status = conv.execute()
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values["zinimo_result"] == -2
+
+
+@retry_test(max_attempts=3)
+def test_agent_step_with_swarm_can_execute_when_sub_agent_handles_task(
+    zinimo_agent,
+    vllm_responses_llm,
+):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  6.33 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    first_agent = Agent(
+        llm=vllm_responses_llm,
+        name="master_agent",
+        description="Redirects the user requests to the sub agents, or handles the subagents communication. Do not solve the task on your own.",
+        custom_instruction="You are the main agent",
+    )
+    second_agent = zinimo_agent
+
+    swarm = Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
+    step = AgentExecutionStep(
+        agent=swarm,
+        output_descriptors=[zinimo_result_description],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+    flow = create_single_step_flow(step)
+    conv = flow.start_conversation()
+    conv.append_user_message("Calculate zinimo operation between 2 and 5")
+    status = conv.execute()
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values["zinimo_result"] == -2
+
+
+@retry_test(max_attempts=3)
+def test_agent_step_with_swarm_in_conversational_mode(vllm_responses_llm):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  1.83 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    first_agent = Agent(
+        llm=vllm_responses_llm,
+        name="first_agent",
+        custom_instruction="You are a helpful agent",
+    )
+    second_agent = Agent(
+        llm=vllm_responses_llm,
+        name="second_agent",
+        description="Agent that can do math",
+        custom_instruction="You are an agent that can do math",
+    )
+    swarm = Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
+    agent_step = AgentExecutionStep(agent=swarm)
+
+    flow = Flow.from_steps(steps=[agent_step])
+
+    conv = flow.start_conversation()
+    status = conv.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    status.submit_user_response("Hello, my name is John")
+    status = conv.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    status.submit_user_response("What is my name?")
+    status = conv.execute()
+    assert "john" in conv.get_last_message().content.lower()
+
+
+@retry_test(max_attempts=3)
+def test_swarm_can_run_in_non_conversational_mode(vllm_responses_llm):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  2.06 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    first_agent = Agent(
+        llm=vllm_responses_llm,
+        name="first_agent",
+        custom_instruction="You are a helpful agent",
+    )
+    second_agent = Agent(
+        llm=vllm_responses_llm,
+        name="second_agent",
+        description="Agent that can do math",
+        custom_instruction="You are an agent that can do math",
+    )
+    swarm = Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
+
+    response = StringProperty(name="response", default_value="")
+
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=swarm,
+        output_descriptors=[response],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
+
+    flow = Flow.from_steps([agent_step, output_step])
+
+    conversation = flow.start_conversation()
+    conversation.append_user_message("What is 10+10?")
+    status = conversation.execute()
+    assert "20" in status.output_values["output_message"]
+
+
+@retry_test(max_attempts=3)
+def test_swarm_can_run_in_non_conversational_mode_with_output_descriptors_in_swarm(
+    vllm_responses_llm,
+):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  3.28 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    first_agent = Agent(
+        llm=vllm_responses_llm,
+        name="first_agent",
+        custom_instruction="You are a helpful agent",
+    )
+    second_agent = Agent(
+        llm=vllm_responses_llm,
+        name="second_agent",
+        description="Agent that can do math",
+        custom_instruction="You are an agent that can do math",
+    )
+    response = StringProperty(name="response", default_value="")
+    swarm = Swarm(
+        first_agent=first_agent,
+        relationships=[(first_agent, second_agent)],
+        output_descriptors=[response],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=swarm,
+    )
+
+    output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
+
+    flow = Flow.from_steps([agent_step, output_step])
+
+    conversation = flow.start_conversation()
+    conversation.append_user_message("What is 10+10?")
+    status = conversation.execute()
+    assert "20" in status.output_values["output_message"]
+
+
+@retry_test(max_attempts=3)
+def test_swarm_can_run_in_non_conversational_mode_with_input_and_output_descriptors_in_swarm(
+    vllm_responses_llm,
+):
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-01-27
+    Average success time:  1.91 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    """
+    input_message = StringProperty(name="input_message", default_value="")
+    response = StringProperty(name="response", default_value="")
+    first_agent = Agent(
+        llm=vllm_responses_llm,
+        name="first_agent",
+        custom_instruction="You are a helpful agent. Look at the message in {{input_message}}",
+    )
+    second_agent = Agent(
+        llm=vllm_responses_llm,
+        name="second_agent",
+        description="Agent that can do math",
+        custom_instruction="You are an agent that can do math.",
+    )
+
+    swarm = Swarm(
+        first_agent=first_agent,
+        relationships=[(first_agent, second_agent)],
+        input_descriptors=[input_message],
+        output_descriptors=[response],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=swarm,
+    )
+
+    output_step = OutputMessageStep(name="output_step", message_template="""{{response}}""")
+
+    flow = Flow.from_steps([agent_step, output_step])
+
+    conversation = flow.start_conversation(inputs={"input_message": "What is 10+10?"})
+    conversation.execute()
+    status = conversation.execute()
+    assert "20" in status.output_values["output_message"]

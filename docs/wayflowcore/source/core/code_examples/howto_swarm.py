@@ -278,3 +278,56 @@ assistant: Swarm = AgentSpecLoader(
     tool_registry=TOOL_REGISTRY
 ).load_json(serialized_assistant)
 # .. end-##_Load_Agent_Spec_config
+# .. start-##_Using_Swarm_within_a_Flow
+from wayflowcore.steps.agentexecutionstep import AgentExecutionStep, CallerInputMode
+from wayflowcore.flow import Flow
+from wayflowcore.steps import OutputMessageStep
+from wayflowcore.dataconnection import DataFlowEdge
+from wayflowcore.controlconnection import ControlFlowEdge
+from wayflowcore.property import StringProperty
+
+# Example of using a Swarm within a Flow in non-conversational mode
+def swarm_in_flow(swarm):
+    severity_level = StringProperty(name="severity_level", default_value="", description='level of severity of the disease. Can be "HIGH", "MEDIUM" or "LOW"')
+    agent_step = AgentExecutionStep(
+        name="agent_step",
+        agent=swarm,
+        output_descriptors=[severity_level],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+    output_step = OutputMessageStep(name="output_step", message_template="{{severity_level}}")
+
+    flow = Flow(
+        begin_step=agent_step,
+        control_flow_edges=[
+            ControlFlowEdge(source_step=agent_step, destination_step=output_step),
+            ControlFlowEdge(source_step=output_step, destination_step=None),
+        ],
+        data_flow_edges=[DataFlowEdge(agent_step, "severity_level", output_step, "severity_level")],
+    )
+    return flow
+# .. end-##_Using_Swarm_within_a_Flow
+# .. start-##_Run_Swarm_within_a_Flow
+flow = swarm_in_flow(assistant)
+conversation = flow.start_conversation()
+conversation.append_user_message("My skin has been itching for about a week. Can you tell me how severe it is?")
+status = conversation.execute()
+print(status.output_values["output_message"])
+# .. end-##_Run_Swarm_within_a_Flow
+# .. start-##_Export_config_to_Agent_Spec2
+from wayflowcore.agentspec import AgentSpecExporter
+
+serialized_flow = AgentSpecExporter().to_json(flow)
+# .. end-##_Export_config_to_Agent_Spec2
+# .. start-##_Load_Agent_Spec_config2
+from wayflowcore.agentspec import AgentSpecLoader
+
+TOOL_REGISTRY = {
+    "symptoms_checker": symptoms_checker,
+    "get_medication_info": get_medication_info,
+    "knowledge_tool": knowledge_tool,
+}
+flow: Flow = AgentSpecLoader(
+    tool_registry=TOOL_REGISTRY
+).load_json(serialized_flow)
+# .. end-##_Load_Agent_Spec_config2
