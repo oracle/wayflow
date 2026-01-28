@@ -68,6 +68,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             will be created using that LLM.
         caller_input_mode:
             Whether the manager can ask the user for additional information or needs to handle the task internally within the team.
+            This overrides manager agent's ``caller_input_mode``.
         input_descriptors:
             Input descriptors of the ManagerWorkers. ``None`` means the ManagerWorks will resolve the input descriptors automatically in a best effort manner.
 

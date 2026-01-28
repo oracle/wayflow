@@ -249,7 +249,7 @@ class ManagerWorkersRunner(ConversationExecutor):
                 # or tools that need confirmations of either the manager or a worker
                 return status
             else:
-                # 5. finish status: happedning when caller_input_mode == NEVER
+                # 5. finish status: happening when caller_input_mode == NEVER
                 return status
 
     @staticmethod
