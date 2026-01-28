@@ -21,7 +21,7 @@ from wayflowcore.templates import PromptTemplate
 from wayflowcore.templates._managerworkerstemplate import _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
 
 if TYPE_CHECKING:
-    from wayflowcore.conversation import Conversation
+    from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
     from wayflowcore.messagelist import Message
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 @dataclass(init=False)
 class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, SerializableObject):
     group_manager: Union[LlmModel, Agent]
-    workers: List[Agent]
+    workers: List[Union[Agent, "ManagerWorkers"]]
     managerworkers_template: "PromptTemplate"
     input_descriptors: List["Property"]
     output_descriptors: List["Property"]
@@ -42,7 +42,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
     def __init__(
         self,
         group_manager: Union[LlmModel, Agent],
-        workers: List[Agent],
+        workers: List[Union[Agent, "ManagerWorkers"]],
         managerworkers_template: Optional["PromptTemplate"] = None,
         input_descriptors: Optional[List["Property"]] = None,
         output_descriptors: Optional[List["Property"]] = None,
@@ -60,7 +60,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         Parameters
         ---------
         workers:
-            List of Agents that participate in the group. There should be at least one agent in the list.
+            List of Agents or other ManagerWorkers that participate in the group as workers. There should be at least one worker in the list.
         group_manager:
             Can either be an LLM or an agent that manages the group. If an LLM is passed, a manager agent
             will be created using that LLM.
@@ -128,7 +128,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
 
         self.workers = workers
 
-        self._agent_by_name: Dict[str, "Agent"] = _validate_agent_unicity(
+        self._agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = _validate_agent_unicity(
             self.workers + [self.manager_agent]
         )
 
@@ -156,7 +156,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
         conversation_name: Optional[str] = None,
-    ) -> "Conversation":
+    ) -> "ManagerWorkersConversation":
         """
         Initializes a conversation with the managerworkers.
 
@@ -199,7 +199,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             )
         )
 
-        subconversations: Dict[str, AgentConversation] = {}
+        subconversations: Dict[str, Union[AgentConversation, ManagerWorkersConversation]] = {}
         subconversations[self.manager_agent.name] = self.manager_agent.start_conversation(
             inputs=inputs,
             messages=messages,
