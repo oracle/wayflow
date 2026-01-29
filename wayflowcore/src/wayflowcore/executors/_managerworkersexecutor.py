@@ -53,13 +53,15 @@ def _create_manager_agent(group_manager: Union[Agent, LlmModel]) -> Agent:
     return manager_agent
 
 
-def _validate_agent_unicity(agents: List[Agent]) -> Dict[str, "Agent"]:
-    agent_by_name: Dict[str, "Agent"] = {}
+def _validate_agent_unicity(
+    agents: List[Union[Agent, ManagerWorkers]],
+) -> Dict[str, Union[Agent, ManagerWorkers]]:
+    agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = {}
 
     for agent in agents:
-        if not isinstance(agent, Agent):
+        if not isinstance(agent, (Agent, ManagerWorkers)):
             raise TypeError(
-                f"Only Agents are supported in ManagerWorkers, got component of type '{agent.__class__.__name__}'"
+                f"Only Agent and ManagerWorker type are supported in ManagerWorkers, got component of type '{agent.__class__.__name__}'"
             )
 
         # Checking for missing name
@@ -144,7 +146,7 @@ class ManagerWorkersRunner(ConversationExecutor):
 
     @staticmethod
     async def _run_worker_round(
-        current_conversation: "AgentConversation",
+        current_conversation: Union["AgentConversation", "ManagerWorkersConversation"],
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
         return await current_conversation.execute_async(
@@ -180,6 +182,11 @@ class ManagerWorkersRunner(ConversationExecutor):
             )
             if current_agent_name == managerworkers_config.manager_agent.name:
                 current_agent = managerworkers_config.manager_agent
+
+                if isinstance(current_conversation, ManagerWorkersConversation):
+                    raise ValueError(
+                        "Manager Conversation cannot be of type `ManagerWorkersConversation`."
+                    )
 
                 # Handle pending tool requests of manager
                 if isinstance(current_conversation.status, ToolRequestStatus):

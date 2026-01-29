@@ -143,6 +143,10 @@ Improvements
 
   Swarms and ManagerWorkers can be used in ``AgentExecutionStep`` and integrated into Flows. ``caller_input_mode`` is added to Swarms and ManagerWorkers, similar to Agents.
 
+* **Support for multi level ManagerWorkers**
+
+  Added support for multiple levels of ManagerWorkers where a worker in ``ManagerWorkers`` can itself be ``ManagerWorkers`` enabling the creation of hierarchical agent structures.
+
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
