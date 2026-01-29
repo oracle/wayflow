@@ -14,14 +14,11 @@ from wayflowcore.mcp import (
     MCPToolBox,
     SSEmTLSTransport,
     StreamableHTTPmTLSTransport,
-    enable_mcp_without_auth,
 )
 from wayflowcore.models import OCIGenAIModel, OpenAICompatibleModel
 from wayflowcore.models.ociclientconfig import OCIClientConfigWithApiKey
 from wayflowcore.steps import ApiCallStep
 from wayflowcore.tools import RemoteTool, ServerTool
-
-enable_mcp_without_auth()
 
 
 @pytest.fixture
@@ -101,13 +98,16 @@ def agent_with_sensitive_fields_filepath() -> str:
         ),
     ],
 )
-def test_exported_component_does_not_contain_sensitive_field(component: Component) -> None:
+def test_exported_component_does_not_contain_sensitive_field(
+    with_mcp_enabled, component: Component
+) -> None:
     serialized_component = AgentSpecExporter().to_json(component)
     assert "abcdexyz" not in serialized_component
     assert "$component_ref" in serialized_component
 
 
 def test_can_import_component_with_missing_sensitive_fields(
+    with_mcp_enabled,
     agent_with_sensitive_fields_filepath: str,
 ) -> None:
     components_registry = {
@@ -137,6 +137,7 @@ def test_can_import_component_with_missing_sensitive_fields(
 
 
 def test_import_component_with_incomplete_missing_sensitive_fields_fails(
+    with_mcp_enabled,
     agent_with_sensitive_fields_filepath: str,
 ) -> None:
     incomplete_components_registry = {
