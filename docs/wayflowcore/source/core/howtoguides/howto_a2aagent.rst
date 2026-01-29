@@ -1,4 +1,4 @@
-.. _top-howtoa2agent:
+.. _top-howtoa2aagent:
 
 =====================
 How to Use A2A Agents
