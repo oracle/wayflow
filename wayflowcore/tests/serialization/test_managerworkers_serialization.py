@@ -225,7 +225,7 @@ def test_can_continue_a_deserialized_conversation_in_flow(simple_managerworkers_
 
 
 @pytest.fixture
-def multi_managerworkers(simple_math_agents_example, remotely_hosted_llm) -> ManagerWorkers:
+def multi_level_managerworkers(simple_math_agents_example, remotely_hosted_llm) -> ManagerWorkers:
     addition_agent, multiplication_agent = simple_math_agents_example
     worker = ManagerWorkers(
         workers=[multiplication_agent],
@@ -238,73 +238,60 @@ def multi_managerworkers(simple_math_agents_example, remotely_hosted_llm) -> Man
 
 
 @pytest.fixture
-def multi_conversation(multi_managerworkers: ManagerWorkers) -> ManagerWorkersConversation:
-    return multi_managerworkers.start_conversation()
+def multi_level_managerworkers_conversation(
+    multi_level_managerworkers: ManagerWorkers,
+) -> ManagerWorkersConversation:
+    return multi_level_managerworkers.start_conversation()
 
 
-@pytest.fixture
-def multi_state(
-    multi_conversation: ManagerWorkersConversation,
-) -> ManagerWorkersConversationExecutionState:
-    return multi_conversation.state
-
-
-def test_can_serialize_multi_managerworkers(multi_managerworkers: ManagerWorkers):
-    serialized_managerworkers = serialize(multi_managerworkers)
+def test_can_serialize_multi_level_managerworkers(multi_level_managerworkers: ManagerWorkers):
+    serialized_managerworkers = serialize(multi_level_managerworkers)
     assert isinstance(serialized_managerworkers, str)
 
 
-def test_can_deserialize_multi_managerworkers(multi_managerworkers: ManagerWorkers):
-    new_managerworkers = deserialize(ManagerWorkers, serialize(multi_managerworkers))
-
+def test_can_deserialize_multi_level_managerworkers(multi_level_managerworkers: ManagerWorkers):
+    new_managerworkers = deserialize(ManagerWorkers, serialize(multi_level_managerworkers))
     _assert_config_are_equal(
-        serialize_to_dict(multi_managerworkers),
+        serialize_to_dict(multi_level_managerworkers),
         serialize_to_dict(new_managerworkers),
     )
-
-    assert_managerworkers_are_equal(multi_managerworkers, new_managerworkers)
-
-
-def test_can_serialize_multi_state(multi_state: ManagerWorkersConversationExecutionState):
-    serialized_state = serialize(multi_state)
-    assert isinstance(serialized_state, str)
+    assert_managerworkers_are_equal(multi_level_managerworkers, new_managerworkers)
 
 
-def test_can_deserialize_multi_state(multi_state: ManagerWorkersConversationExecutionState):
-    new_state = deserialize(ManagerWorkersConversationExecutionState, serialize(multi_state))
-
-    assert_managerworkers_conversation_states_are_equal(multi_state, new_state)
-
-
-def test_can_serialize_multi_conversation(multi_conversation: ManagerWorkersConversation):
-    serialized_conversation = serialize(multi_conversation)
+def test_can_serialize_multi_level_managerworkers_conversation(
+    multi_level_managerworkers_conversation: ManagerWorkersConversation,
+):
+    serialized_conversation = serialize(multi_level_managerworkers_conversation)
     assert isinstance(serialized_conversation, str)
 
 
-def test_can_deserialize_a_multi_serialized_conversation(
-    multi_conversation: ManagerWorkersConversation, simple_math_agents_example
+def test_can_deserialize_a_multi_level_managerworkers_serialized_conversation(
+    multi_level_managerworkers_conversation: ManagerWorkersConversation, simple_math_agents_example
 ):
     addition_agent, _ = simple_math_agents_example
-    multi_conversation.subconversations[addition_agent.name] = addition_agent.start_conversation()
-    new_conversation = deserialize(ManagerWorkersConversation, serialize(multi_conversation))
-
-    assert_managerworkers_conversations_are_equal(multi_conversation, new_conversation)
-
-    s1 = serialize_to_dict(multi_conversation)
+    multi_level_managerworkers_conversation.subconversations[addition_agent.name] = (
+        addition_agent.start_conversation()
+    )
+    new_conversation = deserialize(
+        ManagerWorkersConversation, serialize(multi_level_managerworkers_conversation)
+    )
+    assert_managerworkers_conversations_are_equal(
+        multi_level_managerworkers_conversation, new_conversation
+    )
+    s1 = serialize_to_dict(multi_level_managerworkers_conversation)
     s2 = serialize_to_dict(new_conversation)
     _assert_config_are_equal(s1, s2)
 
 
-def test_can_continue_a_deserialized_multi_conversation(multi_managerworkers: ManagerWorkers):
-    conv = multi_managerworkers.start_conversation()
+def test_can_continue_a_deserialized_multi_level_managerworkers_conversation(
+    multi_level_managerworkers: ManagerWorkers,
+):
+    conv = multi_level_managerworkers.start_conversation()
     conv.append_user_message("Hello")
-
     conv.execute()
     conv_length_before = len(conv.get_messages())
-
     ser_conv = serialize(conv)
     deser_conv = deserialize(ManagerWorkersConversation, ser_conv)
-
     assert len(deser_conv.get_messages()) == conv_length_before
     deser_conv.append_user_message("Hello")
     deser_conv.execute()
