@@ -316,7 +316,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         for transform in self.transforms[::-1]:
             # Prepend to make sure that user defined transforms are applied before default template transforms.
             # This ensures a more predictable outcome for users.
-            agent_template = agent_template.with_additional_post_rendering_transform(
+            agent_template = agent_template.with_additional_pre_rendering_transform(
                 transform, append_last=False
             )
         self.agent_template = agent_template

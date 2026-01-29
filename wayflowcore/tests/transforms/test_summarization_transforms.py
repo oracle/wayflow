@@ -615,12 +615,7 @@ def test_summarization_transform_removes_expired_messages(
     )
 
     agent_llm = mock_llm()
-    agent = Agent(
-        llm=agent_llm,
-        tools=[],
-        transforms=[transform],
-        custom_instruction="You are a helpful agent.",
-    )
+    agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
 
     first_conv = agent.start_conversation()
     if transform_type == MessageSummarizationTransform:
@@ -633,9 +628,7 @@ def test_summarization_transform_removes_expired_messages(
 
     cache_key = ""
     if transform_type == MessageSummarizationTransform:
-        cache_key = (
-            str(first_conv.id) + "_2_content"
-        )  # second message in the list is the long one. Which is third overall (system prompt)
+        cache_key = str(first_conv.id) + "_1_content"  # second message in the list is the long one.
     elif transform_type == ConversationSummarizationTransform:
         cache_key = str(first_conv.id)
 
@@ -1088,7 +1081,7 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
         ),
     ]
     # we have a total of 6 messages: system prompt + 5 messages above.
-    # even if min_num_messages = 2, we can't summarize the last 3 together because they lack tool request with id: id1.
+    # even if min_num_messages = 3, we can't summarize the first 3 together because they lack tool result with id: id1.
     summarization_llm = mock_llm()
     transform = ConversationSummarizationTransform(
         llm=summarization_llm, max_num_messages=4, min_num_messages=3
@@ -1098,7 +1091,6 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
         llm=agent_llm,
         tools=[],
         transforms=[transform],
-        custom_instruction="You are a helpful agent.",
     )
 
     conv = agent.start_conversation()
