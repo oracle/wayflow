@@ -478,6 +478,18 @@ Here is what the **Agent Spec representation will look like ↓**
          .. literalinclude:: ../config_examples/howto_rag.yaml
             :language: yaml
 
+.. warning::
+
+   The Oracle Database Connection Config objects contain several sensitive values
+   (like username, password, wallet location) that will not be serialized by the ``AgentSpecExporter``.
+   These will be serialized as references that must be resolved at loading time, by specifying the values
+   of these sensitive fields in the ``component_registry`` argument of the loader:
+
+   .. literalinclude:: ../code_examples/howto_rag.py
+      :language: python
+      :start-after: .. start-##_Provide_sensitive_information_when_loading_the_Agent_Spec_config
+      :end-before: .. end-##_Provide_sensitive_information_when_loading_the_Agent_Spec_config
+
 You can then load the configuration back to an assistant using the :ref:`AgentSpecLoader<agentspecloader>`.
 
 .. literalinclude:: ../code_examples/howto_rag.py

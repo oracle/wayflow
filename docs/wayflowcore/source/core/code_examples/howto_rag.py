@@ -272,13 +272,33 @@ from wayflowcore.agentspec import AgentSpecExporter
 
 rag_agent_ir_json = AgentSpecExporter().to_json(rag_agent)
 # .. end-##_Export_Config_to_Agent_Spec
-
+# .. start-##_Provide_sensitive_information_when_loading_the_Agent_Spec_config
+component_registry = {
+    # We map the ID of the sensitive fields in the connection config to their values
+    "oracle_datastore_connection_config.user": "<db user>",  # Replace with your DB user
+    "oracle_datastore_connection_config.password": "<db password>",  # Replace with your DB password  # nosec: this is just a placeholder
+    "oracle_datastore_connection_config.dsn": "<db connection string>",  # e.g. "(description=(retry_count=2)..."
+}
+# .. end-##_Provide_sensitive_information_when_loading_the_Agent_Spec_config
+component_registry = {  # docs-skiprow
+    "oracle_datastore_connection_config.user": os.environ["ADB_DB_USER"],  # docs-skiprow
+    "oracle_datastore_connection_config.password": os.environ["ADB_DB_PASSWORD"],  # docs-skiprow
+    "oracle_datastore_connection_config.dsn": os.environ["ADB_DSN"],  # docs-skiprow
+}  # docs-skiprow
+if isinstance(connection_config, MTlsOracleDatabaseConnectionConfig):  # docs-skiprow
+    component_registry.update(  # docs-skiprow
+        {  # docs-skiprow
+            'oracle_datastore_connection_config.config_dir':os.environ["ADB_CONFIG_DIR"],  # docs-skiprow
+            'oracle_datastore_connection_config.wallet_location':os.environ["ADB_WALLET_DIR"],  # docs-skiprow
+            'oracle_datastore_connection_config.wallet_password':os.environ["ADB_WALLET_SECRET"]  # docs-skiprow
+        }  # docs-skiprow
+    )  # docs-skiprow
 # .. start-##_Load_Agent_Spec_Config
 # Load an agent from Agent Spec JSON
 from wayflowcore.agentspec import AgentSpecLoader
 
 tool_registry = {tool.name: tool for tool in search_toolbox.get_tools()}
-new_rag_agent = AgentSpecLoader(tool_registry=tool_registry).load_json(rag_agent_ir_json)
+new_rag_agent = AgentSpecLoader(tool_registry=tool_registry).load_json(rag_agent_ir_json, components_registry=component_registry)
 # .. end-##_Load_Agent_Spec_Config
 
 # RAG FLOW IMPLEMENTATION
