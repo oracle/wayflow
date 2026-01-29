@@ -20,6 +20,7 @@ from wayflowcore.transforms import ConversationSummarizationTransform, MessageSu
 from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
 
 from ..conftest import mock_llm, patch_streaming_llm
+from ..testhelpers.patching import patch_llm
 from .conftest import (
     _testing_message_transform,
     at_least_one_keyword_present,
@@ -1137,7 +1138,7 @@ def test_agent_transforms_should_run_before_canonicalization_with_gemma(remote_g
         side_effect=lambda prompt: LlmCompletion(Message(summary), None)
     )
 
-    with patch_streaming_llm(remote_gemma_llm, "Mock Gemma response") as patched_gemma_llm:
+    with patch_llm(remote_gemma_llm, ["Mock Gemma response"]) as (_, patched_gemma_llm):
         with patch.object(remote_gemma_llm, "generate_async", mock_generate_summary):
             conv.execute()
 
