@@ -55,15 +55,20 @@ def _create_manager_agent(group_manager: Union[Agent, LlmModel]) -> Agent:
 
 
 def _validate_agent_unicity(
-    agents: List[Union[Agent, ManagerWorkers]],
-) -> Dict[str, Union[Agent, ManagerWorkers]]:
+    worker_agents: List[Union[Agent, ManagerWorkers]], manager_agent: Agent) -> Dict[str, Union[Agent, ManagerWorkers]]:
     agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = {}
-
-    for agent in agents:
-        if not isinstance(agent, (Agent, ManagerWorkers, A2AAgent)):
-            raise TypeError(
-                f"Only Agent and ManagerWorker type are supported in ManagerWorkers, got component of type '{agent.__class__.__name__}'"
-            )
+    all_agents = worker_agents + [manager_agent]
+    for agent in all_agents:
+        if agent.name != manager_agent.name:
+            if not isinstance(agent, (Agent, ManagerWorkers, A2AAgent)):
+                raise TypeError(
+                    f"Only Agent, ManagerWorker and A2AAgent types are supported as workers for ManagerWorkers, got component of type '{agent.__class__.__name__}'"
+                )
+        else:
+            if not isinstance(agent, Agent):
+                raise TypeError(
+                    f"Only Agents are supported as managers for ManagerWorkers, got component of type '{agent.__class__.__name__}'"
+                )
 
         # Checking for missing name
         if not agent.name:

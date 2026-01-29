@@ -8,7 +8,6 @@ import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore.a2a.a2aagent import A2AAgent
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.conversationalcomponent import _mutate
 from wayflowcore.executors.executionstatus import (
@@ -272,7 +271,7 @@ class AgentExecutionStep(Step):
                 self.agent.caller_input_mode == CallerInputMode.ALWAYS
                 or self.caller_input_mode == CallerInputMode.ALWAYS
             )
-        elif isinstance(self.agent, (OciAgent, A2AAgent)):
+        elif isinstance(self.agent, OciAgent):
             return True
         else:
             raise NotImplementedError(f"{self.agent} not supported in the agent execution step.")

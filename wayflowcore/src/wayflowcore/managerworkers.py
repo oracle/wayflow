@@ -126,7 +126,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         self.workers = workers
 
         self._agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = _validate_agent_unicity(
-            self.workers + [self.manager_agent]
+            self.workers, self.manager_agent
         )
 
         # Create send message tools for the group manager
