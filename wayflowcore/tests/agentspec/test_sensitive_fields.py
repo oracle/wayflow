@@ -10,11 +10,7 @@ import pytest
 
 from wayflowcore.agent import Agent
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
-from wayflowcore.mcp import (
-    MCPToolBox,
-    SSEmTLSTransport,
-    StreamableHTTPmTLSTransport,
-)
+from wayflowcore.mcp import MCPToolBox, SSEmTLSTransport, StreamableHTTPmTLSTransport
 from wayflowcore.models import OCIGenAIModel, OpenAICompatibleModel
 from wayflowcore.models.ociclientconfig import OCIClientConfigWithApiKey
 from wayflowcore.steps import ApiCallStep
