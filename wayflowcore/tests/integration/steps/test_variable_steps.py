@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -11,60 +11,11 @@ from wayflowcore.executors._flowexecutor import FlowConversationExecutionState
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
-from wayflowcore.property import DictProperty, FloatProperty, ListProperty, StringProperty
+from wayflowcore.property import FloatProperty, ListProperty
 from wayflowcore.steps import ToolExecutionStep, VariableReadStep, VariableWriteStep
 from wayflowcore.steps.inputmessagestep import InputMessageStep
 from wayflowcore.tools import tool
 from wayflowcore.variable import Variable, VariableWriteOperation
-
-
-@pytest.fixture
-def float_variable() -> Variable:
-    return Variable(
-        name="float_variable",
-        type=FloatProperty(),
-        description="a float variable",
-        default_value=1.1,
-    )
-
-
-@pytest.fixture
-def string_variable() -> Variable:
-    return Variable(
-        name="string variable",
-        type=StringProperty(),
-        description="my string variable",
-    )
-
-
-@pytest.fixture
-def list_of_floats_variable() -> Variable:
-    return Variable(
-        name="list_of_floats_variable",
-        type=ListProperty(item_type=FloatProperty()),
-        description="list of floats variable",
-        default_value=[4.0, 4.0, 3.0, 2.1423],
-    )
-
-
-@pytest.fixture
-def dict_of_floats_variable() -> Variable:
-    return Variable(
-        name="dict_of_floats_variable",
-        type=DictProperty(value_type=FloatProperty()),
-        description="dict of floats variable",
-        default_value={"my_str": 22.14},
-    )
-
-
-@pytest.fixture
-def list_of_dicts_of_strings_variable() -> Variable:
-    return Variable(
-        name="list_of_dict_of_strings_variable",
-        type=ListProperty(item_type=DictProperty(value_type=StringProperty())),
-        description="list of dict of strings variable",
-        default_value=[{"my_str": "my value"}],
-    )
 
 
 @pytest.mark.parametrize(
@@ -99,9 +50,8 @@ def test_flow_constructor_rejects_duplicated_variable_names(float_variable: Vari
     # var1 has the same name as float_variable, but everything else is different
     var1 = Variable(
         name="float_variable",
-        type=ListProperty(FloatProperty()),
+        type=ListProperty(FloatProperty(), default_value=[1.0, 2.0, 3.0, 4.0]),
         description="list of floats variable",
-        default_value=[1.0, 2.0, 3.0, 4.0],
     )
 
     with pytest.raises(ValueError):
@@ -156,7 +106,7 @@ def test_variable_read_step_can_read_default_value(variable: str, request: Fixtu
 
     assert isinstance(status, FinishedStatus)
     assert VariableReadStep.VALUE in status.output_values
-    assert status.output_values[VariableReadStep.VALUE] == variable.default_value
+    assert status.output_values[VariableReadStep.VALUE] == variable.type.default_value
 
 
 @pytest.mark.parametrize(
@@ -219,9 +169,9 @@ def test_flow_can_write_own_reads(variable: str, request: FixtureRequest) -> Non
     outputs = status.output_values["spluuk"]
 
     if "list" in variable.name:  # the same list is concatenated again
-        assert outputs == variable.default_value + variable.default_value
+        assert outputs == variable.type.default_value + variable.type.default_value
     elif "dict" in variable.name:  # same key, so no new elements
-        assert outputs == variable.default_value
+        assert outputs == variable.type.default_value
     else:
         raise ValueError("Something wrong with the fixture setup")
 
@@ -268,8 +218,8 @@ def test_multiple_reads(float_variable: Variable, list_of_floats_variable: Varia
     status = conversation.execute()
 
     assert isinstance(status, FinishedStatus)
-    assert status.output_values["read1-io"] == float_variable.default_value
-    assert status.output_values["read2-io"] == list_of_floats_variable.default_value
+    assert status.output_values["read1-io"] == float_variable.type.default_value
+    assert status.output_values["read2-io"] == list_of_floats_variable.type.default_value
 
 
 def test_multiple_writes(float_variable: Variable, string_variable: Variable) -> None:
