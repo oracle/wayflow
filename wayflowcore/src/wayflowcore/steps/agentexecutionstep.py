@@ -92,7 +92,7 @@ class AgentExecutionStep(Step):
             of the underlying agent.
 
             .. warning::
-                This overrides ``caller_input_mode`` of the ``agent``.
+                This overrides ``caller_input_mode`` of the ``agent`` component.
 
         input_descriptors:
             Input descriptors of the step. ``None`` means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.
