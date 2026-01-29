@@ -18,7 +18,6 @@ from wayflowcore.models.llmmodel import LlmCompletion, LlmModel
 from wayflowcore.tools import ToolRequest, ToolResult, tool
 from wayflowcore.transforms import ConversationSummarizationTransform, MessageSummarizationTransform
 from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
-from wayflowcore.transforms.transforms import RemoveEmptyNonUserMessageTransform
 
 from ..conftest import mock_llm, patch_streaming_llm
 from .conftest import (
@@ -962,11 +961,7 @@ def test_conversation_summarization_trigger_and_cache_incremental(get_setup):
     summarization_llm = setup["summarization_llm"]
 
     agent_llm = mock_llm()
-    # RemoveEmptyNonUserMessageTransform is necessary to remove the empty system prompt
-    # which makes the messages numbers calculation in the rest of the test correct.
-    agent = Agent(
-        llm=agent_llm, tools=[], transforms=[RemoveEmptyNonUserMessageTransform()] + transforms
-    )
+    agent = Agent(llm=agent_llm, tools=[], transforms=transforms)
 
     # Mock summary generation
     summary = "Dolphins are the best."
@@ -1080,11 +1075,10 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
             ),
         ),
     ]
-    # we have a total of 6 messages: system prompt + 5 messages above.
-    # even if min_num_messages = 3, we can't summarize the first 3 together because they lack tool result with id: id1.
+    # even if min_num_messages = 2, we can't summarize the first 3 together because they lack tool results with id: id1.
     summarization_llm = mock_llm()
     transform = ConversationSummarizationTransform(
-        llm=summarization_llm, max_num_messages=4, min_num_messages=3
+        llm=summarization_llm, max_num_messages=3, min_num_messages=2
     )
     agent_llm = mock_llm()
     agent = Agent(
