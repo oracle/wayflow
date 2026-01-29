@@ -974,7 +974,14 @@ def test_two_level_managerworkers_with_mock_outputs(vllm_responses_llm):
         description="First level group",
     )
     conv = group.start_conversation(messages="Compute the result of fooza(4, 2) and bwip(4,5)")
-
+    ###
+    ###
+    ###          manager
+    ###         |      |
+    ###  worker_1     worker_2
+    ###                   |
+    ###               sub_worker
+    ###
     with patch_llm(
         llm,
         outputs=[
@@ -1047,6 +1054,14 @@ def test_two_level_managerworkers_with_llms(vllm_responses_llm):
     conv = group.start_conversation(
         messages="Compute the result of fooza(4, 2) and add it with bwip(4,5)"
     )
+    ###
+    ###
+    ###          manager
+    ###         |      |
+    ###  worker_1     worker_2
+    ###                   |
+    ###               sub_worker
+    ###
     status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     ans = fooza_tool.func(4, 2) + bwip_tool.func(4, 5)
@@ -1091,7 +1106,16 @@ def test_three_level_managerworkers_with_mock_outputs(vllm_responses_llm):
     conv = first_level_group.start_conversation(
         messages="Compute the result of fooza(4, 2), bwip(4,5), and zbuk(5,6)"
     )
-
+    ###
+    ###
+    ###              manager
+    ###             |         |      |
+    ### second_level_group  worker_1  worker_2
+    ###        |
+    ### third_level_group
+    ###        |
+    ###    sub_worker
+    ###
     with patch_llm(
         llm,
         outputs=[
@@ -1184,6 +1208,16 @@ def test_three_level_managerworkers_with_llms(vllm_responses_llm):
     conv = first_level_group.start_conversation(
         messages="Compute the result of fooza(4, 2) and add it with bwip(4,5) and zbuk(5,6)"
     )
+    ###
+    ###
+    ###              manager
+    ###             |         |      |
+    ### second_level_group  worker_1  worker_2
+    ###        |
+    ### third_level_group
+    ###        |
+    ###    sub_worker
+    ###
     status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     ans = fooza_tool.func(4, 2) + bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
@@ -1229,7 +1263,16 @@ def test_linear_chain_managerworkers_with_mock_outputs(vllm_responses_llm):
     conv = first_level_group.start_conversation(
         messages="Compute the result of fooza(4, 2), bwip(4,5), and zbuk(5,6)"
     )
-
+    ###
+    ###
+    ###          manager
+    ###             |
+    ### second_level_group
+    ###        |          |
+    ### third_level_group  worker_2
+    ###        |
+    ###    worker_1
+    ###
     with patch_llm(
         llm,
         outputs=[
@@ -1326,6 +1369,16 @@ def test_linear_chain_managerworkers_with_llms(vllm_responses_llm):
     conv = first_level_group.start_conversation(
         messages="Compute the result of fooza(4, 2) and add it with bwip(4,5) and zbuk(5,6)"
     )
+    ###
+    ###
+    ###          manager
+    ###             |
+    ### second_level_group
+    ###        |          |
+    ### third_level_group  worker_2
+    ###        |
+    ###    worker_1
+    ###
     status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     ans = fooza_tool.func(4, 2) + bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
@@ -1371,7 +1424,14 @@ def test_multi_managers_with_mock_outputs(vllm_responses_llm):
     conv = first_level_group.start_conversation(
         messages="Compute the result of fooza(4, 2), bwip(4,5), and zbuk(5,6)"
     )
-
+    ###
+    ###
+    ###                manager
+    ###                |        |
+    ### second_level_group_1  second_level_group_2
+    ###         |                  |        |
+    ###     worker_1             worker_2  worker_3
+    ###
     with patch_llm(
         llm,
         outputs=[
@@ -1468,6 +1528,14 @@ def test_multi_managers_with_llms(vllm_responses_llm):
     conv = first_level_group.start_conversation(
         messages="Compute the result of fooza(4, 2) and add it with bwip(4,5) and zbuk(5,6)"
     )
+    ###
+    ###
+    ###                manager
+    ###                |        |
+    ### second_level_group_1  second_level_group_2
+    ###         |                  |        |
+    ###     worker_1             worker_2  worker_3
+    ###
     status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
     ans = fooza_tool.func(4, 2) + bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
