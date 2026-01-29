@@ -16,6 +16,7 @@ from wayflowcore.executors.executionstatus import (
     ToolRequestStatus,
 )
 from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
+from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.property import Property
 from wayflowcore.steps.step import Step, StepExecutionStatus, StepResult
@@ -36,7 +37,7 @@ class AgentExecutionStep(Step):
 
     def __init__(
         self,
-        agent: Union[Agent, OciAgent, Swarm],
+        agent: Union[Agent, OciAgent, Swarm, ManagerWorkers],
         caller_input_mode: Optional[CallerInputMode] = None,
         input_descriptors: Optional[List[Property]] = None,
         output_descriptors: Optional[List[Property]] = None,
@@ -84,11 +85,15 @@ class AgentExecutionStep(Step):
         Parameters
         ----------
         agent:
-            Agent that will be used in the step
+            Agent that will be used in the step.
         caller_input_mode:
             Whether the agent is allowed to ask the user questions (CallerInputMode.ALWAYS) or not (CallerInputMode.NEVER).
-            If set to NEVER, the step won't be able to yield. Defaults to ``None``, which means it will use the ``call_input_mode``
+            If set to NEVER, the step won't be able to yield. Defaults to ``None``, which means it will use the ``caller_input_mode``
             of the underlying agent.
+
+            .. warning::
+                This overrides ``caller_input_mode`` of the ``agent`` component.
+
         input_descriptors:
             Input descriptors of the step. ``None`` means the step will resolve the input descriptors automatically using its static configuration in a best effort manner.
 
@@ -196,14 +201,14 @@ class AgentExecutionStep(Step):
         self._share_conversation = _share_conversation
         """Whether the calling flow shares its messages with the Agent or not."""
 
-        if not isinstance(self.agent, (Agent, Swarm)):
+        if not isinstance(self.agent, (Agent, Swarm, ManagerWorkers)):
             if output_descriptors is not None and len(output_descriptors) > 0:
                 raise ValueError(
-                    f"Only `Agent` and `Swarm` in `AgentExecutionStep` supports setting outputs, but you used: `{self.agent}` for {output_descriptors}. Please use an `Agent` or a `Swarm` or set the outputs to `None`"
+                    f"Only `Agent`, `ManagerWorkers` and `Swarm` in `AgentExecutionStep` supports setting outputs, but you used: `{self.agent}` for {output_descriptors}. Please use an `Agent`, `ManagerWorkers` or a `Swarm` or set the outputs to `None`"
                 )
             if caller_input_mode != CallerInputMode.ALWAYS:
                 raise ValueError(
-                    f"Only `Agent` and `Swarm` in `AgentExecutionStep` supports setting a caller input mode, but you used: `{self.agent}` for {caller_input_mode}. Please use an `Agent` or a `Swarm` or set the outputs to `None`"
+                    f"Only `Agent`, `ManagerWorkers` and `Swarm` in `AgentExecutionStep` supports setting a caller input mode, but you used: `{self.agent}` for {caller_input_mode}. Please use an `Agent`, `ManagerWorkers` or a `Swarm` or set the outputs to `None`"
                 )
 
         super().__init__(
@@ -260,8 +265,8 @@ class AgentExecutionStep(Step):
     def might_yield(self) -> bool:
         if isinstance(self.agent, Agent):
             return self.agent.might_yield or self.caller_input_mode == CallerInputMode.ALWAYS
-        elif isinstance(self.agent, Swarm):
-            # Swarm's caller_input_mode enforces whether the agent is conversational or not
+        elif isinstance(self.agent, (Swarm, ManagerWorkers)):
+            # Swarm/ManagerWorker's caller_input_mode enforces whether the agent is conversational or not
             return (
                 self.agent.caller_input_mode == CallerInputMode.ALWAYS
                 or self.caller_input_mode == CallerInputMode.ALWAYS
@@ -315,7 +320,7 @@ class AgentExecutionStep(Step):
         if self.caller_input_mode is not None:
             mutated_agent_parameters["caller_input_mode"] = self.caller_input_mode
 
-        if isinstance(self.agent, (Agent, Swarm)):
+        if isinstance(self.agent, (Agent, Swarm, ManagerWorkers)):
             context_manager = _mutate(
                 component=self.agent,
                 attributes=mutated_agent_parameters,

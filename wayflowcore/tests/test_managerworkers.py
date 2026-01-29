@@ -10,7 +10,7 @@ from typing import Annotated, Any, Optional, Tuple
 import pytest
 
 from wayflowcore._utils._templating_helpers import render_template
-from wayflowcore.agent import DEFAULT_INITIAL_MESSAGE, Agent
+from wayflowcore.agent import DEFAULT_INITIAL_MESSAGE, Agent, CallerInputMode
 from wayflowcore.executors._agenticpattern_helpers import _SEND_MESSAGE_TOOL_NAME
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
@@ -917,3 +917,34 @@ def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception
     conv.execute()
     result = bwip_tool.func(4, 5) + zbuk_tool.func(5, 6)
     assert str(result) in conv.get_last_message().content
+
+
+@retry_test(max_attempts=4)
+def test_managerworkers_without_user_input_can_execute_as_expected(vllm_responses_llm):
+    """
+    Failure rate:          2 out of 50
+    Observed on:           2025-12-24
+    Average success time:  6.49 seconds per successful attempt
+    Average failure time:  4.43 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
+    """
+    llm = vllm_responses_llm
+
+    fooza_agent = _get_fooza_agent(llm)
+    bwip_agent = _get_bwip_agent(llm)
+
+    group = ManagerWorkers(
+        group_manager=llm,
+        workers=[fooza_agent, bwip_agent],
+        output_descriptors=[
+            IntegerProperty("result", description="The result of the user request")
+        ],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    conv = group.start_conversation(messages="Compute the result of fooza(4, 2) + bwip(4, 5)")
+    status = conv.execute()
+    assert isinstance(status, FinishedStatus)
+
+    assert status.output_values["result"] == 13

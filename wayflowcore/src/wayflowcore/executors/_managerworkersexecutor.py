@@ -9,7 +9,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Union
 
 from wayflowcore import Conversation
-from wayflowcore.agent import Agent
+from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.executors._agenticpattern_helpers import (
     _SEND_MESSAGE_TOOL_NAME,
     _get_unanswered_tool_requests_from_agent_response,
@@ -105,9 +105,16 @@ class ManagerWorkersRunner(ConversationExecutor):
         has_talk_to_user_tool = any(
             tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
         )
-        if not has_talk_to_user_tool:
-            # Manager agent should have tool to talk to user
-            mutated_agent_tools.append(_make_talk_to_user_tool())
+        if managerworkers_config.caller_input_mode == CallerInputMode.NEVER:
+            if has_talk_to_user_tool:
+                # Manager agent should not have tool to talk to user
+                mutated_agent_tools = [
+                    t for t in mutated_agent_tools if t.name != _TALK_TO_USER_TOOL_NAME
+                ]
+        else:
+            if not has_talk_to_user_tool:
+                # Manager agent should have tool to talk to user
+                mutated_agent_tools.append(_make_talk_to_user_tool())
 
         mutated_agent_template = managerworkers_config.managerworkers_template.with_partial(
             {
@@ -126,6 +133,8 @@ class ManagerWorkersRunner(ConversationExecutor):
             {
                 "tools": mutated_agent_tools,
                 "agent_template": mutated_agent_template,
+                "output_descriptors": managerworkers_config.output_descriptors,
+                "caller_input_mode": managerworkers_config.caller_input_mode,
                 "_add_talk_to_user_tool": has_talk_to_user_tool,
             },
         ):
@@ -240,8 +249,8 @@ class ManagerWorkersRunner(ConversationExecutor):
                 # or tools that need confirmations of either the manager or a worker
                 return status
             else:
-                # 5. illegal agent finishing the conversation
-                raise ValueError("Conversation is finished unexpectedly.")
+                # 5. finish status: happening when caller_input_mode == NEVER
+                return status
 
     @staticmethod
     def _handle_pending_tool_requests_of_manager(

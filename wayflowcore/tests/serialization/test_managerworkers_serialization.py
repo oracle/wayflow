@@ -6,17 +6,23 @@
 import pytest
 
 from wayflowcore.agent import Agent
+from wayflowcore.executors._flowconversation import FlowConversation
 from wayflowcore.executors._managerworkersconversation import (
     ManagerWorkersConversation,
     ManagerWorkersConversationExecutionState,
 )
+from wayflowcore.flow import Flow
 from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.models import LlmModel
 from wayflowcore.serialization import deserialize, serialize, serialize_to_dict
+from wayflowcore.steps.agentexecutionstep import AgentExecutionStep
 
 from ..conftest import _assert_config_are_equal
 from ..test_managerworkers import simple_math_agents_example  # noqa
-from .test_conversation_serialization import assert_agent_conversations_are_equal
+from .test_conversation_serialization import (
+    assert_agent_conversations_are_equal,
+    assert_flow_conversations_are_equal,
+)
 from .test_llm_serialization import assert_llms_are_equal
 
 
@@ -31,8 +37,30 @@ def simple_managerworkers(simple_math_agents_example, remotely_hosted_llm) -> Ma
 
 
 @pytest.fixture
+def simple_managerworkers_in_flow(
+    simple_math_agents_example, remotely_hosted_llm
+) -> ManagerWorkers:
+    addition_agent, multiplication_agent = simple_math_agents_example
+    group = ManagerWorkers(
+        workers=[addition_agent, multiplication_agent],
+        group_manager=remotely_hosted_llm,
+    )
+    agent_execution_step = AgentExecutionStep(
+        group,
+    )
+    return Flow.from_steps([agent_execution_step])
+
+
+@pytest.fixture
 def simple_conversation(simple_managerworkers: ManagerWorkers) -> ManagerWorkersConversation:
     return simple_managerworkers.start_conversation()
+
+
+@pytest.fixture
+def simple_conversation_in_flow(simple_managerworkers_in_flow: Flow) -> FlowConversation:
+    conv = simple_managerworkers_in_flow.start_conversation()
+    conv.execute()
+    return conv
 
 
 @pytest.fixture
@@ -98,7 +126,7 @@ def test_can_serialize_simple_managerworkers(simple_managerworkers: ManagerWorke
     assert isinstance(serialized_managerworkers, str)
 
 
-def test_can_derialize_simple_managerworkers(simple_managerworkers: ManagerWorkers):
+def test_can_deserialize_simple_managerworkers(simple_managerworkers: ManagerWorkers):
     new_managerworkers = deserialize(ManagerWorkers, serialize(simple_managerworkers))
 
     _assert_config_are_equal(
@@ -149,6 +177,45 @@ def test_can_continue_a_deserialized_conversation(simple_managerworkers: Manager
     ser_conv = serialize(conv)
     deser_conv = deserialize(ManagerWorkersConversation, ser_conv)
 
+    assert len(deser_conv.get_messages()) == conv_length_before
+    deser_conv.append_user_message("Hello")
+    deser_conv.execute()
+
+
+def test_can_serialize_simple_managerworkers_in_flow(simple_managerworkers_in_flow: Flow):
+    serialized_flow = serialize(simple_managerworkers_in_flow)
+    assert isinstance(serialized_flow, str)
+
+
+def test_can_deserialize_simple_managerworkers_in_flow(simple_managerworkers_in_flow: Flow):
+    new_flow = deserialize(Flow, serialize(simple_managerworkers_in_flow))
+    assert isinstance(new_flow, Flow)
+    assert_managerworkers_are_equal(
+        simple_managerworkers_in_flow.steps["step_0"].agent, new_flow.steps["step_0"].agent
+    )
+
+
+def test_can_serialize_simple_conversation_in_flow(
+    simple_conversation_in_flow: FlowConversation,
+):
+    serialized_conversation = serialize(simple_conversation_in_flow)
+    assert isinstance(serialized_conversation, str)
+
+
+def test_can_deserialize_simple_conversation_in_flow(simple_conversation_in_flow: FlowConversation):
+    serialized_conversation = serialize(simple_conversation_in_flow)
+    deserialized_conversation = deserialize(FlowConversation, serialized_conversation)
+    assert isinstance(deserialized_conversation, FlowConversation)
+    assert_flow_conversations_are_equal(simple_conversation_in_flow, deserialized_conversation)
+
+
+def test_can_continue_a_deserialized_conversation_in_flow(simple_managerworkers_in_flow: Flow):
+    conv = simple_managerworkers_in_flow.start_conversation()
+    conv.append_user_message("Hello")
+    conv.execute()
+    conv_length_before = len(conv.get_messages())
+    ser_conv = serialize(conv)
+    deser_conv = deserialize(FlowConversation, ser_conv)
     assert len(deser_conv.get_messages()) == conv_length_before
     deser_conv.append_user_message("Hello")
     deser_conv.execute()

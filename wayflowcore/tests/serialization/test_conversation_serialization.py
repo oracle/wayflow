@@ -65,7 +65,7 @@ def assert_flow_conversations_are_equal(conv1: FlowConversation, conv2: FlowConv
     if conv1 is None and conv2 is None:
         return
 
-    assert conv1.message_list.messages == conv1.message_list.messages
+    assert conv1.message_list.messages == conv2.message_list.messages
 
     assert conv1.id == conv2.id
 
@@ -89,9 +89,13 @@ def assert_flow_conversations_are_equal(conv1: FlowConversation, conv2: FlowConv
             # skip otherwise it's infinitely recursive
             pass
         elif FlowConversationExecutor._SUB_CONVERSATION_KEY in context_key:
-            assert_flow_conversations_are_equal(
-                state_context_dict_1[context_key], state_context_dict_2[context_key]
-            )
+            # TODO: handle other conversation types
+            if isinstance(state_context_dict_1[context_key], FlowConversation) and isinstance(
+                state_context_dict_2[context_key], FlowConversation
+            ):
+                assert_flow_conversations_are_equal(
+                    state_context_dict_1[context_key], state_context_dict_2[context_key]
+                )
         else:
             assert state_context_dict_1[context_key] == state_context_dict_2[context_key]
 
