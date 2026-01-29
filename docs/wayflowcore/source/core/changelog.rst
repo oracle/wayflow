@@ -183,6 +183,7 @@ Possibly Breaking Changes
   The ``append`` parameter in ``with_additional_post_rendering_transform`` and ``with_additional_pre_rendering_transform`` methods is deprecated.
   Use ``append_last`` instead. The ``append`` parameter will be removed in WayFlow 26.3.
 
+
 Bug fixes
 ^^^^^^^^^
 
