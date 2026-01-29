@@ -28,6 +28,7 @@ from wayflowcore.steps.step import Step, StepResult
 
 if TYPE_CHECKING:
     from wayflowcore.executors._flowconversation import FlowConversation
+    from wayflowcore.serialization.context import SerializationContext
 
 URL_ENCODED_SLASH = quote_plus("/")
 
@@ -290,6 +291,7 @@ class ApiCallStep(Step):
         data: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]] = None,
         params: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]] = None,
         headers: Optional[Dict[str, str]] = None,
+        sensitive_headers: Optional[Dict[str, str]] = None,
         cookies: Optional[Dict[str, str]] = None,
         output_values_json: Optional[Dict[Union[str, Property], str]] = None,
         store_response: bool = False,
@@ -366,9 +368,15 @@ class ApiCallStep(Step):
         headers
             Explicitly set headers.
             Can be templated using jinja templates.
+            Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap.
 
             .. note::
                 This will override any of the implicitly set headers (e.g. ``Content-Type`` from ``json_body``).
+        sensitive_headers
+            Explicitly set headers that contain sensitive information.
+            These headers will behave equivalently to the ``headers`` parameter, but it will be excluded
+            from any serialization for security reasons.
+            Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap.
         cookies
             Cookies to transmit.
             Can be templated using jinja templates.
@@ -526,6 +534,14 @@ class ApiCallStep(Step):
         ... )
         >>>
         """
+
+        repeated_headers = set(headers or {}).intersection(set(sensitive_headers or {}))
+        if repeated_headers:
+            raise ValueError(
+                f"Some headers have been specified in both `headers` and "
+                f"`sensitive_headers`: {repeated_headers}. This is not allowed."
+            )
+
         super().__init__(
             step_static_configuration=dict(
                 url=url,
@@ -534,6 +550,7 @@ class ApiCallStep(Step):
                 data=data,
                 params=params,
                 headers=headers,
+                sensitive_headers=sensitive_headers,
                 cookies=cookies,
                 output_values_json=output_values_json,
                 store_response=store_response,
@@ -570,6 +587,7 @@ class ApiCallStep(Step):
         self.data = data
         self.params = params
         self.headers = headers
+        self.sensitive_headers = sensitive_headers
         self.cookies = cookies
         self.output_values_json = output_values_json
 
@@ -648,6 +666,9 @@ class ApiCallStep(Step):
 
         if self.headers:
             request["headers"].update(render_nested_object_template(self.headers, inputs))
+
+        if self.sensitive_headers:
+            request["headers"].update(render_nested_object_template(self.sensitive_headers, inputs))
 
         if self.cookies:
             request["cookies"] = render_nested_object_template(self.cookies, inputs)
@@ -736,6 +757,7 @@ class ApiCallStep(Step):
             data=Optional[str],  # type: ignore
             params=Optional[Dict[str, str]],  # type: ignore
             headers=Optional[Dict[str, str]],  # type: ignore
+            sensitive_headers=Optional[Dict[str, str]],  # type: ignore
             cookies=Optional[Dict[str, str]],  # type: ignore
             # TODO: support keys being Property
             output_values_json=Optional[Dict[str, str]],  # type: ignore
@@ -758,6 +780,7 @@ class ApiCallStep(Step):
         json_body: Optional[Any],
         params: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]],
         headers: Optional[Dict[str, str]],
+        sensitive_headers: Optional[Dict[str, str]],
         cookies: Optional[Dict[str, str]],
         **kwargs: Dict[str, Any],
     ) -> List[Property]:
@@ -767,7 +790,7 @@ class ApiCallStep(Step):
                 description=f"string template variable named {variable}",
             )
             for variable in get_variable_names_from_object(
-                [url, method, data, json_body, params, headers, cookies]
+                [url, method, data, json_body, params, headers, sensitive_headers, cookies]
             )
         ]
 
@@ -802,3 +825,14 @@ class ApiCallStep(Step):
             )
 
         return output_descriptors
+
+    def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
+        if self.sensitive_headers is not None:
+            logger.warning(
+                f"Sensitive headers were configured in ApiCallStep `{self.name}`, "
+                f"but they will not be serialized in the config"
+            )
+        # We remove the sensitive headers from the serialization of the step
+        serialized_step = super()._serialize_to_dict(serialization_context)
+        serialized_step["step_args"].pop("sensitive_headers", None)
+        return serialized_step

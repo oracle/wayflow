@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Union
 from unittest.mock import patch
 
 import httpx
+import pytest
 
 from wayflowcore.agent import Agent
 from wayflowcore.executors.executionstatus import ToolExecutionConfirmationStatus
@@ -46,6 +47,21 @@ def test_remote_tool_can_be_instantiated():
         method="GET",
     )
     assert len(tool.parameters) == 0
+
+
+def test_remote_tool_headers_and_sensitive_headers_cannot_overlap():
+    with pytest.raises(
+        ValueError,
+        match="Some headers have been specified in both `headers` and `sensitive_headers`",
+    ):
+        _ = RemoteTool(
+            name="get_example_tool",
+            description="does a GET request to the example domain",
+            url="https://example.com/endpoint",
+            method="GET",
+            headers={"exclusive_key_1": "value", "shared_key": 1},
+            sensitive_headers={"exclusive_key_2": "value", "shared_key": 1},
+        )
 
 
 def test_remote_tool_has_correct_input_arguments():

@@ -1234,6 +1234,11 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     agentspec_component.query_params if agentspec_component.query_params else None
                 ),
                 headers=agentspec_component.headers if agentspec_component.headers else None,
+                sensitive_headers=(
+                    agentspec_component.sensitive_headers
+                    if agentspec_component.sensitive_headers
+                    else None
+                ),
                 store_response=store_response,
                 output_values_json={
                     output_.title: f".{output_.title}"
@@ -1413,6 +1418,11 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     agentspec_component.query_params if agentspec_component.query_params else None
                 ),
                 headers=agentspec_component.headers if agentspec_component.headers else None,
+                sensitive_headers=(
+                    agentspec_component.sensitive_headers
+                    if agentspec_component.sensitive_headers
+                    else None
+                ),
                 requires_confirmation=agentspec_component.requires_confirmation,
                 **self._get_component_arguments(agentspec_component),
             )
@@ -1486,6 +1496,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 return RuntimeSSEmTLSTransport(
                     url=agentspec_component.url,
                     headers=agentspec_component.headers,
+                    sensitive_headers=agentspec_component.sensitive_headers,
                     # auth is not supported yet
                     key_file=agentspec_component.key_file,
                     cert_file=agentspec_component.cert_file,
@@ -1496,7 +1507,10 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 agentspec_component, (AgentSpecPluginSSETransport, AgentSpecSSETransport)
             ):
                 return RuntimeSSETransport(
-                    url=agentspec_component.url, headers=agentspec_component.headers, **kwargs
+                    url=agentspec_component.url,
+                    headers=agentspec_component.headers,
+                    sensitive_headers=agentspec_component.sensitive_headers,
+                    **kwargs,
                 )
             elif isinstance(
                 agentspec_component,
@@ -1505,6 +1519,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 return RuntimeStreamableHTTPmTLSTransport(
                     url=agentspec_component.url,
                     headers=agentspec_component.headers,
+                    sensitive_headers=agentspec_component.sensitive_headers,
                     # auth is not supported yet
                     key_file=agentspec_component.key_file,
                     cert_file=agentspec_component.cert_file,
@@ -1518,6 +1533,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 return RuntimeStreamableHTTPTransport(
                     url=agentspec_component.url,
                     headers=agentspec_component.headers,
+                    sensitive_headers=agentspec_component.sensitive_headers,
                     # auth is not supported yet
                     **kwargs,
                 )
