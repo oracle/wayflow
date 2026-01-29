@@ -8,10 +8,7 @@ from typing import Any, Dict, List, Type
 
 import pytest
 from pyagentspec import AgentSpecSerializer
-from pyagentspec.datastores import (
-    OracleDatabaseDatastore,
-    TlsOracleDatabaseConnectionConfig,
-)
+from pyagentspec.datastores import OracleDatabaseDatastore, TlsOracleDatabaseConnectionConfig
 from pyagentspec.flows.edges import ControlFlowEdge, DataFlowEdge
 from pyagentspec.flows.flow import Flow
 from pyagentspec.flows.nodes import EndNode, StartNode
