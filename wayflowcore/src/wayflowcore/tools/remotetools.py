@@ -3,8 +3,10 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+
+import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.property import Property
@@ -12,6 +14,12 @@ from wayflowcore.serialization.serializer import SerializableDataclassMixin, Ser
 
 from .servertools import ServerTool
 from .tools import SupportedToolTypesT
+
+if TYPE_CHECKING:
+    from wayflowcore.serialization.context import SerializationContext
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -68,9 +76,15 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     headers
         Explicitly set headers.
         Can be templated using jinja templates.
+        Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap.
 
         .. note::
             This will override any of the implicitly set headers (e.g. ``Content-Type`` from ``json_body``).
+    sensitive_headers
+        Explicitly set headers that contain sensitive information.
+        These headers will behave equivalently to the ``headers`` parameter, but it will be excluded
+        from any serialization for security reasons.
+        Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap.
     cookies
         Cookies to transmit.
         Can be templated using jinja templates.
@@ -183,6 +197,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     data: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]]
     params: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]]
     headers: Optional[Dict[str, str]]
+    sensitive_headers: Optional[Dict[str, str]]
     cookies: Optional[Dict[str, str]]
     output_jq_query: Optional[str]
     ignore_bad_http_requests: bool
@@ -207,6 +222,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         data: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]] = None,
         params: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]] = None,
         headers: Optional[Dict[str, str]] = None,
+        sensitive_headers: Optional[Dict[str, str]] = None,
         cookies: Optional[Dict[str, str]] = None,
         output_jq_query: Optional[str] = None,
         ignore_bad_http_requests: bool = False,
@@ -234,6 +250,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
             data=data,
             params=params,
             headers=headers,
+            sensitive_headers=sensitive_headers,
             cookies=cookies,
             ignore_bad_http_requests=ignore_bad_http_requests,
             num_retry_on_bad_http_request=num_retry_on_bad_http_request,
@@ -271,6 +288,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         self.data = data
         self.params = params
         self.headers = headers
+        self.sensitive_headers = sensitive_headers
         self.cookies = cookies
         self.output_jq_query = output_jq_query
         self.ignore_bad_http_requests = ignore_bad_http_requests
@@ -284,3 +302,14 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     @property
     def _tool_type(self) -> SupportedToolTypesT:
         return "remote"
+
+    def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
+        if self.sensitive_headers is not None:
+            logger.warning(
+                f"Sensitive headers were configured in RemoteTool `{self.name}`, "
+                f"but they will not be serialized in the config"
+            )
+        # We remove the sensitive headers from the serialization of the remote tool
+        serialized_step = super()._serialize_to_dict(serialization_context)
+        serialized_step.pop("sensitive_headers", None)
+        return serialized_step

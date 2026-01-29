@@ -433,7 +433,7 @@ class AgentSpecExporter:
         """
         if not isinstance(runtime_component, RuntimeComponent):
             raise TypeError(
-                f"Expected an Agent or a Flow, but got '{type(runtime_component)}' instead"
+                f"Expected a Wayflow Component, but got '{type(runtime_component)}' instead"
             )
 
         from wayflowcore.agentspec._agentspecconverter import WayflowToAgentSpecConversionContext

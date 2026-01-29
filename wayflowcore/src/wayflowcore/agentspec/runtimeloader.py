@@ -174,7 +174,7 @@ class AgentSpecLoader:
         serialized_assistant:
             Serialized Agent Spec configuration to be converted to a WayFlow Component.
         components_registry:
-            A dictionary of loaded WayFlow components to use when deserializing the
+            A dictionary of loaded WayFlow components and values to use when deserializing the
             main component.
         import_only_referenced_components:
             When ``True``, loads the referenced/disaggregated components
@@ -486,6 +486,6 @@ class AgentSpecLoader:
         )
         if not isinstance(runtime_assistant, RuntimeComponent):
             raise TypeError(
-                f"Expected an Agent or a Flow, but got '{type(runtime_assistant)}' instead"
+                f"Expected a Wayflow Component, but got '{type(runtime_assistant)}' instead"
             )
         return runtime_assistant

@@ -5,10 +5,11 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import datetime
+import logging
 import ssl
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
-from typing import Any, Callable, ClassVar, Dict, List, Literal, Optional
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Literal, Optional
 
 import httpx
 from mcp.client.auth import OAuthClientProvider
@@ -23,7 +24,11 @@ from wayflowcore.serialization.serializer import (
     SerializableObject,
 )
 
+if TYPE_CHECKING:
+    from wayflowcore.serialization.context import SerializationContext
+
 ClientTransportContextManagerType: TypeAlias = Any
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -152,7 +157,12 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
     """The URL of the server."""
 
     headers: Optional[Dict[str, str]] = None
-    """The headers to send to the server."""
+    """The headers to send to the server. Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap."""
+
+    sensitive_headers: Optional[Dict[str, str]] = None
+    """The sensitive headers to send to the server, joined with the ones defined in the ``headers``.
+    They will be excluded from any serialization for security reasons.
+    Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap."""
 
     timeout: float = 5
     """The timeout for the HTTP request. Defaults to 5 seconds."""
@@ -170,6 +180,34 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
 
     session_parameters: SessionParameters = field(default_factory=SessionParameters)
     """Arguments for the MCP session."""
+
+    def __post_init__(self) -> None:
+        repeated_headers = set(self.headers or {}).intersection(set(self.sensitive_headers or {}))
+        if repeated_headers:
+            raise ValueError(
+                f"Some headers have been specified in both `headers` and "
+                f"`sensitive_headers`: {repeated_headers}. This is not allowed."
+            )
+
+    @property
+    def _merged_headers(self) -> Optional[Dict[str, str]]:
+        # Merge sensitive and non-sensitive headers (if any) in a single dictionary
+        merged_headers: Dict[str, str] = {}
+        if self.headers:
+            merged_headers.update(self.headers)
+        if self.sensitive_headers:
+            merged_headers.update(self.sensitive_headers)
+        return merged_headers if merged_headers else None
+
+    def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
+        if self.sensitive_headers is not None:
+            logger.warning(
+                f"Sensitive headers were configured in `{self.__class__.__name__}`, "
+                f"but they will not be serialized in the config"
+            )
+        serialized_transport = super()._serialize_to_dict(serialization_context)
+        serialized_transport.pop("sensitive_headers", None)
+        return serialized_transport
 
 
 class _HttpxClientFactory:
@@ -249,7 +287,7 @@ class SSETransport(RemoteBaseTransport, ClientTransportWithAuth, SerializableObj
     def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
         return sse_client(
             url=self.url,
-            headers=self.headers,
+            headers=self._merged_headers,
             timeout=self.timeout,
             sse_read_timeout=self.sse_read_timeout,
             auth=self.auth,
@@ -312,7 +350,7 @@ class SSEmTLSTransport(HTTPmTLSBaseTransport, ClientTransportWithAuth, Serializa
     ...   key_file="...",
     ...   cert_file="...",
     ...   ssl_ca_cert="...",
-    ...   headers={"Authorization": "Bearer <token>"}
+    ...   sensitive_headers={"Authorization": "Bearer <token>"}
     ... )
 
     """
@@ -320,7 +358,7 @@ class SSEmTLSTransport(HTTPmTLSBaseTransport, ClientTransportWithAuth, Serializa
     def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
         return sse_client(
             self.url,
-            headers=self.headers,
+            headers=self._merged_headers,
             timeout=self.timeout,
             sse_read_timeout=self.sse_read_timeout,
             auth=self.auth,
@@ -354,7 +392,7 @@ class StreamableHTTPTransport(RemoteBaseTransport, ClientTransportWithAuth, Seri
     def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
         return streamablehttp_client(
             url=self.url,
-            headers=self.headers,
+            headers=self._merged_headers,
             timeout=datetime.timedelta(seconds=self.timeout),
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
             auth=self.auth,
@@ -398,7 +436,7 @@ class StreamableHTTPmTLSTransport(
     ...   key_file="...",
     ...   cert_file="...",
     ...   ssl_ca_cert="...",
-    ...   headers={"Authorization": "Bearer <token>"}
+    ...   sensitive_headers={"Authorization": "Bearer <token>"}
     ... )
 
     """
@@ -406,7 +444,7 @@ class StreamableHTTPmTLSTransport(
     def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
         return streamablehttp_client(
             url=self.url,
-            headers=self.headers,
+            headers=self._merged_headers,
             timeout=datetime.timedelta(seconds=self.timeout),
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
             auth=self.auth,

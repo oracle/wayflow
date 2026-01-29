@@ -1263,6 +1263,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 headers=(
                     inner_api_step.headers if isinstance(inner_api_step.headers, dict) else dict()
                 ),
+                sensitive_headers=(
+                    inner_api_step.sensitive_headers
+                    if isinstance(inner_api_step.sensitive_headers, dict)
+                    else dict()
+                ),
                 requires_confirmation=runtime_tool.requires_confirmation,
                 metadata=metadata,
                 id=runtime_tool.id,
@@ -1776,6 +1781,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 name="mcp_client_transport",
                 url=remote_transport.url,
                 headers=remote_transport.headers,
+                sensitive_headers=remote_transport.sensitive_headers,
                 id=runtime_clienttransport.id,
                 **mtls_kwargs,
             )
@@ -2781,6 +2787,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 ),
                 headers=(
                     runtime_step.headers if isinstance(runtime_step.headers, dict) else dict()
+                ),
+                sensitive_headers=(
+                    runtime_step.sensitive_headers
+                    if isinstance(runtime_step.sensitive_headers, dict)
+                    else dict()
                 ),
             )
         elif runtime_step_type is RuntimeInputMessageStep:

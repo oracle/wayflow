@@ -1,0 +1,89 @@
+{
+  "component_type": "Agent",
+  "id": "5f92ba94-88ad-4ea7-bd90-c396a0a55710",
+  "name": "name",
+  "description": "",
+  "metadata": {},
+  "inputs": [],
+  "outputs": [],
+  "llm_config": {
+    "component_type": "OciGenAiConfig",
+    "id": "a0dbb1df-0779-493e-b043-cc333a6ea555",
+    "name": "oci-genai-config",
+    "description": null,
+    "metadata": {},
+    "default_generation_parameters": null,
+    "model_id": "gpt-7",
+    "compartment_id": "id-7",
+    "serving_mode": "ON_DEMAND",
+    "provider": "OTHER",
+    "client_config": {
+      "component_type": "OciClientConfigWithApiKey",
+      "id": "289a56d4-5aa2-4a96-bfa0-9f482f189874",
+      "name": "oci_client_config",
+      "description": null,
+      "metadata": {},
+      "service_endpoint": "https://some.url",
+      "auth_type": "API_KEY",
+      "auth_profile": "default",
+      "auth_file_location": {
+        "$component_ref": "oci-client-config.auth_file_location"
+      }
+    }
+  },
+  "system_prompt": "Hi",
+  "tools": [
+    {
+      "component_type": "RemoteTool",
+      "id": "remote-tool-id",
+      "name": "tool_name1",
+      "description": "description",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [],
+      "outputs": [],
+      "requires_confirmation": false,
+      "url": "https://some.url",
+      "http_method": "GET",
+      "api_spec_uri": null,
+      "data": {},
+      "query_params": {},
+      "headers": {},
+      "sensitive_headers": {"$component_ref": "remote-tool-id.sensitive_headers"}
+    }
+  ],
+  "toolboxes": [
+    {
+      "component_type": "MCPToolBox",
+      "id": "mcp-toolbox-id",
+      "name": "tool_name2",
+      "description": "description",
+      "metadata": {},
+      "client_transport": {
+        "component_type": "SSEmTLSTransport",
+        "id": "mcp-toolbox-client-transport-id",
+        "name": "mcp_client_transport",
+        "description": null,
+        "metadata": {},
+        "session_parameters": {
+          "read_timeout_seconds": 60.0
+        },
+        "url": "https://some.url",
+        "headers": null,
+        "key_file": {
+          "$component_ref": "mcp-toolbox-client-transport-id.key_file"
+        },
+        "cert_file": {
+          "$component_ref": "mcp-toolbox-client-transport-id.cert_file"
+        },
+        "ca_file": {
+          "$component_ref": "mcp-toolbox-client-transport-id.ca_file"
+        }
+      },
+      "tool_filter": null
+    }
+  ],
+  "human_in_the_loop": true,
+  "agentspec_version": "26.1.0"
+}

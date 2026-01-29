@@ -3,7 +3,6 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-import dataclasses
 import re
 from typing import Annotated, Optional
 
@@ -214,7 +213,11 @@ def remote_tool() -> Tool:
         method="POST",
         data="something".encode("utf-8"),
         params=[("what", "is")],
-        headers={"Authentication": "Bearer: '{{hello}}"},
+        headers={
+            "Content-type": "application/json",
+            "Custom-header": "{{hello}}",
+        },
+        sensitive_headers={"Authentication": "Bearer: abc123"},
         ignore_bad_http_requests=True,
         num_retry_on_bad_http_request=4,
         input_descriptors=[StringProperty(name="hello")],
@@ -228,13 +231,16 @@ def test_remote_tool_can_be_serialized(remote_tool):
     serialized_tool = serialize(remote_tool)
     assert "my_api" in serialized_tool
     assert "POST" in serialized_tool
+    assert "sensitive_headers" not in serialized_tool
 
 
 def test_remote_tool_can_be_serialized_and_deserialized(remote_tool):
     serialized_tool = serialize(remote_tool)
     deserialized_tool = autodeserialize(serialized_tool)
     assert isinstance(deserialized_tool, RemoteTool)
-    assert dataclasses.asdict(deserialized_tool) == dataclasses.asdict(deserialized_tool)
+    # Need to reset sensitive_headers before comparison, as those are not exported
+    remote_tool.sensitive_headers = None
+    assert remote_tool == deserialized_tool
 
 
 def test_serialize_agent_with_remote_tools(remotely_hosted_llm, remote_tool):

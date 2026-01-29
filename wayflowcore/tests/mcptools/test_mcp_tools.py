@@ -53,9 +53,30 @@ def test_mcp_without_auth_raises_without_explicit_user_confirmation() -> None:
         _ = MCPToolBox(client_transport=SSETransport(url="anything"))
 
 
+def test_mcp_client_transport_headers_and_sensitive_headers_cannot_overlap(sse_mcp_server_http):
+    with pytest.raises(
+        ValueError,
+        match="Some headers have been specified in both `headers` and `sensitive_headers`",
+    ):
+        _ = SSETransport(
+            url=sse_mcp_server_http,
+            headers={"exclusive_key_1": "value", "shared_key": 1},
+            sensitive_headers={"exclusive_key_2": "value", "shared_key": 1},
+        )
+
+
 @pytest.fixture
 def sse_client_transport(sse_mcp_server_http):
     return SSETransport(url=sse_mcp_server_http)
+
+
+@pytest.fixture
+def sse_client_transport_with_headers(sse_mcp_server_http):
+    return SSETransport(
+        url=sse_mcp_server_http,
+        headers={"custom-header": "value"},
+        sensitive_headers={"sensitive-header": "abc123"},
+    )
 
 
 @pytest.fixture
@@ -256,6 +277,15 @@ def test_non_matching_input_descriptors_of_mcp_tools_log_it(
 def mcp_fooza_tool(sse_client_transport, with_mcp_enabled):
     return MCPTool(
         name="fooza_tool", description="custom description", client_transport=sse_client_transport
+    )
+
+
+@pytest.fixture
+def mcp_fooza_tool_with_client_with_headers(sse_client_transport_with_headers, with_mcp_enabled):
+    return MCPTool(
+        name="fooza_tool",
+        description="custom description",
+        client_transport=sse_client_transport_with_headers,
     )
 
 
@@ -500,6 +530,23 @@ def test_serde_mcp_tool(mcp_fooza_tool):
     serialized_tool = serialize(mcp_fooza_tool)
     deserialized_tool = autodeserialize(serialized_tool)
     assert isinstance(deserialized_tool, MCPTool)
+    assert deserialized_tool.run(a=1, b=2) == "7"
+
+
+def test_serde_mcp_tool_with_client_with_headers(mcp_fooza_tool_with_client_with_headers):
+    serialized_tool = serialize(mcp_fooza_tool_with_client_with_headers)
+    assert "headers" in serialized_tool
+    assert "sensitive_headers" not in serialized_tool
+    deserialized_tool = autodeserialize(serialized_tool)
+    assert isinstance(deserialized_tool, MCPTool)
+    assert isinstance(deserialized_tool.client_transport, SSETransport)
+    assert type(mcp_fooza_tool_with_client_with_headers.client_transport) is type(
+        deserialized_tool.client_transport
+    )
+    assert (
+        deserialized_tool.client_transport.headers
+        == mcp_fooza_tool_with_client_with_headers.client_transport.headers
+    )
     assert deserialized_tool.run(a=1, b=2) == "7"
 
 
