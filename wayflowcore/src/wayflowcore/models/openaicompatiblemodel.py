@@ -188,7 +188,7 @@ class OpenAICompatibleModel(LlmModel):
     async def _post(
         request_params: Dict[str, Any], retry_strategy: _RetryStrategy, proxy: Optional[str]
     ) -> Dict[str, Any]:
-        logger.debug(f"Request to remote endpoint: {request_params}")
+        logger.debug(f"Request to remote endpoint: {_sanitize_request_parameters(request_params)}")
         response = await request_post_with_retries(request_params, retry_strategy, proxy)
         logger.debug(f"Raw remote endpoint response: {response}")
         return response
@@ -200,7 +200,9 @@ class OpenAICompatibleModel(LlmModel):
         proxy: Optional[str],
         api_processor: _APIProcessor,
     ) -> AsyncIterator[Dict[str, Any]]:
-        logger.debug(f"Streaming request to remote endpoint: {request_params}")
+        logger.debug(
+            f"Streaming request to remote endpoint: {_sanitize_request_parameters(request_params)}"
+        )
         line_iterator = request_streaming_post_with_retries(
             request_params, retry_strategy=retry_strategy, proxy=proxy
         )
@@ -252,3 +254,11 @@ def _resolve_api_key(provided_api_key: Optional[str]) -> Optional[str]:
                 "No api_key provided. It might be OK if it is not necessary to access the model. If however the access requires it, either specify the api_key parameter, or set the OPENAI_API_KEY environment variable."
             )
     return api_key
+
+
+def _sanitize_request_parameters(request_params: Dict[str, Any]) -> Dict[str, Any]:
+    # we remove the headers that can contain sensitive information from the logs
+    sanitized_request_params = request_params.copy()
+    if "headers" in sanitized_request_params:
+        sanitized_request_params["headers"] = "** MASKED **"
+    return sanitized_request_params
