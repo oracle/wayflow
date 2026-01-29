@@ -172,10 +172,11 @@ Possibly Breaking Changes
 
   - For now, a deprecation warning is raised; in the next cycle, an error will be thrown.
 
-* **Summarization Transforms now do not do caching if the datastore is None"
+* **Summarization Transforms now do not do caching if the datastore is None**
 
   Previously when the `datastore` arguments of `MessageSummarizationTransform` and `ConversationSummarizationTransform` were set to `None`, an in-memory datastore was automatically created. Now, the in-memory datastore is created
   only if the `datastore` is left unspecified. If it is set to `None` then no caching happens.
+
 
 Bug fixes
 ^^^^^^^^^
