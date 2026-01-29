@@ -312,6 +312,16 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self.transforms = transforms or []
         agent_template = agent_template or llm.agent_template
 
+        # Log the transforms being combined for user awareness if template has transforms
+        template_transform_names = [
+            t.__class__.__name__ for t in agent_template.pre_rendering_transforms or []
+        ]
+        if template_transform_names:
+            agent_transform_names = [t.__class__.__name__ for t in self.transforms]
+            logger.info(
+                f"Agent-level transforms {agent_transform_names} will be prepended to template transforms {template_transform_names}."
+            )
+
         # Iterate in reverse order to keep the original order of transforms as we are prepending.
         for transform in self.transforms[::-1]:
             # Prepend to make sure that user defined transforms are applied before default template transforms.
