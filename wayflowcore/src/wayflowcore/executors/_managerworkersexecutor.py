@@ -55,8 +55,9 @@ def _create_manager_agent(group_manager: Union[Agent, LlmModel]) -> Agent:
 
 
 def _validate_agent_unicity(
-    worker_agents: List[Union[Agent, ManagerWorkers]], manager_agent: Agent) -> Dict[str, Union[Agent, ManagerWorkers]]:
-    agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = {}
+    worker_agents: List[Union[Agent, ManagerWorkers, A2AAgent]], manager_agent: Agent
+) -> Dict[str, Union[Agent, ManagerWorkers, A2AAgent]]:
+    agent_by_name: Dict[str, Union["Agent", "ManagerWorkers", "A2AAgent"]] = {}
     all_agents = worker_agents + [manager_agent]
     for agent in all_agents:
         if agent.name != manager_agent.name:
