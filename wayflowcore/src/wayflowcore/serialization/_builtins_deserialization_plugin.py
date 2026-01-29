@@ -135,9 +135,7 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import (
-    all_deserialization_plugin,
-)
+from wayflowcore.agentspec.components import all_deserialization_plugin
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -1733,10 +1731,10 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 agentspec_component, AgentSpecPluginSplitPromptOnMarkerMessageTransform
             ):
                 return RuntimeSplitPromptOnMarkerMessageTransform(
-                    marker=agentspec_component.marker, 
-                    **self._get_component_arguments(agentspec_component)
+                    marker=agentspec_component.marker,
+                    **self._get_component_arguments(agentspec_component),
                 )
-                
+
             elif isinstance(agentspec_component, AgentSpecMessageSummarizationTransform):
                 return RuntimeMessageSummarizationTransform(
                     llm=conversion_context.convert(

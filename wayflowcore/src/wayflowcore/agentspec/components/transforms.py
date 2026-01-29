@@ -6,7 +6,6 @@
 
 from typing import Optional
 
-
 from pyagentspec.transforms import MessageTransform
 
 from wayflowcore.agentspec.components._pydantic_plugins import (
