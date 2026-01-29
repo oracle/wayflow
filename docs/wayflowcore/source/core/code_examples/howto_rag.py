@@ -97,12 +97,14 @@ def environment_config():
             user=os.environ["ADB_DB_USER"],
             password=os.environ["ADB_DB_PASSWORD"],
             dsn=os.environ["ADB_DSN"],
+            id="oracle_datastore_connection_config",
         )
     if all(v in os.environ for v in tls_vars):
         return TlsOracleDatabaseConnectionConfig(
             user=os.environ["ADB_DB_USER"],
             password=os.environ["ADB_DB_PASSWORD"],
             dsn=os.environ["ADB_DSN"],
+            id="oracle_datastore_connection_config",
         )
     raise Exception("Required OracleDB environment variables not found")
 
