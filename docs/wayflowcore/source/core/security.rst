@@ -15,7 +15,7 @@ WayFlow allows LLMs to interact with applications via **Tools** (:ref:`ClientToo
 *   **Mandatory Input Validation**: Always validate tool inputs.
 
     *   For :ref:`ClientTool <clienttool>` and :ref:`ServerTool <servertool>`, use ``input_descriptors`` to define/enforce schemas (types and descriptions) as a primary defense. Note that ``input_descriptors`` do not support constraints like ranges or max lengths, so you must implement additional validation in your tool's code.
-    *   For :ref:`RemoteTool <remotetool>`, which constructs HTTP requests, validation is critical for all parameters that can be templated (e.g., ``url``, ``method``, ``json_body``, ``data``, ``params``, ``headers``, ``cookies``). While ``input_descriptors`` can define the schema for arguments *passed to* the :ref:`RemoteTool <remotetool>`, the core security lies in controlling how these arguments are used to form the request and in features like ``url_allow_list``.
+    *   For :ref:`RemoteTool <remotetool>`, which constructs HTTP requests, validation is critical for all parameters that can be templated (e.g., ``url``, ``method``, ``data``, ``params``, ``headers``, ``cookies``). While ``input_descriptors`` can define the schema for arguments *passed to* the :ref:`RemoteTool <remotetool>`, the core security lies in controlling how these arguments are used to form the request and in features like ``url_allow_list``.
 *   **Output Scrutiny**: Define expected outputs with ``output_descriptors``. For :ref:`ClientTool <clienttool>`, clients post results; for :ref:`ServerTool <servertool>`, the server ``func`` generates them. Calling Flows/Agents must treat incoming :ref:`ToolResult <toolresult>` content as untrusted until validated/sanitized.
 *   **Least Privilege**: Grant tools only permissions essential for their function.
 
@@ -52,7 +52,7 @@ Tool Security Specifics
 .. caution::
 
    As highlighted in the :ref:`RemoteTool <remotetool>` API, since the Agent can generate arguments
-   (url, method, json_body, data, params, headers, cookies) or parts of these arguments in the respective
+   (url, method, data, params, headers, cookies) or parts of these arguments in the respective
    Jinja templates, this can impose a security risk of information leakage and enable specific attack
    vectors like automated DDOS attacks. Please use :ref:`RemoteTool <remotetool>` responsibly and ensure
    that only valid URLs can be given as arguments or that no sensitive information is used for any of these
@@ -74,7 +74,7 @@ Harden All Tools (ServerTool, ClientTool and RemoteTool)
        *  For :ref:`ClientTool <clienttool>` & :ref:`ServerTool <servertool>`: Use ``input_descriptors`` for basic type checking. In :ref:`ServerTool <servertool>`'s ``func``, add comprehensive validation (string length limits, numeric ranges, format constraints). Cap string lengths and numeric ranges in tool implementation code.
        *  For :ref:`RemoteTool <remotetool>`:
 
-          *  Rigorously validate and sanitize any inputs used in templated arguments (``url``, ``method``, ``json_body``, ``data``, ``params``, ``headers``, ``cookies``).
+          *  Rigorously validate and sanitize any inputs used in templated arguments (``url``, ``method``, ``data``, ``params``, ``headers``, ``cookies``).
           *  **Crucially, always configure `url_allow_list`** to restrict outbound requests to known, trusted endpoints.
           *  Leverage ``allow_insecure_http=False`` (default), and consider setting ``allow_credentials=False`` if not needed.
    * - Excessive privileges (for :ref:`ServerTool <servertool>`)
