@@ -10,7 +10,7 @@ from typing import Annotated, Any, Optional, Tuple
 import pytest
 
 from wayflowcore._utils._templating_helpers import render_template
-from wayflowcore.agent import DEFAULT_INITIAL_MESSAGE, Agent
+from wayflowcore.agent import DEFAULT_INITIAL_MESSAGE, Agent, CallerInputMode
 from wayflowcore.executors._agenticpattern_helpers import _SEND_MESSAGE_TOOL_NAME
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
@@ -929,9 +929,6 @@ def test_managerworkers_without_user_input_can_execute_as_expected(vllm_response
     Max attempt:           4
     Justification:         (0.06 ** 4) ~= 1.1 / 100'000
     """
-    from wayflowcore.agent import CallerInputMode
-    from wayflowcore.property import IntegerProperty
-
     llm = vllm_responses_llm
 
     fooza_agent = _get_fooza_agent(llm)

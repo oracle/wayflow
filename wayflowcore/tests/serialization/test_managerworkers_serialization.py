@@ -57,8 +57,10 @@ def simple_conversation(simple_managerworkers: ManagerWorkers) -> ManagerWorkers
 
 
 @pytest.fixture
-def simple_conversation_in_flow(simple_managerworkers_in_flow: Flow) -> ManagerWorkersConversation:
-    return simple_managerworkers_in_flow.start_conversation()
+def simple_conversation_in_flow(simple_managerworkers_in_flow: Flow) -> FlowConversation:
+    conv = simple_managerworkers_in_flow.start_conversation()
+    conv.execute()
+    return conv
 
 
 @pytest.fixture
@@ -194,15 +196,13 @@ def test_can_deserialize_simple_managerworkers_in_flow(simple_managerworkers_in_
 
 
 def test_can_serialize_simple_conversation_in_flow(
-    simple_conversation_in_flow: ManagerWorkersConversation,
+    simple_conversation_in_flow: FlowConversation,
 ):
     serialized_conversation = serialize(simple_conversation_in_flow)
     assert isinstance(serialized_conversation, str)
 
 
-def test_can_deserialize_simple_conversation_in_flow(
-    simple_conversation_in_flow: ManagerWorkersConversation, simple_math_agents_example
-):
+def test_can_deserialize_simple_conversation_in_flow(simple_conversation_in_flow: FlowConversation):
     serialized_conversation = serialize(simple_conversation_in_flow)
     deserialized_conversation = deserialize(FlowConversation, serialized_conversation)
     assert isinstance(deserialized_conversation, FlowConversation)
