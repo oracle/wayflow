@@ -5,11 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 from .canonicalizationtransform import CanonicalizationMessageTransform
-from .summarization import (
-    ConversationSummarizationTransform,
-    MessageSummarizationTransform,
-    _UnspecifiedDatastore,
-)
+from .summarization import ConversationSummarizationTransform, MessageSummarizationTransform
 from .transforms import (
     AppendTrailingSystemMessageToUserMessageTransform,
     CallableMessageTransform,
