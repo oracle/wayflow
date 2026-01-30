@@ -12,8 +12,9 @@ from pathlib import Path
 
 import pytest
 
-from ..utils import LogTee, _check_server_is_up, _terminate_process_tree, get_available_port
 from wayflowcore.a2a.a2aagent import A2AAgent, A2AConnectionConfig
+
+from ..utils import LogTee, _check_server_is_up, _terminate_process_tree, get_available_port
 from .start_a2a_server import AgentType
 
 _START_SERVER_FILE_PATH = str(Path(__file__).parent / "start_a2a_server.py")
