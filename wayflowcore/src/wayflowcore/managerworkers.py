@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.a2a.a2aagent import A2AAgent
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
@@ -30,7 +31,7 @@ logger = logging.getLogger(__name__)
 @dataclass(init=False)
 class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, SerializableObject):
     group_manager: Union[LlmModel, Agent]
-    workers: List[Union[Agent, "ManagerWorkers"]]
+    workers: List[Union[Agent, "ManagerWorkers", A2AAgent]]
     caller_input_mode: CallerInputMode
     managerworkers_template: "PromptTemplate"
     input_descriptors: List["Property"]
@@ -43,7 +44,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
     def __init__(
         self,
         group_manager: Union[LlmModel, Agent],
-        workers: List[Union[Agent, "ManagerWorkers"]],
+        workers: List[Union[Agent, "ManagerWorkers", A2AAgent]],
         caller_input_mode: CallerInputMode = CallerInputMode.ALWAYS,
         managerworkers_template: Optional["PromptTemplate"] = None,
         input_descriptors: Optional[List["Property"]] = None,
@@ -177,6 +178,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         from wayflowcore.agentconversation import AgentConversation
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
+        from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
         from wayflowcore.executors._managerworkersconversation import (
             ManagerWorkersConversation,
             ManagerWorkersConversationExecutionState,
@@ -198,7 +200,9 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             )
         )
 
-        subconversations: Dict[str, Union[AgentConversation, ManagerWorkersConversation]] = {}
+        subconversations: Dict[
+            str, Union[AgentConversation, ManagerWorkersConversation, A2AAgentConversation]
+        ] = {}
         subconversations[self.manager_agent.name] = self.manager_agent.start_conversation(
             inputs=inputs,
             messages=messages,

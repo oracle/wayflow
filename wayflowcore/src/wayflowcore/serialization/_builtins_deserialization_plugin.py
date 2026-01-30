@@ -805,7 +805,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             if not isinstance(agentspec_component.group_manager, AgentSpecAgent):
                 raise ValueError(
                     f"WayFlow ManagerWorkers' manager only supports agents of type `Agent`, "
-                    f"but received `{type(agent).__name__}` instead."
+                    f"but received `{type(agentspec_component.group_manager).__name__}` instead."
                 )
             for agent in agentspec_component.workers:  # type: ignore[assignment]
                 if not isinstance(

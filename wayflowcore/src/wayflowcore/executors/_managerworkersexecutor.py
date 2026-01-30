@@ -31,6 +31,7 @@ from wayflowcore.tools import ClientTool, ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore.agentconversation import AgentConversation
+    from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
     from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
 
 logger = logging.getLogger(__name__)
@@ -153,7 +154,9 @@ class ManagerWorkersRunner(ConversationExecutor):
 
     @staticmethod
     async def _run_worker_round(
-        current_conversation: Union["AgentConversation", "ManagerWorkersConversation"],
+        current_conversation: Union[
+            "AgentConversation", "ManagerWorkersConversation", "A2AAgentConversation"
+        ],
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
         return await current_conversation.execute_async(
@@ -165,6 +168,7 @@ class ManagerWorkersRunner(ConversationExecutor):
         conversation: Conversation,
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
+        from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
         from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
 
         if not isinstance(conversation, ManagerWorkersConversation):
@@ -190,9 +194,11 @@ class ManagerWorkersRunner(ConversationExecutor):
             if current_agent_name == managerworkers_config.manager_agent.name:
                 current_agent = managerworkers_config.manager_agent
 
-                if isinstance(current_conversation, ManagerWorkersConversation):
+                if isinstance(
+                    current_conversation, (ManagerWorkersConversation, A2AAgentConversation)
+                ):
                     raise ValueError(
-                        "Manager Conversation cannot be of type `ManagerWorkersConversation`."
+                        "Manager Conversation cannot be of type `ManagerWorkersConversation` or `A2AAgentConversation`."
                     )
 
                 # Handle pending tool requests of manager
