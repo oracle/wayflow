@@ -85,7 +85,7 @@ You can then load the configuration back to an assistant using the ``AgentSpecLo
 Manager Workers with A2A Agents
 ===============================
 
-While each agent has limited standalone capability, combining them unlocks powerful workflows.
+While each agent has limited standalone capabilities, combining them unlocks powerful workflows.
 Using :ref:`ManagerWorkers <managerworkers>`, you can implement a manager agent that efficiently coordinates tasks between different specialized agents.
 This modular, scalable architecture allows each agent to focus on specific tasks, increasing overall system capability and flexibility.
 
@@ -131,7 +131,7 @@ Now you can use these agents in :ref:`ManagerWorkers <managerworkers>` setup.
 Executing Tasks
 ---------------
 
-Now, execute a conversation in which the manager agent delegates tasks to the most appropriate agent based on their capabilities.
+Now, you can execute a conversation in which the manager agent delegates tasks to the most appropriate agent based on their capabilities.
 This demonstrates how ManagerWorkers can be used to orchestrate complex interactions seamlessly.
 
 .. literalinclude:: ../code_examples/howto_a2aagent.py
