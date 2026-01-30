@@ -42,6 +42,12 @@ from wayflowcore.steps import (
     StartStep,
 )
 from wayflowcore.tools import ServerTool
+
+# Import summarization transform classes
+from wayflowcore.transforms.summarization import (
+    ConversationSummarizationTransform,
+    MessageSummarizationTransform,
+)
 from wayflowcore.variable import Variable
 from wayflowcore.warnings import SecurityWarning
 
@@ -75,6 +81,7 @@ EXCLUDED_COMPONENTS = {
     "FrozenSerializableDataclass",
     "Message",
     "MessageList",
+    "MessageTransform",  # abstract base class for message transforms
     # Runtime objects
     "_TokenConsumptionEvent",
     "Conversation",
@@ -105,6 +112,9 @@ EXCLUDED_COMPONENTS = {
     "DummyModel",
     "SleepStep",
     "DoNothingStep",
+    # internal transforms not supported in AgentSpec
+    "_PythonMergeToolRequestAndCallsTransform",
+    "_ToolRequestAndCallsTransform",
     # TODO: Support these in the future
     "DatastoreQueryStep",  # requires a relational datastore, we only have oracledb and it requires a connection to create the object
     "MapStep",  # names are not equivalent, need some complex logic
@@ -127,6 +137,10 @@ EXCLUDED_COMPONENTS = {
     "FrozenDataclassComponent",
     "HumanProxyAssistant",
     "ToolBox",
+    # Runtime components that can't be serialized to agentspec
+    "CallableMessageTransform",  # takes a callable function which is not serializable
+    "RelationalDatastore",
+    "Datastore",
 }
 
 ALL_ADDITIONAL_SUBCLASSES = list(
@@ -273,35 +287,48 @@ INIT_PARAMETER_DEFAULT_VALUES = {
     "wallet_password": "wallet_password",
     "dsn": "dsn/path",
 }
-
-CLASS_SPECIFIC_INPUTS = {
-    MapStep: {"input_descriptors": [ListProperty(name=MapStep.ITERATED_INPUT)]},
-    ParallelMapStep: {"input_descriptors": [ListProperty(name=ParallelMapStep.ITERATED_INPUT)]},
-    TlsOracleDatabaseConnectionConfig: {
-        "user": "",
-        "password": "",
-        "dsn": "",
-        "config_dir": "",  # Needs empty strings for sensitive fields
-    },
-    TlsPostgresDatabaseConnectionConfig: {
-        "user": "",
-        "password": "",
-        "url": "",
-        "sslmode": "disable",  # Needs empty strings for sensitive fields
-    },
-    OracleDatabaseDatastore: {
-        "connection_config": TlsOracleDatabaseConnectionConfig(user="", password="", dsn="")
-    },
-    PostgresDatabaseDatastore: {
-        "connection_config": TlsPostgresDatabaseConnectionConfig(
-            user="",
-            password="",
-            url="",
-            sslmode="disable",
-        ),
-        "schema": {},
-    },
-}
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+    CLASS_SPECIFIC_INPUTS = {
+        MapStep: {"input_descriptors": [ListProperty(name=MapStep.ITERATED_INPUT)]},
+        ParallelMapStep: {"input_descriptors": [ListProperty(name=ParallelMapStep.ITERATED_INPUT)]},
+        TlsOracleDatabaseConnectionConfig: {
+            "user": "",
+            "password": "",
+            "dsn": "",
+            "config_dir": "",  # Needs empty strings for sensitive fields
+        },
+        TlsPostgresDatabaseConnectionConfig: {
+            "user": "",
+            "password": "",
+            "url": "",
+            "sslmode": "disable",  # Needs empty strings for sensitive fields
+        },
+        OracleDatabaseDatastore: {
+            "connection_config": TlsOracleDatabaseConnectionConfig(user="", password="", dsn="")
+        },
+        PostgresDatabaseDatastore: {
+            "connection_config": TlsPostgresDatabaseConnectionConfig(
+                user="",
+                password="",
+                url="",
+                sslmode="disable",
+            ),
+            "schema": {},
+        },
+        MessageSummarizationTransform: {
+            "datastore": InMemoryDatastore(
+                {"summarized_messages_cache": MessageSummarizationTransform.get_entity_definition()}
+            )
+        },
+        ConversationSummarizationTransform: {
+            "datastore": InMemoryDatastore(
+                {
+                    "summarized_conversations_cache": ConversationSummarizationTransform.get_entity_definition()
+                }
+            )
+        },
+    }
 
 
 SKIP_ELEMENTS: Dict[str, Dict[str, Any]] = {

@@ -11,7 +11,7 @@ from warnings import warn
 import numpy as np
 import pandas as pd
 
-from wayflowcore.component import Component
+from wayflowcore._metadata import MetadataType
 from wayflowcore.datastore._datatable import Datatable
 from wayflowcore.datastore._utils import (
     check_collection_name,
@@ -22,7 +22,7 @@ from wayflowcore.datastore.datastore import Datastore
 from wayflowcore.datastore.entity import Entity, EntityAsDictT
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
-from wayflowcore.serialization.serializer import SerializableObject, serialize_to_dict
+from wayflowcore.serialization.serializer import serialize_to_dict
 
 logger = getLogger(__name__)
 
@@ -128,7 +128,7 @@ class _InMemoryDatatable(Datatable):
         self._data = self._data.loc[~where_filter]
 
 
-class InMemoryDatastore(Datastore, Component, SerializableObject):
+class InMemoryDatastore(Datastore):
     """In-memory datastore for testing and development purposes.
 
     This datastore implements basic functionalities of datastores, with
@@ -156,6 +156,7 @@ class InMemoryDatastore(Datastore, Component, SerializableObject):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
     ):
         """Initialize an ``InMemoryDatastore``.
 
@@ -212,15 +213,15 @@ class InMemoryDatastore(Datastore, Component, SerializableObject):
         """
         warn(_USER_WARNING_MESSAGE_INTERNAL, UserWarning)
 
-        self._validate_schema(schema)
-        self.schema = schema
-        self._datatables = {name: _InMemoryDatatable(e) for name, e in self.schema.items()}
-        Component.__init__(
-            self,
+        super().__init__(
             name=IdGenerator.get_or_generate_name(name, prefix="inmemory_datastore", length=8),
             id=id,
             description=description,
+            __metadata_info__=__metadata_info__,
         )
+        self._validate_schema(schema)
+        self.schema = schema
+        self._datatables = {name: _InMemoryDatatable(e) for name, e in self.schema.items()}
 
     def _validate_schema(self, schema: Dict[str, Entity]) -> None:
         for collection_name, entity in schema.items():
