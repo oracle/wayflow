@@ -812,7 +812,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     agent, (AgentSpecAgent, AgentSpecManagerWorkers, AgentSpecA2AAgent)
                 ):
                     raise ValueError(
-                        f"WayFlow ManagerWorkers' workers only supports agents of type `Agent`, "
+                        f"WayFlow ManagerWorkers' workers only supports agents of type `Agent`, `ManagerWorker`, `A2AAgent`, "
                         f"but received `{type(agent).__name__}` instead."
                     )
 
