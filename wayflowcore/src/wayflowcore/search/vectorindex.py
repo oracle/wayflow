@@ -144,16 +144,37 @@ class OracleDatabaseVectorIndex(VectorIndex):
                         k, oracle_fetch_approximate=True
                     )
                 )
-                result_rows = results.fetchall()
+                result_rows = results.mappings().all()
             except sqlalchemy.exc.DatabaseError as e:
                 raise DatastoreError(
                     "SQL query execution failed. See stacktrace to find out more "
                     "(note: bind variables should be provided with the :varname syntax)"
                 ) from e
 
-        result = [
-            {columns_to_return[i].name: item[i] for i in range(len(item))} for item in result_rows
-        ]
+        def _coerce_value(value: Any) -> Any:
+            # Convert driver-/library-specific wrappers to plain Python objects
+            # - Oracle LOBs -> read() to get bytes/str
+            try:
+                lob_type = getattr(oracledb, "LOB", None)
+            except Exception:
+                lob_type = None
+            if lob_type is not None and isinstance(value, lob_type):
+                try:
+                    return value.read()
+                except Exception:
+                    return str(value)
+
+            # Numpy scalars -> builtin Python scalars
+            if isinstance(value, np.generic):
+                return value.item()
+
+            # Keep builtin/stdlib scalar types as-is; SQLAlchemy already returns Python types for most columns
+            return value
+
+        result: List[Dict[str, Any]] = []
+        for row in result_rows:
+            # row is a RowMapping; ensure keys are plain strings and values are plain Python objects
+            result.append({str(k): _coerce_value(v) for k, v in row.items()})
         return result
 
 
