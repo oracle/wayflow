@@ -7,11 +7,23 @@ WayFlow |release|
 New features
 ^^^^^^^^^^^^
 
+* **Message Summarization Transforms and Datastores can be converted between Agent Spec and Wayflow**
+
+Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
+You can now declare your agents with summarization transforms and summary caching in Agent Spec and run them in WayFlow.
+
+
 Improvements
 ^^^^^^^^^^^^
 
 Bug fixes
 ^^^^^^^^^
+
+* **Summarization Transforms now do not do caching if the datastore is None**
+
+  Previously when the `datastore` arguments of `MessageSummarizationTransform` and `ConversationSummarizationTransform` were set to `None`, an in-memory datastore was automatically created. Now, the in-memory datastore is created
+  only if the `datastore` is left unspecified. If it is set to `None` then no caching happens.
+
 
 
 WayFlow 26.1.0
@@ -123,7 +135,7 @@ Improvements
   and entry lifetime. This helps manage long conversation contexts by summarizing older parts while preserving recent
   messages.
 
-  Transforms can now be assigned to an agent through its constructor. (This is not supported in `agentspec`, so attempting to convert agents with transforms to `agentspec` will raise a `NotImplementedError`)
+  Transforms can now be assigned to an agent through its constructor.
 
 * **Improve Swarm prompt template, introduce HandoffMode and support multiple tool calls in Swarm:**
 
