@@ -147,6 +147,12 @@ Improvements
 
   Added support for multiple levels of ManagerWorkers where a worker in ``ManagerWorkers`` can itself be ``ManagerWorkers`` enabling the creation of hierarchical agent structures.
 
+* **Added support for Gemini reasoning models (via OpenAI compatible API)**
+
+  The ``extra_content`` returned by Gemini's OpenAI-compatible APIs is now tracked
+  as part of messages and tool_requests.
+
+
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

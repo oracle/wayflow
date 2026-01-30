@@ -5,12 +5,13 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
 import logging
-from typing import Any, AsyncIterable, Callable, Dict, List, Optional
+from typing import Any, AsyncIterable, Callable, Dict, List, Optional, TypedDict
 
 from wayflowcore._utils.formatting import stringify
 from wayflowcore.messagelist import ImageContent, Message, TextContent
 from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
+from wayflowcore.tools.tools import ExtraContentT
 
 from .._requesthelpers import StreamChunkType, TaggedMessageChunkTypeWithTokenUsage
 from ..llmgenerationconfig import LlmGenerationConfig
@@ -19,6 +20,13 @@ from ._api_processor import _APIProcessor
 from ._utils import _prepare_openai_compatible_json_schema, _safe_json_loads
 
 logger = logging.getLogger(__name__)
+
+
+class OpenAIToolRequestAsDictT(TypedDict, total=True):
+    tool_request_id: str
+    name: str
+    args: str
+    _extra_content: Optional[ExtraContentT]
 
 
 class _ChatCompletionsAPIProcessor(_APIProcessor):
@@ -43,6 +51,11 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
         if stream:
             json_obj["stream_options"] = dict(include_usage=True)
 
+        if not self._is_openai_endpoint():
+            # Some OpenAI Compatible APIs (e.g., VLLM) will choose to ignore this parameter if it is
+            # not supported, whereas others (e.g., Gemini) will return an error.
+            json_obj.pop("store")
+
         return json_obj
 
     def _convert_message_into_openai_message_dict(
@@ -60,6 +73,11 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                         "id": tc.tool_request_id,
                         "type": "function",
                         "function": {"name": tc.name, "arguments": json.dumps(tc.args)},
+                        **(
+                            {"extra_content": tc._extra_content}
+                            if tc._extra_content is not None
+                            else {}
+                        ),
                     }
                     for tc in (m.tool_requests or [])
                 ],
@@ -103,8 +121,10 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 for message in prompt.messages
                 for m in self._convert_message_into_openai_message_dict(message, supports_tool_role)
             ],
-            "prompt_cache_key": self._get_prompt_cache_key_from_prompt(prompt),
         }
+
+        if self._is_openai_endpoint():
+            payload_arguments["prompt_cache_key"] = self._get_prompt_cache_key_from_prompt(prompt)
 
         if prompt.tools is not None:
             payload_arguments["tools"] = [t.to_openai_format() for t in prompt.tools]
@@ -136,8 +156,6 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
         return kwargs
 
     def _convert_openai_response_into_message(self, response: Any) -> "Message":
-        from wayflowcore.messagelist import Message
-
         extracted_message = response["choices"][0]["message"]
         if len(extracted_message.get("tool_calls") or []) > 0:
             message = Message(
@@ -146,6 +164,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                         name=tc["function"]["name"],
                         args=_safe_json_loads(tc["function"]["arguments"]),
                         tool_request_id=tc["id"],
+                        _extra_content=tc.get("extra_content"),
                     )
                     for tc in extracted_message["tool_calls"]
                 ],
@@ -155,7 +174,11 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
             # content might be empty when certain models (like gemini) decide
             # to finish the conversation
             content = extracted_message.get("content", "")
-            message = Message(role="assistant", contents=[TextContent(content=content)])
+            message = Message(
+                role="assistant",
+                contents=[TextContent(content=content)],
+                _extra_content=extracted_message.get("extra_content"),
+            )
         return message
 
     def _extract_usage(self, response_data: Dict[str, Any]) -> Optional[TokenUsage]:
@@ -249,11 +272,16 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
 
     def _convert_tool_deltas_into_tool_requests(self, tool_deltas: List[Any]) -> List[ToolRequest]:
         """Gets tool deltas and return list of proper tool calls"""
-        tool_requests_dict = {}
+        tool_requests_dict: Dict[int, OpenAIToolRequestAsDictT] = {}
         for delta in tool_deltas:
             index = delta["index"]
             if index not in tool_requests_dict:
-                tool_requests_dict[index] = {"name": "", "arguments": ""}
+                tool_requests_dict[index] = {
+                    "name": "",
+                    "args": "",
+                    "tool_request_id": "",
+                    "_extra_content": None,
+                }
             if "id" in delta:
                 tool_requests_dict[index]["tool_request_id"] = delta["id"]
             if "function" in delta:
@@ -261,13 +289,15 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 if "name" in func:
                     tool_requests_dict[index]["name"] += func["name"]
                 if "arguments" in func:
-                    tool_requests_dict[index]["arguments"] += func["arguments"]
-
+                    tool_requests_dict[index]["args"] += func["arguments"]
+            if "extra_content" in delta:
+                tool_requests_dict[index]["_extra_content"] = delta["extra_content"]
         return [
             ToolRequest(
                 name=s["name"],
                 tool_request_id=s["tool_request_id"],
-                args=_safe_json_loads(s["arguments"]),
+                args=_safe_json_loads(s["args"]),
+                _extra_content=s.get("_extra_content"),
             )
             for s in tool_requests_dict.values()
         ]

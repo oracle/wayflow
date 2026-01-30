@@ -40,7 +40,7 @@ from wayflowcore.serialization.serializer import (
     SerializableObject,
     autodeserialize_any_from_dict,
 )
-from wayflowcore.tools.tools import ToolRequest, ToolResult
+from wayflowcore.tools.tools import ExtraContentT, ToolRequest, ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore.models._requesthelpers import TaggedMessageChunkType
@@ -194,6 +194,9 @@ class Message(SerializableDataclass):
         Message content. Is a list of chunks with potentially different types
     role:
         Role of the sender of the message. Can be `user`, `system` or `assistant`
+    _extra_content:
+        Any additional information required when interacting with the LLM.
+        Generally, this is provided in the model response itself, when required.
     """
 
     # message content (showed to users or LLMs)
@@ -215,6 +218,8 @@ class Message(SerializableDataclass):
     time_created: datetime = field(default_factory=lambda: datetime.now(timezone.utc), repr=False)
     time_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc), repr=False)
 
+    _extra_content: Optional[ExtraContentT] = None
+
     def __init__(
         self,
         content: str = "",
@@ -232,6 +237,7 @@ class Message(SerializableDataclass):
         _prompt_cache_key: Optional[str] = None,  # Only for OpenAI Responses API
         _reasoning_content: Optional[_ReasoningContent] = None,  # Only for OpenAI Responses API
         __metadata_info__: Optional[MetadataType] = None,
+        _extra_content: Optional[ExtraContentT] = None,
     ) -> None:
         if __metadata_info__ is None:
             __metadata_info__ = {}
@@ -290,6 +296,7 @@ class Message(SerializableDataclass):
         self.recipients = recipients
         self._reasoning_content = _reasoning_content
         self._prompt_cache_key = _prompt_cache_key
+        self._extra_content = _extra_content
         self.time_created = time_created
         self.time_updated = time_updated
         self._validate()
@@ -405,6 +412,7 @@ class Message(SerializableDataclass):
                 if self.tool_result is not None
                 else None
             ),
+            "_extra_content": self._extra_content,
         }
 
     @property
@@ -477,6 +485,8 @@ class Message(SerializableDataclass):
             message_type=(
                 MessageType(input_dict["message_type"]) if "message_type" in input_dict else None
             ),
+            # We get with default None here for backward compatibility
+            _extra_content=input_dict.get("_extra_content", None),
             __metadata_info__=input_dict["__metadata_info__"],
         )
 

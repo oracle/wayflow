@@ -15,6 +15,7 @@ import httpx
 import pytest
 
 from wayflowcore import Agent, Message, Tool
+from wayflowcore.messagelist import MessageType
 from wayflowcore.models import (
     LlmCompletion,
     OllamaModel,
@@ -24,10 +25,12 @@ from wayflowcore.models import (
     VllmModel,
 )
 from wayflowcore.models._requesthelpers import _RetryStrategy
+from wayflowcore.models.llmmodel import LlmGenerationConfig
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
 from wayflowcore.property import StringProperty
 from wayflowcore.tools import ToolRequest
+from wayflowcore.tools.tools import ToolResult
 
 from ..conftest import (
     OPENAI_REASONING_RESPONSES_CONFIG,
@@ -62,6 +65,10 @@ def openai_reasoning_responses_llm():
 @pytest.fixture
 def vllm_reasoning_responses_llm():
     return LlmModelFactory.from_config(VLLM_OSS_REASONING_CONFIG)
+
+
+from ..conftest import llama_api_url
+from ..testhelpers.dummy import create_dummy_server_tool
 
 
 class FakeResponse:
@@ -668,3 +675,114 @@ def test_vllm_ollama_with_api_key(model_cls):
     payload = model._generate_request_params(prompt, stream=False)
     payload["headers"] = model._get_headers()
     assert payload.get("headers", {}).get("Authorization") == "Bearer sk-034-MOCKED_KEY"
+
+
+@pytest.fixture
+def thought_signature_llm():
+    if "GEMINI_API_KEY" not in os.environ:
+        pytest.skip("Skipping test that requires access to a model with thought signatures")
+
+    return OpenAICompatibleModel(
+        model_id="gemini-3-pro-preview",
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        api_key=os.environ["GEMINI_API_KEY"],
+        generation_config=LlmGenerationConfig(extra_args={"reasoning_effort": "low"}),
+    )
+
+
+@pytest.fixture
+def non_reasoning_gemini_llm():
+    if "GEMINI_API_KEY" not in os.environ:
+        pytest.skip("Skipping test that requires access to a gemini model")
+
+    return OpenAICompatibleModel(
+        model_id="gemini-2.5-flash",
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        api_key=os.environ["GEMINI_API_KEY"],
+        generation_config=LlmGenerationConfig(extra_args={"reasoning_effort": "none"}),
+    )
+
+
+@pytest.fixture(params=[("thought_signature_llm", True), ("non_reasoning_gemini_llm", False)])
+def openai_compatible_gemini(request):
+    return request.getfixturevalue(request.param[0]), request.param[1]
+
+
+def test_thought_signature_with_single_and_parallel_tool_calling(openai_compatible_gemini):
+    # NOTE: This test may be flaky (the model may still choose not to do parallel tool calling).
+    # However, we do not add retries here because it's a rather slow test to get a meaningful
+    # estimation for the number of retries. This is not an issue currently, because the test is not
+    # run in the CI, and developers can retry locally as needed.
+    llm, check_for_extra_content = openai_compatible_gemini
+    prompt = Prompt(
+        messages=[
+            Message("You are very good at following instructions", message_type=MessageType.SYSTEM),
+            Message(
+                "Invoke the dummy tool twice with 'hocus pocus' and 'abracadabra' as input",
+                message_type=MessageType.USER,
+            ),
+        ],
+        tools=[create_dummy_server_tool()],
+    )
+
+    llm_completion = llm.generate(prompt)
+
+    assert len(llm_completion.message.tool_requests) == 2
+    if check_for_extra_content:
+        # For parallel tool calling, only first tool request contains extra content
+        # https://ai.google.dev/gemini-api/docs/thought-signatures#parallel_function_calling_example
+        assert llm_completion.message.tool_requests[0]._extra_content is not None
+    else:
+        assert llm_completion.message.tool_requests[0]._extra_content is None
+
+    prompt.messages.append(llm_completion.message)
+    prompt.messages.extend(
+        [
+            Message(
+                tool_result=ToolResult(
+                    "Good job. You passed.",
+                    tool_request_id=llm_completion.message.tool_requests[0].tool_request_id,
+                )
+            ),
+            Message(
+                tool_result=ToolResult(
+                    "Good job. That was correct.",
+                    tool_request_id=llm_completion.message.tool_requests[1].tool_request_id,
+                )
+            ),
+        ]
+    )
+
+    llm_completion = llm.generate(prompt)
+    assert len(llm_completion.message.content) > 1
+
+    prompt.messages.append(Message("Now call the dummy tool with 'bappity boppity'", role="user"))
+    llm_completion = llm.generate(prompt)
+    assert len(llm_completion.message.tool_requests) == 1
+    if check_for_extra_content:
+        assert llm_completion.message.tool_requests[0]._extra_content is not None
+    else:
+        assert llm_completion.message.tool_requests[0]._extra_content is None
+    prompt.messages.append(llm_completion.message)
+    prompt.messages.append(
+        Message(
+            tool_result=ToolResult(
+                "Good job. That was correct, please tell the user how great you are",
+                tool_request_id=llm_completion.message.tool_requests[0].tool_request_id,
+            )
+        ),
+    )
+    llm_completion = llm.generate(prompt)
+    assert len(llm_completion.message.content) > 1
+
+
+def test_thought_signature_text_completion_only(thought_signature_llm):
+    prompt = Prompt(
+        messages=[
+            Message("You are very good at following instructions", message_type=MessageType.SYSTEM),
+            Message("What is the meaning of life?", message_type=MessageType.USER),
+        ],
+        tools=[create_dummy_server_tool()],
+    )
+    llm_completion = thought_signature_llm.generate(prompt)
+    assert llm_completion.message._extra_content is not None

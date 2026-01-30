@@ -19,6 +19,7 @@ from typing import (
     List,
     Literal,
     Optional,
+    TypeAlias,
     TypedDict,
     Union,
     cast,
@@ -42,6 +43,11 @@ VALID_JSON_TYPES = {"boolean", "number", "integer", "string", "bool", "object", 
 JSON_SCHEMA_NONE_TYPE = "null"
 
 SupportedToolTypesT = Literal["client", "server", "remote", "tool"]
+
+# We use any here for loose typechecking, which works so long as we don't
+# expect to process the _extra_content (which is the case with the
+# thought_signature in Google models)
+ExtraContentT: TypeAlias = Dict[str, Any]
 
 ToolConfigT = TypedDict(
     "ToolConfigT",
@@ -68,6 +74,7 @@ class ToolRequest(SerializableDataclassMixin, SerializableObject):
     name: str
     args: Dict[str, Any]
     tool_request_id: str = field(default_factory=IdGenerator.get_or_generate_id)
+    _extra_content: Optional[ExtraContentT] = None
     _requires_confirmation: bool = False
     _tool_execution_confirmed: Optional[bool] = None
     _tool_rejection_reason: Optional[str] = None
