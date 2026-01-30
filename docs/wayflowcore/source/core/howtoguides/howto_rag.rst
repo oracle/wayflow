@@ -314,6 +314,19 @@ Key points:
 - The ``k`` parameter limits the number of documents retrieved.
 - Retrieved documents are passed to the LLM along with the original query for contextualized responses.
 
+Sanitizing SearchStep outputs for templating
+--------------------------------------------
+
+Some datastores may return objects that are not base Python types (for example sqlalchemy.quoted_name in column keys/values).
+WayFlow's Jinja sandbox only allows base Python types for safety. We add a small helper step (StringifyJinjaInputsStep) that
+sanitizes the SearchStep output into plain dict/list/str/number/boolean/None so all Jinja variables render safely as strings.
+
+.. literalinclude:: ../code_examples/howto_rag.py
+   :language: python
+   :linenos:
+   :start-after: .. start-##_Flow_Sanitize_Inputs
+   :end-before: .. end-##_Flow_Sanitize_Inputs
+
 Step 2. Build and test the Flow
 -------------------------------
 

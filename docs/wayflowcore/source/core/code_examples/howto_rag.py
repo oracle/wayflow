@@ -304,6 +304,100 @@ new_rag_agent = AgentSpecLoader(tool_registry=tool_registry).load_json(rag_agent
 # .. end-##_Load_Agent_Spec_Config
 
 # RAG FLOW IMPLEMENTATION
+# .. start-##_Flow_Sanitize_Inputs
+# Helper step to sanitize SearchStep outputs into base Python types (safe for Jinja sandbox)
+from typing import Any, Dict, List
+from wayflowcore.property import ListProperty, DictProperty, StringProperty, AnyProperty, Property
+from wayflowcore.steps.step import Step, StepResult
+from wayflowcore.flowconversation import FlowConversation
+
+class StringifyJinjaInputsStep(Step):
+    INPUT: str = "retrieved_documents"
+    OUTPUT: str = "sanitized_retrieved_documents"
+
+    def __init__(self) -> None:
+        super().__init__(
+            step_static_configuration=dict(),
+            input_descriptors=[
+                ListProperty(
+                    name=self.INPUT,
+                    description="retrieved documents to sanitize",
+                    item_type=DictProperty(
+                        name="inner_dict",
+                        key_type=StringProperty("inner_key"),
+                        value_type=AnyProperty("inner_value"),
+                    ),
+                )
+            ],
+            output_descriptors=[
+                ListProperty(
+                    name=self.OUTPUT,
+                    description="sanitized retrieved documents",
+                    item_type=DictProperty(
+                        name="inner_dict",
+                        key_type=StringProperty("inner_key"),
+                        value_type=AnyProperty("inner_value"),
+                    ),
+                )
+            ],
+        )
+
+    @classmethod
+    def _get_step_specific_static_configuration_descriptors(cls) -> Dict[str, Any]:
+        # No static configuration
+        return {}
+
+    @classmethod
+    def _compute_step_specific_input_descriptors_from_static_config(cls, **kwargs: Any) -> List[Property]:
+        # Fallback (we already provided explicit descriptors in __init__)
+        return [
+            ListProperty(
+                name=cls.INPUT,
+                description="retrieved documents to sanitize",
+                item_type=DictProperty(
+                    name="inner_dict",
+                    key_type=StringProperty("inner_key"),
+                    value_type=AnyProperty("inner_value"),
+                ),
+            )
+        ]
+
+    @classmethod
+    def _compute_step_specific_output_descriptors_from_static_config(cls, **kwargs: Any) -> List[Property]:
+        # Fallback (we already provided explicit descriptors in __init__)
+        return [
+            ListProperty(
+                name=cls.OUTPUT,
+                description="sanitized retrieved documents",
+                item_type=DictProperty(
+                    name="inner_dict",
+                    key_type=StringProperty("inner_key"),
+                    value_type=AnyProperty("inner_value"),
+                ),
+            )
+        ]
+
+    @staticmethod
+    def _to_base_types(obj: Any) -> Any:
+        # Allow only base Python types; coerce everything else to str
+        if isinstance(obj, (str, int, float, bool)) or obj is None:
+            return obj
+        if isinstance(obj, dict):
+            # Keys can be non-str (e.g., sqlalchemy.quoted_name) -> force to str
+            return {str(k): StringifyJinjaInputsStep._to_base_types(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple, set)):
+            return [StringifyJinjaInputsStep._to_base_types(v) for v in obj]
+        # Fallback
+        try:
+            return str(obj)
+        except Exception:
+            return repr(obj)
+
+    def _invoke_step(self, inputs: Dict[str, Any], conversation: "FlowConversation") -> StepResult:
+        documents = inputs.get(self.INPUT, [])
+        sanitized = self._to_base_types(documents)
+        return StepResult(outputs={self.OUTPUT: sanitized})
+# .. end-##_Flow_Sanitize_Inputs
 
 # .. start-##_Flow_Steps_Rag
 from textwrap import dedent
@@ -327,6 +421,8 @@ user_input_step = InputMessageStep(
 search_step = SearchStep(
     datastore=datastore, collection_name="motorcycles", k=3, search_config="motorcycle_search"
 )
+
+sanitize_step = StringifyJinjaInputsStep()
 
 llm_response_step = PromptExecutionStep(
     prompt_template=dedent(
@@ -365,6 +461,7 @@ steps = {
     "start": start_step,
     "input": user_input_step,
     "search": search_step,
+    "sanitize": sanitize_step,
     "respond": llm_response_step,
     "complete": complete_step,
 }
@@ -372,7 +469,8 @@ steps = {
 control_flow_edges = [
     ControlFlowEdge(source_step=start_step, destination_step=user_input_step),
     ControlFlowEdge(source_step=user_input_step, destination_step=search_step),
-    ControlFlowEdge(source_step=search_step, destination_step=llm_response_step),
+    ControlFlowEdge(source_step=search_step, destination_step=sanitize_step),
+    ControlFlowEdge(source_step=sanitize_step, destination_step=llm_response_step),
     ControlFlowEdge(source_step=llm_response_step, destination_step=complete_step),
 ]
 
@@ -391,10 +489,16 @@ data_flow_edges = [
         destination_step=llm_response_step,
         destination_input="user_query",
     ),
-    # Pass retrieved documents to LLM
+    # Sanitize retrieved documents before passing to LLM (ensure base Python types only)
     DataFlowEdge(
         source_step=search_step,
         source_output=SearchStep.DOCUMENTS,
+        destination_step=sanitize_step,
+        destination_input=StringifyJinjaInputsStep.INPUT,
+    ),
+    DataFlowEdge(
+        source_step=sanitize_step,
+        source_output=StringifyJinjaInputsStep.OUTPUT,
         destination_step=llm_response_step,
         destination_input="retrieved_documents",
     ),
