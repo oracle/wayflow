@@ -359,18 +359,21 @@ from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
 
 # Build the RAG flow
+complete_step = CompleteStep()
+
 steps = {
     "start": start_step,
     "input": user_input_step,
     "search": search_step,
     "respond": llm_response_step,
+    "complete": complete_step,
 }
 
 control_flow_edges = [
     ControlFlowEdge(source_step=start_step, destination_step=user_input_step),
     ControlFlowEdge(source_step=user_input_step, destination_step=search_step),
     ControlFlowEdge(source_step=search_step, destination_step=llm_response_step),
-    ControlFlowEdge(source_step=llm_response_step, destination_step=CompleteStep()),
+    ControlFlowEdge(source_step=llm_response_step, destination_step=complete_step),
 ]
 
 data_flow_edges = [
