@@ -149,9 +149,8 @@ Improvements
 
 * **Added support for reasoning for certain OpenAI compatible models**
 
-  The ``extra_content`` returned by some OpenAI-compatible APIs is now tracked
-  as part of messages and tool_requests. Some models may see improved performance
-  from having access to additional reasoning signatures from previous rounds in the conversation.
+  The ``extra_content`` returned by Gemini's OpenAI-compatible APIs is now tracked
+  as part of messages and tool_requests. Gemini reasoning models are now supported.
 
 
 Possibly Breaking Changes
