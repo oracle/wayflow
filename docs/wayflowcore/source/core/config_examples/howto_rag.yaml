@@ -1,0 +1,301 @@
+component_type: ExtendedAgent
+id: 6be99be6-1540-4a0f-897e-2036b7c459b0
+name: agent_f607ea30__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: 5461e0f4-7270-449b-983a-1fdb41e15845
+  name: llm_ce3b3e36__auto
+  description: null
+  metadata:
+    __metadata_info__: {}
+  default_generation_parameters:
+    max_tokens: 512
+  url: host_url.com
+  model_id: meta-llama/Meta-Llama-3.1-8B-Instruct
+system_prompt: '
+
+  You are a helpful motorcycle garage assistant with access to our motorcycle database.
+
+
+  IMPORTANT:
+
+  - Always search for relevant information before answering questions about motorcycles
+
+  - Base your answers on the search results
+
+  - If you can''t find relevant information, say so clearly
+
+  - Be specific and mention details from the search results
+
+
+  You have access to search tools that can find information about:
+
+  - Motorcycle models and specifications
+
+  - Owners of motorcycles
+
+  - Horsepower and performance details
+
+  - Descriptions and features
+
+  '
+tools:
+- component_type: PluginToolFromToolBox
+  id: e6901838-1fd1-44fe-bfa3-214727719124
+  name: search_motorcycles
+  description: "Search for Motorcycles in our garage in the database using semantic\
+    \ similarity.\n\nThis tool searches the motorcycles collection for entities that\
+    \ match the given query.\nIt returns exactly 3 matching records with their properties\
+    \ and similarity scores.\nUse this tool when you need to find information about\
+    \ Motorcycles in our garage.\n\nParameters\n----------\nquery : str\n    The search\
+    \ query string to find relevant Motorcycles in our garage.\n"
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs: []
+  tool_name: search_motorcycles
+  toolbox:
+    component_type: PluginSearchToolBox
+    id: d09ff0dc-3ed5-40ae-8dd2-9d66fa08c460
+    name: search_toolbox6abbf352__auto
+    description: null
+    metadata: {}
+    collection_names: null
+    k: 3
+    datastore:
+      component_type: PluginOracleDatabaseDatastore
+      id: cea31a0d-ea61-4730-b982-18ee3572d036
+      name: oracle_datastorebac11430__auto
+      description: null
+      metadata: {}
+      datastore_schema:
+        motorcycles:
+          description: Motorcycles in our garage
+          title: ''
+          properties:
+            description:
+              type: string
+              description: Detailed description of the motorcycle
+            owner_name:
+              description: Name of the motorcycle owner
+              type: string
+            model_name:
+              description: Motorcycle model and brand
+              type: string
+            hp:
+              description: Horsepower of the motorcycle
+              type: integer
+            serialized_text:
+              description: Concatenated string of all columns
+              type: string
+            embeddings:
+              description: Generated embeddings for serialized_text
+              type: array
+              items:
+                type: number
+              x_vector_property: true
+      connection_config:
+        component_type: PluginTlsOracleDatabaseConnectionConfig
+        id: a4c8fc8a-6200-4b1b-88f2-489419b5a8cb
+        name: PluginTlsOracleDatabaseConnectionConfig
+        description: null
+        metadata: {}
+        user: user
+        password: password
+        dsn: dsn
+        config_dir: null
+        component_plugin_name: DatastorePlugin
+        component_plugin_version: 25.4.1
+      search_configs:
+      - component_type: PluginSearchConfig
+        id: a5f4ce97-150f-4b76-bae9-5e157d11d64a
+        name: motorcycle_search
+        description: null
+        metadata: {}
+        retriever:
+          component_type: PluginVectorRetrieverConfig
+          id: 893ddb4a-0350-45ad-a01b-2222a4bbb71f
+          name: motorcycles
+          description: null
+          metadata: {}
+          model:
+            component_type: PluginVllmEmbeddingConfig
+            id: df506ab3-5d76-47b5-80b8-19d9b293a067
+            name: embedding_modeld79566c9__auto
+            description: null
+            metadata: {}
+            url: model_url.com
+            model_id: intfloat/e5-large-v2
+            component_plugin_name: EmbeddingModelPlugin
+            component_plugin_version: 25.4.1
+          collection_name: motorcycles
+          vectors: null
+          distance_metric: cosine_distance
+          index_params: {}
+          component_plugin_name: VectorRetrieverConfigPlugin
+          component_plugin_version: 25.4.1
+        component_plugin_name: SearchConfigPlugin
+        component_plugin_version: 25.4.1
+      vector_configs: []
+      component_plugin_name: DatastorePlugin
+      component_plugin_version: 25.4.1
+    component_plugin_name: SearchToolBoxPlugin
+    component_plugin_version: 25.4.1
+  component_plugin_name: ToolFromToolBoxPlugin
+  component_plugin_version: 25.4.1
+toolboxes: []
+context_providers: null
+can_finish_conversation: false
+max_iterations: 10
+initial_message: Hello! I'm your RAG-powered motorcycle assistant. I can search our
+  database to answer your questions about the motorcycles in our garage.
+caller_input_mode: always
+agents: []
+flows: []
+agent_template:
+  component_type: PluginPromptTemplate
+  id: 31ba4592-5627-4d8e-ba21-cd39e2a4cf56
+  name: ''
+  description: null
+  metadata:
+    __metadata_info__: {}
+  messages:
+  - role: system
+    contents:
+    - type: text
+      content: '{%- if __TOOLS__ -%}
+
+        Environment: ipython
+
+        Cutting Knowledge Date: December 2023
+
+
+        You are a helpful assistant with tool calling capabilities. Only reply with
+        a tool call if the function exists in the library provided by the user. If
+        it doesn''t exist, just reply directly in natural language. When you receive
+        a tool call response, use the output to format an answer to the original user
+        question.
+
+
+        You have access to the following functions. To call a function, please respond
+        with JSON for a function call.
+
+        Respond in the format {"name": function name, "parameters": dictionary of
+        argument name and its value}.
+
+        Do not use variables.
+
+
+        [{% for tool in __TOOLS__%}{{tool.to_openai_format() | tojson}}{{'', '' if
+        not loop.last}}{% endfor %}]
+
+        {%- endif -%}
+
+        '
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-10-29T10:21:46.793553+00:00'
+    time_updated: '2025-10-29T10:21:46.793554+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: '{%- if custom_instruction -%}Additional instructions:
+
+        {{custom_instruction}}{%- endif -%}'
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-10-29T10:21:46.793585+00:00'
+    time_updated: '2025-10-29T10:21:46.793585+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: $$__CHAT_HISTORY_PLACEHOLDER__$$
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-10-29T10:21:46.790207+00:00'
+    time_updated: '2025-10-29T10:21:46.790208+00:00'
+  - role: system
+    contents:
+    - type: text
+      content: "{% if __PLAN__ %}The current plan you should follow is the following:\
+        \ \n{{__PLAN__}}{% endif %}"
+    tool_requests: null
+    tool_result: null
+    display_only: false
+    sender: null
+    recipients: []
+    time_created: '2025-10-29T10:21:46.793609+00:00'
+    time_updated: '2025-10-29T10:21:46.793609+00:00'
+  output_parser:
+    component_type: PluginJsonToolOutputParser
+    id: b7249231-a601-42b9-8a6d-61ec5d9d4799
+    name: jsontool_outputparser
+    description: null
+    metadata:
+      __metadata_info__: {}
+    tools: null
+    component_plugin_name: OutputParserPlugin
+    component_plugin_version: 25.4.1
+  inputs:
+  - description: '"__TOOLS__" input variable for the template'
+    title: __TOOLS__
+  - description: '"custom_instruction" input variable for the template'
+    type: string
+    title: custom_instruction
+  - description: '"__PLAN__" input variable for the template'
+    type: string
+    title: __PLAN__
+    default: ''
+  - type: array
+    items: {}
+    title: __CHAT_HISTORY__
+  pre_rendering_transforms: null
+  post_rendering_transforms:
+  - component_type: PluginRemoveEmptyNonUserMessageTransform
+    id: 929d8caf-ef98-4328-b961-658f9b027603
+    name: removeemptynonusermessage_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 25.4.1
+  - component_type: PluginCoalesceSystemMessagesTransform
+    id: 68ff19d3-c152-47a1-98fa-0597fbe6fd8c
+    name: coalescesystemmessage_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 25.4.1
+  - component_type: PluginLlamaMergeToolRequestAndCallsTransform
+    id: 68024b92-c2fd-4ec4-ada8-42589c54b480
+    name: llamamergetoolrequestandcalls_messagetransform
+    description: null
+    metadata:
+      __metadata_info__: {}
+    component_plugin_name: MessageTransformPlugin
+    component_plugin_version: 25.4.1
+  tools: null
+  native_tool_calling: false
+  response_format: null
+  native_structured_generation: true
+  generation_config: null
+  component_plugin_name: PromptTemplatePlugin
+  component_plugin_version: 25.4.1
+component_plugin_name: AgentPlugin
+component_plugin_version: 25.4.1
+agentspec_version: 25.4.1
