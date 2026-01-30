@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import logging
+import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
@@ -28,7 +29,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     A Remote tool is a ServerTool that performs a web request.
 
     .. caution::
-        Since the Agent can generate arguments (url, method, json_body, data, params, headers,
+        Since the Agent can generate arguments (url, method, data, params, headers,
         cookies) or parts of these arguments in the respective Jinja templates, this can impose a
         security risk of information leakage and enable specific attack vectors like automated DDOS
         attacks. Please use ``RemoteTool`` responsibly and ensure that only valid URLs can be given
@@ -49,23 +50,21 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         HTTP method to call.
         Common methods are: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE.
         Can be templated using jinja templates.
-    json_body
-        A json-serializable object that will automatically be converted to json and sent as a body.
-        Cannot be used in combination with ``data``.
+
+    data
+        Data that will be sent in the body.
+
+        If the header ``Content-Type": "application/x-www-form-urlencoded"`` is provided
+        and if it is a dictionary, then it is inferred as form-data to be sent through the http request.
+
+        If such a header is not given, then it will be sent as either the JSON object or the bytes content.
+        Cannot be used in combination with the deprecated ``json_body``.
         Can be templated using jinja templates.
 
         .. note::
-            Special case: if the ``json_body`` is a ``str`` it will be taken as a literal json string.
-            Setting this parameter automatically sets the ``Content-Type: application/json`` header.
-
-        .. warning::
-            The ``json_body`` parameter is only relevant for http methods that allow bodies, e.g. POST, PUT, PATCH.
-
-    data
-        Raw data that will be sent in the body.
-        Semantics of this are the same as in the ``requests`` library.
-        Cannot be used in combination with ``json_body``.
-        Can be templated using jinja templates.
+            Special case: if the ``data`` is a ``str`` it will be tried to taken as a literal json string.
+            Setting this parameter automatically sets the ``Content-Type: application/json``
+            header if the header does not correspond to form-data (``Content-Type": "application/x-www-form-urlencoded``).
 
         .. warning::
             The ``data`` parameter is only relevant for http methods that allow bodies, e.g. POST, PUT, PATCH.
@@ -79,7 +78,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         Keys of ``sensitive_headers`` and ``headers`` dictionaries cannot overlap.
 
         .. note::
-            This will override any of the implicitly set headers (e.g. ``Content-Type`` from ``json_body``).
+            This will override any of the implicitly set headers (e.g. ``Content-Type`` from ``data``).
     sensitive_headers
         Explicitly set headers that contain sensitive information.
         These headers will behave equivalently to the ``headers`` parameter, but it will be excluded
@@ -168,7 +167,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     ...         ),
     ...     ],
     ...     method="PUT",
-    ...     json_body={"fields": {"customfield_12602": "{{root_cause}}"}},
+    ...     data={"fields": {"customfield_12602": "{{root_cause}}"}},
     ...     headers={
     ...         "Authorization": f"Bearer {JIRA_ACCESS_TOKEN}",
     ...         "Content-Type": "application/json",
@@ -193,8 +192,8 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     description: str
     url: str
     method: str
-    json_body: Optional[Any]
-    data: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]]
+    json_body: Optional[Any]  # Deprecated, will be removed in version 26.2.0
+    data: Optional[Any]
     params: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]]
     headers: Optional[Dict[str, str]]
     sensitive_headers: Optional[Dict[str, str]]
@@ -218,8 +217,8 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         method: str,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        json_body: Optional[Any] = None,
-        data: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]] = None,
+        json_body: Optional[Any] = None,  # Deprecated, will be removed in version 26.2.0
+        data: Optional[Any] = None,
         params: Optional[Union[Dict[Any, Any], List[Tuple[Any, Any]], str, bytes]] = None,
         headers: Optional[Dict[str, str]] = None,
         sensitive_headers: Optional[Dict[str, str]] = None,
@@ -243,6 +242,14 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         from wayflowcore.steps import ApiCallStep
 
         step_output = ApiCallStep.HTTP_RESPONSE if output_jq_query is None else "step_output"
+        if json_body:
+            warnings.warn(
+                "Usage of `json_body` parameter in RemoteTool is Deprecated, it will be removed in version 26.2.0, Please use the `data` parameter instead.",
+                DeprecationWarning,
+            )
+            data = json_body
+            json_body = None
+
         api_call_step = ApiCallStep(
             url=url,
             method=method,

@@ -208,3 +208,16 @@ def test_agent_can_use_a_simple_remote_tool(patched_request, remotely_hosted_llm
     )
     agent_message = conversation.get_last_message().content
     assert "45" in agent_message  # The speed of the winds
+
+
+def test_remote_tool_warns_with_json_body():
+    with pytest.warns(
+        DeprecationWarning, match="Usage of `json_body` parameter in RemoteTool is Deprecated"
+    ):
+        remote_tool = RemoteTool(
+            name="get_example_tool",
+            description="does a GET request to the example domain",
+            url="https://example.com/version/{{version}}/documents/{{ document_id }}",
+            json_body="{{param1}}",
+            method="GET",
+        )
