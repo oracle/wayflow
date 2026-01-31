@@ -54,6 +54,7 @@ def test_examples_in_docstrings_can_be_successfully_ran(
     remote_gemma_llm: VllmModel,
     test_with_llm_fixture,
     file_path: str,
+    with_mcp_enabled,
 ) -> None:
     if ONLY_FILE_VAR in os.environ and os.environ[ONLY_FILE_VAR] not in file_path:
         pytest.skip(f"Skipping because we only want to run {os.environ[ONLY_FILE_VAR]}")

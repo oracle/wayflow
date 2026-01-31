@@ -20,6 +20,7 @@ from wayflowcore.transforms import ConversationSummarizationTransform, MessageSu
 from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
 
 from ..conftest import mock_llm, patch_streaming_llm
+from ..testhelpers.patching import patch_llm
 from .conftest import (
     _testing_message_transform,
     at_least_one_keyword_present,
@@ -627,7 +628,7 @@ def test_summarization_transform_removes_expired_messages(
 
     cache_key = ""
     if transform_type == MessageSummarizationTransform:
-        cache_key = str(first_conv.id) + "_1_content"  # second message is the long one.
+        cache_key = str(first_conv.id) + "_1_content"  # second message in the list is the long one.
     elif transform_type == ConversationSummarizationTransform:
         cache_key = str(first_conv.id)
 
@@ -1075,14 +1076,17 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
             ),
         ),
     ]
-
-    # even if min_num_messages = 2, we can't summarize the last 3 together because they lack tool request with id: id1.
+    # even if min_num_messages = 2, we can't summarize the first 3 together because they lack tool results with id: id1.
     summarization_llm = mock_llm()
     transform = ConversationSummarizationTransform(
         llm=summarization_llm, max_num_messages=3, min_num_messages=2
     )
     agent_llm = mock_llm()
-    agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
+    agent = Agent(
+        llm=agent_llm,
+        tools=[],
+        transforms=[transform],
+    )
 
     conv = agent.start_conversation()
     for message in conversation:
@@ -1105,3 +1109,50 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
             ]
 
             assert len(transformed_messages) == 5
+
+
+@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
+def test_agent_transforms_should_run_before_canonicalization_with_gemma(remote_gemma_llm):
+
+    main_content = (
+        "Absolutely! Dolphins are fascinating creatures, famous for their intelligence and complex behavior. "
+        "For example, they have been observed using tools, such as covering their snouts with sponges to protect themselves "
+        "while foraging on the seafloor"
+    )
+    messages = [Message(role="user", content=main_content) for _ in range(4)]
+
+    summarization_transform = ConversationSummarizationTransform(
+        llm=remote_gemma_llm,
+        max_num_messages=3,
+        min_num_messages=1,
+    )
+
+    agent = Agent(llm=remote_gemma_llm, tools=[], transforms=[summarization_transform])
+
+    conv = agent.start_conversation()
+    for m in messages:
+        conv.append_message(m)
+
+    summary = "Summarized conversation"
+    mock_generate_summary = AsyncMock(
+        side_effect=lambda prompt: LlmCompletion(Message(summary), None)
+    )
+
+    with patch_llm(remote_gemma_llm, ["Mock Gemma response"]) as (_, patched_gemma_llm):
+        with patch.object(remote_gemma_llm, "generate_async", mock_generate_summary):
+            conv.execute()
+
+            transformed_messages = [
+                message
+                for prompts, _ in patched_gemma_llm.call_args_list
+                for prompt in prompts
+                for message in prompt.messages
+            ]
+
+            # CanonicalizationMessageTransform should merge the summary and the last message into a single message.
+            assert len(transformed_messages) == 1
+            # If CanonicalizationMessageTransform runs AFTER ConversationSummarizationTransform
+            # then summarization should happen.
+            assert mock_generate_summary.call_count > 0
+            # The messages received by the LLM were summarized.
+            assert len(transformed_messages[0].content) <= len(main_content) * 2

@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import logging
+import warnings
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Sequence, Union, cast
@@ -239,27 +240,55 @@ class PromptTemplate(DataclassComponent):
         return new_template
 
     def with_additional_post_rendering_transform(
-        self, transform: MessageTransform, append: bool = True
+        self,
+        transform: MessageTransform,
+        append_last: Optional[bool] = None,
+        append: Optional[bool] = None,  # deprecated
     ) -> "PromptTemplate":
         """Returns a copy of the prompt template with an additional post rendering transform"""
+        if append is not None and append_last is not None:
+            raise ValueError("Cannot specify both 'append' and 'append_last'. Use 'append_last'.")
+        if append is not None:
+            warnings.warn(
+                "The 'append' parameter is deprecated and will be removed in version 26.3. Use 'append_last' instead.",
+                DeprecationWarning,
+            )
+            append_last = append
+        if append_last is None:
+            append_last = True
+
         new_template = self.copy()
         new_template.post_rendering_transforms = (
-            ([transform] if not append else [])
+            ([transform] if not append_last else [])
             + (new_template.post_rendering_transforms or [])
-            + ([transform] if append else [])
+            + ([transform] if append_last else [])
         )
         new_template.__post_init__()
         return new_template
 
     def with_additional_pre_rendering_transform(
-        self, transform: MessageTransform, append: bool = True
+        self,
+        transform: MessageTransform,
+        append_last: Optional[bool] = None,
+        append: Optional[bool] = None,  # deprecated
     ) -> "PromptTemplate":
         """Returns a copy of the prompt template with an additional pre rendering transform"""
+        if append is not None and append_last is not None:
+            raise ValueError("Cannot specify both 'append' and 'append_last'. Use 'append_last'.")
+        if append is not None:
+            warnings.warn(
+                "The 'append' parameter is deprecated and will be removed in version 26.3. Use 'append_last' instead.",
+                DeprecationWarning,
+            )
+            append_last = append
+        if append_last is None:
+            append_last = True
+
         new_template = self.copy()
         new_template.pre_rendering_transforms = (
-            ([transform] if not append else [])
+            ([transform] if not append_last else [])
             + (new_template.pre_rendering_transforms or [])
-            + ([transform] if append else [])
+            + ([transform] if append_last else [])
         )
         new_template.__post_init__()
         return new_template
