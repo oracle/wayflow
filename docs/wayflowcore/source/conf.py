@@ -68,6 +68,8 @@ if stable_release is None:
 WARNINGS_TO_FILTER_OUT = [
     "Failed guarded type import with ImportError(\"cannot import name 'AbstractSetIntStr'",
     'Cannot handle as a local function: "wayflowcore.agentspec.components.nodes.ExtendedLlmNode.check_either_prompt_str_or_object_is_used" (use @functools.wraps)',
+    "py:class reference target not found: wayflowcore.mcp.mcphelpers.ToolOutuptTypeT",
+    "py:class reference target not found: wayflowcore.mcp.mcphelpers.ContextType",
 ]
 
 

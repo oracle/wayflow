@@ -16,6 +16,17 @@ Bug fixes
 WayFlow 26.1.1
 --------------
 
+New features
+^^^^^^^^^^^^
+
+* **Tool output streaming:**
+
+  Added a new event ``ToolExecutionStreamingChunkReceived`` to surface streamed tool chunks during tool execution.
+  Tool output streaming is supported for MCP tools and for ``ServerTool`` with async-generator callables.
+
+  Check the guide on :ref:`How to enable tool output streaming <top-tooloutputstreaming>` for more information.
+
+
 Bug fixes
 ^^^^^^^^^
 

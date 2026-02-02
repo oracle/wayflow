@@ -3,18 +3,43 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+
+import inspect
 import json
 import logging
+from collections.abc import AsyncGenerator as cAsyncGenerator
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import Any, Dict, List, Optional, cast
+from functools import wraps
+from typing import (
+    Any,
+    AsyncGenerator,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Protocol,
+    Type,
+    TypedDict,
+    TypeVar,
+    cast,
+    get_args,
+    get_origin,
+)
 
 from exceptiongroup import ExceptionGroup
 from httpx import ConnectError
 from mcp import ClientSession
 from mcp import types as types
+from mcp.server.fastmcp import Context
+from mcp.server.session import ServerSessionT
+from mcp.shared.context import LifespanContextT, RequestT
 
+from wayflowcore.events.event import ToolExecutionStreamingChunkReceivedEvent
+from wayflowcore.events.eventlistener import record_event
 from wayflowcore.exceptions import NoSuchToolFoundOnMCPServerError
+from wayflowcore.mcp._session_persistence import get_mcp_async_runtime
 from wayflowcore.mcp.clienttransport import ClientTransport, ClientTransportWithAuth
 from wayflowcore.property import (
     DictProperty,
@@ -26,6 +51,7 @@ from wayflowcore.property import (
 )
 from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.tools import Tool
+from wayflowcore.tracing.span import ToolExecutionSpan, get_current_span
 
 logger = logging.getLogger(__name__)
 
@@ -171,6 +197,58 @@ def _try_handle_structured_content_from_tool_result(
         return None
 
 
+class MCPProgressMessage(TypedDict):
+    type: Literal["tool/stream"]
+    content: Any
+
+
+async def _mcp_progress_handler(progress: float, total: float | None, message: str | None) -> None:
+    if not message:
+        return
+
+    current_span = get_current_span()
+    # Progress callbacks can run in the MCP portal thread under a context that
+    # does not include the active tool span/listeners. Fall back to the runtime's
+    # last known caller context.
+    if not (current_span and isinstance(current_span, ToolExecutionSpan)):
+        # When running on the MCP async runtime portal thread, the tracing stack
+        # can be decoupled from the tool execution stack in the caller thread.
+        # AsyncRuntime.call() stores the caller's span stack in a contextvar so we
+        # can still resolve the correct ToolExecutionSpan here.
+        runtime = get_mcp_async_runtime()
+        parent_span_task = runtime.get_parent_span_stack()
+        tool_span = next(
+            (span for span in reversed(parent_span_task) if isinstance(span, ToolExecutionSpan)),
+            None,
+        )
+        if tool_span is None:
+            logger.debug(
+                "Skipping streaming chunk emission for MCP tool (no parent ToolExecutionSpan found)",
+            )
+            return
+        current_span = tool_span
+
+    if not isinstance(current_span, ToolExecutionSpan):
+        logger.debug(
+            "Skipping streaming chunk emission for MCP tool (no parent ToolExecutionSpan found)",
+        )
+        return
+
+    message_dict: MCPProgressMessage = json.loads(message)
+    message_type = message_dict["type"]
+    content = message_dict["content"]
+    if message_type == "tool/stream":
+        record_event(
+            ToolExecutionStreamingChunkReceivedEvent(
+                tool=current_span.tool,
+                tool_request=current_span.tool_request,
+                content=content,
+            )
+        )
+    else:
+        logger.warning("MCP progress type %s is not supported", message_type)
+
+
 async def _invoke_mcp_tool_call_async(
     session: ClientSession,
     tool_name: str,
@@ -178,7 +256,9 @@ async def _invoke_mcp_tool_call_async(
     output_descriptors: List[Property],
 ) -> Any:
     with _catch_and_raise_mcp_connection_errors():
-        result: types.CallToolResult = await session.call_tool(tool_name, tool_args)
+        result: types.CallToolResult = await session.call_tool(
+            tool_name, tool_args, progress_callback=_mcp_progress_handler
+        )
 
         output = _try_handle_structured_content_from_tool_result(result, output_descriptors)
         if output is not None:
@@ -365,3 +445,181 @@ async def _get_tool_on_server(
     if not isinstance(tool, Tool):
         raise ValueError("Could not retrieve tool")
     return tool
+
+
+ToolOutuptTypeT = TypeVar("ToolOutuptTypeT")
+
+
+def _extract_async_generator_inner_return_type(func: Callable[..., Any]) -> Any:
+    """
+    If func is annotated as AsyncGenerator[T, None], return T; else return Any.
+    """
+    annotations = getattr(func, "__annotations__", {}).get("return", Any)
+    origin = get_origin(annotations) or annotations
+
+    if origin in (cAsyncGenerator, AsyncGenerator):
+        # typing.AsyncGenerator is an alias of collections.abc.AsyncGenerator
+        # but they are not equal, so we need both.
+        args = get_args(annotations)
+        return args[0] if args else Any
+
+    return Any
+
+
+async def _stream_tool_output_chunk(
+    ctx: Context[ServerSessionT, LifespanContextT, RequestT], progress: int, payload: Any
+) -> None:
+    message: MCPProgressMessage = {"type": "tool/stream", "content": payload}
+    msg_str = json.dumps(message, default=str)
+    await ctx.report_progress(progress, message=msg_str)
+
+
+class ContextType(Protocol):
+    """Protocol for MCP Context object to interface to MCP's RequestContext."""
+
+    async def report_progress(
+        self, progress: float, total: float | None = None, message: str | None = None
+    ) -> None:
+        """Report progress for the current operation."""
+        ...
+
+
+def mcp_streaming_tool(
+    func: Callable[..., AsyncGenerator[ToolOutuptTypeT, None]],
+    context_cls: Optional[Type[ContextType]] = None,
+) -> Callable[..., Any]:
+    """
+    Decorate an MCP tool callable to enable streaming tool outputs.
+
+    This decorator adapts a server-side async generator tool implementation so
+    that intermediate yielded values are streamed to the client as tool output
+    events, while the final yielded value is treated as the tool's final result.
+
+    Parameters
+    ----------
+    func:
+        An async callable that returns an async generator. Each ``yield`` emits
+        a tool output chunk to be streamed. The generator should eventually
+        complete, and the last yielded value is typically interpreted as the final
+        tool result.
+    context_cls:
+        Context class used to access MCP request/response context.
+        If ``None``, the decorator uses the ``Context`` type from the official
+        MCP SDK. When using third-party MCP libraries, provide the appropriate
+        context class so the decorator can correctly locate and use the context.
+
+
+    Note
+    ----
+
+    .. important::
+
+        The wrapper primes the async generator by pulling the first (and, if available, second) item up
+        front to distinguish single-yield generators (treated as a final result with no streamed progress)
+        from multi-yield generators (where earlier yields are streamed as progress and only the last yield
+        is returned). As a result, a generator that errors after its first yield may appear to have emitted
+        progress chunks server-side even if a client only consumes/observes the final result.
+
+    Example
+    -------
+
+    >>> import anyio
+    >>> from typing import AsyncGenerator
+    >>> from mcp.server.fastmcp import FastMCP
+    >>> from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
+    >>> server = FastMCP(
+    ...     name="Example MCP Server",
+    ...     instructions="A MCP Server.",
+    ... )
+    >>> @server.tool(description="Stream intermediate outputs, then yield the final result.")
+    ... @mcp_streaming_tool
+    ... async def my_streaming_tool(topic: str) -> AsyncGenerator[str, None]:
+    ...     all_sentences = [f"{topic} part {i}" for i in range(2)]
+    ...     for i in range(2):
+    ...         await anyio.sleep(0.2)  # simulate work
+    ...         yield all_sentences[i]
+    ...     yield ". ".join(all_sentences)
+    >>>
+    >>> # server.run(transport="streamable-http")
+
+    """
+    if not inspect.isasyncgenfunction(func):
+        raise TypeError("@mcp_streaming_tool can only be applied to async generator functions")
+
+    context_cls_ = context_cls or Context
+
+    callable_signature = inspect.signature(func)
+    callable_parameters = list(callable_signature.parameters.values())
+    func_return_type = _extract_async_generator_inner_return_type(func)
+
+    # Decide whether to pass ctx into the underlying generator
+    has_ctx_parameter = "ctx" in callable_signature.parameters
+    has_kwargs_parameter = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in callable_parameters)
+
+    @wraps(func)
+    async def wrapped(
+        ctx: Context[ServerSessionT, LifespanContextT, RequestT], *args: Any, **kwargs: Any
+    ) -> Any:
+        if has_ctx_parameter and "ctx" not in kwargs:
+            kwargs["ctx"] = ctx
+        elif (not has_ctx_parameter) and has_kwargs_parameter:
+            # If user declared **kwargs, allow ctx to be consumed optionally.
+            kwargs.setdefault("ctx", ctx)
+
+        agenerator = func(*args, **kwargs)
+        try:
+            # Pull first item
+            try:
+                first = await agenerator.__anext__()
+            except StopAsyncIteration:
+                raise ValueError("Tool generator produced no items; expected at least one yield")
+
+            # Try to pull second item to determine whether `first` is final.
+            try:
+                second = await agenerator.__anext__()
+            except StopAsyncIteration:
+                # Single-yield generator: treat that item as the final result (no progress)
+                return first
+
+            progress_idx = 0
+            # We now know there is more than one item, so report `first` as progress.
+            await _stream_tool_output_chunk(ctx, progress_idx, first)
+            prev = second
+            while True:
+                progress_idx += 1
+                try:
+                    nxt = await agenerator.__anext__()
+                except StopAsyncIteration:
+                    # prev is the last element -> return as main result
+                    return prev
+
+                await _stream_tool_output_chunk(ctx, progress_idx, prev)
+                prev = nxt
+        finally:
+            try:
+                await agenerator.aclose()
+            except Exception:
+                logger.error("Encountered error while closing async generator '%s'", agenerator)
+
+    if has_ctx_parameter:
+        wrapped.__signature__ = callable_signature.replace(return_annotation=func_return_type)  # type: ignore
+    else:
+        new_params = [
+            inspect.Parameter(
+                "ctx",
+                kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                annotation=context_cls_,
+            ),
+            *callable_parameters,
+        ]
+        wrapped.__signature__ = callable_signature.replace(  # type: ignore
+            parameters=new_params, return_annotation=func_return_type
+        )
+
+    # Fix annotations so tool frameworks see a normal return type.
+    wrapped.__annotations__ = dict(getattr(func, "__annotations__", {}))
+    wrapped.__annotations__["return"] = func_return_type
+    if not has_ctx_parameter:
+        wrapped.__annotations__.setdefault("ctx", context_cls_)
+
+    return wrapped
