@@ -6,6 +6,7 @@
 
 import logging
 import re
+import time
 from typing import List, Tuple, cast
 
 import anyio
@@ -119,7 +120,7 @@ def streamablehttp_client_transport_mtls(
 def run_toolbox_test(transport: ClientTransport) -> None:
     toolbox = MCPToolBox(client_transport=transport)
     tools = toolbox.get_tools()  # need
-    assert len(tools) == 11
+    assert len(tools) == 12
     mcp_tool = next(t for t in tools if t.name == "fooza_tool")
     assert mcp_tool.run(a=1, b=2) == "7"
     assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
@@ -781,3 +782,66 @@ def test_mcp_tool_works_resource_output(sse_client_transport, with_mcp_enabled):
     assert len(tool.output_descriptors) == 1
     assert isinstance(tool.output_descriptors[0], StringProperty)
     assert "user_34_response" in tool.run(user="user_34")
+
+
+from wayflowcore.events.event import Event, ToolExecutionStreamingChunkReceived
+from wayflowcore.events.eventlistener import EventListener, register_event_listeners
+
+
+class MCPToolStreamingListener(EventListener):
+    """Custom event listener to track progress notifications from Tool Execution."""
+
+    def __init__(self):
+        self.received_chunks: list[tuple[str, float]] = []
+
+    def __call__(self, event: Event):
+        if isinstance(event, ToolExecutionStreamingChunkReceived):
+            content = event.content
+            self.received_chunks.append((content, time.time()))
+
+
+def test_streaming_mcp_tool_streams_correctly(sse_client_transport, with_mcp_enabled):
+    """
+    Measuring over 20 attempts,
+    * mean time to first chunk (s) is 0.228, max is 0.256
+    * mean delta between chunks (s) is 0.202, max is 0.212
+    """
+    MAX_TTFC = 0.5
+    MAX_DELTA = 0.5
+    tool = MCPTool(
+        name="streaming_tool",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+    listener = MCPToolStreamingListener()
+    step = ToolExecutionStep(tool=tool)
+
+    start = time.time()
+    with register_event_listeners([listener]):
+        outputs = run_step_and_return_outputs(step, inputs={})
+
+    assert outputs == {
+        ToolExecutionStep.TOOL_OUTPUT: (
+            "This is the sentence N°0. This is the sentence N°1. "
+            "This is the sentence N°2. This is the sentence N°3. "
+            "This is the sentence N°4"
+        )
+    }
+
+    chunks = listener.received_chunks
+    texts = [t for (t, _) in chunks]
+    assert texts == [
+        "This is the sentence N°0",
+        "This is the sentence N°1",
+        "This is the sentence N°2",
+        "This is the sentence N°3",
+        "This is the sentence N°4",
+    ]
+
+    times = [ts for (_, ts) in chunks]
+    ttft = times[0] - start
+    assert ttft < MAX_TTFC
+
+    deltas = [t2 - t1 for t1, t2 in zip(times, times[1:])]
+    for d in deltas:
+        assert d < MAX_DELTA

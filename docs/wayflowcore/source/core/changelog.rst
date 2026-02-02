@@ -7,6 +7,13 @@ WayFlow |release|
 New features
 ^^^^^^^^^^^^
 
+* **Tool output streaming:**
+
+  Added a new event ``ToolExecutionStreamingChunkReceived`` to surface streamed tool chunks during tool execution.
+  Tool output streaming is supported for MCP tools and for ``ServerTool`` with async-generator callables.
+
+  Check the guide on :ref:`How to enable tool output streaming <top-tooloutputstreaming>` for more information.
+
 * **Message Summarization Transforms and Datastores can be converted between Agent Spec and Wayflow**
 
   Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
