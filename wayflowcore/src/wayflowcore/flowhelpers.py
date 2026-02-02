@@ -55,6 +55,18 @@ def run_step_and_return_outputs(
     return run_flow_and_return_outputs(flow, inputs, messages=messages)
 
 
+async def run_step_and_return_outputs_async(
+    step: Step, inputs: Dict[str, Any] | None = None
+) -> Dict[str, Any]:
+
+    flow = create_single_step_flow(step)
+    conversation = flow.start_conversation(inputs or {})
+    status = await conversation.execute_async()
+    if not isinstance(status, FinishedStatus):
+        raise RuntimeError("The flow execution did not complete as expected.")
+    return status.output_values 
+
+
 def run_flow_and_return_outputs(
     flow: Flow,
     inputs: Optional[Dict[str, Any]] = None,

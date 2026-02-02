@@ -6,6 +6,8 @@
 
 import inspect
 import logging
+from collections.abc import AsyncGenerator
+from contextvars import ContextVar
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -56,6 +58,30 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+# Safety cap to prevent infinite streams in misbehaving tools
+_DEFAULT_MAX_TOOL_STREAM_CHUNKS = 300
+_GLOBAL_MAX_TOOL_STREAM_CHUNKS: ContextVar[int] = ContextVar(
+    "_GLOBAL_MAX_TOOL_STREAM_CHUNKS", default=_DEFAULT_MAX_TOOL_STREAM_CHUNKS
+)
+
+
+def set_max_tool_stream_chunks(value: int) -> None:
+    """
+    Set the maximum number of streaming chunks to emit per tool invocation.
+
+    Pass -1 to disable the cap (infinite).
+    """
+    _GLOBAL_MAX_TOOL_STREAM_CHUNKS.set(value)
+
+
+def reset_max_tool_stream_chunks() -> None:
+    """Reset the maximum streaming chunks to the default value."""
+    _GLOBAL_MAX_TOOL_STREAM_CHUNKS.set(_DEFAULT_MAX_TOOL_STREAM_CHUNKS)
+
+
+def _get_max_tool_stream_chunks() -> int:
+    return _GLOBAL_MAX_TOOL_STREAM_CHUNKS.get()
 
 
 def _get_params_with_none_default_value_from_callable(func: Callable[[Any], Any]) -> Set[str]:
@@ -221,7 +247,14 @@ class ServerTool(Tool):
         synchronous or asynchronous aspect of its `func` attribute.
         If `func` is synchronous, it will run in an anyio worker thread.
         """
-        if is_coroutine_function(self.func):
+        if inspect.isgeneratorfunction(self.func):
+            raise TypeError(
+                "Synchronous generator tool callable is not supported. "
+                "To use tool output streaming please use an async generator."
+            )
+        elif inspect.isasyncgenfunction(self.func):
+            return await self._run_async_generator_streaming(*args, **kwargs)
+        elif is_coroutine_function(self.func):
             tool_outputs = await self.func(*args, **kwargs)
             return self._add_defaults_to_tool_outputs(tool_outputs)
         else:
@@ -239,7 +272,17 @@ class ServerTool(Tool):
         Runs the tool in a synchronous manner, no matter the
         synchronous or asynchronous aspect of its `func` attribute.
         """
-        if not is_coroutine_function(self.func):
+        if inspect.isgeneratorfunction(self.func):
+            raise TypeError(
+                "Synchronous generator tool callable is not supported. "
+                "To use tool output streaming please use an async generator."
+            )
+        elif inspect.isasyncgenfunction(self.func):
+            raise TypeError(
+                "Async-generator tools must be run inside a conversation to enable streaming, and cannot "
+                "be executed via 'run' method directly. Please run an assistant conversation instead."
+            )
+        elif not is_coroutine_function(self.func):
             return self._add_defaults_to_tool_outputs(self.func(*args, **kwargs))
         else:
             # wrap to handle named arguments
@@ -319,6 +362,75 @@ class ServerTool(Tool):
         )
 
         return tool_result
+    
+
+    async def _run_async_generator_streaming(self, *args: Any, **kwargs: Any) -> Any:
+        """
+        Execute an async-generator tool with streaming support.
+
+        This method pulls the first two yielded items up-front to distinguish single-yield
+        generators from multi-yield generators.
+        - If only one item is yielded, it is returned directly with no streaming events.
+        Behavior:
+        - If two or more items are present, the method emits streaming events for every
+          yielded item except the last one, and returns the last item as the final tool
+          output.
+
+        """
+        from wayflowcore.events.event import ToolExecutionStreamingChunkReceivedEvent
+        from wayflowcore.events.eventlistener import record_event
+        from wayflowcore.tracing.span import ToolExecutionSpan, get_current_span
+
+        agenerator: AsyncGenerator[Any, None] = self.func(*args, **kwargs)
+        chunk_count = 0
+        max_allowed_chunks = _get_max_tool_stream_chunks()
+        # 1. Pull first chunk
+        try:
+            first_chunk = await agenerator.__anext__()
+        except StopAsyncIteration:
+            raise ValueError(
+                f"Streaming tool '{self.name}' produced no items; expected at least one yield"
+            )
+
+        # 2. Attempt to pull second chunk, return if generator was single-yield
+        try:
+            second_chunk = await agenerator.__anext__()
+        except StopAsyncIteration:
+            return self._add_defaults_to_tool_outputs(first_chunk)
+
+        def _emit_tool_streaming_event(content: Any) -> None:
+            current_span = get_current_span()
+            if isinstance(current_span, ToolExecutionSpan):
+                record_event(
+                    ToolExecutionStreamingChunkReceivedEvent(
+                        tool=self,
+                        tool_request=current_span.tool_request,
+                        content=content,
+                    )
+                )
+            else:
+                logger.debug(
+                    "Skipping streaming chunk emission for tool '%s' (no parent ToolExecutionSpan found)",
+                    self.name,
+                )
+
+        # 3. Else (multi-yield generator), emit streaming events until last chunk is pulled
+        _emit_tool_streaming_event(first_chunk)
+        chunk_count += 1
+        previous_chunk = second_chunk
+        while True:
+            if max_allowed_chunks != -1 and chunk_count >= max_allowed_chunks:
+                await agenerator.aclose()  # close generator to avoid background work/leaks
+                raise ValueError(
+                    f"Reached max iteration number when running streaming tool '{self.name}'"
+                )
+            try:
+                next_chunk = await agenerator.__anext__()
+            except StopAsyncIteration:
+                return self._add_defaults_to_tool_outputs(previous_chunk)
+            _emit_tool_streaming_event(previous_chunk)
+            chunk_count += 1
+            previous_chunk = next_chunk
 
     @classmethod
     def from_langchain(cls, tool: LangchainToolTypeT) -> "ServerTool":

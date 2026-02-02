@@ -31,6 +31,7 @@ from mcp import ClientSession
 from typing_extensions import TypeAlias
 
 from wayflowcore._utils.singleton import Singleton
+from wayflowcore.tracing.span import _ACTIVE_SPAN_STACK, Span, get_active_span_stack
 
 if TYPE_CHECKING:
     from wayflowcore.mcp.clienttransport import ClientTransport
@@ -44,6 +45,29 @@ logger = logging.getLogger(__name__)
 
 _DEFAULT_MCP_SESSION_CONTEXT_ID = "DEFAULT_CONTEXT_ID"
 """Default key used to register a MCP session when not running under a conversation."""
+
+
+def get_current_conv_id_or_default() -> str:
+    from wayflowcore.conversation import _get_current_conversation_id
+
+    return _get_current_conversation_id() or _DEFAULT_MCP_SESSION_CONTEXT_ID
+
+
+async def _call_with_parent_span(
+    parent_span_stack: list[Span],
+    async_fn: Callable[..., Awaitable[T]],
+    /,
+    *args: Any,
+    **kwargs: Any,
+) -> T | Awaitable[T]:
+    token = _ACTIVE_SPAN_STACK.set(parent_span_stack)
+    try:
+        result = async_fn(*args, **kwargs)
+        if hasattr(result, "__await__"):
+            return await result
+        return result
+    finally:
+        _ACTIVE_SPAN_STACK.reset(token)
 
 
 class AsyncRuntime(metaclass=Singleton):
@@ -72,6 +96,10 @@ class AsyncRuntime(metaclass=Singleton):
         # client session per conversation id
         self._memory_streams: List[MemoryStreamTypeT] = []
         self._cancel_events: List[anyio.Event] = []
+        # Cross-call portal state used by MCP progress callbacks.
+        # This is a pragmatic workaround for contextvar propagation issues when the
+        # portal task is created long before tool execution.
+        self._portal_parent_span_stack: Dict[str, List[Span]] = {}
 
     def initialize(self) -> None:
         if self._portal is not None:
@@ -103,7 +131,27 @@ class AsyncRuntime(metaclass=Singleton):
         """This method should be called to ensure that an async method is called from the portal when in a sync context."""
         if self._portal is None:
             raise RuntimeError("Async runtime not started")
-        return self._portal.call(async_fn, *args, **kwargs)
+
+        # contextvars.copy_context() does not propagate correctly through anyio's
+        # BlockingPortal on all code paths (notably when toolboxes trigger MCP
+        # schema fetches before tool execution). To ensure tool progress callbacks
+        # can resolve the active ToolExecutionSpan, explicitly forward the current
+        # WayFlow span stack + event listeners to the portal task.
+        parent_span_stack = get_active_span_stack(return_copy=True)
+
+        # Store the most recent caller context on the runtime so callbacks that are
+        # invoked later (e.g., MCP progress callbacks inside a long-lived session
+        # created earlier) can still access the correct span/listeners.
+        conversation_id = get_current_conv_id_or_default()
+        self._portal_parent_span_stack[conversation_id] = parent_span_stack
+
+        return self._portal.call(  # type: ignore
+            _call_with_parent_span,
+            parent_span_stack,
+            async_fn,
+            *args,
+            **kwargs,
+        )
 
     async def call_async(
         self, async_fn: Callable[..., Awaitable[T]], /, *args: Any, **kwargs: Any
@@ -120,14 +168,17 @@ class AsyncRuntime(metaclass=Singleton):
 
         This method MUST NOT be called within a portal.call (for cancellation scope reasons).
         """
-        from wayflowcore.conversation import _get_current_conversation_id
-
-        key = _get_current_conversation_id() or _DEFAULT_MCP_SESSION_CONTEXT_ID
+        key = get_current_conv_id_or_default()
         if key not in self._sessions:
             session = self._create_long_lived_session(client_transport)
             self._sessions[key] = session
 
         return self._sessions[key]
+
+    def get_parent_span_stack(self) -> List[Span]:
+        # called by the _mcp_progress_handler
+        conversation_id = get_current_conv_id_or_default()
+        return self._portal_parent_span_stack.get(conversation_id, [])
 
     def _create_long_lived_session(
         self,

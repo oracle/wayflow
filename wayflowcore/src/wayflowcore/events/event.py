@@ -488,6 +488,36 @@ class ToolExecutionResultEvent(EndSpanEvent["ToolExecutionSpan"]):
 
 
 @dataclass(frozen=True)
+class ToolExecutionStreamingChunkReceivedEvent(EndSpanEvent["ToolExecutionSpan"]):
+    """
+    This event is recorded whenever a tool output is being streamed.
+    """
+
+    tool: Tool = field(default_factory=_required_attribute("tool", Tool))
+    """Tool that triggered this event"""
+    tool_request: ToolRequest = field(
+        default_factory=_required_attribute("tool_request", ToolRequest)
+    )
+    """ToolRequest object containing the id of the tool request made as well as the tool call's inputs"""
+    content: Any = field(default_factory=_required_attribute("content", Any))
+    """The content of the chunk received from the tool execution"""
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            "tool_request.inputs": (
+                _convert_dict_to_dict_with_stringified_values(self.tool_request.args)
+                if not mask_sensitive_information
+                else _PII_TEXT_MASK
+            ),
+            "tool_request.tool_request_id": self.tool_request.tool_request_id,
+            "content": (
+                stringify(self.content) if not mask_sensitive_information else _PII_TEXT_MASK
+            ),
+        }
+
+
+@dataclass(frozen=True)
 class ToolConfirmationRequestStartEvent(StartSpanEvent["ToolExecutionSpan"]):
     """
     This event is recorded whenever a tool confirmation is required.

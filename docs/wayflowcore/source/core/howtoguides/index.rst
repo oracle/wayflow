@@ -91,6 +91,7 @@ and support for :ref:`Model Context Protocol (MCP) tools <mcptool>`.
    Create Tools with Multiple Outputs <howto_multiple_output_tool>
    Convert Flows to Tools <create_a_tool_from_a_flow>
    Connect MCP tools to Assistants <howto_mcp>
+   Enable Tool Output Streaming <howto_tooloutputstreaming>
    Do Remote API Calls with Tokens <howto_remote_tool_expired_token>
 
 

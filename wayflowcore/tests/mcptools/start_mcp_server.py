@@ -6,13 +6,17 @@
 import argparse
 from contextvars import ContextVar
 from os import PathLike
-from typing import Annotated, Literal, Optional
+from typing import Annotated, AsyncGenerator, Literal, Optional
 
+import anyio
+from mcp.server.fastmcp import Context
 from mcp.server.fastmcp import FastMCP as BaseFastMCP
 from mcp.types import EmbeddedResource, TextResourceContents
 from pydantic import AnyUrl, BaseModel, Field, RootModel
 from starlette.applications import Starlette
 from typing_extensions import TypedDict
+
+from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
 
 UvicornExtraConfig = TypedDict(
     "UvicornExtraConfig",
@@ -58,6 +62,13 @@ class FastMCP(BaseFastMCP):
 class GenerateTupleOut(BaseModel, title="tool_output"):
     result: tuple[
         Annotated[str, Field(title="str_output")], Annotated[bool, Field(title="bool_output")]
+    ]
+    # /!\ this needs to be named `result`
+
+
+class GenerateTupleOut2(BaseModel, title="tool_output"):
+    result: tuple[
+        Annotated[int, Field(title="int_output")], Annotated[str, Field(title="str_output")]
     ]
     # /!\ this needs to be named `result`
 
@@ -161,6 +172,37 @@ def create_server(host: str, port: int):
             ),
             type="resource",
         )
+
+    @server.tool(description="Streaming tool")
+    @mcp_streaming_tool
+    async def streaming_tool() -> AsyncGenerator[str, None]:
+        contents = [f"This is the sentence N°{i}" for i in range(5)]
+        for chunk in contents:
+            yield chunk  # streamed chunks
+            await anyio.sleep(0.2)
+
+        yield ". ".join(contents)  # final result
+
+    @server.tool(description="Streaming tool")
+    @mcp_streaming_tool
+    async def streaming_tool_with_ctx(ctx: Context) -> AsyncGenerator[str, None]:
+        ctx.info("Hello")
+        contents = [f"This is the sentence N°{i}" for i in range(5)]
+        for chunk in contents:
+            yield chunk  # streamed chunks
+            await anyio.sleep(0.2)
+
+        yield ". ".join(contents)  # final result
+
+    @server.tool(description="Streaming tool", structured_output=True)
+    @mcp_streaming_tool
+    async def streaming_tool_tuple() -> AsyncGenerator[GenerateTupleOut2, None]:
+        contents = [f"This is the sentence N°{i}" for i in range(5)]
+        for idx, chunk in enumerate(contents):
+            yield (idx, chunk)  # streamed chunks
+            await anyio.sleep(0.2)
+
+        yield GenerateTupleOut2(result=(5, ". ".join(contents)))  # final result
 
     return server
 

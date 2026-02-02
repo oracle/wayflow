@@ -1,0 +1,33 @@
+component_type: Agent
+id: ce59e1be-aa7a-4a38-ba89-2c3cd546d51f
+name: streaming-agent
+description: Agent that streams tool outputs
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: 424b4cf5-9eed-48bc-afa8-909524d3b6a0
+  name: llm_f95a3161__auto
+  description: null
+  metadata:
+    __metadata_info__: {}
+  default_generation_parameters: null
+  url: LLAMA_API_URL
+  model_id: LLAMA_MODEL_ID
+system_prompt: You can stream outputs from tools
+tools:
+- component_type: ServerTool
+  id: ddd75c20-0053-46b2-80e9-139277b3f4f4
+  name: my_streaming_tool
+  description: Stream intermediate outputs, then yield the final result.
+  metadata:
+    __metadata_info__: {}
+  inputs:
+  - type: string
+    title: topic
+  outputs:
+  - type: string
+    title: tool_output
+agentspec_version: 25.4.1
