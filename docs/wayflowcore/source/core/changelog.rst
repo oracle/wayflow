@@ -16,14 +16,17 @@ You can now declare your agents with summarization transforms and summary cachin
 Improvements
 ^^^^^^^^^^^^
 
-Bug fixes
-^^^^^^^^^
+Possibly Breaking Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * **Summarization Transforms now do not do caching if the datastore is None**
 
   Previously when the `datastore` arguments of `MessageSummarizationTransform` and `ConversationSummarizationTransform` were set to `None`, an in-memory datastore was automatically created. Now, the in-memory datastore is created
   only if the `datastore` is left unspecified. If it is set to `None` then no caching happens.
 
+
+Bug fixes
+^^^^^^^^^
 
 
 WayFlow 26.1.0
@@ -135,7 +138,7 @@ Improvements
   and entry lifetime. This helps manage long conversation contexts by summarizing older parts while preserving recent
   messages.
 
-  Transforms can now be assigned to an agent through its constructor.
+  Transforms can now be assigned to an agent through its constructor.  (This is not supported in `agentspec`, so attempting to convert agents with transforms to `agentspec` will raise a `NotImplementedError`)
 
 * **Improve Swarm prompt template, introduce HandoffMode and support multiple tool calls in Swarm:**
 
