@@ -22,9 +22,9 @@ from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
 from ..conftest import mock_llm, patch_streaming_llm
 from ..testhelpers.patching import patch_llm
 from .conftest import (
-    _testing_message_transform,
+    CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME,
+    MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
     at_least_one_keyword_present,
-    cache_collection_names,
     execute_conversation_check_summarizer_ran,
     get_incorrect_schemas,
 )
@@ -289,9 +289,17 @@ LONG_CONVERSATION = [
     ),
 ]
 
+filter_in_memory_datastore_warnings = pytest.mark.filterwarnings(
+    f"ignore:{_INMEMORY_USER_WARNING}:UserWarning"
+)
+
+filter_summarization_transform_with_default_in_memory_datastore_warnings = (
+    pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
+)
+
 
 def message_summarization_transform_setup(llm: LlmModel):
-    collection_name = "cache_table"
+    collection_name = MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME
     datastore = InMemoryDatastore(
         {collection_name: MessageSummarizationTransform.get_entity_definition()}
     )
@@ -340,7 +348,155 @@ def message_and_conversation_summarization_transforms_setup(llm: LlmModel):
     }
 
 
-@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+def check_transform_summarizes_long_messages_only(
+    agent, messages, long_msgs_indices, max_message_size=500
+):
+    long_messages = [m.content for m in messages if len(m.content) > max_message_size]
+    short_messages = [m.content for m in messages if len(m.content) <= max_message_size]
+    # We have this check because this test requires short and long messages.
+    assert len(long_messages) == 2 and len(short_messages) >= 3
+    conversation = agent.start_conversation()
+    for m in messages:
+        conversation.append_message(m)
+
+    with patch_streaming_llm(agent.llm, "This is a mock llm generation.") as patched_agent_llm:
+        conversation.execute()
+
+        # We will check that the messages passed to the llm where summarized iff they were long.
+        transformed_messages = [
+            message
+            for prompts, _ in patched_agent_llm.call_args_list
+            for prompt in prompts
+            for message in prompt.messages
+        ]
+        assert len(transformed_messages) == len(messages)
+
+        # These tests are not strict on purpose to avoid flakiness.
+        assert at_least_one_keyword_present(
+            ["smart", "intelligent", "social", "information", "signature"],
+            transformed_messages[long_msgs_indices[0]].content,
+        )
+        assert at_least_one_keyword_present(
+            ["memory", "20 year", "cognitive", "memories", "migrate"],
+            transformed_messages[long_msgs_indices[1]].content,
+        )
+
+        for original_message, transformed_message in zip(messages, transformed_messages):
+            if original_message.content in short_messages:
+                assert original_message.content == transformed_message.content
+            else:
+                assert len(transformed_message.content) < len(original_message.content)
+
+
+def check_conversation_summarization_transformer_summarizes_long_conversations(
+    agent, messages, max_num_messages=10
+):
+    # These tests are to ensure that our test cases cover both executed paths.
+    assert len(CONVERSATION_WITH_LONG_MESSAGES) < max_num_messages
+    assert len(LONG_CONVERSATION) > max_num_messages
+    conversation = agent.start_conversation()
+
+    for m in messages:
+        conversation.append_message(m)
+
+    with patch_streaming_llm(agent.llm, "This is a mock llm generation.") as patched_agent_llm:
+        conversation.execute()
+
+        # We will check that the messages passed to the llm where summarized iff they were long.
+        transformed_messages = [
+            message
+            for prompts, _ in patched_agent_llm.call_args_list
+            for prompt in prompts
+            for message in prompt.messages
+        ]
+
+        if len(messages) <= max_num_messages:
+            assert len(transformed_messages) == len(messages)
+        else:
+            assert len(transformed_messages) < len(messages)
+            summary = "\n".join([m.content for m in transformed_messages])
+            # Agent Message 1: Interesting facts about dolphins
+            assert at_least_one_keyword_present(
+                [
+                    "intelligence",
+                    "tool use",
+                    "sponges",
+                    "foraging",
+                    "social bonds",
+                    "communication",
+                    "signature whistles",
+                ],
+                summary,
+            )
+
+            # Agent Message 2: Dolphin memories and cognition
+            assert at_least_one_keyword_present(
+                [
+                    "memory",
+                    "signature whistles",
+                    "long-term",
+                    "cognitive abilities",
+                    "social groups",
+                    "learning",
+                ],
+                summary,
+            )
+
+            # Tool Result 1: Other intelligent animals
+            assert at_least_one_keyword_present(
+                [
+                    "chimpanzees",
+                    "elephants",
+                    "octopuses",
+                    "crows",
+                    "parrots",
+                    "intelligence",
+                    "tool use",
+                    "memory",
+                    "problem-solving",
+                    "communication",
+                    "emotion",
+                    "creativity",
+                ],
+                summary,
+            )
+
+            # Tool Result 2: Dolphin tool use
+            assert at_least_one_keyword_present(
+                ["tool use", "sponges", "foraging", "culture", "learning", "mother-offspring"],
+                summary,
+            )
+
+            # Tool Result 3: Dolphin personalities
+            assert at_least_one_keyword_present(
+                [
+                    "personality traits",
+                    "boldness",
+                    "curiosity",
+                    "sociability",
+                    "playfulness",
+                    "innovation",
+                    "social roles",
+                ],
+                summary,
+            )
+
+            # Tool Result 4: Dolphin long distance communication
+            assert at_least_one_keyword_present(
+                [
+                    "long distance",
+                    "communication",
+                    "vocalizations",
+                    "clicks",
+                    "whistles",
+                    "signals",
+                    "echolocation",
+                ],
+                summary,
+            )
+
+
+@filter_in_memory_datastore_warnings
 @retry_test(max_attempts=4)
 @pytest.mark.parametrize(
     "get_setup",
@@ -373,72 +529,57 @@ def test_transform_summarizes_long_messages_only(
     # We pass a mock_llm because we will not need the agent's generation.
     agent_llm = mock_llm()
     agent = Agent(llm=agent_llm, tools=[], transforms=transforms)
-    conversation = agent.start_conversation()
-    for m in messages:
-        conversation.append_message(m)
-
-    with patch_streaming_llm(agent_llm, "This is a mock llm generation.") as patched_agent_llm:
-        conversation.execute()
-
-        # We will check that the messages passed to the llm where summarized iff they were long.
-        transformed_messages = [
-            message
-            for prompts, _ in patched_agent_llm.call_args_list
-            for prompt in prompts
-            for message in prompt.messages
-        ]
-        assert len(transformed_messages) == len(messages)
-
-        # These tests are not strict on purpose to avoid flakiness.
-        assert at_least_one_keyword_present(
-            ["smart", "intelligent", "social", "information", "signature"],
-            transformed_messages[long_msgs_indices[0]].content,
-        )
-        assert at_least_one_keyword_present(
-            ["memory", "20 year", "cognitive", "memories", "migrate"],
-            transformed_messages[long_msgs_indices[1]].content,
-        )
-
-        for original_message, transformed_message in zip(messages, transformed_messages):
-            if original_message.content in short_messages:
-                assert original_message.content == transformed_message.content
-            else:
-                assert len(transformed_message.content) < len(original_message.content)
+    check_transform_summarizes_long_messages_only(agent, messages, long_msgs_indices)
 
 
-@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
-@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+@retry_test(max_attempts=4)
+@filter_in_memory_datastore_warnings
+def test_transform_summarizes_long_messages_only_from_agentspec(
+    converted_wayflow_agent_with_message_summarization_transform_from_agentspec,
+):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2026-01-15
+    Average success time:  2.33 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    check_transform_summarizes_long_messages_only(
+        converted_wayflow_agent_with_message_summarization_transform_from_agentspec,
+        messages=CONVERSATION_WITH_LONG_MESSAGES,
+        long_msgs_indices=[1, 3],
+    )
+
+
+@filter_summarization_transform_with_default_in_memory_datastore_warnings
+@filter_in_memory_datastore_warnings
 @pytest.mark.parametrize(
     "params,messages,collection_name,transform_type",
     [
         (
             {"max_message_size": 500},
             CONVERSATION_WITH_LONG_MESSAGES,
-            collection_name,
+            MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
             MessageSummarizationTransform,
-        )
-        for collection_name in cache_collection_names()
-    ]
-    + [
+        ),
         (
             {"max_num_messages": 10, "min_num_messages": 5},
             LONG_CONVERSATION,
-            collection_name,
+            CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME,
             ConversationSummarizationTransform,
-        )
-        for collection_name in cache_collection_names()
+        ),
     ],
 )
 def test_summarization_transform_caches_summarization(
     params, messages, transform_type, remotely_hosted_llm, collection_name, testing_data_store
 ):
     summarization_llm = remotely_hosted_llm
-    transform = _testing_message_transform(
+    transform = transform_type(
         llm=remotely_hosted_llm,
         datastore=testing_data_store,
-        collection_name=collection_name,
-        extra_params=params,
-        transform_type=transform_type,
+        cache_collection_name=collection_name,
+        **params,
     )
     if transform_type == MessageSummarizationTransform:
         assert len(messages[0].content) < params["max_message_size"]
@@ -457,27 +598,23 @@ def test_summarization_transform_caches_summarization(
     assert not execute_conversation_check_summarizer_ran(conversation, summarization_llm, agent_llm)
 
 
-@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
-@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+@filter_summarization_transform_with_default_in_memory_datastore_warnings
+@filter_in_memory_datastore_warnings
 @pytest.mark.parametrize(
     "params,messages,collection_name,transform_type",
     [
         (
             {"max_message_size": 500, "max_cache_size": 6},
             CONVERSATION_WITH_LONG_MESSAGES[:2],
-            collection_name,
+            MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
             MessageSummarizationTransform,
-        )
-        for collection_name in cache_collection_names()
-    ]
-    + [
+        ),
         (
             {"max_num_messages": 10, "min_num_messages": 5, "max_cache_size": 6},
             LONG_CONVERSATION,
-            collection_name,
+            CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME,
             ConversationSummarizationTransform,
-        )
-        for collection_name in cache_collection_names()
+        ),
     ],
 )
 def test_summarization_transform_cache_evicts_lru(
@@ -485,12 +622,11 @@ def test_summarization_transform_cache_evicts_lru(
 ):
     summarization_llm = remotely_hosted_llm
     max_cache_size = params["max_cache_size"]
-    transform = _testing_message_transform(
+    transform = transform_type(
         llm=remotely_hosted_llm,
         datastore=testing_data_store,
-        collection_name=collection_name,
-        extra_params=params,
-        transform_type=transform_type,
+        cache_collection_name=collection_name,
+        **params,
     )
     if transform_type == MessageSummarizationTransform:
         assert len(messages[0].content) < params["max_message_size"]
@@ -564,7 +700,7 @@ def test_summarization_transform_raises_error_incorrect_oracle_ds_schema(
         )
 
 
-@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+@filter_in_memory_datastore_warnings
 @pytest.mark.parametrize(
     "inmemory_datastore_with_incorrect_schemas",
     get_incorrect_schemas(),
@@ -581,7 +717,7 @@ def test_summarization_transform_raises_error_incorrect_inmemory_ds_schema(
         )
 
 
-@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+@filter_in_memory_datastore_warnings
 @pytest.mark.parametrize(
     "transform_type,params,messages,collection_name",
     [
@@ -589,13 +725,13 @@ def test_summarization_transform_raises_error_incorrect_inmemory_ds_schema(
             MessageSummarizationTransform,
             {"max_message_size": 500},
             CONVERSATION_WITH_LONG_MESSAGES[:2],
-            "cache_table",
+            MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
         ),
         (
             ConversationSummarizationTransform,
             {"max_num_messages": 5, "min_num_messages": 2},
             LONG_CONVERSATION[:6],
-            "cache_table",
+            CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME,
         ),
     ],
 )
@@ -606,12 +742,11 @@ def test_summarization_transform_removes_expired_messages(
         return
     summarization_llm = mock_llm()
     max_cache_lifetime = 1
-    transform = _testing_message_transform(
+    transform = transform_type(
         llm=summarization_llm,
         datastore=testing_data_store,
-        collection_name=collection_name,
-        extra_params=params | {"max_cache_lifetime": 1},
-        transform_type=transform_type,
+        cache_collection_name=collection_name,
+        **(params | {"max_cache_lifetime": 1}),
     )
 
     agent_llm = mock_llm()
@@ -722,7 +857,7 @@ def test_summarization_transform_updates_tool_result_content(toolres_message_con
                 assert transformed_messages[2].contents == toolres_message_contents
 
 
-@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
+@filter_summarization_transform_with_default_in_memory_datastore_warnings
 @retry_test(max_attempts=4)
 def test_summarization_transform_summarizes_images(remote_gemma_llm):
     """
@@ -736,7 +871,7 @@ def test_summarization_transform_summarizes_images(remote_gemma_llm):
     transform = MessageSummarizationTransform(
         llm=remote_gemma_llm,
         datastore=None,
-        cache_collection_name="cache_table",
+        cache_collection_name=MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
         max_message_size=500,
     )
     messages = CONVERSATION_WITH_LONG_MESSAGES
@@ -761,7 +896,7 @@ def test_summarization_transform_summarizes_images(remote_gemma_llm):
         assert IMAGE_CONTENT_JPEG not in transformed_messages[3].contents
 
 
-@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
+@filter_summarization_transform_with_default_in_memory_datastore_warnings
 @retry_test(max_attempts=4)
 def test_conversation_summarization_transform_summarizes_images(remote_gemma_llm):
     """
@@ -775,7 +910,7 @@ def test_conversation_summarization_transform_summarizes_images(remote_gemma_llm
     transform = ConversationSummarizationTransform(
         llm=remote_gemma_llm,
         datastore=None,
-        cache_collection_name="cache_table",
+        cache_collection_name=CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME,
         max_num_messages=4,
         min_num_messages=1,
     )
@@ -799,7 +934,7 @@ def test_conversation_summarization_transform_summarizes_images(remote_gemma_llm
 
 
 @retry_test(max_attempts=4)
-@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
+@filter_summarization_transform_with_default_in_memory_datastore_warnings
 @pytest.mark.parametrize("messages", [CONVERSATION_WITH_LONG_MESSAGES, LONG_CONVERSATION])
 def test_conversation_summarization_transformer_summarizes_long_conversations(
     messages, remote_gemma_llm
@@ -812,117 +947,30 @@ def test_conversation_summarization_transformer_summarizes_long_conversations(
     Max attempt:           4
     Justification:         (0.08 ** 4) ~= 4.8 / 100'000
     """
-    max_num_messages = 10
-
-    # These tests are to ensure that our test cases cover both executed paths.
-    assert len(CONVERSATION_WITH_LONG_MESSAGES) < max_num_messages
-    assert len(LONG_CONVERSATION) > max_num_messages
     transform = ConversationSummarizationTransform(
-        llm=remote_gemma_llm, min_num_messages=5, max_num_messages=max_num_messages
+        llm=remote_gemma_llm, min_num_messages=5, max_num_messages=10
     )
     agent_llm = mock_llm()
     agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
-    conversation = agent.start_conversation()
+    check_conversation_summarization_transformer_summarizes_long_conversations(agent, messages)
 
-    for m in messages:
-        conversation.append_message(m)
 
-    with patch_streaming_llm(agent_llm, "This is a mock llm generation.") as patched_agent_llm:
-        conversation.execute()
-
-        # We will check that the messages passed to the llm where summarized iff they were long.
-        transformed_messages = [
-            message
-            for prompts, _ in patched_agent_llm.call_args_list
-            for prompt in prompts
-            for message in prompt.messages
-        ]
-
-        if len(messages) <= max_num_messages:
-            assert len(transformed_messages) == len(messages)
-        else:
-            assert len(transformed_messages) < len(messages)
-            summary = "\n".join([m.content for m in transformed_messages])
-
-            # Agent Message 1: Interesting facts about dolphins
-            assert at_least_one_keyword_present(
-                [
-                    "intelligence",
-                    "tool use",
-                    "sponges",
-                    "foraging",
-                    "social bonds",
-                    "communication",
-                    "signature whistles",
-                ],
-                summary,
-            )
-
-            # Agent Message 2: Dolphin memories and cognition
-            assert at_least_one_keyword_present(
-                [
-                    "memory",
-                    "signature whistles",
-                    "long-term",
-                    "cognitive abilities",
-                    "social groups",
-                    "learning",
-                ],
-                summary,
-            )
-
-            # Tool Result 1: Other intelligent animals
-            assert at_least_one_keyword_present(
-                [
-                    "chimpanzees",
-                    "elephants",
-                    "octopuses",
-                    "crows",
-                    "parrots",
-                    "intelligence",
-                    "tool use",
-                    "memory",
-                    "problem-solving",
-                    "communication",
-                    "emotion",
-                    "creativity",
-                ],
-                summary,
-            )
-
-            # Tool Result 2: Dolphin tool use
-            assert at_least_one_keyword_present(
-                ["tool use", "sponges", "foraging", "culture", "learning", "mother-offspring"],
-                summary,
-            )
-
-            # Tool Result 3: Dolphin personalities
-            assert at_least_one_keyword_present(
-                [
-                    "personality traits",
-                    "boldness",
-                    "curiosity",
-                    "sociability",
-                    "playfulness",
-                    "innovation",
-                    "social roles",
-                ],
-                summary,
-            )
-
-            # Tool Result 4: Dolphin long distance communication
-            assert at_least_one_keyword_present(
-                [
-                    "long distance",
-                    "communication",
-                    "vocalizations",
-                    "clicks",
-                    "whistles",
-                    "signals",
-                    "echolocation",
-                ],
-                summary,
-            )
+@retry_test(max_attempts=4)
+@filter_in_memory_datastore_warnings
+@pytest.mark.parametrize("messages", [CONVERSATION_WITH_LONG_MESSAGES, LONG_CONVERSATION])
+def test_conversation_summarization_transformer_summarizes_long_conversations_from_agentspec(
+    messages, converted_wayflow_agent_with_conversation_summarization_transform_from_agentspec
+):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2026-01-15
+    Average success time:  4.33 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    agent = converted_wayflow_agent_with_conversation_summarization_transform_from_agentspec
+    check_conversation_summarization_transformer_summarizes_long_conversations(agent, messages)
 
 
 def conversation_summarization_transforms_setup(llm):
@@ -946,7 +994,7 @@ def conversation_summarization_transforms_setup(llm):
     }
 
 
-@pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+@filter_in_memory_datastore_warnings
 @pytest.mark.parametrize(
     "get_setup",
     [
@@ -1030,7 +1078,42 @@ def test_conversation_summarization_trigger_and_cache_incremental(get_setup):
     assert execute_conversation_check_summarizer_ran(conv, summarization_llm, agent_llm)
 
 
-@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
+@pytest.mark.parametrize(
+    "transform_type,params",
+    [
+        (MessageSummarizationTransform, {"max_message_size": 500}),
+        (ConversationSummarizationTransform, {"max_num_messages": 10, "min_num_messages": 5}),
+    ],
+)
+def test_summarization_transform_does_not_cache_when_datastore_none(transform_type, params):
+    """Test that when datastore=None, no caching occurs for summarization transforms."""
+    summarization_llm = mock_llm()
+    agent_llm = mock_llm()
+
+    transform = transform_type(llm=summarization_llm, datastore=None, **params)
+    assert transform.cache is None
+
+    agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
+    conversation = agent.start_conversation()
+
+    # Add messages that trigger summarization
+    if transform_type == MessageSummarizationTransform:
+        messages = CONVERSATION_WITH_LONG_MESSAGES[:2]  # Include one short, one long message
+    else:
+        messages = LONG_CONVERSATION[:12]  # More than max_num_messages
+
+    for m in messages:
+        conversation.append_message(m)
+
+    # First execution should run summarizer
+    assert execute_conversation_check_summarizer_ran(conversation, summarization_llm, agent_llm)
+
+    # Add another message and run again - should run summarizer again since no caching
+    conversation.append_message(Message("This is another mock message."))
+    assert execute_conversation_check_summarizer_ran(conversation, summarization_llm, agent_llm)
+
+
+@filter_summarization_transform_with_default_in_memory_datastore_warnings
 def test_conversation_summarization_respects_tool_request_response_consistency():
     conversation = [
         Message(
@@ -1156,3 +1239,12 @@ def test_agent_transforms_should_run_before_canonicalization_with_gemma(remote_g
             assert mock_generate_summary.call_count > 0
             # The messages received by the LLM were summarized.
             assert len(transformed_messages[0].content) <= len(main_content) * 2
+
+
+@pytest.mark.parametrize(
+    "transform_cls", [MessageSummarizationTransform, ConversationSummarizationTransform]
+)
+def test_summarization_transform_have_default_inmemory_datastore(transform_cls):
+    llm = mock_llm()
+    with pytest.warns(UserWarning, match=_SUMMARIZATION_WARNING_MESSAGE):
+        transform = transform_cls(llm=llm)

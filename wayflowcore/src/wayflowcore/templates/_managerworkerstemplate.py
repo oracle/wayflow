@@ -93,7 +93,7 @@ _MAX_CHAR_TOOL_RESULT_HEADER = 140
 """Max number of characters in the message header when formatting a Tool Result"""
 
 
-class _ToolRequestAndCallsTransform(MessageTransform, SerializableObject):
+class _ToolRequestAndCallsTransform(MessageTransform):
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         """
         Format Tool requests as Agent messages and Tool results as User messages to have a simple User/Agent

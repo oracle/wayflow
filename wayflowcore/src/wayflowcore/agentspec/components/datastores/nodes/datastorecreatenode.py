@@ -6,10 +6,10 @@
 
 from typing import Any, Dict, List, cast
 
+from pyagentspec.datastores import Datastore
 from pyagentspec.property import Property
 
 from wayflowcore._utils._templating_helpers import get_variables_names_and_types_from_template
-from wayflowcore.agentspec.components.datastores import PluginDatastore
 from wayflowcore.agentspec.components.node import ExtendedNode
 from wayflowcore.property import Property as RuntimeProperty
 from wayflowcore.steps.datastoresteps._utils import get_entity_as_dict_property
@@ -20,10 +20,10 @@ def _wayflowcore_property_to_pyagentspec_property(runtime_property: RuntimePrope
 
 
 class PluginDatastoreCreateNode(ExtendedNode):
-    """Node that can create a new entity in a ``PluginDatastore``."""
+    """Node that can create a new entity in a ``Datastore``."""
 
-    datastore: PluginDatastore
-    """PluginDatastore this step operates on"""
+    datastore: Datastore
+    """Datastore this step operates on"""
     collection_name: str
     """Collection in the datastore manipulated by this step.
     Can be parametrized using jinja variables, and the resulting input

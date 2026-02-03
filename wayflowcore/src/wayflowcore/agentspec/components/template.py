@@ -12,6 +12,7 @@ from pyagentspec.component import Component
 from pyagentspec.llms import LlmGenerationConfig
 from pyagentspec.property import ListProperty, Property
 from pyagentspec.tools import Tool
+from pyagentspec.transforms import MessageTransform
 from pyagentspec.validation_helpers import model_validator_with_error_accumulation
 from pydantic import SerializeAsAny
 from typing_extensions import Self
@@ -25,7 +26,6 @@ from wayflowcore.agentspec.components._utils import (
 )
 from wayflowcore.agentspec.components.messagelist import PluginMessage, PluginTextContent
 from wayflowcore.agentspec.components.outputparser import PluginOutputParser
-from wayflowcore.agentspec.components.transforms import PluginMessageTransform
 
 logger = logging.getLogger(__name__)
 
@@ -52,9 +52,9 @@ class PluginPromptTemplate(Component):
     Resolved by default from the variables present in the messages."""
 
     # related to message formatting
-    pre_rendering_transforms: Optional[List[SerializeAsAny[PluginMessageTransform]]] = None
+    pre_rendering_transforms: Optional[List[SerializeAsAny[MessageTransform]]] = None
     """Message transform applied before rendering the list of messages into the template."""
-    post_rendering_transforms: Optional[List[SerializeAsAny[PluginMessageTransform]]] = None
+    post_rendering_transforms: Optional[List[SerializeAsAny[MessageTransform]]] = None
     """Message transform applied on the rendered list of messages."""
 
     # related to using tools

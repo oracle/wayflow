@@ -7,10 +7,12 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union, overload
 
+from wayflowcore._metadata import MetadataType
+from wayflowcore.component import Component
 from wayflowcore.datastore.entity import Entity, EntityAsDictT
 
 
-class Datastore(ABC):
+class Datastore(Component, ABC):
     """Store and perform basic manipulations on collections of entities
     of various types.
 
@@ -18,6 +20,17 @@ class Datastore(ABC):
     collections. It also provides a way of describing the entities in
     this datastore.
     """
+
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
+        __metadata_info__: Optional[MetadataType] = None,
+    ):
+        super().__init__(
+            name=name, description=description, id=id, __metadata_info__=__metadata_info__
+        )
 
     @abstractmethod
     def list(

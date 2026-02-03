@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Type
 
 import pytest
 from pyagentspec import AgentSpecSerializer
+from pyagentspec.datastores import OracleDatabaseDatastore, TlsOracleDatabaseConnectionConfig
 from pyagentspec.flows.edges import ControlFlowEdge, DataFlowEdge
 from pyagentspec.flows.flow import Flow
 from pyagentspec.flows.nodes import EndNode, StartNode
@@ -32,10 +33,6 @@ from wayflowcore.agentspec.components import (
     PluginWriteVariableNode,
     all_deserialization_plugin,
     all_serialization_plugin,
-)
-from wayflowcore.agentspec.components.datastores import (
-    PluginOracleDatabaseDatastore,
-    PluginTlsOracleDatabaseConnectionConfig,
 )
 from wayflowcore.agentspec.components.datastores.nodes import (
     PluginDatastoreCreateNode,
@@ -67,7 +64,7 @@ example_flow = Flow(
     ],
 )
 
-example_datastore = PluginOracleDatabaseDatastore(
+example_datastore = OracleDatabaseDatastore(
     name="ds",
     datastore_schema={
         "my_table": ObjectProperty(
@@ -77,7 +74,7 @@ example_datastore = PluginOracleDatabaseDatastore(
             }
         )
     },
-    connection_config=PluginTlsOracleDatabaseConnectionConfig(
+    connection_config=TlsOracleDatabaseConnectionConfig(
         name="connection_config",
         user="SENSITIVE_FIELD",
         password="SENSITIVE_FIELD",
