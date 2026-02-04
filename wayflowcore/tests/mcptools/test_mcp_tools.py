@@ -34,7 +34,9 @@ from wayflowcore.property import (
     DictProperty,
     IntegerProperty,
     ListProperty,
+    NullProperty,
     StringProperty,
+    UnionProperty,
 )
 from wayflowcore.serialization import autodeserialize, serialize
 from wayflowcore.steps import MapStep, OutputMessageStep, ToolExecutionStep
@@ -119,7 +121,7 @@ def streamablehttp_client_transport_mtls(
 def run_toolbox_test(transport: ClientTransport) -> None:
     toolbox = MCPToolBox(client_transport=transport)
     tools = toolbox.get_tools()  # need
-    assert len(tools) == 11
+    assert len(tools) == 13
     mcp_tool = next(t for t in tools if t.name == "fooza_tool")
     assert mcp_tool.run(a=1, b=2) == "7"
     assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
@@ -781,6 +783,48 @@ def test_mcp_tool_works_resource_output(sse_client_transport, with_mcp_enabled):
     assert len(tool.output_descriptors) == 1
     assert isinstance(tool.output_descriptors[0], StringProperty)
     assert "user_34_response" in tool.run(user="user_34")
+
+
+def test_mcp_tool_works_with_optional_output(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="generate_optional",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+    # The output descriptor should be a union string|null named after the tool title
+    TOOL_OUTPUT_NAME = "tool_output"
+
+    assert len(tool.output_descriptors) == 1
+    desc0 = tool.output_descriptors[0]
+    assert desc0.name == TOOL_OUTPUT_NAME
+    assert isinstance(desc0, UnionProperty)
+    # Union must include string and null
+    assert any(isinstance(p, StringProperty) for p in desc0.any_of)
+    assert any(isinstance(p, NullProperty) for p in desc0.any_of)
+    # Execute and ensure the result is surfaced
+    step = ToolExecutionStep(tool=tool)
+    outputs = run_step_and_return_outputs(step)
+    assert TOOL_OUTPUT_NAME in outputs and outputs[TOOL_OUTPUT_NAME] == "maybe"
+
+
+def test_mcp_tool_works_with_union_output(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="generate_union",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+    TOOL_OUTPUT_NAME = "tool_output"
+
+    assert len(tool.output_descriptors) == 1
+    desc0 = tool.output_descriptors[0]
+    assert desc0.name == TOOL_OUTPUT_NAME
+    assert isinstance(desc0, UnionProperty)
+    assert any(isinstance(p, StringProperty) for p in desc0.any_of)
+    assert any(isinstance(p, IntegerProperty) for p in desc0.any_of)
+
+    step = ToolExecutionStep(tool=tool)
+    outputs = run_step_and_return_outputs(step)
+    assert TOOL_OUTPUT_NAME in outputs and outputs[TOOL_OUTPUT_NAME] == "maybe"
 
 
 def test_mcp_output_schema_supports_optional_string_union():
