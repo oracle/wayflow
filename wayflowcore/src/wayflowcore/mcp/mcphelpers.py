@@ -210,13 +210,26 @@ def _try_convert_mcp_output_schema_to_properties(
 
         result_property = schema["properties"]["result"]
 
-        # Detect List Property
-        if result_property["type"] == "array" and "items" in result_property:
+        # Handle unions/optionals (e.g., anyOf including null) first
+        if "anyOf" in result_property:
+            property_from_schema = Property.from_json_schema(cast(JsonSchemaParam, result_property))
+            return [property_from_schema]
+
+        # Detect List Property (array with single item type)
+        if (
+            "type" in result_property
+            and result_property["type"] == "array"
+            and "items" in result_property
+        ):
             item_property = Property.from_json_schema(result_property["items"])
             return [ListProperty(name=output_schema_title, item_type=item_property)]
 
-        # Detect Tuple Properties
-        if result_property["type"] == "array" and "prefixItems" in result_property:
+        # Detect Tuple Properties (array with prefixItems)
+        if (
+            "type" in result_property
+            and result_property["type"] == "array"
+            and "prefixItems" in result_property
+        ):
             return [Property.from_json_schema(p) for p in result_property["prefixItems"]]
 
         return None  # No compatible complex type was detected -> use default type
