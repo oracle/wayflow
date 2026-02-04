@@ -19,6 +19,7 @@ WayFlow 26.1.1
 Bug fixes
 ^^^^^^^^^
 
+* Fix: MCP tools now support union/optional output schemas for the `result` field (e.g., `anyOf` including `null`). This prevents KeyError during schema parsing. (#70)
 * Fix: Gemini models with the OpenAiCompatible model now support native tool calling (#77)
 * Fix: MCP session persistence no longer collides when multiple MCP client transports (different servers/connections) are used within the same conversation.
 

@@ -22,6 +22,7 @@ from wayflowcore.property import (
     ListProperty,
     ObjectProperty,
     Property,
+    UnionProperty,
 )
 from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.tools import Tool
@@ -151,6 +152,15 @@ def _try_handle_structured_content_from_tool_result(
             # MCP only supports objects so lists are wrapped into a "result" field
             return structured_output["result"]
 
+        # 4. For single-output tools expecting a union/optional, unwrap `result`
+        elif (
+            len(output_descriptors) == 1
+            and isinstance(output_descriptors[0], UnionProperty)
+            and structured_output
+            and "result" in structured_output
+        ):
+            return structured_output["result"]
+
         else:
             return None
 
@@ -209,6 +219,13 @@ def _try_convert_mcp_output_schema_to_properties(
             return None
 
         result_property = schema["properties"]["result"]
+
+        # Handle unions/optionals (e.g., anyOf including null) first
+        if "anyOf" in result_property:
+            property_from_schema = Property.from_json_schema(
+                result_property, name=output_schema_title
+            )
+            return [property_from_schema]
 
         # Detect List Property
         if result_property["type"] == "array" and "items" in result_property:
