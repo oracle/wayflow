@@ -61,7 +61,7 @@ def create_weather_server_tool():
         """
         return random.choice(
             ["sunny", "rainy"]
-        )  # nosec0004 # the reported issue by pybandit indicates use of non-cryptographic randomness; this randomness is only used to return a demo weather condition for tests
+        )  # nosec0007 # the reported issue by pybandit indicates use of non-cryptographic randomness; this randomness is only used to return a demo weather condition for tests
 
     return get_weather
 
