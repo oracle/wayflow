@@ -781,3 +781,35 @@ def test_mcp_tool_works_resource_output(sse_client_transport, with_mcp_enabled):
     assert len(tool.output_descriptors) == 1
     assert isinstance(tool.output_descriptors[0], StringProperty)
     assert "user_34_response" in tool.run(user="user_34")
+
+
+def test_mcp_output_schema_supports_optional_string_union():
+    from wayflowcore.mcp.mcphelpers import _try_convert_mcp_output_schema_to_properties
+    from wayflowcore.property import NullProperty, StringProperty, UnionProperty
+
+    # Simulate an MCP tool output schema where the `result` is Optional[str]
+    schema = {
+        "type": "object",
+        "properties": {
+            "result": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"},
+                ]
+            }
+        },
+        "required": ["result"],
+        # some servers add this hint when wrapping primitives in {"result": ...}
+        "x-fastmcp-wrap-result": True,
+    }
+
+    props = _try_convert_mcp_output_schema_to_properties(
+        schema=schema, tool_title="OptionalStringOutput"
+    )
+
+    # Expect proper parsing into a single Union[String, Null] property
+    assert props is not None and len(props) == 1
+    assert isinstance(props[0], UnionProperty)
+    any_of = props[0].any_of
+    assert any(isinstance(p, StringProperty) for p in any_of)
+    assert any(isinstance(p, NullProperty) for p in any_of)

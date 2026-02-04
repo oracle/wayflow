@@ -28,7 +28,7 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
-* Fix: MCP tools now support union/optional output schemas for the `result` field (e.g., `anyOf` including `null`). This prevents KeyError during schema parsing and adds test `tests/mcptools/test_mcp_output_schema_unions.py`. (#70)
+* Fix: MCP tools now support union/optional output schemas for the `result` field (e.g., `anyOf` including `null`). This prevents KeyError during schema parsing. (#70)
 
 WayFlow 26.1.0
 --------------
