@@ -70,6 +70,16 @@ class GenerateDictOut(RootModel[dict[str, str]], title="tool_output"):
     pass
 
 
+class GenerateOptionalOut(BaseModel, title="tool_output"):
+    # Optional output to validate anyOf handling in WayFlow
+    result: Optional[str]
+
+
+class GenerateUnionOut(BaseModel, title="tool_output"):
+    # True union output (non-null) to validate anyOf handling in WayFlow
+    result: str | int
+
+
 def create_server(host: str, port: int):
     """Create and configure the MCP server"""
     server = FastMCP(
@@ -126,6 +136,16 @@ def create_server(host: str, port: int):
     @server.tool(description="Tool that returns a tuple", structured_output=True)
     def generate_tuple() -> GenerateTupleOut:
         return GenerateTupleOut(result=("value", True))
+
+    @server.tool(description="Tool that returns an optional string", structured_output=True)
+    def generate_optional() -> GenerateOptionalOut:
+        # Deterministic value for testing
+        return GenerateOptionalOut(result="maybe")
+
+    @server.tool(description="Tool that returns a union value", structured_output=True)
+    def generate_union() -> GenerateUnionOut:
+        # Deterministic value for testing
+        return GenerateUnionOut(result="maybe")
 
     @server.tool(description="Tool that consumes a list and a dict")
     def consumes_list_and_dict(vals: list[str], props: dict[str, str]) -> str:
