@@ -3,3 +3,6 @@ nosec0001,B105,the reported issue by pybandit that variables should not be named
 nosec0002,B105,the reported issue by pybandit that variables should not be named token is hard to comply with in this context as the variable refers to the token-based authentication method for the OCI service
 nosec0003,B110,finalizers must not raise; we ignore normal cleanup errors during shutdown/garbage collection on purpose
 nosec0004,B311,the reported issue by pybandit indicates use of non-cryptographic randomness; this randomness is only used to return a demo weather condition for tests
+nosec0005,B311,the reported issue by pybandit indicates use of non-cryptographic randomness; this randomness is only used to return a demo weather condition for tests
+nosec0006,B311,the reported issue by pybandit indicates use of non-cryptographic randomness; this randomness is only used to return a demo weather condition for tests
+nosec0007,B311,the reported issue by pybandit indicates use of non-cryptographic randomness; this randomness is only used to return a demo weather condition for tests
