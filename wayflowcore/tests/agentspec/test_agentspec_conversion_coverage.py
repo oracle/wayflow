@@ -132,6 +132,12 @@ EXCLUDED_COMPONENTS = {
     "RetryStep",
     "CatchExceptionStep",
     "BranchingStep",
+    "AuthChallengeRequest",
+    "AuthChallengeRequestStatus",
+    "AuthChallengeResult",
+    "OAuthConfig",
+    "OAuthEndpoints",
+    "PKCEPolicy",
     # the variable, stored as a agentspec property, doesn't keep the same id
     "Variable",
     "VariableReadStep",

@@ -11,6 +11,7 @@ from mcp import ClientSession
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.component import DataclassComponent
+from wayflowcore.exceptions import AuthInterrupt
 from wayflowcore.mcp._session_persistence import get_mcp_async_runtime
 from wayflowcore.mcp.clienttransport import ClientTransport, _raise_if_missing
 from wayflowcore.mcp.mcphelpers import (
@@ -61,7 +62,15 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
         if _validate_server_exists and _validate_tool_exist_on_server:
             mcp_runtime = get_mcp_async_runtime()
             # 1. Ensure session is created (from the portal)
-            session = mcp_runtime.get_or_create_session(self.client_transport)
+            try:
+                session = mcp_runtime.get_or_create_session(self.client_transport)
+            except AuthInterrupt:
+                mcp_runtime.cancel_oauth_callback(self.client_transport.id, None)
+                raise ValueError(
+                    "OAuth is not supported at instantiation. You should either disable the "
+                    "tool validation or ensure that the default session is already authenticated."
+                )
+
             # 2. Perform the call (from the portal)
             tool = mcp_runtime.call(_get_tool_on_server, session, name, self.client_transport)
 
@@ -110,24 +119,20 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
     async def run_async(self, *args: Any, **kwargs: Any) -> Any:
         """Runs the MCP tool in an asynchronous manner."""
         mcp_runtime = get_mcp_async_runtime()
-        # 1. Ensure session is created (from the portal)
         session = mcp_runtime.get_or_create_session(self.client_transport)
-        # 2. Perform the call (from the portal)
-        res = await mcp_runtime.call_async(
+
+        return await mcp_runtime.call_async(
             _invoke_mcp_tool_call_async, session, self.name, kwargs, self.output_descriptors
         )
-        return res
 
     def run(self, *args: Any, **kwargs: Any) -> Any:
         """Runs the MCP tool in a synchronous manner."""
         mcp_runtime = get_mcp_async_runtime()
-        # 1. Ensure session is created (from the portal)
         session = mcp_runtime.get_or_create_session(self.client_transport)
-        # 2. Perform the call (from the portal)
-        res = mcp_runtime.call(
+
+        return mcp_runtime.call(
             _invoke_mcp_tool_call_async, session, self.name, kwargs, self.output_descriptors
         )
-        return res
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
         from wayflowcore.serialization.serializer import serialize_any_to_dict
@@ -167,6 +172,19 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
             # deserialization should not require to be able to reach the server
             _validate_server_exists=False,
         )
+
+    @property
+    def might_yield(self) -> bool:
+        """
+        Indicates that the tool might yield inside a step or a flow.
+        """
+        from wayflowcore.auth.auth import OAuthConfig
+        from wayflowcore.mcp.clienttransport import RemoteBaseTransport
+
+        uses_oauth = isinstance(self.client_transport, RemoteBaseTransport) and isinstance(
+            self.client_transport.auth, OAuthConfig
+        )
+        return self.requires_confirmation or uses_oauth
 
 
 @dataclass
@@ -217,6 +235,7 @@ class MCPToolBox(ToolBox, DataclassComponent):
         mcp_runtime = get_mcp_async_runtime()
         # 1. Ensure session is created (from the portal)
         session = mcp_runtime.get_or_create_session(self.client_transport)
+
         # 2. Perform the call (from the portal)
         return await mcp_runtime.call_async(self._get_tools_async_impl, session)
 
@@ -230,5 +249,6 @@ class MCPToolBox(ToolBox, DataclassComponent):
         mcp_runtime = get_mcp_async_runtime()
         # 1. Ensure session is created (from the portal)
         session = mcp_runtime.get_or_create_session(self.client_transport)
+
         # 2. Perform the call (from the portal)
         return mcp_runtime.call(self._get_tools_async_impl, session)

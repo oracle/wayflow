@@ -170,6 +170,80 @@ Execute the flow as follows:
 
 
 
+Advanced use: Use OAuth in MCP Tools
+====================================
+
+MCP Tools and ToolBoxes support auth using the official
+`OAuth flow from MCP <https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization>`_,
+
+To enable auth simply provide an Auth configuration to a MCP Client Transport (SSE or StreamableHTTP).
+
+.. code-block:: python
+
+    import webbrowser
+    from wayflowcore.mcp import MCPOAuthConfigFactory
+
+    oauth_callback_port = 8001 # depends on your MCP server configuration
+    auth = MCPOAuthConfigFactory.with_dynamic_discovery(
+        redirect_uri=f"http://localhost:{oauth_callback_port}/callback"
+    )
+    client_transport = SSETransport(url=sse_mcp_server_oauth, auth=auth)
+
+    tool = MCPTool(
+        name="generate_random_string",
+        description="1234567",
+        client_transport=client_transport,
+        _validate_server_exists=False,
+        _validate_tool_exist_on_server=False,
+        input_descriptors=[],
+    )
+
+    agent = Agent(llm=llm, tools=[tool])
+
+.. important::
+
+    You must disable MCPTool verification at instantiation when using OAuth.
+
+Then when runing the assistant, when authorization is required an execution status
+is returned with the authorization url. The client is responsible for obtaining the
+auth code and state and submit it back to the execution loop, which will complete the
+OAuth flow. Once the OAuth flow is completed, the conversation can be resumed with the
+now authenticated MCP Client sessions.
+
+.. code-block:: python
+
+    from wayflowcore.auth.auth import AuthChallengeResult
+    from wayflowcore.executors.executionstatus import AuthChallengeRequestStatus
+
+    conv = agent.start_conversation()
+    conv.append_user_message("Call the tool please")
+    status = conv.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    authorization_url = status.auth_request.authorization_url
+
+    # The client app must consume the authorization url, fetch the code/state
+    # and submit it back to complete the OAuth flow.
+    webbrowser.open(authorization_url)
+    auth_code, auth_state = ...
+
+    # The auth callback are submitted, which completes the auth flow
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+
+    # The conversation is resumed, and return the expected result
+    status = conv.execute()
+
+
+**API Reference:** :ref:`OAuthClientConfig <oauthclientconfig>`
+
+OAuth works with MCP Tools and ToolBoxes, in agents, flows and multi-agent patterns.
+
+.. note::
+
+    Note that MCP client sessions are reused in a single conversation, which means that you
+    will not have to re-perform the OAuth flow at every request.
+
+
 Advanced use: Complex types in MCP tools
 ========================================
 

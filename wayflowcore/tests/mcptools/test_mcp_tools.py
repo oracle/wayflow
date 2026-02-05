@@ -10,20 +10,25 @@ import time
 from typing import Any, Generator, List, Tuple, cast
 
 import anyio
+import httpx
 import pytest
 from anyio import to_thread
 
 from wayflowcore import Agent, Flow
+from wayflowcore.auth import AuthChallengeResult
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.events.event import Event, ToolExecutionStreamingChunkReceivedEvent
 from wayflowcore.events.eventlistener import EventListener, register_event_listeners
 from wayflowcore.executors.executionstatus import (
+    AuthChallengeRequestStatus,
+    FinishedStatus,
     ToolExecutionConfirmationStatus,
     UserMessageRequestStatus,
 )
 from wayflowcore.flowhelpers import create_single_step_flow, run_step_and_return_outputs
 from wayflowcore.mcp import (
     ClientTransport,
+    MCPOAuthConfigFactory,
     MCPTool,
     MCPToolBox,
     SSEmTLSTransport,
@@ -31,6 +36,7 @@ from wayflowcore.mcp import (
     StreamableHTTPmTLSTransport,
     StreamableHTTPTransport,
 )
+from wayflowcore.mcp._auth import headless_auth_flow_handler
 from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
 from wayflowcore.property import (
     AnyProperty,
@@ -125,7 +131,7 @@ def streamablehttp_client_transport_mtls(
 def run_toolbox_test(transport: ClientTransport) -> None:
     toolbox = MCPToolBox(client_transport=transport)
     tools = toolbox.get_tools()  # need
-    assert len(tools) == 16
+    assert len(tools) == 17
     mcp_tool = next(t for t in tools if t.name == "fooza_tool")
     assert mcp_tool.run(a=1, b=2) == "7"
     assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
@@ -1013,3 +1019,271 @@ def test_mcp_streaming_tool_adapter_rejects_invalid_callable_types(mcp_callable_
         TypeError, match="@mcp_streaming_tool can only be applied to async generator functions"
     ):
         mcp_callable_factory()
+
+
+
+
+def _run_mcp_oauth_connection_and_catch_error(client_transport, llm, exception, match) -> None:
+    tool = MCPTool(
+        name="generate_random_string",
+        description="1234567",
+        client_transport=client_transport,
+        _validate_server_exists=False,
+        _validate_tool_exist_on_server=False,
+        input_descriptors=[],
+    )
+
+    agent = Agent(llm=llm, tools=[tool], raise_exceptions=True)
+    conv = agent.start_conversation()
+
+    with pytest.raises(exception, match=match):
+        with patch_llm(
+            llm, outputs=[[ToolRequest("generate_random_string", {}, tool_request_id="tr_123456")]]
+        ):
+            conv.append_user_message("Call tool please")
+            _ = conv.execute()
+
+
+def test_oauth_raises_when_not_passing_oauth_config(
+    sse_mcp_server_oauth, with_mcp_enabled, remotely_hosted_llm
+):
+    llm = remotely_hosted_llm
+    client_transport = SSETransport(url=sse_mcp_server_oauth)
+    _run_mcp_oauth_connection_and_catch_error(
+        client_transport,
+        llm,
+        exception=httpx.HTTPStatusError,
+        match="Encountered Authorization error when connecting to the MCP server",
+    )
+
+
+def test_oauth_raises_when_using_incorrect_url(
+    sse_mcp_server_oauth, with_mcp_enabled, remotely_hosted_llm
+):
+    llm = remotely_hosted_llm
+    incorrect_url = sse_mcp_server_oauth.replace("/sse", "/mcp")
+    client_transport = SSETransport(url=incorrect_url)
+    _run_mcp_oauth_connection_and_catch_error(
+        client_transport,
+        llm,
+        exception=httpx.HTTPStatusError,
+        match="Successfully reached the MCP server but failed to find the endpoint for the given transport",
+    )
+
+
+def test_oauth_raises_when_using_incorrect_transport(
+    sse_mcp_server_oauth, with_mcp_enabled, remotely_hosted_llm
+):
+    llm = remotely_hosted_llm
+    client_transport = StreamableHTTPTransport(url=sse_mcp_server_oauth)
+    _run_mcp_oauth_connection_and_catch_error(
+        client_transport,
+        llm,
+        exception=httpx.HTTPStatusError,
+        match="Successfully reached the MCP server but failed when establishing the connection",
+    )
+
+
+def test_oauth_raises_when_enabling_oauth_at_instantiation_for_agent_tools(
+    sse_mcp_server_oauth, oauth_callback_port, with_mcp_enabled
+):
+    auth = MCPOAuthConfigFactory.with_dynamic_discovery(
+        redirect_uri=f"http://localhost:{oauth_callback_port}/callback",
+    )
+    client_transport = SSETransport(url=sse_mcp_server_oauth, auth=auth)
+
+    with pytest.raises(ValueError, match="OAuth is not supported at instantiation"):
+        _ = MCPTool(
+            name="generate_random_string",
+            description="1234567",
+            client_transport=client_transport,
+            _validate_server_exists=True,
+            _validate_tool_exist_on_server=True,
+            input_descriptors=[],
+        )
+
+
+@pytest.fixture
+def tool_requiring_oauth(sse_mcp_server_oauth, oauth_callback_port, with_mcp_enabled) -> MCPTool:
+    auth = MCPOAuthConfigFactory.with_dynamic_discovery(
+        redirect_uri=f"http://localhost:{oauth_callback_port}/callback",
+    )
+    client_transport = SSETransport(url=sse_mcp_server_oauth, auth=auth)
+    return MCPTool(
+        name="generate_random_string",
+        description="1234567",
+        client_transport=client_transport,
+        _validate_server_exists=False,
+        _validate_tool_exist_on_server=False,
+        input_descriptors=[],
+    )
+
+
+@pytest.fixture
+def toolbox_requiring_oauth(
+    sse_mcp_server_oauth, oauth_callback_port, with_mcp_enabled
+) -> MCPToolBox:
+    auth = MCPOAuthConfigFactory.with_dynamic_discovery(
+        redirect_uri=f"http://localhost:{oauth_callback_port}/callback",
+    )
+    client_transport = SSETransport(url=sse_mcp_server_oauth, auth=auth)
+    return MCPToolBox(client_transport=client_transport)
+
+
+@pytest.fixture
+def flow_with_oauth(tool_requiring_oauth) -> Flow:
+    return Flow.from_steps([ToolExecutionStep(name="mcp_tool", tool=tool_requiring_oauth)])
+
+
+def test_oauth_works_on_flow_with_mcp_tool(flow_with_oauth: Flow):
+    conv = flow_with_oauth.start_conversation()
+    status = conv.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    authorization_url = status.auth_request.authorization_url
+
+    # 2. (Client-side) The client app must open a webbrowser tab with the URL
+    # The client app must provide back the code/state which is sent to the Agent Server
+    auth_code, auth_state = headless_auth_flow_handler(authorization_url)
+
+    # 3. (agent server-side) The server submits the auth callback results, which which completes the auth flow
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+
+    # 4. (agent server-side) The server resumes the conversation and return the expected result
+    status = conv.execute()
+    assert isinstance(status, FinishedStatus)
+
+    outputs = status.output_values
+    assert "tool_output" in outputs and "random_string_" in outputs["tool_output"]
+
+
+def test_oauth_works_on_agent_with_mcptool(tool_requiring_oauth: MCPTool, remotely_hosted_llm):
+    llm = remotely_hosted_llm
+    agent = Agent(llm=llm, tools=[tool_requiring_oauth])
+    conv = agent.start_conversation()
+
+    # 1. (agent server-side) The Agent sends a request to call the `generate_random_string`
+    with patch_llm(
+        llm, outputs=[[ToolRequest("generate_random_string", {}, tool_request_id="tr_123456")]]
+    ):
+        conv.append_user_message("Call tool please")
+        status = conv.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    authorization_url = status.auth_request.authorization_url
+
+    # 2. (Client-side) The client app must open a webbrowser tab with the URL
+    # The client app must provide back the code/state which is sent to the Agent Server
+    auth_code, auth_state = headless_auth_flow_handler(authorization_url)
+
+    # 3. (agent server-side) The server submits the auth callback results, which which completes the auth flow
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+
+    # 4. (agent server-side) The server resumes the conversation and return the expected result
+    with patch_llm(llm, outputs=["Tool called successfully"]):
+        status = conv.execute()
+
+    all_messages = conv.get_messages()
+    last_tool_result_message = all_messages[-2]
+    assert (
+        last_tool_result_message.tool_result is not None
+        and "random_string_" in last_tool_result_message.tool_result.content
+    )
+
+
+def test_oauth_works_with_mcptoolbox(toolbox_requiring_oauth: MCPToolBox, remotely_hosted_llm):
+    llm = remotely_hosted_llm
+    agent = Agent(llm=llm, tools=[toolbox_requiring_oauth])
+    conv = agent.start_conversation()
+
+    # 1. (agent server-side)
+    conv.append_user_message("Call tool please")
+    status = conv.execute()
+    # ^ will stop even before the LLM is called because a call to a protected
+    # MCP ToolBox is performed
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    authorization_url = status.auth_request.authorization_url
+
+    # 2. (Client-side) The client app must open a webbrowser tab with the URL
+    # The client app must provide back the code/state which is sent to the Agent Server
+    auth_code, auth_state = headless_auth_flow_handler(authorization_url)
+
+    # 3. (agent server-side) The server submits the auth callback results, which which completes the auth flow
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+
+    # 4. (agent server-side) The server resumes the conversation and return the expected result
+    with patch_llm(
+        llm,
+        outputs=[
+            [ToolRequest("generate_random_string", {}, tool_request_id="tr_123456")],
+            "Tool called successfully",
+        ],
+    ):
+        status = conv.execute()
+
+    all_messages = conv.get_messages()
+    last_tool_result_message = all_messages[-2]
+    assert (
+        last_tool_result_message.tool_result is not None
+        and "random_string_" in last_tool_result_message.tool_result.content
+    )
+
+
+def test_submitting_on_expired_client_info_raises_new_auth_request_in_flows(flow_with_oauth: Flow):
+    conv = flow_with_oauth.start_conversation()
+    status = conv.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    authorization_url = status.auth_request.authorization_url
+    auth_code, auth_state = headless_auth_flow_handler(authorization_url)
+
+    time.sleep(6)  # expiration is 5 seconds
+
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+    status = conv.execute()
+    assert isinstance(status, AuthChallengeRequestStatus)
+
+    authorization_url = status.auth_request.authorization_url
+    auth_code, auth_state = headless_auth_flow_handler(authorization_url)
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+    status = conv.execute()
+    assert isinstance(status, FinishedStatus)
+    outputs = status.output_values
+    assert "tool_output" in outputs and "random_string_" in outputs["tool_output"]
+
+
+def test_submitting_on_expired_client_info_raises_new_auth_request_in_agent(
+    tool_requiring_oauth: MCPTool, remotely_hosted_llm
+):
+    llm = remotely_hosted_llm
+    agent = Agent(llm=llm, tools=[tool_requiring_oauth])
+    conv = agent.start_conversation()
+
+    with patch_llm(
+        llm, outputs=[[ToolRequest("generate_random_string", {}, tool_request_id="tr_123456")]]
+    ):
+        conv.append_user_message("Call tool please")
+        status = conv.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    authorization_url = status.auth_request.authorization_url
+    auth_code, auth_state = headless_auth_flow_handler(authorization_url)
+
+    time.sleep(6)  # expiration is 5 seconds
+
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+    status = conv.execute()
+    assert isinstance(status, AuthChallengeRequestStatus)
+    authorization_url = status.auth_request.authorization_url
+    auth_code, auth_state = headless_auth_flow_handler(authorization_url)
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+    with patch_llm(llm, outputs=["Tool called successfully"]):
+        status = conv.execute()
+
+    all_messages = conv.get_messages()
+    last_tool_result_message = all_messages[-2]
+    assert (
+        last_tool_result_message.tool_result is not None
+        and "random_string_" in last_tool_result_message.tool_result.content
+    )

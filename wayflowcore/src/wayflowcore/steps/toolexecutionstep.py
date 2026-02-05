@@ -14,6 +14,7 @@ from wayflowcore.events.event import (
     ToolConfirmationRequestStartEvent,
 )
 from wayflowcore.events.eventlistener import record_event
+from wayflowcore.exceptions import AuthInterrupt
 from wayflowcore.executors.executionstatus import ToolExecutionConfirmationStatus
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.property import Property
@@ -282,13 +283,21 @@ class ToolExecutionStep(Step):
 
         # 4. If tool_result is an Exception
         if isinstance(tool_result.content, Exception):
-            if self.raise_exceptions:
+            if isinstance(tool_result.content, AuthInterrupt):
+                # e.g. for MCP Auth
+                return StepResult(
+                    outputs={"__execution_status__": tool_result.content.status},
+                    branch_name=self.BRANCH_SELF,
+                    step_type=StepExecutionStatus.YIELDING,
+                )
+            elif self.raise_exceptions:
                 raise tool_result.content
             else:
                 tool_result = ToolResult(
                     content=str(tool_result.content), tool_request_id=tool_result.tool_request_id
                 )
 
+        # Note: At this point no exception will be passed to this method
         tool_output = self.tool._check_tool_outputs_copyable(
             tool_result.content, self.raise_exceptions
         )

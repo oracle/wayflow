@@ -40,6 +40,7 @@ API Reference
    Tracing <tracing>
    Variables <variables>
    Datastores <datastores>
+   Auth <auth>
    Search <search>
    Warnings <warnings>
    Evaluation <evaluation>

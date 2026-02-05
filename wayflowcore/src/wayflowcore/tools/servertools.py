@@ -32,6 +32,7 @@ from wayflowcore._utils.async_helpers import (
     run_sync_in_process,
     run_sync_in_thread,
 )
+from wayflowcore.exceptions import AuthInterrupt
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolRequestStatus,
@@ -301,7 +302,7 @@ class ServerTool(Tool):
     ) -> Optional["ToolResult"]:
         from wayflowcore.executors._agentconversation import AgentConversation
         from wayflowcore.executors._agentexecutor import _serialize_output
-        from wayflowcore.messagelist import Message, MessageType
+        from wayflowcore.messagelist import Message, MessageType, TextContent
         from wayflowcore.tracing.span import ToolExecutionSpan
 
         inputs = tool_request.args
@@ -325,13 +326,20 @@ class ServerTool(Tool):
                 output, serialized_output = e, str(e)
 
             tool_result = ToolResult(content=output, tool_request_id=tool_request.tool_request_id)
+            if isinstance(output, AuthInterrupt):
+                # Auth interrupt: we should return directly
+                span.record_end_span_event(str(output))
+                return tool_result
 
             if append_message:
-                # Check if tool output is copyable
-                output = self._check_tool_outputs_copyable(
-                    output,
-                    raise_exceptions=raise_exceptions,
-                )
+                if isinstance(output, Exception):
+                    content_raw = output
+                else:
+                    # Check if tool output is copyable, otherwise raise or stringify
+                    content_raw = self._check_tool_outputs_copyable(
+                        output,
+                        raise_exceptions=raise_exceptions,
+                    )
 
                 tool_result = ToolResult(
                     content=output, tool_request_id=tool_request.tool_request_id
@@ -344,6 +352,7 @@ class ServerTool(Tool):
                     conversation.state.current_tool_request = None
                 conversation.message_list.append_message(
                     Message(
+                        contents=[TextContent(str(content_raw))],
                         tool_result=tool_result,
                         message_type=MessageType.TOOL_RESULT,
                         sender=sender,

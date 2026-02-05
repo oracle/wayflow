@@ -28,6 +28,7 @@ from typing import (
     get_origin,
 )
 
+import httpx
 from exceptiongroup import ExceptionGroup
 from httpx import ConnectError
 from mcp import ClientSession
@@ -113,6 +114,18 @@ def _catch_and_raise_mcp_connection_errors() -> Any:
             ):
                 raise ConnectionError(
                     "Could not connect to the remote MCP server. Make sure it is running and reachable."
+                ) from sub_exception
+            elif isinstance(sub_exception, httpx.HTTPStatusError) and "401 Unauthorized" in str(
+                sub_exception
+            ):
+                request = sub_exception.request
+                raise httpx.HTTPStatusError(
+                    (
+                        f"Could not connect to the remote MCP server with url '{request.url}' because of "
+                        f"error '401 Unauthorized'. Full error: {str(sub_exception)}"
+                    ),
+                    request=request,
+                    response=sub_exception.response,
                 ) from sub_exception
         raise e
 
@@ -369,6 +382,9 @@ async def get_server_tools_from_mcp_server(
             Property.from_json_schema(json_property, name=input_name)
             for input_name, json_property in exposed_tool.inputSchema["properties"].items()
         ]
+        print(
+            f"CONVERTING OUTPUT SCHEMA for '{exposed_tool.title}', '{exposed_tool.name}': {exposed_tool.outputSchema}"
+        )
         remote_output_descriptors = _try_convert_mcp_output_schema_to_properties(
             exposed_tool.outputSchema,
             tool_title=(exposed_tool.title or exposed_tool.name) + "Output",

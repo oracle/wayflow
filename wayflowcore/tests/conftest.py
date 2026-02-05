@@ -841,7 +841,7 @@ def anyio_backend():
 
 # This hook is called after whole test run finished, right before returning the exit status to the system.
 # see https://docs.pytest.org/en/stable/reference/reference.html#pytest.hookspec.pytest_sessionfinish
-# This check is added  so that in case there is a thread is still open,
+# This check is added so that in case there is a thread is still open,
 # logs will show it and we will be able to investigate.
 def pytest_sessionfinish(session, exitstatus):
     threads = [t for t in threading.enumerate() if t is not threading.main_thread()]

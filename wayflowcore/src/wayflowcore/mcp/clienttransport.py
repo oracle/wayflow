@@ -12,12 +12,13 @@ from dataclasses import asdict, dataclass, field
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Literal, Optional
 
 import httpx
-from mcp.client.auth import OAuthClientProvider
 from mcp.client.sse import sse_client
 from mcp.client.stdio import StdioServerParameters, stdio_client
 from mcp.client.streamable_http import streamablehttp_client
 from typing_extensions import TypeAlias
 
+from wayflowcore.auth.auth import AuthConfig, OAuthClientConfig, OAuthConfig, PKCEPolicy
+from wayflowcore.mcp._session_persistence import _get_oauth_flow_handler
 from wayflowcore.serialization.serializer import (
     SerializableDataclass,
     SerializableDataclassMixin,
@@ -75,10 +76,19 @@ class ClientTransportWithAuth(ClientTransport, ABC):
     to an MCP server, and providing a ClientSession within an async context.
     """
 
-    @property
-    @abstractmethod
-    def auth(self) -> Optional[OAuthClientProvider]:
-        """httpx Auth. Defaults to None."""
+    auth: Optional["AuthConfig"] = None
+    """OAuth Configuration. Defaults to None."""
+
+    def _get_auth_provider(self) -> Optional[httpx.Auth]:
+        from wayflowcore.auth.auth import OAuthConfig
+
+        if not self.auth:
+            return None
+
+        if isinstance(self.auth, OAuthConfig):
+            return _get_oauth_flow_handler(self)
+        else:
+            raise ValueError(f"Auth type: {self.auth} is not supported.")
 
 
 def _raise_if_missing(name: str) -> Callable[[], str]:
@@ -170,8 +180,8 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
     sse_read_timeout: float = 60 * 5
     """The timeout for the SSE connection, in seconds. Defaults to 5 minutes."""
 
-    auth: Optional[OAuthClientProvider] = None
-    """httpx Auth. Defaults to None."""
+    auth: Optional["AuthConfig"] = None
+    """Auth Configuration. Defaults to None."""
 
     follow_redirects: bool = True
     """Whether to automatically follow HTTP redirects (e.g., 301, 302) during requests.
@@ -290,7 +300,7 @@ class SSETransport(RemoteBaseTransport, ClientTransportWithAuth, SerializableObj
             headers=self._merged_headers,
             timeout=self.timeout,
             sse_read_timeout=self.sse_read_timeout,
-            auth=self.auth,
+            auth=self._get_auth_provider(),
             httpx_client_factory=_HttpxClientFactory(
                 verify=False, follow_redirects=self.follow_redirects
             ),
@@ -361,7 +371,7 @@ class SSEmTLSTransport(HTTPmTLSBaseTransport, ClientTransportWithAuth, Serializa
             headers=self._merged_headers,
             timeout=self.timeout,
             sse_read_timeout=self.sse_read_timeout,
-            auth=self.auth,
+            auth=self._get_auth_provider(),
             httpx_client_factory=_HttpxClientFactory(
                 key_file=self.key_file,
                 cert_file=self.cert_file,
@@ -395,7 +405,7 @@ class StreamableHTTPTransport(RemoteBaseTransport, ClientTransportWithAuth, Seri
             headers=self._merged_headers,
             timeout=datetime.timedelta(seconds=self.timeout),
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
-            auth=self.auth,
+            auth=self._get_auth_provider(),
             httpx_client_factory=_HttpxClientFactory(
                 verify=False, follow_redirects=self.follow_redirects
             ),
@@ -447,7 +457,7 @@ class StreamableHTTPmTLSTransport(
             headers=self._merged_headers,
             timeout=datetime.timedelta(seconds=self.timeout),
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
-            auth=self.auth,
+            auth=self._get_auth_provider(),
             httpx_client_factory=_HttpxClientFactory(
                 key_file=self.key_file,
                 cert_file=self.cert_file,
@@ -455,4 +465,29 @@ class StreamableHTTPmTLSTransport(
                 check_hostname=self.check_hostname,
                 follow_redirects=self.follow_redirects,
             ),
+        )
+
+
+class MCPOAuthConfigFactory:
+    """Factory for producing OAuthConfig instances for MCP server authentication."""
+
+    @staticmethod
+    def with_dynamic_discovery(redirect_uri: str) -> OAuthConfig:
+        """
+        Create an OAuthConfig for MCP server supporting the OAuth 2.0
+        dynamic client registration (DCR) with discovery mechanism.
+
+        Parameters
+        ----------
+
+        redirect_uri : str
+            Redirect (callback) URI for the authorization code flow.
+            e.g., "http://localhost:8003/callback"
+
+        """
+        return OAuthConfig(
+            client=OAuthClientConfig(type="dynamic_registration"),
+            redirect_uri=redirect_uri,
+            pkce=PKCEPolicy(required=True, method="S256"),
+            scope_policy="use_challenge_or_supported",
         )
