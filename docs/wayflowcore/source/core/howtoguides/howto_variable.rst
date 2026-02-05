@@ -66,13 +66,25 @@ We will define a simple flow including the following steps.
 For simplicity, we pass initial feedback to the ``start_step``, which then routes values to ``write_feedback_1`` and ``write_feedback_2``.
 In practice, those inputs could come from other steps (e.g. :ref:`ToolExecutionStep<ToolExecutionStep>`).
 
-The :ref:`VariableStep <VariableStep>` requires the ``write_variables`` that it writes to. It also accepts the following options of write operations:
+When updating some variables, the :ref:`VariableStep <VariableStep>` requires the ``write_variables`` that it writes to. It also accepts the following options of write operations:
 
 - ``VariableWriteOperation.OVERWRITE`` (or ``'overwrite'``) works on any type of variable to replace its value with the incoming value.
 - ``VariableWriteOperation.MERGE`` (or ``'merge'``) updates a ``Variable`` of type dict (resp. list),
 - ``VariableWriteOperation.INSERT`` (or ``'insert'``) operation can be used to append a single element at the end of a list.
 
 Here, we choose ``insert`` as we want to append new user feedback to the our list.
+
+The ``VariableStep`` can also read one or more variables, via the ``read_variables`` parameter.
+
+The ``VariableStep`` can perform both writes and reads of multiple variables at the same time.
+If you configure a step to both write and read a given variable, the value will be written first, and the updated variable will be used for the read operation.
+
+In general, the input and output descriptors of the ``VariableStep`` correspond to the properties referenced by the variables being written and/or read in this step, respectively.
+For example, if the step is configured to overwrite a ``Variable(name="manager", type=DictProperty())``, to extend a ``Variable(name="employees", type=ListProperty(item_type=DictProperty("employee"))``, and to read back the updated value of the employee list, the step would have the following descriptors:
+
+* An input descriptor ``DictProperty("manager")``, to overwrite the full manager variable;
+* An input descriptor ``DictProperty("employee")``, since the extend operation expects a single item of the employees list;
+* An output descriptor ``ListProperty("employees", item_type=DictProperty("employee"))``
 
 Define a Flow with Variable
 ===========================
@@ -84,8 +96,6 @@ Now we connect everything into a flow: two write steps add feedback, and a read 
    :linenos:
    :start-after: .. start-##_Define_a_Flow_with_variable
    :end-before: .. end-##_Define_a_Flow_with_variable
-
-The input and output descriptors of the read and write variables of ``VariableStep`` is the name of the variables.
 
 Remember to include your defined variables in the Flow’s ``variables`` parameter.
 
