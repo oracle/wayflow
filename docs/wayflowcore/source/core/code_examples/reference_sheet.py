@@ -10,7 +10,6 @@
 # docs-title: Reference Sheet
 
 import logging
-import os
 from datetime import datetime
 from types import MethodType
 from typing import Annotated, Any
@@ -48,7 +47,7 @@ logging.basicConfig(level=logging.CRITICAL)
 
 llm = VllmModel(
     model_id="model-id",
-    host_port=os.environ["VLLM_HOST_PORT"],
+    host_port="llm-host-port",
 )
 
 
