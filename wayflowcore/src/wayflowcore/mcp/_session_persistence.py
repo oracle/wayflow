@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -23,17 +23,20 @@ from typing import (
 )
 
 import anyio
+import httpx
 from anyio import from_thread, to_thread
 from anyio.streams import memory
 from exceptiongroup import ExceptionGroup
-from httpx import ConnectError
 from mcp import ClientSession
 from typing_extensions import TypeAlias
 
 from wayflowcore._utils.singleton import Singleton
+from wayflowcore.exceptions import AuthInterrupt
 from wayflowcore.tracing.span import _ACTIVE_SPAN_STACK, Span, get_active_span_stack
 
 if TYPE_CHECKING:
+    from wayflowcore.auth.auth import AuthChallengeResult
+    from wayflowcore.mcp._auth import OAuthFlowHandler
     from wayflowcore.mcp.clienttransport import ClientTransport
 
 
@@ -70,6 +73,70 @@ async def _call_with_parent_span(
         _ACTIVE_SPAN_STACK.reset(token)
 
 
+class ConnectionCompletedStatus:
+    """Maker used to indicate that a connection (potentially with auth)
+    has been fully completed."""
+
+
+def _translate_mcp_connection_error(exc: BaseException) -> Optional[BaseException]:
+    """
+    If `exc` (or any sub-exception in an ExceptionGroup) looks like an MCP connection/auth
+    problem, return a friendlier exception to raise. Otherwise return None.
+    """
+    if isinstance(exc, ExceptionGroup):
+        for sub in exc.exceptions:
+            translated = _translate_mcp_connection_error(sub)
+            if translated is not None:
+                return translated
+        return None
+    elif isinstance(exc, httpx.ConnectError):
+        return ConnectionError(
+            "Could not connect to the remote MCP server. Make sure it is running and reachable."
+        )
+    elif isinstance(exc, httpx.HTTPStatusError):
+        status = exc.response.status_code if exc.response is not None else None
+        request = exc.request
+
+        if status == 401:
+            return httpx.HTTPStatusError(
+                (
+                    "Encountered Authorization error when connecting to the MCP server. "
+                    "Make sure you are using the proper Authorization Config for the server. "
+                    f"Full error: {exc}"
+                ),
+                request=request,
+                response=exc.response,
+            )
+        elif status == 404:
+            return httpx.HTTPStatusError(
+                (
+                    "Successfully reached the MCP server but failed to find the endpoint for the given transport. "
+                    "Make sure you are using the right url and transport. "
+                    f"Full error: {exc}"
+                ),
+                request=request,
+                response=exc.response,
+            )
+        elif status == 405:
+            return httpx.HTTPStatusError(
+                (
+                    "Successfully reached the MCP server but failed when establishing the connection. "
+                    "Make sure you are using the right transport. "
+                    f"Full error: {exc}"
+                ),
+                request=request,
+                response=exc.response,
+            )
+
+    return None
+
+
+def _raise_if_translatable_mcp_error(exc: BaseException) -> None:
+    translated = _translate_mcp_connection_error(exc)
+    if translated is not None:
+        raise translated from exc
+
+
 class AsyncRuntime(metaclass=Singleton):
     """
     This class enable wayflow executor to reuse MCP sessions, even when running sync code.
@@ -92,8 +159,9 @@ class AsyncRuntime(metaclass=Singleton):
         self._portal: Optional[from_thread.BlockingPortal] = None
         self._closed = False
         self._exit_stack = ExitStack()
-        self._sessions: Dict[str, ClientSession] = {}
-        # client session per conversation id
+        # sessions/handlers are stored in dict[transport_id, dict[conv_id, ...]]
+        self._client_sessions: dict[str, dict[str, ClientSession]] = {}
+        self._oauth_handlers: dict[str, dict[str, "OAuthFlowHandler"]] = {}
         self._memory_streams: List[MemoryStreamTypeT] = []
         self._cancel_events: List[anyio.Event] = []
         # Cross-call portal state used by MCP progress callbacks.
@@ -169,12 +237,11 @@ class AsyncRuntime(metaclass=Singleton):
         This method MUST NOT be called within a portal.call (for cancellation scope reasons).
         """
         conversation_id = get_current_conv_id_or_default()
-        key = f"{conversation_id}:::{client_transport.id}"
-        if key not in self._sessions:
-            session = self._create_long_lived_session(client_transport)
-            self._sessions[key] = session
-
-        return self._sessions[key]
+        sessions_by_transport = self._client_sessions.setdefault(client_transport.id, {})
+        if conversation_id in sessions_by_transport:
+            # session already exists
+            return sessions_by_transport[conversation_id]
+        return self._create_long_lived_session(client_transport, conversation_id)
 
     def get_parent_span_stack(self) -> List[Span]:
         # called by the _mcp_progress_handler
@@ -184,14 +251,28 @@ class AsyncRuntime(metaclass=Singleton):
     def _create_long_lived_session(
         self,
         client_transport: "ClientTransport",
+        conversation_id: str,
     ) -> ClientSession:
         """Creates a long lived MCP ClientSession in a background thread.
 
         This session is then reused between calls.
         """
+        from wayflowcore.auth.auth import AuthChallengeRequest
+        from wayflowcore.executors.executionstatus import AuthChallengeRequestStatus
+        from wayflowcore.mcp._auth import OAuthCancelledError
+
         # The memory stream is used to collect the session object from the runner
-        send, recv = anyio.create_memory_object_stream(1)  # type: ignore
-        self._memory_streams.append((send, recv))
+        send, recv = anyio.create_memory_object_stream[
+            Union[AuthChallengeRequest, ConnectionCompletedStatus, BaseException]
+        ]()
+        memory_stream = (send, recv)
+        self._memory_streams.append(memory_stream)
+        requires_oauth = _bind_portal_info_if_needed(
+            client_transport,
+            memory_stream,
+            self,
+            conversation_id,
+        )
 
         # The runner will be keeping the MCP client session task alive until the
         # event flag is set (which is done when closing all sessions)
@@ -199,10 +280,14 @@ class AsyncRuntime(metaclass=Singleton):
         self._cancel_events.append(cancel_event)
 
         async def session_runner(
-            send_chan: memory.MemoryObjectSendStream[Union[ClientSession, BaseException]],
+            send_chan: memory.MemoryObjectSendStream[
+                Union[AuthChallengeRequest, ConnectionCompletedStatus, BaseException]
+            ],
             cancel_evt: anyio.Event,
+            transport_id: str,
+            conversation_id: str,
         ) -> None:
-            sent_first = False
+            is_session_initialized = False
             try:
                 async with client_transport._get_client_transport_cm() as transport_tuple:
                     read_stream, write_stream = transport_tuple[0], transport_tuple[1]
@@ -211,13 +296,32 @@ class AsyncRuntime(metaclass=Singleton):
                     ) as session:
                         try:
                             await session.initialize()
+                            is_session_initialized = True
                         except Exception as e:
                             raise e
-                        await send_chan.send(session)
-                        # keep task alive until asked to stop
-                        await cancel_evt.wait()
-            except Exception as e:
-                if not sent_first:
+                        self._client_sessions.setdefault(transport_id, {})[
+                            conversation_id
+                        ] = session
+
+                        if not requires_oauth:
+                            await send_chan.send(ConnectionCompletedStatus())
+                        else:
+                            _signal_oauth_completion(self, transport_id, conversation_id)
+                            # ^ AuthChallengeRequestStatus.submit_result waits on
+                            # this signal to continue.
+
+                        await cancel_evt.wait()  # keep task alive until asked to stop
+            except BaseException as e:
+                if isinstance(e, ExceptionGroup) and any(
+                    isinstance(sub_exc, OAuthCancelledError) for sub_exc in e.exceptions
+                ):
+                    logger.debug(
+                        "OAuth flow cancelled for transport '%s' and conversation '%s'",
+                        transport_id,
+                        conversation_id,
+                    )
+                    return
+                elif not is_session_initialized:
                     # Shield sending the error so it isn’t cancelled
                     with anyio.CancelScope(shield=True):
                         await send_chan.send(e)
@@ -228,24 +332,69 @@ class AsyncRuntime(metaclass=Singleton):
         if not self._portal:
             raise RuntimeError("Async runtime not started")
 
-        self._portal.start_task_soon(session_runner, send, cancel_event)
-        res = self._portal.call(recv.receive)
+        transport_id = client_transport.id
+        self._portal.start_task_soon(
+            session_runner, send, cancel_event, transport_id, conversation_id
+        )
+        status = self._portal.call(recv.receive)
+        if isinstance(status, ConnectionCompletedStatus):
+            # sent by the `session_runner`
+            session = self._client_sessions[transport_id][conversation_id]
+            return session
+        elif isinstance(status, AuthChallengeRequest):
+            # sent by the `OAuthFlowHandler.redirect_handler`
+            # called from the `mcp.ClientSession` context manager
+            # upon auth flow completion, the session is then directly
+            # populated in the self._client_sessions dict.
+            auth_challenge = status
+            auth_status = AuthChallengeRequestStatus(
+                challenge=auth_challenge,
+                client_transport_id=transport_id,
+                _conversation_id=conversation_id,
+            )
+            raise AuthInterrupt(auth_status)
+        elif isinstance(exc := status, ExceptionGroup):
+            _raise_if_translatable_mcp_error(exc)
+            raise exc
+        elif isinstance(status, BaseException):
+            raise status
+        else:
+            raise ValueError(f"Unrecognized status: {type(status)}")
 
-        if isinstance(res, ExceptionGroup):
-            # in case the error is just about connect, we raise a meaningful error instead
-            for sub_exception in res.exceptions:
-                if isinstance(
-                    sub_exception, ConnectError
-                ) and "All connection attempts failed" in str(sub_exception):
-                    raise ConnectionError(
-                        "Could not connect to the remote MCP server. Make sure it is running and reachable."
-                    ) from sub_exception
-            raise res
-        elif isinstance(res, BaseException):
-            raise res
+    def cancel_oauth_callback(
+        self,
+        client_transport_id: str,
+        conversation_id: str | None,
+    ) -> None:
+        conv_key = conversation_id or _DEFAULT_MCP_SESSION_CONTEXT_ID
+        handler = self._oauth_handlers.get(client_transport_id, {}).get(conv_key)
+        if handler is None:
+            raise ValueError("No OAuth handler registered for transport/conversation")
 
-        session: ClientSession = res
-        return session
+        handler._cancel_oauth_flow()
+
+    def _cancel_all_oauth_flows(self) -> None:
+        for handlers_by_conv in self._oauth_handlers.values():
+            for handler in handlers_by_conv.values():
+                try:
+                    handler._cancel_oauth_flow()
+                except RuntimeError as e:
+                    logger.debug("Error when canceling OAuth Flow: %s", e)
+
+    def submit_oauth_callback(
+        self,
+        client_transport_id: str,
+        conversation_id: str | None,
+        callback_result: "AuthChallengeResult",
+        timeout: float,
+    ) -> None:
+        """Called by `AuthChallengeRequestStatus.submit_result`."""
+        conv_key = conversation_id or _DEFAULT_MCP_SESSION_CONTEXT_ID
+        handler = self._oauth_handlers.get(client_transport_id, {}).get(conv_key)
+        if handler is None:
+            raise ValueError("No OAuth handler registered for transport/conversation")
+
+        handler._submit_oauth_callbackresult(callback_result, timeout)
 
     def _close_all_sessions(self) -> None:
         # Close memory streams
@@ -253,6 +402,8 @@ class AsyncRuntime(metaclass=Singleton):
             send.close()
             recv.close()
         self._memory_streams.clear()
+        # Cancel auth flows still opened (important otherwise would hang)
+        self._cancel_all_oauth_flows()
         # Cancel sessions
         for event in self._cancel_events:
             self.call(event.set)  # type: ignore
@@ -273,9 +424,12 @@ class AsyncRuntime(metaclass=Singleton):
         """Gracefully shuts down the MCP async runtime."""
         self._close()
         with self._lock:
-            self._exit_stack.close()
-            self._sessions.clear()
+            exit_stack = self._exit_stack
+            self._exit_stack = ExitStack()
+            self._client_sessions.clear()
             self._portal = None
+
+        exit_stack.close()  # closing outside the lock
 
     @staticmethod
     def _finalize(self_ref: "AsyncRuntime") -> None:
@@ -314,3 +468,83 @@ def shutdown_mcp_async_runtime() -> None:
     with _RUNTIME_INIT_LOCK:
         if _RUNTIME.is_live:
             _RUNTIME.shutdown()
+
+
+def _get_oauth_flow_handler(client_transport: "ClientTransport") -> "OAuthFlowHandler":
+    from wayflowcore.conversation import _get_current_conversation_id
+
+    runtime = get_mcp_async_runtime()
+    conversation_id = _get_current_conversation_id() or _DEFAULT_MCP_SESSION_CONTEXT_ID
+    transport_id = client_transport.id
+
+    handler = runtime._oauth_handlers.get(transport_id, {}).get(conversation_id)
+    if handler is None:
+        raise ValueError(
+            f"No OAuth flow handler is registered for transport '{transport_id}' "
+            f"and conversation {conversation_id}."
+        )
+
+    return handler
+
+
+def _bind_portal_info_if_needed(
+    client_transport: "ClientTransport",
+    memory_stream: MemoryStreamTypeT,
+    portal: AsyncRuntime,
+    conversation_id: str,
+) -> bool:
+    """Done when creating a long-lived MCP Client Session."""
+    from wayflowcore.auth.auth import OAuthConfig
+    from wayflowcore.mcp._auth import OAuthFlowHandler
+    from wayflowcore.mcp.clienttransport import RemoteBaseTransport
+
+    transport_id = client_transport.id
+
+    if not (
+        isinstance(client_transport, RemoteBaseTransport)
+        and isinstance(client_transport.auth, OAuthConfig)
+    ):
+        return False
+
+    oauth_config = client_transport.auth
+
+    # If an OAuth handler already exists, cancel any existing flow before
+    # re-creating a new handler
+    previous_handler_exists = conversation_id in portal._oauth_handlers.get(transport_id, {})
+    if previous_handler_exists:
+        logger.warning(
+            "OAuth handler already existed for transport '%s', conversation '%s', cancelling previous flow.",
+            transport_id,
+            conversation_id,
+        )
+        portal.cancel_oauth_callback(transport_id, conversation_id)
+
+    handler = OAuthFlowHandler(
+        mcp_url=client_transport.url,
+        oauth_config=oauth_config,
+    )
+    handler.bind_runtime(
+        portal=portal,
+        memory_stream=memory_stream,
+        transport_id=transport_id,
+        conversation_id=conversation_id,
+    )
+
+    # register handler
+    portal._oauth_handlers.setdefault(transport_id, {})[conversation_id] = handler
+    return True
+
+
+def _signal_oauth_completion(
+    portal: AsyncRuntime,
+    transport_id: str,
+    conversation_id: str,
+) -> None:
+    handler = portal._oauth_handlers.get(transport_id, {}).get(conversation_id)
+    if handler is None or handler.oauth_flow_completed_event is None:
+        raise ValueError(
+            f"No OAuth flow handler is registered for transport '{transport_id}' "
+            f"and conversation {conversation_id}."
+        )
+
+    handler.oauth_flow_completed_event.set()

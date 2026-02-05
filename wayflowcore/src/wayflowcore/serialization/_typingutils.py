@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -46,7 +46,10 @@ def is_tuple_type(tp: type) -> bool:
 def is_list_type(tp: type) -> bool:
     origin = get_origin(tp) or tp
     try:
-        return issubclass(origin, (list, Sequence)) and origin not in [str, bytes]
+        # Exclude "string-like" types (including subclasses such as Enum(str))
+        if issubclass(origin, (str, bytes)):
+            return False
+        return issubclass(origin, (list, Sequence))
     except TypeError:
         return False
 

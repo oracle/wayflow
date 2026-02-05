@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -32,6 +32,7 @@ from wayflowcore._utils.async_helpers import (
     run_sync_in_process,
     run_sync_in_thread,
 )
+from wayflowcore.exceptions import AuthInterrupt
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolRequestStatus,
@@ -325,13 +326,18 @@ class ServerTool(Tool):
                 output, serialized_output = e, str(e)
 
             tool_result = ToolResult(content=output, tool_request_id=tool_request.tool_request_id)
+            if isinstance(output, AuthInterrupt):
+                # Auth interrupt: we should return directly
+                span.record_end_span_event(str(output))
+                return tool_result
 
             if append_message:
-                # Check if tool output is copyable
-                output = self._check_tool_outputs_copyable(
-                    output,
-                    raise_exceptions=raise_exceptions,
-                )
+                if not isinstance(output, Exception):
+                    # Check if tool output is copyable, otherwise raise or stringify
+                    output = self._check_tool_outputs_copyable(
+                        output,
+                        raise_exceptions=raise_exceptions,
+                    )
 
                 tool_result = ToolResult(
                     content=output, tool_request_id=tool_request.tool_request_id

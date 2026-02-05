@@ -21,6 +21,7 @@ from wayflowcore.executors._agenticpattern_helpers import (
 )
 from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.executors.executionstatus import (
+    AuthChallengeRequestStatus,
     ExecutionStatus,
     ToolExecutionConfirmationStatus,
     ToolRequestStatus,
@@ -216,11 +217,19 @@ class SwarmRunner(ConversationExecutor):
             if (
                 not _last_message
                 or _last_message.message_type == MessageType.TOOL_REQUEST
-                and not isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus))
+                and not isinstance(
+                    status,
+                    (
+                        ToolRequestStatus,
+                        ToolExecutionConfirmationStatus,
+                        AuthChallengeRequestStatus,
+                    ),
+                )
             ):
                 raise TypeError(
                     "Internal error: Last agent message is a tool request but execution status "
-                    f"is not of type {ToolRequestStatus}, {ToolExecutionConfirmationStatus} (is '{status}')"
+                    "is not of type ToolRequestStatus, ToolExecutionConfirmationStatus, "
+                    f"AuthChallengeRequestStatus (is '{type(status).__name__}')"
                 )
             if isinstance(status, ToolRequestStatus):
                 # 1. Agent requests communication tools (send_message/handoff) or a standard client tool
@@ -243,8 +252,8 @@ class SwarmRunner(ConversationExecutor):
                     current_agent_subconversation=agent_sub_conversation,
                 )
                 conversation.state.current_thread = next_thread
-            elif isinstance(status, ToolExecutionConfirmationStatus):
-                # 4. Agent wants to execute tool that needs confirmation
+            elif isinstance(status, (ToolExecutionConfirmationStatus, AuthChallengeRequestStatus)):
+                # 4. Agent wants to execute tool that needs confirmation or require auth
                 return status
             else:
                 # 5. Finish status: happening when caller_input_mode == NEVER

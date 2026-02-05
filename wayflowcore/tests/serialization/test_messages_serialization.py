@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import httpx
 import pytest
 
 from wayflowcore.messagelist import ImageContent, Message, MessageList, MessageType, TextContent
@@ -87,3 +88,22 @@ def test_serialize_and_autodeserialize_message_list() -> None:
     deserialized_message_list = autodeserialize(serialize(message_list))
 
     assert message_list == deserialized_message_list
+
+
+def test_message_list_copy_with_non_copyable_tool_result_output() -> None:
+    non_copyable = httpx.HTTPStatusError("", request=None, response=None)
+    message_list = MessageList(
+        [
+            Message(
+                message_type=MessageType.TOOL_RESULT,
+                tool_result=ToolResult(tool_request_id="tc1", content=non_copyable),
+            )
+        ]
+    )
+
+    copied = message_list.copy()
+
+    assert copied == message_list
+    assert copied is not message_list
+    assert copied.messages[0] is not message_list.messages[0]
+    assert copied.messages[0].tool_result is message_list.messages[0].tool_result

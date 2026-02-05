@@ -30,6 +30,7 @@ types-python-dateutil
 
 # Additional packages for tests
 cryptography
+fastmcp>=2.14.3
 starlette>=0.47.2
 uvicorn>=0.23.1
 openai # testing the openai responses server

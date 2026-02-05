@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -29,7 +29,6 @@ from typing import (
 )
 
 from exceptiongroup import ExceptionGroup
-from httpx import ConnectError
 from mcp import ClientSession
 from mcp import types as types
 from mcp.server.fastmcp import Context
@@ -39,7 +38,10 @@ from mcp.shared.context import LifespanContextT, RequestT
 from wayflowcore.events.event import ToolExecutionStreamingChunkReceivedEvent
 from wayflowcore.events.eventlistener import record_event
 from wayflowcore.exceptions import NoSuchToolFoundOnMCPServerError
-from wayflowcore.mcp._session_persistence import get_mcp_async_runtime
+from wayflowcore.mcp._session_persistence import (
+    _raise_if_translatable_mcp_error,
+    get_mcp_async_runtime,
+)
 from wayflowcore.mcp.clienttransport import ClientTransport, ClientTransportWithAuth
 from wayflowcore.property import (
     DictProperty,
@@ -106,14 +108,7 @@ def _catch_and_raise_mcp_connection_errors() -> Any:
     try:
         yield
     except ExceptionGroup as e:
-        # in case the error is just about connect, we raise a meaningful error instead
-        for sub_exception in e.exceptions:
-            if isinstance(sub_exception, ConnectError) and "All connection attempts failed" in str(
-                sub_exception
-            ):
-                raise ConnectionError(
-                    "Could not connect to the remote MCP server. Make sure it is running and reachable."
-                ) from sub_exception
+        _raise_if_translatable_mcp_error(e)
         raise e
 
 

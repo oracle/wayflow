@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -16,6 +16,7 @@ from wayflowcore.serialization.context import DeserializationContext, Serializat
 from wayflowcore.serialization.serializer import SerializableDataclass, SerializableObject
 
 if TYPE_CHECKING:
+    from wayflowcore.auth.auth import AuthChallengeRequest, AuthChallengeResult
     from wayflowcore.messagelist import Message
     from wayflowcore.tools import ToolRequest, ToolResult
 
@@ -124,6 +125,71 @@ class UserMessageRequestStatus(ExecutionStatus):
                 input_dict.get("_user_response"), Optional[Message], deserialization_context  # type: ignore
             ),
             id=input_dict.get("id") or IdGenerator.get_or_generate_id(),
+        )
+
+
+@dataclass(kw_only=True)
+class AuthChallengeRequestStatus(ExecutionStatus):
+    """
+    Execution status for when authorization is required to access a resource.
+    """
+
+    challenge: "AuthChallengeRequest"
+    client_transport_id: str
+    _conversation_id: Optional[str] = None
+
+    @property
+    def _requires_yielding(self) -> bool:
+        return True
+
+    def submit_result(self, result: "AuthChallengeResult", timeout: float = 20.0) -> None:
+        """
+        Submit the Auth challenge result to complete the auth flow.
+
+        Parameters
+        ----------
+        result:
+            Auth challenge result, containing information such as
+            auth challenge code and state.
+        timeout:
+            Timeout for the auth flow completion after the result
+            has been submitted and the auth flow has been resumed.
+        """
+        from wayflowcore.mcp._session_persistence import get_mcp_async_runtime
+
+        get_mcp_async_runtime().submit_oauth_callback(
+            client_transport_id=self.client_transport_id,
+            conversation_id=self._conversation_id,
+            callback_result=result,
+            timeout=timeout,
+        )
+
+    def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
+        return {
+            "client_transport_id": self.client_transport_id,
+            "_conversation_id": self._conversation_id,
+            # we explicitely do not serialize the auth challenge request
+            # which may include sensitive information
+        }
+
+    @classmethod
+    def _deserialize_from_dict(
+        cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
+    ) -> "SerializableObject":
+        from wayflowcore.auth.auth import AuthChallengeRequest
+
+        conversation_id = input_dict.get("_conversation_id", None)
+        return AuthChallengeRequestStatus(
+            _conversation_id=conversation_id,
+            client_transport_id=input_dict["client_transport_id"],
+            challenge=AuthChallengeRequest(
+                resource_uri="null",
+                issuer=[],
+                authorization_url="null",
+                _conversation_id=conversation_id,
+            ),
+            # we explicitely do not deserialize the auth challenge request
+            # which may include sensitive information
         )
 
 

@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -6,6 +6,7 @@
 
 from .clienttransport import (
     ClientTransport,
+    MCPOAuthConfigFactory,
     SessionParameters,
     SSEmTLSTransport,
     SSETransport,
@@ -17,14 +18,15 @@ from .mcphelpers import enable_mcp_without_auth
 from .tools import MCPTool, MCPToolBox
 
 __all__ = [
+    "ClientTransport",
+    "MCPOAuthConfigFactory",
     "MCPTool",
     "MCPToolBox",
-    "enable_mcp_without_auth",
+    "SessionParameters",
     "SSETransport",
     "SSEmTLSTransport",
     "StdioTransport",
     "StreamableHTTPmTLSTransport",
     "StreamableHTTPTransport",
-    "SessionParameters",
-    "ClientTransport",
+    "enable_mcp_without_auth",
 ]
