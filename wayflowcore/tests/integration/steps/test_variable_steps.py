@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -11,60 +11,11 @@ from wayflowcore.executors._flowexecutor import FlowConversationExecutionState
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
-from wayflowcore.property import DictProperty, FloatProperty, ListProperty, StringProperty
+from wayflowcore.property import FloatProperty, ListProperty
 from wayflowcore.steps import ToolExecutionStep, VariableReadStep, VariableWriteStep
 from wayflowcore.steps.inputmessagestep import InputMessageStep
 from wayflowcore.tools import tool
 from wayflowcore.variable import Variable, VariableWriteOperation
-
-
-@pytest.fixture
-def float_variable() -> Variable:
-    return Variable(
-        name="float_variable",
-        type=FloatProperty(),
-        description="a float variable",
-        default_value=1.1,
-    )
-
-
-@pytest.fixture
-def string_variable() -> Variable:
-    return Variable(
-        name="string variable",
-        type=StringProperty(),
-        description="my string variable",
-    )
-
-
-@pytest.fixture
-def list_of_floats_variable() -> Variable:
-    return Variable(
-        name="list_of_floats_variable",
-        type=ListProperty(item_type=FloatProperty()),
-        description="list of floats variable",
-        default_value=[4.0, 4.0, 3.0, 2.1423],
-    )
-
-
-@pytest.fixture
-def dict_of_floats_variable() -> Variable:
-    return Variable(
-        name="dict_of_floats_variable",
-        type=DictProperty(value_type=FloatProperty()),
-        description="dict of floats variable",
-        default_value={"my_str": 22.14},
-    )
-
-
-@pytest.fixture
-def list_of_dicts_of_strings_variable() -> Variable:
-    return Variable(
-        name="list_of_dict_of_strings_variable",
-        type=ListProperty(item_type=DictProperty(value_type=StringProperty())),
-        description="list of dict of strings variable",
-        default_value=[{"my_str": "my value"}],
-    )
 
 
 @pytest.mark.parametrize(

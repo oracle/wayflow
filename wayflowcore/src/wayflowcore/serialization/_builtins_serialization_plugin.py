@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -214,6 +214,7 @@ from wayflowcore.agentspec.components.nodes import (
 from wayflowcore.agentspec.components.nodes import PluginRegexNode as AgentSpecPluginRegexNode
 from wayflowcore.agentspec.components.nodes import PluginRetryNode as AgentSpecPluginRetryNode
 from wayflowcore.agentspec.components.nodes import PluginTemplateNode as AgentSpecPluginTemplateNode
+from wayflowcore.agentspec.components.nodes import PluginVariableNode as AgentSpecPluginVariableNode
 from wayflowcore.agentspec.components.nodes import (
     PluginWriteVariableNode as AgentSpecPluginWriteVariableNode,
 )
@@ -403,6 +404,7 @@ from wayflowcore.steps.step import Step as RuntimeStep
 from wayflowcore.steps.variablesteps.variablereadstep import (
     VariableReadStep as RuntimeVariableReadStep,
 )
+from wayflowcore.steps.variablesteps.variablestep import VariableStep as RuntimeVariableStep
 from wayflowcore.steps.variablesteps.variablewritestep import (
     VariableWriteStep as RuntimeVariableWriteStep,
 )
@@ -846,9 +848,20 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
     def _variable_convert_to_agentspec(
         self, runtime_variable: RuntimeVariable
     ) -> AgentSpecProperty:
-        return _runtime_property_to_pyagentspec_property(
+        pyagentspec_property = _runtime_property_to_pyagentspec_property(
             RuntimeVariable.to_property(runtime_variable)
         )
+        pyagentspec_property.default = runtime_variable.default_value
+        pyagentspec_property.json_schema["default"] = runtime_variable.default_value
+        return pyagentspec_property
+
+    def _variables_convert_to_agentspec(
+        self, runtime_variables: List[RuntimeVariable]
+    ) -> List[AgentSpecProperty]:
+        return [
+            self._variable_convert_to_agentspec(runtime_variable)
+            for runtime_variable in runtime_variables
+        ]
 
     def _contextprovider_convert_to_agentspec(
         self,
@@ -2626,6 +2639,16 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             return AgentSpecPluginReadVariableNode(
                 variable=self._variable_convert_to_agentspec(runtime_step.variable),
                 **step_args,
+                input_mapping=runtime_step.input_mapping,
+                output_mapping=runtime_step.output_mapping,
+            )
+        elif runtime_step_type is RuntimeVariableStep:
+            runtime_step = cast(RuntimeVariableStep, runtime_step)
+            return AgentSpecPluginVariableNode(
+                write_variables=self._variables_convert_to_agentspec(runtime_step.write_variables),
+                read_variables=self._variables_convert_to_agentspec(runtime_step.read_variables),
+                **step_args,
+                write_operations=runtime_step.write_operations,
                 input_mapping=runtime_step.input_mapping,
                 output_mapping=runtime_step.output_mapping,
             )

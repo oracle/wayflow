@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -30,6 +30,7 @@ from wayflowcore.agentspec.components import (
     PluginInputMessageNode,
     PluginOutputMessageNode,
     PluginReadVariableNode,
+    PluginVariableNode,
     PluginWriteVariableNode,
     all_deserialization_plugin,
     all_serialization_plugin,
@@ -88,6 +89,12 @@ example_variable = ListProperty(
     title="variable",
     description="example variable",
     item_type=StringProperty(),
+)
+
+extra_example_variable = ListProperty(
+    title="extra-variable",
+    description="extra example variable",
+    item_type=FloatProperty(),
 )
 
 test_cases = [
@@ -366,6 +373,164 @@ test_cases = [
             }
         ],
         [],
+    ),
+    (
+        PluginVariableNode,
+        dict(
+            name="node",
+            read_variables=[example_variable],
+            output_mapping={example_variable.title: "MY_OUTPUT"},
+        ),
+        [],
+        [
+            {
+                "title": "MY_OUTPUT",
+                "description": "example variable",
+                "items": {"type": "string"},
+                "type": "array",
+            }
+        ],
+    ),
+    (
+        PluginVariableNode,
+        dict(
+            name="node",
+            write_variables=[example_variable],
+            write_operations={example_variable.title: "overwrite"},
+            input_mapping={example_variable.title: "MY_INPUT"},
+        ),
+        [
+            {
+                "title": "MY_INPUT",
+                "description": "example variable",
+                "items": {"type": "string"},
+                "type": "array",
+            }
+        ],
+        [],
+    ),
+    (
+        PluginVariableNode,
+        dict(
+            name="node",
+            write_variables=[example_variable],
+            write_operations={example_variable.title: "insert"},
+            input_mapping={example_variable.title: "MY_INPUT"},
+        ),
+        [
+            {
+                "title": "MY_INPUT",
+                "description": "example variable (single element)",
+                "type": "string",
+            }
+        ],
+        [],
+    ),
+    (
+        PluginVariableNode,
+        dict(
+            name="node",
+            write_variables=[example_variable],
+            read_variables=[example_variable],
+            write_operations={example_variable.title: "overwrite"},
+            input_mapping={example_variable.title: "MY_INPUT"},
+            output_mapping={example_variable.title: "MY_OUTPUT"},
+        ),
+        [
+            {
+                "title": "MY_INPUT",
+                "description": "example variable",
+                "items": {"type": "string"},
+                "type": "array",
+            }
+        ],
+        [
+            {
+                "title": "MY_OUTPUT",
+                "description": "example variable",
+                "items": {"type": "string"},
+                "type": "array",
+            }
+        ],
+    ),
+    (
+        PluginVariableNode,
+        dict(
+            name="node",
+            write_variables=[example_variable],
+            read_variables=[example_variable],
+            write_operations={example_variable.title: "insert"},
+            input_mapping={example_variable.title: "MY_INPUT"},
+            output_mapping={example_variable.title: "MY_OUTPUT"},
+        ),
+        [
+            {
+                "title": "MY_INPUT",
+                "description": "example variable (single element)",
+                "type": "string",
+            }
+        ],
+        [
+            {
+                "title": "MY_OUTPUT",
+                "description": "example variable",
+                "items": {"type": "string"},
+                "type": "array",
+            }
+        ],
+    ),
+    (
+        PluginVariableNode,
+        dict(
+            name="node",
+            write_variables=[
+                example_variable,
+                extra_example_variable,
+            ],
+            read_variables=[
+                example_variable,
+                extra_example_variable,
+            ],
+            write_operations={
+                example_variable.title: "overwrite",
+                extra_example_variable.title: "insert",
+            },
+            input_mapping={
+                example_variable.title: "MY_INPUT_1",
+                extra_example_variable.title: "MY_INPUT_2",
+            },
+            output_mapping={
+                example_variable.title: "MY_OUTPUT_1",
+                extra_example_variable.title: "MY_OUTPUT_2",
+            },
+        ),
+        [
+            {
+                "title": "MY_INPUT_1",
+                "description": "example variable",
+                "items": {"type": "string"},
+                "type": "array",
+            },
+            {
+                "title": "MY_INPUT_2",
+                "description": "extra example variable (single element)",
+                "type": "number",
+            },
+        ],
+        [
+            {
+                "title": "MY_OUTPUT_1",
+                "description": "example variable",
+                "items": {"type": "string"},
+                "type": "array",
+            },
+            {
+                "title": "MY_OUTPUT_2",
+                "description": "extra example variable",
+                "items": {"type": "number"},
+                "type": "array",
+            },
+        ],
     ),
 ]
 

@@ -102,7 +102,7 @@ The table below summarizes the limitations of parallel execution for the :ref:`P
      - N/A
    * - **SUPPORTED WITH SIDE EFFECTS**
      - **Flows that do not yield but have some side-effect on the conversation** (variable read/write, posting to the conversation, and so on)
-     - Flows with ``OutputMessageStep``, ``VariableReadStep``, ``VariableWriteStep``, and so on
+     - Flows with ``OutputMessageStep``, ``VariableStep``, ``VariableReadStep``, ``VariableWriteStep``, and so on
      - No guarantee in the order of operations (such as posting to the conversation), only the outputs are guaranteed in order.
    * - **NON SUPPORTED**
      - **Flows that yield**. WayFlow does not support this, otherwise a user might be confused in what branch they are currently when prompted to answer.

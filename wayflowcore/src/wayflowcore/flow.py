@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -835,7 +835,7 @@ class Flow(ConversationalComponent, SerializableObject):
         variables = variables if variables is not None else []
         self._validate_unique_variable_names(variables)
         self.variables = variables
-        self._validate_readwrite_steps_refer_to_declared_variables(self.steps, self.variables)
+        self._validate_variable_steps_refer_to_declared_variables(self.steps, self.variables)
 
         self._check_step_outputs_and_context_provider_collisions()
 
@@ -1531,17 +1531,30 @@ class Flow(ConversationalComponent, SerializableObject):
             )
 
     @staticmethod
-    def _validate_readwrite_steps_refer_to_declared_variables(
+    def _validate_variable_steps_refer_to_declared_variables(
         steps: Dict[str, "Step"], variables: List["Variable"]
     ) -> None:
-        from wayflowcore.steps import VariableReadStep, VariableWriteStep
+        from wayflowcore.steps import VariableReadStep, VariableStep, VariableWriteStep
+
+        # assumes variables is a list of variables whose names are unique
+        variables_names = {v.name for v in variables}
 
         for step_name, step in steps.items():
-            if isinstance(
-                step, (VariableReadStep, VariableWriteStep)
-            ) and step.variable.name not in {
-                v.name for v in variables
-            }:  # assumes variables is a list of variables whose names are unique
+            if isinstance(step, VariableStep):
+                step_vars_names = {v.name for v in step.write_variables + step.read_variables}
+
+                undefined_vars_names = step_vars_names - variables_names
+                if len(undefined_vars_names) != 0:
+                    undefined_vars_names_str = ", ".join(undefined_vars_names)
+                    raise ValueError(
+                        f"The VariableStep '{step_name}' refers to the variable(s) {undefined_vars_names_str} "
+                        "but this/these variable(s) was/were not passed into the flow constructor."
+                    )
+
+            if (
+                isinstance(step, (VariableReadStep, VariableWriteStep))
+                and step.variable.name not in variables_names
+            ):
                 raise ValueError(
                     f"The Read/Write step '{step_name}' refers to the Variable '{step.variable.name}' "
                     "but it was not passed into the flow constructor. Make sure to pass it as an argument when "

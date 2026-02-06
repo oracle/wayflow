@@ -9,6 +9,9 @@ This page presents all APIs and classes related to variables in WayFlow.
 .. _variablewriteoperation:
 .. autoclass:: wayflowcore.variable.VariableWriteOperation
 
+.. autoclass:: wayflowcore.steps.variablesteps.variablestep.VariableStep
+    :noindex:
+
 .. autoclass:: wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep
     :noindex:
 

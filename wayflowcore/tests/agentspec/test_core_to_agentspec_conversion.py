@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -43,6 +43,13 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
         ("flow_6.yaml", {}),
         (
             "flow_7.yaml",  # Flow uses Variable, VariableReadStep, VariableWriteStep
+            {
+                "feedback_1": "Very good!",
+                "feedback_2": "Need to improve!",
+            },
+        ),
+        (
+            "flow_8.yaml",  # Flow uses Variable, VariableStep
             {
                 "feedback_1": "Very good!",
                 "feedback_2": "Need to improve!",

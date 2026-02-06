@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -62,13 +62,8 @@ class Variable(FrozenDataclassComponent):
     >>> from wayflowcore.dataconnection import DataFlowEdge
     >>> from wayflowcore.flow import Flow
     >>> from wayflowcore.property import FloatProperty
-    >>> from wayflowcore.steps import (
-    ...     OutputMessageStep,
-    ...     VariableReadStep,
-    ...     ToolExecutionStep,
-    ...     VariableWriteStep
-    ... )
-    >>> from wayflowcore.variable import Variable
+    >>> from wayflowcore.steps import OutputMessageStep, VariableStep, ToolExecutionStep
+    >>> from wayflowcore.variable import Variable, VariableWriteOperation
     >>> from wayflowcore.tools import tool
     >>> float_variable = Variable(
     ...     name="float_variable",
@@ -76,28 +71,32 @@ class Variable(FrozenDataclassComponent):
     ...     description="a float variable",
     ...     default_value=5.0,
     ... )
-    >>> read_step_1 = VariableReadStep(variable=float_variable)
+    >>> var_step_1 = VariableStep(read_variables=[float_variable])
     >>> @tool(description_mode="only_docstring")
     ... def triple_number(x: float) -> float:
     ...     "Tool that triples a number"
     ...     return x * 3
     >>> triple_step = ToolExecutionStep(tool=triple_number)
-    >>> write_step = VariableWriteStep(variable=float_variable)
-    >>> read_step_2 = VariableReadStep(variable=float_variable)
+    >>> var_step_2 = VariableStep(
+    ...     write_variables=[float_variable],
+    ...     read_variables=[float_variable],
+    ...     write_operations=VariableWriteOperation.OVERWRITE,
+    ... )
     >>> output_step = OutputMessageStep("The variable is {{ variable }}")
     >>> flow = Flow(
-    ...     begin_step=read_step_1,
+    ...     begin_step=var_step_1,
     ...     control_flow_edges=[
-    ...         ControlFlowEdge(read_step_1, triple_step),
-    ...         ControlFlowEdge(triple_step, write_step),
-    ...         ControlFlowEdge(write_step, read_step_2),
-    ...         ControlFlowEdge(read_step_2, output_step),
+    ...         ControlFlowEdge(var_step_1, triple_step),
+    ...         ControlFlowEdge(triple_step, var_step_2),
+    ...         ControlFlowEdge(var_step_2, output_step),
     ...         ControlFlowEdge(output_step, None),
     ...     ],
     ...     data_flow_edges=[
-    ...         DataFlowEdge(read_step_1, VariableReadStep.VALUE, triple_step, "x"),
-    ...         DataFlowEdge(triple_step, ToolExecutionStep.TOOL_OUTPUT, write_step, VariableWriteStep.VALUE),
-    ...         DataFlowEdge(read_step_2, VariableReadStep.VALUE, output_step, "variable"),
+    ...         DataFlowEdge(var_step_1, float_variable.name, triple_step, "x"),
+    ...         DataFlowEdge(
+    ...             triple_step, ToolExecutionStep.TOOL_OUTPUT, var_step_2, float_variable.name
+    ...         ),
+    ...         DataFlowEdge(var_step_2, float_variable.name, output_step, "variable"),
     ...     ],
     ...     variables=[float_variable],
     ... )
@@ -153,11 +152,7 @@ class Variable(FrozenDataclassComponent):
             name=property_.name,
             type=property_,
             description=property_.description or None,
-            default_value=(
-                property_.default_value
-                if property_.default_value != Property.empty_default
-                else None
-            ),
+            default_value=property_.default_value,
             __metadata_info__=property_.__metadata_info__,
         )
 

@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -7,8 +7,9 @@
 # fmt: off
 # mypy: ignore-errors
 
+# docs-title: Reference Sheet
+
 import logging
-import os
 from datetime import datetime
 from types import MethodType
 from typing import Annotated, Any
@@ -20,7 +21,7 @@ from wayflowcore.contextproviders import (
 )
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
-from wayflowcore.executors.executionstatus import ToolRequestStatus, UserMessageRequestStatus
+from wayflowcore.executors.executionstatus import FinishedStatus, ToolRequestStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow, run_flow_and_return_outputs
 from wayflowcore.messagelist import Message, MessageType
@@ -46,7 +47,7 @@ logging.basicConfig(level=logging.CRITICAL)
 
 llm = VllmModel(
     model_id="model-id",
-    host_port=os.environ["VLLM_HOST_PORT"],
+    host_port="llm-host-port",
 )
 
 
@@ -289,8 +290,8 @@ flow = Flow(
 )
 conversation = flow.start_conversation()
 status = conversation.execute()
-assert isinstance(status, UserMessageRequestStatus)
-print(status.message.content)
+assert isinstance(status, FinishedStatus)
+print(conversation.get_last_message().content)
 # .. end-simple_flow
 # .. start-flow_with_dataconnection::
 from wayflowcore.controlconnection import ControlFlowEdge
@@ -322,7 +323,7 @@ conversation = flow.start_conversation(
     inputs={"username": "Username#123", "session_id": "Session#456"}
 )
 status = conversation.execute()
-last_message = status.message
+print(conversation.get_last_message().content)
 # last_message.content
 # Session#456: Received message "Successfully processed username Username#123"
 # .. end-flow_with_dataconnection
@@ -528,8 +529,8 @@ conversation = flow.start_conversation(
     {"user_input": "Write a simple Python function to sum two numbers"}
 )
 status = conversation.execute()
-assert isinstance(status, UserMessageRequestStatus)
-print(status.message.content)
+assert isinstance(status, FinishedStatus)
+print(conversation.get_last_message().content)
 # .. end-flow_in_flow
 # .. start-serialize_simple_assistants::
 from wayflowcore.agent import Agent
@@ -599,8 +600,8 @@ flow = Flow(
 input_context = {"message_content": "Here is my input context"}
 conversation = flow.start_conversation(inputs=input_context)
 status = conversation.execute()
-assert isinstance(status, UserMessageRequestStatus)
-print(status.message.content)
+assert isinstance(status, FinishedStatus)
+print(conversation.get_last_message().content)
 # .. end-inputs_provider
 # .. start-tool_contextprovider::
 from wayflowcore.contextproviders import ToolContextProvider
@@ -634,8 +635,8 @@ flow = Flow(
 input_context = {"message_content": "Here is my input context"}
 conversation = flow.start_conversation(inputs=input_context)
 conversation.execute()
-assert isinstance(status, UserMessageRequestStatus)
-print(status.message.content)
+assert isinstance(status, FinishedStatus)
+print(conversation.get_last_message().content)
 # .. end-tool_contextprovider
 # .. start-flow_contextprovider::
 from wayflowcore.contextproviders import FlowContextProvider
@@ -662,8 +663,8 @@ flow = Flow(
 )
 conversation = flow.start_conversation()
 execution_status = conversation.execute()
-assert isinstance(execution_status, UserMessageRequestStatus)
-print(execution_status.message.content)  # Last time message: The current time is 2pm.
+assert isinstance(execution_status, FinishedStatus)
+print(conversation.get_last_message().content)  # Last time message: The current time is 2pm.
 # .. end-flow_contextprovider
 # .. start-context_with_variables::
 from wayflowcore.controlconnection import ControlFlowEdge
@@ -714,6 +715,6 @@ flow = Flow(
 
 conversation = flow.start_conversation()
 status = conversation.execute()
-assert isinstance(status, UserMessageRequestStatus)
-print(status.message.content)
+assert isinstance(status, FinishedStatus)
+print(conversation.get_last_message().content)
 # .. end-context_with_variables

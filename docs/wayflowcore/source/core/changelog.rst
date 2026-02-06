@@ -24,6 +24,13 @@ Possibly Breaking Changes
   Previously when the `datastore` arguments of `MessageSummarizationTransform` and `ConversationSummarizationTransform` were set to `None`, an in-memory datastore was automatically created. Now, the in-memory datastore is created
   only if the `datastore` is left unspecified. If it is set to `None` then no caching happens.
 
+* **VariableStep:**
+
+  Introducing ``VariableStep``, a comprehensive step for reading from and writing on variables.
+  This feature provides users with an easier-to-use API to use ``Variable`` in flows, that may be used for centralizing the state and simplify the data flows.
+  Especially, this may significantly simplify flows currently using the ``VariableReadStep`` and ``VariableWriteStep``.
+
+  For more information check out :doc:`how to use variables for shared state in flows <howtoguides/howto_variable>`.
 
 Bug fixes
 ^^^^^^^^^

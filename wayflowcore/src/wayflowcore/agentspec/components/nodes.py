@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -141,6 +141,39 @@ class PluginExtractNode(ExtendedNode):
         return [Property(json_schema={"title": title}) for title in self.output_values.keys()]
 
 
+def _get_json_schema_of_read_variable(
+    variable: Property, title: str | None = None
+) -> Dict[str, Any]:
+    json_schema = deepcopy(variable.json_schema)
+
+    if title is not None:
+        json_schema["title"] = title
+
+    return json_schema
+
+
+def _get_json_schema_of_write_variable(
+    variable: Property, operation: PluginVariableWriteOperation, title: str
+) -> Dict[str, Any]:
+    json_schema = {}
+    if operation == PluginVariableWriteOperation.INSERT:
+        if variable.type == "array":
+            json_schema = deepcopy(variable.json_schema["items"])
+            json_schema["description"] = json_schema.get(
+                "description", f"{variable.description} (single element)"
+            )
+        else:
+            raise TypeError(
+                f"Can only apply insert write operation to lists, not to {variable.type}"
+            )
+    else:
+        json_schema = deepcopy(variable.json_schema)
+
+    json_schema["title"] = title
+
+    return json_schema
+
+
 class PluginReadVariableNode(ExtendedNode):
     variable: Property
     """The variable (which is a Property in AgentSpec) that this node will read."""
@@ -154,9 +187,64 @@ class PluginReadVariableNode(ExtendedNode):
     def _get_non_mapped_inferred_outputs(self) -> List[Property]:
         if not hasattr(self, "variable"):
             return []
-        json_schema = deepcopy(self.variable.json_schema)
-        json_schema["title"] = PluginReadVariableNode.VALUE
-        return [Property(json_schema=json_schema)]
+
+        return [
+            Property(
+                json_schema=_get_json_schema_of_read_variable(
+                    self.variable,
+                    title=PluginReadVariableNode.VALUE,
+                )
+            )
+        ]
+
+
+class PluginVariableNode(ExtendedNode):
+    write_variables: List[Property] = Field(default_factory=list)
+    """The variables (which are a Property in AgentSpec) that this node will write."""
+
+    read_variables: List[Property] = Field(default_factory=list)
+    """The variables (which are a Property in AgentSpec) that this node will read."""
+
+    write_operations: Dict[str, SerializeAsEnum[PluginVariableWriteOperation]] = Field(
+        default_factory=dict
+    )
+    """The type of write operations to perform on write variables."""
+
+    def _get_non_mapped_inferred_inputs(self) -> List[Property]:
+        if not hasattr(self, "write_variables") or not hasattr(self, "write_operations"):
+            return []
+
+        if {wv.title for wv in self.write_variables} != set(self.write_operations.keys()):
+            raise ValueError(
+                "An operation must be defined in `write_operations` for all of the "
+                "variables in `write_variables`, and it must not defined for "
+                "any other variables."
+            )
+
+        return [
+            Property(
+                json_schema=_get_json_schema_of_write_variable(
+                    variable=write_variable,
+                    operation=self.write_operations[write_variable.title],
+                    title=write_variable.title,
+                )
+            )
+            for write_variable in self.write_variables
+        ]
+
+    def _get_non_mapped_inferred_outputs(self) -> List[Property]:
+        if not hasattr(self, "read_variables"):
+            return []
+
+        return [
+            Property(
+                json_schema=_get_json_schema_of_read_variable(
+                    variable=read_variable,
+                    title=read_variable.title,
+                )
+            )
+            for read_variable in self.read_variables
+        ]
 
 
 class PluginWriteVariableNode(ExtendedNode):
@@ -174,28 +262,16 @@ class PluginWriteVariableNode(ExtendedNode):
     def _get_non_mapped_inferred_inputs(self) -> List[Property]:
         if not hasattr(self, "variable") or not hasattr(self, "operation"):
             return []
-        json_schema = {}
-        if self.operation == PluginVariableWriteOperation.INSERT:
-            if self.variable.type == "array":
-                json_schema = deepcopy(self.variable.json_schema["items"])
-                json_schema["description"] = json_schema.get(
-                    "description", f"{self.variable.description} (single element)"
-                )
-            elif json_schema["type"] == "object":
-                json_schema = deepcopy(self.variable.json_schema["additionalProperties"])
-                json_schema["description"] = json_schema.get(
-                    "description", f"{self.variable.description} (single element)"
-                )
-            else:
-                raise TypeError(
-                    f"Can only apply insert write operation to lists, not to {self.variable.type}"
-                )
-        else:
-            json_schema = deepcopy(self.variable.json_schema)
 
-        json_schema["title"] = self.VALUE
-
-        return [Property(json_schema=json_schema)]
+        return [
+            Property(
+                json_schema=_get_json_schema_of_write_variable(
+                    variable=self.variable,
+                    operation=self.operation,
+                    title=self.VALUE,
+                )
+            )
+        ]
 
     def _get_non_mapped_inferred_outputs(self) -> List[Property]:
         return []
@@ -805,6 +881,7 @@ nodes_serialization_plugin = PydanticComponentSerializationPlugin(
         PluginTemplateNode.__name__: PluginTemplateNode,
         PluginChoiceNode.__name__: PluginChoiceNode,
         PluginReadVariableNode.__name__: PluginReadVariableNode,
+        PluginVariableNode.__name__: PluginVariableNode,
         PluginWriteVariableNode.__name__: PluginWriteVariableNode,
         PluginConstantValuesNode.__name__: PluginConstantValuesNode,
         PluginGetChatHistoryNode.__name__: PluginGetChatHistoryNode,
@@ -828,6 +905,7 @@ nodes_deserialization_plugin = PydanticComponentDeserializationPlugin(
         PluginTemplateNode.__name__: PluginTemplateNode,
         PluginChoiceNode.__name__: PluginChoiceNode,
         PluginReadVariableNode.__name__: PluginReadVariableNode,
+        PluginVariableNode.__name__: PluginVariableNode,
         PluginWriteVariableNode.__name__: PluginWriteVariableNode,
         PluginConstantValuesNode.__name__: PluginConstantValuesNode,
         PluginGetChatHistoryNode.__name__: PluginGetChatHistoryNode,

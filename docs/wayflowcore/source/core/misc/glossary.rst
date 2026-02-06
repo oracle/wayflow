@@ -373,7 +373,10 @@ Variable
 A :ref:`Variable <variable>` is a flow-scoped data container that enables the storage and retrieval of data throughout a :ref:`Flow <flow>`.
 Variables act as the shared state or context of a Flow (often referred to as `state` in other frameworks),
 providing a way to decouple data from specific steps and make it available for use within multiple parts of the Flow.
-They can be accessed and modified throughout a Flow using :ref:`VariableReadStep <variablereadstep>` and :ref:`VariableWriteStep <variablewritestep>` operations.
+They can be accessed and modified throughout a Flow using :ref:`VariableStep <variablestep>`, :ref:`VariableReadStep <variablereadstep>`,
+and :ref:`VariableWriteStep <variablewritestep>` operations.
+:ref:`VariableStep <variablestep>` provides an API to read, write, or update (write and then read) multiple variables in a single step.
+:ref:`VariableReadStep <variablereadstep>` and :ref:`VariableWriteStep <variablewritestep>` are simpler steps used exclusively to read from or write to a single variable, respectively.
 
 Note that Variables are complementary to the value stored in the input/output dictionary which is specific to the steps execution.
 

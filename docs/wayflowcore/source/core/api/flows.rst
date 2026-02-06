@@ -104,6 +104,9 @@ IO steps
 .. _getchathistorystep:
 .. autoclass:: wayflowcore.steps.getchathistorystep.GetChatHistoryStep
 
+.. _variablestep:
+.. autoclass:: wayflowcore.steps.variablesteps.variablestep.VariableStep
+
 .. _variablereadstep:
 .. autoclass:: wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep
 

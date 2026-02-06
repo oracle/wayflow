@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -67,6 +67,7 @@ from .nodes import (
     PluginRegexNode,
     PluginRetryNode,
     PluginTemplateNode,
+    PluginVariableNode,
     PluginWriteVariableNode,
     nodes_deserialization_plugin,
     nodes_serialization_plugin,
@@ -167,6 +168,7 @@ __all__ = [
     "PluginChoiceNode",
     "PluginTemplateNode",
     "PluginRegexNode",
+    "PluginVariableNode",
     "PluginWriteVariableNode",
     "PluginReadVariableNode",
     "PluginConstantValuesNode",
