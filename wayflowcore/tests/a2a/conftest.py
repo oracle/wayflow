@@ -12,6 +12,8 @@ from pathlib import Path
 
 import pytest
 
+from wayflowcore.a2a.a2aagent import A2AAgent, A2AConnectionConfig
+
 from ..utils import LogTee, _check_server_is_up, _terminate_process_tree, get_available_port
 from .start_a2a_server import AgentType
 
@@ -110,3 +112,49 @@ def adk_a2a_server_fixture(session_tmp_path):
         yield url
     finally:
         _terminate_process_tree(process, timeout=5.0)
+
+
+@pytest.fixture(scope="session", name="sample_a2a_server")
+def sample_a2a_server_fixture(request, session_tmp_path):
+    agent_type = getattr(request, "param", AgentType.SAMPLE_AGENT)
+
+    host = "localhost"
+    port = get_available_port(session_tmp_path)
+    process, url = _start_a2a_server(host=host, port=port, agent_type=agent_type)
+    try:
+        yield url
+        time.sleep(0.5)
+    finally:
+        _terminate_process_tree(process, timeout=5.0)
+
+
+@pytest.fixture(scope="session", name="prime_a2a_server")
+def prime_a2a_server_fixture(request, session_tmp_path):
+    agent_type = getattr(request, "param", AgentType.PRIME_AGENT)
+    host = "localhost"
+    port = get_available_port(session_tmp_path)
+    process, url = _start_a2a_server(host=host, port=port, agent_type=agent_type)
+    try:
+        yield url
+    finally:
+        _terminate_process_tree(process, timeout=5.0)
+
+
+@pytest.fixture(scope="session", name="sample_a2a_agent")
+def sample_a2a_agent_fixture(sample_a2a_server):
+    return A2AAgent(
+        name="sample_agent",
+        agent_url=sample_a2a_server,
+        description="Agent that can generate random numbers",
+        connection_config=A2AConnectionConfig(verify=False),
+    )
+
+
+@pytest.fixture(scope="session", name="prime_a2a_agent")
+def prime_a2a_agent_fixture(prime_a2a_server):
+    return A2AAgent(
+        name="prime_agent",
+        agent_url=prime_a2a_server,
+        description="Agent that handles checking if numbers are prime.",
+        connection_config=A2AConnectionConfig(verify=False),
+    )

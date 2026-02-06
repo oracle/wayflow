@@ -8,6 +8,7 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
+from wayflowcore.a2a.a2aagent import A2AAgent
 from wayflowcore.agent import Agent
 from wayflowcore.conversation import Conversation
 from wayflowcore.executors._executionstate import ConversationExecutionState
@@ -17,6 +18,7 @@ from wayflowcore.tools import ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore.contextproviders import ContextProvider
+    from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
     from wayflowcore.executors._agentconversation import AgentConversation
 
 logger = logging.getLogger(__name__)
@@ -25,11 +27,13 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ManagerWorkersConversationExecutionState(ConversationExecutionState):
     current_agent_name: str
-    subconversations: Dict[str, Union["AgentConversation", "ManagerWorkersConversation"]]
+    subconversations: Dict[
+        str, Union["AgentConversation", "ManagerWorkersConversation", "A2AAgentConversation"]
+    ]
 
     def _create_subconversation_for_agent(
-        self, agent: Union[Agent, ManagerWorkers]
-    ) -> Union["AgentConversation", "ManagerWorkersConversation"]:
+        self, agent: Union[Agent, ManagerWorkers, A2AAgent]
+    ) -> Union["AgentConversation", "ManagerWorkersConversation", "A2AAgentConversation"]:
         subconv = agent.start_conversation()
         self.subconversations[agent.name] = subconv
 
@@ -48,7 +52,9 @@ class ManagerWorkersConversation(Conversation):
     @property
     def subconversations(
         self,
-    ) -> Dict[str, Union["AgentConversation", "ManagerWorkersConversation"]]:
+    ) -> Dict[
+        str, Union["AgentConversation", "ManagerWorkersConversation", "A2AAgentConversation"]
+    ]:
         return self.state.subconversations
 
     @property
@@ -71,7 +77,7 @@ class ManagerWorkersConversation(Conversation):
 
     def _get_agent_subconversation(
         self, agent_name: str
-    ) -> Optional[Union["AgentConversation", "ManagerWorkersConversation"]]:
+    ) -> Optional[Union["AgentConversation", "ManagerWorkersConversation", "A2AAgentConversation"]]:
         return self.state.subconversations.get(agent_name)
 
     def _get_main_subconversation(
