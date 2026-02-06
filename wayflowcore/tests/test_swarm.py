@@ -713,15 +713,15 @@ def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
     assert isinstance(status2, UserMessageRequestStatus) or isinstance(status2, FinishedStatus)
 
 
-@retry_test(max_attempts=4)
+@retry_test(max_attempts=10)
 def test_swarm_can_handle_client_tool_with_confirmation(big_llama):
     """
-    Failure rate:          0 out of 50
-    Observed on:           2025-10-20
-    Average success time:  14.36 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    Failure rate:          7 out of 20
+    Observed on:           2026-02-06
+    Average success time:  5.83 seconds per successful attempt
+    Average failure time:  16.28 seconds per failed attempt
+    Max attempt:           10
+    Justification:         (0.36 ** 10) ~= 4.0 / 100'000
     """
     check_name_in_db_tool = ClientTool(
         name="check_name_in_db_tool",
