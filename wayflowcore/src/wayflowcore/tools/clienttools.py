@@ -4,12 +4,20 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from typing import Dict, List, Optional
+import logging
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.property import JsonSchemaParam, Property
 
 from .tools import SupportedToolTypesT, Tool
+
+if TYPE_CHECKING:
+    from wayflowcore.conversation import Conversation
+    from wayflowcore.tools.tools import ToolRequest, ToolResult
+
+
+logger = logging.getLogger(__name__)
 
 
 class ClientTool(Tool):
@@ -90,3 +98,64 @@ class ClientTool(Tool):
         Indicates that the client tool might yield (it always does).
         """
         return True
+
+    async def _run(
+        self,
+        conversation: "Conversation",
+        tool_request: "ToolRequest",
+        append_message: bool = False,
+        raise_exceptions: bool = False,
+    ) -> Optional["ToolResult"]:
+        from wayflowcore.events import record_event
+        from wayflowcore.events.event import ToolExecutionResultEvent
+        from wayflowcore.messagelist import MessageType
+
+        if tool_request is None:
+            raise ValueError(
+                "Internal Error: Expected tool request for client tool to not be None before calling _run"
+            )
+
+        if append_message:
+            logger.warning(
+                "ClientTool `_run` method got append_message=True, this argument will be ignored."
+            )
+        if raise_exceptions:
+            logger.warning(
+                "ClientTool `_run` method got raise_exceptions=True, this argument will be ignored."
+            )
+
+        # Tool Request does not exist, so we return None such that we can append tool request to messages in the executor
+        if not any(
+            m.message_type == MessageType.TOOL_REQUEST
+            and m.tool_requests is not None
+            and any(
+                request.tool_request_id == tool_request.tool_request_id
+                for request in m.tool_requests
+            )
+            for m in reversed(conversation.message_list.get_messages())
+        ):
+            return None
+
+        try:
+            tool_result = next(
+                message.tool_result
+                for message in reversed(conversation.message_list.messages)
+                if (
+                    message.tool_result is not None
+                    and message.tool_result.tool_request_id == tool_request.tool_request_id
+                )
+            )
+
+            self._add_defaults_to_tool_outputs(tool_result.content)
+
+            record_event(
+                ToolExecutionResultEvent(
+                    tool=self,
+                    tool_result=tool_result,
+                )
+            )
+            return tool_result
+
+        except StopIteration:
+            # client hasn't answered tool request yet, will raise an error if in a Flow
+            return None

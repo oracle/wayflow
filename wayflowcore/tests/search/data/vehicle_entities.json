@@ -1,0 +1,98 @@
+{
+    "motorcycles":    [
+            {
+                "owner_name": "John Smith",
+                "model_name": "Harley-Davidson Road King",
+                "hp": 87,
+                "description": "Classic American touring motorcycle with chrome details and comfortable seating."
+            },
+            {
+                "owner_name": "Sarah Johnson",
+                "model_name": "Yamaha YZF-R6",
+                "hp": 118,
+                "description": "High-performance supersport motorcycle designed for track racing."
+            },
+            {
+                "owner_name": "Mike Chen",
+                "model_name": "BMW R 1250 GS Adventure",
+                "hp": 136,
+                "description": "Premium adventure touring motorcycle with advanced electronics."
+            },
+            {
+                "owner_name": "Emily Davis",
+                "model_name": "Honda CRF450L",
+                "hp": 45,
+                "description": "Street-legal dirt bike perfect for off-road adventures."
+            },
+            {
+                "owner_name": "Carlos Rodriguez",
+                "model_name": "Ducati Panigale V4",
+                "hp": 214,
+                "description": "Italian superbike with MotoGP-derived technology and stunning performance."
+            }
+        ],
+
+    "cars": [
+    {
+        "owner_name": "Alex Mitchell",
+        "car_model": "Tesla Model S Plaid",
+        "horsepower": 1020,
+        "fuel_type": "Electric",
+        "year": 2022,
+        "color": "Midnight Silver",
+        "price_usd": 129990,
+        "description": "Electric luxury sedan with insane acceleration and cutting-edge technology.",
+        "registration_number": "ABC1234",
+        "previous_owners": "Laura Garcia"
+    },
+    {
+        "owner_name": "Laura Garcia",
+        "car_model": "Ferrari SF90 Stradale",
+        "horsepower": 986,
+        "fuel_type": "Hybrid",
+        "year": 2021,
+        "color": "Rosso Corsa",
+        "price_usd": 625000,
+        "description": "Hybrid supercar with an aggressive design and blistering performance.",
+        "registration_number": "FERI9001",
+        "previous_owners": "None"
+    },
+    {
+        "owner_name": "Jake Thompson",
+        "car_model": "Ford Mustang GT",
+        "horsepower": 450,
+        "fuel_type": "Gasoline",
+        "year": 2020,
+        "color": "Race Red",
+        "price_usd": 42900,
+        "description": "Classic American muscle car with a throaty V8 engine and timeless style.",
+        "registration_number": "MUSTGT55",
+        "previous_owners": "None"
+    },
+    {
+        "owner_name": "Priya Patel",
+        "car_model": "Audi RS7",
+        "horsepower": 591,
+        "fuel_type": "Gasoline",
+        "year": 2022,
+        "color": "Nardo Grey",
+        "price_usd": 114000,
+        "description": "Sleek German sedan with track-ready power and all-wheel drive.",
+        "registration_number": "AUDIRS7",
+        "previous_owners": "None"
+    },
+    {
+        "owner_name": "Nathan Brooks",
+        "car_model": "Lamborghini Aventador SVJ",
+        "horsepower": 759,
+        "fuel_type": "Gasoline",
+        "year": 2021,
+        "color": "Giallo Auge",
+        "price_usd": 517000,
+        "description": "Italian exotic supercar with razor-sharp handling and a roaring V12 engine.",
+        "registration_number": "LAMB759",
+        "previous_owners": "None"
+    }
+]
+
+}

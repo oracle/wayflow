@@ -62,6 +62,8 @@ Task steps
 .. autoclass:: wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep
 
 .. autoclass:: wayflowcore.steps.promptexecutionstep.StructuredGenerationMode
+.. _searchstep:
+.. autoclass:: wayflowcore.steps.searchstep.SearchStep
 
 .. _datastoresteps:
 
@@ -195,9 +197,13 @@ Classes for the IO system properties
 .. _nullproperty:
 .. autoclass:: wayflowcore.property.NullProperty
 
+.. _vectorproperty:
+.. autoclass:: wayflowcore.property.VectorProperty
+
 .. autoclass:: wayflowcore.property._empty_default
 
 .. autoclass:: wayflowcore.property.JsonSchemaParam
+
 
 Other classes and helpers used in fixed flows
 ---------------------------------------------

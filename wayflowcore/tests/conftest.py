@@ -21,6 +21,9 @@ from dotenv import load_dotenv
 
 from wayflowcore import Message, MessageType
 from wayflowcore._threading import shutdown_threadpool
+from wayflowcore.datastore import MTlsOracleDatabaseConnectionConfig
+from wayflowcore.datastore.oracle import TlsOracleDatabaseConnectionConfig
+from wayflowcore.embeddingmodels import VllmEmbeddingModel
 from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.mcp import enable_mcp_without_auth
 from wayflowcore.mcp.mcphelpers import _reset_mcp_contextvar
@@ -441,10 +444,19 @@ MOCK_LLM_CONFIG = {
     "model_id": "super-smart",
 }
 
-
 def mock_llm():
     return LlmModelFactory.from_config(MOCK_LLM_CONFIG)
 
+
+EMBEDDING_MODEL_CONFIG = {
+    "base_url": e5large_api_url,
+    "model_id": "intfloat/e5-large-v2",
+}
+
+@pytest.fixture(scope="session")
+def embedding_model():
+    """Real embedding model for testing."""
+    return VllmEmbeddingModel(**EMBEDDING_MODEL_CONFIG)
 
 ToolRequestT = TypedDict(
     "ToolRequestT",
@@ -698,7 +710,9 @@ def get_directory_allowlist_read(tmp_path: str, session_tmp_path: str) -> List[U
     allowed_paths = get_directory_allowlist_write(tmp_path, session_tmp_path) + [
         Path(os.path.dirname(__file__)) / "configs",
         Path(os.path.dirname(__file__)) / "agentspec" / "configs",
-        Path(os.path.dirname(__file__)) / "datastores" / "entities.json",
+        Path(os.path.dirname(__file__)) / "datastores" / "employee_entities.json",
+        Path(os.path.dirname(__file__)) / "search" / "data" / "motorcycle_entities.json",
+        Path(os.path.dirname(__file__)) / "search" / "data" / "vehicle_entities.json",
         Path("~/.oci/config").expanduser(),
         # Used in docstring tests
         Path(os.path.dirname(__file__)).parent / "src" / "wayflowcore",
@@ -836,6 +850,38 @@ def pytest_sessionfinish(session, exitstatus):
             f"{t.name}: {t.daemon}, {t.is_alive()}" for t in threads
         )
         raise ValueError(text)
+
+
+def get_oracle_connection_config():
+    mtls_connection_args = [
+        "ADB_CONFIG_DIR",
+        "ADB_DB_USER",
+        "ADB_DB_PASSWORD",
+        "ADB_DSN",
+        "ADB_WALLET_DIR",
+        "ADB_WALLET_SECRET",
+    ]
+    tls_connection_args = ["ADB_DB_USER", "ADB_DB_PASSWORD", "ADB_DSN"]
+    if all([arg in os.environ for arg in mtls_connection_args]):
+        return MTlsOracleDatabaseConnectionConfig(
+            config_dir=os.environ["ADB_CONFIG_DIR"],
+            user=os.environ["ADB_DB_USER"],
+            password=os.environ["ADB_DB_PASSWORD"],
+            dsn=os.environ["ADB_DSN"],
+            wallet_location=os.environ["ADB_WALLET_DIR"],
+            wallet_password=os.environ["ADB_WALLET_SECRET"],
+        )
+    elif all([arg in os.environ for arg in tls_connection_args]):
+        return TlsOracleDatabaseConnectionConfig(
+            user=os.environ["ADB_DB_USER"],
+            password=os.environ["ADB_DB_PASSWORD"],
+            dsn=os.environ["ADB_DSN"],
+        )
+    else:
+        pytest.skip(
+            "No database connection arguments configured in enviroment. "
+            "Skipping Oracle DB tests..."
+        )
 
 
 @contextlib.contextmanager

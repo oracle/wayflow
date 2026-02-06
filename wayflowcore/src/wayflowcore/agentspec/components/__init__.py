@@ -82,6 +82,14 @@ from .outputparser import (
     outputparser_deserialization_plugin,
     outputparser_serialization_plugin,
 )
+from .search import (
+    PluginSearchConfig,
+    PluginSearchToolBox,
+    PluginVectorConfig,
+    PluginVectorRetrieverConfig,
+    search_deserialization_plugin,
+    search_serialization_plugin,
+)
 from .swarm import PluginSwarm, swarm_deserialization_plugin, swarm_serialization_plugin
 from .template import (
     PluginPromptTemplate,
@@ -90,8 +98,11 @@ from .template import (
 )
 from .tools import (
     PluginToolBox,
+    PluginToolFromToolBox,
     PluginToolRequest,
     PluginToolResult,
+    toolfromtoolbox_deserialization_plugin,
+    toolfromtoolbox_serialization_plugin,
     tools_deserialization_plugin,
     tools_serialization_plugin,
 )
@@ -119,6 +130,8 @@ all_serialization_plugin: List[ComponentSerializationPlugin] = [
     prompttemplate_serialization_plugin,
     outputparser_serialization_plugin,
     embeddingmodel_serialization_plugin,
+    toolfromtoolbox_serialization_plugin,
+    search_serialization_plugin,
 ]
 
 
@@ -136,6 +149,8 @@ all_deserialization_plugin: List[ComponentDeserializationPlugin] = [
     prompttemplate_deserialization_plugin,
     outputparser_deserialization_plugin,
     embeddingmodel_deserialization_plugin,
+    toolfromtoolbox_deserialization_plugin,
+    search_deserialization_plugin,
 ]
 
 
@@ -146,6 +161,15 @@ __all__ = [
     "mcp_serialization_plugin",
     "mcp_deserialization_plugin",
     "PluginSwarm",
+    "PluginSearchToolBox",
+    "PluginSearchConfig",
+    "PluginVectorRetrieverConfig",
+    "PluginVectorConfig",
+    "PluginToolFromToolBox",
+    "toolfromtoolbox_serialization_plugin",
+    "toolfromtoolbox_deserialization_plugin",
+    "search_serialization_plugin",
+    "search_deserialization_plugin",
     "swarm_serialization_plugin",
     "swarm_deserialization_plugin",
     "managerworkers_serialization_plugin",

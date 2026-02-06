@@ -42,6 +42,12 @@ Server Tool
 .. _servertool:
 .. autoclass:: wayflowcore.tools.servertools.ServerTool
 
+Tool from ToolBox
+-----------------
+
+.. _toolfromtoolbox:
+.. autoclass:: wayflowcore.tools.toolfromtoolbox.ToolFromToolBox
+
 Remote Tool
 -----------
 
