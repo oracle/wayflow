@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import inspect
+import collections.abc as cabc
 from enum import Enum
 from types import UnionType
 from typing import (
@@ -58,6 +59,13 @@ def _get_partial_schema_from_annotation(arg_type: Type[Any]) -> JsonSchemaParam:
 
     origin = get_origin(arg_type)
     args = get_args(arg_type)
+
+    # Handle AsyncGenerator[T, _]
+    if origin in (cabc.AsyncGenerator,):
+        if not args:
+            raise TypeError("AsyncGenerator must specify a yield type, e.g., AsyncGenerator[str, None]")
+        # Use the yielded type as the output schema
+        return _get_partial_schema_from_annotation(args[0])
 
     # Handle List[X]
     if origin is list or origin is List:
