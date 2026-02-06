@@ -874,7 +874,11 @@ class FlowConversationExecutor(ConversationExecutor):
                     # message or for a tool request
                     next_tool_request_message: Optional[Message] = conversation.get_last_message()
 
-                    if (
+                    if isinstance(last_status, ToolExecutionConfirmationStatus):
+                        last_status._conversation_id = conversation.id
+                        return last_status
+
+                    elif (
                         next_tool_request_message is not None
                         and next_tool_request_message.message_type == MessageType.TOOL_REQUEST
                         and next_tool_request_message.tool_requests is not None
@@ -883,10 +887,6 @@ class FlowConversationExecutor(ConversationExecutor):
                             tool_requests=next_tool_request_message.tool_requests,
                             _conversation_id=conversation.id,
                         )
-
-                    elif isinstance(last_status, ToolExecutionConfirmationStatus):
-                        last_status._conversation_id = conversation.id
-                        return last_status
 
                     last_message = conversation.get_last_message()
                     if last_message is None:
