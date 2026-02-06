@@ -1543,11 +1543,11 @@ class Flow(ConversationalComponent, SerializableObject):
             if isinstance(step, VariableStep):
                 step_vars_names = {v.name for v in step.write_variables + step.read_variables}
 
-                undefiend_vars_names = step_vars_names - variables_names
-                if len(undefiend_vars_names) != 0:
-                    undefiend_vars_names_str = ", ".join(undefiend_vars_names)
+                undefined_vars_names = step_vars_names - variables_names
+                if len(undefined_vars_names) != 0:
+                    undefined_vars_names_str = ", ".join(undefined_vars_names)
                     raise ValueError(
-                        f"The VariableStep '{step_name}' refers to the variable(s) {undefiend_vars_names_str} "
+                        f"The VariableStep '{step_name}' refers to the variable(s) {undefined_vars_names_str} "
                         "but this/these variable(s) was/were not passed into the flow constructor."
                     )
 
