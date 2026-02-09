@@ -7,23 +7,8 @@ WayFlow |release|
 New features
 ^^^^^^^^^^^^
 
-* **Message Summarization Transforms and Datastores can be converted between Agent Spec and Wayflow**
-
-  Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
-  You can now declare your agents with summarization transforms and summary caching in Agent Spec and run them in WayFlow.
-
-
 Improvements
 ^^^^^^^^^^^^
-
-Possibly Breaking Changes
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* **Summarization Transforms now do not do caching if the datastore is None**
-
-  Previously when the `datastore` arguments of `MessageSummarizationTransform` and `ConversationSummarizationTransform` were set to `None`, an in-memory datastore was automatically created. Now, the in-memory datastore is created
-  only if the `datastore` is left unspecified. If it is set to `None` then no caching happens.
-
 
 Bug fixes
 ^^^^^^^^^
@@ -197,7 +182,6 @@ Possibly Breaking Changes
 
   The ``append`` parameter in ``with_additional_post_rendering_transform`` and ``with_additional_pre_rendering_transform`` methods is deprecated.
   Use ``append_last`` instead. The ``append`` parameter will be removed in WayFlow 26.3.
-
 
 Bug fixes
 ^^^^^^^^^

@@ -6,10 +6,10 @@
 
 from typing import Any, Dict, List
 
-from pyagentspec.datastores import Datastore
 from pyagentspec.property import Property
 
 from wayflowcore._utils._templating_helpers import get_variables_names_and_types_from_template
+from wayflowcore.agentspec.components.datastores.datastore import PluginDatastore
 from wayflowcore.agentspec.components.datastores.nodes.datastorecreatenode import (
     _wayflowcore_property_to_pyagentspec_property,
 )
@@ -22,10 +22,10 @@ from wayflowcore.steps.datastoresteps._utils import (
 
 
 class PluginDatastoreUpdateNode(ExtendedNode):
-    """Step that can update entities in a ``Datastore``."""
+    """Step that can update entities in a ``PluginDatastore``."""
 
-    datastore: Datastore
-    """Datastore this step operates on"""
+    datastore: PluginDatastore
+    """PluginDatastore this step operates on"""
     collection_name: str
     """Collection in the datastore manipulated by this step.
     Can be parametrized using jinja variables, and the resulting input

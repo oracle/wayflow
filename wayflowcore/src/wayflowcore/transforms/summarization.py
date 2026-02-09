@@ -7,10 +7,8 @@
 import logging
 import time
 import warnings
-from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple
 
-from wayflowcore._metadata import MetadataType
 from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore._utils.formatting import stringify
 from wayflowcore.conversation import _get_current_conversation_id
@@ -26,20 +24,13 @@ from wayflowcore.transforms.transforms import MessageTransform
 logger = logging.getLogger(__name__)
 
 _SUMMARIZATION_WARNING_MESSAGE = (
-    "Using a summarization transform without specifying the datastore "
+    "Using a SummarizationMessageTransform without specifying the datastore "
     "will create by default an InMemoryDatastore for caching which is not recommended for production systems."
 )
-
 
 if TYPE_CHECKING:
     from wayflowcore.datastore import Datastore
     from wayflowcore.models import LlmModel
-
-
-class _UnspecifiedDatastore(Enum):
-    """Sentinel enum to indicate that no datastore was specified."""
-
-    DEFAULT_VALUE = "default"
 
 
 class _MessageCache:
@@ -57,7 +48,7 @@ class _MessageCache:
         self,
         max_cache_size: Optional[int],
         max_cache_lifetime: Optional[int],
-        datastore: "Datastore",
+        datastore: Optional["Datastore"],
         collection_name: str,
         entity_def: Entity,
     ):
@@ -72,9 +63,18 @@ class _MessageCache:
         self.collection_name = collection_name
         self.entity_def = entity_def
 
-        self.datastore = datastore
-        # Validate that the user provided datastore has the required fields.
-        self._validate_datastore_schema()
+        if datastore:
+            self.datastore = datastore
+            # Validate that the user provided datastore corresponds has the required
+            # fields.
+            self._validate_datastore_schema()
+        else:
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+                self.datastore = InMemoryDatastore(
+                    self._get_cache_schema(collection_name, entity_def)
+                )
+            warnings.warn(_SUMMARIZATION_WARNING_MESSAGE)
 
     def _get_cache_schema(self, collection_name: str, entity_def: Entity) -> dict[str, Entity]:
         return {collection_name: entity_def}
@@ -238,8 +238,7 @@ class MessageSummarizationTransform(MessageTransform):
     summarized_message_template:
         Jinja2 template on how to present the summary (with variable `summary`) to the agent using the transform.
     datastore:
-        Datastore on which to store the cache. If not specified, an in-memory Datastore will be created automatically.
-        If None, caching is disabled (not recommended)
+        Datastore on which to store the cache. If None, an in-memory Datastore will be created automatically.
 
         .. important::
 
@@ -273,7 +272,6 @@ class MessageSummarizationTransform(MessageTransform):
     """
 
     DEFAULT_CACHE_COLLECTION_NAME = "summarized_messages_cache"
-    _DEFAULT_MESSAGE_DATASTORE = _UnspecifiedDatastore.DEFAULT_VALUE
 
     def __init__(
         self,
@@ -284,47 +282,23 @@ class MessageSummarizationTransform(MessageTransform):
             "Your response will replace the message, so just output the summary directly, no introduction needed."
         ),
         summarized_message_template: str = "Summarized message: {{summary}}",
-        datastore: Union["Datastore", _UnspecifiedDatastore, None] = _DEFAULT_MESSAGE_DATASTORE,
+        datastore: Optional["Datastore"] = None,
         cache_collection_name: str = DEFAULT_CACHE_COLLECTION_NAME,
         max_cache_size: Optional[int] = 10_000,
         max_cache_lifetime: Optional[int] = 4 * 3600,
-        name: Optional[str] = None,
-        id: Optional[str] = None,
-        description: Optional[str] = None,
-        __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(
-            name=name, description=description, id=id, __metadata_info__=__metadata_info__
-        )
-        self.llm = llm
-        self.summarization_instructions = summarization_instructions
-        self.summarized_message_template = summarized_message_template
-        self.cache_collection_name = cache_collection_name
-        self.max_cache_size = max_cache_size
-        self.max_cache_lifetime = max_cache_lifetime
+        super().__init__()
         self._summarizer = _Summarizer(llm, summarization_instructions, summarized_message_template)
         self.max_message_size = max_message_size
         if self.max_message_size <= 0:
             raise ValueError("max_message_size must be a positive integer.")
-
-        self.cache: Optional[_MessageCache] = None
-
-        if isinstance(datastore, _UnspecifiedDatastore):
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
-                datastore = InMemoryDatastore(
-                    {self.cache_collection_name: self.get_entity_definition()}
-                )
-            warnings.warn(_SUMMARIZATION_WARNING_MESSAGE)
-
-        if datastore is not None:
-            self.cache = _MessageCache(
-                max_cache_size=max_cache_size,
-                max_cache_lifetime=max_cache_lifetime,
-                datastore=datastore,
-                collection_name=cache_collection_name,
-                entity_def=self.get_entity_definition(),
-            )
+        self.cache = _MessageCache(
+            max_cache_size=max_cache_size,
+            max_cache_lifetime=max_cache_lifetime,
+            datastore=datastore,
+            collection_name=cache_collection_name,
+            entity_def=self.get_entity_definition(),
+        )
         self.max_tokens = CountTokensHeuristics.tokens_in_chars(self.max_message_size)
 
     async def call_async(self, messages: List["Message"]) -> List["Message"]:
@@ -382,19 +356,13 @@ class MessageSummarizationTransform(MessageTransform):
         if CountTokensHeuristics.tokens_in_messagecontents(contents) <= self.max_tokens:
             return contents
         # Fetch from cache the content of the summarized version of messages.
-        cache_content = (
-            self.cache.retrieve(self._get_cache_key(conv_id, msg_idx, _type))
-            if self.cache is not None
-            else None
-        )
+        cache_content = self.cache.retrieve(self._get_cache_key(conv_id, msg_idx, _type))
         # No cached message found
         if not cache_content:
             summarized_content = await self._summarizer.summarize(contents, self.max_tokens)
-            if self.cache is not None:
-                self.cache.store(
-                    self._get_cache_key(conv_id, msg_idx, _type),
-                    {"cache_content": summarized_content},
-                )
+            self.cache.store(
+                self._get_cache_key(conv_id, msg_idx, _type), {"cache_content": summarized_content}
+            )
         else:
             summarized_content = cache_content["cache_content"]
         return [TextContent(summarized_content)]
@@ -431,7 +399,6 @@ class ConversationSummarizationTransform(MessageTransform):
         Jinja2 template on how to present the summary (with variable `summary`) to the agent using the transform.
     datastore:
         Datastore on which to store the cache. If not specified, an in-memory Datastore will be created automatically.
-        If None, caching is disabled (not recommended)
     max_cache_size:
         The maximum number of entries kept in the cache
         If None, there is no limit on cache size and no eviction occurs.
@@ -454,7 +421,6 @@ class ConversationSummarizationTransform(MessageTransform):
 
     DEFAULT_CACHE_COLLECTION_NAME = "summarized_conversations_cache"
     _TOKENS_PER_CHUNK = CountTokensHeuristics.tokens_in_chars(20000)
-    _DEFAULT_CONVERSATION_DATASTORE = _UnspecifiedDatastore.DEFAULT_VALUE
 
     def __init__(
         self,
@@ -464,22 +430,12 @@ class ConversationSummarizationTransform(MessageTransform):
         summarization_instructions: str = "Please make a summary of this conversation. Include relevant information and keep it short. "
         "Your response will replace the messages, so just output the summary directly, no introduction needed.",
         summarized_conversation_template: str = "Summarized conversation: {{summary}}",
-        datastore: Union[
-            "Datastore", _UnspecifiedDatastore, None
-        ] = _DEFAULT_CONVERSATION_DATASTORE,
+        datastore: Optional["Datastore"] = None,
         max_cache_size: Optional[int] = 10_000,
         max_cache_lifetime: Optional[int] = 4 * 3600,
         cache_collection_name: str = DEFAULT_CACHE_COLLECTION_NAME,
-        name: Optional[str] = None,
-        id: Optional[str] = None,
-        description: Optional[str] = None,
-        __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
-        super().__init__(
-            name=name, description=description, id=id, __metadata_info__=__metadata_info__
-        )
-        self.llm = llm
-        self.summarization_instructions = summarization_instructions
+        super().__init__()
         self._summarizer = _Summarizer(
             llm, summarization_instructions, summarized_conversation_template
         )
@@ -497,22 +453,13 @@ class ConversationSummarizationTransform(MessageTransform):
         if self.min_num_messages > self.max_num_messages:
             raise ValueError("min_num_messages must not exceed max_num_messages.")
 
-        self.cache: Optional[_MessageCache] = None
-        if isinstance(datastore, _UnspecifiedDatastore):
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
-                datastore = InMemoryDatastore(
-                    {self.cache_collection_name: self.get_entity_definition()}
-                )
-            warnings.warn(_SUMMARIZATION_WARNING_MESSAGE)
-        if datastore is not None:
-            self.cache = _MessageCache(
-                max_cache_size=max_cache_size,
-                max_cache_lifetime=max_cache_lifetime,
-                datastore=datastore,
-                collection_name=cache_collection_name,
-                entity_def=self.get_entity_definition(),
-            )
+        self.cache = _MessageCache(
+            max_cache_size=max_cache_size,
+            max_cache_lifetime=max_cache_lifetime,
+            datastore=datastore,
+            collection_name=cache_collection_name,
+            entity_def=self.get_entity_definition(),
+        )
 
     def _split_messages_and_guarantee_tool_calling_consistency(
         self, messages: List["Message"], keep_x_most_recent_messages: int
@@ -554,7 +501,7 @@ class ConversationSummarizationTransform(MessageTransform):
         self, conversation_id: str, messages: List["Message"]
     ) -> Tuple[Optional[Message], List["Message"]]:
         """Returns: (summarized messages in cache,  non summarized messages + new messages)"""
-        content = self.cache.retrieve(conversation_id) if self.cache is not None else None
+        content = self.cache.retrieve(conversation_id)
         if content is None:
             return None, messages
         prefix_size = int(content["prefix_size"])
@@ -603,14 +550,13 @@ class ConversationSummarizationTransform(MessageTransform):
             contents_to_summarize, self._TOKENS_PER_CHUNK
         )
 
-        if self.cache is not None:
-            self.cache.store(
-                conv_id,
-                {
-                    "prefix_size": len(messages) - len(messages_to_keep),
-                    "cache_content": summarized_message,
-                },
-            )
+        self.cache.store(
+            conv_id,
+            {
+                "prefix_size": len(messages) - len(messages_to_keep),
+                "cache_content": summarized_message,
+            },
+        )
 
         return [Message(summarized_message)] + messages_to_keep
 

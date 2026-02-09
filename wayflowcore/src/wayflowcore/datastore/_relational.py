@@ -19,9 +19,7 @@ from typing import (
     overload,
 )
 
-from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.lazy_loader import LazyLoader
-from wayflowcore.component import Component
 from wayflowcore.datastore._datatable import Datatable
 from wayflowcore.datastore._utils import check_collection_name
 from wayflowcore.datastore.datastore import Datastore
@@ -325,15 +323,7 @@ class RelationalDatastore(Datastore, ABC):
     data using SQL-like queries.
     """
 
-    def __init__(
-        self,
-        schema: Dict[str, Entity],
-        engine: "sqlalchemy.Engine",
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        __metadata_info__: Optional["MetadataType"] = None,
-    ):
+    def __init__(self, schema: Dict[str, Entity], engine: "sqlalchemy.Engine"):
         """Initialize a ``RelationalDatastore``
 
         Parameters
@@ -343,16 +333,7 @@ class RelationalDatastore(Datastore, ABC):
             Datastore
         engine :
             SQLAlchemy engine used to connect to the relational database
-        name :
-            Name of the datastore
-        description :
-            Description of the datastore
-        id :
-            ID of the datastore
         """
-        Component.__init__(
-            self, name=name, description=description, id=id, __metadata_info__=__metadata_info__
-        )
         self.engine = engine
         self.schema = schema
         normalized_entity_names = {

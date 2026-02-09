@@ -6,19 +6,21 @@
 
 from typing import List
 
-from pyagentspec.datastores import RelationalDatastore
 from pyagentspec.property import Property
 
 from wayflowcore.agentspec.components.datastores.nodes.datastorecreatenode import (
     _wayflowcore_property_to_pyagentspec_property,
+)
+from wayflowcore.agentspec.components.datastores.relational_datastore import (
+    PluginRelationalDatastore,
 )
 from wayflowcore.agentspec.components.node import ExtendedNode
 from wayflowcore.property import AnyProperty, DictProperty, ListProperty, StringProperty
 
 
 class PluginDatastoreQueryNode(ExtendedNode):
-    """Step to execute a parameterized SQL query on a relational ``Datastore``
-    (``OracleDatabaseDatastore``), that supports SQL queries (the specific
+    """Step to execute a parameterized SQL query on a relational ``PluginDatastore``
+    (``PluginOracleDatabaseDatastore``), that supports SQL queries (the specific
     SQL dialect depends on the database backing the datastore).
 
     This step enables safe, flexible querying of datastores using
@@ -27,8 +29,8 @@ class PluginDatastoreQueryNode(ExtendedNode):
     any such usage raises an error.
     """
 
-    datastore: RelationalDatastore
-    """The ``Datastore`` to execute the query against"""
+    datastore: PluginRelationalDatastore
+    """The ``PluginDatastore`` to execute the query against"""
     query: str
     """SQL query string using bind variables (e.g., ``SELECT * FROM table WHERE id = :val``).
     String templating/interpolation is forbidden and will raise an exception."""
