@@ -437,7 +437,14 @@ class InMemoryDatastore(Datastore):
                 for config in input_dict["vector_configs"]
             ]
 
-        return InMemoryDatastore(schema, id, name, description, search_configs, vector_configs)
+        return InMemoryDatastore(
+            schema=schema,
+            id=id,
+            search_configs=search_configs,
+            vector_configs=vector_configs,
+            name=name,
+            description=description,
+        )
 
     def list(
         self,
