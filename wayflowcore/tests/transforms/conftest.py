@@ -8,19 +8,7 @@ from typing import List, Optional
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from pyagentspec.agent import Agent as AgentSpecAgent
-from pyagentspec.datastores.datastore import (
-    InMemoryCollectionDatastore as AgentSpecInMemoryCollection,
-)
-from pyagentspec.llms import VllmConfig as AgentSpecVllmConfig
-from pyagentspec.transforms import (
-    ConversationSummarizationTransform as AgentSpecConversationSummarizationTransform,
-)
-from pyagentspec.transforms import (
-    MessageSummarizationTransform as AgentSpecMessageSummarizationTransform,
-)
 
-from wayflowcore.agentspec.runtimeloader import AgentSpecLoader
 from wayflowcore.conversation import Conversation
 from wayflowcore.datastore.entity import Entity
 from wayflowcore.datastore.inmemory import InMemoryDatastore
@@ -29,7 +17,7 @@ from wayflowcore.models.llmmodel import LlmCompletion, LlmModel
 from wayflowcore.property import FloatProperty, IntegerProperty, StringProperty
 from wayflowcore.transforms import ConversationSummarizationTransform, MessageSummarizationTransform
 
-from ..conftest import GEMMA_CONFIG, MOCK_LLM_CONFIG, patch_streaming_llm
+from ..conftest import patch_streaming_llm
 from ..datastores.conftest import (
     cleanup_oracle_datastore,
     get_oracle_connection_config,
@@ -68,8 +56,8 @@ def find_datastore_by_schema(pool, schema):
     return None
 
 
-MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME = "messages_cache"
-CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME = "conversations_cache"
+def cache_collection_names() -> List[Optional[str]]:
+    return ["cache_table", None]
 
 
 @pytest.fixture(scope="session")
@@ -90,15 +78,11 @@ def oracle_database_datastores_pool():
 
 def get_testing_schemas():
     return [
-        {
-            MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME: MessageSummarizationTransform.get_entity_definition()
-        },
+        {"cache_table": MessageSummarizationTransform.get_entity_definition()},
         {
             MessageSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME: MessageSummarizationTransform.get_entity_definition()
         },
-        {
-            CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME: ConversationSummarizationTransform.get_entity_definition()
-        },
+        {"cache_table": ConversationSummarizationTransform.get_entity_definition()},
         {
             ConversationSummarizationTransform.DEFAULT_CACHE_COLLECTION_NAME: ConversationSummarizationTransform.get_entity_definition()
         },
@@ -116,7 +100,7 @@ def get_incorrect_schemas():
         wrong_entity = Entity(properties=new_properties)
         wrong_entities.append(wrong_entity)
     wrong_entities.append(Entity(properties={"conversation_id": StringProperty()}))
-    correct_collection_name = MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME
+    correct_collection_name = cache_collection_names()[0]
 
     wrong_entity_but_correct_collection_name = [
         {correct_collection_name: entity} for entity in wrong_entities
@@ -129,7 +113,7 @@ def get_incorrect_schemas():
 
 @pytest.fixture(
     scope="function",
-    params=["testing_inmemory_data_store", "testing_oracle_data_store"],
+    params=["testing_inmemory_data_store", "testing_oracle_data_store", "testing_no_datastore"],
 )
 def testing_data_store(request: pytest.FixtureRequest):
     # https://stackoverflow.com/questions/42014484/pytest-using-fixtures-as-arguments-in-parametrize
@@ -144,6 +128,21 @@ def testing_inmemory_data_store(
     if not collection_name:
         collection_name = transform_type.DEFAULT_CACHE_COLLECTION_NAME
     return InMemoryDatastore({collection_name: transform_type.get_entity_definition()})
+
+
+def _testing_message_transform(llm, datastore, collection_name, extra_params, transform_type):
+    params = {"llm": llm, "datastore": datastore, **extra_params}
+
+    if collection_name:
+        params["cache_collection_name"] = collection_name
+    return transform_type(**params)
+
+
+@pytest.fixture
+def testing_no_datastore(
+    collection_name: Optional[str], transform_type: _CachedSummarizationTransform
+):
+    return None
 
 
 @pytest.fixture
@@ -236,69 +235,3 @@ def _get_dll_for_deletion_of_one_entity_schema(schema: dict[str, "Entity"]) -> l
     if not entity_name:
         return [""]
     return [f"DROP TABLE IF EXISTS {entity_name}"]
-
-
-@pytest.fixture
-def converted_wayflow_agent_with_message_summarization_transform_from_agentspec():
-    collection_name = MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME
-    agent_spec_datastore = AgentSpecInMemoryCollection(
-        name="test-inmemory-datastore",
-        datastore_schema={
-            collection_name: AgentSpecMessageSummarizationTransform.get_entity_definition()
-        },
-    )
-    summarization_llm_config = AgentSpecVllmConfig(
-        name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
-    )
-    agent_spec_transform = AgentSpecMessageSummarizationTransform(
-        name="message-summarizer",
-        llm=summarization_llm_config,
-        datastore=agent_spec_datastore,
-        max_message_size=500,
-        cache_collection_name=collection_name,
-    )
-    agent_llm_config = AgentSpecVllmConfig(
-        name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
-    )
-    agent_spec_agent = AgentSpecAgent(
-        name="test-agent",
-        system_prompt="",
-        llm_config=agent_llm_config,
-        transforms=[agent_spec_transform],
-    )
-    loader = AgentSpecLoader()
-    wayflow_agent = loader.load_component(agent_spec_agent)
-    return wayflow_agent
-
-
-@pytest.fixture
-def converted_wayflow_agent_with_conversation_summarization_transform_from_agentspec():
-    collection_name = CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME
-    agent_spec_datastore = AgentSpecInMemoryCollection(
-        name="test-inmemory-datastore",
-        datastore_schema={
-            collection_name: AgentSpecConversationSummarizationTransform.get_entity_definition()
-        },
-    )
-    summarization_llm_config = AgentSpecVllmConfig(
-        name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
-    )
-    agent_spec_transform = AgentSpecConversationSummarizationTransform(
-        name="conversation-summarizer",
-        llm=summarization_llm_config,
-        datastore=agent_spec_datastore,
-        max_num_messages=10,
-        min_num_messages=5,
-        cache_collection_name=collection_name,
-    )
-    agent_llm_config = AgentSpecVllmConfig(
-        name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
-    )
-    agent_spec_agent = AgentSpecAgent(
-        name="test-agent",
-        system_prompt="",
-        llm_config=agent_llm_config,
-        transforms=[agent_spec_transform],
-    )
-    wayflow_agent = AgentSpecLoader().load_component(agent_spec_agent)
-    return wayflow_agent

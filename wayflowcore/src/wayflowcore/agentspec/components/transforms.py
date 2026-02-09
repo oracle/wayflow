@@ -1,4 +1,4 @@
-# Copyright © 2025, 2026 Oracle and/or its affiliates.
+# Copyright © 2025 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -6,7 +6,7 @@
 
 from typing import Optional
 
-from pyagentspec.transforms import MessageTransform
+from pyagentspec.component import Component
 
 from wayflowcore.agentspec.components._pydantic_plugins import (
     PydanticComponentDeserializationPlugin,
@@ -14,7 +14,17 @@ from wayflowcore.agentspec.components._pydantic_plugins import (
 )
 
 
-class PluginCoalesceSystemMessagesTransform(MessageTransform):
+class PluginMessageTransform(Component, abstract=True):
+    """
+    Abstract base class for message transforms.
+
+    Subclasses should implement the __call__ method to transform a list of Message objects
+    and return a new list of Message objects, typically for preprocessing or postprocessing
+    message flows in the system.
+    """
+
+
+class PluginCoalesceSystemMessagesTransform(PluginMessageTransform):
     """
     Transform that merges consecutive system messages at the start of a message list
     into a single system message. This is useful for reducing redundancy and ensuring
@@ -22,7 +32,7 @@ class PluginCoalesceSystemMessagesTransform(MessageTransform):
     """
 
 
-class PluginRemoveEmptyNonUserMessageTransform(MessageTransform):
+class PluginRemoveEmptyNonUserMessageTransform(PluginMessageTransform):
     """
     Transform that removes messages which are empty and not from the user.
 
@@ -34,7 +44,7 @@ class PluginRemoveEmptyNonUserMessageTransform(MessageTransform):
     """
 
 
-class PluginAppendTrailingSystemMessageToUserMessageTransform(MessageTransform):
+class PluginAppendTrailingSystemMessageToUserMessageTransform(PluginMessageTransform):
     """
     Transform that appends the content of a trailing system message to the previous user message.
 
@@ -45,20 +55,20 @@ class PluginAppendTrailingSystemMessageToUserMessageTransform(MessageTransform):
     """
 
 
-class PluginLlamaMergeToolRequestAndCallsTransform(MessageTransform):
+class PluginLlamaMergeToolRequestAndCallsTransform(PluginMessageTransform):
     """Llama-specific message transform"""
 
 
-class PluginReactMergeToolRequestAndCallsTransform(MessageTransform):
+class PluginReactMergeToolRequestAndCallsTransform(PluginMessageTransform):
     """Simple message processor that joins tool requests and calls into a python-like message"""
 
 
-class PluginSwarmToolRequestAndCallsTransform(MessageTransform):
+class PluginSwarmToolRequestAndCallsTransform(PluginMessageTransform):
     """Format Tool requests as Agent messages and Tool results as User messages to have a simple User/Agent
     sequence of messages."""
 
 
-class PluginCanonicalizationMessageTransform(MessageTransform):
+class PluginCanonicalizationMessageTransform(PluginMessageTransform):
     """
     Produce a conversation shaped like:
 
@@ -78,7 +88,7 @@ class PluginCanonicalizationMessageTransform(MessageTransform):
     """
 
 
-class PluginSplitPromptOnMarkerMessageTransform(MessageTransform):
+class PluginSplitPromptOnMarkerMessageTransform(PluginMessageTransform):
     """
     Split prompts on a marker into multiple messages with the same role. Only apply to the messages without
     tool_requests and tool_result.
