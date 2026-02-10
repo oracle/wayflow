@@ -6,10 +6,10 @@
 
 from typing import List
 
+from pyagentspec.datastores import OracleDatabaseDatastore
 from pydantic import Field
 
 from wayflowcore.agentspec.components.search import PluginSearchConfig, PluginVectorConfig
-from pyagentspec.datastores import OracleDatabaseDatastore
 
 
 class PluginOracleDatabaseDatastore(OracleDatabaseDatastore):

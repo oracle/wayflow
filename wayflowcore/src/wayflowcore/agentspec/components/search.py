@@ -7,13 +7,13 @@
 from typing import Any, Dict, List, Optional, Union
 
 from pyagentspec import Component
+from pyagentspec.datastores import Datastore
 from pydantic import Field
 
 from wayflowcore.agentspec.components._pydantic_plugins import (
     PydanticComponentDeserializationPlugin,
     PydanticComponentSerializationPlugin,
 )
-from pyagentspec.datastores import Datastore
 from wayflowcore.agentspec.components.embeddingmodels import PluginEmbeddingConfig
 from wayflowcore.agentspec.components.tools import PluginToolBox
 

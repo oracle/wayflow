@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Union, cast, overload
 import numpy as np
 import pandas as pd
 
+from wayflowcore._metadata import MetadataType
 from wayflowcore.datastore._datatable import Datatable
 from wayflowcore.datastore._utils import (
     check_collection_name,
@@ -238,7 +239,6 @@ class InMemoryDatastore(Datastore):
 
         """
         warnings.warn(_USER_WARNING_MESSAGE_INTERNAL)
-
 
         self._validate_schema(schema)
         self.schema = schema

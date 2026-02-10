@@ -146,6 +146,9 @@ from wayflowcore.agentspec.components.contextprovider import (
 from wayflowcore.agentspec.components.contextprovider import (
     PluginToolContextProvider as AgentSpecPluginToolContextProvider,
 )
+from wayflowcore.agentspec.components.datastores.inmemory_datastore import (
+    PluginInMemoryDatastore as AgentSpecPluginInMemoryDatastore,
+)
 from wayflowcore.agentspec.components.datastores.nodes import (
     PluginDatastoreCreateNode as AgentSpecPluginDatastoreCreateNode,
 )
@@ -160,6 +163,9 @@ from wayflowcore.agentspec.components.datastores.nodes import (
 )
 from wayflowcore.agentspec.components.datastores.nodes import (
     PluginDatastoreUpdateNode as AgentSpecPluginDatastoreUpdateNode,
+)
+from wayflowcore.agentspec.components.datastores.oracle_datastore import (
+    PluginOracleDatabaseDatastore as AgentSpecPluginOracleDatabaseDatastore,
 )
 from wayflowcore.agentspec.components.flow import ExtendedFlow as AgentSpecExtendedFlow
 from wayflowcore.agentspec.components.managerworkers import (
@@ -467,12 +473,6 @@ from wayflowcore.transforms.transforms import (
     SplitPromptOnMarkerMessageTransform as RuntimeSplitPromptOnMarkerMessageTransform,
 )
 from wayflowcore.variable import Variable as RuntimeVariable
-from wayflowcore.agentspec.components.datastores.inmemory_datastore import (
-    PluginInMemoryDatastore as AgentSpecPluginInMemoryDatastore,
-)
-from wayflowcore.agentspec.components.datastores.oracle_datastore import (
-    PluginOracleDatabaseDatastore as AgentSpecPluginOracleDatabaseDatastore,
-)
 
 if TYPE_CHECKING:
     from wayflowcore.agentspec._runtimeconverter import AgentSpecToWayflowConversionContext
@@ -1745,14 +1745,22 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     k: self._convert_entity_to_runtime(v)
                     for k, v in agentspec_component.datastore_schema.items()
                 },
-                search_configs=[
-                    conversion_context.convert(config, tool_registry, converted_components)
-                    for config in agentspec_component.search_configs
-                ] if isinstance(agentspec_component, AgentSpecPluginInMemoryDatastore) else [],
-                vector_configs=[
-                    conversion_context.convert(config, tool_registry, converted_components)
-                    for config in agentspec_component.vector_configs
-                ] if isinstance(agentspec_component, AgentSpecPluginInMemoryDatastore) else [],
+                search_configs=(
+                    [
+                        conversion_context.convert(config, tool_registry, converted_components)
+                        for config in agentspec_component.search_configs
+                    ]
+                    if isinstance(agentspec_component, AgentSpecPluginInMemoryDatastore)
+                    else []
+                ),
+                vector_configs=(
+                    [
+                        conversion_context.convert(config, tool_registry, converted_components)
+                        for config in agentspec_component.vector_configs
+                    ]
+                    if isinstance(agentspec_component, AgentSpecPluginInMemoryDatastore)
+                    else []
+                ),
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecTlsOracleDatabaseConnectionConfig):
@@ -1782,15 +1790,23 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 connection_config=conversion_context.convert(
                     agentspec_component.connection_config, tool_registry, converted_components
                 ),
-                search_configs=[
-                    conversion_context.convert(config, tool_registry, converted_components)
-                    for config in agentspec_component.search_configs
-                ] if isinstance(agentspec_component, AgentSpecPluginOracleDatabaseDatastore) else [],
-                vector_configs=[
-                    conversion_context.convert(config, tool_registry, converted_components)
-                    for config in agentspec_component.vector_configs
-                ] if isinstance(agentspec_component, AgentSpecPluginOracleDatabaseDatastore) else [],
-                ** self._get_component_arguments(agentspec_component),
+                search_configs=(
+                    [
+                        conversion_context.convert(config, tool_registry, converted_components)
+                        for config in agentspec_component.search_configs
+                    ]
+                    if isinstance(agentspec_component, AgentSpecPluginOracleDatabaseDatastore)
+                    else []
+                ),
+                vector_configs=(
+                    [
+                        conversion_context.convert(config, tool_registry, converted_components)
+                        for config in agentspec_component.vector_configs
+                    ]
+                    if isinstance(agentspec_component, AgentSpecPluginOracleDatabaseDatastore)
+                    else []
+                ),
+                **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecTlsPostgresDatabaseConnectionConfig):
             return RuntimeTlsPostgresDatabaseConnectionConfig(

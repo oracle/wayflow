@@ -148,6 +148,9 @@ from wayflowcore.agentspec.components.contextprovider import (
 from wayflowcore.agentspec.components.contextprovider import (
     PluginToolContextProvider as AgentSpecPluginToolContextProvider,
 )
+from wayflowcore.agentspec.components.datastores.inmemory_datastore import (
+    PluginInMemoryDatastore as AgentSpecPluginInMemoryDatastore,
+)
 from wayflowcore.agentspec.components.datastores.nodes import (
     PluginDatastoreCreateNode as AgentSpecPluginDatastoreCreateNode,
 )
@@ -162,9 +165,6 @@ from wayflowcore.agentspec.components.datastores.nodes import (
 )
 from wayflowcore.agentspec.components.datastores.nodes import (
     PluginDatastoreUpdateNode as AgentSpecPluginDatastoreUpdateNode,
-)
-from wayflowcore.agentspec.components.datastores.inmemory_datastore import (
-    PluginInMemoryDatastore as AgentSpecPluginInMemoryDatastore,
 )
 from wayflowcore.agentspec.components.datastores.oracle_datastore import (
     PluginOracleDatabaseDatastore as AgentSpecPluginOracleDatabaseDatastore,
@@ -1168,7 +1168,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                         k: _runtime_entity_to_pyagentspec_entity(v)
                         for k, v in runtime_datastore.schema.items()
                     },
-                    id=runtime_datastore.id
+                    id=runtime_datastore.id,
                 )
         elif isinstance(runtime_datastore, RuntimeOracleDatabaseDatastore):
             if runtime_datastore.search_configs or runtime_datastore.vector_configs:

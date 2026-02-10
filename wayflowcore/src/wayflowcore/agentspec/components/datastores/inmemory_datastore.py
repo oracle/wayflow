@@ -6,10 +6,10 @@
 
 from typing import List
 
+from pyagentspec.datastores import InMemoryCollectionDatastore
 from pydantic import Field
 
 from wayflowcore.agentspec.components.search import PluginSearchConfig, PluginVectorConfig
-from pyagentspec.datastores import InMemoryCollectionDatastore
 
 
 class PluginInMemoryDatastore(InMemoryCollectionDatastore):
@@ -17,5 +17,6 @@ class PluginInMemoryDatastore(InMemoryCollectionDatastore):
     In-memory datastore for testing and development purposes with additional
     search and vector configurations.
     """
+
     search_configs: List[PluginSearchConfig] = Field(default_factory=list)
     vector_configs: List[PluginVectorConfig] = Field(default_factory=list)

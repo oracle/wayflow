@@ -20,9 +20,7 @@ from typing import (
 )
 
 from wayflowcore._metadata import MetadataType
-
 from wayflowcore._utils.lazy_loader import LazyLoader
-from wayflowcore.component import Component
 from wayflowcore.datastore._datatable import Datatable
 from wayflowcore.datastore._utils import check_collection_name
 from wayflowcore.datastore.datastore import Datastore

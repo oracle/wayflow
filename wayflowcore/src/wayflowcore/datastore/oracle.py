@@ -281,7 +281,13 @@ class OracleDatabaseDatastore(RelationalDatastore, SerializableObject):
             ]
 
         return OracleDatabaseDatastore(
-            schema, connection_config, id, name, description, search_configs, vector_configs
+            schema=schema,
+            connection_config=connection_config,
+            search_configs=search_configs,
+            vector_configs=vector_configs,
+            id=id,
+            name=name,
+            description=description,
         )
 
     def _handle_vector_property_name_not_found(self, collection_name: str) -> str:
