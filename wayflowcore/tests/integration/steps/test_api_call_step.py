@@ -5,13 +5,14 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import json
+import re
 import time
 from dataclasses import dataclass, field
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from multiprocessing import Process
 from typing import Any, Dict, List, Tuple, Union
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, parse_qsl, urlparse
 
 import httpx
 import pytest
@@ -85,7 +86,82 @@ def test_mock_api_call_very_basic(faked_request) -> None:
     assert outputs == {ApiCallStep.HTTP_STATUS_CODE: 200}
 
 
-def test_mock_api_call_io(faked_request) -> None:
+@pytest.mark.parametrize(
+    "data, headers, expected_io",
+    [
+        (
+            {"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]},
+            {"header1": "{{ h1 }}"},
+            {
+                "headers": {"Content-Type": "application/json", "header1": "test4"},
+                "json": {"value": "test1", "listofvalues": ["a", "test2", "c"]},
+            },
+        ),
+        (
+            {"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]},
+            {"header1": "{{ h1 }}", "Content-Type": "application/x-www-form-urlencoded"},
+            {
+                "headers": {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "header1": "test4",
+                },
+                "data": {"value": "test1", "listofvalues": ["a", "test2", "c"]},
+            },
+        ),
+        (
+            '{"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]}',
+            {"header1": "{{ h1 }}"},
+            {
+                "headers": {"Content-Type": "application/json", "header1": "test4"},
+                "json": {"value": "test1", "listofvalues": ["a", "test2", "c"]},
+            },
+        ),
+        (
+            b'{"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]}',
+            {"header1": "{{ h1 }}", "Content-Type": "application/x-www-form-urlencoded"},
+            {
+                "headers": {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "header1": "test4",
+                },
+                "data": {"value": "test1", "listofvalues": ["a", "test2", "c"]},
+            },
+        ),
+        (
+            "value: {{ v1 }}, listofvalues: [a, {{ v2 }}, c]",
+            {"header1": "{{ h1 }}"},
+            {
+                "headers": {"header1": "test4"},
+                "content": "value: test1, listofvalues: [a, test2, c]",
+            },
+        ),
+        (
+            ["value: {{ v1 }}", "listofvalues: [a, {{ v2 }}, c]"],
+            {"header1": "{{ h1 }}"},
+            {
+                "headers": {"header1": "test4"},
+                "json": ["value: test1", "listofvalues: [a, test2, c]"],
+            },
+        ),
+        (
+            ["value: {{ v1 }}", {"listofvalues": ["a", "{{ v2 }}", "c"]}],
+            {"header1": "{{ h1 }}"},
+            {
+                "headers": {"header1": "test4"},
+                "json": ["value: test1", {"listofvalues": ["a", "test2", "c"]}],
+            },
+        ),
+        (
+            "{{ v1 }}, {{ v2 }}",
+            {"header1": "{{ h1 }}"},
+            {
+                "headers": {"header1": "test4"},
+                "content": "test1, test2",
+            },
+        ),
+    ],
+)
+def test_mock_api_call_io(faked_request, data, headers, expected_io) -> None:
 
     faked_request.response = MockResponse.from_object(
         {
@@ -97,9 +173,9 @@ def test_mock_api_call_io(faked_request) -> None:
     step = ApiCallStep(
         url="https://example.com/endpoint",
         method="POST",
-        json_body={"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]},
+        data=data,
         params={"param": "{{ p1 }}"},
-        headers={"header1": "{{ h1 }}"},
+        headers=headers,
         sensitive_headers={"sensitive_header1": "{{ sh1 }}"},
         output_values_json={
             "v1": ".value1",
@@ -127,21 +203,14 @@ def test_mock_api_call_io(faked_request) -> None:
         "v2list": ["a", "b", "c"],
     }
 
+    expected_io["url"] = step.url
+    expected_io["method"] = step.method
+    expected_io["params"] = {"param": "test3"}
+    expected_io["headers"]["sensitive_header1"] = "test5"
+
     output_descriptor_keys = {key.name for key in step.output_descriptors}
     assert output_descriptor_keys == outputs.keys()
-
-    assert faked_request.requests == [
-        (
-            (),
-            {
-                "url": step.url,
-                "method": step.method,
-                "json": {"value": "test1", "listofvalues": ["a", "test2", "c"]},
-                "params": {"param": "test3"},
-                "headers": {"header1": "test4", "sensitive_header1": "test5"},
-            },
-        )
-    ]
+    assert faked_request.requests == [((), expected_io)]
 
 
 def test_url_param_encoding(faked_request) -> None:
@@ -168,19 +237,89 @@ def test_url_param_encoding(faked_request) -> None:
 def deploy_test_webapp(hostname: str, port: int):
     class RequestHandler(BaseHTTPRequestHandler):
 
-        def create_content(self):
-            path = urlparse(self.path)
-            query = {k.split("=", 2)[0]: k.split("=", 2)[1] for k in path.query.split("&", 2)}
-            body_values = {}
+        def _make_echo_payload(self):
+            """Create a simple echo response from the incoming request.
 
-            if "Content-Length" in self.headers:
-                length = int(self.headers["Content-Length"])
-                body_values = json.loads(self.rfile.read(length))
+            - Reads headers, query params, and the request body (JSON, form, or plain text).
+            - Combines them into one dict.
+            - Adds the request URL, path, and whether JSON was received.
+            """
+            path = urlparse(self.path)
+            query = dict(parse_qsl(path.query, keep_blank_values=True))
+            body_values = {}
+            json_received = False
+
+            length_header = self.headers.get("Content-Length")
+            raw_body = b""
+            if length_header:
+                try:
+                    length = int(length_header)
+                except Exception:
+                    length = 0
+
+                if length > 0:
+                    raw_body = self.rfile.read(length)
+
+                    content_type = (self.headers.get("Content-Type") or "").lower()
+
+                    def parse_text_payload(text: str) -> dict:
+                        res = {}
+                        m_val = re.search(r"value\s*:\s*([^,\]]+)", text)
+                        if m_val:
+                            res["value"] = m_val.group(1).strip()
+                        m_list = re.search(r"listofvalues\s*:\s*\[(.*?)\]", text)
+                        if m_list:
+                            items = [s.strip() for s in m_list.group(1).split(",")]
+                            res["listofvalues"] = items
+                        return res
+
+                    def handle_json_loaded(j):
+                        # Accept dicts directly; for lists of descriptive strings, parse into a dict
+                        if isinstance(j, dict):
+                            return j
+                        if isinstance(j, list):
+                            tmp = {}
+                            for item in j:
+                                if isinstance(item, str):
+                                    tmp.update(parse_text_payload(item))
+                            return tmp
+                        return {}
+
+                    if "application/json" in content_type:
+                        try:
+                            j = json.loads(raw_body)
+                            json_received = True
+                            body_values = handle_json_loaded(j)
+                        except Exception:
+                            body_values = {}
+                    elif "application/x-www-form-urlencoded" in content_type:
+                        try:
+                            # Preserve multi-valued keys as lists; singletons as scalars
+                            q = parse_qs(raw_body.decode(), keep_blank_values=True)
+                            body_values = {k: (v if len(v) > 1 else v[0]) for k, v in q.items()}
+                        except Exception:
+                            body_values = {}
+                    else:
+                        # Try JSON as a best-effort first
+                        try:
+                            j = json.loads(raw_body)
+                            json_received = True
+                            body_values = handle_json_loaded(j)
+                        except Exception:
+                            # Fallback to parsing the known plain-text format
+                            try:
+                                text = raw_body.decode(errors="replace")
+                                body_values = parse_text_payload(text)
+                            except Exception:
+                                body_values = {}
+
+            json_body_message = "JSON received" if json_received else "JSON not received"
 
             return {
                 "test": "test",
                 "__full_path": self.path,
                 "__parsed_path": path.path,
+                "json_body_received": json_body_message,
                 **dict(self.headers.items()),
                 **query,
                 **body_values,
@@ -193,13 +332,13 @@ def deploy_test_webapp(hostname: str, port: int):
             self.respond()
 
         def respond(self, content=None):
-            content = content or self.create_content()
+            content = content or self._make_echo_payload()
             content_text = json.dumps(content).encode()
             if content.get("fail"):
                 self.send_response(HTTPStatus.IM_A_TEAPOT)
             else:
                 self.send_response(HTTPStatus.OK)
-            self.send_header("Content-type", "application/json")
+            self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", len(content_text))
             self.end_headers()
             self.wfile.write(content_text)
@@ -246,14 +385,41 @@ def test_webapp(session_tmp_path: str):
         process.terminate()
 
 
-def test_api_call_step_actual_endpoint(test_webapp: str) -> None:
+@pytest.mark.parametrize(
+    "data, headers, is_json_payload",
+    [
+        (
+            {"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]},
+            {"header1": "{{ h1 }}"},
+            True,
+        ),
+        (
+            {"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]},
+            {"header1": "{{ h1 }}", "Content-Type": "application/x-www-form-urlencoded"},
+            False,
+        ),
+        (
+            '{"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]}',
+            {"header1": "{{ h1 }}"},
+            True,
+        ),
+        (
+            b'{"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]}',
+            {"header1": "{{ h1 }}", "Content-Type": "application/x-www-form-urlencoded"},
+            False,
+        ),
+        ("value: {{ v1 }}, listofvalues: [a, {{ v2 }}, c]", {"header1": "{{ h1 }}"}, False),
+        (["value: {{ v1 }}", "listofvalues: [a, {{ v2 }}, c]"], {"header1": "{{ h1 }}"}, True),
+    ],
+)
+def test_api_call_step_actual_endpoint(test_webapp: str, data, headers, is_json_payload) -> None:
 
     step = ApiCallStep(
         url=test_webapp + "/api/{{ u1 }}",
         method="POST",
-        json_body={"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]},
+        data=data,
         params={"param": "{{ p1 }}"},
-        headers={"header1": "{{ h1 }}"},
+        headers=headers,
         sensitive_headers={"sensitive_header1": "{{ sh1 }}"},
         output_values_json={
             "v2": ".listofvalues[1]",
@@ -263,6 +429,7 @@ def test_api_call_step_actual_endpoint(test_webapp: str) -> None:
             "sh": ".sensitive_header1",
             "test": ".test",
             "path": ".__parsed_path",
+            "json_info": ".json_body_received",
             ListProperty(name="v2list", item_type=StringProperty("inner_str")): ".listofvalues",
         },
         allow_insecure_http=True,
@@ -278,7 +445,7 @@ def test_api_call_step_actual_endpoint(test_webapp: str) -> None:
     }
 
     outputs = run_step_and_return_outputs(step, inputs=inputs_dict)
-
+    expected_msg = "JSON received" if is_json_payload else "JSON not received"
     assert outputs == {
         "v2": "test2",
         "vl": "c",
@@ -289,6 +456,7 @@ def test_api_call_step_actual_endpoint(test_webapp: str) -> None:
         "v2list": ["a", "test2", "c"],
         ApiCallStep.HTTP_STATUS_CODE: 200,
         "path": f"/api/{ENCODED_URL_TEMPLATE_VALUE}",
+        "json_info": expected_msg,
     }
 
 
@@ -302,7 +470,7 @@ def test_load_api_call_step_from_yaml(test_webapp: str) -> None:
         + test_webapp
         + """/v1/{{ input_id }}"
                 method: POST
-                json_body: >
+                data: >
                     {
                         "param": "{{ input_param }}"
                     }
@@ -581,3 +749,16 @@ def test_api_call_step_throws_if_not_in_allow_list_netloc_overlap(
 ):
     with pytest.raises(ValueError):
         _create_step_and_run(url, method, url_allow_list)
+
+
+def test_api_call_step_raises_deprecation_warning_json_body() -> None:
+    with pytest.warns(
+        DeprecationWarning, match="Usage of `json_body` parameter in ApiCallStep is Deprecated"
+    ):
+        step = ApiCallStep(
+            url="https://example.com/endpoint",
+            method="POST",
+            json_body={"value": "{{ v1 }}", "listofvalues": ["a", "{{ v2 }}", "c"]},
+            params={"param": "{{ p1 }}"},
+            headers={"header1": "{{ h1 }}"},
+        )

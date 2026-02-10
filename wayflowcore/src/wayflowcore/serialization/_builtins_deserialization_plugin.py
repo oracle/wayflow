@@ -1250,8 +1250,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 url=agentspec_component.url,
                 method=agentspec_component.http_method,
                 # api_spec_uri=agentspec_component.api_spec_uri,
-                # TODO improve behaviour & configurations definition of RemoteTool / ApiNode
-                json_body=agentspec_component.data if agentspec_component.data else None,
+                data=agentspec_component.data if agentspec_component.data else None,
                 params=(
                     agentspec_component.query_params if agentspec_component.query_params else None
                 ),
@@ -1434,8 +1433,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 method=agentspec_component.http_method,
                 allow_insecure_http=urllib.parse.urlparse(agentspec_component.url).scheme == "http",
                 # api_spec_uri=agentspec_component.api_spec_uri,
-                # TODO improve behaviour & configurations definition of RemoteTool / ApiNode
-                json_body=agentspec_component.data if agentspec_component.data else None,
+                data=agentspec_component.data if agentspec_component.data else None,
                 params=(
                     agentspec_component.query_params if agentspec_component.query_params else None
                 ),

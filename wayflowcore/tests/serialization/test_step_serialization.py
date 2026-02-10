@@ -682,7 +682,7 @@ def test_api_call_step_can_be_serde() -> None:
     step = ApiCallStep(
         url="https://example.com/orders/{{ order_id }}",
         method="POST",
-        json_body={
+        data={
             "topic_id": 12345,
             "item_id": "{{ item_id }}",
         },

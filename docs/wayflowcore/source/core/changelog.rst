@@ -32,6 +32,14 @@ Possibly Breaking Changes
 
   For more information check out :doc:`how to use variables for shared state in flows <howtoguides/howto_variable>`.
 
+* **Deprecated `json_body` parameter in RemoteTool/ApiCallStep:**
+
+  Deprecated the `json_body` parameter in RemoteTool/ApiCallStep in favour of the `data` parameter. A DeprecationWarning will be raised whenever
+  the `json_body` is tried to be set, and this parameter would be removed in version 26.2.0. If `json_body` is tried to be set, it will automatically be converted
+  to `data` in RemoteTool/ApiCallStep. To migrate, simply switch the `json_body` keyword argument with `data`. `data` supports both JSON-objects and form-data for
+  HTTP requests.
+
+
 Bug fixes
 ^^^^^^^^^
 

@@ -533,7 +533,7 @@ flatten_nested_comments_list_step = ToolExecutionStep(
 post_comment_step = ApiCallStep(
     url="https://example.com/rest/api/latest/projects/{{workspace}}/repos/{{repo_slug}}/pull-requests/{{pr_id}}/comments?diffType=EFFECTIVE&markup=true&avatarSize=48",
     method="POST",
-    json_body=json.dumps(
+    data=json.dumps(
         {
             "text": "{{content}}",
             "severity": "NORMAL",
