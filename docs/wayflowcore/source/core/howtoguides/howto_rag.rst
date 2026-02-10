@@ -504,7 +504,6 @@ You can then load the configuration back to an assistant using the :ref:`AgentSp
     - :ref:`PluginToolFromToolBox<agentspectoolfromtoolbox>`
     - :ref:`PluginSearchToolBox<agentspecsearchtoolbox>`
     - :ref:`PluginOracleDatabaseDatastore<agentspecoracledatabasedatastore>`
-    - :ref:`PluginTlsOracleDatabaseConnectionConfig<agentspectlsoracledatabaseconnectionconfig>`
     - :ref:`PluginSearchConfig<agentspecsearchconfig>`
     - :ref:`PluginVectorRetrieverConfig<agentspecvectorretrieverconfig>`
     - :ref:`PluginVllmEmbeddingConfig<agentspec_vllm_embedding_model_config>`
