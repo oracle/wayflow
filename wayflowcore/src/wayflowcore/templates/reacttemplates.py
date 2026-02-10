@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from wayflowcore import Message
 
 
-class _ReactMergeToolRequestAndCallsTransform(MessageTransform):
+class _ReactMergeToolRequestAndCallsTransform(MessageTransform, SerializableObject):
     """Simple message processor that joins tool requests and calls into a python-like message"""
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:

@@ -4,18 +4,17 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import logging
+from dataclasses import dataclass
 from typing import Any, Callable, List, Optional
 
-from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import is_coroutine_function, run_sync_in_thread
-from wayflowcore.component import Component
 from wayflowcore.messagelist import Message, MessageType
-from wayflowcore.serialization.serializer import SerializableCallable
+from wayflowcore.serialization.serializer import SerializableCallable, SerializableObject
 
 logger = logging.getLogger(__name__)
 
 
-class MessageTransform(SerializableCallable, Component):
+class MessageTransform(SerializableCallable, SerializableObject):
     """
     Abstract base class for message transforms.
 
@@ -23,17 +22,6 @@ class MessageTransform(SerializableCallable, Component):
     and return a new list of Message objects, typically for preprocessing or postprocessing
     message flows in the system.
     """
-
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        __metadata_info__: Optional[MetadataType] = None,
-    ) -> None:
-        Component.__init__(
-            self, name=name, description=description, id=id, __metadata_info__=__metadata_info__
-        )
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         """Implement this method for synchronous logic (CPU-bounded)"""
@@ -44,19 +32,9 @@ class MessageTransform(SerializableCallable, Component):
         return await run_sync_in_thread(self.__call__, messages)
 
 
+@dataclass
 class CallableMessageTransform(MessageTransform):
-    def __init__(
-        self,
-        func: Callable[..., Any],
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        __metadata_info__: Optional[MetadataType] = None,
-    ) -> None:
-        super().__init__(
-            id=id, name=name, description=description, __metadata_info__=__metadata_info__
-        )
-        self.func = func
+    func: Callable[..., Any]
 
     async def call_async(self, messages: List["Message"]) -> List["Message"]:
         if is_coroutine_function(self.func):
@@ -65,23 +43,12 @@ class CallableMessageTransform(MessageTransform):
             return await run_sync_in_thread(self.func, messages)
 
 
-class CoalesceSystemMessagesTransform(MessageTransform):
+class CoalesceSystemMessagesTransform(MessageTransform, SerializableObject):
     """
     Transform that merges consecutive system messages at the start of a message list
     into a single system message. This is useful for reducing redundancy and ensuring
     that only one system message appears at the beginning of the conversation.
     """
-
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        __metadata_info__: Optional[MetadataType] = None,
-    ) -> None:
-        super().__init__(
-            id=id, name=name, description=description, __metadata_info__=__metadata_info__
-        )
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         from wayflowcore.messagelist import Message
@@ -98,7 +65,7 @@ class CoalesceSystemMessagesTransform(MessageTransform):
         ] + messages[first_non_system_msg_idx:]
 
 
-class RemoveEmptyNonUserMessageTransform(MessageTransform):
+class RemoveEmptyNonUserMessageTransform(MessageTransform, SerializableObject):
     """
     Transform that removes messages which are empty and not from the user.
 
@@ -108,17 +75,6 @@ class RemoveEmptyNonUserMessageTransform(MessageTransform):
     This is useful in case the template contains optional messages, which will be discarded if their
     content is empty (with a string template such as "{% if __PLAN__ %}{{ __PLAN__ }}{% endif %}").
     """
-
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        __metadata_info__: Optional[MetadataType] = None,
-    ) -> None:
-        super().__init__(
-            id=id, name=name, description=description, __metadata_info__=__metadata_info__
-        )
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         return [
@@ -131,7 +87,7 @@ class RemoveEmptyNonUserMessageTransform(MessageTransform):
         ]
 
 
-class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform):
+class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform, SerializableObject):
     """
     Transform that appends the content of a trailing system message to the previous user message.
 
@@ -140,17 +96,6 @@ class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform):
 
     This is useful if the underlying LLM does not support system messages at the end.
     """
-
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        __metadata_info__: Optional[MetadataType] = None,
-    ) -> None:
-        super().__init__(
-            id=id, name=name, description=description, __metadata_info__=__metadata_info__
-        )
 
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         if len(messages) < 2:
@@ -165,7 +110,7 @@ class AppendTrailingSystemMessageToUserMessageTransform(MessageTransform):
         return messages[:-2] + [penultimate_message]
 
 
-class SplitPromptOnMarkerMessageTransform(MessageTransform):
+class SplitPromptOnMarkerMessageTransform(MessageTransform, SerializableObject):
     """
     Split prompts on a marker into multiple messages with the same role. Only apply to the messages without
     tool_requests and tool_result.
@@ -174,17 +119,7 @@ class SplitPromptOnMarkerMessageTransform(MessageTransform):
     into multiple conversation turns for step-by-step reasoning.
     """
 
-    def __init__(
-        self,
-        marker: Optional[str] = None,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        __metadata_info__: Optional[MetadataType] = None,
-    ) -> None:
-        super().__init__(
-            id=id, name=name, description=description, __metadata_info__=__metadata_info__
-        )
+    def __init__(self, marker: Optional[str] = None):
         self.marker = marker if marker is not None else "\n---"
 
     def __call__(self, messages: list["Message"]) -> list["Message"]:

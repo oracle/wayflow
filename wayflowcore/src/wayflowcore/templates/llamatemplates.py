@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, List, Tuple
 from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore._utils.formatting import _format_chat_history_with_tool_results, stringify
 from wayflowcore.outputparser import JsonToolOutputParser
+from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.templates.template import PromptTemplate
 from wayflowcore.tools import ToolRequest, ToolResult
 from wayflowcore.transforms import (
@@ -21,8 +22,7 @@ if TYPE_CHECKING:
     from wayflowcore import Message
 
 
-class _LlamaMergeToolRequestAndCallsTransform(MessageTransform):
-
+class _LlamaMergeToolRequestAndCallsTransform(MessageTransform, SerializableObject):
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         return _format_chat_history_with_tool_results(
             messages=messages,
