@@ -17,6 +17,12 @@ from .contextprovider import (
     contextprovider_deserialization_plugin,
     contextprovider_serialization_plugin,
 )
+from .datastores import (
+    PluginInMemoryDatastore,
+    PluginOracleDatabaseDatastore,
+    search_datastore_deserialization_plugin,
+    search_datastore_serialization_plugin,
+)
 from .datastores.nodes import (
     PluginDatastoreCreateNode,
     PluginDatastoreDeleteNode,
@@ -131,6 +137,7 @@ all_serialization_plugin: List[ComponentSerializationPlugin] = [
     outputparser_serialization_plugin,
     embeddingmodel_serialization_plugin,
     toolfromtoolbox_serialization_plugin,
+    search_datastore_serialization_plugin,
     search_serialization_plugin,
 ]
 
@@ -150,11 +157,16 @@ all_deserialization_plugin: List[ComponentDeserializationPlugin] = [
     outputparser_deserialization_plugin,
     embeddingmodel_deserialization_plugin,
     toolfromtoolbox_deserialization_plugin,
+    search_datastore_deserialization_plugin,
     search_deserialization_plugin,
 ]
 
 
 __all__ = [
+    "PluginOracleDatabaseDatastore",
+    "PluginInMemoryDatastore",
+    "search_datastore_deserialization_plugin",
+    "search_datastore_serialization_plugin",
     "PluginSSETransport",
     "PluginMCPToolBox",
     "PluginMCPToolSpec",

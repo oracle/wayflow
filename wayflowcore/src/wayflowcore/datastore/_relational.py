@@ -439,7 +439,6 @@ class RelationalDatastore(Datastore, ABC):
                 )
 
             cols_by_case_insensitive = {_case_insensitive(col.name): col for col in tbl.columns}
-
             for property_name, prop in entity.properties.items():
                 lookup_col_name = _case_insensitive(property_name)
                 col = cols_by_case_insensitive.get(lookup_col_name)
