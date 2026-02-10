@@ -114,6 +114,10 @@ Search
 .. autoclass:: wayflowcore.agentspec.components.search.PluginSearchConfig
     :exclude-members: model_post_init, model_config
 
+.. _agentspecvectorconfig:
+.. autoclass:: wayflowcore.agentspec.components.search.PluginVectorConfig
+    :exclude-members: model_post_init, model_config
+
 .. _agentspecoracledatabasedatastore:
 .. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseDatastore
     :exclude-members: model_post_init, model_config
