@@ -92,6 +92,63 @@ Agentic patterns
 .. autoclass:: wayflowcore.agentspec.components.swarm.PluginSwarm
     :exclude-members: model_post_init, model_config
 
+Tools
+^^^^^
+
+.. _agentspectoolfromtoolbox:
+.. autoclass:: wayflowcore.agentspec.components.tools.PluginToolFromToolBox
+    :exclude-members: model_post_init, model_config
+
+Search
+^^^^^^
+
+.. _agentspecsearchtoolbox:
+.. autoclass:: wayflowcore.agentspec.components.search.PluginSearchToolBox
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecvectorretrieverconfig:
+.. autoclass:: wayflowcore.agentspec.components.search.PluginVectorRetrieverConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecsearchconfig:
+.. autoclass:: wayflowcore.agentspec.components.search.PluginSearchConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecvectorconfig:
+.. autoclass:: wayflowcore.agentspec.components.search.PluginVectorConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecoracledatabasedatastore:
+.. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseDatastore
+    :exclude-members: model_post_init, model_config
+
+
+Embedding Models
+^^^^^^^^^^^^^^^^
+
+.. _agentspec_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginEmbeddingConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspec_oci_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginOciGenAiEmbeddingConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspec_openai_compatible_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginOpenAiCompatibleEmbeddingConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspec_ollama_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginOllamaEmbeddingConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspec_openai_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginOpenAiEmbeddingConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspec_vllm_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginVllmEmbeddingConfig
+    :exclude-members: model_post_init, model_config
 
 Messages
 ^^^^^^^^

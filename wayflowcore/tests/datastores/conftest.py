@@ -13,17 +13,18 @@ from typing import Dict, List, Optional, Type
 
 import pytest
 
-from wayflowcore.datastore import MTlsOracleDatabaseConnectionConfig, OracleDatabaseDatastore
+from wayflowcore.datastore import InMemoryDatastore, OracleDatabaseDatastore
 from wayflowcore.datastore.datastore import Datastore
 from wayflowcore.datastore.entity import Entity, nullable
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING, InMemoryDatastore
-from wayflowcore.datastore.oracle import TlsOracleDatabaseConnectionConfig
 from wayflowcore.datastore.postgres import (
     PostgresDatabaseDatastore,
     TlsPostgresDatabaseConnectionConfig,
 )
 from wayflowcore.property import FloatProperty, IntegerProperty, Property, StringProperty
 from wayflowcore.steps.step import Step
+
+from ..conftest import get_oracle_connection_config
 
 
 def get_basic_office_entities():
@@ -131,30 +132,6 @@ def all_oracle_mtls_connection_config_env_variables_are_specified():
         "ADB_WALLET_SECRET",
     ]
     return all([arg in os.environ for arg in mtls_connection_args])
-
-
-def get_oracle_connection_config():
-    if all_oracle_mtls_connection_config_env_variables_are_specified():
-        return MTlsOracleDatabaseConnectionConfig(
-            config_dir=os.environ["ADB_CONFIG_DIR"],  # needed in the CI
-            user=os.environ["ADB_DB_USER"],
-            password=os.environ["ADB_DB_PASSWORD"],
-            dsn=os.environ["ADB_DSN"],
-            wallet_location=os.environ["ADB_WALLET_DIR"],
-            wallet_password=os.environ["ADB_WALLET_SECRET"],
-        )
-    elif all_oracle_tls_connection_config_env_variables_are_specified:
-        return TlsOracleDatabaseConnectionConfig(
-            user=os.environ["ADB_DB_USER"],
-            password=os.environ["ADB_DB_PASSWORD"],
-            dsn=os.environ["ADB_DSN"],
-            config_dir=os.environ.get("ADB_CONFIG_DIR", None),
-        )
-    else:
-        pytest.skip(
-            "No database connection arguments configured in environment. "
-            "Skipping Oracle DB tests..."
-        )
 
 
 def all_postgres_connection_config_env_variables_are_specified():
@@ -291,7 +268,7 @@ def testing_tls_postgres_data_store(tls_postgres_datastore: PostgresDatabaseData
 
 
 def get_default_datastore_content():
-    with open(files("tests.datastores").joinpath("entities.json")) as f:
+    with open(files("tests.datastores").joinpath("employee_entities.json")) as f:
         return json.load(f)
 
 

@@ -3,15 +3,24 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+import logging
 import warnings
 from dataclasses import asdict, dataclass
-from typing import TYPE_CHECKING, Any, Dict, Optional, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.component import DataclassComponent
 from wayflowcore.datastore.entity import Entity
 from wayflowcore.exceptions import DatastoreError
+from wayflowcore.idgeneration import IdGenerator
+from wayflowcore.search import (
+    OracleDatabaseVectorIndex,
+    SearchConfig,
+    VectorConfig,
+    VectorRetrieverConfig,
+)
+from wayflowcore.search.metrics import SimilarityMetric
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject, serialize_to_dict
 from wayflowcore.warnings import SecurityWarning
@@ -27,6 +36,8 @@ if TYPE_CHECKING:
 else:
     oracledb = LazyLoader("oracledb")
     sqlalchemy = LazyLoader("sqlalchemy")
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -140,12 +151,23 @@ class OracleDatabaseDatastore(RelationalDatastore, SerializableObject):
         self,
         schema: Dict[str, Entity],
         connection_config: OracleDatabaseConnectionConfig,
+        search_configs: Optional[List["SearchConfig"]] = None,
+        vector_configs: Optional[List["VectorConfig"]] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
         id: Optional[str] = None,
         __metadata_info__: Optional["MetadataType"] = None,
     ):
         """Initialize an Oracle Database Datastore.
+
+        Search config resolution priority:
+            1. Explicit collection match (config.collection_name == requested)
+            2. Universal config (config.collection_name is None/empty)
+
+        Vector Config resolution Priority:
+            1. VectorRetrieverConfig has a vectors attribute defined
+            2. One of vector_configs' collection name matches with input collection_name
+            3. Vector column is inferred from Schema
 
         Parameters
         ----------
@@ -154,6 +176,14 @@ class OracleDatabaseDatastore(RelationalDatastore, SerializableObject):
             this datastore.
         connection_config :
             Configuration of connection parameters
+        search_configs :
+            List of search configurations for vector search capabilities.
+            By default, it's set as None.
+            If no search config is given, the datastore will not support Search functionality.
+        vector_configs :
+            List of vector configurations for vector generation and storage.
+            By default, it's set as None.
+            If None, a vector config will be inferred for each vector property found in the schema.
         name :
             Name of the datastore
         description :
@@ -165,30 +195,62 @@ class OracleDatabaseDatastore(RelationalDatastore, SerializableObject):
         engine = sqlalchemy.create_engine(
             "oracle+oracledb://", creator=connection_config.get_connection
         )
+
+        for vector_config in vector_configs or []:
+            if vector_config.serializer:
+                logger.warning(
+                    "Received SerializerConfig in "
+                    "VectorConfig passed during initialization of OracleDatabaseDatastore."
+                    "SerializerConfig will be ignored and not be used in the OracleDatabaseDatastore."
+                )
+
+        self.engine = engine
         super().__init__(
-            schema,
-            engine,
-            name=name,
-            description=description,
+            schema=schema,
+            engine=engine,
+            search_configs=search_configs,
+            vector_configs=vector_configs,
             id=id,
+            name=IdGenerator.get_or_generate_name(name, prefix="oracle_datastore", length=8),
+            description=description,
             __metadata_info__=__metadata_info__,
         )
-        SerializableObject.__init__(self)
+
+        SerializableObject.__init__(self, None)
 
     def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
-        return {
+        result: Dict[str, Any] = {
             "schema": {
                 name: serialize_to_dict(entity, serialization_context)
                 for name, entity in self.schema.items()
             },
             "connection_config": serialize_to_dict(self.connection_config, serialization_context),
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
         }
+
+        # Include search_configs and vector_configs in serialization if they exist
+        if self.search_configs is not None:
+            result["search_configs"] = [
+                serialize_to_dict(config, serialization_context) for config in self.search_configs
+            ]
+
+        if self.vector_configs is not None:
+            result["vector_configs"] = [
+                serialize_to_dict(config, serialization_context) for config in self.vector_configs
+            ]
+
+        return result
 
     @classmethod
     def _deserialize_from_dict(
         cls, input_dict: Dict[str, Any], deserialization_context: DeserializationContext
     ) -> "OracleDatabaseDatastore":
-        from wayflowcore.serialization.serializer import autodeserialize_from_dict
+        from wayflowcore.serialization.serializer import (
+            autodeserialize_any_from_dict,
+            autodeserialize_from_dict,
+        )
 
         schema = {
             name: cast(Entity, autodeserialize_from_dict(entity, deserialization_context))
@@ -200,7 +262,82 @@ class OracleDatabaseDatastore(RelationalDatastore, SerializableObject):
             autodeserialize_from_dict(input_dict["connection_config"], deserialization_context),
         )
 
-        return OracleDatabaseDatastore(schema, connection_config)
+        id = input_dict["id"]
+        name = input_dict["name"]
+        description = input_dict["description"]
+
+        search_configs: Optional[List[SearchConfig]] = None
+        if "search_configs" in input_dict:
+            search_configs = [
+                autodeserialize_any_from_dict(config, deserialization_context)
+                for config in input_dict["search_configs"]
+            ]
+
+        vector_configs: Optional[List[VectorConfig]] = None
+        if "vector_configs" in input_dict:
+            vector_configs = [
+                autodeserialize_any_from_dict(config, deserialization_context)
+                for config in input_dict["vector_configs"]
+            ]
+
+        return OracleDatabaseDatastore(
+            schema=schema,
+            connection_config=connection_config,
+            search_configs=search_configs,
+            vector_configs=vector_configs,
+            id=id,
+            name=name,
+            description=description,
+        )
+
+    def _handle_vector_property_name_not_found(self, collection_name: str) -> str:
+        raise ValueError(f"No Vector Property found for Table {collection_name}")
+
+    def _search_backend(
+        self,
+        collection_name: str,
+        query_embedding: List[float],
+        k: int,
+        metric: SimilarityMetric,
+        where: Optional[Dict[str, Any]],
+        columns_to_exclude: Optional[List[str]],
+        vector_config: Optional[VectorConfig],
+    ) -> List[Dict[str, Any]]:
+        """
+        Backend execution for Oracle vector search: instantiate database vector index and search.
+        """
+
+        vector_property = None
+
+        if vector_config:
+            vector_property = vector_config.vector_property
+
+        if vector_property is None:
+            vector_property = self._get_first_vector_property_name(collection_name)
+
+        index = OracleDatabaseVectorIndex(
+            self.engine, vector_property, table=self.data_tables[collection_name].sqlalchemy_table
+        )
+        results = index.search(query_embedding, k, metric, where, columns_to_exclude)
+
+        return results
+
+    def _find_vector_config_from_name(
+        self, vector_config_name: Optional[str], collection_name: Optional[str] = None
+    ) -> Optional[VectorConfig]:
+        if vector_config_name in self._vector_config_map:
+            vector_config = self._vector_config_map[vector_config_name]
+            return vector_config
+        return None
+
+    def _handle_no_matching_vector_config(
+        self, collection_name: str, retriever: VectorRetrieverConfig
+    ) -> None:
+        warnings.warn(
+            f"No vector config found for collection {collection_name}. Inferring Vector Property from schema",
+            UserWarning,
+        )
+        return None
 
 
 def _execute_query_on_oracle_db(

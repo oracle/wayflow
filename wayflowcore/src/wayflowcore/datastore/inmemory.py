@@ -4,9 +4,9 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import warnings
 from logging import getLogger
 from typing import Any, Dict, List, Optional, Union, cast, overload
-from warnings import warn
 
 import numpy as np
 import pandas as pd
@@ -21,6 +21,17 @@ from wayflowcore.datastore._utils import (
 from wayflowcore.datastore.datastore import Datastore
 from wayflowcore.datastore.entity import Entity, EntityAsDictT
 from wayflowcore.idgeneration import IdGenerator
+from wayflowcore.property import VectorProperty
+from wayflowcore.search import (
+    BaseInMemoryVectorIndex,
+    EntityVectorIndex,
+    SearchConfig,
+    SimilarityMetric,
+    SimpleVectorGenerator,
+    VectorConfig,
+    VectorGenerator,
+    VectorRetrieverConfig,
+)
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import serialize_to_dict
 
@@ -154,17 +165,33 @@ class InMemoryDatastore(Datastore):
         self,
         schema: Dict[str, Entity],
         id: Optional[str] = None,
+        search_configs: Optional[List["SearchConfig"]] = None,
+        vector_configs: Optional[List["VectorConfig"]] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        __metadata_info__: Optional[MetadataType] = None,
+        __metadata_info__: Optional["MetadataType"] = None,
     ):
         """Initialize an ``InMemoryDatastore``.
 
+        Vector Config resolution Priority:
+            1. VectorRetrieverConfig has a vectors attribute defined
+            2. One of vector_configs' collection name matches with input collection_name
+            3. Vector column is inferred from Schema
+
         Parameters
         ----------
-        schema :
+        schema
             Mapping of collection names to entity definitions used by this
             datastore.
+        search_configs
+            List of search configurations for vector search capabilities.
+            By default, it's set as None.
+            If no search config is given, the datastore will not support Search functionality.
+        vector_configs
+            List of vector configurations for vector generation and storage.
+            By default, it's set as None.
+            If None, an implicit vector config will be created.
+            Any operation on the Datastore might trigger the vector indices for these vector configs to be rebuilt again.
 
         Example
         -------
@@ -211,11 +238,16 @@ class InMemoryDatastore(Datastore):
         >>> datastore.delete("documents", where={"id": 3})
 
         """
-        warn(_USER_WARNING_MESSAGE_INTERNAL, UserWarning)
+        warnings.warn(_USER_WARNING_MESSAGE_INTERNAL)
 
+        self._validate_schema(schema)
+        self.schema = schema
         super().__init__(
-            name=IdGenerator.get_or_generate_name(name, prefix="inmemory_datastore", length=8),
+            schema=schema,
+            search_configs=search_configs,
+            vector_configs=vector_configs,
             id=id,
+            name=IdGenerator.get_or_generate_name(name, prefix="inmemory_datastore", length=8),
             description=description,
             __metadata_info__=__metadata_info__,
         )
@@ -223,10 +255,126 @@ class InMemoryDatastore(Datastore):
         self.schema = schema
         self._datatables = {name: _InMemoryDatatable(e) for name, e in self.schema.items()}
 
+        self._implicit_vector_property_name = "_embedding"  # Only used when the user has not defined a vector property name and wants to use search
+        # Initialize vector infrastructure
+        # Vector infrastructure maps:
+        # - Outer dict: collection_name -> inner dict
+        # - Inner dict: vector_config_name -> actual index
+        # This allows multiple vector configs per collection (e.g., different serializers)
+        self._vector_indices: Dict[str, Dict[str, BaseInMemoryVectorIndex]] = {}
+        self._vector_generators: Dict[str, VectorGenerator] = {}
+
+        # Create implicit vector properties where needed
+        self._create_implicit_vector_properties()
+
+        # Initialize datatables after schema modification
+        self._datatables = {name: _InMemoryDatatable(e) for name, e in self.schema.items()}
+
+        # Initialize vector infrastructure for each collection
+        self._initialize_vector_infrastructure()
+
+    def _create_implicit_vector_properties(self) -> None:
+        """Create implicit vector properties for entities that need them.
+
+        Examines search configurations to determine which collections require
+        vector properties. For collections without explicit vector properties,
+        creates an implicit '_embedding' property.
+        """
+        # Check which collections need vector properties based on search configs
+        collections_needing_vectors = set()
+
+        for search_config in self.search_configs:
+            collection_name = search_config.retriever.collection_name
+            if collection_name and collection_name in self.schema:
+                collections_needing_vectors.add(collection_name)
+            elif not collection_name:
+                # If no collection specified, all collections need vectors
+                collections_needing_vectors.update(self.schema.keys())
+
+        # Create implicit vector properties for collections that don't have any
+        for collection_name in collections_needing_vectors:
+            entity = self.schema[collection_name]
+            if not entity._has_vector_properties:
+                # Create a new entity with the implicit vector property
+                # Implicit vector properties:
+                # When a collection needs vectors but has none defined, we auto-create
+                # a hidden "_embedding" VectorProperty to store generated embeddings
+
+                new_properties = entity.properties.copy()
+
+                vector_config = self._find_or_create_vector_config(collection_name)
+                if vector_config.vector_property:
+                    vector_property = vector_config.vector_property
+                else:
+                    raise ValueError(
+                        f"No Vector Property found for collection name {collection_name}. "
+                        "Please specify a Vector Property in the Vector Config if you want to implicitly generate the vector column"
+                    )
+
+                new_properties[vector_property] = VectorProperty(
+                    name=vector_property,
+                    hidden=True,
+                    description="Auto-generated embedding vector",
+                    default_value=[],
+                )
+                # Replace the entity in the schema
+                self.schema[collection_name] = Entity(
+                    name=entity.name,
+                    description=entity.description,
+                    default_value=entity.default_value,
+                    properties=new_properties,
+                )
+
+    def _initialize_vector_infrastructure(self) -> None:
+        """Initialize vector indices and generators for collections.
+
+        Sets up the vector search infrastructure for each collection that has
+        vector properties, including vector generators for embedding generation.
+        """
+        for collection_name, entity in self.schema.items():
+            self._vector_indices[collection_name] = {}
+
+            # Create vector generators for collections with vector properties
+            if entity._has_vector_properties:
+                # Find or create vector config for this collection
+                vector_config = self._find_or_create_vector_config(collection_name)
+
+                # Get embedding model from search configs
+                embedding_model = self._get_first_embedding_model(collection_name)
+                if embedding_model:
+                    # Use SimpleVectorGenerator
+                    self._vector_generators[collection_name] = SimpleVectorGenerator(
+                        vector_config, embedding_model
+                    )
+
+    def _find_or_create_vector_config(self, collection_name: str) -> VectorConfig:
+        """Find existing vector config or create an implicit one for a collection."""
+        # Look for existing vector config for this collection
+        for config in self.vector_configs:
+            if config.collection_name and config.collection_name == collection_name:
+                return config
+
+        # Check if implicit config already exists in map
+        implicit_name = f"vector_{collection_name}"
+        if implicit_name in self._vector_config_map:
+            return self._vector_config_map[implicit_name]
+
+        # Create implicit vector config
+        implicit_config = VectorConfig(
+            name=implicit_name,
+            collection_name=collection_name,
+            vector_property=self._get_first_vector_property_name(
+                collection_name
+            ),  # Use the vector property or the implicit vector name
+        )
+        self.vector_configs.append(implicit_config)
+        self._vector_config_map[implicit_name] = implicit_config
+        return implicit_config
+
     def _validate_schema(self, schema: Dict[str, Entity]) -> None:
         for collection_name, entity in schema.items():
             if entity.name != "" and collection_name != entity.name:
-                warn(
+                warnings.warn(
                     f"Entity name {entity.name} does not match collection name {collection_name} "
                     "provided to the datastore. Only the collection name will be used to reference "
                     "the Entity. To remove this warning, remove the entity name or set it to match "
@@ -235,25 +383,68 @@ class InMemoryDatastore(Datastore):
                 )
 
     def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
-        return {
+        result: Dict[str, Any] = {
             "schema": {
                 name: serialize_to_dict(entity, serialization_context)
                 for name, entity in self.schema.items()
-            }
+            },
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
         }
+
+        if self.search_configs is not None:
+            result["search_configs"] = [
+                serialize_to_dict(config, serialization_context) for config in self.search_configs
+            ]
+
+        if self.vector_configs is not None:
+            result["vector_configs"] = [
+                serialize_to_dict(config, serialization_context) for config in self.vector_configs
+            ]
+
+        return result
 
     @classmethod
     def _deserialize_from_dict(
         cls, input_dict: Dict[str, Any], deserialization_context: DeserializationContext
     ) -> "InMemoryDatastore":
-        from wayflowcore.serialization.serializer import autodeserialize_from_dict
+        from wayflowcore.serialization.serializer import (
+            autodeserialize_from_dict,
+            deserialize_any_from_dict,
+        )
 
         schema = {
             name: cast(Entity, autodeserialize_from_dict(entity, deserialization_context))
             for name, entity in input_dict["schema"].items()
         }
 
-        return InMemoryDatastore(schema)
+        id = input_dict["id"]
+        name = input_dict["name"]
+        description = input_dict["description"]
+
+        search_configs = None
+        if "search_configs" in input_dict:
+            search_configs = [
+                deserialize_any_from_dict(config, SearchConfig, deserialization_context)
+                for config in input_dict["search_configs"]
+            ]
+
+        vector_configs = None
+        if "vector_configs" in input_dict:
+            vector_configs = [
+                deserialize_any_from_dict(config, VectorConfig, deserialization_context)
+                for config in input_dict["vector_configs"]
+            ]
+
+        return InMemoryDatastore(
+            schema=schema,
+            id=id,
+            search_configs=search_configs,
+            vector_configs=vector_configs,
+            name=name,
+            description=description,
+        )
 
     def list(
         self,
@@ -268,7 +459,34 @@ class InMemoryDatastore(Datastore):
         self, collection_name: str, where: Dict[str, Any], update: EntityAsDictT
     ) -> List[EntityAsDictT]:
         check_collection_name(self.schema, collection_name)
-        return self._datatables[collection_name].update(where, update)
+        updated = self._datatables[collection_name].update(where, update)
+
+        if self._affects_vectors(collection_name, update):
+            self._process_vectors_for_entities(collection_name, updated)
+            self._rebuild_affected_indices(collection_name)
+
+        return updated
+
+    def _check_normalized_entities(
+        self,
+        entities: Union[EntityAsDictT, List[EntityAsDictT]],
+    ) -> List[EntityAsDictT]:
+        if isinstance(entities, dict):
+            return [entities]
+        elif isinstance(entities, list):
+            for x in entities:
+                if isinstance(x, dict):
+                    continue
+                elif isinstance(x, (list, tuple, set)):
+                    raise TypeError(
+                        f"Nested collection detected (collection of collections) inside entities list."
+                        f"Did you mean to provide a list of dicts? Got: {x}"
+                    )
+                else:
+                    raise TypeError(f"Invalid entity type inside list: {type(x)}")
+            return entities
+        else:
+            raise TypeError(f"Invalid entity type for creation: {type(entities)}")
 
     @overload
     def create(self, collection_name: str, entities: EntityAsDictT) -> EntityAsDictT: ...
@@ -282,11 +500,187 @@ class InMemoryDatastore(Datastore):
         self, collection_name: str, entities: Union[EntityAsDictT, List[EntityAsDictT]]
     ) -> Union[EntityAsDictT, List[EntityAsDictT]]:
         check_collection_name(self.schema, collection_name)
-        return self._datatables[collection_name].create(entities)
+
+        entities_list = self._check_normalized_entities(entities)
+        is_single = isinstance(entities, dict)
+
+        # Generate vectors before creating if we have a vector generator
+        if collection_name in self._vector_generators:
+            # First ensure entities have the default empty vectors
+            entity_schema = self.schema[collection_name]
+
+            defaults = entity_schema.get_entity_defaults()
+            for entity in entities_list:
+                for key, value in defaults.items():
+                    if key not in entity:
+                        entity[key] = value
+            self._process_vectors_for_entities(collection_name, entities_list)
+
+        result: Union[EntityAsDictT, List[EntityAsDictT]]
+        # Create entities with vectors already included
+        if is_single:
+            result = self._datatables[collection_name].create(entities_list[0])
+
+        else:
+            result = self._datatables[collection_name].create(entities_list)
+
+        if collection_name in self._vector_generators:
+            self._rebuild_affected_indices(collection_name)
+
+        return result
+
+    def _process_vectors_for_entities(
+        self, collection_name: str, entities: List[EntityAsDictT]
+    ) -> None:
+        """Generate and store vectors for entities.
+
+        Generates entity-level vectors.
+        """
+        # Safeguard: ensure entities is a flat list of dicts
+        if not isinstance(entities, list) or not all(isinstance(x, dict) for x in entities):
+            raise TypeError("entities must be a list of dicts (EntityAsDictT)")
+
+        vector_generator = self._vector_generators.get(collection_name)
+        if not vector_generator:
+            return
+
+        vector_property = self._get_first_vector_property_name(collection_name)
+
+        if vector_property not in self.schema[collection_name].properties:
+            raise ValueError(
+                f"Given vector column name is not present in the table: {vector_property}"
+            )
+
+        if vector_property in entities[0] and entities[0][vector_property]:
+            return
+
+        vectors = vector_generator.generate_vectors(entities)
+        for entity, vector in zip(entities, vectors):
+            entity[vector_property] = vector
+
+    def _handle_vector_property_name_not_found(self, collection_name: str) -> str:
+        return self._implicit_vector_property_name
+
+    def _rebuild_affected_indices(self, collection_name: str) -> None:
+        """Rebuild vector indices after entity changes.
+
+        Rebuilds entity-level indices based on the collection's vector configurations.
+        """
+        entities = self._datatables[collection_name].list()
+
+        relevant_configs = []
+        for config in self.vector_configs:
+            if config.collection_name and config.collection_name == collection_name:
+                relevant_configs.append(config)
+        if not relevant_configs and collection_name in self._vector_generators:
+            implicit_config = self._find_or_create_vector_config(collection_name)
+            relevant_configs.append(implicit_config)
+
+        for vector_config in relevant_configs:
+            vector_property = vector_config.vector_property or self._get_first_vector_property_name(
+                collection_name
+            )
+
+            # Build entity index using EntityVectorIndex
+            dimension = None
+            for entity in entities:
+                if vector_property in entity and entity[vector_property]:
+                    dimension = len(entity[vector_property])
+                    break
+            if dimension is not None:
+                index = EntityVectorIndex(dimension, SimilarityMetric.COSINE)
+                index.build(entities, vector_property)
+                if not vector_config.name:
+                    raise ValueError("Vector Config name is not configured properly")
+                self._vector_indices[collection_name][vector_config.name] = index
+
+    def _affects_vectors(self, collection_name: str, update: EntityAsDictT) -> bool:
+        """Check if an update affects vector generation for a collection."""
+        if collection_name not in self._vector_generators:
+            return False
+
+        vector_property = self._get_first_vector_property_name(collection_name)
+
+        if vector_property in update:
+            return True
+
+        # Check if any string property is updated (used in text extraction)
+        # The current ConcatSerializerConfig assumes that all columns are being used for generating vectors
+        # Thus, if any non-hidden property is present in the update, it will affect the vectors
+        for key, value in update.items():
+            if isinstance(value, str) and not key.startswith("_"):
+                return True
+
+        return False
 
     def delete(self, collection_name: str, where: Dict[str, Any]) -> None:
         check_collection_name(self.schema, collection_name)
-        return self._datatables[collection_name].delete(where)
+        self._datatables[collection_name].delete(where)
+
+        if collection_name in self._vector_generators:
+            self._rebuild_affected_indices(collection_name)
 
     def describe(self) -> Dict[str, Entity]:
         return self.schema
+
+    def _search_backend(
+        self,
+        collection_name: str,
+        query_embedding: List[float],
+        k: int,
+        metric: SimilarityMetric,
+        where: Optional[Dict[str, Any]],
+        columns_to_exclude: Optional[List[str]],
+        vector_config: Optional[VectorConfig],
+    ) -> List[Dict[str, Any]]:
+        """
+        Backend execution for in-memory search: retrieves (or rebuilds) in-memory vector index and searches.
+        """
+        if vector_config:
+            vector_config_name = vector_config.name
+        else:
+            vector_config_name = None
+        # Find correct vector config name (handles migration from old behavior)
+        if not isinstance(vector_config_name, str):
+            raise ValueError(
+                f"Expected Vector Config name to be a string, but got a config of type: {type(vector_config_name)}"
+            )
+        index = self._vector_indices[collection_name][vector_config_name]
+        results = index.search(
+            query_embedding, k, metric=metric, where=where, columns_to_exclude=columns_to_exclude
+        )
+
+        return results
+
+    def _find_vector_config_from_name(
+        self,
+        vector_config_name: Optional[str],
+        collection_name: Optional[str] = None,
+    ) -> Optional[VectorConfig]:
+        if not isinstance(vector_config_name, str):
+            raise ValueError(
+                f"Expected Vector Config name to be a string, but got a config of type: {type(vector_config_name)}"
+            )
+        if collection_name not in self._vector_indices:
+            raise ValueError(f"No vector index found for collection '{collection_name}'")
+        if vector_config_name not in self._vector_indices[collection_name]:
+            self._rebuild_affected_indices(collection_name)
+            if vector_config_name not in self._vector_indices[collection_name]:
+                raise ValueError(f"No vector index found for config '{vector_config_name}'")
+
+        implicit_config = self._find_or_create_vector_config(collection_name)
+        if implicit_config.name != vector_config_name:
+            raise ValueError(
+                f"Expected a to find a Vector Config for collection_name: {collection_name} and vector config name: {vector_config_name}"
+            )
+        else:
+            return implicit_config
+
+    def _handle_no_matching_vector_config(
+        self, collection_name: str, retriever: VectorRetrieverConfig
+    ) -> str:
+        # Create implicit config if needed and return its name
+        implicit_config = self._find_or_create_vector_config(collection_name)
+        if implicit_config.name is None:
+            raise ValueError(f"Expected Vector Config name to not be of type: {None}")
+        return implicit_config.name

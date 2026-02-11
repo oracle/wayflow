@@ -32,16 +32,21 @@ from wayflowcore._utils.async_helpers import (
 )
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
-    ToolExecutionConfirmationStatus,
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
-from wayflowcore.executors.interrupts import ExecutionInterrupt, InterruptedExecutionStatus
 from wayflowcore.property import JsonSchemaParam, Property
 
 from .flowbasedtools import DescribedFlow
 from .toolbox import ToolBox
-from .tools import SupportedToolTypesT, Tool, _make_tool_key, _sanitize_tool_name
+from .tools import (
+    SupportedToolTypesT,
+    Tool,
+    ToolRequest,
+    ToolResult,
+    _make_tool_key,
+    _sanitize_tool_name,
+)
 
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
@@ -126,6 +131,7 @@ class ServerTool(Tool):
         tool callable
     requires_confirmation: bool
         Flag to make tool require confirmation before execution. Yields a ToolExecutionConfirmationStatus during execution.
+
 
     Examples
     --------
@@ -242,6 +248,77 @@ class ServerTool(Tool):
                 return self._add_defaults_to_tool_outputs(tool_outputs)
 
             return run_async_in_sync(_wrap)
+
+    async def _run(
+        self,
+        conversation: "Conversation",
+        tool_request: ToolRequest,
+        append_message: bool = False,
+        raise_exceptions: bool = False,
+    ) -> Optional["ToolResult"]:
+        from wayflowcore.executors._agentconversation import AgentConversation
+        from wayflowcore.executors._agentexecutor import _serialize_output
+        from wayflowcore.messagelist import Message, MessageType
+        from wayflowcore.tracing.span import ToolExecutionSpan
+
+        inputs = tool_request.args
+
+        self._bind_parent_conversation_if_applicable(conversation)
+
+        if tool_request is None:
+            raise ValueError(
+                "Internal Error: Expected tool request for server tool to not be None before calling _run"
+            )
+
+        with ToolExecutionSpan(
+            tool=self,
+            tool_request=tool_request,
+        ) as span:
+            try:
+                output = await self.run_async(**inputs)
+                # serialize as part of the try/catch so that if there is a serialization error, it is caught
+                serialized_output = _serialize_output(output)
+            except Exception as e:
+                output, serialized_output = e, str(e)
+
+            tool_result = ToolResult(content=output, tool_request_id=tool_request.tool_request_id)
+
+            if append_message:
+                # Check if tool output is copyable
+                output = self._check_tool_outputs_copyable(
+                    output,
+                    raise_exceptions=raise_exceptions,
+                )
+
+                tool_result = ToolResult(
+                    content=output, tool_request_id=tool_request.tool_request_id
+                )
+                sender = None
+                recipients = None
+                if isinstance(conversation, AgentConversation):
+                    sender = conversation.component.agent_id
+                    recipients = {conversation.component.agent_id}
+                    conversation.state.current_tool_request = None
+                conversation.message_list.append_message(
+                    Message(
+                        tool_result=tool_result,
+                        message_type=MessageType.TOOL_RESULT,
+                        sender=sender,
+                        recipients=recipients,
+                    )
+                )
+
+            span.record_end_span_event(
+                output=output,
+            )
+        logger.debug(
+            'Tool "%s" (id=%s) returned: %s',
+            tool_request.name,
+            tool_request.tool_request_id,
+            serialized_output,
+        )
+
+        return tool_result
 
     @classmethod
     def from_langchain(cls, tool: LangchainToolTypeT) -> "ServerTool":
@@ -430,6 +507,12 @@ class _FlowAsToolCallable:
         return await self.__call__(**inputs)
 
     async def __call__(self, **inputs: Any) -> Any:
+        from wayflowcore.executors.executionstatus import ToolExecutionConfirmationStatus
+        from wayflowcore.executors.interrupts.executioninterrupt import (
+            ExecutionInterrupt,
+            InterruptedExecutionStatus,
+        )
+
         conversation: "FlowConversation"
         interrupts: Optional[List["ExecutionInterrupt"]] = None
         if self._parent_conversation is None:

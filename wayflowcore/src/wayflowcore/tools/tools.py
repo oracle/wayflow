@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:
+    from wayflowcore.conversation import Conversation
     from wayflowcore.models.openaiapitype import OpenAIAPIType
     from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 
@@ -42,7 +43,7 @@ VALID_JSON_TYPES = {"boolean", "number", "integer", "string", "bool", "object", 
 
 JSON_SCHEMA_NONE_TYPE = "null"
 
-SupportedToolTypesT = Literal["client", "server", "remote", "tool"]
+SupportedToolTypesT = Literal["client", "server", "remote", "tool", "toolfromtoolbox"]
 
 # We use any here for loose typechecking, which works so long as we don't
 # expect to process the _extra_content (which is the case with the
@@ -461,6 +462,15 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
         Indicates that the tool might yield inside a step or a flow.
         """
         return self.requires_confirmation
+
+    async def _run(
+        self,
+        conversation: "Conversation",
+        tool_request: "ToolRequest",
+        append_message: bool = False,
+        raise_exceptions: bool = False,
+    ) -> Optional["ToolResult"]:
+        raise ValueError(f"Unsupported tool Type: {self.__class__.__name__}")
 
 
 def _make_tool_key(key: str, tools: Dict[str, Any]) -> str:

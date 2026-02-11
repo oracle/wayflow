@@ -26,7 +26,6 @@ from wayflowcore.events.event import (
     AgentNextActionDecisionStartEvent,
     ToolConfirmationRequestEndEvent,
     ToolConfirmationRequestStartEvent,
-    ToolExecutionResultEvent,
     ToolExecutionStartEvent,
 )
 from wayflowcore.executors._executionstate import ConversationExecutionState
@@ -50,9 +49,9 @@ from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
 from wayflowcore.property import JsonSchemaParam, Property, StringProperty
-from wayflowcore.tools import ClientTool, ServerTool, Tool, ToolRequest, ToolResult
+from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
 from wayflowcore.tools.tools import _sanitize_tool_name
-from wayflowcore.tracing.span import AgentExecutionSpan, ToolExecutionSpan
+from wayflowcore.tracing.span import AgentExecutionSpan
 
 if TYPE_CHECKING:
     from wayflowcore.executors._agentconversation import AgentConversation
@@ -536,19 +535,6 @@ class AgentConversationExecutor(ConversationExecutor):
         return outputs, serialized_output, status
 
     @staticmethod
-    async def _execute_tool(
-        tool: ServerTool, conversation: Conversation, inputs: Dict[str, Any]
-    ) -> Tuple[Any, str]:
-        try:
-            tool._bind_parent_conversation_if_applicable(conversation)
-            tool_output = await tool.run_async(**inputs)
-            # serialize as part of the try/catch so that if there is a serialization error, it is caught
-            serialized_output = _serialize_output(tool_output)
-            return tool_output, serialized_output
-        except Exception as e:
-            return e, str(e)
-
-    @staticmethod
     async def _execute_next_subcall(
         config: Agent,
         conversation: "AgentConversation",
@@ -613,7 +599,7 @@ class AgentConversationExecutor(ConversationExecutor):
         return None
 
     @staticmethod
-    def _get_tool_response_message(content: str, tool_request_id: str, agent_id: str) -> Message:
+    def _get_tool_response_message(content: Any, tool_request_id: str, agent_id: str) -> Message:
         return Message(
             tool_result=ToolResult(
                 content=content,
@@ -767,6 +753,7 @@ class AgentConversationExecutor(ConversationExecutor):
         tool_request: ToolRequest,
         messages: MessageList,
     ) -> Optional[ExecutionStatus]:
+
         logger.debug(
             'Agent executing tool "%s" (id=%s) with arguments: %s',
             tool_request.name,
@@ -813,105 +800,82 @@ class AgentConversationExecutor(ConversationExecutor):
 
                 return None
 
-        if isinstance(tool, ClientTool):
-            try:
-                tool_result_client_answer = next(
-                    m.tool_result
-                    for m in reversed(messages.messages)
-                    if m.tool_result is not None
-                    and m.tool_result.tool_request_id == tool_request.tool_request_id
-                )
-                tool._add_defaults_to_tool_outputs(tool_result_client_answer.content)
-                record_event(
-                    ToolExecutionResultEvent(
-                        tool=tool,
-                        tool_result=tool_result_client_answer,
-                    )
-                )
-                logger.debug(
-                    'Found the tool result message for tool "%s" (id=%s)',
-                    tool_request.name,
-                    tool_request.tool_request_id,
-                )
-                return None
-            except StopIteration:
-                # client hasn't answered tool request yet
-                record_event(
-                    ToolExecutionStartEvent(
-                        tool=tool,
-                        tool_request=tool_request,
-                    )
-                )
-                logger.debug(
-                    'Did not find the tool result message for tool "%s" (id=%s). Returning the execution status ToolRequestStatus',
-                    tool_request.name,
-                    tool_request.tool_request_id,
-                )
-                # Even though we are executing one tool, which happens to be a client tool, we
-                # choose here retrieve all the open client tool requests, such that we minimize the
-                # number of times the agent needs to yield. In particular, yielding for a tool
-                # request typically requires a web response to a client and a new request from them,
-                # so this optimization minimizes the number of required requests between the client
-                # and the agent.
-                all_open_client_tool_requests = (
-                    AgentConversationExecutor._get_all_open_client_tool_requests(
-                        config, conversation.state, messages
-                    )
-                )
+        tool_result = await tool._run(
+            conversation,
+            tool_request,
+            append_message=True,
+            raise_exceptions=config.raise_exceptions,
+        )
 
-                return ToolRequestStatus(
-                    tool_requests=all_open_client_tool_requests, _conversation_id=conversation.id
+        if tool_result is None:
+            record_event(
+                ToolExecutionStartEvent(
+                    tool=tool,
+                    tool_request=tool_request,
                 )
-        elif isinstance(tool, ServerTool):
-            with ToolExecutionSpan(
-                tool=tool, tool_request=tool_request, name=f"ToolExecution[{tool.name}]"
-            ) as span:
-                output, serialized_output = await AgentConversationExecutor._execute_tool(
-                    tool, conversation, tool_request.args
+            )
+
+            logger.debug(
+                'Did not find the tool result message for tool "%s" (id=%s). Returning the execution status ToolRequestStatus',
+                tool_request.name,
+                tool_request.tool_request_id,
+            )
+
+            # Even though we are executing one tool, which happens to be a client tool, we
+            # choose here retrieve all the open client tool requests, such that we minimize the
+            # number of times the agent needs to yield. In particular, yielding for a tool
+            # request typically requires a web response to a client and a new request from them,
+            # so this optimization minimizes the number of required requests between the client
+            # and the agent.
+
+            all_open_client_tool_requests = (
+                AgentConversationExecutor._get_all_open_client_tool_requests(
+                    conversation.component, conversation.state, conversation.message_list
                 )
+            )
+            return ToolRequestStatus(
+                tool_requests=all_open_client_tool_requests, _conversation_id=conversation.id
+            )
 
-                raised_exception = output if isinstance(output, Exception) else None
+        # ToolResult should be added to the conversation in both ClientTool and ServerTool if the ToolResult is not None
+        tool_result_message = next(
+            m.tool_result
+            for m in reversed(messages.messages)
+            if m.tool_result is not None
+            and m.tool_result.tool_request_id == tool_request.tool_request_id
+        )
 
-                # Check if tool output is copyable
-                output = tool._check_tool_outputs_copyable(
-                    output, raise_exceptions=config.raise_exceptions
+        if (
+            tool_result_message.content != tool_result.content
+            and tool_result_message.tool_request_id != tool_result.tool_request_id
+        ):
+            # Should not happen but we check anyway
+            raise ValueError("ToolResult was not added to the conversation properly")
+
+        output = tool_result.content
+        raised_exception = output if isinstance(output, Exception) else None
+
+        if raised_exception:
+            if config.raise_exceptions:
+                logger.info(
+                    f"Tool `{tool.name}` raised an error during exception, the current tool requests will be cleaned before raising the error."
                 )
-
-                messages.append_message(
-                    AgentConversationExecutor._get_tool_response_message(
-                        output, tool_request.tool_request_id, config.agent_id
-                    )
+                AgentConversationExecutor._clear_tool_queue_state_before_raising_error(
+                    state=conversation.state,
+                    tool_name=tool.name,
+                    messages=messages,
+                    config=config,
                 )
-
-                conversation.state.current_tool_request = None
-
-                span.record_end_span_event(
-                    output=output,
-                )
-
-            if raised_exception:
-                if config.raise_exceptions:
-                    logger.info(
-                        f"Tool `{tool.name}` raised an error during exception, the current tool requests will be cleaned before raising the error."
-                    )
-                    AgentConversationExecutor._clear_tool_queue_state_before_raising_error(
-                        state=conversation.state,
-                        tool_name=tool.name,
-                        messages=messages,
-                        config=config,
-                    )
-                    raise raised_exception
-            else:
-                logger.debug(
-                    'Tool "%s" (id=%s) returned: %s',
-                    tool_request.name,
-                    tool_request.tool_request_id,
-                    serialized_output,
-                )
-
-            return None
+                raise raised_exception
         else:
-            raise ValueError(f"Illegal: unsupported tool type: {tool}")
+            logger.debug(
+                'Tool "%s" (id=%s) returned: %s',
+                tool_request.name,
+                tool_request.tool_request_id,
+                _serialize_output(output),
+            )
+
+        return None
 
     @staticmethod
     def _clear_tool_queue_state_before_raising_error(
