@@ -273,8 +273,20 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
     def _convert_tool_deltas_into_tool_requests(self, tool_deltas: List[Any]) -> List[ToolRequest]:
         """Gets tool deltas and return list of proper tool calls"""
         tool_requests_dict: Dict[int, OpenAIToolRequestAsDictT] = {}
+        counter = 0
         for delta in tool_deltas:
-            index = delta["index"]
+            index = delta.get("index", None)
+            # if gemini models, index might not be passed, so
+            # we check wether the object is complete
+            if index is None and (
+                "function" in delta
+                and "name" in delta["function"]
+                and "parameters" in delta["function"]
+            ):
+                # gemini models return full tool calls
+                index = counter
+                counter += 1
+
             if index not in tool_requests_dict:
                 tool_requests_dict[index] = {
                     "name": "",
