@@ -910,10 +910,17 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 )
             raise ValueError(f"Unexpected tool type provided in the tool_registry: {type(tool)}")
         elif isinstance(agentspec_component, AgentSpecManagerWorkers):
-            for agent in [agentspec_component.group_manager] + agentspec_component.workers:  # type: ignore[assignment]
-                if not isinstance(agent, AgentSpecAgent):
+            if not isinstance(agentspec_component.group_manager, AgentSpecAgent):
+                raise ValueError(
+                    f"WayFlow ManagerWorkers' manager only supports agents of type `Agent`, "
+                    f"but received `{type(agentspec_component.group_manager).__name__}` instead."
+                )
+            for agent in agentspec_component.workers:  # type: ignore[assignment]
+                if not isinstance(
+                    agent, (AgentSpecAgent, AgentSpecManagerWorkers, AgentSpecA2AAgent)
+                ):
                     raise ValueError(
-                        f"WayFlow ManagerWorkers only supports agents of type `Agent`, "
+                        f"WayFlow ManagerWorkers' workers only supports agents of type `Agent`, `ManagerWorker`, `A2AAgent`, "
                         f"but received `{type(agent).__name__}` instead."
                     )
 
