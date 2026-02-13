@@ -1,0 +1,13 @@
+deprecated==1.2.18
+jinja2==3.1.6
+jq==1.8.0
+json_repair==0.30.0
+numpy==1.26.4
+pandas==2.2.3
+PyYAML==6.0.3
+pydantic==2.12.4
+httpx==0.28.1
+mcp==1.24.0
+pyagentspec==26.1.0
+opentelemetry-api==1.36.0
+opentelemetry-sdk==1.36.0
