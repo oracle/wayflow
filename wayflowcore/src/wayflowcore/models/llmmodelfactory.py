@@ -8,7 +8,7 @@ from typing import Any, Dict, Type
 
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import LlmModel
-from .ocigenaimodel import ModelProvider
+from .ocigenaimodel import ModelProvider, OciAPIType
 
 
 class LlmModelFactory:
@@ -53,6 +53,8 @@ class LlmModelFactory:
                 config_copy["serving_mode"] = ServingMode(config_copy["serving_mode"])
             if "provider" in config_copy:
                 config_copy["provider"] = ModelProvider(config_copy["provider"])
+            if "api_type" in config_copy:
+                config_copy["api_type"] = OciAPIType(config_copy["api_type"])
 
         config_copy.pop("_component_type", None)
         config_copy.pop("_referenced_objects", None)

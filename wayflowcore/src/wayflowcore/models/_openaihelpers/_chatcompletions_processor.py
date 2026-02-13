@@ -245,7 +245,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
             text_delta = ""
             for chunk in json_object["choices"]:
                 delta = chunk["delta"]
-                if "tool_calls" in delta:
+                if "tool_calls" in delta and delta["tool_calls"] is not None:
                     tool_deltas.extend(delta["tool_calls"])
                 if "content" in delta and delta["content"] is not None:
                     text_delta = delta["content"]

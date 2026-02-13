@@ -56,6 +56,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 {
                     "content": m.content,
                     "role": "assistant",
+                    "type": "message",
                 }
             )
 
@@ -66,6 +67,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
                     "name": tc.name,
                     "arguments": json.dumps(tc.args),
                     "call_id": tc.tool_request_id,
+                    "id": tc.tool_request_id,
                 }
             )
 
@@ -89,6 +91,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 "type": "function_call_output",
                 "call_id": m.tool_result.tool_request_id,
                 "output": stringify(m.tool_result.content),
+                "id": m.tool_result.tool_request_id,
             }
         ]
 
@@ -436,7 +439,11 @@ class _ResponsesAPIProcessor(_APIProcessor):
     def _reasoning_has_content(self, reasoning_object: _ReasoningContent) -> bool:
         if "summary" in reasoning_object and len(reasoning_object["summary"]):
             return True
-        elif "content" in reasoning_object and len(reasoning_object["content"]):
+        elif (
+            "content" in reasoning_object
+            and reasoning_object["content"] is not None
+            and len(reasoning_object["content"])
+        ):
             return True
         return False
 

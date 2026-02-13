@@ -95,7 +95,7 @@ setup(
     },
     include_package_data=True,
     extras_require={
-        "oci": ["oci>=2.158.2"],
+        "oci": ["oci>=2.158.2", "oci-openai>=1.0.0"],
         "datastore": ["sqlalchemy>=2.0.40", "oracledb>=2.2.0"],
         "a2a": ["fasta2a>=0.6.0"],
     },

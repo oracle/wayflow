@@ -74,6 +74,21 @@ New features
 
   For more information, see the :doc:`API Reference <api/flows>` and the :ref:`Reference Sheet <flowbuilder_ref_sheet>`.
 
+* **Added support for OCI responses API:**
+
+  Added support for the new OCI responses API service. You can simply configure this on the `OciGenAIModel`:
+
+  .. code-block:: python
+
+    from wayflowcore.models import OciGenAIModel, OciAPIType
+
+    llm = OciGenAIModel(
+        ...,
+        api_type=OciAPIType.OPENAI_RESPONSES, # to use the responses API service
+    )
+
+
+
 * **Added User Confirmation for Tools in ToolBox:**
 
   Introduced a `requires_confirmation` flag to the base ToolBox Class. When enabled, this flag will pause tool execution of any of this toolbox's tools and emit a `ToolExecutionConfirmationStatus`, requiring explicit user confirmation before proceeding.
