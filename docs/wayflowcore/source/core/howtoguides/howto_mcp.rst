@@ -371,7 +371,7 @@ Next Steps
 
 Having learned how to integrate MCP servers in WayFlow, you may now proceed to:
 
-- :doc:`Agents in Flows <howto_agents_in_flows>`
+- :doc:`How to Enable Tool Output Streaming <howto_tooloutputstreaming>`
 - :doc:`How to Add User Confirmation to Tool Call Requests <howto_userconfirmation>`
 - :doc:`How to Create a ServerTool from a Flow <create_a_tool_from_a_flow>`
 
