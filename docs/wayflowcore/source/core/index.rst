@@ -109,6 +109,7 @@ Look through our :doc:`Frequently Asked Questions <faqs>`.
 
    Tutorials & Use Cases <tutorials/index>
    How-to Guides <howtoguides/index>
+   Conceptual Guides <conceptual_guides/data_flow_edges>
    API Reference <api/index>
 
 .. toctree::
