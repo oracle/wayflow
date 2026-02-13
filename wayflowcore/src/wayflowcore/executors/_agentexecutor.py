@@ -28,6 +28,7 @@ from wayflowcore.events.event import (
     ToolConfirmationRequestStartEvent,
     ToolExecutionStartEvent,
 )
+from wayflowcore.exceptions import AuthInterrupt
 from wayflowcore.executors._executionstate import ConversationExecutionState
 from wayflowcore.executors._executor import ConversationExecutor, ExecutionInterruptedException
 from wayflowcore.executors._interrupts_eventlistener import (
@@ -560,9 +561,14 @@ class AgentConversationExecutor(ConversationExecutor):
 
         if state.current_retrieved_tools is None:
             # need to reload the tools if when reloading they are not present anymore
-            state.current_retrieved_tools = await AgentConversationExecutor._collect_tools(
-                config=config, curr_iter=state.curr_iter
-            )
+            try:
+                retrieved_tools = await AgentConversationExecutor._collect_tools(
+                    config=config, curr_iter=state.curr_iter
+                )
+            except AuthInterrupt as auth_interrupt:
+                return auth_interrupt.status
+
+            state.current_retrieved_tools = retrieved_tools
         for tool in state.current_retrieved_tools or []:
             if tool_request.name == tool.name:
                 return await AgentConversationExecutor._handle_tool_call(
@@ -837,6 +843,11 @@ class AgentConversationExecutor(ConversationExecutor):
                 tool_requests=all_open_client_tool_requests, _conversation_id=conversation.id
             )
 
+        output = tool_result.content
+        raised_exception = output if isinstance(output, Exception) else None
+        if raised_exception and isinstance(raised_exception, AuthInterrupt):
+            return raised_exception.status
+
         # ToolResult should be added to the conversation in both ClientTool and ServerTool if the ToolResult is not None
         tool_result_message = next(
             m.tool_result
@@ -851,9 +862,6 @@ class AgentConversationExecutor(ConversationExecutor):
         ):
             # Should not happen but we check anyway
             raise ValueError("ToolResult was not added to the conversation properly")
-
-        output = tool_result.content
-        raised_exception = output if isinstance(output, Exception) else None
 
         if raised_exception:
             if config.raise_exceptions:
@@ -1058,12 +1066,15 @@ class AgentConversationExecutor(ConversationExecutor):
                     )
                 break
             else:
-                logger.debug("No open tool call, will decide next action by prompting the llm")
-                agent_state.current_retrieved_tools = (
-                    await AgentConversationExecutor._collect_tools(
+                try:
+                    retrieved_tools = await AgentConversationExecutor._collect_tools(
                         config=agent_config, curr_iter=agent_state.curr_iter
                     )
-                )
+                except AuthInterrupt as auth_interrupt:
+                    return auth_interrupt.status
+
+                logger.debug("No open tool call, will decide next action by prompting the llm")
+                agent_state.current_retrieved_tools = retrieved_tools
 
                 agent_state.curr_iter += 1
 
@@ -1118,8 +1129,8 @@ class AgentConversationExecutor(ConversationExecutor):
         raise ValueError("Agent has no tool to finish the conversation")
 
     @staticmethod
-    async def _collect_tools(config: Agent, curr_iter: int) -> Optional[List[Tool]]:
-        tools: Optional[List[Tool]]
+    async def _collect_tools(config: Agent, curr_iter: int) -> List[Tool]:
+        tools: List[Tool]
 
         # last possible llm generation
         if curr_iter == config.max_iterations - 1:
@@ -1150,6 +1161,7 @@ class AgentConversationExecutor(ConversationExecutor):
                     for tool in await toolbox.get_tools_async()
                 ],
             ]
+
         return tools
 
     @staticmethod

@@ -11,6 +11,7 @@ import time
 from typing import Optional, Tuple
 
 import pytest
+from fastmcp.server.auth.providers.jwt import RSAKeyPair
 
 from wayflowcore.mcp._session_persistence import shutdown_mcp_async_runtime
 
@@ -27,6 +28,68 @@ from .encryption import (
     issue_client_cert,
     issue_server_cert,
 )
+from .start_mcp_server import BASE_SCOPE_NAME, PROTECTED_SCOPE_NAME
+
+
+@pytest.fixture(scope="session")
+def root_auth_rsakey_pair():
+    return RSAKeyPair.generate()
+
+
+@pytest.fixture(scope="session")
+def root_auth_public_key(root_auth_rsakey_pair: RSAKeyPair):
+    return root_auth_rsakey_pair.public_key
+
+
+@pytest.fixture(scope="session")
+def base_bearer_auth_token(root_auth_rsakey_pair: RSAKeyPair):
+    return root_auth_rsakey_pair.create_token(
+        subject="test-user",
+        issuer="https://test.example.com",
+        audience="https://api.example.com",
+        scopes=[BASE_SCOPE_NAME],
+    )
+
+
+@pytest.fixture(scope="session")
+def protected_access_bearer_auth_token(root_auth_rsakey_pair: RSAKeyPair):
+    return root_auth_rsakey_pair.create_token(
+        subject="test-user-protected",
+        issuer="https://test.example.com",
+        audience="https://api.example.com",
+        scopes=[BASE_SCOPE_NAME, PROTECTED_SCOPE_NAME],
+    )
+
+
+@pytest.fixture(scope="session")
+def invalid_bearer_token():
+    return RSAKeyPair.generate().create_token(
+        subject="test-user-protected",
+        issuer="https://test.example.com",
+        audience="https://api.example.com",
+        scopes=[BASE_SCOPE_NAME, PROTECTED_SCOPE_NAME],  # should not work
+    )
+
+
+@pytest.fixture(scope="session")
+def bearer_token_with_insufficient_scopes(root_auth_rsakey_pair: RSAKeyPair):
+    return root_auth_rsakey_pair.create_token(
+        subject="test-user-protected",
+        issuer="https://test.example.com",
+        audience="https://api.example.com",
+        scopes=[],
+    )
+
+
+@pytest.fixture(scope="session")
+def expired_bearer_token(root_auth_rsakey_pair: RSAKeyPair):
+    return root_auth_rsakey_pair.create_token(
+        subject="test-user-protected",
+        issuer="https://test.example.com",
+        audience="https://api.example.com",
+        expires_in_seconds=0,
+        scopes=[BASE_SCOPE_NAME, PROTECTED_SCOPE_NAME],  # should not work
+    )
 
 
 @pytest.fixture(scope="session")
@@ -97,6 +160,9 @@ def _start_mcp_server(
     server_cert_path: Optional[str] = None,
     ca_cert_path: Optional[str] = None,
     ssl_cert_reqs: int = 0,  # ssl.CERT_NONE
+    root_auth_public_key: str = "",
+    auth_type: Optional[str] = None,
+    oauth_callback_port: Optional[str] = None,
     client_key_path: Optional[str] = None,
     client_cert_path: Optional[str] = None,
     ready_timeout_s: float = 10.0,
@@ -128,6 +194,28 @@ def _start_mcp_server(
         url = f"https://{host}:{port}"
     else:
         url = f"http://{host}:{port}"
+
+    if root_auth_public_key:
+        process_args.extend(
+            [
+                "--auth_public_key",
+                root_auth_public_key,
+            ]
+        )
+    if auth_type:
+        process_args.extend(
+            [
+                "--auth_type",
+                auth_type,
+            ]
+        )
+    if oauth_callback_port:
+        process_args.extend(
+            [
+                "--oauth_callback_port",
+                str(oauth_callback_port),
+            ]
+        )
 
     env = os.environ.copy()
     env.setdefault("PYTHONUNBUFFERED", "1")
@@ -183,8 +271,8 @@ def register_mcp_server_fixture(
     port: Optional[int] = None,
 ):
     def _fixture(request):
-        # Resolve any dependent fixtures by name and merge into kwargs
         resolved = {name: request.getfixturevalue(name) for name in deps}
+
         kwargs = {
             **start_kwargs,
             **resolved,
@@ -214,7 +302,13 @@ _MCP_SERVER_FIXTURE_DEPS = (
     "ca_cert_path",
     "client_key_path",
     "client_cert_path",
+    "root_auth_public_key",
 )
+
+
+@pytest.fixture(scope="session")
+def oauth_callback_port(session_tmp_path):
+    return get_available_port(session_tmp_path)
 
 
 sse_mcp_server_http = register_mcp_server_fixture(
@@ -251,6 +345,42 @@ sse_mcp_server_mtls = register_mcp_server_fixture(
     start_kwargs=dict(mode="sse", ssl_cert_reqs=int(ssl.CERT_REQUIRED)),
     deps=_MCP_SERVER_FIXTURE_DEPS,
 )
+
+sse_mcp_server_mtls_bearer_auth = register_mcp_server_fixture(
+    name="sse_mcp_server_mtls_bearer_auth",
+    url_suffix="sse",
+    start_kwargs=dict(
+        mode="sse",
+        ssl_cert_reqs=int(ssl.CERT_REQUIRED),
+        auth_type="jwt",
+    ),
+    deps=_MCP_SERVER_FIXTURE_DEPS,
+)
+
+
+sse_mcp_server_mtls_oauth = register_mcp_server_fixture(
+    name="sse_mcp_server_mtls_oauth",
+    url_suffix="sse",
+    start_kwargs=dict(
+        mode="sse",
+        ssl_cert_reqs=int(ssl.CERT_REQUIRED),
+        auth_type="oauth",
+    ),
+    deps=(*_MCP_SERVER_FIXTURE_DEPS, "oauth_callback_port"),
+)
+
+
+sse_mcp_server_oauth = register_mcp_server_fixture(
+    name="sse_mcp_server_oauth",
+    url_suffix="sse",
+    start_kwargs=dict(
+        mode="sse",
+        ssl_cert_reqs=int(ssl.CERT_NONE),
+        auth_type="oauth",
+    ),
+    deps=("oauth_callback_port",),
+)
+
 
 streamablehttp_mcp_server_mtls = register_mcp_server_fixture(
     name="streamablehttp_mcp_server_mtls",

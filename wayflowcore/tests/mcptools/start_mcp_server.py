@@ -3,82 +3,90 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+
 import argparse
-from contextvars import ContextVar
-from os import PathLike
-from typing import Annotated, AsyncGenerator, Literal, Optional
+from typing import Annotated, AsyncGenerator, List, Literal, Optional, Tuple
 
 import anyio
-from mcp.server.fastmcp import Context
-from mcp.server.fastmcp import FastMCP as BaseFastMCP
+from fastmcp import Context, FastMCP
+from fastmcp.exceptions import ToolError
+from fastmcp.server.auth import AccessToken, AuthProvider, TokenVerifier
+from fastmcp.server.auth.auth import ClientRegistrationOptions
+from fastmcp.server.auth.providers.in_memory import InMemoryOAuthProvider
+from fastmcp.server.auth.providers.jwt import JWTVerifier
+from fastmcp.server.middleware import Middleware, MiddlewareContext
 from mcp.types import EmbeddedResource, TextResourceContents
-from pydantic import AnyUrl, BaseModel, Field, RootModel
-from starlette.applications import Starlette
-from typing_extensions import TypedDict
+from pydantic import AnyUrl, BaseModel, Field
 
 from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
 
-UvicornExtraConfig = TypedDict(
-    "UvicornExtraConfig",
-    {
-        "ssl_keyfile": str | PathLike[str] | None,
-        "ssl_certfile": str | PathLike[str] | None,
-        "ssl_ca_certs": str | None,
-        "ssl_cert_reqs": int,
-    },
-    total=False,
-)
-
-_EXTRA_CONFIG: ContextVar[Optional[UvicornExtraConfig]] = ContextVar("_EXTRA_CONFIG", default=None)
+BASE_SCOPE_NAME = "base_tools"
+PROTECTED_SCOPE_NAME = "protected_tools"
 
 
-class FastMCP(BaseFastMCP):
-    async def _start_server(self, starlette_app: Starlette) -> None:
-        import uvicorn
+class JWTTestMiddleware(Middleware):
+    def __init__(
+        self,
+        protected_tool_list: List[str],
+        jwt_verifier: JWTVerifier,
+    ) -> None:
+        self.protected_tool_list = protected_tool_list
+        self.jwt_verifier = jwt_verifier
+        super().__init__()
 
-        extra_config = _EXTRA_CONFIG.get()
+    async def on_call_tool(self, context: MiddlewareContext, call_next):
+        mcp_request_context = context.fastmcp_context.request_context
+        connection_request = mcp_request_context.request
+        base_access_token_info: AccessToken = connection_request.user.access_token
+        access_token = base_access_token_info.token
+        tool_name: str = context.message.name
 
-        config = uvicorn.Config(
-            starlette_app,
-            host=self.settings.host,
-            port=self.settings.port,
-            log_level=self.settings.log_level.lower(),
-            **extra_config,
-        )
-        server = uvicorn.Server(config)
-        await server.serve()
+        if tool_name in self.protected_tool_list:
+            # check for access
+            verified_access_token_info = await self.jwt_verifier.verify_token(access_token)
+            if not verified_access_token_info:
+                raise ToolError(f"Access denied: Insufficient scopes to access tool {tool_name}")
 
-    async def run_sse_async(self, mount_path: str | None = None) -> None:
-        """Run the server using SSE transport."""
-        starlette_app = self.sse_app(mount_path)
-        await self._start_server(starlette_app)
+        result = await call_next(context)
+        return result
 
-    async def run_streamable_http_async(self) -> None:
-        """Run the server using StreamableHTTP transport."""
-        starlette_app = self.streamable_http_app()
-        await self._start_server(starlette_app)
+
+def _create_test_jwt_verifier_and_middleware(
+    public_key: str,
+) -> Tuple[TokenVerifier, List[Middleware]]:
+    auth = JWTVerifier(
+        public_key=public_key,
+        issuer="https://test.example.com",
+        audience="https://api.example.com",
+        required_scopes=[BASE_SCOPE_NAME],
+    )
+    middleware = JWTTestMiddleware(
+        protected_tool_list=["generate_random_string_protected"],
+        jwt_verifier=JWTVerifier(
+            public_key=public_key, required_scopes=[BASE_SCOPE_NAME, PROTECTED_SCOPE_NAME]
+        ),
+    )
+    return auth, middleware
+
+
+def _create_test_inmemory_oauth_provider(base_mcp_url: str) -> InMemoryOAuthProvider:
+    return InMemoryOAuthProvider(
+        base_url=base_mcp_url,
+        client_registration_options=ClientRegistrationOptions(
+            enabled=True,
+            valid_scopes=[BASE_SCOPE_NAME],
+            client_secret_expiry_seconds=5,
+            default_scopes=[],
+        ),
+        required_scopes=[BASE_SCOPE_NAME],
+    )
 
 
 class GenerateTupleOut(BaseModel, title="tool_output"):
     result: tuple[
-        Annotated[str, Field(title="str_output")], Annotated[bool, Field(title="bool_output")]
-    ]
-    # /!\ this needs to be named `result`
-
-
-class GenerateTupleOut2(BaseModel, title="tool_output"):
-    result: tuple[
         Annotated[int, Field(title="int_output")], Annotated[str, Field(title="str_output")]
     ]
     # /!\ this needs to be named `result`
-
-
-class GenerateListOut(BaseModel, title="tool_output"):
-    result: list[str]  # /!\ this needs to be named `result`
-
-
-class GenerateDictOut(RootModel[dict[str, str]], title="tool_output"):
-    pass
 
 
 class GenerateOptionalOut(BaseModel, title="tool_output"):
@@ -91,13 +99,34 @@ class GenerateUnionOut(BaseModel, title="tool_output"):
     result: str | int
 
 
-def create_server(host: str, port: int):
+def create_server(
+    host: str,
+    port: int,
+    uses_https: bool,
+    auth_public_key: Optional[str],
+    auth_type: Optional[Literal["oauth", "jwt"]],
+    oauth_callback_port: Optional[str],
+):
     """Create and configure the MCP server"""
+
+    auth: Optional[AuthProvider] = None
+    middlewares = []
+    base_url = ("https" if uses_https else "http") + f"://{host}:{port}"
+    if auth_type is None:
+        pass
+    elif auth_type == "jwt":
+        auth, middleware_ = _create_test_jwt_verifier_and_middleware(auth_public_key)
+        middlewares.append(middleware_)
+    elif auth_type == "oauth":
+        auth = _create_test_inmemory_oauth_provider(base_url)
+    else:
+        raise ValueError(f"MCP Auth type {auth_type} is not supported")
+
     server = FastMCP(
         name="Example MCP Server",
         instructions="A MCP Server.",
-        host=host,
-        port=port,
+        auth=auth,
+        middleware=middlewares,
     )
 
     @server.tool(
@@ -130,33 +159,81 @@ def create_server(host: str, port: int):
 
         return f"random_string_{random.randint(100, 999)}"
 
-    @server.tool(description="Tool that returns a complex type", structured_output=True)
+    @server.tool(description="Tool to return a random string")
+    def generate_random_string_protected() -> str:
+        import random
+
+        return f"random_string_{random.randint(100, 999)}"
+
+    @server.tool(description="Tool that returns a complex type")
     def generate_complex_type() -> list[str]:
         return ["value1", "value2"]
 
-    @server.tool(description="Tool that returns a dict", structured_output=True)
-    def generate_dict() -> GenerateDictOut:
-        # ^ the pydantic models should be used when users want to have
-        # fine control over the output schema (e.g. root schema title)
-        return GenerateDictOut({"key": "value"})
+    @server.tool(
+        description="Tool that returns a dict",
+        output_schema={
+            "additionalProperties": {"type": "string"},
+            "title": "tool_output",
+            "type": "object",
+        },
+    )
+    def generate_dict() -> dict[str, str]:
+        return {"key": "value"}
 
-    @server.tool(description="Tool that returns a list", structured_output=True)
-    def generate_list() -> GenerateListOut:
-        return GenerateListOut(result=["value1", "value2"])
+    @server.tool(
+        description="Tool that returns a list",
+        output_schema={
+            "properties": {
+                "result": {"items": {"type": "string"}, "title": "Result", "type": "array"}
+            },
+            "required": ["result"],
+            "title": "tool_output",
+            "type": "object",
+        },
+    )
+    def generate_list() -> list[str]:
+        # to support complex output schemas, you must wrap the output
+        # to match the given `output_schema`
+        return {"result": ["value1", "value2"]}
 
-    @server.tool(description="Tool that returns a tuple", structured_output=True)
-    def generate_tuple() -> GenerateTupleOut:
-        return GenerateTupleOut(result=("value", True))
+    @server.tool(
+        description="Tool that returns a tuple",
+        output_schema={
+            "properties": {
+                "result": {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "prefixItems": [
+                        {"title": "str_output", "type": "string"},
+                        {"title": "bool_output", "type": "boolean"},
+                    ],
+                    "title": "Result",
+                    "type": "array",
+                }
+            },
+            "required": ["result"],
+            "title": "tool_output",
+            "type": "object",
+        },
+    )
+    def generate_tuple() -> tuple[str, bool]:
+        return {"result": ("value", True)}
 
-    @server.tool(description="Tool that returns an optional string", structured_output=True)
-    def generate_optional() -> GenerateOptionalOut:
+    @server.tool(
+        description="Tool that returns an optional string",
+        output_schema=GenerateOptionalOut.model_json_schema(),
+    )
+    def generate_optional() -> Optional[str]:
         # Deterministic value for testing
-        return GenerateOptionalOut(result="maybe")
+        return {"result": "maybe"}
 
-    @server.tool(description="Tool that returns a union value", structured_output=True)
-    def generate_union() -> GenerateUnionOut:
+    @server.tool(
+        description="Tool that returns a union value",
+        output_schema=GenerateUnionOut.model_json_schema(),
+    )
+    def generate_union() -> str | int:
         # Deterministic value for testing
-        return GenerateUnionOut(result="maybe")
+        return {"result": "maybe"}
 
     @server.tool(description="Tool that consumes a list and a dict")
     def consumes_list_and_dict(vals: list[str], props: dict[str, str]) -> str:
@@ -173,8 +250,6 @@ def create_server(host: str, port: int):
             type="resource",
         )
 
-    @server.tool(description="Streaming tool")
-    @mcp_streaming_tool
     async def streaming_tool() -> AsyncGenerator[str, None]:
         contents = [f"This is the sentence N°{i}" for i in range(5)]
         for chunk in contents:
@@ -182,6 +257,10 @@ def create_server(host: str, port: int):
             await anyio.sleep(0.2)
 
         yield ". ".join(contents)  # final result
+
+    server.tool(description="Streaming tool")(
+        mcp_streaming_tool(streaming_tool, context_cls=Context)
+    )
 
     @server.tool(description="Streaming tool")
     @mcp_streaming_tool
@@ -194,15 +273,18 @@ def create_server(host: str, port: int):
 
         yield ". ".join(contents)  # final result
 
-    @server.tool(description="Streaming tool", structured_output=True)
+    @server.tool(
+        description="Streaming tool",
+        output_schema=GenerateTupleOut.model_json_schema(),
+    )
     @mcp_streaming_tool
-    async def streaming_tool_tuple() -> AsyncGenerator[GenerateTupleOut2, None]:
+    async def streaming_tool_tuple(ctx: Context) -> AsyncGenerator[tuple[int, str], None]:
         contents = [f"This is the sentence N°{i}" for i in range(5)]
         for idx, chunk in enumerate(contents):
             yield (idx, chunk)  # streamed chunks
             await anyio.sleep(0.2)
 
-        yield GenerateTupleOut2(result=(5, ". ".join(contents)))  # final result
+        yield {"result": (5, ". ".join(contents))}  # final result
 
     return server
 
@@ -215,17 +297,34 @@ def main(
     ssl_certfile: str | None,
     ssl_ca_certs: str | None,
     ssl_cert_reqs: int,
+    auth_public_key: str | None,
+    auth_type: Optional[str],
+    oauth_callback_port: Optional[str],
 ):
-    _EXTRA_CONFIG.set(
-        dict(
+    uses_https = all((ssl_keyfile, ssl_certfile, ssl_ca_certs))
+    server = create_server(
+        host=host,
+        port=port,
+        uses_https=uses_https,
+        auth_public_key=auth_public_key,
+        auth_type=auth_type,
+        oauth_callback_port=oauth_callback_port,
+    )
+    import logging
+
+    server.run(
+        transport=mode,
+        show_banner=False,
+        host=host,
+        port=port,
+        uvicorn_config=dict(
             ssl_keyfile=ssl_keyfile,
             ssl_certfile=ssl_certfile,
             ssl_ca_certs=ssl_ca_certs,
             ssl_cert_reqs=ssl_cert_reqs,
-        )
+            log_level=logging.DEBUG,
+        ),
     )
-    server = create_server(host=host, port=port)
-    server.run(transport=mode)
 
 
 if __name__ == "__main__":
@@ -250,6 +349,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--ssl_cert_reqs", type=int, help="Server certificate verify mode (0=None or 2=Required)."
     )
+    parser.add_argument("--auth_public_key", type=str, help="Public key for the MCP auth.")
+    parser.add_argument("--auth_type", type=str, help="Type of auth.")
+    parser.add_argument(
+        "--oauth_callback_port", type=int, help="Callback port for when using Oauth."
+    )
 
     args = parser.parse_args()
 
@@ -261,4 +365,7 @@ if __name__ == "__main__":
         ssl_certfile=args.ssl_certfile,
         ssl_ca_certs=args.ssl_ca_certs,
         ssl_cert_reqs=args.ssl_cert_reqs,
+        auth_public_key=args.auth_public_key,
+        auth_type=args.auth_type,
+        oauth_callback_port=args.oauth_callback_port,
     )

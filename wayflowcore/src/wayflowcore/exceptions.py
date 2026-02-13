@@ -4,6 +4,11 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from wayflowcore.executors.executionstatus import AuthChallengeRequestStatus
+
 
 class WayFlowException(Exception):
     """Base exception for wayflowcore-related errors."""
@@ -68,3 +73,33 @@ class NoSuchToolFoundOnMCPServerError(ValueError):
 
 class DataclassFieldDeserializationError(ValueError):
     """Error thrown when the deserialization of a field of a dataclass fails"""
+
+
+class _AssistantInterrupt(WayFlowException):
+    """Raised when an assistant is interrupted."""
+
+
+class AuthInterrupt(_AssistantInterrupt):
+    """Raised when a component requires an auth challenge to be completed.
+    Never raised directly, or surfaced to the user."""
+
+    def __init__(self, status: "AuthChallengeRequestStatus") -> None:
+        super().__init__(status)
+
+    @property
+    def status(self) -> "AuthChallengeRequestStatus":
+        from wayflowcore.executors.executionstatus import AuthChallengeRequestStatus
+
+        if len(self.args) == 0:
+            raise ValueError("Internal error, should not happen.")
+
+        auth_status = self.args[0]
+        if not isinstance(auth_status, AuthChallengeRequestStatus):
+            raise ValueError(
+                "Internal error, status should have been of type "
+                f"AuthChallengeRequestStatus, was {type(auth_status).__name__}"
+            )
+        return auth_status
+
+    def __str__(self) -> str:
+        return "AuthInterrupt: Requesting auth challenge to be completed."

@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional, Sequence
 
 from wayflowcore.component import Component
+from wayflowcore.exceptions import AuthInterrupt
 from wayflowcore.idgeneration import IdGenerator
 
 if TYPE_CHECKING:
@@ -69,6 +70,7 @@ class ToolBox(Component):
         of agentic components.
         """
         inner_tools = await self._get_tools_inner_async()
+
         return self._handle_tool_confirmation(inner_tools)
 
     def _handle_tool_confirmation(self, tools: Sequence["Tool"]) -> Sequence["Tool"]:
@@ -97,7 +99,10 @@ class ToolBox(Component):
 
     @property
     def might_yield(self) -> bool:
-        return any(t.might_yield for t in self.get_tools())
+        try:
+            return any(t.might_yield for t in self.get_tools())
+        except AuthInterrupt:
+            raise ValueError("Calling `might_yield` on Toolbox requiring auth is not supported")
 
     def _get_concrete_tool(self, tool_name: str) -> "Tool":
         """
