@@ -132,7 +132,7 @@ def streamablehttp_client_transport_mtls(
 def run_toolbox_test(transport: ClientTransport) -> None:
     toolbox = MCPToolBox(client_transport=transport)
     tools = toolbox.get_tools()  # need
-    assert len(tools) == 15
+    assert len(tools) == 17
     mcp_tool = next(t for t in tools if t.name == "fooza_tool")
     assert mcp_tool.run(a=1, b=2) == "7"
     assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
@@ -313,7 +313,7 @@ async def test_mcp_toolboxes_from_different_servers_do_not_conflict_in_same_agen
         # We call this method to actively retrieve tools from the lazy toolboxes
         all_agent_tools = await AgentConversationExecutor._collect_tools(config=agent, curr_iter=0)
     # 12 from toolbox 1, 2 from toolbox 2
-    assert len(all_agent_tools) == 15 + 2
+    assert len(all_agent_tools) == 17 + 2
     # Ensure that one tool from the first toolbox and one from the second are in the list
     tool_names = set(tool.name for tool in all_agent_tools)
     assert all(tool_name in tool_names for tool_name in ["fooza_tool", "alt_mul_tool"])
