@@ -37,6 +37,17 @@ Select an LLM from the options below:
 .. include:: ../_components/llm_config_tabs.rst
 
 
+.. note::
+
+   **What is tool output streaming:**
+   Tool output streaming lets a tool produce **intermediate outputs** while it is still running,
+   instead of waiting until the execution completes to return a single final result.
+   When streaming is enabled, WayFlow emits chunk events as the tool makes progress (this is emitted as
+   :ref:`ToolExecutionStreamingChunkReceivedEvent <toolexecutionstreamingchunkreceivedevent>`).
+   This enables UIs and listeners to display partial results in near real time.
+   The tool's **final output is the last value produced** (i.e., the completed tool result);
+   earlier values are treated as streamed chunks emitted during execution.
+
 You can enable tool output streaming by creating an async generator
 (i.e., an async callable yielding items with ``yield`` instead of ``return``).
 
