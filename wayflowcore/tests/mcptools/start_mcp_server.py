@@ -4,14 +4,11 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-import anyio
 import argparse
-from contextvars import ContextVar
-from os import PathLike
 from typing import Annotated, AsyncGenerator, List, Literal, Optional, Tuple
 
-from mcp.server.fastmcp import FastMCP as BaseFastMCP
-from fastmcp import FastMCP, Context
+import anyio
+from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 from fastmcp.server.auth import AccessToken, AuthProvider, TokenVerifier
 from fastmcp.server.auth.auth import ClientRegistrationOptions
@@ -19,7 +16,7 @@ from fastmcp.server.auth.providers.in_memory import InMemoryOAuthProvider
 from fastmcp.server.auth.providers.jwt import JWTVerifier
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from mcp.types import EmbeddedResource, TextResourceContents
-from pydantic import AnyUrl, BaseModel
+from pydantic import AnyUrl, BaseModel, Field
 
 from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
 
@@ -84,11 +81,13 @@ def _create_test_inmemory_oauth_provider(base_mcp_url: str) -> InMemoryOAuthProv
         required_scopes=[BASE_SCOPE_NAME],
     )
 
+
 class GenerateTupleOut(BaseModel, title="tool_output"):
     result: tuple[
         Annotated[int, Field(title="int_output")], Annotated[str, Field(title="str_output")]
     ]
     # /!\ this needs to be named `result`
+
 
 class GenerateOptionalOut(BaseModel, title="tool_output"):
     # Optional output to validate anyOf handling in WayFlow
@@ -250,7 +249,6 @@ def create_server(
             ),
             type="resource",
         )
-
 
     async def streaming_tool() -> AsyncGenerator[str, None]:
         contents = [f"This is the sentence N°{i}" for i in range(5)]

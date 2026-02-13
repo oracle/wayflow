@@ -17,6 +17,7 @@ from wayflowcore.executors._agenticpattern_helpers import (
 )
 from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.executors.executionstatus import (
+    AuthChallengeRequestStatus,
     ExecutionStatus,
     ToolExecutionConfirmationStatus,
     ToolRequestStatus,
@@ -220,11 +221,19 @@ class ManagerWorkersRunner(ConversationExecutor):
             if (
                 not _last_message
                 or _last_message.message_type == MessageType.TOOL_REQUEST
-                and not isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus))
+                and not isinstance(
+                    status,
+                    (
+                        ToolRequestStatus,
+                        ToolExecutionConfirmationStatus,
+                        AuthChallengeRequestStatus,
+                    ),
+                )
             ):
                 raise TypeError(
                     "Internal error: Last agent message is a tool request but execution status "
-                    f"is not of type {ToolRequestStatus}, {ToolExecutionConfirmationStatus} (is '{type(status)}')"
+                    "is not of type ToolRequestStatus, ToolExecutionConfirmationStatus, "
+                    f"AuthChallengeRequestStatus (is '{type(status).__name__}')"
                 )
 
             if (
@@ -251,9 +260,13 @@ class ManagerWorkersRunner(ConversationExecutor):
                     manager_agent_name=managerworkers_config.manager_agent.name,
                     managerworkers_conversation=conversation,
                 )
-            elif isinstance(status, (ToolRequestStatus, ToolExecutionConfirmationStatus)):
+            elif isinstance(
+                status,
+                (ToolRequestStatus, ToolExecutionConfirmationStatus, AuthChallengeRequestStatus),
+            ):
                 # 4. usual client tool requests of a worker
                 # or tools that need confirmations of either the manager or a worker
+                # or tools that require auth.
                 return status
             else:
                 # 5. finish status: happening when caller_input_mode == NEVER

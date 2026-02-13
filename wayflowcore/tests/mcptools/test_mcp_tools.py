@@ -26,6 +26,7 @@ from wayflowcore.executors.executionstatus import (
     UserMessageRequestStatus,
 )
 from wayflowcore.flowhelpers import create_single_step_flow, run_step_and_return_outputs
+from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.mcp import (
     ClientTransport,
     MCPOAuthConfigFactory,
@@ -50,6 +51,8 @@ from wayflowcore.property import (
 )
 from wayflowcore.serialization import autodeserialize, serialize
 from wayflowcore.steps import MapStep, OutputMessageStep, ToolExecutionStep
+from wayflowcore.steps.flowexecutionstep import FlowExecutionStep
+from wayflowcore.swarm import Swarm
 from wayflowcore.tools import Tool
 from wayflowcore.tools.tools import ToolRequest
 
@@ -1021,8 +1024,6 @@ def test_mcp_streaming_tool_adapter_rejects_invalid_callable_types(mcp_callable_
         mcp_callable_factory()
 
 
-
-
 def _run_mcp_oauth_connection_and_catch_error(client_transport, llm, exception, match) -> None:
     tool = MCPTool(
         name="generate_random_string",
@@ -1283,6 +1284,190 @@ def test_submitting_on_expired_client_info_raises_new_auth_request_in_agent(
 
     all_messages = conv.get_messages()
     last_tool_result_message = all_messages[-2]
+    assert (
+        last_tool_result_message.tool_result is not None
+        and "random_string_" in last_tool_result_message.tool_result.content
+    )
+
+
+def test_oauth_works_on_flow_in_flows_with_mcp_tool(tool_requiring_oauth: MCPTool) -> None:
+    nested_flow = Flow.from_steps([ToolExecutionStep(name="mcp_tool", tool=tool_requiring_oauth)])
+    flow = Flow.from_steps([FlowExecutionStep(name="nested_flow", flow=nested_flow)])
+
+    conv = flow.start_conversation()
+    status = conv.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    authorization_url = status.auth_request.authorization_url
+
+    auth_code, auth_state = headless_auth_flow_handler(authorization_url)
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+
+    status = conv.execute()
+    assert isinstance(status, FinishedStatus)
+
+    outputs = status.output_values
+    assert "tool_output" in outputs and "random_string_" in outputs["tool_output"]
+
+
+def test_oauth_works_on_swarm_when_manager_uses_mcp_tool(
+    tool_requiring_oauth: MCPTool, remotely_hosted_llm
+) -> None:
+    llm = remotely_hosted_llm
+    manager_agent = Agent(
+        llm=llm, tools=[tool_requiring_oauth], name="manager", description="manager"
+    )
+    sub_agent = Agent(llm=llm, name="sub", description="sub")
+    swarm = Swarm(first_agent=manager_agent, relationships=[(manager_agent, sub_agent)])
+    conv = swarm.start_conversation()
+
+    with patch_llm(
+        llm, outputs=[[ToolRequest("generate_random_string", {}, tool_request_id="tr_123456")]]
+    ):
+        conv.append_user_message("Call tool please")
+        status = conv.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    auth_code, auth_state = headless_auth_flow_handler(status.auth_request.authorization_url)
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+
+    with patch_llm(llm, outputs=["Tool called successfully"]):
+        status = conv.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    last_tool_result_message = conv.get_messages()[-2]
+    assert (
+        last_tool_result_message.tool_result is not None
+        and "random_string_" in last_tool_result_message.tool_result.content
+    )
+
+
+def test_oauth_works_on_swarm_when_subagent_uses_mcp_tool(
+    tool_requiring_oauth: MCPTool, remotely_hosted_llm
+) -> None:
+    llm = remotely_hosted_llm
+    manager_agent = Agent(llm=llm, name="manager", description="manager")
+    sub_agent = Agent(llm=llm, tools=[tool_requiring_oauth], name="sub", description="sub")
+    swarm = Swarm(first_agent=manager_agent, relationships=[(manager_agent, sub_agent)])
+    conv = swarm.start_conversation()
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(
+                    "send_message",
+                    {"message": "call tool", "recipient": sub_agent.name},
+                    tool_request_id="tr_123",
+                )
+            ],
+            # ^ used by manager_agent
+            [ToolRequest("generate_random_string", {}, tool_request_id="tr_456")],
+            # ^ used by sub_agent
+        ],
+    ):
+        conv.append_user_message("Call tool please")
+        status = conv.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    auth_code, auth_state = headless_auth_flow_handler(status.auth_request.authorization_url)
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+
+    with patch_llm(
+        llm,
+        outputs=[
+            "Tool called successfully",  # response from sub_agent
+            "The sub-agent called the tool successfully",  # response from manager_agent
+        ],
+    ):
+        status = conv.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+
+    thread = conv.state.agents_and_threads[manager_agent.name][sub_agent.name]
+    sub_conv = conv.state.thread_subconversations[thread.identifier]
+    last_tool_result_message = sub_conv.get_messages()[-2]
+    assert (
+        last_tool_result_message.tool_result is not None
+        and "random_string_" in last_tool_result_message.tool_result.content
+    )
+
+
+def test_oauth_works_on_managerworkers_when_manager_uses_mcp_tool(
+    tool_requiring_oauth: MCPTool, remotely_hosted_llm
+) -> None:
+    llm = remotely_hosted_llm
+    manager_agent = Agent(
+        llm=llm, tools=[tool_requiring_oauth], name="manager", description="manager"
+    )
+    worker_agent = Agent(llm=llm, name="worker", description="worker")
+    group = ManagerWorkers(group_manager=manager_agent, workers=[worker_agent])
+    conv = group.start_conversation()
+
+    with patch_llm(
+        llm, outputs=[[ToolRequest("generate_random_string", {}, tool_request_id="tr_123456")]]
+    ):
+        conv.append_user_message("Call tool please")
+        status = conv.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    auth_code, auth_state = headless_auth_flow_handler(status.auth_request.authorization_url)
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+
+    with patch_llm(llm, outputs=["Tool called successfully"]):
+        status = conv.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    last_tool_result_message = conv.get_messages()[-2]
+    assert (
+        last_tool_result_message.tool_result is not None
+        and "random_string_" in last_tool_result_message.tool_result.content
+    )
+
+
+def test_oauth_works_on_managerworkers_when_worker_uses_mcp_tool(
+    tool_requiring_oauth: MCPTool, remotely_hosted_llm
+) -> None:
+    llm = remotely_hosted_llm
+    manager_agent = Agent(llm=llm, name="manager", description="manager")
+    worker_agent = Agent(llm=llm, tools=[tool_requiring_oauth], name="worker", description="worker")
+    group = ManagerWorkers(group_manager=manager_agent, workers=[worker_agent])
+    conv = group.start_conversation()
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(
+                    "send_message",
+                    {"message": "call tool", "recipient": worker_agent.name},
+                    tool_request_id="tr_123",
+                )
+            ],
+            # ^ used by manager_agent
+            [ToolRequest("generate_random_string", {}, tool_request_id="tr_456")],
+            # ^ used by sub_agent
+        ],
+    ):
+        conv.append_user_message("Call tool please")
+        status = conv.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    auth_code, auth_state = headless_auth_flow_handler(status.auth_request.authorization_url)
+    status.submit_result(AuthChallengeResult(code=auth_code, state=auth_state))
+
+    with patch_llm(
+        llm,
+        outputs=[
+            "Tool called successfully",  # response from sub_agent
+            "The sub-agent called the tool successfully",  # response from manager_agent
+        ],
+    ):
+        status = conv.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    sub_conv = conv.state.subconversations[worker_agent.name]
+    last_tool_result_message = sub_conv.get_messages()[-2]
     assert (
         last_tool_result_message.tool_result is not None
         and "random_string_" in last_tool_result_message.tool_result.content

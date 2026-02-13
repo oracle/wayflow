@@ -4,6 +4,28 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+"""
+This module implement OAuth2 Authentication to MCP servers.
+
+The `OAuthFlowHandler` is extending the `OAuthClientProvider` from the mcp python sdk.
+
+The following methods/functions are modified:
+
+From https://github.com/modelcontextprotocol/python-sdk/blob/65b36de4eb930a471a5eeeddf078dc8b240a90f2/src/mcp/client/auth/oauth2.py
+- The method `_handle_token_response` is copied to use our modified `handle_token_response_scopes`
+  function. For async code, this pattern is preferred over using monkeypatching.
+- The method `async_auth_flow` is modified to support pausing the OAuth flow to wait for
+  user-provided auth code/state information, as well as to signal OAuth flow cancellation
+  upon failure.
+
+From https://github.com/modelcontextprotocol/python-sdk/blob/65b36de4eb930a471a5eeeddf078dc8b240a90f2/src/mcp/client/auth/utils.py
+- The function `handle_token_response_scopes` is modified to add query parsing for
+  MCP servers returning a query string instead of a JSON response for the token
+  exchange phase of the OAuth flow.
+
+"""
+
+
 import logging
 import ssl
 from collections.abc import AsyncGenerator
@@ -315,8 +337,7 @@ class OAuthFlowHandler(OAuthClientProvider):
 
     async def _handle_token_response(self, response: httpx.Response) -> None:
         """Handle token exchange response."""
-        # overriding OAuthClientProvider._handle_token_response
-        # to use modified `handle_token_response_scopes` function
+        # Method extracted from mcp sdk to use modified `handle_token_response_scopes` function
         if response.status_code != 200:
             body = await response.aread()
             body_text = body.decode("utf-8")
