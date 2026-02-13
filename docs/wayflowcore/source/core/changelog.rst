@@ -119,6 +119,11 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **Support for native Agent Spec CatchExceptionNode:**
+
+  WayFlow flows using the CatchExceptionStep now convert to the native Agent Spec
+  CatchExceptionNode when compatible (i.e., when catching all exceptions).
+
 * **Added ``sensitive_headers`` in components that perform remote calls:**
 
   ``ApiCallStep``, ``RemoteTool``, and MCP ``RemoteBaseTransport`` now have a new attribute ``sensitive_headers``.

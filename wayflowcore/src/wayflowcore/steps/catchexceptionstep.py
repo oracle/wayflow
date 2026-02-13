@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.executors._flowexecutor import FlowConversationExecutor
-from wayflowcore.property import AnyProperty, Property, _format_default_value
+from wayflowcore.property import AnyProperty, Property, _empty_default, _format_default_value
 from wayflowcore.steps import FlowExecutionStep
 from wayflowcore.steps.step import Step, StepExecutionStatus, StepResult
 
@@ -116,6 +116,7 @@ class CatchExceptionStep(Step):
             __metadata_info__=__metadata_info__,
         )
 
+        self._validate_output_descriptors_in_subflow(flow)
         self.flow = flow
         self.except_on = except_on or {}
         self.catch_all_exceptions = catch_all_exceptions
@@ -123,6 +124,48 @@ class CatchExceptionStep(Step):
 
     def sub_flows(self) -> Optional[List["Flow"]]:
         return [self.flow]
+
+    def _validate_output_descriptors_in_subflow(self, flow: "Flow") -> None:
+        subflow_outputs = flow.output_descriptors or []
+        current_step_outputs = self.output_descriptors or []  # may be renamed
+
+        step_output_titles = {p.name for p in current_step_outputs}
+        subflow_output_titles = {p.name for p in subflow_outputs}
+
+        # 1. Subflow outputs must not conflict with the CatchExceptionStep outputs
+        if (
+            self.EXCEPTION_NAME_OUTPUT_NAME in subflow_output_titles
+            or self.EXCEPTION_PAYLOAD_OUTPUT_NAME in subflow_output_titles
+        ):
+            raise ValueError(
+                f"Found reserved descriptor names in subflow output descriptors '{subflow_output_titles}'. "
+                f"Names {self.EXCEPTION_NAME_OUTPUT_NAME} and {self.EXCEPTION_PAYLOAD_OUTPUT_NAME} are "
+                "reserved names of the CatchExceptionStep and should not be used as outputs of the subflow."
+            )
+
+        # 2. when provided by the user, step outputs should match subflow outputs
+        expected_titles = {
+            *subflow_output_titles,
+            self.output_mapping.get(
+                self.EXCEPTION_NAME_OUTPUT_NAME, self.EXCEPTION_NAME_OUTPUT_NAME
+            ),
+            self.output_mapping.get(
+                self.EXCEPTION_PAYLOAD_OUTPUT_NAME, self.EXCEPTION_PAYLOAD_OUTPUT_NAME
+            ),
+        }
+        if step_output_titles != expected_titles:
+            raise ValueError(
+                f"CatchExceptionStep '{self.name}': provided outputs must have the same names as subflow outputs. "
+                f"Provided: {sorted(step_output_titles)}, Subflow: {sorted(subflow_output_titles)}"
+            )
+
+        # 3. Subflow ouutput descriptors must have a default value
+        for property_ in subflow_outputs:
+            if property_.default_value is _empty_default:
+                raise ValueError(
+                    f"CatchExceptionStep '{self.name}': subflow output '{property_.name}' "
+                    "must have a default value when the subflow is used in a CatchExceptionStep."
+                )
 
     @classmethod
     def _get_step_specific_static_configuration_descriptors(

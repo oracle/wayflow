@@ -46,6 +46,9 @@ from pyagentspec.flows.nodes import OutputMessageNode as AgentSpecOutputMessageN
 from pyagentspec.flows.nodes.agentnode import AgentNode as AgentSpecAgentNode
 from pyagentspec.flows.nodes.apinode import ApiNode as AgentSpecApiNode
 from pyagentspec.flows.nodes.branchingnode import BranchingNode as AgentSpecBranchingNode
+from pyagentspec.flows.nodes.catchexceptionnode import (
+    CatchExceptionNode as AgentSpecCatchExceptionNode,
+)
 from pyagentspec.flows.nodes.endnode import EndNode as AgentSpecEndNode
 from pyagentspec.flows.nodes.flownode import FlowNode as AgentSpecFlowNode
 from pyagentspec.flows.nodes.llmnode import LlmNode as AgentSpecLlmNode
@@ -379,6 +382,7 @@ from wayflowcore.outputparser import JsonToolOutputParser as RuntimeJsonToolOutp
 from wayflowcore.outputparser import PythonToolOutputParser as RuntimePythonToolOutputParser
 from wayflowcore.outputparser import RegexOutputParser as RuntimeRegexOutputParser
 from wayflowcore.outputparser import RegexPattern as RuntimeRegexPattern
+from wayflowcore.property import AnyProperty as RuntimeAnyProperty
 from wayflowcore.property import JsonSchemaParam
 from wayflowcore.property import ListProperty as RuntimeListProperty
 from wayflowcore.property import Property as RuntimeProperty
@@ -1105,10 +1109,18 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 conversion_context.convert(edge, tool_registry, converted_components)
                 for edge in data_flow_connections or []
             ]
-            control_flow_edges: List[RuntimeControlFlowEdge] = [
-                conversion_context.convert(edge, tool_registry, converted_components)
-                for edge in agentspec_component.control_flow_connections
-            ]
+            control_flow_edges: List[RuntimeControlFlowEdge] = []
+            for edge in agentspec_component.control_flow_connections:
+                if (
+                    isinstance(edge.from_node, AgentSpecCatchExceptionNode)
+                    and edge.from_branch == AgentSpecCatchExceptionNode.CAUGHT_EXCEPTION_BRANCH
+                ):
+                    # we need to rename the branch used in the CatchExceptionNode
+                    edge.from_branch = RuntimeCatchExceptionStep.DEFAULT_EXCEPTION_BRANCH
+                control_flow_edges.append(
+                    conversion_context.convert(edge, tool_registry, converted_components)
+                )
+
             for step in steps.values():
                 for branch in step.get_branches():
                     edge_exists = any(
@@ -1481,6 +1493,55 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 catch_all_exceptions=agentspec_component.catch_all_exceptions,
                 except_on=agentspec_component.except_on,
                 **self._get_rt_nodes_arguments(agentspec_component, metadata_info),
+            )
+        elif isinstance(agentspec_component, AgentSpecCatchExceptionNode):
+            # Standard CatchExceptionNode from Agent Spec does not expose catch_all_exceptions
+            # and except_on fields
+            # Also, the output of the catch exception node might be renamed,
+            # so we have to use output mapping when needed
+            rt_nodes_arguments = self._get_node_arguments(agentspec_component, metadata_info)
+            if agentspec_component.outputs:
+                subflow_outputs_titles = {
+                    p.title for p in agentspec_component.subflow.outputs or []
+                }
+                caught_exception_property = next(
+                    (
+                        p
+                        for p in agentspec_component.outputs
+                        if p.title not in subflow_outputs_titles
+                    ),
+                    None,
+                )
+                if caught_exception_property is None:
+                    raise ValueError(
+                        f"Internal error: Agent Spec CatchExceptionNode '{agentspec_component.name}' "
+                        "is missing a output for the exception info. Make sure the pyagentspec "
+                        "component is successfully validated."
+                    )
+                if (
+                    caught_exception_property.title
+                    != RuntimeCatchExceptionStep.EXCEPTION_PAYLOAD_OUTPUT_NAME
+                ):
+                    # there is no output mapping by default. We add one to handle renaming
+                    rt_nodes_arguments["output_mapping"] = {
+                        RuntimeCatchExceptionStep.EXCEPTION_PAYLOAD_OUTPUT_NAME: caught_exception_property.title
+                    }
+
+                # we need to add a default output property for the exception name
+                rt_nodes_arguments["output_descriptors"].append(
+                    RuntimeAnyProperty(
+                        name=RuntimeCatchExceptionStep.EXCEPTION_NAME_OUTPUT_NAME,
+                        default_value="",
+                    )
+                )
+
+            return RuntimeCatchExceptionStep(
+                flow=conversion_context.convert(
+                    agentspec_component.subflow, tool_registry, converted_components
+                ),
+                catch_all_exceptions=True,
+                except_on=None,
+                **rt_nodes_arguments,
             )
         elif isinstance(agentspec_component, AgentSpecPluginRegexNode):
             regex_pattern = self._regex_pattern_to_runtime(agentspec_component.regex_pattern)
