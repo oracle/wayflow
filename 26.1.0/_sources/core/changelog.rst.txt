@@ -1,19 +1,6 @@
 Changelog
 =========
 
-WayFlow |release|
------------------
-
-New features
-^^^^^^^^^^^^
-
-Improvements
-^^^^^^^^^^^^
-
-Bug fixes
-^^^^^^^^^
-
-
 WayFlow 26.1.0
 --------------
 
