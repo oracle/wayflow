@@ -52,6 +52,9 @@ Bug fixes
 
 * Fix: MCP tools now support union/optional output schemas for the `result` field (e.g., `anyOf` including `null`). This prevents KeyError during schema parsing. (#70)
 
+* Fix: Gemini models with the OpenAiCompatible model now support native tool calling (#77)
+
+
 WayFlow 26.1.0
 --------------
 
