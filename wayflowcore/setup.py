@@ -52,6 +52,7 @@ setup(
     packages=find_packages("src"),
     python_requires=">=3.10,<3.15",
     install_requires=[
+        # 3rd party dependencies (imported in code)
         "pyagentspec>=26.1.0",
         "httpx>0.28.0,<1.0.0",  # warning but no vulnerabilities
         "numpy>=1.24.3,<3.0.0",
@@ -63,9 +64,14 @@ setup(
         "PyYAML>=5.4,<7.0.0",
         "pydantic>=2.7.4,<3.0.0",
         "mcp>=1.24.0,<1.25.0",
+        "anyio>=4.10.0,<4.12.0",
+        "starlette>=0.47.2,<0.48.0",
+        "typing_extensions>=4.12.2",
+        "exceptiongroup>=1.0.2",
+        "uvicorn>=0.23.1",
+        "fastapi>=0.116.2,<1.0.0",
         # 4rth party dependencies version bounds, for CVE patching
         "annotated-types>=0.6.0",
-        "anyio>=4.10.0,<4.12.0",
         "certifi>=2025.4.26",
         "click>=7.0",
         "h11>=0.16",
@@ -80,12 +86,7 @@ setup(
         "python-multipart>=0.0.18",
         "sniffio>=1.1",
         "sse-starlette>=1.6.1",
-        "starlette>=0.47.2,<0.48.0",
-        "typing_extensions>=4.12.2",
         "typing-inspection>=0.4.0",
-        "exceptiongroup>=1.0.2",
-        "uvicorn>=0.23.1",
-        "fastapi>=0.116.2,<1.0.0",
     ],
     test_suite="tests",
     entry_points={
