@@ -13,6 +13,14 @@ Improvements
 Bug fixes
 ^^^^^^^^^
 
+WayFlow 26.1.1
+--------------
+
+Bug fixes
+^^^^^^^^^
+
+* Fix: Gemini models with the OpenAiCompatible model now support native tool calling (#77)
+
 
 WayFlow 26.1.0
 --------------
