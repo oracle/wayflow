@@ -241,6 +241,7 @@ INIT_PARAMETER_DEFAULT_VALUES = {
     "type": StringProperty(),
     "command": "pwd",
     "api_key": "",
+    "requires_confirmation": False,
     # swarm
     "first_agent": main_agent,
     "relationships": [
@@ -421,9 +422,13 @@ def _check_component_equality(comp1: SerializableObject, comp2: SerializableObje
 
 
 def _validate_compatibility(obj):
+    from pyagentspec.versioning import AgentSpecVersionEnum
+
     from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
 
-    serialized_version = AgentSpecExporter().to_yaml(obj)
+    serialized_version = AgentSpecExporter().to_yaml(
+        obj, agentspec_version=AgentSpecVersionEnum.current_version
+    )
 
     tool_registry = {}
     if hasattr(obj, "_referenced_tools"):

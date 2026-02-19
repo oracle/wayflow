@@ -68,7 +68,7 @@ def test_mcp_tool_can_be_converted_to_agentspec_and_back(
         description="some description",
         input_descriptors=[StringProperty(name="a"), StringProperty(name="b")],
     )
-    mcp_toolbox = MCPToolBox(client_transport=client_transport)
+    mcp_toolbox = MCPToolBox(client_transport=client_transport, requires_confirmation=False)
     agent = Agent(llm=remotely_hosted_llm, tools=[mcp_tool, mcp_toolbox])
 
     components_registry = {
@@ -77,7 +77,9 @@ def test_mcp_tool_can_be_converted_to_agentspec_and_back(
         f"{client_transport.id}.key_file": getattr(client_transport, "key_file", None),
     }
 
-    agentspec_agent = AgentSpecExporter().to_json(agent)
+    agentspec_agent = AgentSpecExporter().to_json(
+        agent, agentspec_version=AgentSpecVersionEnum.current_version
+    )
     reloaded_agent = AgentSpecLoader().load_json(
         agentspec_agent, components_registry=components_registry
     )
