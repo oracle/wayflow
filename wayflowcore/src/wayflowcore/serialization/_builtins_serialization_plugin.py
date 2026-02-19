@@ -134,7 +134,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_serialization_plugin
+from wayflowcore.agentspec.components import (
+    all_serialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -377,7 +379,9 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
-from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
+from wayflowcore.models.openaicompatiblemodel import (
+    EMPTY_API_KEY,
+)
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -1840,11 +1844,6 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         runtime_toolbox: RuntimeToolBox,
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecToolBox:
-        if runtime_toolbox.requires_confirmation is not None:
-            raise ValueError(
-                "ToolBox with `requires_confirmation` flag configured cannot be converted to AgentSpec yet."
-            )
-
         if isinstance(runtime_toolbox, RuntimeMCPToolBox):
             tool_filter = (
                 [
@@ -1870,6 +1869,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 tool_filter=tool_filter,
                 id=runtime_toolbox.id,
                 description=runtime_toolbox.description,
+                requires_confirmation=runtime_toolbox.requires_confirmation or False,
             )
         if isinstance(runtime_toolbox, RuntimeSearchToolBox):
             return AgentSpecPluginSearchToolBox(
@@ -1882,6 +1882,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     conversion_context, runtime_toolbox._datastore, referenced_objects
                 ),
                 search_configs=runtime_toolbox._search_configs,
+                requires_confirmation=runtime_toolbox.requires_confirmation or False,
             )
         else:
             raise ValueError(
