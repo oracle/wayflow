@@ -745,6 +745,7 @@ def get_directory_allowlist_read(tmp_path: str, session_tmp_path: str) -> List[U
         # Used in docstring tests
         Path(os.path.dirname(__file__)).parent / "src" / "wayflowcore",
         Path("~/.pdbrc").expanduser(),
+        Path("~/.config/gcloud").expanduser(),
         Path(os.path.dirname(__file__)) / ".pdbrc",
         Path(os.path.dirname(__file__)).parent / ".pdbrc",
         Path(os.path.dirname(__file__)).parent.parent / ".pdbrc",
@@ -874,8 +875,9 @@ def anyio_backend():
 def pytest_sessionfinish(session, exitstatus):
     threads = [t for t in threading.enumerate() if t is not threading.main_thread()]
     if threads:
-        text = "Non-main threads still running at end of tests\n" + "\n".join(
-            f"{t.name}: {t.daemon}, {t.is_alive()}" for t in threads
+        text = (
+            "[WayFlow test suite] conftest.py pytest_sessionfinish hook: detected non-main threads still running at end of tests\n"
+            + "\n".join(f"{t.name}: {t.daemon}, {t.is_alive()}" for t in threads)
         )
         raise ValueError(text)
 
