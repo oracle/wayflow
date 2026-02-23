@@ -362,7 +362,6 @@ class ServerTool(Tool):
         )
 
         return tool_result
-    
 
     async def _run_async_generator_streaming(self, *args: Any, **kwargs: Any) -> Any:
         """

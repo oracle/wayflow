@@ -3,7 +3,10 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+import json
+
 import pytest
+from pyagentspec.versioning import AgentSpecVersionEnum
 
 from wayflowcore import Agent
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
@@ -65,7 +68,7 @@ def test_mcp_tool_can_be_converted_to_agentspec_and_back(
         description="some description",
         input_descriptors=[StringProperty(name="a"), StringProperty(name="b")],
     )
-    mcp_toolbox = MCPToolBox(client_transport=client_transport)
+    mcp_toolbox = MCPToolBox(client_transport=client_transport, requires_confirmation=False)
     agent = Agent(llm=remotely_hosted_llm, tools=[mcp_tool, mcp_toolbox])
 
     components_registry = {
@@ -74,7 +77,9 @@ def test_mcp_tool_can_be_converted_to_agentspec_and_back(
         f"{client_transport.id}.key_file": getattr(client_transport, "key_file", None),
     }
 
-    agentspec_agent = AgentSpecExporter().to_json(agent)
+    agentspec_agent = AgentSpecExporter().to_json(
+        agent, agentspec_version=AgentSpecVersionEnum.current_version
+    )
     reloaded_agent = AgentSpecLoader().load_json(
         agentspec_agent, components_registry=components_registry
     )
@@ -86,3 +91,26 @@ def test_mcp_tool_can_be_converted_to_agentspec_and_back(
     assert len(all_agent_tools) == len(all_reloaded_agent_tools)
     for key, value in all_agent_tools.items():
         assert value == all_reloaded_agent_tools[key]
+
+
+@pytest.mark.parametrize("requires_confirmation", [True, False])
+def test_mcp_tool_with_requires_confirmation(
+    requires_confirmation, remotely_hosted_llm, with_mcp_enabled
+):
+    client_transport = StreamableHTTPTransport(url="http://url-to/server")
+    mcp_toolbox = MCPToolBox(
+        client_transport=client_transport, requires_confirmation=requires_confirmation
+    )
+    agent = Agent(llm=remotely_hosted_llm, tools=[mcp_toolbox])
+    # We need to specify the version to ensure that the requires_confirmation boolean is always dumped
+    agentspec_agent = AgentSpecExporter().to_json(
+        agent, agentspec_version=AgentSpecVersionEnum.current_version
+    )
+
+    assert f'"requires_confirmation": {json.dumps(requires_confirmation)}' in agentspec_agent
+
+    reloaded_agent = AgentSpecLoader().load_json(agentspec_agent)
+    assert isinstance(reloaded_agent, Agent)
+    assert reloaded_agent.llm.id == agent.llm.id
+    assert len(reloaded_agent._toolboxes) == 1
+    assert reloaded_agent._toolboxes[0].requires_confirmation == requires_confirmation

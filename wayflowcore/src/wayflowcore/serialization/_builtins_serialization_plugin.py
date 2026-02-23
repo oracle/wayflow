@@ -1840,11 +1840,6 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         runtime_toolbox: RuntimeToolBox,
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecToolBox:
-        if runtime_toolbox.requires_confirmation is not None:
-            raise ValueError(
-                "ToolBox with `requires_confirmation` flag configured cannot be converted to AgentSpec yet."
-            )
-
         if isinstance(runtime_toolbox, RuntimeMCPToolBox):
             tool_filter = (
                 [
@@ -1870,6 +1865,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 tool_filter=tool_filter,
                 id=runtime_toolbox.id,
                 description=runtime_toolbox.description,
+                requires_confirmation=runtime_toolbox.requires_confirmation or False,
             )
         if isinstance(runtime_toolbox, RuntimeSearchToolBox):
             return AgentSpecPluginSearchToolBox(
@@ -1882,6 +1878,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     conversion_context, runtime_toolbox._datastore, referenced_objects
                 ),
                 search_configs=runtime_toolbox._search_configs,
+                requires_confirmation=runtime_toolbox.requires_confirmation or False,
             )
         else:
             raise ValueError(

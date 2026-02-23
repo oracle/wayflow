@@ -64,7 +64,7 @@ async def run_step_and_return_outputs_async(
     status = await conversation.execute_async()
     if not isinstance(status, FinishedStatus):
         raise RuntimeError("The flow execution did not complete as expected.")
-    return status.output_values 
+    return status.output_values
 
 
 def run_flow_and_return_outputs(

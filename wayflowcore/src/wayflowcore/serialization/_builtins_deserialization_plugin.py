@@ -854,6 +854,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 search_configs=agentspec_component.search_configs,
                 collection_names=agentspec_component.collection_names,
                 k=agentspec_component.k,
+                requires_confirmation=agentspec_component.requires_confirmation,
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecPluginVllmEmbeddingConfig):
@@ -1678,6 +1679,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 tool_filter=tool_filter,
                 **self._get_component_arguments(agentspec_component),
                 _validate_mcp_client_transport=False,
+                requires_confirmation=agentspec_component.requires_confirmation,
             )
         elif isinstance(agentspec_component, AgentSpecAgentNode):
             return RuntimeAgentExecutionStep(
