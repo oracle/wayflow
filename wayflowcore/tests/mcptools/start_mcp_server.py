@@ -91,7 +91,7 @@ class GenerateUnionOut(BaseModel, title="tool_output"):
     result: str | int
 
 
-def create_server(host: str, port: int):
+def create_server(host: str, port: int, server_id: str = ""):
     """Create and configure the MCP server"""
     server = FastMCP(
         name="Example MCP Server",
@@ -105,6 +105,10 @@ def create_server(host: str, port: int):
     )
     def fooza_tool(a: int, b: int) -> int:
         return a * 2 + b * 3 - 1
+
+    @server.tool(description="Return a server identifier")
+    def server_id_tool() -> str:
+        return server_id
 
     @server.tool(
         description="Return the result of the bwip operation between numbers a and b. Do not use for anything else than computing a bwip operation."
@@ -211,6 +215,7 @@ def main(
     host: str,
     port: int,
     mode: Literal["sse", "streamable-http"],
+    server_id: str,
     ssl_keyfile: str | None,
     ssl_certfile: str | None,
     ssl_ca_certs: str | None,
@@ -224,7 +229,7 @@ def main(
             ssl_cert_reqs=ssl_cert_reqs,
         )
     )
-    server = create_server(host=host, port=port)
+    server = create_server(host=host, port=port, server_id=server_id)
     server.run(transport=mode)
 
 
@@ -250,6 +255,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--ssl_cert_reqs", type=int, help="Server certificate verify mode (0=None or 2=Required)."
     )
+    parser.add_argument(
+        "--server_id",
+        type=str,
+        default="",
+        help="Identifier exposed by the test server.",
+    )
 
     args = parser.parse_args()
 
@@ -257,6 +268,7 @@ if __name__ == "__main__":
         host=args.host,
         port=args.port,
         mode=args.mode,
+        server_id=args.server_id,
         ssl_keyfile=args.ssl_keyfile,
         ssl_certfile=args.ssl_certfile,
         ssl_ca_certs=args.ssl_ca_certs,

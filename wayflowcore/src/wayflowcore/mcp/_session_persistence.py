@@ -168,7 +168,8 @@ class AsyncRuntime(metaclass=Singleton):
 
         This method MUST NOT be called within a portal.call (for cancellation scope reasons).
         """
-        key = get_current_conv_id_or_default()
+        conversation_id = get_current_conv_id_or_default()
+        key = f"{conversation_id}:::{client_transport.id}"
         if key not in self._sessions:
             session = self._create_long_lived_session(client_transport)
             self._sessions[key] = session
