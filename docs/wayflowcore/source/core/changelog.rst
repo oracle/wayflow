@@ -20,6 +20,7 @@ Bug fixes
 ^^^^^^^^^
 
 * Fix: Gemini models with the OpenAiCompatible model now support native tool calling (#77)
+* Fix: MCP session persistence no longer collides when multiple MCP client transports (different servers/connections) are used within the same conversation.
 
 
 WayFlow 26.1.0

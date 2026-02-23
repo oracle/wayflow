@@ -14,6 +14,8 @@ from anyio import to_thread
 
 from wayflowcore import Agent, Flow
 from wayflowcore.controlconnection import ControlFlowEdge
+from wayflowcore.conversation import _register_conversation
+from wayflowcore.executors._agentexecutor import AgentConversationExecutor
 from wayflowcore.executors.executionstatus import (
     ToolExecutionConfirmationStatus,
     UserMessageRequestStatus,
@@ -100,6 +102,11 @@ def streamablehttp_client_transport(streamablehttp_mcp_server_http):
 
 
 @pytest.fixture
+def alt_sse_client_transport(alt_sse_mcp_server_http):
+    return SSETransport(url=alt_sse_mcp_server_http)
+
+
+@pytest.fixture
 def streamablehttp_client_transport_https(streamablehttp_mcp_server_https):
     return StreamableHTTPTransport(url=streamablehttp_mcp_server_https)
 
@@ -119,7 +126,7 @@ def streamablehttp_client_transport_mtls(
 def run_toolbox_test(transport: ClientTransport) -> None:
     toolbox = MCPToolBox(client_transport=transport)
     tools = toolbox.get_tools()  # need
-    assert len(tools) == 11
+    assert len(tools) == 12
     mcp_tool = next(t for t in tools if t.name == "fooza_tool")
     assert mcp_tool.run(a=1, b=2) == "7"
     assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
@@ -233,6 +240,77 @@ def test_mcp_toolbox_properly_filters_tools(sse_client_transport, with_mcp_enabl
     tools = toolbox.get_tools()  # need
     assert len(tools) == 2
     assert set(t.name for t in tools) == {"bwip_tool", "zbuk_tool"}
+
+
+def test_mcp_session_persistence_does_not_collide_across_transports(
+    sse_client_transport,
+    streamablehttp_client_transport,
+    with_mcp_enabled,
+):
+    # Toolbox 1: use SSE transport
+    toolbox_1 = MCPToolBox(client_transport=sse_client_transport)
+    tools_1 = toolbox_1.get_tools()
+
+    # Toolbox 2: use StreamableHTTP transport
+    toolbox_2 = MCPToolBox(client_transport=streamablehttp_client_transport)
+    tools_2 = toolbox_2.get_tools()
+
+    # Both transports connect to different test server processes that expose a
+    # deterministic `server_id_tool`.
+    server_id_tool_1 = next(t for t in tools_1 if t.name == "server_id_tool")
+    server_id_tool_2 = next(t for t in tools_2 if t.name == "server_id_tool")
+
+    # With proper session scoping, each toolbox talks to its own server.
+    assert server_id_tool_1.run() != server_id_tool_2.run()
+
+
+def test_mcp_toolboxes_from_different_servers_do_not_conflict(
+    sse_client_transport,
+    alt_sse_client_transport,
+    with_mcp_enabled,
+) -> None:
+    """Two MCP toolboxes from different servers should expose different tools.
+
+    This is a regression test for MCP session persistence: if sessions were
+    (incorrectly) keyed only by conversation id, the second toolbox could end up
+    talking to the first server, yielding the same tool list and causing tool name
+    collisions when combined.
+    """
+
+    toolbox_1 = MCPToolBox(client_transport=sse_client_transport)
+    toolbox_2 = MCPToolBox(client_transport=alt_sse_client_transport)
+
+    tools_1 = toolbox_1.get_tools()
+    tools_2 = toolbox_2.get_tools()
+
+    tool_names_1 = {t.name for t in tools_1}
+    tool_names_2 = {t.name for t in tools_2}
+
+    # The alternate server exposes `alt_*` tools only.
+    assert tool_names_2.issuperset({"alt_add_tool", "alt_mul_tool"})
+    assert tool_names_1.intersection(tool_names_2) == set()
+
+
+@pytest.mark.anyio
+async def test_mcp_toolboxes_from_different_servers_do_not_conflict_in_same_agent_conversation(
+    sse_client_transport,
+    alt_sse_client_transport,
+    remotely_hosted_llm,
+    with_mcp_enabled,
+) -> None:
+    toolbox_1 = MCPToolBox(client_transport=sse_client_transport)
+    toolbox_2 = MCPToolBox(client_transport=alt_sse_client_transport)
+    agent = Agent(llm=remotely_hosted_llm, tools=[toolbox_1, toolbox_2])
+    conversation = agent.start_conversation()
+    # We manually scope the toolbox retrieval call to be in a conversation
+    with _register_conversation(conversation):
+        # We call this method to actively retrieve tools from the lazy toolboxes
+        all_agent_tools = await AgentConversationExecutor._collect_tools(config=agent, curr_iter=0)
+    # 12 from toolbox 1, 2 from toolbox 2
+    assert len(all_agent_tools) == 12 + 2
+    # Ensure that one tool from the first toolbox and one from the second are in the list
+    tool_names = set(tool.name for tool in all_agent_tools)
+    assert all(tool_name in tool_names for tool_name in ["fooza_tool", "alt_mul_tool"])
 
 
 def test_unknown_tool_on_mcp_server(sse_client_transport, with_mcp_enabled):

@@ -122,7 +122,8 @@ class AsyncRuntime(metaclass=Singleton):
         """
         from wayflowcore.conversation import _get_current_conversation_id
 
-        key = _get_current_conversation_id() or _DEFAULT_MCP_SESSION_CONTEXT_ID
+        conversation_id = _get_current_conversation_id() or _DEFAULT_MCP_SESSION_CONTEXT_ID
+        key = f"{conversation_id}:::{client_transport.id}"
         if key not in self._sessions:
             session = self._create_long_lived_session(client_transport)
             self._sessions[key] = session
