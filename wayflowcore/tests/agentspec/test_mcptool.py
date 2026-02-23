@@ -104,7 +104,7 @@ def test_mcp_tool_with_requires_confirmation(
     agent = Agent(llm=remotely_hosted_llm, tools=[mcp_toolbox])
     # We need to specify the version to ensure that the requires_confirmation boolean is always dumped
     agentspec_agent = AgentSpecExporter().to_json(
-        agent, agentspec_version=AgentSpecVersionEnum.v26_2_0
+        agent, agentspec_version=AgentSpecVersionEnum.current_version
     )
 
     assert f'"requires_confirmation": {json.dumps(requires_confirmation)}' in agentspec_agent
