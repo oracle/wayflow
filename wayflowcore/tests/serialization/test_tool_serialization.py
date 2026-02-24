@@ -11,6 +11,7 @@ import pytest
 from wayflowcore.agent import Agent
 from wayflowcore.flow import Flow
 from wayflowcore.property import IntegerProperty, NullProperty, StringProperty, UnionProperty
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization import autodeserialize, deserialize, serialize
 from wayflowcore.serialization.context import DeserializationContext
 from wayflowcore.steps.toolexecutionstep import ToolExecutionStep
@@ -224,6 +225,7 @@ def remote_tool() -> Tool:
         output_descriptors=[StringProperty(name="output")],
         allow_insecure_http=True,
         url_allow_list=["http://fishy-endpoint.com"],
+        retry_policy=RetryPolicy(max_attempts=4),
     )
 
 
@@ -241,6 +243,14 @@ def test_remote_tool_can_be_serialized_and_deserialized(remote_tool):
     # Need to reset sensitive_headers before comparison, as those are not exported
     remote_tool.sensitive_headers = None
     assert remote_tool == deserialized_tool
+
+
+def test_remote_tool_retry_policy_round_trips(remote_tool):
+    serialized_tool = serialize(remote_tool)
+    deserialized_tool = autodeserialize(serialized_tool)
+    assert isinstance(deserialized_tool, RemoteTool)
+    assert deserialized_tool.retry_policy is not None
+    assert deserialized_tool.retry_policy.max_attempts == 4
 
 
 def test_serialize_agent_with_remote_tools(remotely_hosted_llm, remote_tool):

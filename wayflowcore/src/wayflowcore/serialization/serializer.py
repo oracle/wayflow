@@ -139,7 +139,9 @@ def get_field_type_mapping(cls: Any) -> Dict[str, type]:
         type_2: MyCustomAttr
         type_3: "MySecondCustomAttr"  <--- resolves the actual type of this kind of attribute
     """
-    dataclass_fields = {param.name: param.type for param in fields(cls) if param.init}
+    dataclass_fields: Dict[str, Any] = {
+        param.name: param.type for param in fields(cls) if param.init
+    }
 
     # we resolve the forwards references (e.g. dataclasses with type annotations specified "between quotes")
     if any(isinstance(t, str) for t in dataclass_fields.values()):
@@ -157,16 +159,18 @@ def get_field_type_mapping(cls: Any) -> Dict[str, type]:
         type_vars = orig_base.__origin__.__parameters__
         # Get field type hints as dict with type vars as values
         hints = get_type_hints(orig_base.__origin__)
-        # Map field names to actual concrete classes
-        return {
-            fname: (
-                type_args[type_vars.index(ftype)] if ftype in type_vars else dataclass_fields[fname]
-            )
-            for fname, ftype in hints.items()
-            if ftype in type_vars or fname in dataclass_fields
-        }
+        resolved: Dict[str, Any] = {}
+        for field_name, field_type in hints.items():
+            if field_type in type_vars:
+                resolved[field_name] = type_args[type_vars.index(field_type)]
+            elif field_name in dataclass_fields:
+                resolved[field_name] = dataclass_fields[field_name]
+
+        # We intentionally cast here because mypy can't precisely express
+        # that these values are always runtime `type` objects.
+        return cast(Dict[str, type], resolved)
     else:
-        return dataclass_fields
+        return cast(Dict[str, type], dataclass_fields)
 
 
 def _resolve_legacy_field_name(cls: type, field_name: str) -> str:

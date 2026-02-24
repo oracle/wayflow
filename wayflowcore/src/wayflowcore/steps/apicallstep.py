@@ -13,6 +13,7 @@ import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, NamedTuple, Optional, Tuple, Union
 from urllib.parse import parse_qs, quote, quote_plus, unquote, urlencode, urlparse, urlunparse
 
+import anyio
 import httpx
 import jq
 from pydantic import AnyUrl
@@ -24,6 +25,7 @@ from wayflowcore._utils._templating_helpers import (
     render_str_template,
 )
 from wayflowcore.property import IntegerProperty, Property, StringProperty, string_to_property
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.steps.step import Step, StepResult
 
 if TYPE_CHECKING:
@@ -297,6 +299,7 @@ class ApiCallStep(Step):
         store_response: bool = False,
         ignore_bad_http_requests: bool = False,
         num_retry_on_bad_http_request: int = 3,
+        retry_policy: Optional[RetryPolicy] = None,
         allow_insecure_http: bool = False,
         name: Optional[str] = None,
         url_allow_list: Optional[List[str]] = None,
@@ -600,6 +603,7 @@ class ApiCallStep(Step):
         self.store_response = store_response
         self.ignore_bad_http_requests = ignore_bad_http_requests
         self.num_retry_on_bad_http_request = num_retry_on_bad_http_request
+        self.retry_policy = retry_policy
         self.allow_insecure_http = allow_insecure_http
         self.url_allow_list = None
         if url_allow_list is not None:
@@ -727,16 +731,93 @@ class ApiCallStep(Step):
                                    Please contact the application administrator to help adding your URL to the list."
                 )
 
-        if self.num_retry_on_bad_http_request == 0:
-            return httpx.request(**request)
+        # Default behavior: keep legacy retry loop unless a RetryPolicy is provided.
+        policy = self.retry_policy
+        max_attempts = self.num_retry_on_bad_http_request
+        total_elapsed_cap_seconds = 600.0
+        if policy is not None:
+            max_attempts = max(policy.max_attempts, 1)
 
-        request_counter = 0
-        while request_counter < self.num_retry_on_bad_http_request:
-            request_counter += 1
-            async with httpx.AsyncClient() as client:
-                response = await client.request(**request)
-                if response.is_success:
+        response: httpx.Response
+        previous_wait: Optional[float] = None
+        started = anyio.current_time()
+
+        async with httpx.AsyncClient() as client:
+            for attempt in range(max_attempts):
+                try:
+                    response = await client.request(**request)
+                except httpx.TransportError as exc:
+                    # When we have a policy, treat transport errors as retryable failures (unless TLS/cert).
+                    if policy is None:
+                        raise
+                    from wayflowcore.models._requesthelpers import (
+                        _DEFAULT_RNG,
+                        _compute_wait_seconds,
+                        _is_tls_or_cert_error,
+                    )
+
+                    if _is_tls_or_cert_error(exc):
+                        raise
+
+                    wait = _compute_wait_seconds(
+                        policy,
+                        attempt=attempt,
+                        status_code=None,
+                        previous_wait_seconds=previous_wait,
+                        rng=_DEFAULT_RNG,
+                    )
+                    remaining = total_elapsed_cap_seconds - (anyio.current_time() - started)
+                    if remaining <= 0:
+                        raise
+                    wait = min(wait, remaining)
+                    previous_wait = wait
+                    await anyio.sleep(wait)
+                    continue
+
+                if response.is_success or self.ignore_bad_http_requests:
                     return response
+
+                if policy is None:
+                    continue
+
+                from wayflowcore.models._requesthelpers import (
+                    _DEFAULT_RNG,
+                    _cap_retry_after_seconds,
+                    _compute_wait_seconds,
+                    _is_retryable_http_error,
+                )
+
+                response_text = response.content.decode(errors="replace")
+                if not _is_retryable_http_error(policy, response.status_code, response_text):
+                    return response
+
+                retry_after = response.headers.get("retry-after")
+                if retry_after:
+                    try:
+                        wait = _cap_retry_after_seconds(float(retry_after))
+                    except ValueError:
+                        wait = _compute_wait_seconds(
+                            policy,
+                            attempt=attempt,
+                            status_code=response.status_code,
+                            previous_wait_seconds=previous_wait,
+                            rng=_DEFAULT_RNG,
+                        )
+                else:
+                    wait = _compute_wait_seconds(
+                        policy,
+                        attempt=attempt,
+                        status_code=response.status_code,
+                        previous_wait_seconds=previous_wait,
+                        rng=_DEFAULT_RNG,
+                    )
+
+                remaining = total_elapsed_cap_seconds - (anyio.current_time() - started)
+                if remaining <= 0:
+                    return response
+                wait = min(wait, remaining)
+                previous_wait = wait
+                await anyio.sleep(wait)
 
         return response
 
@@ -786,6 +867,7 @@ class ApiCallStep(Step):
             store_response=bool,
             ignore_bad_http_requests=bool,
             num_retry_on_bad_http_request=int,
+            retry_policy=Optional[RetryPolicy],  # type: ignore
             allow_insecure_http=bool,
             url_allow_list=Optional[List[str]],  # type: ignore
             allow_credentials=bool,

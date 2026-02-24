@@ -292,7 +292,7 @@ async def run_async_function_in_parallel(
     passed inputs, with a given max number of workers
     """
     max_workers_semaphore: AsyncContextManager[Any] = (
-        anyio.Semaphore(initial_value=max_workers)  # type: ignore
+        anyio.Semaphore(initial_value=max_workers)
         if max_workers is not None
         else contextlib.nullcontext()
     )

@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.property import Property
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 
 from .servertools import ServerTool
@@ -201,6 +202,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     output_jq_query: Optional[str]
     ignore_bad_http_requests: bool
     num_retry_on_bad_http_request: int
+    retry_policy: Optional[RetryPolicy]
     input_descriptors: List[Property]
     output_descriptors: List[Property]
     allow_insecure_http: bool
@@ -226,6 +228,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         output_jq_query: Optional[str] = None,
         ignore_bad_http_requests: bool = False,
         num_retry_on_bad_http_request: int = 3,
+        retry_policy: Optional[RetryPolicy] = None,
         input_descriptors: Optional[List[Property]] = None,
         output_descriptors: Optional[List[Property]] = None,
         allow_insecure_http: bool = False,
@@ -261,6 +264,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
             cookies=cookies,
             ignore_bad_http_requests=ignore_bad_http_requests,
             num_retry_on_bad_http_request=num_retry_on_bad_http_request,
+            retry_policy=retry_policy,
             allow_insecure_http=allow_insecure_http,
             url_allow_list=url_allow_list,
             allow_credentials=allow_credentials,
@@ -300,6 +304,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         self.output_jq_query = output_jq_query
         self.ignore_bad_http_requests = ignore_bad_http_requests
         self.num_retry_on_bad_http_request = num_retry_on_bad_http_request
+        self.retry_policy = retry_policy
         self.allow_insecure_http = allow_insecure_http
         self.url_allow_list = url_allow_list
         self.allow_credentials = allow_credentials
@@ -316,7 +321,6 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
                 f"Sensitive headers were configured in RemoteTool `{self.name}`, "
                 f"but they will not be serialized in the config"
             )
-        # We remove the sensitive headers from the serialization of the remote tool
         serialized_step = super()._serialize_to_dict(serialization_context)
         serialized_step.pop("sensitive_headers", None)
         return serialized_step

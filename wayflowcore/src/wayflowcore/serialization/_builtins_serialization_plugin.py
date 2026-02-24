@@ -90,6 +90,7 @@ from pyagentspec.mcp.clienttransport import (
 from pyagentspec.mcp.tools import MCPTool as AgentSpecMCPTool
 from pyagentspec.ociagent import OciAgent as AgentSpecOciAgent
 from pyagentspec.property import Property as AgentSpecProperty
+from pyagentspec.retrypolicy import RetryPolicy as AgentSpecRetryPolicy
 from pyagentspec.serialization import ComponentSerializationPlugin
 from pyagentspec.swarm import HandoffMode as AgentSpecHandoffMode
 from pyagentspec.swarm import Swarm as AgentSpecSwarm
@@ -134,7 +135,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_serialization_plugin
+from wayflowcore.agentspec.components import (
+    all_serialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -377,7 +380,9 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
-from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
+from wayflowcore.models.openaicompatiblemodel import (
+    EMPTY_API_KEY,
+)
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -389,6 +394,7 @@ from wayflowcore.outputparser import PythonToolOutputParser as RuntimePythonTool
 from wayflowcore.outputparser import RegexOutputParser as RuntimeRegexOutputParser
 from wayflowcore.outputparser import RegexPattern as RuntimeRegexPattern
 from wayflowcore.property import Property as RuntimeProperty
+from wayflowcore.retrypolicy import RetryPolicy as RuntimeRetryPolicy
 from wayflowcore.search.config import SearchConfig as RuntimeSearchConfig
 from wayflowcore.search.config import VectorConfig as RuntimeVectorConfig
 from wayflowcore.search.config import VectorRetrieverConfig as RuntimeVectorRetrieverConfig
@@ -485,6 +491,23 @@ if TYPE_CHECKING:
 
 
 JsonSchemaType = Dict[str, Any]
+
+
+def _runtime_retrypolicy_to_pyagentspec_retrypolicy(
+    runtime_policy: RuntimeRetryPolicy,
+) -> AgentSpecRetryPolicy:
+    payload: Dict[str, Any] = {
+        "max_attempts": runtime_policy.max_attempts,
+        "request_timeout": runtime_policy.request_timeout,
+        "initial_retry_delay": runtime_policy.initial_retry_delay,
+        "max_retry_delay": runtime_policy.max_retry_delay,
+        "backoff_factor": runtime_policy.backoff_factor,
+        "jitter": runtime_policy.jitter,
+        "service_error_retry_on_any_5xx": runtime_policy.service_error_retry_on_any_5xx,
+        "recoverable_statuses": runtime_policy.recoverable_statuses,
+    }
+    payload.pop("id", None)
+    return AgentSpecRetryPolicy.model_validate(payload)
 
 
 def has_default_value_for_attribute(obj: Any, attr: str) -> bool:
@@ -1295,6 +1318,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
                 provider=AgentSpecModelProvider(runtime_llm.provider.value),
+                retry_policy=(
+                    _runtime_retrypolicy_to_pyagentspec_retrypolicy(runtime_llm.retry_policy)
+                    if runtime_llm.retry_policy is not None
+                    else None
+                ),
             )
         elif isinstance(runtime_llm, RuntimeOllamaModel):
             return AgentSpecOllamaModel(
@@ -1306,6 +1334,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 id=runtime_llm.id,
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
+                retry_policy=(
+                    _runtime_retrypolicy_to_pyagentspec_retrypolicy(runtime_llm.retry_policy)
+                    if runtime_llm.retry_policy is not None
+                    else None
+                ),
             )
         elif isinstance(runtime_llm, RuntimeOpenAIModel):
             return AgentSpecOpenAiConfig(
@@ -1329,6 +1362,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
                 api_key=runtime_llm.api_key if runtime_llm.api_key != EMPTY_API_KEY else None,
+                retry_policy=(
+                    _runtime_retrypolicy_to_pyagentspec_retrypolicy(runtime_llm.retry_policy)
+                    if runtime_llm.retry_policy is not None
+                    else None
+                ),
             )
         raise ValueError(f"Unsupported type of LLM in Agent Spec: {type(runtime_llm)}")
 
@@ -1374,6 +1412,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     else dict()
                 ),
                 requires_confirmation=runtime_tool.requires_confirmation,
+                retry_policy=(
+                    _runtime_retrypolicy_to_pyagentspec_retrypolicy(inner_api_step.retry_policy)
+                    if inner_api_step.retry_policy is not None
+                    else None
+                ),
                 metadata=metadata,
                 id=runtime_tool.id,
             )
@@ -2970,6 +3013,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     runtime_step.sensitive_headers
                     if isinstance(runtime_step.sensitive_headers, dict)
                     else dict()
+                ),
+                retry_policy=(
+                    _runtime_retrypolicy_to_pyagentspec_retrypolicy(runtime_step.retry_policy)
+                    if runtime_step.retry_policy is not None
+                    else None
                 ),
             )
         elif runtime_step_type is RuntimeInputMessageStep:
