@@ -17,19 +17,23 @@ from typing import Annotated, Any, Dict, List, Literal, Optional, Tuple, Union
 import httpx
 import pytest
 
+from wayflowcore.embeddingmodels.openaicompatiblemodel import OpenAICompatibleEmbeddingModel
 from wayflowcore.executors._agentexecutor import _get_end_conversation_tool
 from wayflowcore.messagelist import ImageContent, Message, MessageType, TextContent
 from wayflowcore.models import StreamChunkType
-from wayflowcore.models._requesthelpers import _RetryStrategy
+from wayflowcore.models._requesthelpers import RetryingAsyncClient, request_post_with_retries
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import LlmModel, Prompt
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
+from wayflowcore.models.openaicompatiblemodel import OpenAICompatibleModel
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import (
     ObjectProperty,
     StringProperty,
     _output_properties_to_response_format_property,
 )
+from wayflowcore.retrypolicy import RetryPolicy
+from wayflowcore.steps.apicallstep import ApiCallStep
 from wayflowcore.templates import REACT_CHAT_TEMPLATE, PromptTemplate
 from wayflowcore.tools import Tool, ToolRequest, ToolResult, tool
 
@@ -143,6 +147,279 @@ DUMMY_CONFIG = {
 INSTANCE_PRINCIPAL_ENDPOINT_BASE_URL = os.environ.get("INSTANCE_PRINCIPAL_ENDPOINT_BASE_URL")
 if not INSTANCE_PRINCIPAL_ENDPOINT_BASE_URL:
     raise Exception("INSTANCE_PRINCIPAL_ENDPOINT_BASE_URL is not set in the environment")
+
+
+class _FakeResponse:
+    def __init__(self, status_code: int, headers=None, json_body=None, text_body=""):
+        self.status_code = status_code
+        self.headers = headers or {}
+        self._json_body = json_body
+        self._text_body = text_body
+
+    def json(self):
+        return self._json_body
+
+    async def aread(self):
+        return self._text_body.encode()
+
+    async def aiter_lines(self):
+        yield ""
+
+
+class _FakeAsyncClient:
+    def __init__(self, responses):
+        self._responses = list(responses)
+        self.calls = 0
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        return False
+
+    async def post(self, **kwargs):
+        self.calls += 1
+        return self._responses.pop(0)
+
+
+@pytest.mark.anyio
+async def test_request_post_with_retry_policy_retries_on_429(monkeypatch):
+    responses = [
+        _FakeResponse(429, headers={}, text_body="throttled"),
+        _FakeResponse(200, json_body={"ok": True}),
+    ]
+    fake_client = _FakeAsyncClient(responses)
+
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: fake_client)
+
+    async def _noop_sleep(*_args, **_kwargs):
+        return None
+
+    monkeypatch.setattr("anyio.sleep", _noop_sleep)
+
+    out = await request_post_with_retries(
+        request_params={"url": "https://example.com", "json": {}},
+        retry_policy=RetryPolicy(max_attempts=2),
+    )
+    assert out == {"ok": True}
+    assert fake_client.calls == 2
+
+
+@pytest.mark.anyio
+async def test_request_post_with_retry_policy_honors_request_timeout(monkeypatch):
+    captured: dict[str, Any] = {}
+
+    class _Client:
+        def __init__(self, **kwargs):
+            captured.update(kwargs)
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def post(self, **kwargs):
+            return _FakeResponse(200, json_body={"ok": True})
+
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: _Client(**kwargs))
+
+    out = await request_post_with_retries(
+        request_params={"url": "https://example.com", "json": {}},
+        retry_policy=RetryPolicy(request_timeout=12.5),
+    )
+
+    assert out == {"ok": True}
+    assert captured["timeout"] == 12.5
+
+
+@pytest.mark.anyio
+async def test_request_post_with_retry_policy_does_not_retry_on_401(monkeypatch):
+    responses = [_FakeResponse(401, headers={}, text_body="unauthorized")]
+    fake_client = _FakeAsyncClient(responses)
+
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: fake_client)
+
+    async def _noop_sleep(*_args, **_kwargs):
+        return None
+
+    monkeypatch.setattr("anyio.sleep", _noop_sleep)
+
+    with pytest.raises(Exception):
+        await request_post_with_retries(
+            request_params={"url": "https://example.com", "json": {}},
+            retry_policy=RetryPolicy(max_attempts=5),
+        )
+
+    assert fake_client.calls == 1
+
+
+@pytest.mark.anyio
+async def test_apicallstep_retries_on_429_and_honors_retry_after(monkeypatch):
+    calls = {"n": 0}
+
+    async def _fake_request(*_args, **_kwargs):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return httpx.Response(429, headers={"retry-after": "10"}, content=b"throttled")
+        return httpx.Response(200, content=b"{}")
+
+    async def _fake_send(self, *args, **kwargs):
+        return await _fake_request(*args, **kwargs)
+
+    monkeypatch.setattr(httpx.AsyncClient, "send", _fake_send)
+
+    slept = {"seconds": []}
+
+    async def _fake_sleep(secs):
+        slept["seconds"].append(secs)
+
+    monkeypatch.setattr("anyio.sleep", _fake_sleep)
+
+    step = ApiCallStep(
+        url="https://example.com",
+        method="GET",
+        retry_policy=RetryPolicy(max_attempts=2),
+        ignore_bad_http_requests=False,
+    )
+    res = await step._execute_request({"url": "https://example.com", "method": "GET"})
+    assert res.status_code == 200
+    assert calls["n"] == 2
+    # Retry-After is capped to 30s in helpers, so 10 stays 10
+    assert slept["seconds"] == [10.0]
+
+
+@pytest.mark.anyio
+async def test_apicallstep_retry_policy_honors_request_timeout(monkeypatch):
+    captured: dict[str, Any] = {}
+
+    class _Client:
+        def __init__(self, *args, **kwargs):
+            captured.update(kwargs)
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def request(self, *args, **kwargs):
+            return httpx.Response(200, content=b"{}")
+
+    monkeypatch.setattr("wayflowcore.steps.apicallstep.RetryingAsyncClient", _Client)
+
+    step = ApiCallStep(
+        url="https://example.com",
+        method="GET",
+        retry_policy=RetryPolicy(request_timeout=9.0),
+    )
+    response = await step._execute_request({"url": "https://example.com", "method": "GET"})
+
+    assert response.status_code == 200
+    assert captured["timeout"] == httpx.Timeout(9.0)
+
+
+@pytest.mark.anyio
+async def test_llmmodel_retries_on_429(monkeypatch):
+    calls = {"n": 0}
+
+    async def _fake_post(**_kwargs):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return _FakeResponse(429, headers={}, text_body="throttled")
+        return _FakeResponse(
+            200,
+            json_body={
+                "choices": [{"message": {"content": "ok"}}],
+                "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+            },
+        )
+
+    class _Client:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def post(self, **kwargs):
+            return await _fake_post(**kwargs)
+
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: _Client())
+
+    async def _noop_sleep(*_args, **_kwargs):
+        return None
+
+    monkeypatch.setattr("anyio.sleep", _noop_sleep)
+
+    llm = OpenAICompatibleModel(
+        model_id="m",
+        base_url="https://example.com",
+        api_key=None,
+        retry_policy=RetryPolicy(max_attempts=2),
+    )
+
+    completion = await llm.generate_async("hi")
+    assert completion.message.content == "ok"
+    assert calls["n"] == 2
+
+
+@pytest.mark.anyio
+async def test_embeddingmodel_retries_on_429(monkeypatch):
+    calls = {"n": 0}
+
+    async def _fake_post(**_kwargs):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return _FakeResponse(429, headers={}, text_body="throttled")
+        return _FakeResponse(
+            200,
+            json_body={"data": [{"embedding": [0.1, 0.2]}]},
+        )
+
+    class _Client:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def post(self, **kwargs):
+            return await _fake_post(**kwargs)
+
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: _Client())
+
+    async def _noop_sleep(*_args, **_kwargs):
+        return None
+
+    monkeypatch.setattr("anyio.sleep", _noop_sleep)
+
+    model = OpenAICompatibleEmbeddingModel(
+        model_id="e",
+        base_url="https://example.com",
+        retry_policy=RetryPolicy(max_attempts=2),
+    )
+
+    out = await model.embed_async(["hello"])
+    assert out == [[0.1, 0.2]]
+    assert calls["n"] == 2
+
+
+@pytest.mark.anyio
+async def test_retrying_async_client_does_not_retry_tls_errors(monkeypatch):
+    calls = {"n": 0}
+
+    async def _fake_send(self, *args, **kwargs):
+        calls["n"] += 1
+        raise httpx.ConnectError("certificate verify failed")
+
+    monkeypatch.setattr(httpx.AsyncClient, "send", _fake_send)
+
+    async with RetryingAsyncClient(retry_policy=RetryPolicy(max_attempts=4)) as client:
+        with pytest.raises(httpx.ConnectError):
+            await client.request("GET", "https://example.com")
+
+    assert calls["n"] == 1
 
 
 @tool
@@ -1584,7 +1861,10 @@ def test_generate_works_with_frequency_penalty(llm_config):
 @pytest.mark.parametrize("timeout", [0.0001, httpx.Timeout(timeout=0.0001)])
 def test_configure_timeout_works(timeout):
     llm = LlmModelFactory.from_config(VLLM_MODEL_CONFIG)
-    llm._retry_strategy = _RetryStrategy(timeout=timeout, max_retries=0)
+    rp = RetryPolicy(
+        max_attempts=1, request_timeout=(0.0001 if isinstance(timeout, httpx.Timeout) else timeout)
+    )
+    llm.retry_policy = rp
     with pytest.raises(
         Exception, match="API request failed after retries due to network error: ConnectTimeout"
     ):

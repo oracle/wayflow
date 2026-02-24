@@ -145,6 +145,7 @@ _BUILTIN_COMPONENTS = {
     "RelationalDatastore",
     "RemoveEmptyNonUserMessageTransform",
     "RetryStep",
+    "RetryPolicy",
     "SSETransport",
     "SSEmTLSTransport",
     "SearchConfig",

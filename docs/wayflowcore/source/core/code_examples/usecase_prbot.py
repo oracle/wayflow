@@ -33,14 +33,14 @@ def local_get_pr_diff_tool(repo_dirpath: str) -> str:
     Retrieves code diff with a git command given the
     path to the repository root folder.
     """
-    import subprocess
+    import subprocess  # nosec: documentation example invoking git locally
 
     result = subprocess.run(
         ["git", "diff", "HEAD"],
         capture_output=True,
         cwd=repo_dirpath,
         text=True,
-    )
+    )  # nosec: documentation example invoking git locally
     return result.stdout.strip()
 # .. end-##_Define_the_tool_that_retrieves_the_PR_diff
 
@@ -177,10 +177,11 @@ retrieve_diff_subflow = Flow(
 # .. end-##_Create_the_flow_that_retrieves_the_diff_of_a_PR
 
 # .. start-##_Alternative_step_that_retrieves_the_PR_diff_through_an_API_call
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.steps import ApiCallStep
 
 # IO Variable Names
-USER_PROVIDED_TOKEN_IO = "$user_provided_token"
+USER_PROVIDED_TOKEN_IO = "$user_provided_token"  # nosec: placeholder IO variable name
 REPO_WORKSPACE_IO = "$repo_workspace"
 REPO_SLUG_IO = "$repo_slug"
 PULL_REQUEST_ID_IO = "$pull_request_id"
@@ -191,7 +192,7 @@ get_pr_diff_step = ApiCallStep(
     method="GET",
     headers={"Authorization": "Bearer {{token}}"},
     ignore_bad_http_requests=False,
-    num_retry_on_bad_http_request=3,
+    retry_policy=RetryPolicy(max_attempts=2),
     store_response=True,
     input_mapping={
         "token": USER_PROVIDED_TOKEN_IO,
@@ -548,7 +549,7 @@ post_comment_step = ApiCallStep(
     ),
     headers={"Accept": "application/json", "Authorization": "Bearer {{token}}"},
     ignore_bad_http_requests=False,
-    num_retry_on_bad_http_request=3,
+    retry_policy=RetryPolicy(max_attempts=2),
     store_response=True,
     input_mapping={
         "token": USER_PROVIDED_TOKEN_IO,

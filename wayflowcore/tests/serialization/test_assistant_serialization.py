@@ -17,7 +17,10 @@ from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageReq
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.models import LlmModel
+from wayflowcore.models.ociclientconfig import OCIClientConfigWithInstancePrincipal
+from wayflowcore.ociagent import OciAgent
 from wayflowcore.property import StringProperty
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization import autodeserialize, deserialize, serialize
 from wayflowcore.serialization.context import DeserializationContext
 from wayflowcore.steps import GetChatHistoryStep, InputMessageStep, OutputMessageStep
@@ -181,6 +184,18 @@ def test_can_autodeserialize_a_serialized_agent(
     register_server_tool(add_number_tool, deserialization_context.registered_tools)
     new_agent = autodeserialize(serialize(agent), deserialization_context=deserialization_context)
     _check_deserialized_agent_validity(agent, new_agent)
+
+
+def test_oci_agent_retry_policy_round_trips() -> None:
+    agent = OciAgent(
+        agent_endpoint_id="ocid1.agentendpoint.oc1..example",
+        client_config=OCIClientConfigWithInstancePrincipal(service_endpoint="https://example.com"),
+        retry_policy=RetryPolicy(max_attempts=3),
+    )
+
+    deserialized_agent = deserialize(OciAgent, serialize(agent))
+    assert deserialized_agent.retry_policy is not None
+    assert deserialized_agent.retry_policy.max_attempts == 3
 
 
 def test_can_deserialize_xkcd_assistant() -> None:

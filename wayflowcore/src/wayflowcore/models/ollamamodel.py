@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.messagelist import Message, MessageType, TextContent
+from wayflowcore.retrypolicy import RetryPolicy
+from wayflowcore.serialization.serializer import serialize_to_dict
 
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import Prompt
@@ -44,6 +46,7 @@ class OllamaModel(OpenAICompatibleModel):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        retry_policy: Optional[RetryPolicy] = None,
     ) -> None:
         """
         Model powered by a locally hosted Ollama server.
@@ -121,6 +124,7 @@ class OllamaModel(OpenAICompatibleModel):
             id=id,
             name=name,
             description=description,
+            retry_policy=retry_policy,
         )
 
     def _pre_process(self, prompt: Prompt) -> Prompt:
@@ -145,6 +149,9 @@ class OllamaModel(OpenAICompatibleModel):
             "model_type": "ollama",
             "model_id": self.model_id,
             "host_port": self.host_port,
+            "retry_policy": (
+                serialize_to_dict(self.retry_policy) if self.retry_policy is not None else None
+            ),
             "generation_config": (
                 self.generation_config.to_dict() if self.generation_config is not None else None
             ),

@@ -102,6 +102,7 @@ from pyagentspec.mcp.tools import MCPToolSpec as AgentSpecMCPToolSpec
 from pyagentspec.ociagent import OciAgent as AgentSpecOciAgent
 from pyagentspec.property import ListProperty as AgentSpecListProperty
 from pyagentspec.property import Property as AgentSpecProperty
+from pyagentspec.retrypolicy import RetryPolicy as AgentSpecRetryPolicy
 from pyagentspec.serialization import ComponentDeserializationPlugin
 from pyagentspec.swarm import Swarm as AgentSpecSwarm
 from pyagentspec.tools.clienttool import ClientTool as AgentSpecClientTool
@@ -393,6 +394,8 @@ from wayflowcore.property import JsonSchemaParam
 from wayflowcore.property import ListProperty as RuntimeListProperty
 from wayflowcore.property import Property as RuntimeProperty
 from wayflowcore.property import UnionProperty
+from wayflowcore.retrypolicy import RetryJitter
+from wayflowcore.retrypolicy import RetryPolicy as RuntimeRetryPolicy
 from wayflowcore.search.config import SearchConfig as RuntimeSearchConfig
 from wayflowcore.search.config import VectorConfig as RuntimeVectorConfig
 from wayflowcore.search.config import VectorRetrieverConfig as RuntimeVectorRetrieverConfig
@@ -575,6 +578,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 id=agentspec_component.id,
                 agent_endpoint_id=agentspec_component.agent_endpoint_id,
                 client_config=client_config,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 __metadata_info__=metadata_info,
             )
         elif isinstance(agentspec_component, AgentSpecA2AConnectionConfig):
@@ -585,6 +591,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 key_file=agentspec_component.key_file,
                 cert_file=agentspec_component.cert_file,
                 ssl_ca_cert=agentspec_component.ssl_ca_cert,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 id=agentspec_component.id,
                 __metadata_info__=agentspec_component.metadata or {},
                 name=agentspec_component.name,
@@ -774,8 +783,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 conversion_context.convert(
                     agentspec_component.client_config, tool_registry, converted_components
                 )
-                if hasattr(agentspec_component, "client_config")
-                and agentspec_component.client_config is not None
+                if agentspec_component.client_config is not None
                 else None
             )
             return RuntimeOCIGenAIEmbeddingModel(
@@ -783,6 +791,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 compartment_id=agentspec_component.compartment_id,
                 # serving_mode=agentspec_component.serving_mode, not supported yet
                 config=client_config,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 name=agentspec_component.name,
                 description=agentspec_component.description,
                 id=agentspec_component.id,
@@ -795,6 +806,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 key_file=agentspec_component.key_file,
                 cert_file=agentspec_component.cert_file,
                 ca_file=agentspec_component.ca_file,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 name=agentspec_component.name,
                 description=agentspec_component.description,
                 id=agentspec_component.id,
@@ -878,6 +892,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 key_file=agentspec_component.key_file,
                 cert_file=agentspec_component.cert_file,
                 ca_file=agentspec_component.ca_file,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 name=agentspec_component.name,
                 description=agentspec_component.description,
                 id=agentspec_component.id,
@@ -886,6 +903,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             # Map to RuntimeOpenAiEmbeddingModel
             return RuntimeOpenAiEmbeddingModel(
                 model_id=agentspec_component.model_id,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 name=agentspec_component.name,
                 description=agentspec_component.description,
                 id=agentspec_component.id,
@@ -899,6 +919,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 key_file=agentspec_component.key_file,
                 cert_file=agentspec_component.cert_file,
                 ca_file=agentspec_component.ca_file,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 name=agentspec_component.name,
                 description=agentspec_component.description,
                 id=agentspec_component.id,
@@ -1377,6 +1400,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     if agentspec_component.sensitive_headers
                     else None
                 ),
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 store_response=store_response,
                 output_values_json={
                     output_.title: f".{output_.title}"
@@ -1568,6 +1594,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     self._convert_property_to_runtime(output_property)
                     for output_property in agentspec_component.outputs or []
                 ],
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 requires_confirmation=agentspec_component.requires_confirmation,
                 **self._get_component_arguments(agentspec_component),
             )
@@ -1624,10 +1653,13 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 timeout: float
                 sse_read_timeout: float
                 id: str
+                retry_policy: Optional[RuntimeRetryPolicy]
 
-            kwargs: SupportsTimeoutKwargs = dict(
-                id=agentspec_component.id,
-            )
+            kwargs: SupportsTimeoutKwargs = dict(id=agentspec_component.id)
+            if hasattr(agentspec_component, "retry_policy"):
+                kwargs["retry_policy"] = self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                )
             if isinstance(agentspec_component, AgentSpecPluginRemoteBaseTransport):
                 kwargs.update(
                     dict(
@@ -2394,6 +2426,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 key_file=agentspec_component.key_file,
                 cert_file=agentspec_component.cert_file,
                 ca_file=agentspec_component.ca_file,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecOciGenAiModel):
@@ -2409,6 +2444,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 serving_mode=RuntimeServingMode(agentspec_component.serving_mode.value),
                 client_config=client_config,
                 generation_config=generation_config,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 **kwargs,
                 **self._get_component_arguments(agentspec_component),
             )
@@ -2420,6 +2458,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 key_file=agentspec_component.key_file,
                 cert_file=agentspec_component.cert_file,
                 ca_file=agentspec_component.ca_file,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecOpenAiConfig):
@@ -2428,6 +2469,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 generation_config=generation_config,
                 api_type=self._convert_openai_apitype_to_runtime(agentspec_component.api_type),
                 api_key=agentspec_component.api_key,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecOpenAiCompatibleConfig):
@@ -2440,6 +2484,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 key_file=agentspec_component.key_file,
                 cert_file=agentspec_component.cert_file,
                 ca_file=agentspec_component.ca_file,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecGeminiConfig):
@@ -2453,6 +2500,30 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             raise ValueError(
                 f"Agent Spec LlmConfig '{agentspec_component.__class__.__name__}' is not supported yet."
             )
+
+    def _convert_retry_policy_to_runtime(
+        self, agentspec_component: Optional[AgentSpecRetryPolicy]
+    ) -> Optional[RuntimeRetryPolicy]:
+        if agentspec_component is None:
+            return None
+        return RuntimeRetryPolicy(
+            max_attempts=agentspec_component.max_attempts,
+            request_timeout=(
+                agentspec_component.request_timeout
+                if agentspec_component.request_timeout is not None
+                else 600.0
+            ),
+            initial_retry_delay=agentspec_component.initial_retry_delay,
+            max_retry_delay=agentspec_component.max_retry_delay,
+            backoff_factor=agentspec_component.backoff_factor,
+            jitter=(
+                RetryJitter(agentspec_component.jitter)
+                if agentspec_component.jitter is not None
+                else None
+            ),
+            service_error_retry_on_any_5xx=agentspec_component.service_error_retry_on_any_5xx,
+            recoverable_statuses=agentspec_component.recoverable_statuses,
+        )
 
     def _convert_openai_apitype_to_runtime(
         self, api_type: AgentSpecOpenAIAPIType

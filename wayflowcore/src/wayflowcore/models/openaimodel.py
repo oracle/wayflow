@@ -8,6 +8,8 @@ import os
 from typing import Any, Dict, Optional
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.retrypolicy import RetryPolicy
+from wayflowcore.serialization.serializer import serialize_to_dict
 
 from .llmgenerationconfig import LlmGenerationConfig
 from .openaiapitype import OpenAIAPIType
@@ -22,6 +24,7 @@ class OpenAIModel(OpenAICompatibleModel):
         generation_config: Optional[LlmGenerationConfig] = None,
         proxy: Optional[str] = None,
         api_type: OpenAIAPIType = OpenAIAPIType.CHAT_COMPLETIONS,
+        retry_policy: Optional[RetryPolicy] = None,
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
@@ -91,6 +94,7 @@ class OpenAIModel(OpenAICompatibleModel):
             supports_structured_generation=True,
             supports_tool_calling=True,
             api_type=api_type,
+            retry_policy=retry_policy,
             id=id,
             __metadata_info__=__metadata_info__,
             name=name,
@@ -103,6 +107,9 @@ class OpenAIModel(OpenAICompatibleModel):
         return {
             "model_type": "openai",
             "model_id": self.model_id,
+            "retry_policy": (
+                serialize_to_dict(self.retry_policy) if self.retry_policy is not None else None
+            ),
             "generation_config": (
                 self.generation_config.to_dict() if self.generation_config is not None else None
             ),

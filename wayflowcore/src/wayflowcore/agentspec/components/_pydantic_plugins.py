@@ -4,7 +4,8 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from typing import Any, Dict, Mapping, Optional, Type, cast
+from types import NoneType, UnionType
+from typing import Any, Dict, Mapping, Optional, Type, Union, cast, get_args, get_origin
 
 from pyagentspec.component import Component
 from pyagentspec.serialization import DeserializationContext
@@ -15,6 +16,16 @@ from pyagentspec.serialization.pydanticserializationplugin import (
     PydanticComponentSerializationPlugin as BasePydanticComponentSerializationPlugin,
 )
 from pydantic import BaseModel
+
+
+def _annotation_accepts_none(annotation: Any) -> bool:
+    """Return whether the annotation accepts ``None``, including ``Optional[T]`` and ``T | None``."""
+    if annotation is Any:
+        return True
+    origin = get_origin(annotation)
+    if origin in {Union, UnionType}:
+        return NoneType in get_args(annotation)
+    return annotation is NoneType
 
 
 class PydanticComponentSerializationPlugin(BasePydanticComponentSerializationPlugin):
@@ -85,14 +96,25 @@ class PydanticComponentDeserializationPlugin(BasePydanticComponentDeserializatio
         resolved_content: Dict[str, Any] = {}
         for field_name, field_info in model_class.model_fields.items():
             annotation = field_info.annotation
+            allows_none = _annotation_accepts_none(annotation)
             if field_name in serialized_component:
-                resolved_content[field_name] = deserialization_context.load_field(
-                    serialized_component[field_name], annotation
-                )
+                field_value = serialized_component[field_name]
+                # Let optional fields keep a literal `None`; pyagentspec only expects structured
+                # payloads when we delegate nested-field loading.
+                if field_value is None and allows_none:
+                    resolved_content[field_name] = None
+                else:
+                    resolved_content[field_name] = deserialization_context.load_field(
+                        field_value, annotation
+                    )
             elif field_info.alias is not None and field_info.alias in serialized_component:
-                resolved_content[field_info.alias] = deserialization_context.load_field(
-                    serialized_component[field_info.alias], annotation
-                )
+                field_value = serialized_component[field_info.alias]
+                if field_value is None and allows_none:
+                    resolved_content[field_info.alias] = None
+                else:
+                    resolved_content[field_info.alias] = deserialization_context.load_field(
+                        field_value, annotation
+                    )
 
         # create the component
         component = model_class(**resolved_content)

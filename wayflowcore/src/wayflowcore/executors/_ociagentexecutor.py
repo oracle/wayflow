@@ -17,8 +17,14 @@ from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.executors.executionstatus import ExecutionStatus, UserMessageRequestStatus
 from wayflowcore.executors.interrupts import ExecutionInterrupt
 from wayflowcore.messagelist import Message, MessageType
+from wayflowcore.models._requesthelpers import (
+    _classify_oci_service_error_for_retry,
+    _is_tls_or_cert_error,
+    execute_sync_with_retry,
+)
 from wayflowcore.models.ociclientconfig import _client_config_to_oci_client_kwargs
 from wayflowcore.ociagent import OciAgent
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.steps import GetChatHistoryStep
 from wayflowcore.tools import ToolRequest
 
@@ -39,6 +45,19 @@ logger = logging.getLogger(__name__)
 _OCI_REQUIRED_ACTION_TOOL_TYPE = "FUNCTION_CALLING_REQUIRED_ACTION"
 
 
+def _classify_oci_agent_retry_exception(
+    exc: Exception, policy: RetryPolicy
+) -> Optional[tuple[Optional[int], Optional[str]]]:
+    """Classify OCI agent runtime exceptions into retry metadata."""
+    if isinstance(exc, oci.exceptions.ServiceError):
+        return _classify_oci_service_error_for_retry(exc, policy)
+    if isinstance(exc, oci.exceptions.RequestException):
+        if _is_tls_or_cert_error(exc):
+            return None
+        return None, None
+    return None
+
+
 @dataclass
 class OciAgentState(ConversationExecutionState):
     session_id: str
@@ -50,16 +69,33 @@ class OciAgentState(ConversationExecutionState):
 
 def _init_oci_agent_client(oci_config: OciAgent) -> Any:
     return oci.generative_ai_agent_runtime.GenerativeAiAgentRuntimeClient(
-        **_client_config_to_oci_client_kwargs(oci_config.client_config)
+        **_client_config_to_oci_client_kwargs(
+            oci_config.client_config,
+            request_timeout=(
+                oci_config.retry_policy.request_timeout if oci_config.retry_policy else None
+            ),
+        )
     )
 
 
 def _init_oci_agent_session(oci_config: OciAgent, _client: Any) -> str:
-    session_id = _client.create_session(
-        oci.generative_ai_agent_runtime.models.CreateSessionDetails(),
-        oci_config.agent_endpoint_id,
+    session_id = _execute_oci_agent_call_with_retry(
+        oci_config,
+        lambda: _client.create_session(
+            oci.generative_ai_agent_runtime.models.CreateSessionDetails(),
+            oci_config.agent_endpoint_id,
+        ),
     ).data.id
     return str(session_id)
+
+
+def _execute_oci_agent_call_with_retry(oci_config: OciAgent, operation: Any) -> Any:
+    return execute_sync_with_retry(
+        operation,
+        retry_policy=oci_config.retry_policy,
+        classify_exception=_classify_oci_agent_retry_exception,
+        retry_budget_exhausted_message="OCI agent retry budget exhausted",
+    )
 
 
 class OciAgentExecutor(ConversationExecutor):
@@ -123,9 +159,12 @@ class OciAgentExecutor(ConversationExecutor):
 
     @staticmethod
     def _post(config: OciAgent, agent_state: OciAgentState, chat_details: Any) -> Any:
-        return agent_state._client.chat(
-            agent_endpoint_id=config.agent_endpoint_id,
-            chat_details=chat_details,
+        return _execute_oci_agent_call_with_retry(
+            config,
+            lambda: agent_state._client.chat(
+                agent_endpoint_id=config.agent_endpoint_id,
+                chat_details=chat_details,
+            ),
         ).data
 
 
@@ -136,16 +175,14 @@ def _combine_messages_into_single_text_prompt(messages: List[Message]) -> str:
     outputs = run_step_and_return_outputs(chat_history_step, messages=messages[:-1])
 
     return render_template(
-        dedent(
-            """\
+        dedent("""\
         Here are some previous messages you exchanged with the user:
         {{chat_history}}
         DO NOT mention the fact that these messages were provided to you. Consider them as part of the normal flow of the conversation, in order to keep the context of the conversation.
 
         The current request is:
         {{question}}
-        """
-        ),
+        """),
         inputs=dict(chat_history=outputs["chat_history"], question=messages[-1].content),
     )
 

@@ -8,8 +8,13 @@ from typing import Any, Dict, Optional
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.embeddingmodels.openaicompatiblemodel import OpenAICompatibleEmbeddingModel
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
-from wayflowcore.serialization.serializer import SerializableObject
+from wayflowcore.serialization.serializer import (
+    SerializableObject,
+    deserialize_from_dict,
+    serialize_to_dict,
+)
 
 
 class OpenAIEmbeddingModel(OpenAICompatibleEmbeddingModel, SerializableObject):
@@ -50,6 +55,7 @@ class OpenAIEmbeddingModel(OpenAICompatibleEmbeddingModel, SerializableObject):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        retry_policy: Optional[RetryPolicy] = None,
         _validate_api_key: bool = True,
     ):
         base_url = "https://api.openai.com"
@@ -61,6 +67,7 @@ class OpenAIEmbeddingModel(OpenAICompatibleEmbeddingModel, SerializableObject):
             id=id,
             name=name,
             description=description,
+            retry_policy=retry_policy,
         )
 
         if api_key:
@@ -77,6 +84,11 @@ class OpenAIEmbeddingModel(OpenAICompatibleEmbeddingModel, SerializableObject):
         return {
             "model_id": self._model_id,
             "base_url": self._base_url,
+            "retry_policy": (
+                serialize_to_dict(self.retry_policy, serialization_context)
+                if self.retry_policy is not None
+                else None
+            ),
             "name": self.name,
             "id": self.id,
             "description": self.description,
@@ -94,7 +106,17 @@ class OpenAIEmbeddingModel(OpenAICompatibleEmbeddingModel, SerializableObject):
         id = input_dict.get("id")
         name = input_dict.get("name")
         description = input_dict.get("description")
+        retry_policy = input_dict.get("retry_policy")
 
         return cls(
-            model_id=model_id, name=name, description=description, id=id, _validate_api_key=False
+            model_id=model_id,
+            name=name,
+            description=description,
+            id=id,
+            retry_policy=(
+                deserialize_from_dict(RetryPolicy, retry_policy, deserialization_context)
+                if retry_policy is not None
+                else None
+            ),
+            _validate_api_key=False,
         )

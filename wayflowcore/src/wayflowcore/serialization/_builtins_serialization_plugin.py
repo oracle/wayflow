@@ -97,6 +97,7 @@ from pyagentspec.mcp.clienttransport import (
 from pyagentspec.mcp.tools import MCPTool as AgentSpecMCPTool
 from pyagentspec.ociagent import OciAgent as AgentSpecOciAgent
 from pyagentspec.property import Property as AgentSpecProperty
+from pyagentspec.retrypolicy import RetryPolicy as AgentSpecRetryPolicy
 from pyagentspec.serialization import ComponentSerializationPlugin
 from pyagentspec.swarm import HandoffMode as AgentSpecHandoffMode
 from pyagentspec.swarm import Swarm as AgentSpecSwarm
@@ -399,6 +400,7 @@ from wayflowcore.outputparser import PythonToolOutputParser as RuntimePythonTool
 from wayflowcore.outputparser import RegexOutputParser as RuntimeRegexOutputParser
 from wayflowcore.outputparser import RegexPattern as RuntimeRegexPattern
 from wayflowcore.property import Property as RuntimeProperty
+from wayflowcore.retrypolicy import RetryPolicy as RuntimeRetryPolicy
 from wayflowcore.search.config import SearchConfig as RuntimeSearchConfig
 from wayflowcore.search.config import VectorConfig as RuntimeVectorConfig
 from wayflowcore.search.config import VectorRetrieverConfig as RuntimeVectorRetrieverConfig
@@ -868,6 +870,10 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             agentspec_component = self._embeddingmodel_convert_to_agentspec(
                 conversion_context, runtime_component, referenced_objects
             )
+        elif isinstance(runtime_component, RuntimeClientTransport):
+            agentspec_component = self._mcp_clienttransport_convert_to_agentspec(
+                conversion_context, runtime_component, referenced_objects
+            )
         elif isinstance(runtime_component, RuntimeControlFlowEdge):
             agentspec_component = self._controlflowedge_convert_to_agentspec(
                 conversion_context, runtime_component, referenced_objects
@@ -910,6 +916,23 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             self._variable_convert_to_agentspec(runtime_variable)
             for runtime_variable in runtime_variables
         ]
+
+    def _retrypolicy_convert_to_agentspec(
+        self, runtime_policy: RuntimeRetryPolicy
+    ) -> AgentSpecRetryPolicy:
+        return AgentSpecRetryPolicy(
+            max_attempts=runtime_policy.max_attempts,
+            request_timeout=runtime_policy.request_timeout,
+            initial_retry_delay=runtime_policy.initial_retry_delay,
+            max_retry_delay=runtime_policy.max_retry_delay,
+            backoff_factor=runtime_policy.backoff_factor,
+            jitter=runtime_policy.jitter.value if runtime_policy.jitter is not None else None,
+            service_error_retry_on_any_5xx=runtime_policy.service_error_retry_on_any_5xx,
+            recoverable_statuses={
+                status_code: list(textual_codes)
+                for status_code, textual_codes in runtime_policy.recoverable_statuses.items()
+            },
+        )
 
     def _contextprovider_convert_to_agentspec(
         self,
@@ -1027,6 +1050,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     runtime_ociclientconfig=runtime_embedding_model.config,
                     referenced_objects=referenced_objects,
                 ),
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_embedding_model.retry_policy)
+                    if runtime_embedding_model.retry_policy is not None
+                    else None
+                ),
                 **kwargs,
             )
         elif isinstance(runtime_embedding_model, RuntimeOllamaEmbeddingModel):
@@ -1036,6 +1064,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 key_file=runtime_embedding_model.key_file,
                 cert_file=runtime_embedding_model.cert_file,
                 ca_file=runtime_embedding_model.ca_file,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_embedding_model.retry_policy)
+                    if runtime_embedding_model.retry_policy is not None
+                    else None
+                ),
                 **kwargs,
             )
         elif isinstance(runtime_embedding_model, RuntimeVllmEmbeddingModel):
@@ -1045,11 +1078,22 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 key_file=runtime_embedding_model.key_file,
                 cert_file=runtime_embedding_model.cert_file,
                 ca_file=runtime_embedding_model.ca_file,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_embedding_model.retry_policy)
+                    if runtime_embedding_model.retry_policy is not None
+                    else None
+                ),
                 **kwargs,
             )
         elif isinstance(runtime_embedding_model, RuntimeOpenAiEmbeddingModel):
             return AgentSpecPluginOpenAiEmbeddingConfig(
-                model_id=runtime_embedding_model._model_id, **kwargs
+                model_id=runtime_embedding_model._model_id,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_embedding_model.retry_policy)
+                    if runtime_embedding_model.retry_policy is not None
+                    else None
+                ),
+                **kwargs,
             )
         elif isinstance(runtime_embedding_model, RuntimeOpenAiCompatibleEmbeddingModel):
             # need to be at the end before the others extend it
@@ -1059,6 +1103,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 key_file=runtime_embedding_model.key_file,
                 cert_file=runtime_embedding_model.cert_file,
                 ca_file=runtime_embedding_model.ca_file,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_embedding_model.retry_policy)
+                    if runtime_embedding_model.retry_policy is not None
+                    else None
+                ),
                 **kwargs,
             )
         else:
@@ -1315,6 +1364,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 key_file=runtime_llm.key_file,
                 cert_file=runtime_llm.cert_file,
                 ca_file=runtime_llm.ca_file,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_llm.retry_policy)
+                    if runtime_llm.retry_policy is not None
+                    else None
+                ),
             )
         elif isinstance(runtime_llm, RuntimeOCIGenAIModel):
             client_config = self._ociclientconfig_convert_to_agentspec(
@@ -1333,6 +1387,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
                 provider=AgentSpecModelProvider(runtime_llm.provider.value),
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_llm.retry_policy)
+                    if runtime_llm.retry_policy is not None
+                    else None
+                ),
             )
         elif isinstance(runtime_llm, RuntimeOllamaModel):
             return AgentSpecOllamaModel(
@@ -1347,6 +1406,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 key_file=runtime_llm.key_file,
                 cert_file=runtime_llm.cert_file,
                 ca_file=runtime_llm.ca_file,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_llm.retry_policy)
+                    if runtime_llm.retry_policy is not None
+                    else None
+                ),
             )
         elif isinstance(runtime_llm, RuntimeOpenAIModel):
             return AgentSpecOpenAiConfig(
@@ -1358,6 +1422,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
                 api_key=runtime_llm.api_key if runtime_llm.api_key != EMPTY_API_KEY else None,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_llm.retry_policy)
+                    if runtime_llm.retry_policy is not None
+                    else None
+                ),
             )
         elif isinstance(runtime_llm, RuntimeGeminiModel):
             return AgentSpecGeminiConfig(
@@ -1383,6 +1452,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 key_file=runtime_llm.key_file,
                 cert_file=runtime_llm.cert_file,
                 ca_file=runtime_llm.ca_file,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_llm.retry_policy)
+                    if runtime_llm.retry_policy is not None
+                    else None
+                ),
             )
         raise ValueError(f"Unsupported type of LLM in Agent Spec: {type(runtime_llm)}")
 
@@ -1436,6 +1510,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     else dict()
                 ),
                 requires_confirmation=runtime_tool.requires_confirmation,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(inner_api_step.retry_policy)
+                    if inner_api_step.retry_policy is not None
+                    else None
+                ),
                 metadata=metadata,
                 id=runtime_tool.id,
             )
@@ -1872,6 +1951,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 for output in runtime_ociagent.output_descriptors or []
             ],
             metadata=_create_agentspec_metadata_from_runtime_component(runtime_ociagent),
+            retry_policy=(
+                self._retrypolicy_convert_to_agentspec(runtime_ociagent.retry_policy)
+                if runtime_ociagent.retry_policy is not None
+                else None
+            ),
         )
 
     def _mcptoolspec_convert_to_agentspec(
@@ -2004,6 +2088,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 url=remote_transport.url,
                 headers=remote_transport.headers,
                 sensitive_headers=remote_transport.sensitive_headers,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(remote_transport.retry_policy)
+                    if remote_transport.retry_policy is not None
+                    else None
+                ),
                 id=runtime_clienttransport.id,
                 **mtls_kwargs,
             )
@@ -3033,6 +3122,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     if isinstance(runtime_step.sensitive_headers, dict)
                     else dict()
                 ),
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_step.retry_policy)
+                    if runtime_step.retry_policy is not None
+                    else None
+                ),
             )
         elif runtime_step_type is RuntimeInputMessageStep:
             runtime_step = cast(RuntimeInputMessageStep, runtime_step)
@@ -3304,6 +3398,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             key_file=runtime_a2aconnectionconfig.key_file,
             cert_file=runtime_a2aconnectionconfig.cert_file,
             ssl_ca_cert=runtime_a2aconnectionconfig.ssl_ca_cert,
+            retry_policy=(
+                self._retrypolicy_convert_to_agentspec(runtime_a2aconnectionconfig.retry_policy)
+                if runtime_a2aconnectionconfig.retry_policy is not None
+                else None
+            ),
         )
 
     def _a2aagent_convert_to_agentspec(

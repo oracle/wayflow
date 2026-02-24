@@ -10,9 +10,18 @@ from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_sync_in_thread
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.embeddingmodels.embeddingmodel import EmbeddingModel
+from wayflowcore.models._requesthelpers import (
+    _classify_oci_service_error_for_retry,
+    execute_sync_with_retry,
+)
 from wayflowcore.models.ociclientconfig import OCIClientConfig, _client_config_to_oci_client_kwargs
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
-from wayflowcore.serialization.serializer import SerializableObject
+from wayflowcore.serialization.serializer import (
+    SerializableObject,
+    deserialize_from_dict,
+    serialize_to_dict,
+)
 
 if TYPE_CHECKING:
     # Important: do not move this import out of the TYPE_CHECKING block so long as oci is an optional dependency.
@@ -93,6 +102,7 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        retry_policy: Optional[RetryPolicy] = None,
     ):
         super().__init__(
             __metadata_info__=__metadata_info__, id=id, name=name, description=description
@@ -121,7 +131,10 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
         #    with appropriate authentication settings.
 
         self.service_endpoint = config.service_endpoint
-        self.oci_client_kwargs = _client_config_to_oci_client_kwargs(config)
+        self.oci_client_kwargs = _client_config_to_oci_client_kwargs(
+            config,
+            request_timeout=None,
+        )
         self._config = self.oci_client_kwargs["config"]
 
         if compartment_id:
@@ -137,6 +150,7 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
             raise ValueError("Compartment id should not be ``None``.")
 
         self._model_id = model_id
+        self.retry_policy = retry_policy
 
         # The client is set in a lazy manner to prevent the model from crashing before being
         # used in case the configuration is not valid for some reason.
@@ -147,7 +161,12 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
         """Sets the GenerativeAiInferenceClient if it's not set already."""
         if not self._lazy_client:
             self._lazy_client = oci.generative_ai_inference.GenerativeAiInferenceClient(
-                **self.oci_client_kwargs
+                **_client_config_to_oci_client_kwargs(
+                    self.config,
+                    request_timeout=(
+                        self.retry_policy.request_timeout if self.retry_policy else None
+                    ),
+                )
             )
 
     @property
@@ -163,7 +182,7 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
                 model_id=self._model_id
             ),
         )
-        response = self._client.embed_text(embed_text_details=embed_text_details)
+        response = self._embed_with_retry(embed_text_details)
         # Cast the embeddings to the expected return type (mainly for mypy)
         return cast(List[List[float]], response.data.embeddings)
 
@@ -179,6 +198,14 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
             "name": self.name,
             "description": self.description,
         }
+        serialized_dict["retry_policy"] = cast(
+            Any,
+            (
+                serialize_to_dict(self.retry_policy, serialization_context)
+                if self.retry_policy is not None
+                else None
+            ),
+        )
 
         # For the config, handle different types differently
         # while avoiding directly serializing sensitive information
@@ -217,6 +244,7 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
         id = input_dict.get("id", None)
         name = input_dict.get("name", None)
         description = input_dict.get("description", None)
+        retry_policy = input_dict.get("retry_policy")
 
         if not service_endpoint or not compartment_id:
             raise ValueError(
@@ -250,4 +278,25 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
             id=id,
             name=name,
             description=description,
+            retry_policy=(
+                deserialize_from_dict(RetryPolicy, retry_policy, deserialization_context)
+                if retry_policy is not None
+                else None
+            ),
+        )
+
+    def _embed_with_retry(self, embed_text_details: Any) -> Any:
+        def _classify_embedding_retry_exception(
+            exc: Exception, policy: RetryPolicy
+        ) -> Optional[tuple[Optional[int], Optional[str]]]:
+            """Classify OCI embedding exceptions into retry metadata."""
+            if isinstance(exc, oci.exceptions.ServiceError):
+                return _classify_oci_service_error_for_retry(exc, policy)
+            return None
+
+        return execute_sync_with_retry(
+            lambda: self._client.embed_text(embed_text_details=embed_text_details),
+            retry_policy=self.retry_policy,
+            classify_exception=_classify_embedding_retry_exception,
+            retry_budget_exhausted_message="OCI embedding retry budget exhausted",
         )

@@ -23,7 +23,9 @@ from wayflowcore._utils._templating_helpers import (
     render_nested_object_template,
     render_str_template,
 )
+from wayflowcore.models._requesthelpers import RetryingAsyncClient
 from wayflowcore.property import IntegerProperty, Property, StringProperty, string_to_property
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.steps.step import Step, StepResult
 
 if TYPE_CHECKING:
@@ -296,7 +298,8 @@ class ApiCallStep(Step):
         output_values_json: Optional[Dict[Union[str, Property], str]] = None,
         store_response: bool = False,
         ignore_bad_http_requests: bool = False,
-        num_retry_on_bad_http_request: int = 3,
+        num_retry_on_bad_http_request: Optional[int] = None,
+        retry_policy: Optional[RetryPolicy] = None,
         allow_insecure_http: bool = False,
         name: Optional[str] = None,
         url_allow_list: Optional[List[str]] = None,
@@ -396,7 +399,13 @@ class ApiCallStep(Step):
         ignore_bad_http_requests
             If ``True``, don't throw an exception when query results in a bad status code (e.g. 4xx, 5xx); if ``False`` throws an exception.
         num_retry_on_bad_http_request
-            Number of times to retry a failed http request before continuing (depending on the ``ignore_bad_http_requests`` setting above).
+            Deprecated in version 26.4.0 and will be removed in version 27.2.0.
+            Use ``retry_policy`` instead.
+            This legacy fixed-count retry loop only retries unsuccessful HTTP responses and does not apply backoff.
+        retry_policy
+            Provider-agnostic retry configuration for the remote request.
+            When set, this supersedes ``num_retry_on_bad_http_request`` and enables
+            timeout-aware retries with backoff for retryable transport and HTTP failures.
         allow_insecure_http:
             If ``True``, allows url to have a unsecured non-ssl http scheme. Default is ``False`` and throws a ValueError if url is unsecure.
         name:
@@ -541,6 +550,14 @@ class ApiCallStep(Step):
                 f"`sensitive_headers`: {repeated_headers}. This is not allowed."
             )
 
+        if num_retry_on_bad_http_request is not None and retry_policy is None:
+            warnings.warn(
+                "The `num_retry_on_bad_http_request` parameter is deprecated in version 26.4.0 "
+                "and will be removed in version 27.2.0. Use `retry_policy` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         super().__init__(
             step_static_configuration=dict(
                 url=url,
@@ -555,6 +572,7 @@ class ApiCallStep(Step):
                 store_response=store_response,
                 ignore_bad_http_requests=ignore_bad_http_requests,
                 num_retry_on_bad_http_request=num_retry_on_bad_http_request,
+                retry_policy=retry_policy,
                 allow_insecure_http=allow_insecure_http,
                 url_allow_list=url_allow_list,
                 allow_credentials=allow_credentials,
@@ -600,6 +618,7 @@ class ApiCallStep(Step):
         self.store_response = store_response
         self.ignore_bad_http_requests = ignore_bad_http_requests
         self.num_retry_on_bad_http_request = num_retry_on_bad_http_request
+        self.retry_policy = retry_policy
         self.allow_insecure_http = allow_insecure_http
         self.url_allow_list = None
         if url_allow_list is not None:
@@ -702,6 +721,8 @@ class ApiCallStep(Step):
         return request
 
     async def _execute_request(self, request: Dict[str, Any]) -> httpx.Response:
+        from wayflowcore.models._requesthelpers import _is_tls_or_cert_error
+
         if not self.allow_insecure_http and urlparse(request["url"]).scheme == "http":
             raise ValueError("usage of unsecure http URL is not allowed")
         # If URL is not valid a ValidationError will be thrown
@@ -727,16 +748,39 @@ class ApiCallStep(Step):
                                    Please contact the application administrator to help adding your URL to the list."
                 )
 
-        if self.num_retry_on_bad_http_request == 0:
-            return httpx.request(**request)
+        # Default behavior: keep legacy retry loop unless a RetryPolicy is provided.
+        policy = self.retry_policy
+        max_attempts = (
+            3 if self.num_retry_on_bad_http_request is None else self.num_retry_on_bad_http_request
+        )
+        total_elapsed_cap_seconds = 600.0
+        if policy is not None:
+            async with RetryingAsyncClient(
+                retry_policy=policy,
+                timeout=httpx.Timeout(policy.request_timeout),
+                total_elapsed_time_seconds=total_elapsed_cap_seconds,
+            ) as client:
+                return await client.request(**request)
 
-        request_counter = 0
-        while request_counter < self.num_retry_on_bad_http_request:
-            request_counter += 1
-            async with httpx.AsyncClient() as client:
-                response = await client.request(**request)
-                if response.is_success:
+        response: httpx.Response
+        async with httpx.AsyncClient() as client:
+            for attempt in range(max_attempts):
+                try:
+                    response = await client.request(**request)
+                except httpx.TransportError as exc:
+                    if _is_tls_or_cert_error(exc):
+                        # TLS and certificate failures are security-sensitive and must fail fast.
+                        raise
+                    # Legacy retry mode only retries HTTP responses, not transport failures.
+                    raise
+
+                if response.is_success or self.ignore_bad_http_requests:
+                    # Return successful responses, or unsuccessful ones the caller explicitly allows.
                     return response
+
+                if attempt < max_attempts - 1:
+                    # Preserve the historical fixed-count retry loop when no RetryPolicy is configured.
+                    continue
 
         return response
 
@@ -785,7 +829,8 @@ class ApiCallStep(Step):
             output_values_json=Optional[Dict[str, str]],  # type: ignore
             store_response=bool,
             ignore_bad_http_requests=bool,
-            num_retry_on_bad_http_request=int,
+            num_retry_on_bad_http_request=Optional[int],  # type: ignore
+            retry_policy=Optional[RetryPolicy],  # type: ignore
             allow_insecure_http=bool,
             url_allow_list=Optional[List[str]],  # type: ignore
             allow_credentials=bool,

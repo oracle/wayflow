@@ -19,6 +19,8 @@ from typing_extensions import TypeAlias
 
 from wayflowcore.auth.auth import AuthConfig, OAuthClientConfig, OAuthConfig, PKCEMethod, PKCEPolicy
 from wayflowcore.mcp._session_persistence import _get_oauth_flow_handler
+from wayflowcore.models._requesthelpers import RetryingAsyncClient
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import (
     SerializableDataclass,
     SerializableDataclassMixin,
@@ -177,6 +179,9 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
     timeout: float = 5
     """The timeout for the HTTP request. Defaults to 5 seconds."""
 
+    retry_policy: Optional[RetryPolicy] = None
+    """Optional retry policy configuration applied to MCP HTTP calls."""
+
     sse_read_timeout: float = 60 * 5
     """The timeout for the SSE connection, in seconds. Defaults to 5 minutes."""
 
@@ -192,6 +197,8 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
     """Arguments for the MCP session."""
 
     def __post_init__(self) -> None:
+        if self.retry_policy is not None and not isinstance(self.retry_policy, RetryPolicy):
+            raise TypeError("retry_policy must be a wayflowcore.retrypolicy.RetryPolicy instance")
         repeated_headers = set(self.headers or {}).intersection(set(self.sensitive_headers or {}))
         if repeated_headers:
             raise ValueError(
@@ -229,6 +236,7 @@ class _HttpxClientFactory:
         ssl_ca_cert: Optional[str] = None,
         check_hostname: bool = True,
         follow_redirects: bool = True,
+        retry_policy: Optional[RetryPolicy] = None,
     ):
         self.verify: bool | ssl.SSLContext
         if verify:
@@ -252,6 +260,7 @@ class _HttpxClientFactory:
             self.verify = verify
 
         self.follow_redirects = follow_redirects
+        self.retry_policy = retry_policy
 
     def __call__(
         self,
@@ -265,6 +274,8 @@ class _HttpxClientFactory:
             "verify": self.verify,
         }
         # Handle timeout
+        if self.retry_policy is not None:
+            timeout = httpx.Timeout(self.retry_policy.request_timeout)
         if timeout is None:
             kwargs["timeout"] = httpx.Timeout(30.0)
         else:
@@ -275,6 +286,8 @@ class _HttpxClientFactory:
         # Handle authentication
         if auth is not None:
             kwargs["auth"] = auth
+        if self.retry_policy is not None:
+            return RetryingAsyncClient(retry_policy=self.retry_policy, **kwargs)
         return httpx.AsyncClient(**kwargs)
 
 
@@ -302,7 +315,9 @@ class SSETransport(RemoteBaseTransport, ClientTransportWithAuth, SerializableObj
             sse_read_timeout=self.sse_read_timeout,
             auth=self._get_auth_provider(),
             httpx_client_factory=_HttpxClientFactory(
-                verify=False, follow_redirects=self.follow_redirects
+                verify=False,
+                follow_redirects=self.follow_redirects,
+                retry_policy=self.retry_policy,
             ),
         )
 
@@ -378,6 +393,7 @@ class SSEmTLSTransport(HTTPmTLSBaseTransport, ClientTransportWithAuth, Serializa
                 ssl_ca_cert=self.ssl_ca_cert,
                 check_hostname=self.check_hostname,
                 follow_redirects=self.follow_redirects,
+                retry_policy=self.retry_policy,
             ),
         )
 
@@ -407,7 +423,9 @@ class StreamableHTTPTransport(RemoteBaseTransport, ClientTransportWithAuth, Seri
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
             auth=self._get_auth_provider(),
             httpx_client_factory=_HttpxClientFactory(
-                verify=False, follow_redirects=self.follow_redirects
+                verify=False,
+                follow_redirects=self.follow_redirects,
+                retry_policy=self.retry_policy,
             ),
         )
 
@@ -464,6 +482,7 @@ class StreamableHTTPmTLSTransport(
                 ssl_ca_cert=self.ssl_ca_cert,
                 check_hostname=self.check_hostname,
                 follow_redirects=self.follow_redirects,
+                retry_policy=self.retry_policy,
             ),
         )
 

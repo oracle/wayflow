@@ -9,6 +9,7 @@ from typing import Optional
 from pyagentspec import Component
 from pyagentspec.component import SerializeAsEnum
 from pyagentspec.llms.ociclientconfig import OciClientConfig
+from pyagentspec.retrypolicy import RetryPolicy
 from pyagentspec.sensitive_field import SensitiveField
 from pydantic import SerializeAsAny
 
@@ -39,6 +40,8 @@ class PluginOciGenAiEmbeddingConfig(PluginEmbeddingConfig):
     """Client configuration to connect to the Oci GenAI service"""
     serving_mode: SerializeAsEnum[ServingMode] = ServingMode.ON_DEMAND
     """The serving mode of this remote Oci GenAI embedding model"""
+    retry_policy: Optional[RetryPolicy] = None
+    """Retry configuration for remote embedding calls."""
 
 
 class PluginOpenAiCompatibleEmbeddingConfig(PluginEmbeddingConfig):
@@ -58,6 +61,8 @@ class PluginOpenAiCompatibleEmbeddingConfig(PluginEmbeddingConfig):
     """The path to an optional client certificate chain file (PEM format)."""
     ca_file: SensitiveField[Optional[str]] = None
     """The path to an optional trusted CA certificate file (PEM format) used to verify the server."""
+    retry_policy: Optional[RetryPolicy] = None
+    """Retry configuration for remote embedding calls."""
 
 
 class PluginOllamaEmbeddingConfig(PluginOpenAiCompatibleEmbeddingConfig):
@@ -77,6 +82,8 @@ class PluginOpenAiEmbeddingConfig(PluginEmbeddingConfig):
 
     model_id: str
     """ID of the model to use"""
+    retry_policy: Optional[RetryPolicy] = None
+    """Retry configuration for remote embedding calls."""
 
 
 class PluginVllmEmbeddingConfig(PluginOpenAiCompatibleEmbeddingConfig):

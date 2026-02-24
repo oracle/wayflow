@@ -184,3 +184,7 @@ def test_code_examples_in_docs_can_be_successfully_run(
         runpy.run_path(file_path, init_globals=globs)
     except SystemExit as e:
         assert e.code in (0, None)
+    except Exception as exc:
+        if str(exc) == "Required OracleDB environment variables not found":
+            pytest.skip("Docs code example requires OracleDB environment variables")
+        raise

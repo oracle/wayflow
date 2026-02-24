@@ -10,6 +10,7 @@ import pytest
 
 from wayflowcore.a2a.a2aagent import A2AAgent, A2AConnectionConfig
 from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization import deserialize, serialize
 
 from ..testhelpers.testhelpers import retry_test
@@ -39,6 +40,7 @@ def assert_a2aagents_are_equal(old_agent: A2AAgent, new_agent: A2AAgent):
     assert old_agent.agent_url == new_agent.agent_url
     assert old_agent.connection_config.timeout == new_agent.connection_config.timeout
     assert old_agent.connection_config.verify == new_agent.connection_config.verify
+    assert old_agent.connection_config.retry_policy == new_agent.connection_config.retry_policy
     assert old_agent.session_parameters.timeout == new_agent.session_parameters.timeout
     assert old_agent.session_parameters.poll_interval == new_agent.session_parameters.poll_interval
     assert old_agent.session_parameters.max_retries == new_agent.session_parameters.max_retries
@@ -57,6 +59,22 @@ def test_can_deserialize_a_serialized_a2aagent(a2a_agent) -> None:
     ):
         deserialized_a2aagent = deserialize(A2AAgent, serialized_a2aagent)
         assert_a2aagents_are_equal(a2a_agent, deserialized_a2aagent)
+
+
+def test_a2a_agent_retry_policy_round_trips_without_server() -> None:
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        agent = A2AAgent(
+            agent_url="https://example.com/a2a",
+            connection_config=A2AConnectionConfig(
+                verify=False,
+                retry_policy=RetryPolicy(max_attempts=4),
+            ),
+        )
+        deserialized_agent = deserialize(A2AAgent, serialize(agent))
+
+    assert deserialized_agent.connection_config.retry_policy is not None
+    assert deserialized_agent.connection_config.retry_policy.max_attempts == 4
 
 
 def test_can_serialize_a2aconversation(a2a_agent) -> None:

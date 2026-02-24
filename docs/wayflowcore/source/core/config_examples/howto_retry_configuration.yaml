@@ -1,0 +1,29 @@
+component_type: OciAgent
+id: d3ec0b4c-ab23-4555-82e8-3dda8a831fb2
+name: oci_agent_5008210d__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+agent_endpoint_id: ocid1.agentendpoint.oc1..example
+client_config:
+  component_type: OciClientConfigWithInstancePrincipal
+  id: 45384ec0-c3c7-4d55-a37e-f8e28d8027e5
+  name: oci_client_config
+  description: null
+  metadata: {}
+  service_endpoint: https://example.com
+  auth_type: INSTANCE_PRINCIPAL
+retry_policy:
+  max_attempts: 3
+  request_timeout: 20.0
+  initial_retry_delay: 1.0
+  max_retry_delay: 8.0
+  backoff_factor: 2.0
+  jitter: full_and_equal_for_throttle
+  service_error_retry_on_any_5xx: true
+  recoverable_statuses:
+    '409': []
+    '429': []
+agentspec_version: 26.2.0

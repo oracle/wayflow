@@ -20,6 +20,9 @@ from wayflowcore.warnings import SecurityWarning
 
 logger = logging.getLogger(__name__)
 
+_OCI_DEFAULT_CONNECT_TIMEOUT_SECONDS = 10.0
+_OCI_DEFAULT_REQUEST_TIMEOUT_SECONDS = 240.0
+
 if TYPE_CHECKING:
     # Important: do not move this import out of the TYPE_CHECKING block so long as oci is an optional dependency.
     # Otherwise, importing the module when they are not installed would lead to an import error.
@@ -72,6 +75,7 @@ class OCIClientConfig(SerializableObject, ABC):
     @classmethod
     def from_dict(cls, input_dict: Dict[str, Union[str, Dict[str, str]]]) -> "OCIClientConfig":
         config: Dict[str, Any] = deepcopy(input_dict)
+        config.pop("_component_type", None)
         auth_type = config.pop("auth_type")
         if auth_type == _OCIAuthType.API_KEY:
             return OCIClientConfig._create_api_key_config(config)
@@ -298,13 +302,23 @@ class OCIClientConfigWithUserAuthentication(OCIClientConfig):
         return base_config
 
 
-def _client_config_to_oci_client_kwargs(client_config: OCIClientConfig) -> Dict[str, Any]:
+def _client_config_to_oci_client_kwargs(
+    client_config: OCIClientConfig,
+    request_timeout: Optional[float],
+) -> Dict[str, Any]:
     client_kwargs = dict(
         service_endpoint=client_config.service_endpoint,
-        retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY,
-        timeout=(10, 240),
+        # Retries are handled by Wayflow's retry helpers, so the OCI SDK layer stays disabled.
+        retry_strategy=oci.retry.NoneRetryStrategy(),
+        timeout=(
+            _OCI_DEFAULT_CONNECT_TIMEOUT_SECONDS,
+            _OCI_DEFAULT_REQUEST_TIMEOUT_SECONDS,
+        ),
         config={},
     )
+    if request_timeout is not None:
+        connect_timeout = min(_OCI_DEFAULT_CONNECT_TIMEOUT_SECONDS, request_timeout)
+        client_kwargs["timeout"] = (connect_timeout, request_timeout)
 
     if isinstance(client_config, OCIClientConfigWithUserAuthentication):
         # retry_strategy and timeout are set as the same value as in the langchain wrapper

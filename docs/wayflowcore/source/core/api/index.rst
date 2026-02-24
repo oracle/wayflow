@@ -32,6 +32,7 @@ API Reference
    Agents <agent>
    Agent Server <agentserver>
    Embedding Models <embeddingmodels>
+   Retries <retries>
    Context Providers <contextproviders>
    Execution Interrupts <interrupts>
    PromptTemplates <prompttemplate>
