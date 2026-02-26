@@ -4,7 +4,6 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-import asyncio
 import json
 import os
 import threading
@@ -12,6 +11,7 @@ from typing import Annotated
 
 import litellm
 import pytest
+import pytest_asyncio
 
 from wayflowcore.messagelist import Message
 from wayflowcore.models._requesthelpers import StreamChunkType
@@ -19,30 +19,6 @@ from wayflowcore.models.geminimodel import GeminiApiKeyAuth, GeminiCloudAuth, Ge
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import Prompt
 from wayflowcore.tools import tool
-
-# NOTE ON RESOURCEWARNINGS / PYTEST TEARDOWN FAILURES
-#
-# Some LiteLLM + aiohttp transport paths can leave sockets / asyncio transports
-# open until GC. Pytest's unraisable-exception collector may surface these at
-# *test session teardown* (after tests have already passed) as an ExceptionGroup
-# of ResourceWarnings like:
-#   - unclosed <socket.socket ...>
-#   - unclosed transport <asyncio._SSLProtocolTransport ...>
-#   - unclosed transport <_SelectorSocketTransport ...>
-#
-# This means that running `pytest tests/models/test_geminimodel.py` can show all
-# tests as PASS but still exit non-zero. Avoid per-test cleanup that closes
-# LiteLLM/httpx clients, since streaming responses may still be consuming the
-# underlying connection and will then fail mid-stream.
-
-
-# @pytest.fixture(scope="session")
-# def litellm_async_http_handler():
-#     handler = litellm.AsyncHTTPHandler()
-#     yield handler
-
-#     # Close the handler explicitly to avoid leaking aiohttp/httpx transports.
-#     _asyncio_run_and_cleanup(handler.close())
 
 
 def _stream_and_collect_sync(llm: GeminiModel, prompt: Prompt) -> tuple[str, Message]:
@@ -111,10 +87,15 @@ def _cleanup_litellm_threads(*, threads_before: set[int]) -> None:
 def litellm_thread_cleanup():
     threads_before = {t.ident for t in threading.enumerate() if t.ident is not None}
     yield
-    # Best-effort cleanup of LiteLLM cached clients/transports to avoid
-    # ResourceWarning / unraisable socket warnings at pytest shutdown.
-    asyncio.run(litellm.close_litellm_async_clients())
+    litellm.module_level_client.close()
     _cleanup_litellm_threads(threads_before=threads_before)
+
+
+@pytest_asyncio.fixture(scope="session", loop_scope="session")
+async def litellm_async_client_cleanup():
+    yield
+    await litellm.close_litellm_async_clients()
+    await litellm.module_level_aclient.close()
 
 
 @pytest.fixture
@@ -168,10 +149,11 @@ def test_geminimodel_vertex_sync(
 
 
 @pytest.mark.skipif(not os.getenv("VERTEX_CREDENTIALS"), reason="Gemini LLM auth not set up")
-@pytest.mark.asyncio
+@pytest.mark.asyncio(loop_scope="session")
 async def test_geminimodel_vertex_async(
     vertex_gemini_model: GeminiModel,
     prompt_with_tool: Prompt,
+    litellm_async_client_cleanup,
     litellm_thread_cleanup,
 ) -> None:
     completion = await vertex_gemini_model.generate_async(prompt_with_tool)
@@ -225,10 +207,11 @@ def test_geminimodel_vertex_streaming_text_matches_final_sync(
 
 
 @pytest.mark.skipif(not os.getenv("VERTEX_CREDENTIALS"), reason="Gemini LLM auth not set up")
-@pytest.mark.asyncio
+@pytest.mark.asyncio(loop_scope="session")
 async def test_geminimodel_vertex_streaming_text_matches_final_async(
     vertex_gemini_model: GeminiModel,
     prompt_without_tool,
+    litellm_async_client_cleanup,
     litellm_thread_cleanup,
 ) -> None:
     streamed_text, final_message = await _stream_and_collect_async(
@@ -250,10 +233,11 @@ def test_geminimodel_vertex_streaming_tool_call_sync(
 
 
 @pytest.mark.skipif(not os.getenv("VERTEX_CREDENTIALS"), reason="Gemini LLM auth not set up")
-@pytest.mark.asyncio
+@pytest.mark.asyncio(loop_scope="session")
 async def test_geminimodel_vertex_streaming_tool_call_async(
     vertex_gemini_model: GeminiModel,
     prompt_with_tool: Prompt,
+    litellm_async_client_cleanup,
     litellm_thread_cleanup,
 ) -> None:
     _streamed_text, final_message = await _stream_and_collect_async(
@@ -261,3 +245,20 @@ async def test_geminimodel_vertex_streaming_tool_call_async(
     )
     assert final_message.tool_requests is not None
     assert final_message.tool_requests[0].name == "tool_greet"
+
+
+@pytest.mark.skipif(not os.getenv("VERTEX_CREDENTIALS"), reason="Gemini LLM auth not set up")
+def test_geminimodel_vertex_counts_tokens_sync(
+    vertex_gemini_model: GeminiModel,
+    prompt_without_tool: Prompt,
+    litellm_thread_cleanup,
+) -> None:
+    prompt = prompt_without_tool.copy(generation_config=LlmGenerationConfig(max_tokens=32))
+    completion = vertex_gemini_model.generate(prompt)
+    assert completion.token_usage is not None
+    assert completion.token_usage.exact_count
+    assert completion.token_usage.input_tokens > 0
+    assert completion.token_usage.output_tokens > 0
+    assert completion.token_usage.total_tokens == (
+        completion.token_usage.input_tokens + completion.token_usage.output_tokens
+    )

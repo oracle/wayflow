@@ -6,10 +6,22 @@
 import json
 import logging
 import os
-from typing import TYPE_CHECKING, Any, AsyncIterable, Dict, Iterable, Iterator, List, Optional
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any, AsyncIterable, Dict, Iterable, List, Optional
 
 import litellm
-from litellm.types.utils import ModelResponse, ModelResponseStream
+from litellm.types.utils import (
+    ChatCompletionDeltaToolCall,
+    ChatCompletionMessageToolCall,
+    CompletionTokensDetailsWrapper,
+)
+from litellm.types.utils import Message as LiteLLMMessage
+from litellm.types.utils import (
+    ModelResponse,
+    ModelResponseStream,
+    PromptTokensDetailsWrapper,
+    Usage,
+)
 from pydantic import BaseModel
 
 from wayflowcore._metadata import MetadataType
@@ -27,36 +39,98 @@ from ._requesthelpers import (
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import LlmCompletion, LlmModel, Prompt
 
+if TYPE_CHECKING:
+    from wayflowcore.messagelist import Message
 
-def _convert_tool_call_deltas_into_tool_requests(tool_deltas: List[Any]) -> List[ToolRequest]:
+logger = logging.getLogger(__name__)
+
+GEMINI_API_KEY_ENV_VAR = "GEMINI_API_KEY"
+
+LiteLLMToolCallType = ChatCompletionDeltaToolCall | ChatCompletionMessageToolCall
+
+
+def _convert_litellm_tool_calls_to_tool_requests(
+    tool_calls: Iterable[LiteLLMToolCallType],
+) -> List[ToolRequest]:
+    """Convert LiteLLM Gemini tool calls into WayFlow ToolRequests.
+
+    GeminiModel is Gemini-only and expects LiteLLM to return OpenAI-style tool-call objects.
+    This function intentionally raises if the shape is unexpected.
+    """
+
     tool_requests: List[ToolRequest] = []
-    for tool_call in tool_deltas:
-        function = tool_call.function
-        name = function.name
-        arguments = function.arguments
+    for tc in tool_calls:
+        if not isinstance(tc, (ChatCompletionDeltaToolCall, ChatCompletionMessageToolCall)):
+            raise TypeError(
+                f"Unexpected tool call type {type(tc).__name__}; "
+                "expected ChatCompletionDeltaToolCall or ChatCompletionMessageToolCall."
+            )
 
-        if not isinstance(name, str) or not isinstance(arguments, str):
-            # Be defensive: provider may send partial deltas.
-            continue
+        if not isinstance(tc.id, str) or not tc.id:
+            raise ValueError(f"Invalid tool call id: {tc.id!r}")
+        if tc.type not in (None, "function"):
+            raise ValueError(f"Unsupported tool call type: {tc.type!r}")
+
+        name = tc.function.name
+        arguments = tc.function.arguments
+
+        if not isinstance(name, str) or not name:
+            raise ValueError(f"Invalid tool call name: {name!r}")
+        if not isinstance(arguments, str) or not arguments:
+            raise ValueError(f"Invalid tool call arguments: {arguments!r}")
 
         tool_requests.append(
             ToolRequest(
                 name=name,
                 args=_safe_json_loads(arguments),
-                tool_request_id=str(tool_call.id or ""),
+                tool_request_id=tc.id,
             )
         )
 
     return tool_requests
 
 
-logger = logging.getLogger(__name__)
+@dataclass
+class _LiteLLMStreamAccumulator:
+    accumulated_text: str = ""
+    tool_calls: List[LiteLLMToolCallType] = field(default_factory=list)
+    token_usage: Optional[TokenUsage] = None
 
+    def ingest_chunk(self, model: "GeminiModel", chunk: Any) -> str:
+        if not isinstance(chunk, ModelResponseStream):
+            raise TypeError(
+                f"Unexpected streaming chunk type {type(chunk).__name__}; expected "
+                "ModelResponseStream."
+            )
 
-if TYPE_CHECKING:
-    from wayflowcore.messagelist import Message
+        delta = chunk.choices[0].delta
+        if delta is None:
+            return ""
 
-GEMINI_API_KEY_ENV_VAR = "GEMINI_API_KEY"
+        tool_calls = delta.tool_calls
+        if tool_calls:
+            for tc in tool_calls:
+                if not isinstance(tc, ChatCompletionDeltaToolCall):
+                    raise TypeError(
+                        f"Unexpected tool call type {type(tc).__name__}; expected "
+                        "ChatCompletionDeltaToolCall."
+                    )
+            self.tool_calls.extend(tool_calls)
+
+        text_delta = delta.content or ""
+        if text_delta:
+            self.accumulated_text += text_delta
+
+        self.token_usage = self.token_usage or model._litellm_usage_to_token_usage(chunk)
+        return text_delta
+
+    def build_final_message(self) -> Message:
+        if self.tool_calls:
+            return Message(
+                content=self.accumulated_text,
+                tool_requests=_convert_litellm_tool_calls_to_tool_requests(self.tool_calls),
+            )
+        return Message(content=self.accumulated_text, message_type=MessageType.AGENT)
 
 
 class GeminiAuth(BaseModel):
@@ -91,14 +165,16 @@ class GeminiModel(LlmModel):
     ):
         """
         Generic model to connect to Gemini on Vertex AI using Google's Python SDKs.
-        Implementation note: use litellm.completion and litellm.acompletion as the way to actually make the API calls.
+        Implementation note: use litellm.completion and litellm.acompletion as the way to
+        actually make the API calls.
 
         Parameters
         ----------
         model_id:
             Gemini model name (e.g., gemini-2.x...). Availability depends on GCP region/project.
         auth:
-            Optional explicit google-auth credentials. Defaults to GeminiApiKeyAuth and loads from environment variable.
+            Optional explicit google-auth credentials. Defaults to GeminiApiKeyAuth and loads from
+            environment variable.
         proxy:
             Optional proxy URL if required.
         ...
@@ -164,63 +240,38 @@ class GeminiModel(LlmModel):
 
         self._check_supports_prompt(prompt)
 
-        def _generator() -> Iterator[TaggedMessageChunkType]:
-            with LlmGenerationSpan(
-                llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
-            ) as span:
-                logger.debug("LLM generating (stream): %s", prompt)
-                request = self._build_litellm_request(prompt, stream=True)
-                stream = litellm.completion(**request)
+        with LlmGenerationSpan(
+            llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
+        ) as span:
+            logger.debug("LLM generating (stream): %s", prompt)
+            request = self._build_litellm_request(prompt, stream=True)
+            stream = litellm.completion(**request)
 
-                yield StreamChunkType.START_CHUNK, Message(
-                    content="", message_type=MessageType.AGENT
-                )
+            yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT)
 
-                accumulated_text = ""
-                tool_deltas: List[Any] = []
-                final_token_usage: Optional[TokenUsage] = None
-
+            accumulator = _LiteLLMStreamAccumulator()
+            try:
                 for chunk in stream:
-                    if isinstance(chunk, dict):
-                        model_chunk = litellm.ModelResponseStream(**chunk)
-                    else:
-                        model_chunk = chunk
-
-                    if not isinstance(model_chunk, ModelResponseStream):
-                        model_chunk = litellm.ModelResponseStream(**model_chunk)
-
-                    choice0 = model_chunk.choices[0]
-                    delta = choice0.delta
-                    if delta is not None and delta.tool_calls:
-                        tool_deltas.extend(delta.tool_calls)
-
-                    text_delta = delta.content or ""
+                    text_delta = accumulator.ingest_chunk(self, chunk)
                     if text_delta:
-                        accumulated_text += text_delta
                         yield StreamChunkType.TEXT_CHUNK, Message(
                             content=text_delta, message_type=MessageType.AGENT
                         )
+            finally:
+                # close the stream to avoid leaking
+                completion_stream = getattr(stream, "completion_stream", None)
+                streaming_response = getattr(completion_stream, "streaming_response", None)
+                if streaming_response is not None and hasattr(streaming_response, "close"):
+                    streaming_response.close()
 
-                    if final_token_usage is None:
-                        final_token_usage = self._litellm_usage_to_token_usage(model_chunk)
+            final_message = prompt.parse_output(accumulator.build_final_message())
+            completion = LlmCompletion(message=final_message, token_usage=accumulator.token_usage)
+            self._update_token_usage(
+                conversation=_conversation, prompt=prompt, completion=completion
+            )
+            span.record_end_span_event(completion=completion)
 
-                if tool_deltas:
-                    final_message = Message(
-                        tool_requests=_convert_tool_call_deltas_into_tool_requests(tool_deltas)
-                    )
-                else:
-                    final_message = Message(contents=[TextContent(content=accumulated_text)])
-                final_message = prompt.parse_output(final_message)
-
-                completion = LlmCompletion(message=final_message, token_usage=final_token_usage)
-                self._update_token_usage(
-                    conversation=_conversation, prompt=prompt, completion=completion
-                )
-                span.record_end_span_event(completion=completion)
-
-                yield StreamChunkType.END_CHUNK, final_message
-
-        return _generator()
+            yield StreamChunkType.END_CHUNK, final_message
 
     async def _generate_impl(self, prompt: Prompt) -> LlmCompletion:
         request = self._build_litellm_request(prompt, stream=False)
@@ -240,38 +291,24 @@ class GeminiModel(LlmModel):
 
         yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT), None
 
-        accumulated = ""
-        final_token_usage: Optional[TokenUsage] = None
-        tool_deltas: List[Any] = []
-        async for chunk in stream:
-            if isinstance(chunk, dict):
-                chunk = litellm.ModelResponse(**chunk)
+        accumulator = _LiteLLMStreamAccumulator()
+        try:
+            async for chunk in stream:
+                delta_text = accumulator.ingest_chunk(self, chunk)
+                if delta_text:
+                    yield (
+                        StreamChunkType.TEXT_CHUNK,
+                        Message(content=delta_text, message_type=MessageType.AGENT),
+                        None,
+                    )
+        finally:
+            completion_stream = getattr(stream, "completion_stream", None)
+            streaming_response = getattr(completion_stream, "streaming_response", None)
+            if streaming_response is not None and hasattr(streaming_response, "aclose"):
+                await streaming_response.aclose()
 
-            choice0 = chunk.choices[0]
-            delta_obj = getattr(choice0, "delta", None)
-            delta_tool_calls = getattr(delta_obj, "tool_calls", None)
-            if isinstance(delta_tool_calls, list) and delta_tool_calls:
-                tool_deltas.extend(delta_tool_calls)
-
-            delta_text = self._extract_stream_delta_text(chunk)
-            if delta_text:
-                accumulated += delta_text
-                yield (
-                    StreamChunkType.TEXT_CHUNK,
-                    Message(content=delta_text, message_type=MessageType.AGENT),
-                    None,
-                )
-
-            final_token_usage = final_token_usage or self._litellm_usage_to_token_usage(chunk)
-
-        if tool_deltas:
-            final_message = Message(
-                tool_requests=_convert_tool_call_deltas_into_tool_requests(tool_deltas)
-            )
-        else:
-            final_message = Message(content=accumulated, message_type=MessageType.AGENT)
-        final_message = prompt.parse_output(final_message)
-        yield StreamChunkType.END_CHUNK, final_message, final_token_usage
+        final_message = prompt.parse_output(accumulator.build_final_message())
+        yield StreamChunkType.END_CHUNK, final_message, accumulator.token_usage
 
     @property
     def config(self) -> Dict[str, Any]:
@@ -390,7 +427,13 @@ class GeminiModel(LlmModel):
                 "got a streaming choice."
             )
 
-        msg = choice0.message
+        msg_raw = choice0.message
+        if not isinstance(msg_raw, LiteLLMMessage):
+            raise TypeError(
+                "GeminiModel expected a LiteLLM Message in non-streaming responses, got "
+                f"{type(msg_raw).__name__}"
+            )
+        msg = msg_raw
 
         provider_specific_fields = getattr(msg, "provider_specific_fields", None)
         extra_content: Optional[Dict[str, Any]]
@@ -401,49 +444,78 @@ class GeminiModel(LlmModel):
 
         tool_calls = msg.tool_calls
         if tool_calls:
-            tool_requests: List[ToolRequest] = []
-            for tc in tool_calls:
-                if not tc.function.name or not tc.id:
-                    raise ValueError(
-                        f"GeminiModel expected non-empty tool name or tool-call id but got: {tc.function.name}, {tc.id}"
-                    )
-                tool_requests.append(
-                    ToolRequest(
-                        name=tc.function.name,
-                        args=_safe_json_loads(tc.function.arguments),
-                        tool_request_id=tc.id,
-                    )
-                )
-
+            tool_requests = _convert_litellm_tool_calls_to_tool_requests(tool_calls)
+            if not tool_requests:
+                raise ValueError("GeminiModel got tool calls but could not parse any tool requests")
             return Message(tool_requests=tool_requests, _extra_content=extra_content)
 
         content = msg.content or ""
-        return Message(contents=[TextContent(content=content)], _extra_content=extra_content)
+        return Message(role="assistant", content=content, _extra_content=extra_content)
 
     def _litellm_usage_to_token_usage(self, response: Any) -> Optional[TokenUsage]:
+        usage_raw: Any
         if isinstance(response, dict):
-            response = litellm.ModelResponse(**response)
-        usage = getattr(response, "usage", None)
-        if usage is None:
+            usage_raw = response.get("usage")
+        else:
+            # LiteLLM's `ModelResponse` / `ModelResponseStream` are pydantic models where
+            # `usage` is not always present (especially in streaming chunks).
+            if not hasattr(response, "usage"):
+                return None
+            usage_raw = response.usage
+
+        if usage_raw is None:
             return None
+
+        if isinstance(usage_raw, Usage):
+            usage = usage_raw
+        elif isinstance(usage_raw, dict):
+            usage = Usage(**usage_raw)
+        else:
+            raise TypeError(
+                "GeminiModel expected LiteLLM usage to be a Usage or dict, got "
+                f"{type(usage_raw).__name__}"
+            )
+
+        cached_tokens = 0
+        prompt_details_raw = usage.prompt_tokens_details
+        if prompt_details_raw is not None:
+            if isinstance(prompt_details_raw, PromptTokensDetailsWrapper):
+                cached_raw = prompt_details_raw.cached_tokens
+            elif isinstance(prompt_details_raw, dict):
+                cached_raw = prompt_details_raw.get("cached_tokens")
+            else:
+                raise TypeError(
+                    "GeminiModel expected prompt_tokens_details to be a PromptTokensDetailsWrapper "
+                    f"or dict, got {type(prompt_details_raw).__name__}"
+                )
+            if isinstance(cached_raw, int):
+                cached_tokens = cached_raw
+
+        reasoning_tokens = 0
+        completion_details_raw = usage.completion_tokens_details
+        if completion_details_raw is not None:
+            if isinstance(completion_details_raw, CompletionTokensDetailsWrapper):
+                reasoning_raw = completion_details_raw.reasoning_tokens
+            elif isinstance(completion_details_raw, dict):
+                reasoning_raw = completion_details_raw.get("reasoning_tokens")
+            else:
+                raise TypeError(
+                    "GeminiModel expected completion_tokens_details to be a "
+                    "CompletionTokensDetailsWrapper or dict, got "
+                    f"{type(completion_details_raw).__name__}"
+                )
+            if isinstance(reasoning_raw, int):
+                reasoning_tokens = reasoning_raw
+
+        input_tokens = int(usage.prompt_tokens or 0)
+        output_tokens = int(usage.completion_tokens or 0)
+        total_tokens = int(usage.total_tokens or (input_tokens + output_tokens))
+
         return TokenUsage(
-            input_tokens=getattr(usage, "prompt_tokens", 0),
-            output_tokens=getattr(usage, "completion_tokens", 0),
-            total_tokens=getattr(usage, "total_tokens", 0),
-            reasoning_tokens=getattr(usage, "reasoning_tokens", 0) or 0,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            cached_tokens=cached_tokens,
+            reasoning_tokens=reasoning_tokens,
+            total_tokens=total_tokens,
             exact_count=True,
         )
-
-    # Note: tool-call delta conversion is shared with other models.
-
-    def _extract_stream_delta_text(self, chunk: Any) -> str:
-        try:
-            if isinstance(chunk, dict):
-                chunk = litellm.ModelResponse(**chunk)
-            choice0 = chunk.choices[0]
-            delta = choice0.delta
-            if delta is None:
-                return ""
-            return delta.content or ""
-        except Exception:
-            return ""
