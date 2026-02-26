@@ -8,7 +8,13 @@ import logging
 from typing import Any, AsyncIterable, Callable, Dict, List, Optional, TypedDict
 
 from wayflowcore._utils.formatting import stringify
-from wayflowcore.messagelist import ImageContent, Message, TextContent
+from wayflowcore.messagelist import (
+    ImageContent,
+    Message,
+    TextContent,
+    TextTokenLogProb,
+    TextTokenTopLogProb,
+)
 from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
 from wayflowcore.tools.tools import ExtraContentT
@@ -30,6 +36,28 @@ class OpenAIToolRequestAsDictT(TypedDict, total=True):
 
 
 class _ChatCompletionsAPIProcessor(_APIProcessor):
+
+    @staticmethod
+    def _convert_openai_logprobs_into_text_logprobs(logprobs: Any) -> List[TextTokenLogProb]:
+        converted: List[TextTokenLogProb] = []
+        if not logprobs:
+            return converted
+
+        for item in logprobs:
+            top = item.get("top_logprobs")
+            top_converted = None
+            if top is not None:
+                top_converted = [
+                    TextTokenTopLogProb(token=c["token"], logprob=c["logprob"]) for c in top
+                ]
+            converted.append(
+                TextTokenLogProb(
+                    token=item["token"],
+                    logprob=item["logprob"],
+                    top_logprobs=top_converted,
+                )
+            )
+        return converted
 
     @staticmethod
     def _tool_to_openai_function_dict(tool: Tool) -> Dict[str, Any]:
@@ -159,6 +187,9 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
             kwargs["stop"] = generation_config.stop
         if generation_config.frequency_penalty is not None:
             kwargs["frequency_penalty"] = generation_config.frequency_penalty
+        if generation_config.top_logprobs is not None:
+            kwargs["logprobs"] = True
+            kwargs["top_logprobs"] = generation_config.top_logprobs
         if generation_config.extra_args:
             kwargs.update(generation_config.extra_args)
         return kwargs
@@ -183,9 +214,17 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
             # content might be empty when certain models (like gemini) decide
             # to finish the conversation
             content = extracted_message.get("content", "")
+
+            logprobs = None
+            choice_logprobs = response["choices"][0].get("logprobs")
+            if choice_logprobs and choice_logprobs.get("content") is not None:
+                logprobs = self._convert_openai_logprobs_into_text_logprobs(
+                    choice_logprobs["content"]
+                )
+
             message = Message(
                 role="assistant",
-                contents=[TextContent(content=content)],
+                contents=[TextContent(content=content, logprobs=logprobs)],
                 _extra_content=extracted_message.get("extra_content"),
             )
         return message

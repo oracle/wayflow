@@ -80,13 +80,21 @@ class LlmGenerationConfig(SerializableDataclass):
     top_p: Optional[float] = None
     stop: Optional[List[str]] = None
     frequency_penalty: Optional[float] = None
+    top_logprobs: Optional[int] = None
     extra_args: Dict[str, Any] = field(default_factory=dict)
     # might be an issue in the future if you want not to pass some parameter and there is a default config
     # if needed, defaults would be `Empty` and then None means `not specified` rather than `don't use`
 
     def __post_init__(self) -> None:
         # We check if among the extra args there are known fields
-        known_fields: Set[str] = {"max_tokens", "temperature", "top_p", "stop", "frequency_penalty"}
+        known_fields: Set[str] = {
+            "max_tokens",
+            "temperature",
+            "top_p",
+            "stop",
+            "frequency_penalty",
+            "top_logprobs",
+        }
         for extra_arg_key in known_fields:
             # If we find one, we remove it from extra args, and we set the proper field with the value (if it's not set)
             # If the field is already set (i.e., not None), we just ignore the value in extra_args and raise a warning
@@ -101,6 +109,8 @@ class LlmGenerationConfig(SerializableDataclass):
                     )
         if not (self.frequency_penalty is None or (-2 <= self.frequency_penalty <= 2)):
             raise ValueError("The frequency penalty should be between -2 and 2")
+        if self.top_logprobs is not None and self.top_logprobs < 0:
+            raise ValueError("top_logprobs should be non-negative")
 
     def to_dict(self) -> Dict[str, Any]:
         config_dict: Dict[str, Union[int, float, List[str], Dict[str, Any]]] = {}
@@ -114,6 +124,8 @@ class LlmGenerationConfig(SerializableDataclass):
             config_dict["stop"] = self.stop
         if self.frequency_penalty is not None:
             config_dict["frequency_penalty"] = self.frequency_penalty
+        if self.top_logprobs is not None:
+            config_dict["top_logprobs"] = self.top_logprobs
         if self.extra_args:
             for extra_arg_key, extra_arg_value in self.extra_args.items():
                 config_dict[extra_arg_key] = serialize_any_to_dict(
@@ -142,6 +154,10 @@ class LlmGenerationConfig(SerializableDataclass):
 
         stop = config.pop("stop", None)
 
+        top_logprobs = config.pop("top_logprobs", None)
+        if top_logprobs is not None:
+            top_logprobs = int(top_logprobs)
+
         extra_args: Dict[str, Any] = {}
         for extra_arg_key, extra_arg_value in config.items():
             extra_args[extra_arg_key] = autodeserialize_any_from_dict(
@@ -154,6 +170,7 @@ class LlmGenerationConfig(SerializableDataclass):
             top_p=top_p,
             stop=stop,
             frequency_penalty=frequency_penalty,
+            top_logprobs=top_logprobs,
             extra_args=extra_args,
         )
 

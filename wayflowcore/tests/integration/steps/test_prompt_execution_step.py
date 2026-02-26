@@ -22,7 +22,13 @@ from wayflowcore.flowhelpers import (
 from wayflowcore.models import LlmCompletion
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import Prompt
-from wayflowcore.property import IntegerProperty, ListProperty, ObjectProperty, StringProperty
+from wayflowcore.property import (
+    BooleanProperty,
+    IntegerProperty,
+    ListProperty,
+    ObjectProperty,
+    StringProperty,
+)
 from wayflowcore.serialization import autodeserialize, serialize
 from wayflowcore.steps import (
     GetChatHistoryStep,
@@ -36,7 +42,6 @@ from wayflowcore.templates.structuredgeneration import (
     adapt_prompt_template_for_json_structured_generation,
 )
 
-from ...testhelpers.dummy import DummyModel
 from ...testhelpers.flowscriptrunner import FlowScript, FlowScriptInteraction, FlowScriptRunner
 from ...testhelpers.patching import patch_llm
 from ...testhelpers.testhelpers import retry_test
@@ -805,3 +810,33 @@ def test_structured_generation_with_enum_str_fail(remotely_hosted_llm):
     outputs = run_step_and_return_outputs(step, inputs={"text": text})
     content = outputs["habitat"]
     assert content in habitat_enum
+
+
+def test_prompt_execution_step_adds_logprobs_output_when_enabled(remotely_hosted_llm) -> None:
+    step = PromptExecutionStep(
+        prompt_template="Say hi",
+        llm=remotely_hosted_llm,
+        top_logprobs=2,
+    )
+
+    output_names = [d.name for d in step.output_descriptors]
+    assert PromptExecutionStep.OUTPUT in output_names
+    assert PromptExecutionStep.LOGPROBS in output_names
+
+    outputs = run_step_and_return_outputs(step)
+    assert PromptExecutionStep.LOGPROBS in outputs
+    assert outputs[PromptExecutionStep.LOGPROBS]
+
+
+def test_prompt_execution_step_top_logprobs_not_allowed_with_structured_output(
+    remotely_hosted_llm,
+) -> None:
+    with pytest.raises(
+        ValueError, match="top_logprobs is not supported with structured generation"
+    ):
+        PromptExecutionStep(
+            prompt_template="Say hi",
+            llm=remotely_hosted_llm,
+            top_logprobs=2,
+            output_descriptors=[BooleanProperty(name="x")],
+        )

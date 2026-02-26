@@ -19,7 +19,13 @@ import pytest
 
 from wayflowcore.embeddingmodels.openaicompatiblemodel import OpenAICompatibleEmbeddingModel
 from wayflowcore.executors._agentexecutor import _get_end_conversation_tool
-from wayflowcore.messagelist import ImageContent, Message, MessageType, TextContent
+from wayflowcore.messagelist import (
+    ImageContent,
+    Message,
+    MessageType,
+    TextContent,
+    TextTokenLogProb,
+)
 from wayflowcore.models import StreamChunkType
 from wayflowcore.models._requesthelpers import RetryingAsyncClient, request_post_with_retries
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
@@ -2091,3 +2097,33 @@ def test_structured_generation_with_enum(request, llm_fixture_name):
     assert json_content.pop("habitat") in habitat_enum
     assert json_content.pop("state") in state_enum
     assert json_content.pop("life") in life_enum
+
+
+@with_all_llm_configs
+def test_hosted_llm_can_return_logprobs_if_supported(llm_config):
+
+    if llm_config == OLLAMA_MODEL_CONFIG:
+        pytest.skip("Ollama hosted models sometimes does not return logprobs")
+    if llm_config == VLLM_OSS_CONFIG:
+        pytest.skip("Gtp-OSS does not support returning logprobs")
+    if llm_config == GROK_OCI_API_KEY_CONFIG:
+        pytest.skip("OCI grok returns empty logprobs")
+    if llm_config == COHERE_OCI_API_KEY_CONFIG:
+        pytest.skip("Gtp-OSS does not support returning logprobs")
+    if llm_config == COHERE_OCI_API_KEY_CONFIG:
+        pytest.skip("Gtp-OSS does not support returning logprobs")
+
+    llm = LlmModelFactory.from_config(llm_config)
+
+    prompt = Prompt(
+        messages=[Message(content="Say 'Bern'", message_type=MessageType.USER)],
+        generation_config=LlmGenerationConfig(top_logprobs=2, max_tokens=16),
+    )
+
+    res = llm.generate(prompt)
+
+    text_chunk = next((c for c in res.message.contents if isinstance(c, TextContent)), None)
+    assert text_chunk is not None
+    assert text_chunk.logprobs is not None
+    assert len(text_chunk.logprobs) > 0
+    assert isinstance(text_chunk.logprobs[0], TextTokenLogProb)
