@@ -35,6 +35,7 @@ from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.hash import fast_stable_hash
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import (
+    FrozenSerializableDataclass,
     SerializableDataclass,
     SerializableDataclassMixin,
     SerializableObject,
@@ -49,6 +50,28 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 _ReasoningContent: TypeAlias = Dict[str, Any]
+
+
+@dataclass(frozen=True, slots=True)
+class TextTokenTopLogProb(FrozenSerializableDataclass):
+    """Represents a single candidate token with its associated log probability."""
+
+    token: str
+    """The literal text of the candidate token."""
+    logprob: float
+    """The log probability assigned to the candidate token."""
+
+
+@dataclass(frozen=True, slots=True)
+class TextTokenLogProb(FrozenSerializableDataclass):
+    """Captures a generated token, its log probability, and alternate candidates."""
+
+    token: str
+    """The literal text of the generated token."""
+    logprob: float
+    """The log probability assigned to the generated token."""
+    top_logprobs: Optional[List[TextTokenTopLogProb]] = None
+    """Optional ranked list of alternate tokens with probabilities."""
 
 
 class MessageType(str, Enum):
@@ -98,6 +121,7 @@ class TextContent(MessageContent, SerializableObject):
     """
 
     content: str = ""
+    logprobs: Optional[List[TextTokenLogProb]] = None
     type: ClassVar[Literal["text"]] = "text"
 
     def __post_init__(self) -> None:
@@ -108,6 +132,40 @@ class TextContent(MessageContent, SerializableObject):
                 type(self.content).__name__,
             )
             self.content = str(self.content)
+
+        if self.logprobs is None:
+            return
+
+        # We accept both already-built `TextTokenLogProb` objects and raw dicts
+        # (e.g., from provider payloads) to keep adapters simple.
+        validated: List[TextTokenLogProb] = []
+        for item in self.logprobs:
+            if isinstance(item, TextTokenLogProb):
+                validated.append(item)
+                continue
+
+            raw_item = cast(Dict[str, Any], item)
+            raw_top = raw_item.get("top_logprobs")
+            top_converted = None
+            if raw_top is not None:
+                top_converted = [
+                    (
+                        c
+                        if isinstance(c, TextTokenTopLogProb)
+                        else TextTokenTopLogProb(**cast(Dict[str, Any], c))
+                    )
+                    for c in raw_top
+                ]
+
+            validated.append(
+                TextTokenLogProb(
+                    token=raw_item["token"],
+                    logprob=raw_item["logprob"],
+                    top_logprobs=top_converted,
+                )
+            )
+
+        self.logprobs = validated
 
 
 @dataclass

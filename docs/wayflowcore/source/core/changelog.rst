@@ -19,6 +19,10 @@ New features
   Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
   You can now declare your agents with summarization transforms and summary caching in Agent Spec and run them in WayFlow.
 
+* **Logprob support in `LlmGenerationConfig` and `PromptExecutionStep`
+
+  Add token logprobs support with the `top_logprobs` generation config parameter and support returning
+  logprobs in the `PromptExecutionStep`.
 
 Improvements
 ^^^^^^^^^^^^

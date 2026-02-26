@@ -213,7 +213,7 @@ OPENAI_CONFIG = {
 
 OPENAI_RESPONSES_CONFIG = {
     "model_type": "openai",
-    "model_id": "gpt-5-mini",
+    "model_id": "gpt-4.1",
     "proxy": oracle_http_proxy,
     "generation_config": {"max_tokens": 512, "reasoning": {"effort": "minimal"}},
     "api_type": OpenAIAPIType.RESPONSES,
@@ -444,6 +444,7 @@ MOCK_LLM_CONFIG = {
     "model_id": "super-smart",
 }
 
+
 def mock_llm():
     return LlmModelFactory.from_config(MOCK_LLM_CONFIG)
 
@@ -453,10 +454,12 @@ EMBEDDING_MODEL_CONFIG = {
     "model_id": "intfloat/e5-large-v2",
 }
 
+
 @pytest.fixture(scope="session")
 def embedding_model():
     """Real embedding model for testing."""
     return VllmEmbeddingModel(**EMBEDDING_MODEL_CONFIG)
+
 
 ToolRequestT = TypedDict(
     "ToolRequestT",

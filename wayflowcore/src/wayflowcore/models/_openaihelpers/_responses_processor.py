@@ -13,6 +13,8 @@ from wayflowcore.messagelist import (
     Message,
     MessageContent,
     TextContent,
+    TextTokenLogProb,
+    TextTokenTopLogProb,
     _ReasoningContent,
 )
 from wayflowcore.tokenusage import TokenUsage
@@ -28,6 +30,28 @@ logger = logging.getLogger(__name__)
 
 
 class _ResponsesAPIProcessor(_APIProcessor):
+    @staticmethod
+    def _convert_openai_logprobs_into_text_logprobs(logprobs: Any) -> List[TextTokenLogProb]:
+        converted: List[TextTokenLogProb] = []
+        if not logprobs:
+            return converted
+
+        for item in logprobs:
+            top = item.get("top_logprobs")
+            top_converted = None
+            if top is not None:
+                top_converted = [
+                    TextTokenTopLogProb(token=c["token"], logprob=c["logprob"]) for c in top
+                ]
+            converted.append(
+                TextTokenLogProb(
+                    token=item["token"],
+                    logprob=item["logprob"],
+                    top_logprobs=top_converted,
+                )
+            )
+        return converted
+
     @staticmethod
     def _tool_to_openai_function_dict(tool: Tool) -> Dict[str, Any]:
         openai_function_dict: Dict[str, Any] = {
@@ -218,11 +242,18 @@ class _ResponsesAPIProcessor(_APIProcessor):
             kwargs["temperature"] = generation_config.temperature
         if generation_config.max_tokens is not None:
             kwargs["max_output_tokens"] = generation_config.max_tokens
+        if generation_config.top_logprobs is not None:
+            kwargs["top_logprobs"] = generation_config.top_logprobs
+            kwargs.setdefault("include", [])
+            if "message.output_text.logprobs" not in kwargs["include"]:
+                kwargs["include"].append("message.output_text.logprobs")
         if generation_config.extra_args:
             if "reasoning" in generation_config.extra_args:
-                kwargs["include"] = [
-                    "reasoning.encrypted_content"
-                ]  # Pass reasoning traces if user has configured the reasoning parameter
+                kwargs.setdefault("include", [])
+                if "reasoning.encrypted_content" not in kwargs["include"]:
+                    kwargs["include"].append(
+                        "reasoning.encrypted_content"
+                    )  # Pass reasoning traces if user has configured the reasoning parameter
 
                 if "summary" not in generation_config.extra_args["reasoning"]:
                     generation_config.extra_args["reasoning"]["summary"] = "auto"
@@ -261,7 +292,17 @@ class _ResponsesAPIProcessor(_APIProcessor):
                     )
 
                 if item["content"][0]["type"] == "output_text":
-                    output_contents.append(TextContent(item["content"][0]["text"]))
+                    logprobs = None
+                    if (
+                        "logprobs" in item["content"][0]
+                        and item["content"][0]["logprobs"] is not None
+                    ):
+                        logprobs = self._convert_openai_logprobs_into_text_logprobs(
+                            item["content"][0]["logprobs"]
+                        )
+                    output_contents.append(
+                        TextContent(item["content"][0]["text"], logprobs=logprobs)
+                    )
 
             elif item["type"] == "image_generation_call" and item["result"]:
                 output_contents.append(ImageContent(base64_content=item["result"]))

@@ -17,7 +17,12 @@ from wayflowcore._utils.async_helpers import run_sync_in_thread, sync_to_async_i
 from wayflowcore._utils.formatting import stringify
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.idgeneration import IdGenerator
-from wayflowcore.messagelist import ImageContent, TextContent
+from wayflowcore.messagelist import (
+    ImageContent,
+    TextContent,
+    TextTokenLogProb,
+    TextTokenTopLogProb,
+)
 from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
 from wayflowcore.transforms import CanonicalizationMessageTransform
@@ -455,6 +460,28 @@ class _OciApiFormatter(ABC):
 
 class _GenericOciApiFormatter(_OciApiFormatter):
 
+    @staticmethod
+    def _convert_oci_logprobs_into_text_logprobs(logprobs: Any) -> List[TextTokenLogProb]:
+        converted: List[TextTokenLogProb] = []
+        if not logprobs:
+            return converted
+
+        for item in logprobs:
+            top = item.get("top_logprobs")
+            top_converted = None
+            if top is not None:
+                top_converted = [
+                    TextTokenTopLogProb(token=c["token"], logprob=c["logprob"]) for c in top
+                ]
+            converted.append(
+                TextTokenLogProb(
+                    token=item["token"],
+                    logprob=item["logprob"],
+                    top_logprobs=top_converted,
+                )
+            )
+        return converted
+
     @classmethod
     def convert_prompt_into_request(cls, prompt: "Prompt", model_id: str) -> Any:
         response_format = None
@@ -491,7 +518,8 @@ class _GenericOciApiFormatter(_OciApiFormatter):
         if len(completion_choices) > 1:
             raise NotImplementedError("Provider does not support multiple completions")
 
-        completion_message = completion_choices[0].message
+        choice_dict = completion_choices[0]
+        completion_message = choice_dict.message
         text_content, tool_requests = "", None
         if completion_message.content is not None:
             text_content = "".join(
@@ -499,6 +527,30 @@ class _GenericOciApiFormatter(_OciApiFormatter):
                 for t in completion_message.content
                 if t.type == "TEXT" and t.text is not None
             )
+
+        logprobs = None
+        if hasattr(choice_dict, "logprobs") and choice_dict.logprobs:
+            logprobs = []
+
+            for raw_token_log_prob in choice_dict.logprobs.top_logprobs:
+
+                top_log_probs = []
+                max_log_prob: Optional[float] = None
+                max_log_prob_token: Optional[str] = None
+                for token, raw_log_prob in raw_token_log_prob.items():
+                    top_log_probs.append(TextTokenTopLogProb(token=token, logprob=raw_log_prob))
+                    if max_log_prob is None or raw_log_prob > max_log_prob:
+                        max_log_prob = raw_log_prob
+                        max_log_prob_token = token
+
+                if max_log_prob is None or max_log_prob_token is None:
+                    continue
+
+                new_logprob = TextTokenLogProb(
+                    token=max_log_prob_token, logprob=max_log_prob, top_logprobs=top_log_probs
+                )
+                logprobs.append(new_logprob)
+
         if completion_message.tool_calls is not None and len(completion_message.tool_calls) > 0:
             tool_requests = [
                 ToolRequest(
@@ -509,7 +561,7 @@ class _GenericOciApiFormatter(_OciApiFormatter):
                 for tc in completion_message.tool_calls
             ]
         return Message(
-            content=text_content,
+            contents=[TextContent(content=text_content, logprobs=logprobs)],
             tool_requests=tool_requests,
             role="assistant",
         )
@@ -598,6 +650,8 @@ def _generation_config_to_generic_oci_parameters(
     if generation_config.frequency_penalty is not None and meta_model:
         # only meta models support frequency penalty
         kwargs["frequency_penalty"] = generation_config.frequency_penalty
+    if generation_config.top_logprobs is not None:
+        kwargs["log_probs"] = generation_config.top_logprobs
     if generation_config.extra_args:
         kwargs.update(generation_config.extra_args)
 
@@ -964,6 +1018,8 @@ def _generation_config_to_cohere_oci_parameters(
         kwargs["max_tokens"] = generation_config.max_tokens
     if generation_config.stop is not None:
         kwargs["stop_sequences"] = generation_config.stop
+    if generation_config.top_logprobs is not None:
+        raise ValueError("Logprobs are not supported for cohere models")
     if generation_config.extra_args:
         kwargs.update(generation_config.extra_args)
     return kwargs
