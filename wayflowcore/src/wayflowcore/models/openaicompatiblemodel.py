@@ -9,12 +9,12 @@ from contextlib import aclosing
 from typing import TYPE_CHECKING, Any, AsyncIterable, AsyncIterator, Dict, Optional
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.retrypolicy import RetryPolicy
 
 from ._modelhelpers import _is_gemma_model
 from ._openaihelpers import _APIProcessor, _ChatCompletionsAPIProcessor, _ResponsesAPIProcessor
 from ._requesthelpers import (
     TaggedMessageChunkTypeWithTokenUsage,
-    _RetryStrategy,
     request_post_with_retries,
     request_streaming_post_with_retries,
 )
@@ -53,6 +53,7 @@ class OpenAICompatibleModel(LlmModel):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        retry_policy: Optional[RetryPolicy] = None,
     ) -> None:
         """
         Model to use remote LLM endpoints that use OpenAI-compatible chat APIs.
@@ -108,7 +109,8 @@ class OpenAICompatibleModel(LlmModel):
         self._api_key = _resolve_api_key(api_key)
         self.api_type = api_type
 
-        self._retry_strategy = _RetryStrategy()
+        self.retry_policy = retry_policy
+
         super().__init__(
             model_id=model_id,
             generation_config=generation_config,
@@ -130,7 +132,9 @@ class OpenAICompatibleModel(LlmModel):
         request_params = self._generate_request_params(prompt, stream=False)
         request_params["headers"] = self._get_headers()
         response_data = await self._post(
-            request_params=request_params, retry_strategy=self._retry_strategy, proxy=self.proxy
+            request_params=request_params,
+            proxy=self.proxy,
+            retry_policy=self.retry_policy,
         )
         logger.debug(f"Raw LLM answer: %s", response_data)
         message = self.api_processor._convert_openai_response_into_message(response_data)
@@ -152,8 +156,8 @@ class OpenAICompatibleModel(LlmModel):
 
         json_stream = self._post_stream(
             request_args,
-            retry_strategy=self._retry_strategy,
             proxy=self.proxy,
+            retry_policy=self.retry_policy,
             api_processor=self.api_processor,
         )
 
@@ -186,25 +190,33 @@ class OpenAICompatibleModel(LlmModel):
 
     @staticmethod
     async def _post(
-        request_params: Dict[str, Any], retry_strategy: _RetryStrategy, proxy: Optional[str]
+        request_params: Dict[str, Any],
+        proxy: Optional[str],
+        retry_policy: Optional[RetryPolicy],
     ) -> Dict[str, Any]:
         logger.debug(f"Request to remote endpoint: {_sanitize_request_parameters(request_params)}")
-        response = await request_post_with_retries(request_params, retry_strategy, proxy)
+        response = await request_post_with_retries(
+            request_params,
+            proxy,
+            retry_policy=retry_policy,
+        )
         logger.debug(f"Raw remote endpoint response: {response}")
         return response
 
     @staticmethod
     async def _post_stream(
         request_params: Dict[str, Any],
-        retry_strategy: _RetryStrategy,
         proxy: Optional[str],
+        retry_policy: Optional[RetryPolicy],
         api_processor: _APIProcessor,
     ) -> AsyncIterator[Dict[str, Any]]:
         logger.debug(
             f"Streaming request to remote endpoint: {_sanitize_request_parameters(request_params)}"
         )
         line_iterator = request_streaming_post_with_retries(
-            request_params, retry_strategy=retry_strategy, proxy=proxy
+            request_params,
+            proxy=proxy,
+            retry_policy=retry_policy,
         )
         # ensure the generator is closed at the end
         async with aclosing(line_iterator):

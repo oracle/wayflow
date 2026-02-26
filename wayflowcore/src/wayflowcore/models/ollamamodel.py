@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.messagelist import Message, MessageType, TextContent
+from wayflowcore.retrypolicy import RetryPolicy
 
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import Prompt
@@ -41,6 +42,7 @@ class OllamaModel(OpenAICompatibleModel):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        retry_policy: Optional[RetryPolicy] = None,
     ) -> None:
         """
         Model powered by a locally hosted Ollama server.
@@ -109,6 +111,7 @@ class OllamaModel(OpenAICompatibleModel):
             id=id,
             name=name,
             description=description,
+            retry_policy=retry_policy,
         )
 
     def _pre_process(self, prompt: Prompt) -> Prompt:

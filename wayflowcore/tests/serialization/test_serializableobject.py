@@ -118,6 +118,7 @@ ALL_SERIALIZABLE_CLASSES = {
     "OciAgentState",
     "OllamaEmbeddingModel",
     "OllamaModel",
+    "RetryPolicy",
     "OpenAICompatibleEmbeddingModel",
     "OpenAICompatibleModel",
     "OpenAIEmbeddingModel",

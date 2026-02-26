@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
 import logging
+import time
 import uuid
 import warnings
 from abc import ABC, abstractmethod
@@ -21,6 +22,7 @@ from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import ImageContent, TextContent
 from wayflowcore.models.openaiapitype import OpenAIAPIType
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
 from wayflowcore.transforms import CanonicalizationMessageTransform
@@ -129,6 +131,7 @@ class OCIGenAIModel(LlmModel):
         name: Optional[str] = None,
         description: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
+        retry_policy: Optional[RetryPolicy] = None,
         # deprecated
         service_endpoint: Optional[str] = None,
         auth_type: Optional[str] = None,
@@ -200,6 +203,8 @@ class OCIGenAIModel(LlmModel):
         If when using ``INSTANCE_PRINCIPAL`` authentication, the response of the model returns a ``404`` error, please check if the machine is listed in the dynamic group and has the right privileges. Otherwise, please ask someone with administrative privileges.
         To grant an OCI Compute instance the ability to authenticate as an Instance Principal, one needs to define a Dynamic Group that includes the instance and create a policy that allows this dynamic group to manage OCI GenAI services.
         """
+        self.retry_policy = retry_policy
+
         if client_config is None:
             warnings.warn(
                 "Passing authentication config parameters individually (e.g. service_endpoint, "
@@ -386,23 +391,66 @@ class OCIGenAIModel(LlmModel):
         return LlmCompletion(message=response_message, token_usage=provider.extract_usage(response))
 
     def _post_with_retry(self, provider: "_OciApiFormatter", prompt: Prompt) -> Any:
-        for i in range(self.max_retries + 1):
+        from wayflowcore.models._requesthelpers import (
+            _DEFAULT_RNG,
+            _compute_wait_seconds,
+            _is_retryable_http_error,
+        )
+
+        policy = self.retry_policy or RetryPolicy()
+        max_attempts = max(policy.max_attempts, 1)
+        total_elapsed_cap_seconds = 600.0
+
+        tries = 0
+        previous_wait: Optional[float] = None
+        started = time.monotonic()
+
+        while tries < max_attempts:
             try:
                 return self._post(provider=provider, prompt=prompt)
             except oci.exceptions.ServiceError as e:
+                # If OCI rejects specific generation params, we try adapting the prompt config.
                 error_message = e.message
                 if any(pattern in error_message for pattern in _UNSUPPORTED_ARGUMENT_PATTERNS):
                     old_generation_config = prompt.generation_config
-                    if old_generation_config is None or i == self.max_retries:
-                        # either no parameter config to change or it last the last try
+                    if old_generation_config is None or tries == max_attempts - 1:
                         raise e
-
                     new_config = _adapt_generation_config_with_error_message(
                         generation_config=old_generation_config, error_message=error_message
                     )
                     prompt = prompt.copy(generation_config=new_config)
-                else:
-                    raise e
+                    tries += 1
+                    continue
+
+                status = getattr(e, "status", None)
+                try:
+                    status_code = int(status) if status is not None else 0
+                except (TypeError, ValueError):
+                    status_code = 0
+
+                if status_code and not _is_retryable_http_error(policy, status_code, error_message):
+                    raise
+                if not status_code and tries == max_attempts - 1:
+                    raise
+
+                wait = _compute_wait_seconds(
+                    policy,
+                    attempt=tries,
+                    status_code=status_code or None,
+                    previous_wait_seconds=previous_wait,
+                    rng=_DEFAULT_RNG,
+                )
+
+                remaining = total_elapsed_cap_seconds - (time.monotonic() - started)
+                if remaining <= 0:
+                    raise RuntimeError("OCI request retry budget exhausted")
+                wait = min(wait, remaining)
+
+                previous_wait = wait
+                time.sleep(wait)
+            tries += 1
+
+        raise RuntimeError("OCI request failed after maximum attempts")
 
     def _post(self, provider: "_OciApiFormatter", prompt: Prompt) -> Any:
         self._init_client_if_needed()

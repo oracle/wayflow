@@ -18,6 +18,7 @@ from mcp.client.stdio import StdioServerParameters, stdio_client
 from mcp.client.streamable_http import streamablehttp_client
 from typing_extensions import TypeAlias
 
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import (
     SerializableDataclass,
     SerializableDataclassMixin,
@@ -167,6 +168,9 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
     timeout: float = 5
     """The timeout for the HTTP request. Defaults to 5 seconds."""
 
+    retry_policy: Optional[RetryPolicy] = None
+    """Optional retry policy configuration applied to MCP HTTP calls."""
+
     sse_read_timeout: float = 60 * 5
     """The timeout for the SSE connection, in seconds. Defaults to 5 minutes."""
 
@@ -182,6 +186,8 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
     """Arguments for the MCP session."""
 
     def __post_init__(self) -> None:
+        if self.retry_policy is not None and not isinstance(self.retry_policy, RetryPolicy):
+            raise TypeError("retry_policy must be a wayflowcore.retrypolicy.RetryPolicy instance")
         repeated_headers = set(self.headers or {}).intersection(set(self.sensitive_headers or {}))
         if repeated_headers:
             raise ValueError(

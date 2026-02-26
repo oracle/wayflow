@@ -135,7 +135,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_deserialization_plugin
+from wayflowcore.agentspec.components import (
+    all_deserialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -383,6 +385,7 @@ from wayflowcore.property import JsonSchemaParam
 from wayflowcore.property import ListProperty as RuntimeListProperty
 from wayflowcore.property import Property as RuntimeProperty
 from wayflowcore.property import UnionProperty
+from wayflowcore.retrypolicy import RetryPolicy as RuntimeRetryPolicy
 from wayflowcore.search.config import SearchConfig as RuntimeSearchConfig
 from wayflowcore.search.config import VectorConfig as RuntimeVectorConfig
 from wayflowcore.search.config import VectorRetrieverConfig as RuntimeVectorRetrieverConfig
@@ -425,6 +428,22 @@ from wayflowcore.steps.step import Step as RuntimeStep
 from wayflowcore.steps.variablesteps.variablereadstep import (
     VariableReadStep as RuntimeVariableReadStep,
 )
+
+
+def _pyagentspec_retrypolicy_to_runtime_retrypolicy(
+    value: Optional[object],
+) -> Optional[RuntimeRetryPolicy]:
+    if value is None:
+        return None
+    if isinstance(value, RuntimeRetryPolicy):
+        return value
+    if hasattr(value, "model_dump"):
+        return RuntimeRetryPolicy(**value.model_dump())
+    if isinstance(value, dict):
+        return RuntimeRetryPolicy(**value)
+    raise TypeError(f"Unsupported retry_policy type: {type(value)}")
+
+
 from wayflowcore.steps.variablesteps.variablestep import VariableStep as RuntimeVariableStep
 from wayflowcore.steps.variablesteps.variablewritestep import (
     VariableWriteStep as RuntimeVariableWriteStep,
@@ -1358,6 +1377,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     if agentspec_component.sensitive_headers
                     else None
                 ),
+                retry_policy=_pyagentspec_retrypolicy_to_runtime_retrypolicy(
+                    agentspec_component.retry_policy
+                ),
                 store_response=store_response,
                 output_values_json={
                     output_.title: f".{output_.title}"
@@ -1540,6 +1562,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     agentspec_component.sensitive_headers
                     if agentspec_component.sensitive_headers
                     else None
+                ),
+                retry_policy=_pyagentspec_retrypolicy_to_runtime_retrypolicy(
+                    agentspec_component.retry_policy
                 ),
                 requires_confirmation=agentspec_component.requires_confirmation,
                 **self._get_component_arguments(agentspec_component),
@@ -2367,6 +2392,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 serving_mode=RuntimeServingMode(agentspec_component.serving_mode.value),
                 client_config=client_config,
                 generation_config=generation_config,
+                retry_policy=_pyagentspec_retrypolicy_to_runtime_retrypolicy(
+                    agentspec_component.retry_policy
+                ),
                 **kwargs,
                 **self._get_component_arguments(agentspec_component),
             )
@@ -2375,6 +2403,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 model_id=agentspec_component.model_id,
                 host_port=agentspec_component.url,
                 generation_config=generation_config,
+                retry_policy=_pyagentspec_retrypolicy_to_runtime_retrypolicy(
+                    agentspec_component.retry_policy
+                ),
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecOpenAiConfig):

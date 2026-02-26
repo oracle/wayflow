@@ -8,7 +8,15 @@ import os
 from unittest.mock import MagicMock, patch
 
 import pytest
+from pyagentspec.llms.ociclientconfig import (
+    OciClientConfigWithApiKey as AgentSpecOciClientConfigWithApiKey,
+)
+from pyagentspec.llms.ocigenaiconfig import OciGenAiConfig as AgentSpecOciGenAiConfig
+from pyagentspec.llms.ollamaconfig import OllamaConfig as AgentSpecOllamaConfig
+from pyagentspec.retrypolicy import RetryPolicy
 
+from wayflowcore.agentspec._agentspecconverter import WayflowToAgentSpecConversionContext
+from wayflowcore.agentspec._runtimeconverter import AgentSpecToWayflowConversionContext
 from wayflowcore.models import OpenAICompatibleModel
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import LlmModel
@@ -204,6 +212,50 @@ def test_oci_user_authentication_does_not_deserialize():
     )
     with pytest.raises(ValueError, match=error_string):
         llm = LlmModelFactory.from_config(ocigenai_model_config_using_user_auth)
+
+
+def test_oci_llm_retry_policy_round_trip_conversion() -> None:
+    agentspec_llm = AgentSpecOciGenAiConfig(
+        name="oci",
+        model_id="meta.llama-3.3-70b-instruct",
+        compartment_id="ocid1.compartment.oc1..exampleuniqueID",
+        client_config=AgentSpecOciClientConfigWithApiKey(
+            name="oci_client",
+            service_endpoint="https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
+            auth_profile="DEFAULT",
+            auth_file_location="~/.oci/config",
+        ),
+        retry_policy=RetryPolicy(max_attempts=3),
+    )
+
+    rt_llm = AgentSpecToWayflowConversionContext().convert(
+        agentspec_llm,
+        tool_registry={},
+        converted_components={},
+    )
+
+    round_tripped = WayflowToAgentSpecConversionContext().convert(rt_llm, referenced_objects={})
+    assert round_tripped.retry_policy is not None
+    assert round_tripped.retry_policy.max_attempts == 3
+
+
+def test_ollama_llm_retry_policy_round_trip_conversion() -> None:
+    agentspec_llm = AgentSpecOllamaConfig(
+        name="ollama",
+        model_id="llama3",
+        url="localhost:11434",
+        retry_policy=RetryPolicy(max_attempts=4),
+    )
+
+    rt_llm = AgentSpecToWayflowConversionContext().convert(
+        agentspec_llm,
+        tool_registry={},
+        converted_components={},
+    )
+
+    round_tripped = WayflowToAgentSpecConversionContext().convert(rt_llm, referenced_objects={})
+    assert round_tripped.retry_policy is not None
+    assert round_tripped.retry_policy.max_attempts == 4
 
 
 @patch("wayflowcore.models.ocigenaimodel.OCIGenAIModel._init_client")

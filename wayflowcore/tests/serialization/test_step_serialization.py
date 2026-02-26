@@ -14,6 +14,7 @@ from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.messagelist import MessageType
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import FloatProperty, ListProperty
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization import autodeserialize, deserialize, serialize
 from wayflowcore.serialization.context import DeserializationContext
 from wayflowcore.steps import (
@@ -696,6 +697,7 @@ def test_api_call_step_can_be_serde() -> None:
         output_values_json={
             "first_order_status": ".orders[0].status",
         },
+        retry_policy=RetryPolicy(max_attempts=3),
     )
 
     serialized_step = serialize(step)
@@ -706,3 +708,6 @@ def test_api_call_step_can_be_serde() -> None:
 
     assert "first_order_status" in new_step.output_values_json
     assert new_step.output_values_json["first_order_status"] == ".orders[0].status"
+
+    assert new_step.retry_policy is not None
+    assert new_step.retry_policy.max_attempts == 3
