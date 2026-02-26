@@ -51,6 +51,7 @@ Bug fixes
 ^^^^^^^^^
 
 * Fix: MCP tools now support union/optional output schemas for the `result` field (e.g., `anyOf` including `null`). This prevents KeyError during schema parsing. (#70)
+* Fix: MCP session persistence no longer collides when multiple MCP client transports (different servers/connections) are used within the same conversation.
 
 
 WayFlow 26.1.1

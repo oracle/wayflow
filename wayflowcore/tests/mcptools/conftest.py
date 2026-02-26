@@ -20,6 +20,10 @@ _START_SERVER_FILE_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "start_mcp_server.py"
 )
 
+_START_ALT_SERVER_FILE_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "start_mcp_server_alt.py"
+)
+
 from .encryption import (
     create_client_key_and_csr,
     create_root_ca,
@@ -93,6 +97,7 @@ def _start_mcp_server(
     host: str,
     port: int,
     mode: str,
+    start_server_file_path: str = _START_SERVER_FILE_PATH,
     server_key_path: Optional[str] = None,
     server_cert_path: Optional[str] = None,
     ca_cert_path: Optional[str] = None,
@@ -104,7 +109,7 @@ def _start_mcp_server(
     process_args = [
         "python",
         "-u",  # unbuffered output
-        _START_SERVER_FILE_PATH,
+        start_server_file_path,
         "--host",
         host,
         "--port",
@@ -114,6 +119,10 @@ def _start_mcp_server(
         "--ssl_cert_reqs",
         str(ssl_cert_reqs),
     ]
+
+    # The primary test server supports `--server_id`. The alt server does not.
+    if os.path.basename(start_server_file_path) == os.path.basename(_START_SERVER_FILE_PATH):
+        process_args.extend(["--server_id", str(port)])
     if server_key_path and server_cert_path and ca_cert_path:  # using https
         process_args.extend(
             [
@@ -181,6 +190,7 @@ def register_mcp_server_fixture(
     deps: tuple[str, ...] = (),
     host: str = "localhost",
     port: Optional[int] = None,
+    start_server_file_path: str = _START_SERVER_FILE_PATH,
 ):
     def _fixture(request):
         # Resolve any dependent fixtures by name and merge into kwargs
@@ -192,7 +202,10 @@ def register_mcp_server_fixture(
             "port": port or get_available_port(request.getfixturevalue("session_tmp_path")),
         }
 
-        process, url, tee = _start_mcp_server(**kwargs)
+        process, url, tee = _start_mcp_server(
+            **kwargs,
+            start_server_file_path=start_server_file_path,
+        )
         try:
             yield f"{url}/{url_suffix.strip('/')}"
         finally:
@@ -257,4 +270,13 @@ streamablehttp_mcp_server_mtls = register_mcp_server_fixture(
     url_suffix="mcp",
     start_kwargs=dict(mode="streamable-http", ssl_cert_reqs=int(ssl.CERT_REQUIRED)),
     deps=_MCP_SERVER_FIXTURE_DEPS,
+)
+
+
+alt_sse_mcp_server_http = register_mcp_server_fixture(
+    name="alt_sse_mcp_server_http",
+    url_suffix="sse",
+    start_kwargs=dict(mode="sse", ssl_cert_reqs=0),
+    deps=(),
+    start_server_file_path=_START_ALT_SERVER_FILE_PATH,
 )
