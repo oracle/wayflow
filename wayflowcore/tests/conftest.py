@@ -213,7 +213,7 @@ OPENAI_CONFIG = {
 
 OPENAI_RESPONSES_CONFIG = {
     "model_type": "openai",
-    "model_id": "gpt-5-mini",
+    "model_id": "gpt-4.1",
     "proxy": oracle_http_proxy,
     "generation_config": {"max_tokens": 512, "reasoning": {"effort": "minimal"}},
     "api_type": OpenAIAPIType.RESPONSES,
