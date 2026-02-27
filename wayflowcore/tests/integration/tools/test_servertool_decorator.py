@@ -471,6 +471,8 @@ def test_many_parameters():
         param9: Annotated[List[Dict[str, int]], "Param 9 desc"] = [{"a": 1}],
         param10: Annotated[Dict[str, List[str]], "Param 10 desc"] = {"b": ["c"]},
         param11: Annotated[int | str, "Param 11 desc"] = "uniontype",
+        param12_union_pipes: Annotated[int | str | float, "Param 12 desc"] = "a",
+        param13_optional_pipes: Annotated[int | None, "Param 13 desc"] = None,
     ) -> Annotated[str, "Output description"]:
         """Many parameters tool description"""
         return "result"
@@ -545,6 +547,18 @@ def test_many_parameters():
             "default": "uniontype",
             "anyOf": [{"type": "integer"}, {"type": "string"}],
             "title": "Param11",
+        },
+        "param12_union_pipes": {
+            'description': 'Param 12 desc',
+            'anyOf': [{'type': 'integer'}, {'type': 'string'}, {'type': 'number'}],
+            'default': 'a',
+            'title': 'Param12 Union Pipes'
+        },
+        "param13_optional_pipes": {
+            'default': None,
+            'description': 'Param 13 desc',
+            'title': 'Param13 Optional Pipes',
+            'type': 'integer'
         },
     }
 
