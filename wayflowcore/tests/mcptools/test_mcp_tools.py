@@ -38,6 +38,7 @@ from wayflowcore.property import (
     AnyProperty,
     BooleanProperty,
     DictProperty,
+    FloatProperty,
     IntegerProperty,
     ListProperty,
     NullProperty,
@@ -128,14 +129,56 @@ def streamablehttp_client_transport_mtls(
         ssl_ca_cert=ca_cert_path,
     )
 
-
 def run_toolbox_test(transport: ClientTransport) -> None:
     toolbox = MCPToolBox(client_transport=transport)
     tools = toolbox.get_tools()  # need
-    assert len(tools) == 17
+    assert len(tools) == 18
+
+    # check some tool signatures
     mcp_tool = next(t for t in tools if t.name == "fooza_tool")
     assert mcp_tool.run(a=1, b=2) == "7"
     assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
+
+    all_input_types_tool = next(t for t in tools if t.name == "all_input_types_tool")
+
+    expected_inputs = [
+        # basic types
+        IntegerProperty(name="a"),
+        FloatProperty(name="b"),
+        StringProperty(name="c"),
+        BooleanProperty(name="d"),
+        # complex types
+        ListProperty(name="e", item_type = IntegerProperty()),
+        ListProperty(name="f", item_type = BooleanProperty()),
+        # Ideally it would be:
+        # DictProperty(name="g", key_type = StringProperty(), value_type = IntegerProperty()),
+        # DictProperty(name="h", key_type = StringProperty(), value_type = IntegerProperty()),
+        # But key types are not provided by the MCP servers:
+        DictProperty(name="g", key_type = AnyProperty(), value_type = IntegerProperty()),
+        DictProperty(name="h", key_type = AnyProperty(), value_type = IntegerProperty()),
+        UnionProperty(name="i", any_of = [StringProperty(), NullProperty()]),
+        UnionProperty(name="j", any_of = [IntegerProperty(), NullProperty()]),
+        UnionProperty(name="k", any_of = [StringProperty(), IntegerProperty(), FloatProperty()]),
+        UnionProperty(name="l", any_of = [StringProperty(), IntegerProperty(), FloatProperty()]),
+
+        # Ideally it would be:
+        # ListProperty(
+        #     name="m",
+        #     item_type=DictProperty(
+        #         key_type=UnionProperty(any_of=[StringProperty(), FloatProperty()]),
+        #         value_type=UnionProperty(any_of=[IntegerProperty(), NullProperty()])
+        #     )
+        # ),
+        # But MCP doesn't pass the key type for dictionaries
+        ListProperty(
+            name="m",
+            item_type=DictProperty(
+                key_type=AnyProperty(),
+                value_type=UnionProperty(any_of=[IntegerProperty(), NullProperty()])
+            )
+        ),
+    ]
+    assert all_input_types_tool.input_descriptors == expected_inputs
 
 
 @pytest.mark.parametrize(
@@ -313,7 +356,7 @@ async def test_mcp_toolboxes_from_different_servers_do_not_conflict_in_same_agen
         # We call this method to actively retrieve tools from the lazy toolboxes
         all_agent_tools = await AgentConversationExecutor._collect_tools(config=agent, curr_iter=0)
     # 17 from toolbox 1, 2 from toolbox 2
-    assert len(all_agent_tools) == 17 + 2
+    assert len(all_agent_tools) == 18 + 2
     # Ensure that one tool from the first toolbox and one from the second are in the list
     tool_names = set(tool.name for tool in all_agent_tools)
     assert all(tool_name in tool_names for tool_name in ["fooza_tool", "alt_mul_tool"])

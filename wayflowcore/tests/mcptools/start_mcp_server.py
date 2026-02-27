@@ -6,7 +6,7 @@
 import argparse
 from contextvars import ContextVar
 from os import PathLike
-from typing import Annotated, AsyncGenerator, Literal, Optional
+from typing import Annotated, AsyncGenerator, Dict, List, Literal, Optional, Union
 
 import anyio
 from mcp.server.fastmcp import Context
@@ -127,6 +127,29 @@ def create_server(host: str, port: int, server_id: str = ""):
     )
     def ggwp_tool(a: int, b: int) -> int:
         return a + b // 2
+
+    @server.tool(
+        description="This tool is not useful."
+    )
+    def all_input_types_tool(
+        # basic types
+        a: int,
+        b: float,
+        c: str,
+        d: bool,
+        # complext types
+        e: List[int],
+        f: list[bool],
+        g: Dict[str, int],
+        h: dict[str, int],
+        i: Optional[str],
+        j: int | None,
+        k: Union[str, int, float],
+        l: str | int | float,
+        # complex compositions
+        m: List[Dict[str | float, Optional[int]]]
+        ) -> float:
+        return a + b / 2
 
     @server.tool(description="Tool to return a random string")
     def generate_random_string() -> str:
