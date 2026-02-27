@@ -355,7 +355,14 @@ class GeminiModel(LlmModel):
                     with open(self.auth.vertex_credentials, "r") as f:
                         request["vertex_credentials"] = json.load(f)
                 else:
-                    request["vertex_credentials"] = self.auth.vertex_credentials
+                    try:
+                        creds = json.loads(self.auth.vertex_credentials)
+                        creds["private_key"] = creds["private_key"].replace("\\n", "\n")
+                        request["vertex_credentials"] = creds
+                    except json.JSONDecodeError:
+                        raise ValueError(
+                            f"Expected vertex_credentials to be a JSON string or a path to the Vertex AI credentials but got type {type(self.auth.vertex_credentials)} instead"
+                        )
             if self.auth.project_id is not None:
                 request["vertex_project"] = self.auth.project_id
             request["vertex_location"] = self.auth.location

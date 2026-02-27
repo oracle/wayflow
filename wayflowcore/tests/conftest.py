@@ -745,7 +745,6 @@ def get_directory_allowlist_read(tmp_path: str, session_tmp_path: str) -> List[U
         # Used in docstring tests
         Path(os.path.dirname(__file__)).parent / "src" / "wayflowcore",
         Path("~/.pdbrc").expanduser(),
-        Path("~/.config/gcloud").expanduser(),
         Path(os.path.dirname(__file__)) / ".pdbrc",
         Path(os.path.dirname(__file__)).parent / ".pdbrc",
         Path(os.path.dirname(__file__)).parent.parent / ".pdbrc",
