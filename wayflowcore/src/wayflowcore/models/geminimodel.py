@@ -250,19 +250,12 @@ class GeminiModel(LlmModel):
             yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT)
 
             accumulator = _LiteLLMStreamAccumulator()
-            try:
-                for chunk in stream:
-                    text_delta = accumulator.ingest_chunk(self, chunk)
-                    if text_delta:
-                        yield StreamChunkType.TEXT_CHUNK, Message(
-                            content=text_delta, message_type=MessageType.AGENT
-                        )
-            finally:
-                # close the stream to avoid leaking
-                completion_stream = getattr(stream, "completion_stream", None)
-                streaming_response = getattr(completion_stream, "streaming_response", None)
-                if streaming_response is not None and hasattr(streaming_response, "close"):
-                    streaming_response.close()
+            for chunk in stream:
+                text_delta = accumulator.ingest_chunk(self, chunk)
+                if text_delta:
+                    yield StreamChunkType.TEXT_CHUNK, Message(
+                        content=text_delta, message_type=MessageType.AGENT
+                    )
 
             final_message = prompt.parse_output(accumulator.build_final_message())
             completion = LlmCompletion(message=final_message, token_usage=accumulator.token_usage)
@@ -292,20 +285,14 @@ class GeminiModel(LlmModel):
         yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT), None
 
         accumulator = _LiteLLMStreamAccumulator()
-        try:
-            async for chunk in stream:
-                delta_text = accumulator.ingest_chunk(self, chunk)
-                if delta_text:
-                    yield (
-                        StreamChunkType.TEXT_CHUNK,
-                        Message(content=delta_text, message_type=MessageType.AGENT),
-                        None,
-                    )
-        finally:
-            completion_stream = getattr(stream, "completion_stream", None)
-            streaming_response = getattr(completion_stream, "streaming_response", None)
-            if streaming_response is not None and hasattr(streaming_response, "aclose"):
-                await streaming_response.aclose()
+        async for chunk in stream:
+            delta_text = accumulator.ingest_chunk(self, chunk)
+            if delta_text:
+                yield (
+                    StreamChunkType.TEXT_CHUNK,
+                    Message(content=delta_text, message_type=MessageType.AGENT),
+                    None,
+                )
 
         final_message = prompt.parse_output(accumulator.build_final_message())
         yield StreamChunkType.END_CHUNK, final_message, accumulator.token_usage

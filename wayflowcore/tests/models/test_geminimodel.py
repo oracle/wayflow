@@ -11,7 +11,6 @@ from typing import Annotated
 
 import litellm
 import pytest
-import pytest_asyncio
 
 from wayflowcore.messagelist import Message
 from wayflowcore.models._requesthelpers import StreamChunkType
@@ -87,15 +86,23 @@ def _cleanup_litellm_threads(*, threads_before: set[int]) -> None:
 def litellm_thread_cleanup():
     threads_before = {t.ident for t in threading.enumerate() if t.ident is not None}
     yield
-    litellm.module_level_client.close()
     _cleanup_litellm_threads(threads_before=threads_before)
 
 
-@pytest_asyncio.fixture(scope="session", loop_scope="session")
-async def litellm_async_client_cleanup():
-    yield
-    await litellm.close_litellm_async_clients()
-    await litellm.module_level_aclient.close()
+@pytest.fixture(autouse=True, scope="session")
+async def litellm_anyio_cleanup(anyio_backend):
+    """
+    LiteLLM starts background asyncio tasks for logging on async calls.
+
+    When the event loop is closed between tests (e.g., AnyIO/pytest-asyncio
+    function-scoped loops), LiteLLM's global logging worker can drop queued
+    coroutines, triggering RuntimeWarnings (warnings are errors in WayFlow).
+
+    We don't need LiteLLM logging in WayFlow tests, so we:
+    - disable streaming logging (which uses asyncio.run() per chunk), and
+    """
+    litellm.disable_streaming_logging = True
+    litellm.turn_off_message_logging = True
 
 
 @pytest.fixture
@@ -104,11 +111,7 @@ def vertex_gemini_model():
         model_id="vertex_ai/gemini-2.0-flash-lite",
         auth=GeminiCloudAuth(vertex_credentials=os.environ["VERTEX_CREDENTIALS"]),
     )
-    try:
-        yield llm
-    finally:
-        pass
-        # _asyncio_run_and_cleanup(llm.aclose())
+    return llm
 
 
 @pytest.fixture
@@ -149,11 +152,10 @@ def test_geminimodel_vertex_sync(
 
 
 @pytest.mark.skipif(not os.getenv("VERTEX_CREDENTIALS"), reason="Gemini LLM auth not set up")
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.anyio
 async def test_geminimodel_vertex_async(
     vertex_gemini_model: GeminiModel,
     prompt_with_tool: Prompt,
-    litellm_async_client_cleanup,
     litellm_thread_cleanup,
 ) -> None:
     completion = await vertex_gemini_model.generate_async(prompt_with_tool)
@@ -207,11 +209,10 @@ def test_geminimodel_vertex_streaming_text_matches_final_sync(
 
 
 @pytest.mark.skipif(not os.getenv("VERTEX_CREDENTIALS"), reason="Gemini LLM auth not set up")
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.anyio
 async def test_geminimodel_vertex_streaming_text_matches_final_async(
     vertex_gemini_model: GeminiModel,
     prompt_without_tool,
-    litellm_async_client_cleanup,
     litellm_thread_cleanup,
 ) -> None:
     streamed_text, final_message = await _stream_and_collect_async(
@@ -233,11 +234,10 @@ def test_geminimodel_vertex_streaming_tool_call_sync(
 
 
 @pytest.mark.skipif(not os.getenv("VERTEX_CREDENTIALS"), reason="Gemini LLM auth not set up")
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.anyio
 async def test_geminimodel_vertex_streaming_tool_call_async(
     vertex_gemini_model: GeminiModel,
     prompt_with_tool: Prompt,
-    litellm_async_client_cleanup,
     litellm_thread_cleanup,
 ) -> None:
     _streamed_text, final_message = await _stream_and_collect_async(

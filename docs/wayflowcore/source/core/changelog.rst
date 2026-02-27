@@ -26,6 +26,10 @@ New features
   Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
   You can now declare your agents with summarization transforms and summary caching in Agent Spec and run them in WayFlow.
 
+* **Gemini models (Vertex AI + AI Studio):**
+
+  Added `GeminiModel`, powered by LiteLLM, to run Gemini models via Google Vertex AI (service account / `VERTEX_CREDENTIALS`) and Google AI Studio (`GEMINI_API_KEY`), including streaming and native tool calling.
+
 
 Improvements
 ^^^^^^^^^^^^
