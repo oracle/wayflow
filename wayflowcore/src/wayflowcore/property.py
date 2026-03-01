@@ -138,6 +138,19 @@ class Property(SerializableObject, ABC):
         return self._type_default_value
 
     def __post_init__(self) -> None:
+        # Normalize string default to match enum casing (e.g. 'all' → 'ALL')
+        if (
+            self.has_default
+            and self.enum is not None
+            and isinstance(self.default_value, str)
+            and self.default_value not in self.enum
+        ):
+            lower = self.default_value.lower()
+            for ev in self.enum:
+                if isinstance(ev, str) and ev.lower() == lower:
+                    object.__setattr__(self, 'default_value', ev)
+                    break
+
         if (
             self.has_default
             and self._validate_default_type
