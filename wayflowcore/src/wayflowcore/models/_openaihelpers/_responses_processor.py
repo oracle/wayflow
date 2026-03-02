@@ -67,7 +67,6 @@ class _ResponsesAPIProcessor(_APIProcessor):
                     "name": tc.name,
                     "arguments": json.dumps(tc.args),
                     "call_id": tc.tool_request_id,
-                    "id": tc.tool_request_id,
                 }
             )
 
@@ -91,7 +90,6 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 "type": "function_call_output",
                 "call_id": m.tool_result.tool_request_id,
                 "output": stringify(m.tool_result.content),
-                "id": m.tool_result.tool_request_id,
             }
         ]
 
