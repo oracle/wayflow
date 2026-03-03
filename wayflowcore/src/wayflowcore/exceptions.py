@@ -1,8 +1,13 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from wayflowcore.executors.executionstatus import AuthChallengeRequestStatus
 
 
 class WayFlowException(Exception):
@@ -68,3 +73,18 @@ class NoSuchToolFoundOnMCPServerError(ValueError):
 
 class DataclassFieldDeserializationError(ValueError):
     """Error thrown when the deserialization of a field of a dataclass fails"""
+
+
+class _AssistantInterrupt(WayFlowException):
+    """Raised when an assistant is interrupted."""
+
+
+class AuthInterrupt(_AssistantInterrupt):
+    """Raised when a component requires an auth challenge to be completed.
+    Never raised directly, or surfaced to the user."""
+
+    def __init__(self, status: "AuthChallengeRequestStatus") -> None:
+        self.status = status
+
+    def __str__(self) -> str:
+        return "AuthInterrupt: Requesting auth challenge to be completed."

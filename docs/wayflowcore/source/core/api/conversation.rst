@@ -37,6 +37,9 @@ ExecutionStatus
 .. _toolrequestexecutionstatus:
 .. autoclass:: wayflowcore.executors.executionstatus.ToolRequestStatus
 
+.. _authchallengerequeststatus:
+.. autoclass:: wayflowcore.executors.executionstatus.AuthChallengeRequestStatus
+
 Conversation
 ------------
 

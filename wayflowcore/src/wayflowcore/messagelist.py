@@ -492,7 +492,23 @@ class Message(SerializableDataclass):
 
     def copy(self, **kwargs: Any) -> "Message":
         """Create a copy of the given message."""
-        self_params = {k: deepcopy(v) for k, v in self.__dict__.items() if k not in kwargs}
+        self_params: Dict[str, Any] = {}
+        for field_name, field_value in self.__dict__.items():
+            if field_name in kwargs:
+                continue
+            if field_name == "tool_result":
+                # tool result may fail to be copied (e.g., Exception)
+                # in this case we keep the original object.
+                try:
+                    self_params[field_name] = deepcopy(field_value)
+                except Exception:
+                    logger.debug(
+                        "Copy of Message.tool_result failed; keeping original reference",
+                        exc_info=True,
+                    )
+                    self_params[field_name] = field_value
+                continue
+            self_params[field_name] = deepcopy(field_value)
         # If `content` is specified it will overwrite `contents`
         if "contents" in self_params and "content" in kwargs:
             self_params.pop("contents")

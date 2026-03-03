@@ -75,6 +75,9 @@ MCP Tool
 .. _enablemcpwithoutauth:
 .. autofunction:: wayflowcore.mcp.enable_mcp_without_auth
 
+.. _mcpoauthconfigfactory:
+.. autoclass:: wayflowcore.mcp.MCPOAuthConfigFactory
+
 .. _clienttransport:
 .. autoclass:: wayflowcore.mcp.ClientTransport
 

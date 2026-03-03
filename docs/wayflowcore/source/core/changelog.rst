@@ -7,6 +7,13 @@ WayFlow |release|
 New features
 ^^^^^^^^^^^^
 
+* **OAuth support for MCP Clients:**
+
+  MCP Clients now support OAuth-based authorization.
+
+  For more information read the :doc:`API Reference <api/auth>` and the guide on
+  :doc:`how to connect assistants to MCP servers <howtoguides/howto_mcp>`.
+
 * **Tool output streaming:**
 
   Added a new event ``ToolExecutionStreamingChunkReceived`` to surface streamed tool chunks during tool execution.
