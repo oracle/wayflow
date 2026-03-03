@@ -66,6 +66,12 @@ _SUBMIT_TOOL_NAME = "submit_result"
 _TALK_TO_USER_TOOL_NAME = "talk_to_user"
 _TALK_TO_USER_INPUT_PARAM = "text"
 
+# some tools cannot be handled at the same time as other tools
+# therefore are dropped if present in parallel tool calls
+_NON_PARALLEL_TOOL_NAMES = [
+    _TALK_TO_USER_TOOL_NAME,  # user should only be notified after all the tools have been run
+]
+
 EXIT_CONVERSATION_TOOL_NAME = "end_conversation"
 EXIT_CONVERSATION_TOOL_MESSAGE = "Conversation has been ended by the agent."
 EXIT_CONVERSATION_CONFIRMATION_MESSAGE = "You attempted to end the conversation. If the user indeed asked to exit, please call this tool again and do not reply anything else. You are a helpful assistant; do not annoy the user; do not ask them to confirm."
@@ -336,15 +342,14 @@ class AgentConversationExecutor(ConversationExecutor):
         if new_message.tool_requests is None or len(new_message.tool_requests) == 0:
             return True
 
-        # fix
-        talk_to_user_request = next(
-            (tr for tr in new_message.tool_requests if tr.name == _TALK_TO_USER_TOOL_NAME), None
-        )
-        if talk_to_user_request:
-            logger.debug(
-                "Parallel tool calling is disabled when using %s tool", _TALK_TO_USER_TOOL_NAME
-            )
-            new_message.tool_requests = [talk_to_user_request]
+        tool_requests = new_message.tool_requests
+
+        if len(tool_requests) > 1 and any(
+            tr.name in _NON_PARALLEL_TOOL_NAMES for tr in tool_requests
+        ):
+            new_message.tool_requests = [
+                tr for tr in new_message.tool_requests if tr.name not in _NON_PARALLEL_TOOL_NAMES
+            ]
 
         state.tool_call_queue.extend(new_message.tool_requests)
         return False
