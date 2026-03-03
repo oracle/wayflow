@@ -26,6 +26,7 @@ from ..conftest import (
     COHERE_OCI_API_KEY_CONFIG,
     COHERE_OCI_INSTANCE_PRINCIPAL_CONFIG,
     DUMMY_OCI_USER_CONFIG_DICT,
+    GROK_OCI_RESPONSE_API_KEY_CONFIG,
     LLAMA_OCI_API_KEY_CONFIG,
     LLAMA_OCI_INSTANCE_PRINCIPAL_CONFIG,
     OCI_REASONING_MODEL_API_KEY_CONFIG,
@@ -33,6 +34,7 @@ from ..conftest import (
 )
 from ..testhelpers.testhelpers import retry_test
 from .test_models import CHAT_TEXT_PROMPT, REQUIRES_REASONING_PROMPT
+from .test_openaicompatiblemodel import run_responses_tool_call_replay_e2e
 
 
 class UnsupportedContent(MessageContent):
@@ -159,6 +161,24 @@ def test_ocigenai_using_user_authentication(oci_user_authentication_config):
     assert len(res.contents) > 0
     assert isinstance(res.contents[0], TextContent)
     assert len(res.contents[0].content) > 0
+
+
+@pytest.mark.skipif(
+    not ("OCI_GENAI_API_KEY_CONFIG" in os.environ and "OCI_GENAI_API_KEY_PEM" in os.environ),
+    reason="OCI GENAI models not configured",
+)
+@pytest.mark.skipif(
+    not os.path.exists(os.path.expanduser("~/.oci/config")),
+    reason="Missing OCI config file (~/.oci/config) for API_KEY auth",
+)
+def test_oci_responses_e2e_can_continue_after_tool_call_with_replayed_history() -> None:
+    pytest.importorskip("oci_openai")
+
+    oci_responses_config = deepcopy(GROK_OCI_RESPONSE_API_KEY_CONFIG)
+    oci_responses_config["generation_config"] = {"max_tokens": 64, "temperature": 0}
+    llm = LlmModelFactory.from_config(oci_responses_config)
+    assert isinstance(llm, OCIGenAIModel)
+    run_responses_tool_call_replay_e2e(llm)
 
 
 def test_ocigenai_model_throws_exception_when_wrongly_configured(
