@@ -6,7 +6,8 @@
 
 import logging
 import re
-from typing import List, Tuple, cast
+import time
+from typing import Any, Generator, List, Tuple, cast
 
 import anyio
 import pytest
@@ -15,6 +16,8 @@ from anyio import to_thread
 from wayflowcore import Agent, Flow
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.conversation import _register_conversation
+from wayflowcore.events.event import Event, ToolExecutionStreamingChunkReceivedEvent
+from wayflowcore.events.eventlistener import EventListener, register_event_listeners
 from wayflowcore.executors._agentexecutor import AgentConversationExecutor
 from wayflowcore.executors.executionstatus import (
     ToolExecutionConfirmationStatus,
@@ -30,13 +33,16 @@ from wayflowcore.mcp import (
     StreamableHTTPmTLSTransport,
     StreamableHTTPTransport,
 )
+from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
 from wayflowcore.property import (
     AnyProperty,
     BooleanProperty,
     DictProperty,
     IntegerProperty,
     ListProperty,
+    NullProperty,
     StringProperty,
+    UnionProperty,
 )
 from wayflowcore.serialization import autodeserialize, serialize
 from wayflowcore.steps import MapStep, OutputMessageStep, ToolExecutionStep
@@ -126,7 +132,7 @@ def streamablehttp_client_transport_mtls(
 def run_toolbox_test(transport: ClientTransport) -> None:
     toolbox = MCPToolBox(client_transport=transport)
     tools = toolbox.get_tools()  # need
-    assert len(tools) == 12
+    assert len(tools) == 17
     mcp_tool = next(t for t in tools if t.name == "fooza_tool")
     assert mcp_tool.run(a=1, b=2) == "7"
     assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
@@ -307,7 +313,7 @@ async def test_mcp_toolboxes_from_different_servers_do_not_conflict_in_same_agen
         # We call this method to actively retrieve tools from the lazy toolboxes
         all_agent_tools = await AgentConversationExecutor._collect_tools(config=agent, curr_iter=0)
     # 12 from toolbox 1, 2 from toolbox 2
-    assert len(all_agent_tools) == 12 + 2
+    assert len(all_agent_tools) == 17 + 2
     # Ensure that one tool from the first toolbox and one from the second are in the list
     tool_names = set(tool.name for tool in all_agent_tools)
     assert all(tool_name in tool_names for tool_name in ["fooza_tool", "alt_mul_tool"])
@@ -859,3 +865,229 @@ def test_mcp_tool_works_resource_output(sse_client_transport, with_mcp_enabled):
     assert len(tool.output_descriptors) == 1
     assert isinstance(tool.output_descriptors[0], StringProperty)
     assert "user_34_response" in tool.run(user="user_34")
+
+
+def test_mcp_tool_works_with_optional_output(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="generate_optional",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+    # The output descriptor should be a union string|null named after the tool title
+    TOOL_OUTPUT_NAME = "tool_output"
+
+    assert len(tool.output_descriptors) == 1
+    desc0 = tool.output_descriptors[0]
+    assert desc0.name == TOOL_OUTPUT_NAME
+    assert isinstance(desc0, UnionProperty)
+    assert len(desc0.any_of) == 2
+    # Union must include string and null
+    assert {type(p) for p in desc0.any_of} == {StringProperty, NullProperty}
+    # Execute and ensure the result is surfaced
+    step = ToolExecutionStep(tool=tool)
+    outputs = run_step_and_return_outputs(step)
+    assert TOOL_OUTPUT_NAME in outputs and outputs[TOOL_OUTPUT_NAME] == "maybe"
+
+
+def test_mcp_tool_works_with_union_output(sse_client_transport, with_mcp_enabled):
+    tool = MCPTool(
+        name="generate_union",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+    TOOL_OUTPUT_NAME = "tool_output"
+
+    assert len(tool.output_descriptors) == 1
+    desc0 = tool.output_descriptors[0]
+    assert desc0.name == TOOL_OUTPUT_NAME
+    assert isinstance(desc0, UnionProperty)
+    assert len(desc0.any_of) == 2
+    assert {type(p) for p in desc0.any_of} == {StringProperty, IntegerProperty}
+
+    step = ToolExecutionStep(tool=tool)
+    outputs = run_step_and_return_outputs(step)
+    assert TOOL_OUTPUT_NAME in outputs and outputs[TOOL_OUTPUT_NAME] == "maybe"
+
+
+def test_mcp_output_schema_supports_optional_string_union():
+    from wayflowcore.mcp.mcphelpers import _try_convert_mcp_output_schema_to_properties
+    from wayflowcore.property import NullProperty, StringProperty, UnionProperty
+
+    # Simulate an MCP tool output schema where the `result` is Optional[str]
+    schema = {
+        "type": "object",
+        "properties": {
+            "result": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"},
+                ]
+            }
+        },
+        "required": ["result"],
+        # some servers add this hint when wrapping primitives in {"result": ...}
+        "x-fastmcp-wrap-result": True,
+    }
+
+    props = _try_convert_mcp_output_schema_to_properties(
+        schema=schema, tool_title="OptionalStringOutput"
+    )
+
+    # Expect proper parsing into a single Union[String, Null] property
+    assert props is not None and len(props) == 1
+    assert isinstance(props[0], UnionProperty)
+    any_of = props[0].any_of
+    assert any(isinstance(p, StringProperty) for p in any_of)
+    assert any(isinstance(p, NullProperty) for p in any_of)
+
+
+class MCPToolStreamingListener(EventListener):
+    """Custom event listener to track progress notifications from Tool Execution."""
+
+    def __init__(self):
+        self.chunks: list[tuple[str, float]] = []
+        self.events: list[ToolExecutionStreamingChunkReceivedEvent] = []
+
+    def __call__(self, event: Event):
+        if isinstance(event, ToolExecutionStreamingChunkReceivedEvent):
+            content = event.content
+            self.chunks.append((content, time.time()))
+
+
+@pytest.fixture
+def streaming_mcp_tool(sse_client_transport, with_mcp_enabled) -> MCPTool:
+    return MCPTool(
+        name="streaming_tool",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+
+
+@pytest.fixture
+def streaming_mcp_tool_using_ctx_var(sse_client_transport, with_mcp_enabled) -> MCPTool:
+    return MCPTool(
+        name="streaming_tool_with_ctx",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+
+
+@pytest.fixture
+def streaming_mcp_tool_tuple(sse_client_transport, with_mcp_enabled) -> MCPTool:
+    return MCPTool(
+        name="streaming_tool_tuple",
+        description="description",
+        client_transport=sse_client_transport,
+    )
+
+
+SENTENCE_TOOL_CHUNKS = [
+    "This is the sentence N°0",
+    "This is the sentence N°1",
+    "This is the sentence N°2",
+    "This is the sentence N°3",
+    "This is the sentence N°4",
+]
+SENTENCE_TOOL_RESULT = {ToolExecutionStep.TOOL_OUTPUT: ". ".join(SENTENCE_TOOL_CHUNKS)}
+TUPLE_TOOL_CHUNKS = [[i, chunk] for i, chunk in enumerate(SENTENCE_TOOL_CHUNKS)]
+TUPLE_TOOL_RESULT = {"int_output": 5, "str_output": ". ".join(SENTENCE_TOOL_CHUNKS)}
+
+
+@pytest.mark.parametrize(
+    "mcp_tool_name,expected_chunks,expected_outputs",
+    [
+        ("streaming_mcp_tool", SENTENCE_TOOL_CHUNKS, SENTENCE_TOOL_RESULT),
+        ("streaming_mcp_tool_using_ctx_var", SENTENCE_TOOL_CHUNKS, SENTENCE_TOOL_RESULT),
+        ("streaming_mcp_tool_tuple", TUPLE_TOOL_CHUNKS, TUPLE_TOOL_RESULT),
+    ],
+)
+def test_streaming_mcp_tool_streams_correctly(
+    mcp_tool_name: str,
+    expected_chunks: list[Any],
+    expected_outputs: Any,
+    request: pytest.FixtureRequest,
+):
+    """
+    Measuring over 20 attempts,
+    * mean time to first chunk (s) is 0.228, max is 0.256
+    * mean delta between chunks (s) is 0.202, max is 0.212
+    """
+    MAX_TTFC = 0.5
+    MAX_DELTA = 0.5
+    listener = MCPToolStreamingListener()
+
+    mcp_tool = request.getfixturevalue(mcp_tool_name)
+    step = ToolExecutionStep(tool=mcp_tool)
+
+    start = time.time()
+    with register_event_listeners([listener]):
+        outputs = run_step_and_return_outputs(step, inputs={})
+
+    assert outputs == expected_outputs
+
+    chunks = listener.chunks
+    texts = [t for (t, _) in chunks]
+    assert texts == expected_chunks
+
+    times = [ts for (_, ts) in chunks]
+    ttft = times[0] - start
+    assert ttft < MAX_TTFC
+
+    deltas = [t2 - t1 for t1, t2 in zip(times, times[1:])]
+    for d in deltas:
+        assert d < MAX_DELTA
+
+
+def test_agent_with_streaming_tool_emits_tool_chunks(
+    streaming_mcp_tool: MCPTool, big_llama
+) -> None:
+    llm = big_llama
+    agent = Agent(llm=llm, name="agent", description="agent", tools=[streaming_mcp_tool])
+
+    tool_request = ToolRequest("streaming_tool", {}, "req_123")
+    with patch_llm(llm, outputs=[[tool_request], "done"]):
+        listener = MCPToolStreamingListener()
+        with register_event_listeners([listener]):
+            conv = agent.start_conversation()
+            conv.append_user_message("go")
+            _ = conv.execute()
+
+    assert all(event.tool is streaming_mcp_tool for event in listener.events)
+    assert all(event.tool_request is tool_request for event in listener.events)
+    assert [c for (c, _) in listener.chunks] == [
+        "This is the sentence N°0",
+        "This is the sentence N°1",
+        "This is the sentence N°2",
+        "This is the sentence N°3",
+        "This is the sentence N°4",
+    ]
+
+
+def create_sync_function():
+    @mcp_streaming_tool
+    def function():
+        return 1
+
+
+def create_async_function():
+    @mcp_streaming_tool
+    async def function():
+        return 1
+
+
+def create_sync_generator():
+    @mcp_streaming_tool
+    def sync_generator() -> Generator:
+        yield "chunk 1"
+        yield "chunk 2"
+        yield "chunk 1. chunk 2."
+
+
+@pytest.mark.parametrize(
+    "mcp_callable_factory", [create_sync_function, create_async_function, create_sync_generator]
+)
+def test_mcp_streaming_tool_adapter_rejects_invalid_callable_types(mcp_callable_factory) -> None:
+    with pytest.raises(
+        TypeError, match="@mcp_streaming_tool can only be applied to async generator functions"
+    ):
+        mcp_callable_factory()

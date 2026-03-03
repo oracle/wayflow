@@ -59,6 +59,9 @@ MCP Tool
 .. _mcptoolbox:
 .. autoclass:: wayflowcore.mcp.MCPToolBox
 
+.. _mcpstreamingtool:
+.. autofunction:: wayflowcore.mcp.mcphelpers.mcp_streaming_tool
+
 .. _sessionparameters:
 .. autoclass:: wayflowcore.mcp.SessionParameters
     :exclude-members: to_dict

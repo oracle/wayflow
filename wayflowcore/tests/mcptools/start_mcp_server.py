@@ -6,13 +6,17 @@
 import argparse
 from contextvars import ContextVar
 from os import PathLike
-from typing import Annotated, Literal, Optional
+from typing import Annotated, AsyncGenerator, Literal, Optional
 
+import anyio
+from mcp.server.fastmcp import Context
 from mcp.server.fastmcp import FastMCP as BaseFastMCP
 from mcp.types import EmbeddedResource, TextResourceContents
 from pydantic import AnyUrl, BaseModel, Field, RootModel
 from starlette.applications import Starlette
 from typing_extensions import TypedDict
+
+from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
 
 UvicornExtraConfig = TypedDict(
     "UvicornExtraConfig",
@@ -62,12 +66,29 @@ class GenerateTupleOut(BaseModel, title="tool_output"):
     # /!\ this needs to be named `result`
 
 
+class GenerateTupleOut2(BaseModel, title="tool_output"):
+    result: tuple[
+        Annotated[int, Field(title="int_output")], Annotated[str, Field(title="str_output")]
+    ]
+    # /!\ this needs to be named `result`
+
+
 class GenerateListOut(BaseModel, title="tool_output"):
     result: list[str]  # /!\ this needs to be named `result`
 
 
 class GenerateDictOut(RootModel[dict[str, str]], title="tool_output"):
     pass
+
+
+class GenerateOptionalOut(BaseModel, title="tool_output"):
+    # Optional output to validate anyOf handling in WayFlow
+    result: Optional[str]
+
+
+class GenerateUnionOut(BaseModel, title="tool_output"):
+    # True union output (non-null) to validate anyOf handling in WayFlow
+    result: str | int
 
 
 def create_server(host: str, port: int, server_id: str = ""):
@@ -131,6 +152,16 @@ def create_server(host: str, port: int, server_id: str = ""):
     def generate_tuple() -> GenerateTupleOut:
         return GenerateTupleOut(result=("value", True))
 
+    @server.tool(description="Tool that returns an optional string", structured_output=True)
+    def generate_optional() -> GenerateOptionalOut:
+        # Deterministic value for testing
+        return GenerateOptionalOut(result="maybe")
+
+    @server.tool(description="Tool that returns a union value", structured_output=True)
+    def generate_union() -> GenerateUnionOut:
+        # Deterministic value for testing
+        return GenerateUnionOut(result="maybe")
+
     @server.tool(description="Tool that consumes a list and a dict")
     def consumes_list_and_dict(vals: list[str], props: dict[str, str]) -> str:
         return f"vals={vals!r}, props={props!r}"
@@ -145,6 +176,37 @@ def create_server(host: str, port: int, server_id: str = ""):
             ),
             type="resource",
         )
+
+    @server.tool(description="Streaming tool")
+    @mcp_streaming_tool
+    async def streaming_tool() -> AsyncGenerator[str, None]:
+        contents = [f"This is the sentence N°{i}" for i in range(5)]
+        for chunk in contents:
+            yield chunk  # streamed chunks
+            await anyio.sleep(0.2)
+
+        yield ". ".join(contents)  # final result
+
+    @server.tool(description="Streaming tool")
+    @mcp_streaming_tool
+    async def streaming_tool_with_ctx(ctx: Context) -> AsyncGenerator[str, None]:
+        ctx.info("Hello")
+        contents = [f"This is the sentence N°{i}" for i in range(5)]
+        for chunk in contents:
+            yield chunk  # streamed chunks
+            await anyio.sleep(0.2)
+
+        yield ". ".join(contents)  # final result
+
+    @server.tool(description="Streaming tool", structured_output=True)
+    @mcp_streaming_tool
+    async def streaming_tool_tuple() -> AsyncGenerator[GenerateTupleOut2, None]:
+        contents = [f"This is the sentence N°{i}" for i in range(5)]
+        for idx, chunk in enumerate(contents):
+            yield (idx, chunk)  # streamed chunks
+            await anyio.sleep(0.2)
+
+        yield GenerateTupleOut2(result=(5, ". ".join(contents)))  # final result
 
     return server
 
