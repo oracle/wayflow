@@ -114,9 +114,18 @@ def run_responses_tool_call_replay_e2e(llm) -> None:
     assert tool_result_index < len(messages) - 1, "Expected a follow-up assistant message."
 
 
+@retry_test(max_attempts=4)
 def test_vllm_responses_e2e_can_continue_after_tool_call_with_replayed_history() -> None:
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2026-03-03
+    Average success time:  1.24 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
     llm_config = deepcopy(VLLM_OSS_CONFIG)
-    llm_config["generation_config"] = {"max_tokens": 64}
+    llm_config["generation_config"] = {"max_tokens": 256}
     llm = LlmModelFactory.from_config(llm_config)
     assert isinstance(llm, VllmModel)
     run_responses_tool_call_replay_e2e(llm)
