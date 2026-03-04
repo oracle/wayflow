@@ -29,7 +29,7 @@ import wayflowcore
 # -- Project information -----------------------------------------------------
 project = "wayflowcore"
 package_name = "wayflowcore"
-copyright = "2025, Oracle and/or its affiliates."
+copyright = "2025-2026, Oracle and/or its affiliates."
 author = "Oracle Labs"
 
 html_static_path = ["_static"]
