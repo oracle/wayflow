@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Redirecting…</title>
-    <meta http-equiv="refresh" content="0; url=development/">
-    <link rel="canonical" href="development/">
+    <meta http-equiv="refresh" content="0; url=26.1.1/">
+    <link rel="canonical" href="26.1.1/">
 </head>
 <body>
-    <p>If you are not redirected automatically, <a href="development/">click here</a>.</p>
+    <p>If you are not redirected automatically, <a href="26.1.1/">click here</a>.</p>
     <script>
         fetch("switcher.json")
           .then(response => response.json())
@@ -16,7 +16,7 @@
             window.location.replace(stable ? stable.url : "development/");
           })
           .catch(() => {
-            window.location.replace("development/");
+            window.location.replace("26.1.1/");
           });
     </script>
 </body>
