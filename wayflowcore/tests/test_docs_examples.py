@@ -17,7 +17,13 @@ import pytest
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
 
-from .a2a.conftest import a2a_server_fixture  # noqa
+from .a2a.conftest import (  # noqa
+    a2a_server_fixture,
+    prime_a2a_agent_fixture,
+    prime_a2a_server_fixture,
+    sample_a2a_agent_fixture,
+    sample_a2a_server_fixture,
+)
 from .a2a.test_a2aagent import a2a_agent, connection_config_no_verify  # noqa
 from .mcptools.conftest import sse_mcp_server_http  # noqa
 from .mcptools.test_mcp_tools import MCP_USER_QUERY
@@ -128,8 +134,17 @@ def make_update_globals(test_globs: Dict[str, Any], pytest_request):
             replacements["oci_agent"] = pytest_request.getfixturevalue("oci_agent")
         if "a2a_agent" in varnames_to_update:
             replacements["a2a_agent"] = pytest_request.getfixturevalue("a2a_agent")
-        elif "sse_mcp_server" in varnames_to_update:
+        if "sse_mcp_server" in varnames_to_update:
             replacements["sse_mcp_server"] = pytest_request.getfixturevalue("sse_mcp_server_http")
+        # Support for A2A examples like howto_a2a.py
+        if "sample_a2a_agent" in varnames_to_update:
+            replacements["sample_a2a_agent"] = pytest_request.getfixturevalue("sample_a2a_agent")
+        if "prime_a2a_agent" in varnames_to_update:
+            replacements["prime_a2a_agent"] = pytest_request.getfixturevalue("prime_a2a_agent")
+        if "sample_a2a_server" in varnames_to_update:
+            replacements["sample_a2a_server"] = pytest_request.getfixturevalue("sample_a2a_server")
+        if "prime_a2a_server" in varnames_to_update:
+            replacements["prime_a2a_server"] = pytest_request.getfixturevalue("prime_a2a_server")
 
         return tuple(replacements[name] for name in varnames_to_update)
 
