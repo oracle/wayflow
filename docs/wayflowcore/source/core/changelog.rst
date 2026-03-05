@@ -14,13 +14,6 @@ New features
   For more information read the :doc:`API Reference <api/auth>` and the guide on
   :doc:`how to connect assistants to MCP servers <howtoguides/howto_mcp>`.
 
-* **Tool output streaming:**
-
-  Added a new event ``ToolExecutionStreamingChunkReceived`` to surface streamed tool chunks during tool execution.
-  Tool output streaming is supported for MCP tools and for ``ServerTool`` with async-generator callables.
-
-  Check the guide on :ref:`How to enable tool output streaming <top-tooloutputstreaming>` for more information.
-
 * **Message Summarization Transforms and Datastores can be converted between Agent Spec and Wayflow**
 
   Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
@@ -57,9 +50,27 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+WayFlow 26.1.1
+--------------
+
+New features
+^^^^^^^^^^^^
+
+* **Tool output streaming:**
+
+  Added a new event ``ToolExecutionStreamingChunkReceived`` to surface streamed tool chunks during tool execution.
+  Tool output streaming is supported for MCP tools and for ``ServerTool`` with async-generator callables.
+
+  Check the guide on :ref:`How to enable tool output streaming <top-tooloutputstreaming>` for more information.
+
+
+Bug fixes
+^^^^^^^^^
+
 * Fix: MCP tools now support union/optional output schemas for the `result` field (e.g., `anyOf` including `null`). This prevents KeyError during schema parsing. (#70)
+* Fix: Gemini models with the OpenAiCompatible model now support native tool calling (#77)
 * Fix: MCP session persistence no longer collides when multiple MCP client transports (different servers/connections) are used within the same conversation.
-* Fix: OpenAI Responses API multi-turn tool-calling no longer sends invalid `input[*].id` values (e.g. `call_...`), preventing 400s when continuing after a tool call.
+* Fix: Agent no longer ignores tool calls when the LLM attempts to both invoke a tool and respond directly to the user.
 
 
 WayFlow 26.1.1
