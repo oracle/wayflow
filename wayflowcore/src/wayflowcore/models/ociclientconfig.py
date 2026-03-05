@@ -339,9 +339,9 @@ def _client_config_to_oci_client_kwargs(client_config: OCIClientConfig) -> Dict[
 
 def _client_config_to_oci_openai_client_auth(client_config: OCIClientConfig) -> Any:
     from oci_openai import (  # type: ignore
-        HttpxOciAuth,
         OciInstancePrincipalAuth,
         OciResourcePrincipalAuth,
+        OciSessionAuth,
         OciUserPrincipalAuth,
     )
 
@@ -355,15 +355,9 @@ def _client_config_to_oci_openai_client_auth(client_config: OCIClientConfig) -> 
             profile_name=client_config.auth_profile,
         )
     elif isinstance(client_config, OCIClientConfigWithSecurityToken):
-        oci_config = oci.config.from_file(
-            file_location=client_config.auth_file_location,
-            profile_name=client_config.auth_profile,
+        return OciSessionAuth(
+            config_file=client_config.auth_file_location, profile_name=client_config.auth_profile
         )
-        pk = oci.signer.load_private_key_from_file(oci_config.get("key_file"), None)
-        with open(oci_config.get("security_token_file"), encoding="utf-8") as f:
-            st_string = f.read()
-
-        return HttpxOciAuth(signer=oci.auth.signers.SecurityTokenSigner(st_string, pk))
     elif isinstance(client_config, OCIClientConfigWithInstancePrincipal):
         return OciInstancePrincipalAuth()
     elif isinstance(client_config, OCIClientConfigWithResourcePrincipal):
