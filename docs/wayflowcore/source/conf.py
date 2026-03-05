@@ -176,7 +176,7 @@ html_theme_options = {
     "pygments_dark_style": "monokai",  # for dark mode
     "navbar_start": ["navbar-logo", "version-switcher"],
     "switcher": {
-        "json_url": "https://oracle.github.io/agent-spec/switcher.json",
+        "json_url": "https://oracle.github.io/wayflow/switcher.json",
         "version_match": docs_version,
     },
     "navbar_center": ["navbar-nav"] if "internal" in tags else [],
