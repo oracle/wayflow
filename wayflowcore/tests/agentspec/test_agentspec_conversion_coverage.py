@@ -138,6 +138,7 @@ EXCLUDED_COMPONENTS = {
     "OAuthConfig",
     "OAuthEndpoints",
     "PKCEPolicy",
+    "GeminiModel",
     # the variable, stored as a agentspec property, doesn't keep the same id
     "Variable",
     "VariableReadStep",
