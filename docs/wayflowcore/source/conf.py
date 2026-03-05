@@ -92,6 +92,7 @@ logging.getLogger("sphinx").addFilter(SphinxWarningFilter())
 # ones.
 extensions = [
     "sphinx.ext.napoleon",
+    "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
     "sphinx_substitution_extensions",
     "sphinx.ext.extlinks",
@@ -102,6 +103,8 @@ extensions = [
     "sphinx_design",
     "sphinxarg.ext",
     "sphinx_autodoc_typehints",
+    "sphinx_markdown_builder",
+    "markdown_translator_ext",
 ]
 
 # Set the variables that should be replaced in the substitution-extensions directives
@@ -184,6 +187,14 @@ html_theme_options = {
         "image_light": "logo-light.svg",
         "image_dark": "logo-dark.svg",
     },
+    "announcement": (
+        "<span>"
+        "<strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. "
+        "See Resources → Docs MCP Server."
+        "</span>"
+        '<button id="close-announcement" aria-label="Close announcement" '
+        'style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button>'
+    ),
 }
 
 html_sidebars = {"**": ["sidebar-nav-bs"], "core/changelog": []}
@@ -222,6 +233,16 @@ nitpick_ignore_regex = [
     ("py:.*", r"starlette\..*"),
     ("py:.*", r"collections\..*"),
     ("py:.*", r"contextlib\..*"),
+    # Pydantic-specific issues
+    ("py:.*", r"pydantic\..*"),
+    ("py:class", r"func=.*"),
+    ("py:class", r"return_type=.*"),
+    ("py:class", r"when_used=.*"),
+    ("py:class", r"PydanticUndefined"),
+    ("py:class", r"FieldInfo"),
+    ("py:class", r"annotation=.*"),
+    ("py:class", r"required=.*"),
+    ("py:class", r"discriminator=.*"),
     # `...`
     ("py:data", r"Ellipsis"),
     # Coming from typing

@@ -121,3 +121,4 @@ Look through our :doc:`Frequently Asked Questions <faqs>`.
    Security Considerations <security>
    For Contributors <contributing>
    Frequently Asked Questions <faqs>
+   Docs MCP Server <misc/docs_mcp_server>
