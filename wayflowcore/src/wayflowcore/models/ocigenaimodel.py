@@ -350,7 +350,10 @@ class OCIGenAIModel(LlmModel):
             prompt, supports_tool_role=supports_tool_role
         )
         # oci doesn't support this parameter
-        openai_parameters.pop("prompt_cache_key")
+        # `prompt_cache_key` is only added for certain endpoints (e.g. OpenAI), and is not supported
+        # by OCI. It might be absent (e.g., Chat Completions on non-OpenAI endpoints), so guard it.
+        if "prompt_cache_key" in openai_parameters:
+            openai_parameters.pop("prompt_cache_key")
         logger.debug(f"LLm Request: {json.dumps(openai_parameters, indent=4)}")
 
         async with self._create_openai_client() as openai_client:
@@ -473,7 +476,10 @@ class OCIGenAIModel(LlmModel):
             prompt, supports_tool_role=supports_tool_role
         )
         # oci doesn't support this parameter
-        openai_parameters.pop("prompt_cache_key")
+        # `prompt_cache_key` is only added for certain endpoints (e.g. OpenAI), and is not supported
+        # by OCI. It might be absent (e.g., Chat Completions on non-OpenAI endpoints), so guard it.
+        if "prompt_cache_key" in openai_parameters:
+            openai_parameters.pop("prompt_cache_key")
 
         client_args = dict(model=self.model_id, store=False, stream=True, **openai_parameters)
 

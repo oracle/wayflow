@@ -6,6 +6,7 @@
 import os
 import time
 from contextlib import contextmanager, nullcontext
+from copy import deepcopy
 from json import JSONDecodeError
 from typing import Any, Dict
 from unittest import mock
@@ -29,7 +30,7 @@ from wayflowcore.models.llmmodel import LlmGenerationConfig
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
 from wayflowcore.property import StringProperty
-from wayflowcore.tools import ToolRequest
+from wayflowcore.tools import ServerTool, ToolRequest
 from wayflowcore.tools.tools import ToolResult
 
 from ..conftest import (
@@ -65,6 +66,69 @@ def openai_reasoning_responses_llm():
 @pytest.fixture
 def vllm_reasoning_responses_llm():
     return LlmModelFactory.from_config(VLLM_OSS_REASONING_CONFIG)
+
+
+def run_responses_tool_call_replay_e2e(llm) -> None:
+    echo_mock = Mock(side_effect=lambda text: text)
+
+    echo_tool = ServerTool(
+        name="echo",
+        description="Echo back the input.",
+        func=echo_mock,
+        input_descriptors=[StringProperty(name="text", description="Text to echo.")],
+        output_descriptors=[StringProperty(name="echoed", description="Echoed text.")],
+    )
+
+    agent = Agent(
+        llm=llm,
+        tools=[echo_tool],
+        custom_instruction="You are a helpful assistant.",
+    )
+    conversation = agent.start_conversation()
+    conversation.append_user_message(
+        "You MUST call the `echo` tool with text='hi'. "
+        "DO NOT reply to the user until after you receive the tool result. "
+        "After receiving the tool result, reply with exactly: echoed: hi"
+    )
+
+    conversation.execute()
+
+    assert echo_mock.call_count >= 1
+
+    messages = conversation.get_messages()
+    tool_request_id = next(
+        tool_request.tool_request_id
+        for message in messages
+        for tool_request in message.tool_requests or []
+        if tool_request.name == "echo"
+    )
+    tool_result_index = next(
+        i
+        for i, message in enumerate(messages)
+        if message.tool_result is not None
+        and message.tool_result.tool_request_id == tool_request_id
+    )
+
+    assert messages[tool_result_index].tool_result is not None
+    assert messages[tool_result_index].tool_result.content == "hi"
+    assert tool_result_index < len(messages) - 1, "Expected a follow-up assistant message."
+
+
+@retry_test(max_attempts=4)
+def test_vllm_responses_e2e_can_continue_after_tool_call_with_replayed_history() -> None:
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2026-03-03
+    Average success time:  1.24 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    llm_config = deepcopy(VLLM_OSS_CONFIG)
+    llm_config["generation_config"] = {"max_tokens": 256}
+    llm = LlmModelFactory.from_config(llm_config)
+    assert isinstance(llm, VllmModel)
+    run_responses_tool_call_replay_e2e(llm)
 
 
 from ..conftest import llama_api_url

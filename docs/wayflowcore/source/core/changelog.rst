@@ -59,6 +59,7 @@ Bug fixes
 
 * Fix: MCP tools now support union/optional output schemas for the `result` field (e.g., `anyOf` including `null`). This prevents KeyError during schema parsing. (#70)
 * Fix: MCP session persistence no longer collides when multiple MCP client transports (different servers/connections) are used within the same conversation.
+* Fix: OpenAI Responses API multi-turn tool-calling no longer sends invalid `input[*].id` values (e.g. `call_...`), preventing 400s when continuing after a tool call.
 
 
 WayFlow 26.1.1
