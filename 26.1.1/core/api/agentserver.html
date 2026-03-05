@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -53,6 +53,13 @@
     <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/design-tabs.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/agentserver';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/agent-spec/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
   <script src="../../_static/announcement.js"></script>
 
     <link rel="icon" href="../../_static/favicon.png"/>
@@ -62,7 +69,7 @@
     <link rel="prev" title="Agents" href="agent.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2" />
   </head>
   
   
@@ -133,6 +140,26 @@
   
   
 </a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
     
   </div>
   
@@ -722,8 +749,13 @@ or <cite>ToolResult</cite>.</p></li>
 <section id="serve">
 <h4>serve<a class="headerlink" href="#serve" title="Permalink to this heading">#</a></h4>
 <p>Launch a WayFlow server hosting agents with the selected API protocol.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wayflow</span> <span class="n">serve</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">api</span> <span class="p">{</span><span class="n">openai</span><span class="o">-</span><span class="n">responses</span><span class="p">,</span><span class="n">a2a</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">agent</span><span class="o">-</span><span class="n">config</span> <span class="n">AGENT_CONFIG</span> <span class="p">[</span><span class="n">AGENT_CONFIG</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">agent</span><span class="o">-</span><span class="nb">id</span> <span class="n">AGENT_ID</span> <span class="p">[</span><span class="n">AGENT_ID</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">port</span> <span class="n">PORT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">host</span> <span class="n">HOST</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">tool</span><span class="o">-</span><span class="n">registry</span> <span class="n">TOOL_REGISTRY</span><span class="p">]</span>
-              <span class="p">[</span><span class="o">--</span><span class="n">server</span><span class="o">-</span><span class="n">storage</span> <span class="p">{</span><span class="ow">in</span><span class="o">-</span><span class="n">memory</span><span class="p">,</span><span class="n">oracle</span><span class="o">-</span><span class="n">db</span><span class="p">,</span><span class="n">postgres</span><span class="o">-</span><span class="n">db</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">server</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">config</span> <span class="n">SERVER_STORAGE_CONFIG</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">datastore</span><span class="o">-</span><span class="n">connection</span><span class="o">-</span><span class="n">config</span> <span class="n">DATASTORE_CONNECTION_CONFIG</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wayflow</span> <span class="n">serve</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">api</span> <span class="p">{</span><span class="n">openai</span><span class="o">-</span><span class="n">responses</span><span class="p">,</span><span class="n">a2a</span><span class="p">}]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">agent</span><span class="o">-</span><span class="n">config</span> <span class="n">AGENT_CONFIG</span> <span class="p">[</span><span class="n">AGENT_CONFIG</span> <span class="o">...</span><span class="p">]]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">agent</span><span class="o">-</span><span class="nb">id</span> <span class="n">AGENT_ID</span> <span class="p">[</span><span class="n">AGENT_ID</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">port</span> <span class="n">PORT</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">host</span> <span class="n">HOST</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">tool</span><span class="o">-</span><span class="n">registry</span> <span class="n">TOOL_REGISTRY</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">server</span><span class="o">-</span><span class="n">storage</span> <span class="p">{</span><span class="ow">in</span><span class="o">-</span><span class="n">memory</span><span class="p">,</span><span class="n">oracle</span><span class="o">-</span><span class="n">db</span><span class="p">,</span><span class="n">postgres</span><span class="o">-</span><span class="n">db</span><span class="p">}]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">server</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">config</span> <span class="n">SERVER_STORAGE_CONFIG</span><span class="p">]</span>
+              <span class="p">[</span><span class="o">--</span><span class="n">datastore</span><span class="o">-</span><span class="n">connection</span><span class="o">-</span><span class="n">config</span> <span class="n">DATASTORE_CONNECTION_CONFIG</span><span class="p">]</span>
               <span class="p">[</span><span class="o">--</span><span class="n">setup</span><span class="o">-</span><span class="n">datastore</span> <span class="p">{</span><span class="n">no</span><span class="p">,</span><span class="n">yes</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">api</span><span class="o">-</span><span class="n">key</span> <span class="n">API_KEY</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -862,8 +894,8 @@ url:localhost:7777</cite></p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

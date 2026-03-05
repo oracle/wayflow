@@ -29,8 +29,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -40,10 +40,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -53,6 +53,13 @@
     <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/design-tabs.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/prompttemplate';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/agent-spec/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '26.1.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
   <script src="../../_static/announcement.js"></script>
 
     <link rel="icon" href="../../_static/favicon.png"/>
@@ -62,7 +69,7 @@
     <link rel="prev" title="Execution Interrupts" href="interrupts.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2" />
   </head>
   
   
@@ -133,6 +140,26 @@
   
   
 </a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
     
   </div>
   
@@ -438,7 +465,7 @@ The class also integrates with output parsers, tools and llm generation configur
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER">
-<span class="sig-name descname"><span class="pre">CHAT_HISTORY_PLACEHOLDER</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Message(id='bc8253b9-926c-48af-b07e-5708ee4594e0',</span> <span class="pre">__metadata_info__={},</span> <span class="pre">role='system',</span> <span class="pre">contents=[TextContent(content='$$__CHAT_HISTORY_PLACEHOLDER__$$')],</span> <span class="pre">tool_requests=None,</span> <span class="pre">tool_result=None,</span> <span class="pre">display_only=False,</span> <span class="pre">_prompt_cache_key=None,</span> <span class="pre">_reasoning_content=None,</span> <span class="pre">sender=None,</span> <span class="pre">recipients=set(),</span> <span class="pre">_extra_content=None)</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CHAT_HISTORY_PLACEHOLDER</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">ClassVar</span></code><span class="pre">[</span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Message(id='403c21b4-382f-4019-ab22-d2ab01784f3f',</span> <span class="pre">__metadata_info__={},</span> <span class="pre">role='system',</span> <span class="pre">contents=[TextContent(content='$$__CHAT_HISTORY_PLACEHOLDER__$$')],</span> <span class="pre">tool_requests=None,</span> <span class="pre">tool_result=None,</span> <span class="pre">display_only=False,</span> <span class="pre">_prompt_cache_key=None,</span> <span class="pre">_reasoning_content=None,</span> <span class="pre">sender=None,</span> <span class="pre">recipients=set(),</span> <span class="pre">_extra_content=None)</span></em><a class="headerlink" href="#wayflowcore.templates.template.PromptTemplate.CHAT_HISTORY_PLACEHOLDER" title="Permalink to this definition">#</a></dt>
 <dd><p>Message placeholder in case the chat history is formatted as a chat.</p>
 </dd></dl>
 
@@ -1530,8 +1557,8 @@ output parsers configured</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
