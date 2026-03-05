@@ -1,8 +1,8 @@
 Changelog
 =========
 
-WayFlow |release|
------------------
+WayFlow |current_version|
+-------------------------
 
 New features
 ^^^^^^^^^^^^
