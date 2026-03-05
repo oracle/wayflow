@@ -20,8 +20,16 @@ New features
   You can now declare your agents with summarization transforms and summary caching in Agent Spec and run them in WayFlow.
 
 
-Improvements
-^^^^^^^^^^^^
+Documentation
+^^^^^^^^^^^^^
+
+* **Added a new MCP server to browse the WayFlow documentation:**
+
+  Added a new MCP server in ``examples/mcp/docs_mcp.py`` to let assistants
+  browse the WayFlow documentation.
+
+  For more information, see the :doc:`Docs MCP Server guide <misc/docs_mcp_server>`.
+
 
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
