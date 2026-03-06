@@ -10,6 +10,7 @@ from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.embeddingmodels.embeddingmodel import EmbeddingModel
 from wayflowcore.models._requesthelpers import _RetryStrategy, request_post_with_retries
+from wayflowcore.models.openaicompatiblemodel import _resolve_api_key
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
 
@@ -26,12 +27,17 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         The name of the model to use for generating embeddings.
     base_url
         The base URL for the embedding API. Both HTTP and HTTPS protocols are supported.
+    api_key:
+        API key to use for the request if needed. It will be formatted in the OpenAI format.
+        (as "Bearer API_KEY" in the request header)
+        If not provided, will attempt to read from the environment variable OPENAI_API_KEY
     """
 
     def __init__(
         self,
         model_id: str,
         base_url: str,
+        api_key: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
@@ -46,18 +52,15 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         self._model_id = model_id
         self._base_url = _add_leading_http_if_needed(base_url).rstrip("/")
         self._retry_strategy = _RetryStrategy()
+        self._api_key = _resolve_api_key(api_key)
 
-    def _get_headers(self) -> Dict[str, str]:
-        """
-        Get the headers for API requests with a default implementation.
-        Child classes can override this method to provide custom headers.
-
-        Returns
-        -------
-        Dict[str, str]
-            Default headers for API requests
-        """
-        return {"Content-Type": "application/json"}
+    def _get_headers(self) -> Dict[str, Any]:
+        headers = {
+            "Content-Type": "application/json",
+        }
+        if self._api_key is not None:
+            headers["Authorization"] = f"Bearer {self._api_key}"
+        return headers
 
     def embed(self, data: List[str]) -> List[List[float]]:
         return run_async_in_sync(self.embed_async, data, method_name="embed_async")

@@ -1,6 +1,17 @@
 Changelog
 =========
 
+WayFlow 26.1.2
+--------------
+
+Improvements
+^^^^^^^^^^^^
+
+* **OpenAI-compatible embeddings now support API keys:**
+
+  ``OpenAICompatibleEmbeddingModel`` now accepts an optional ``api_key`` (with ``OPENAI_API_KEY`` environment fallback) and sends it as an OpenAI-style ``Authorization: Bearer ...`` header.
+
+
 WayFlow 26.1.1
 --------------
 
