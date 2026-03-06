@@ -56,6 +56,7 @@ class OpenAIEmbeddingModel(OpenAICompatibleEmbeddingModel, SerializableObject):
         super().__init__(
             model_id=model_id,
             base_url=base_url,
+            api_key=api_key,
             __metadata_info__=__metadata_info__,
             id=id,
             name=name,
@@ -71,13 +72,6 @@ class OpenAIEmbeddingModel(OpenAICompatibleEmbeddingModel, SerializableObject):
             raise ValueError(
                 "API key must be provided either through the api_key parameter or the OPENAI_API_KEY environment variable"
             )
-
-    def _get_headers(self) -> Dict[str, str]:
-        # has additional authorization field for the API key
-        return {
-            "Authorization": f"Bearer {self._api_key}",
-            "Content-Type": "application/json",
-        }
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
         return {
