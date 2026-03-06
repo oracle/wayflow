@@ -13,7 +13,10 @@ import yaml
 
 from wayflowcore.embeddingmodels.ocigenaimodel import OCIGenAIEmbeddingModel
 from wayflowcore.embeddingmodels.ollamamodel import OllamaEmbeddingModel
-from wayflowcore.embeddingmodels.openaicompatiblemodel import _add_leading_http_if_needed
+from wayflowcore.embeddingmodels.openaicompatiblemodel import (
+    OpenAICompatibleEmbeddingModel,
+    _add_leading_http_if_needed,
+)
 from wayflowcore.embeddingmodels.openaimodel import OpenAIEmbeddingModel
 from wayflowcore.embeddingmodels.vllmmodel import VllmEmbeddingModel
 from wayflowcore.serialization.serializer import autodeserialize, serialize, serialize_to_dict
@@ -329,6 +332,60 @@ def test_embedding_model_multiple_embeds_vllm_ollama(
 
     embedding_dim = len(embeddings[0])
     assert all(len(embedding) == embedding_dim for embedding in embeddings)
+
+
+def test_openai_compatible_embedding_model_api_key_sets_auth_header(
+    monkeypatch, mock_openai_compatible_api
+):
+    model = OpenAICompatibleEmbeddingModel(
+        model_id="text-embedding-3-small",
+        base_url="https://api.openai.com",
+        api_key="fake-api-key",
+    )
+    model.embed(["hello world"])
+
+    headers = mock_openai_compatible_api.call_args.kwargs.get("headers")
+    assert headers is not None
+    assert headers["Authorization"] == "Bearer fake-api-key"
+
+
+def test_openai_compatible_embedding_model_env_api_key_sets_auth_header(
+    monkeypatch, mock_openai_compatible_api
+):
+    monkeypatch.setenv("OPENAI_API_KEY", "env-api-key")
+
+    model = OpenAICompatibleEmbeddingModel(
+        model_id="text-embedding-3-small",
+        base_url="https://api.openai.com",
+    )
+    model.embed(["hello world"])
+
+    headers = mock_openai_compatible_api.call_args.kwargs.get("headers")
+    assert headers is not None
+    assert headers["Authorization"] == "Bearer env-api-key"
+
+
+def test_openai_compatible_embedding_model_no_api_key_no_auth_header(
+    monkeypatch, mock_openai_compatible_api
+):
+    model = OpenAICompatibleEmbeddingModel(
+        model_id="text-embedding-3-small",
+        base_url="https://api.openai.com",
+    )
+    model.embed(["hello world"])
+
+    headers = mock_openai_compatible_api.call_args.kwargs.get("headers")
+    assert headers is not None
+    assert "Authorization" not in headers
+
+
+def test_openai_embedding_model_api_key_sets_auth_header(mock_openai_compatible_api):
+    model = OpenAIEmbeddingModel(model_id="text-embedding-3-small", api_key="fake-api-key")
+    model.embed(["hello world"])
+
+    headers = mock_openai_compatible_api.call_args.kwargs.get("headers")
+    assert headers is not None
+    assert headers["Authorization"] == "Bearer fake-api-key"
 
 
 def test_embedding_model_multiple_embeds_oci(
