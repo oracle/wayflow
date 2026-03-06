@@ -472,6 +472,14 @@ def test_invalid_open_api_key():
             OpenAIEmbeddingModel,
             {"model_id": "text-embedding-3-small", "api_key": "fake-api-key"},
         ),
+        (
+            OpenAICompatibleEmbeddingModel,
+            {
+                "model_id": "text-embedding-3-small",
+                "base_url": "https://api.openai.com",
+                "api_key": "fake-api-key",
+            },
+        ),
     ],
 )
 def test_base_embedding_model_serialization(request, model_cls, constructor_kwargs):
@@ -498,6 +506,9 @@ def test_base_embedding_model_serialization(request, model_cls, constructor_kwar
         assert serialized_dict["base_url"] == _add_leading_http_if_needed(
             constructor_kwargs["base_url"]
         )
+    elif model_cls == OpenAICompatibleEmbeddingModel:
+        assert "base_url" in serialized_dict
+        assert serialized_dict["base_url"] == constructor_kwargs["base_url"]
 
     # Test YAML serialization
     yaml_str = serialize(original_model)
@@ -558,6 +569,14 @@ def test_ocigenai_embedding_model_serialization(request, mock_oci_modules):
             OpenAIEmbeddingModel,
             {"model_id": "text-embedding-3-small", "api_key": "fake-api-key"},
         ),
+        (
+            OpenAICompatibleEmbeddingModel,
+            {
+                "model_id": "text-embedding-3-small",
+                "base_url": "https://api.openai.com",
+                "api_key": "fake-api-key",
+            },
+        ),
     ],
 )
 def test_embedding_model_file_serialization(request, model_cls, constructor_kwargs, tmp_path):
@@ -590,6 +609,8 @@ def test_embedding_model_file_serialization(request, model_cls, constructor_kwar
         assert deserialized_model._base_url == _add_leading_http_if_needed(
             constructor_kwargs["base_url"]
         )
+    elif model_cls == OpenAICompatibleEmbeddingModel:
+        assert deserialized_model._base_url == constructor_kwargs["base_url"]
 
 
 def test_embedding_model_file_serialization_oci(request, tmp_path, mock_oci_modules):
@@ -621,6 +642,8 @@ def test_embedding_model_file_serialization_oci(request, tmp_path, mock_oci_modu
     [
         (VllmEmbeddingModel, {"base_url": e5large_api_url}, "model_id"),
         (VllmEmbeddingModel, {"model_id": "intfloat/e5-large-v2"}, "base_url"),
+        (OpenAICompatibleEmbeddingModel, {"base_url": e5large_api_url}, "model_id"),
+        (OpenAICompatibleEmbeddingModel, {"model_id": "intfloat/e5-large-v2"}, "base_url"),
         (OllamaEmbeddingModel, {"base_url": ollama_embedding_api_url}, "model_id"),
         (OllamaEmbeddingModel, {"model_id": "nomic-embed-text"}, "base_url"),
         (OpenAIEmbeddingModel, {}, "model_id"),
@@ -728,6 +751,19 @@ def test_embedding_model_works_without_http(request, model_cls, url, model_id):
 
     url = remove_leading_http(url)
     embedding_model = model_cls(base_url=url, model_id=model_id)
+    embedding = embedding_model.embed(["hello world"])
+
+    assert isinstance(embedding, list)
+    assert all(isinstance(sublist, list) for sublist in embedding)
+    assert all(all(isinstance(item, float) for item in sublist) for sublist in embedding)
+    assert len(embedding) == 1
+
+
+def test_openaicompatibleembeddingmodel_works_without_http(request):
+    """Test serialization and deserialization of standard embedding models."""
+
+    url = remove_leading_http(e5large_api_url)
+    embedding_model = OpenAICompatibleEmbeddingModel(base_url=url, model_id="intfloat/e5-large-v2")
     embedding = embedding_model.embed(["hello world"])
 
     assert isinstance(embedding, list)
