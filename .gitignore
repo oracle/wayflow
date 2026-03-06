@@ -206,4 +206,4 @@ wayflowcore/dev_scripts/*/data
 
 # environment variables such as private keys
 *env/
-examples/*
+.docs_cache
