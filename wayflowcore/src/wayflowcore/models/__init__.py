@@ -9,6 +9,7 @@ from ._requesthelpers import (
     TaggedMessageChunkType,
     TaggedMessageChunkTypeWithTokenUsage,
 )
+from .geminimodel import GeminiApiKeyAuth, GeminiCloudAuth, GeminiModel
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import LlmCompletion, LlmModel, Prompt
 from .llmmodelfactory import LlmModelFactory
@@ -53,4 +54,7 @@ __all__ = [
     "ServingMode",
     "ModelProvider",
     "OciAPIType",
+    "GeminiApiKeyAuth",
+    "GeminiCloudAuth",
+    "GeminiModel",
 ]
