@@ -6,6 +6,13 @@ Note: The above command should be run from `docs/wayflowcore` folder.
 Note: the project should be installed in editable mode. Please refer
 to [the main README.md](../README.md).
 
+## building the docs for GitHub
+
+Run `make html` with the `STABLE_RELEASE` and `DOCS_VERSION` to the desired version.
+
+e.g., `STABLE_RELEASE="26.1.0" DOCS_VERSION="26.1.0" make html`
+
+
 # Deploying the docs
 
 ## Deploying the main docs

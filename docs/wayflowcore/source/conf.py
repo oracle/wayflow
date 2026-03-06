@@ -29,13 +29,10 @@ import wayflowcore
 # -- Project information -----------------------------------------------------
 project = "wayflowcore"
 package_name = "wayflowcore"
-copyright = "2025, Oracle and/or its affiliates."
+copyright = "2025-2026, Oracle and/or its affiliates."
 author = "Oracle Labs"
 
 html_static_path = ["_static"]
-
-# The last stable release we want users to install
-version_file = wayflowcore.__version__
 
 # Tag for building the right version with `make html`
 # The tags can be `dev` or `stable`. See  https://www.sphinx-doc.org/en/master/usage/configuration.html#conf-tags
@@ -51,19 +48,24 @@ if os.getenv("DOC_VERSION") == "dev":
 else:
     tags.add("stable")
 
-# The short X.Y version.
-version = ".".join(wayflowcore.__version__.split(".")[:2])
 
-# The full version, including alpha/beta/rc tags.
-release = wayflowcore.__version__
-
-# The last stable release we want users to install
-version_file = wayflowcore.__version__
+# Use DOCS_VERSION if it's set, otherwise use version_file.
+# `version` is a Sphinx required metadata (docsearch:version)
+# + we use it in the changelog + to determine if the version
+# switcher should use the dev of stable release version
+version = os.getenv("DOCS_VERSION") or wayflowcore.__version__
 
 # Use STABLE_RELEASE if it's set, otherwise use version_file
-stable_release = os.getenv("STABLE_RELEASE") or version_file
-if stable_release is None:
+# `release` is a Sphinx required metadata (in html page title)
+# + we use it in the installation and in the version switcher.
+release = os.getenv("STABLE_RELEASE") or wayflowcore.__version__
+if release is None:
     raise Exception("Error: STABLE_RELEASE environment variable is not set.")
+
+if any(x in version for x in (".dev", "a", "b", "rc")):
+    docs_version = "dev"
+else:
+    docs_version = release
 
 WARNINGS_TO_FILTER_OUT = [
     "Failed guarded type import with ImportError(\"cannot import name 'AbstractSetIntStr'",
@@ -104,8 +106,8 @@ extensions = [
 
 # Set the variables that should be replaced in the substitution-extensions directives
 rst_prolog = f"""
-.. |release| replace:: {release}
-.. |stable_release| replace:: {stable_release}
+.. |current_version| replace:: {version}
+.. |stable_release| replace:: {release}
 .. |author| replace:: {author}
 .. |copyright| replace:: {copyright}
 .. |project| replace:: {project}
@@ -172,7 +174,11 @@ html_theme_options = {
     "show_prev_next": False,
     "pygments_light_style": "xcode",  # for light mode
     "pygments_dark_style": "monokai",  # for dark mode
-    "navbar_start": ["navbar-logo"],
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    "switcher": {
+        "json_url": "https://oracle.github.io/wayflow/switcher.json",
+        "version_match": docs_version,
+    },
     "navbar_center": ["navbar-nav"] if "internal" in tags else [],
     "logo": {
         "image_light": "logo-light.svg",
