@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Security Considerations &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,12 +45,12 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+    <script src="../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/security';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -69,7 +68,7 @@
     <link rel="prev" title="WayFlow Glossary" href="misc/glossary.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -280,7 +279,7 @@
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -360,7 +359,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="misc/glossary.html">Glossary</a></li>
@@ -428,11 +427,11 @@
                 <article class="bd-article">
                   
   <section id="security-considerations">
-<h1>Security Considerations<a class="headerlink" href="#security-considerations" title="Permalink to this heading">#</a></h1>
+<h1>Security Considerations<a class="headerlink" href="#security-considerations" title="Link to this heading">#</a></h1>
 <p>Scope: WayFlow Agents, Flows, Steps, or Tools in any environment (development, staging, production).</p>
 <p>Why it matters: WayFlow integrates LLMs, Python, tools, and APIs. Its attack surface spans all Steps, Agents, Flows, Tools, and Context Providers. A single untrusted component (e.g., an unsafe tool or poorly-scoped <code class="docutils literal notranslate"><span class="pre">ContextProvider</span></code>) can compromise the entire runtime.</p>
 <section id="considerations-regarding-tools">
-<h2>Considerations regarding tools<a class="headerlink" href="#considerations-regarding-tools" title="Permalink to this heading">#</a></h2>
+<h2>Considerations regarding tools<a class="headerlink" href="#considerations-regarding-tools" title="Link to this heading">#</a></h2>
 <p>WayFlow allows LLMs to interact with applications via <strong>Tools</strong> (<a class="reference internal" href="api/tools.html#clienttool"><span class="std std-ref">ClientTool</span></a>, <a class="reference internal" href="api/tools.html#servertool"><span class="std std-ref">ServerTool</span></a>, or <a class="reference internal" href="api/tools.html#remotetool"><span class="std std-ref">RemoteTool</span></a>), granting access to state or operations. Since tool inputs often come from LLMs or users, rigorous input sanitization and validation are crucial.</p>
 <p><strong>Key Principles for Tool Security:</strong></p>
 <ul class="simple">
@@ -446,7 +445,7 @@
 <li><p><strong>Least Privilege</strong>: Grant tools only permissions essential for their function.</p></li>
 </ul>
 <section id="tool-security-specifics">
-<h3>Tool Security Specifics<a class="headerlink" href="#tool-security-specifics" title="Permalink to this heading">#</a></h3>
+<h3>Tool Security Specifics<a class="headerlink" href="#tool-security-specifics" title="Link to this heading">#</a></h3>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Rigorously sanitize all tool inputs. Tools, bridging LLM understanding with system operations, are prime targets. Validate types, lengths, and semantic correctness before core logic execution.</p>
@@ -488,9 +487,9 @@ to control URL validity.</p>
 </div>
 </section>
 <section id="harden-all-tools-servertool-clienttool-and-remotetool">
-<h3>Harden All Tools (ServerTool, ClientTool and RemoteTool)<a class="headerlink" href="#harden-all-tools-servertool-clienttool-and-remotetool" title="Permalink to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="table" id="id1">
-<caption><span class="caption-text">Tool Hardening Guidelines</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
+<h3>Harden All Tools (ServerTool, ClientTool and RemoteTool)<a class="headerlink" href="#harden-all-tools-servertool-clienttool-and-remotetool" title="Link to this heading">#</a></h3>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Tool Hardening Guidelines</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
 <colgroup>
 <col style="width: 30.0%" />
 <col style="width: 70.0%" />
@@ -542,18 +541,17 @@ to control URL validity.</p>
 </tr>
 </tbody>
 </table>
-</div>
 </section>
 </section>
 <section id="considerations-regarding-network-communication">
-<h2>Considerations regarding network communication<a class="headerlink" href="#considerations-regarding-network-communication" title="Permalink to this heading">#</a></h2>
+<h2>Considerations regarding network communication<a class="headerlink" href="#considerations-regarding-network-communication" title="Link to this heading">#</a></h2>
 <p>WayFlow components use the network for LLM communications, <a class="reference internal" href="api/flows.html#apicallstep"><span class="std std-ref">ApiCallStep</span></a> tool operations, and third-party integrations. Implement robust network security.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Adopt a defense-in-depth network security strategy for WayFlow, including supply-chain security for models/containers, network segmentation, encrypted communications, and strict egress controls.</p>
 </div>
 <section id="supply-chain-security-for-wayflow-assets">
-<h3>Supply-Chain Security for WayFlow Assets<a class="headerlink" href="#supply-chain-security-for-wayflow-assets" title="Permalink to this heading">#</a></h3>
+<h3>Supply-Chain Security for WayFlow Assets<a class="headerlink" href="#supply-chain-security-for-wayflow-assets" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><dl class="simple">
 <dt><strong>Model Integrity</strong>: For third-party models used by WayFlow (fine-tuned, embeddings):</dt><dd><ul>
@@ -572,7 +570,7 @@ to control URL validity.</p>
 </ul>
 </section>
 <section id="network-segmentation-for-wayflow">
-<h3>Network Segmentation for WayFlow<a class="headerlink" href="#network-segmentation-for-wayflow" title="Permalink to this heading">#</a></h3>
+<h3>Network Segmentation for WayFlow<a class="headerlink" href="#network-segmentation-for-wayflow" title="Link to this heading">#</a></h3>
 <p>Isolate WayFlow components to limit blast radius:</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -594,7 +592,7 @@ to control URL validity.</p>
 </ul>
 </section>
 <section id="egress-controls-for-wayflow-components">
-<h3>Egress Controls for WayFlow Components<a class="headerlink" href="#egress-controls-for-wayflow-components" title="Permalink to this heading">#</a></h3>
+<h3>Egress Controls for WayFlow Components<a class="headerlink" href="#egress-controls-for-wayflow-components" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><dl class="simple">
 <dt><strong>Strict Egress Rules</strong>: Default-deny outbound traffic:</dt><dd><ul>
@@ -615,9 +613,9 @@ to control URL validity.</p>
 </ul>
 </section>
 <section id="network-connection-requirements">
-<h3>Network Connection Requirements<a class="headerlink" href="#network-connection-requirements" title="Permalink to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="table" id="id2">
-<caption><span class="caption-text">WayFlow Network Security: Key Implementations</span><a class="headerlink" href="#id2" title="Permalink to this table">#</a></caption>
+<h3>Network Connection Requirements<a class="headerlink" href="#network-connection-requirements" title="Link to this heading">#</a></h3>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">WayFlow Network Security: Key Implementations</span><a class="headerlink" href="#id2" title="Link to this table">#</a></caption>
 <colgroup>
 <col style="width: 40.0%" />
 <col style="width: 60.0%" />
@@ -669,18 +667,17 @@ to control URL validity.</p>
 </tr>
 </tbody>
 </table>
-</div>
 </section>
 </section>
 <section id="considerations-regarding-api-keys-and-secrets-management">
-<h2>Considerations regarding API keys and secrets management<a class="headerlink" href="#considerations-regarding-api-keys-and-secrets-management" title="Permalink to this heading">#</a></h2>
+<h2>Considerations regarding API keys and secrets management<a class="headerlink" href="#considerations-regarding-api-keys-and-secrets-management" title="Link to this heading">#</a></h2>
 <p>Secure API key/secret management is critical for WayFlow deployments (LLM providers, external services, internal auth) to prevent unauthorized access and data breaches.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Never embed API keys, passwords, or other secrets directly in code, configuration files, or serialized JSON/YAML. Always use secure injection mechanisms and follow the principle of least privilege for credential access.</p>
 </div>
 <section id="control-secret-sprawl">
-<h3>Control Secret Sprawl<a class="headerlink" href="#control-secret-sprawl" title="Permalink to this heading">#</a></h3>
+<h3>Control Secret Sprawl<a class="headerlink" href="#control-secret-sprawl" title="Link to this heading">#</a></h3>
 <p>Prevent hardcoded secrets in WayFlow:</p>
 <ul class="simple">
 <li><p><strong>Runtime injection for WayFlow required secrets (e.g., LLM API key or database credentials)</strong>:</p>
@@ -708,7 +705,7 @@ to control URL validity.</p>
 </ul>
 </section>
 <section id="llm-provider-authentication-security">
-<h3>LLM Provider Authentication Security<a class="headerlink" href="#llm-provider-authentication-security" title="Permalink to this heading">#</a></h3>
+<h3>LLM Provider Authentication Security<a class="headerlink" href="#llm-provider-authentication-security" title="Link to this heading">#</a></h3>
 <p><strong>OpenAI Models (`OpenAIModel`):</strong></p>
 <ul class="simple">
 <li><p>Injecting a Secret as an environment variable makes the value available to everything inside the Pod.</p></li>
@@ -730,7 +727,7 @@ to control URL validity.</p>
 </ul>
 </section>
 <section id="credential-rotation-and-monitoring">
-<h3>Credential Rotation and Monitoring<a class="headerlink" href="#credential-rotation-and-monitoring" title="Permalink to this heading">#</a></h3>
+<h3>Credential Rotation and Monitoring<a class="headerlink" href="#credential-rotation-and-monitoring" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>Rotation</strong>: Rotate WayFlow credentials regularly.</p></li>
 <li><p><strong>Monitoring</strong>: Track WayFlow’s <a class="reference internal" href="api/llmmodels.html#tokenusage"><span class="std std-ref">TokenUsage</span></a> for anomalies.</p></li>
@@ -739,12 +736,12 @@ to control URL validity.</p>
 </section>
 </section>
 <section id="considerations-regarding-resource-exhaustion-vectors">
-<h2>Considerations regarding Resource-exhaustion vectors<a class="headerlink" href="#considerations-regarding-resource-exhaustion-vectors" title="Permalink to this heading">#</a></h2>
+<h2>Considerations regarding Resource-exhaustion vectors<a class="headerlink" href="#considerations-regarding-resource-exhaustion-vectors" title="Link to this heading">#</a></h2>
 <p>Resource-exhaustion events may stem from hostile over-use or from innocent implementation mistakes (e.g., unbounded loops, forgotten awaits), so interrupts should be viewed as guardrails against both abuse and developer error.
 WayFlow provides two <strong>soft execution-interrupts</strong>, but they don’t cover all vectors. This section details their use, limitations, and additional production hardening techniques.</p>
 <section id="built-in-execution-interrupts">
-<h3>Built-in execution interrupts<a class="headerlink" href="#built-in-execution-interrupts" title="Permalink to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="table">
+<h3>Built-in execution interrupts<a class="headerlink" href="#built-in-execution-interrupts" title="Link to this heading">#</a></h3>
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 20.0%" />
 <col style="width: 80.0%" />
@@ -771,10 +768,9 @@ WayFlow provides two <strong>soft execution-interrupts</strong>, but they don’
 </tr>
 </tbody>
 </table>
-</div>
 </section>
 <section id="usage-example">
-<h3>Usage example<a class="headerlink" href="#usage-example" title="Permalink to this heading">#</a></h3>
+<h3>Usage example<a class="headerlink" href="#usage-example" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.interrupts.timeoutexecutioninterrupt</span><span class="w"> </span><span class="kn">import</span> <span class="n">SoftTimeoutExecutionInterrupt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.interrupts.tokenlimitexecutioninterrupt</span><span class="w"> </span><span class="kn">import</span> <span class="n">SoftTokenLimitExecutionInterrupt</span>
@@ -786,7 +782,7 @@ WayFlow provides two <strong>soft execution-interrupts</strong>, but they don’
 </div>
 </section>
 <section id="gaps-in-coverage-what-is-not-provided">
-<h3>Gaps in coverage (what is <strong>not</strong> provided)<a class="headerlink" href="#gaps-in-coverage-what-is-not-provided" title="Permalink to this heading">#</a></h3>
+<h3>Gaps in coverage (what is <strong>not</strong> provided)<a class="headerlink" href="#gaps-in-coverage-what-is-not-provided" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>Memory limits</strong> – no built-in interrupt for resident-set or GPU VRAM.</p></li>
 <li><p><strong>CPU / thread quotas</strong> – Python loops can still hog a core until the Step returns.</p></li>
@@ -796,7 +792,7 @@ WayFlow provides two <strong>soft execution-interrupts</strong>, but they don’
 </ul>
 </section>
 <section id="recommended-hardening-layers">
-<h3>Recommended hardening layers<a class="headerlink" href="#recommended-hardening-layers" title="Permalink to this heading">#</a></h3>
+<h3>Recommended hardening layers<a class="headerlink" href="#recommended-hardening-layers" title="Link to this heading">#</a></h3>
 <p class="rubric">OS / Container level</p>
 <ul>
 <li><p><strong>Resource Limits (cgroups/Kubernetes)</strong> for WayFlow containers:
@@ -858,14 +854,14 @@ Example:</p>
 </section>
 </section>
 <section id="considerations-regarding-input-validation-and-sanitation">
-<h2>Considerations regarding input validation and sanitation<a class="headerlink" href="#considerations-regarding-input-validation-and-sanitation" title="Permalink to this heading">#</a></h2>
+<h2>Considerations regarding input validation and sanitation<a class="headerlink" href="#considerations-regarding-input-validation-and-sanitation" title="Link to this heading">#</a></h2>
 <p>WayFlow has no built-in input validation/sanitation. Developers are responsible for securing user inputs via validation, sanitation, and external guardrails.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>All user-provided inputs—whether from chat interfaces, API payloads, or Tool arguments—should be treated as potentially malicious and require rigorous validation and sanitation before processing.</p>
 </div>
 <section id="core-input-security-requirements">
-<h3>Core Input Security Requirements<a class="headerlink" href="#core-input-security-requirements" title="Permalink to this heading">#</a></h3>
+<h3>Core Input Security Requirements<a class="headerlink" href="#core-input-security-requirements" title="Link to this heading">#</a></h3>
 <p><strong>Validation and Bounds Checking:</strong></p>
 <ul class="simple">
 <li><p>Validate length/structure of all inputs to WayFlow (chat, API, Tool arguments).</p></li>
@@ -890,9 +886,9 @@ Example:</p>
 </section>
 </section>
 <section id="considerations-regarding-logging">
-<h2>Considerations regarding logging<a class="headerlink" href="#considerations-regarding-logging" title="Permalink to this heading">#</a></h2>
+<h2>Considerations regarding logging<a class="headerlink" href="#considerations-regarding-logging" title="Link to this heading">#</a></h2>
 <section id="error-handling-exception-hygiene">
-<h3>Error handling &amp; exception hygiene<a class="headerlink" href="#error-handling-exception-hygiene" title="Permalink to this heading">#</a></h3>
+<h3>Error handling &amp; exception hygiene<a class="headerlink" href="#error-handling-exception-hygiene" title="Link to this heading">#</a></h3>
 <p>Robust error handling is key for WayFlow stability and security.</p>
 <ul class="simple">
 <li><p><strong>Custom WayFlow Steps</strong>: Implement comprehensive error handling. Map exceptions to sanitized messages, avoiding internal detail leakage.</p></li>
@@ -901,7 +897,7 @@ Example:</p>
 </ul>
 </section>
 <section id="audit-observability">
-<h3>Audit &amp; observability<a class="headerlink" href="#audit-observability" title="Permalink to this heading">#</a></h3>
+<h3>Audit &amp; observability<a class="headerlink" href="#audit-observability" title="Link to this heading">#</a></h3>
 <p>Comprehensive auditing/observability is vital for WayFlow.</p>
 <ul class="simple">
 <li><p><strong>Structured Logs for WayFlow Events</strong>: Log key WayFlow operations at <code class="docutils literal notranslate"><span class="pre">INFO</span></code> level:</p>
@@ -919,13 +915,13 @@ Example:</p>
 </section>
 </section>
 <section id="considerations-regarding-telemetry-observability">
-<h2>Considerations regarding Telemetry &amp; observability<a class="headerlink" href="#considerations-regarding-telemetry-observability" title="Permalink to this heading">#</a></h2>
+<h2>Considerations regarding Telemetry &amp; observability<a class="headerlink" href="#considerations-regarding-telemetry-observability" title="Link to this heading">#</a></h2>
 <p>WayFlow can emit rich execution traces—<strong>Spans</strong>—that describe every
 tool call, LLM invocation, and Step transition inside an Agent or Flow.
 These traces are invaluable for debugging and performance tuning, <strong>but
 they may also contain sensitive data</strong>.</p>
 <section id="what-s-in-a-span">
-<h3>1.  What’s in a Span?<a class="headerlink" href="#what-s-in-a-span" title="Permalink to this heading">#</a></h3>
+<h3>1.  What’s in a Span?<a class="headerlink" href="#what-s-in-a-span" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Flow / Agent configuration snapshot</p></li>
 <li><p>Sequence of executed Steps (timestamps, duration)</p></li>
@@ -934,7 +930,7 @@ they may also contain sensitive data</strong>.</p>
 </ul>
 </section>
 <section id="default-behaviour">
-<h3>2.  Default behaviour<a class="headerlink" href="#default-behaviour" title="Permalink to this heading">#</a></h3>
+<h3>2.  Default behaviour<a class="headerlink" href="#default-behaviour" title="Link to this heading">#</a></h3>
 <p>WayFlow sends <strong>no traces by default</strong>.
 To enable exporting you must supply a custom
 <a class="reference internal" href="api/tracing.html#spanexporter"><span class="std std-ref">SpanExporter</span></a>.</p>
@@ -944,7 +940,7 @@ To enable exporting you must supply a custom
 </div>
 </section>
 <section id="implementing-a-spanexporter">
-<h3>3.  Implementing a SpanExporter<a class="headerlink" href="#implementing-a-spanexporter" title="Permalink to this heading">#</a></h3>
+<h3>3.  Implementing a SpanExporter<a class="headerlink" href="#implementing-a-spanexporter" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tracing.spanexporter</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpanExporter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tracing.span</span><span class="w"> </span><span class="kn">import</span> <span class="n">Span</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span><span class="o">,</span><span class="w"> </span><span class="nn">aiohttp</span>
@@ -969,7 +965,7 @@ collector.</p></li>
 </ul>
 </section>
 <section id="spanprocessor-guidance">
-<h3>4.  SpanProcessor guidance<a class="headerlink" href="#spanprocessor-guidance" title="Permalink to this heading">#</a></h3>
+<h3>4.  SpanProcessor guidance<a class="headerlink" href="#spanprocessor-guidance" title="Link to this heading">#</a></h3>
 <p>When you add a custom <a class="reference internal" href="api/tracing.html#spanprocessor"><span class="std std-ref">SpanProcessor</span></a>:</p>
 <ul class="simple">
 <li><p>Apply sampling early to reduce volume.</p></li>
@@ -979,7 +975,7 @@ collector.</p></li>
 </section>
 </section>
 <section id="considerations-regarding-ui-rendering">
-<h2>Considerations regarding UI rendering<a class="headerlink" href="#considerations-regarding-ui-rendering" title="Permalink to this heading">#</a></h2>
+<h2>Considerations regarding UI rendering<a class="headerlink" href="#considerations-regarding-ui-rendering" title="Link to this heading">#</a></h2>
 <p>WayFlow uses <strong>Jinja 2</strong> for templates in core components like:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="api/flows.html#templaterenderingstep"><span class="std std-ref">TemplateRenderingStep</span></a></p></li>
@@ -1014,7 +1010,7 @@ HTML/JS injection (stored XSS) where malicious scripts sent in chat can be
 executed by the browser if auto-escaping is off.</p>
 </div>
 <section id="recommended-mitigations">
-<h3>Recommended mitigations<a class="headerlink" href="#recommended-mitigations" title="Permalink to this heading">#</a></h3>
+<h3>Recommended mitigations<a class="headerlink" href="#recommended-mitigations" title="Link to this heading">#</a></h3>
 <ol class="arabic">
 <li><p><strong>Segregate rendering responsibilities</strong></p>
 <ul class="simple">
@@ -1058,7 +1054,7 @@ from the main application.</p>
 </ol>
 </section>
 <section id="extended-api-specific-guidance">
-<h3>Extended API-specific guidance<a class="headerlink" href="#extended-api-specific-guidance" title="Permalink to this heading">#</a></h3>
+<h3>Extended API-specific guidance<a class="headerlink" href="#extended-api-specific-guidance" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><strong>`OutputMessageStep`</strong></p>
 <p>This class returns strings and performs <em>no</em> escaping. When its output is propagated to a web front-end (often via <code class="docutils literal notranslate"><span class="pre">DataFlowEdge</span> <span class="pre">→</span> <span class="pre">OutputMessageStep.OUTPUT</span></code>), apply HTML escaping there.</p>
@@ -1073,11 +1069,11 @@ from the main application.</p>
 </section>
 </section>
 <section id="considerations-regarding-assistant-flow-serialization">
-<h2>Considerations regarding assistant/flow serialization<a class="headerlink" href="#considerations-regarding-assistant-flow-serialization" title="Permalink to this heading">#</a></h2>
+<h2>Considerations regarding assistant/flow serialization<a class="headerlink" href="#considerations-regarding-assistant-flow-serialization" title="Link to this heading">#</a></h2>
 <p>WayFlow components inheriting from <a class="reference internal" href="api/serialization.html#serializableobject"><span class="std std-ref">SerializableObject</span></a> can be converted to/from a dictionary representation (typically YAML) using <a class="reference internal" href="api/serialization.html#serialize"><span class="std std-ref">serialize</span></a>.</p>
 <p>Serialized JSON of assistants/flows are computational programs. <strong>Executing deserialized objects is like executing code.</strong> Ensuring integrity/authenticity before deserialization is key to prevent Arbitrary Code Execution (ACE).</p>
 <section id="secure-deserialization-practices">
-<h3>Secure Deserialization Practices<a class="headerlink" href="#secure-deserialization-practices" title="Permalink to this heading">#</a></h3>
+<h3>Secure Deserialization Practices<a class="headerlink" href="#secure-deserialization-practices" title="Link to this heading">#</a></h3>
 <p>Deserializing data from untrusted sources is inherently risky. Always treat serialized WayFlow objects from external or unverified origins as potentially malicious.</p>
 <ol class="arabic simple">
 <li><p><strong>Verify Data Integrity and Authenticity</strong>:
@@ -1111,7 +1107,7 @@ While <a class="reference internal" href="api/serialization.html#autodeserialize
 </section>
 </section>
 <section id="other-security-concerns">
-<h2>Other Security Concerns<a class="headerlink" href="#other-security-concerns" title="Permalink to this heading">#</a></h2>
+<h2>Other Security Concerns<a class="headerlink" href="#other-security-concerns" title="Link to this heading">#</a></h2>
 <p>For any other security concerns, please submit a <a class="reference external" href="https://github.com/oracle/wayflow/issues">GitHub issue</a>.</p>
 </section>
 </section>
@@ -1227,7 +1223,7 @@ While <a class="reference internal" href="api/serialization.html#autodeserialize
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

@@ -1,16 +1,15 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to Do Structured LLM Generation in Flows &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+    <title>How to Do Structured LLM Generation in Flows &#8212; wayflowcore 26.2.0.dev0 documentation</title>
   
   
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_promptexecutionstep';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="How to Create Conditional Transitions in Flows" href="conditional_flows.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2.0.dev0" />
   </head>
   
   
@@ -108,6 +107,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -136,8 +138,8 @@
       
     
     
-    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
-    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
   
   
 </a></div>
@@ -281,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -308,6 +310,7 @@
 <li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
@@ -318,20 +321,24 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_event_system.html">Use the Event System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_rag.html">Build RAG-Powered Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">Evaluate Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">Evaluate Conversations</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
@@ -351,6 +358,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/auth.html">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/search.html">Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
@@ -358,13 +367,14 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/docs_mcp_server.html">Docs MCP Server</a></li>
 </ul>
 </div>
 </nav></div>
@@ -429,14 +439,14 @@
                 <article class="bd-article">
                   
   <section id="how-to-do-structured-llm-generation-in-flows">
-<span id="top-howtopromptexecutionstep"></span><h1>How to Do Structured LLM Generation in Flows<a class="headerlink" href="#how-to-do-structured-llm-generation-in-flows" title="Permalink to this heading">#</a></h1>
+<span id="top-howtopromptexecutionstep"></span><h1>How to Do Structured LLM Generation in Flows<a class="headerlink" href="#how-to-do-structured-llm-generation-in-flows" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Python Script</div>
 <p class="sd-card-text">Python script/notebook for this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_promptexecutionstep.py"><span>Prompt execution step how-to script</span></a></div>
@@ -455,7 +465,7 @@ This guide will show you how to:</p>
 <li><p>use the <a class="reference internal" href="../api/flows.html#agentexecutionstep"><span class="std std-ref">AgentExecutionStep</span></a> to generate structured outputs using an agent</p></li>
 </ul>
 <section id="basic-implementation">
-<h2>Basic implementation<a class="headerlink" href="#basic-implementation" title="Permalink to this heading">#</a></h2>
+<h2>Basic implementation<a class="headerlink" href="#basic-implementation" title="Link to this heading">#</a></h2>
 <p>In this how-to guide, you will learn how to perform structured LLM generation with Flows.</p>
 <p>WayFlow supports several LLM API providers.
 Select an LLM from the options below:</p>
@@ -529,16 +539,21 @@ If you use <code class="docutils literal notranslate"><span class="pre">{{var_na
 If you specify anything else Jinja2 compatible (for loops, filters, and so on), it will be of type <code class="docutils literal notranslate"><span class="pre">AnyProperty</span></code>.</p>
 </div>
 <p>Now execute the flow:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article&quot;</span><span class="p">:</span> <span class="n">article</span><span class="p">})</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">FinishedStatus</span>
+
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article&quot;</span><span class="p">:</span> <span class="n">article</span><span class="p">})</span>
 <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">[</span><span class="s2">&quot;summary&quot;</span><span class="p">])</span>
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">[</span><span class="s2">&quot;summary&quot;</span><span class="p">])</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="c1"># Sea turtles face threats from poaching, habitat loss, and pollution globally.</span>
 </pre></div>
 </div>
 <p>As expected, your flow has generated the article summary!</p>
 </section>
 <section id="structured-generation-with-flows">
-<h2>Structured generation with Flows<a class="headerlink" href="#structured-generation-with-flows" title="Permalink to this heading">#</a></h2>
+<h2>Structured generation with Flows<a class="headerlink" href="#structured-generation-with-flows" title="Link to this heading">#</a></h2>
 <p>In many cases, generating raw text within a flow is not very useful, as it is difficult to leverage in later steps.
 Instead, you might want to generate attributes that follow a particular schema.
 The <code class="docutils literal notranslate"><span class="pre">PromptExecutionStep</span></code> class enables this through the <cite>output_descriptors</cite> parameter.</p>
@@ -587,13 +602,16 @@ The <code class="docutils literal notranslate"><span class="pre">PromptExecution
 
 <span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article&quot;</span><span class="p">:</span> <span class="n">article</span><span class="p">})</span>
 <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="c1"># {&#39;threats&#39;: [&#39;poaching&#39;, &#39;habitat loss&#39;, &#39;pollution&#39;], &#39;danger_level&#39;: &#39;HIGH&#39;, &#39;animal_name&#39;: &#39;Sea turtles&#39;}</span>
 </pre></div>
 </div>
 </section>
 <section id="complex-json-objects">
-<h2>Complex JSON objects<a class="headerlink" href="#complex-json-objects" title="Permalink to this heading">#</a></h2>
+<h2>Complex JSON objects<a class="headerlink" href="#complex-json-objects" title="Link to this heading">#</a></h2>
 <p>Sometimes, you might need to generate an object that follows a specific JSON Schema.
 You can do that by using an output descriptor of type <code class="docutils literal notranslate"><span class="pre">ObjectProperty</span></code>, or directly converting your JSON Schema into a descriptor:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">Property</span><span class="p">,</span> <span class="n">StringProperty</span>
@@ -648,13 +666,16 @@ You can do that by using an output descriptor of type <code class="docutils lite
 
 <span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article&quot;</span><span class="p">:</span> <span class="n">article</span><span class="p">})</span>
 <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="c1"># {&#39;animal_object&#39;: {&#39;animal_name&#39;: &#39;Sea turtles&#39;, &#39;danger_level&#39;: &#39;MEDIUM&#39;, &#39;threats&#39;: [&#39;Poaching&#39;, &#39;Habitat loss&#39;, &#39;Pollution&#39;]}}</span>
 </pre></div>
 </div>
 </section>
 <section id="structured-generation-with-agents">
-<h2>Structured generation with Agents<a class="headerlink" href="#structured-generation-with-agents" title="Permalink to this heading">#</a></h2>
+<h2>Structured generation with Agents<a class="headerlink" href="#structured-generation-with-agents" title="Link to this heading">#</a></h2>
 <p>In certain scenarios, you might need an agent to generate well-formatted outputs within your flow.
 You can instruct the agent to generate them, and use it in the <code class="docutils literal notranslate"><span class="pre">AgentExecutionStep</span></code> class to perform structured generation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">CallerInputMode</span>
@@ -688,13 +709,16 @@ You can instruct the agent to generate them, and use it in the <code class="docu
 <span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
 <span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Here is the article: &quot;</span> <span class="o">+</span> <span class="n">article</span><span class="p">)</span>
 <span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="c1"># {&#39;animal_name&#39;: &#39;Sea turtles&#39;, &#39;danger_level&#39;: &#39;HIGH&#39;, &#39;threats&#39;: [&#39;poaching&#39;, &#39;habitat loss&#39;, &#39;pollution&#39;]}</span>
 </pre></div>
 </div>
 </section>
 <section id="how-to-write-secure-prompts-with-jinja-templating">
-<h2>How to write secure prompts with Jinja templating<a class="headerlink" href="#how-to-write-secure-prompts-with-jinja-templating" title="Permalink to this heading">#</a></h2>
+<h2>How to write secure prompts with Jinja templating<a class="headerlink" href="#how-to-write-secure-prompts-with-jinja-templating" title="Link to this heading">#</a></h2>
 <p id="securejinjatemplating"><a class="reference external" href="https://jinja.palletsprojects.com/en/stable/intro/">Jinja2</a> is a fast and flexible templating engine for Python,
 enabling dynamic generation of text-based formats by combining templates with data.</p>
 <p>However, enabling all Jinja templating capabilities poses some security challenges.
@@ -712,7 +736,7 @@ In particular, only elements and sub-elements that are of basic Python types
 (<code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">dict</span></code>, <code class="docutils literal notranslate"><span class="pre">tuple</span></code>, <code class="docutils literal notranslate"><span class="pre">set</span></code>, <code class="docutils literal notranslate"><span class="pre">NoneType</span></code>) are accepted.
 In any other case, a <code class="docutils literal notranslate"><span class="pre">SecurityException</span></code> is raised.</p>
 <section id="what-you-can-write">
-<h3>What you can write<a class="headerlink" href="#what-you-can-write" title="Permalink to this heading">#</a></h3>
+<h3>What you can write<a class="headerlink" href="#what-you-can-write" title="Link to this heading">#</a></h3>
 <p>Here’s a set of common patterns that are accepted by WayFlow’s restricted Jinja templating.</p>
 <p>Templates that access variables of base Python types:</p>
 <blockquote>
@@ -778,7 +802,7 @@ For example, in case of complex objects, in order to comply with restrictions ab
 transform them recursively into a dictionary of entries of basic Python types (see list of accepted types above).</p>
 </section>
 <section id="what-you-cannot-write">
-<h3>What you cannot write<a class="headerlink" href="#what-you-cannot-write" title="Permalink to this heading">#</a></h3>
+<h3>What you cannot write<a class="headerlink" href="#what-you-cannot-write" title="Link to this heading">#</a></h3>
 <p>Here’s a set of common patterns that are <strong>NOT</strong> accepted by WayFlow’s restricted Jinja templating.</p>
 <p>Templates that access arbitrary objects:</p>
 <blockquote>
@@ -840,7 +864,7 @@ transform them recursively into a dictionary of entries of basic Python types (s
 </section>
 </section>
 <section id="agent-spec-exporting-loading">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Link to this heading">#</a></h2>
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
 <span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
@@ -1348,7 +1372,7 @@ transform them recursively into a dictionary of entries of basic Python types (s
 </div>
 </section>
 <section id="recap">
-<h2>Recap<a class="headerlink" href="#recap" title="Permalink to this heading">#</a></h2>
+<h2>Recap<a class="headerlink" href="#recap" title="Link to this heading">#</a></h2>
 <p>In this guide, you learned how to incorporate LLMs into flows to:</p>
 <ul class="simple">
 <li><p>generate raw text</p></li>
@@ -1357,7 +1381,7 @@ transform them recursively into a dictionary of entries of basic Python types (s
 </ul>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Having learned how to perform structured generation in WayFlow, you may now proceed to:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="generation_config.html"><span class="doc">Config Generation</span></a> to change LLM generation parameters.</p></li>
@@ -1365,7 +1389,7 @@ transform them recursively into a dictionary of entries of basic Python types (s
 </ul>
 </section>
 <section id="full-code">
-<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <p>Click on the card at the <a class="reference internal" href="#top-howtopromptexecutionstep"><span class="std std-ref">top of this page</span></a> to download the full code for this guide or copy the code below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
 <span class="linenos">  2</span><span class="c1">#</span>
@@ -1380,7 +1404,7 @@ transform them recursively into a dictionary of entries of basic Python types (s
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2.0.dev0&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -1450,184 +1474,198 @@ transform them recursively into a dictionary of entries of basic Python types (s
 <span class="linenos"> 81</span><span class="c1">## Run the flow to get the summary</span>
 <span class="linenos"> 82</span>
 <span class="linenos"> 83</span><span class="c1"># %%</span>
-<span class="linenos"> 84</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article&quot;</span><span class="p">:</span> <span class="n">article</span><span class="p">})</span>
-<span class="linenos"> 85</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="linenos"> 86</span><span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">[</span><span class="s2">&quot;summary&quot;</span><span class="p">])</span>
-<span class="linenos"> 87</span><span class="c1"># Sea turtles face threats from poaching, habitat loss, and pollution globally.</span>
-<span class="linenos"> 88</span>
-<span class="linenos"> 89</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
-<span class="linenos"> 90</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
-<span class="linenos"> 91</span>
-<span class="linenos"> 92</span>
-<span class="linenos"> 93</span><span class="c1"># %%[markdown]</span>
-<span class="linenos"> 94</span><span class="c1">## Use structured generation to extract formatted information</span>
-<span class="linenos"> 95</span>
-<span class="linenos"> 96</span><span class="c1"># %%</span>
-<span class="linenos"> 97</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListProperty</span><span class="p">,</span> <span class="n">StringProperty</span>
-<span class="linenos"> 98</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptExecutionStep</span><span class="p">,</span> <span class="n">StartStep</span>
-<span class="linenos"> 99</span>
-<span class="linenos">100</span><span class="n">animal_output</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span>
-<span class="linenos">101</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;animal_name&quot;</span><span class="p">,</span>
-<span class="linenos">102</span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;name of the animal&quot;</span><span class="p">,</span>
-<span class="linenos">103</span>    <span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="linenos">104</span><span class="p">)</span>
-<span class="linenos">105</span><span class="n">danger_level_output</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span>
-<span class="linenos">106</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;danger_level&quot;</span><span class="p">,</span>
-<span class="linenos">107</span>    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;level of danger of the animal. Can be &quot;HIGH&quot;, &quot;MEDIUM&quot; or &quot;LOW&quot;&#39;</span><span class="p">,</span>
+<span class="linenos"> 84</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">FinishedStatus</span>
+<span class="linenos"> 85</span>
+<span class="linenos"> 86</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article&quot;</span><span class="p">:</span> <span class="n">article</span><span class="p">})</span>
+<span class="linenos"> 87</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos"> 88</span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+<span class="linenos"> 89</span>    <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">[</span><span class="s2">&quot;summary&quot;</span><span class="p">])</span>
+<span class="linenos"> 90</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos"> 91</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos"> 92</span><span class="c1"># Sea turtles face threats from poaching, habitat loss, and pollution globally.</span>
+<span class="linenos"> 93</span>
+<span class="linenos"> 94</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="linenos"> 95</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
+<span class="linenos"> 96</span>
+<span class="linenos"> 97</span>
+<span class="linenos"> 98</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 99</span><span class="c1">## Use structured generation to extract formatted information</span>
+<span class="linenos">100</span>
+<span class="linenos">101</span><span class="c1"># %%</span>
+<span class="linenos">102</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListProperty</span><span class="p">,</span> <span class="n">StringProperty</span>
+<span class="linenos">103</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptExecutionStep</span><span class="p">,</span> <span class="n">StartStep</span>
+<span class="linenos">104</span>
+<span class="linenos">105</span><span class="n">animal_output</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span>
+<span class="linenos">106</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;animal_name&quot;</span><span class="p">,</span>
+<span class="linenos">107</span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;name of the animal&quot;</span><span class="p">,</span>
 <span class="linenos">108</span>    <span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="linenos">109</span><span class="p">)</span>
-<span class="linenos">110</span><span class="n">threats_output</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">(</span>
-<span class="linenos">111</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;threats&quot;</span><span class="p">,</span>
-<span class="linenos">112</span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;list of threats for the animal&quot;</span><span class="p">,</span>
-<span class="linenos">113</span>    <span class="n">item_type</span><span class="o">=</span><span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;threat&quot;</span><span class="p">),</span>
-<span class="linenos">114</span>    <span class="n">default_value</span><span class="o">=</span><span class="p">[],</span>
-<span class="linenos">115</span><span class="p">)</span>
-<span class="linenos">116</span>
-<span class="linenos">117</span>
-<span class="linenos">118</span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span><span class="n">input_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;article&quot;</span><span class="p">)])</span>
-<span class="linenos">119</span><span class="n">summarize_step</span> <span class="o">=</span> <span class="n">PromptExecutionStep</span><span class="p">(</span>
-<span class="linenos">120</span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-<span class="linenos">121</span>    <span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Extract from the following article the name of the animal, its danger level and the threats it&#39;s subject to. The article:</span><span class="se">\n\n</span><span class="s2"> {{article}}&quot;&quot;&quot;</span><span class="p">,</span>
-<span class="linenos">122</span>    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">animal_output</span><span class="p">,</span> <span class="n">danger_level_output</span><span class="p">,</span> <span class="n">threats_output</span><span class="p">],</span>
-<span class="linenos">123</span><span class="p">)</span>
-<span class="linenos">124</span><span class="n">summarize_step_name</span> <span class="o">=</span> <span class="s2">&quot;summarize_step&quot;</span>
-<span class="linenos">125</span><span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
-<span class="linenos">126</span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>
-<span class="linenos">127</span>    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
-<span class="linenos">128</span>        <span class="s2">&quot;start_step&quot;</span><span class="p">:</span> <span class="n">start_step</span><span class="p">,</span>
-<span class="linenos">129</span>        <span class="n">summarize_step_name</span><span class="p">:</span> <span class="n">summarize_step</span><span class="p">,</span>
-<span class="linenos">130</span>    <span class="p">},</span>
-<span class="linenos">131</span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
-<span class="linenos">132</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">summarize_step</span><span class="p">),</span>
-<span class="linenos">133</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">summarize_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
-<span class="linenos">134</span>    <span class="p">],</span>
-<span class="linenos">135</span>    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span>
-<span class="linenos">136</span>        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">start_step</span><span class="p">,</span> <span class="s2">&quot;article&quot;</span><span class="p">,</span> <span class="n">summarize_step</span><span class="p">,</span> <span class="s2">&quot;article&quot;</span><span class="p">),</span>
-<span class="linenos">137</span>    <span class="p">],</span>
-<span class="linenos">138</span><span class="p">)</span>
-<span class="linenos">139</span>
-<span class="linenos">140</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article&quot;</span><span class="p">:</span> <span class="n">article</span><span class="p">})</span>
-<span class="linenos">141</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="linenos">142</span><span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
-<span class="linenos">143</span><span class="c1"># {&#39;threats&#39;: [&#39;poaching&#39;, &#39;habitat loss&#39;, &#39;pollution&#39;], &#39;danger_level&#39;: &#39;HIGH&#39;, &#39;animal_name&#39;: &#39;Sea turtles&#39;}</span>
+<span class="linenos">110</span><span class="n">danger_level_output</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span>
+<span class="linenos">111</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;danger_level&quot;</span><span class="p">,</span>
+<span class="linenos">112</span>    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;level of danger of the animal. Can be &quot;HIGH&quot;, &quot;MEDIUM&quot; or &quot;LOW&quot;&#39;</span><span class="p">,</span>
+<span class="linenos">113</span>    <span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">114</span><span class="p">)</span>
+<span class="linenos">115</span><span class="n">threats_output</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">(</span>
+<span class="linenos">116</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;threats&quot;</span><span class="p">,</span>
+<span class="linenos">117</span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;list of threats for the animal&quot;</span><span class="p">,</span>
+<span class="linenos">118</span>    <span class="n">item_type</span><span class="o">=</span><span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;threat&quot;</span><span class="p">),</span>
+<span class="linenos">119</span>    <span class="n">default_value</span><span class="o">=</span><span class="p">[],</span>
+<span class="linenos">120</span><span class="p">)</span>
+<span class="linenos">121</span>
+<span class="linenos">122</span>
+<span class="linenos">123</span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span><span class="n">input_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;article&quot;</span><span class="p">)])</span>
+<span class="linenos">124</span><span class="n">summarize_step</span> <span class="o">=</span> <span class="n">PromptExecutionStep</span><span class="p">(</span>
+<span class="linenos">125</span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+<span class="linenos">126</span>    <span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Extract from the following article the name of the animal, its danger level and the threats it&#39;s subject to. The article:</span><span class="se">\n\n</span><span class="s2"> {{article}}&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">127</span>    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">animal_output</span><span class="p">,</span> <span class="n">danger_level_output</span><span class="p">,</span> <span class="n">threats_output</span><span class="p">],</span>
+<span class="linenos">128</span><span class="p">)</span>
+<span class="linenos">129</span><span class="n">summarize_step_name</span> <span class="o">=</span> <span class="s2">&quot;summarize_step&quot;</span>
+<span class="linenos">130</span><span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+<span class="linenos">131</span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>
+<span class="linenos">132</span>    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">133</span>        <span class="s2">&quot;start_step&quot;</span><span class="p">:</span> <span class="n">start_step</span><span class="p">,</span>
+<span class="linenos">134</span>        <span class="n">summarize_step_name</span><span class="p">:</span> <span class="n">summarize_step</span><span class="p">,</span>
+<span class="linenos">135</span>    <span class="p">},</span>
+<span class="linenos">136</span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">137</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">summarize_step</span><span class="p">),</span>
+<span class="linenos">138</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">summarize_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="linenos">139</span>    <span class="p">],</span>
+<span class="linenos">140</span>    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">141</span>        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">start_step</span><span class="p">,</span> <span class="s2">&quot;article&quot;</span><span class="p">,</span> <span class="n">summarize_step</span><span class="p">,</span> <span class="s2">&quot;article&quot;</span><span class="p">),</span>
+<span class="linenos">142</span>    <span class="p">],</span>
+<span class="linenos">143</span><span class="p">)</span>
 <span class="linenos">144</span>
-<span class="linenos">145</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
-<span class="linenos">146</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
-<span class="linenos">147</span>
-<span class="linenos">148</span>
-<span class="linenos">149</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">150</span><span class="c1">## Use structured generation with JSON schema</span>
-<span class="linenos">151</span>
-<span class="linenos">152</span><span class="c1"># %%</span>
-<span class="linenos">153</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">Property</span><span class="p">,</span> <span class="n">StringProperty</span>
-<span class="linenos">154</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptExecutionStep</span><span class="p">,</span> <span class="n">StartStep</span>
+<span class="linenos">145</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article&quot;</span><span class="p">:</span> <span class="n">article</span><span class="p">})</span>
+<span class="linenos">146</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">147</span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+<span class="linenos">148</span>    <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
+<span class="linenos">149</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos">150</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">151</span><span class="c1"># {&#39;threats&#39;: [&#39;poaching&#39;, &#39;habitat loss&#39;, &#39;pollution&#39;], &#39;danger_level&#39;: &#39;HIGH&#39;, &#39;animal_name&#39;: &#39;Sea turtles&#39;}</span>
+<span class="linenos">152</span>
+<span class="linenos">153</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="linenos">154</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
 <span class="linenos">155</span>
-<span class="linenos">156</span><span class="n">animal_json_schema</span> <span class="o">=</span> <span class="p">{</span>
-<span class="linenos">157</span>    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;animal_object&quot;</span><span class="p">,</span>
-<span class="linenos">158</span>    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;information about the animal&quot;</span><span class="p">,</span>
-<span class="linenos">159</span>    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<span class="linenos">160</span>    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="linenos">161</span>        <span class="s2">&quot;animal_name&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="linenos">162</span>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="linenos">163</span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;name of the animal&quot;</span><span class="p">,</span>
-<span class="linenos">164</span>            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="linenos">165</span>        <span class="p">},</span>
-<span class="linenos">166</span>        <span class="s2">&quot;danger_level&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="linenos">167</span>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="linenos">168</span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s1">&#39;level of danger of the animal. Can be &quot;HIGH&quot;, &quot;MEDIUM&quot; or &quot;LOW&quot;&#39;</span><span class="p">,</span>
-<span class="linenos">169</span>            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="linenos">170</span>        <span class="p">},</span>
-<span class="linenos">171</span>        <span class="s2">&quot;threats&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="linenos">172</span>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;array&quot;</span><span class="p">,</span>
-<span class="linenos">173</span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;list of threats for the animal&quot;</span><span class="p">,</span>
-<span class="linenos">174</span>            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
-<span class="linenos">175</span>            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">[],</span>
-<span class="linenos">176</span>        <span class="p">},</span>
-<span class="linenos">177</span>    <span class="p">},</span>
-<span class="linenos">178</span><span class="p">}</span>
-<span class="linenos">179</span><span class="n">animal_descriptor</span> <span class="o">=</span> <span class="n">Property</span><span class="o">.</span><span class="n">from_json_schema</span><span class="p">(</span><span class="n">animal_json_schema</span><span class="p">)</span>
-<span class="linenos">180</span>
-<span class="linenos">181</span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span><span class="n">input_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;article&quot;</span><span class="p">)])</span>
-<span class="linenos">182</span><span class="n">summarize_step</span> <span class="o">=</span> <span class="n">PromptExecutionStep</span><span class="p">(</span>
-<span class="linenos">183</span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-<span class="linenos">184</span>    <span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Extract from the following article the name of the animal, its danger level and the threats it&#39;s subject to. The article:</span><span class="se">\n\n</span><span class="s2"> {{article}}&quot;&quot;&quot;</span><span class="p">,</span>
-<span class="linenos">185</span>    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">animal_descriptor</span><span class="p">],</span>
-<span class="linenos">186</span><span class="p">)</span>
-<span class="linenos">187</span><span class="n">summarize_step_name</span> <span class="o">=</span> <span class="s2">&quot;summarize_step&quot;</span>
-<span class="linenos">188</span><span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
-<span class="linenos">189</span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>
-<span class="linenos">190</span>    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
-<span class="linenos">191</span>        <span class="s2">&quot;start_step&quot;</span><span class="p">:</span> <span class="n">start_step</span><span class="p">,</span>
-<span class="linenos">192</span>        <span class="n">summarize_step_name</span><span class="p">:</span> <span class="n">summarize_step</span><span class="p">,</span>
-<span class="linenos">193</span>    <span class="p">},</span>
-<span class="linenos">194</span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
-<span class="linenos">195</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">summarize_step</span><span class="p">),</span>
-<span class="linenos">196</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">summarize_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
-<span class="linenos">197</span>    <span class="p">],</span>
-<span class="linenos">198</span>    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span>
-<span class="linenos">199</span>        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">start_step</span><span class="p">,</span> <span class="s2">&quot;article&quot;</span><span class="p">,</span> <span class="n">summarize_step</span><span class="p">,</span> <span class="s2">&quot;article&quot;</span><span class="p">),</span>
-<span class="linenos">200</span>    <span class="p">],</span>
-<span class="linenos">201</span><span class="p">)</span>
-<span class="linenos">202</span>
-<span class="linenos">203</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article&quot;</span><span class="p">:</span> <span class="n">article</span><span class="p">})</span>
-<span class="linenos">204</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="linenos">205</span><span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
-<span class="linenos">206</span><span class="c1"># {&#39;animal_object&#39;: {&#39;animal_name&#39;: &#39;Sea turtles&#39;, &#39;danger_level&#39;: &#39;MEDIUM&#39;, &#39;threats&#39;: [&#39;Poaching&#39;, &#39;Habitat loss&#39;, &#39;Pollution&#39;]}}</span>
-<span class="linenos">207</span>
-<span class="linenos">208</span>
-<span class="linenos">209</span>
-<span class="linenos">210</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">211</span><span class="c1">## Use structured generation with Agents in flows</span>
-<span class="linenos">212</span>
-<span class="linenos">213</span><span class="c1"># %%</span>
-<span class="linenos">214</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">CallerInputMode</span>
-<span class="linenos">215</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
-<span class="linenos">216</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentExecutionStep</span><span class="p">,</span> <span class="n">StartStep</span>
-<span class="linenos">217</span>
-<span class="linenos">218</span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span><span class="n">input_descriptors</span><span class="o">=</span><span class="p">[])</span>
-<span class="linenos">219</span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
-<span class="linenos">220</span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-<span class="linenos">221</span>    <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Extract from the article given by the user the name of the animal, its danger level and the threats it&#39;s subject to.&quot;&quot;&quot;</span><span class="p">,</span>
-<span class="linenos">222</span>    <span class="n">initial_message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="linenos">223</span>    <span class="n">caller_input_mode</span><span class="o">=</span><span class="n">CallerInputMode</span><span class="o">.</span><span class="n">NEVER</span><span class="p">,</span>  <span class="c1"># &lt;- ensure the agent does not ask the user questions, just produces the expected outputs</span>
-<span class="linenos">224</span>    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">animal_output</span><span class="p">,</span> <span class="n">danger_level_output</span><span class="p">,</span> <span class="n">threats_output</span><span class="p">],</span>
-<span class="linenos">225</span><span class="p">)</span>
-<span class="linenos">226</span>
-<span class="linenos">227</span><span class="n">summarize_agent_step</span> <span class="o">=</span> <span class="n">AgentExecutionStep</span><span class="p">(</span><span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">)</span>
-<span class="linenos">228</span><span class="n">summarize_step_name</span> <span class="o">=</span> <span class="s2">&quot;summarize_step&quot;</span>
-<span class="linenos">229</span><span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
-<span class="linenos">230</span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>
-<span class="linenos">231</span>    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
-<span class="linenos">232</span>        <span class="s2">&quot;start_step&quot;</span><span class="p">:</span> <span class="n">start_step</span><span class="p">,</span>
-<span class="linenos">233</span>        <span class="n">summarize_step_name</span><span class="p">:</span> <span class="n">summarize_agent_step</span><span class="p">,</span>
-<span class="linenos">234</span>    <span class="p">},</span>
-<span class="linenos">235</span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
-<span class="linenos">236</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">summarize_agent_step</span><span class="p">),</span>
-<span class="linenos">237</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">summarize_agent_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
-<span class="linenos">238</span>    <span class="p">],</span>
-<span class="linenos">239</span>    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[],</span>
-<span class="linenos">240</span><span class="p">)</span>
-<span class="linenos">241</span>
-<span class="linenos">242</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
-<span class="linenos">243</span><span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Here is the article: &quot;</span> <span class="o">+</span> <span class="n">article</span><span class="p">)</span>
-<span class="linenos">244</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="linenos">245</span><span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
-<span class="linenos">246</span><span class="c1"># {&#39;animal_name&#39;: &#39;Sea turtles&#39;, &#39;danger_level&#39;: &#39;HIGH&#39;, &#39;threats&#39;: [&#39;poaching&#39;, &#39;habitat loss&#39;, &#39;pollution&#39;]}</span>
-<span class="linenos">247</span>
-<span class="linenos">248</span>
-<span class="linenos">249</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">250</span><span class="c1">## Export config to Agent Spec</span>
-<span class="linenos">251</span>
-<span class="linenos">252</span><span class="c1"># %%</span>
-<span class="linenos">253</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
-<span class="linenos">254</span><span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
-<span class="linenos">255</span>
-<span class="linenos">256</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">257</span><span class="c1">## Load Agent Spec config</span>
-<span class="linenos">258</span>
-<span class="linenos">259</span><span class="c1"># %%</span>
-<span class="linenos">260</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
-<span class="linenos">261</span><span class="n">new_assistant</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">()</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
+<span class="linenos">156</span>
+<span class="linenos">157</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">158</span><span class="c1">## Use structured generation with JSON schema</span>
+<span class="linenos">159</span>
+<span class="linenos">160</span><span class="c1"># %%</span>
+<span class="linenos">161</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">Property</span><span class="p">,</span> <span class="n">StringProperty</span>
+<span class="linenos">162</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptExecutionStep</span><span class="p">,</span> <span class="n">StartStep</span>
+<span class="linenos">163</span>
+<span class="linenos">164</span><span class="n">animal_json_schema</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">165</span>    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;animal_object&quot;</span><span class="p">,</span>
+<span class="linenos">166</span>    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;information about the animal&quot;</span><span class="p">,</span>
+<span class="linenos">167</span>    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="linenos">168</span>    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">169</span>        <span class="s2">&quot;animal_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">170</span>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="linenos">171</span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;name of the animal&quot;</span><span class="p">,</span>
+<span class="linenos">172</span>            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">173</span>        <span class="p">},</span>
+<span class="linenos">174</span>        <span class="s2">&quot;danger_level&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">175</span>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="linenos">176</span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s1">&#39;level of danger of the animal. Can be &quot;HIGH&quot;, &quot;MEDIUM&quot; or &quot;LOW&quot;&#39;</span><span class="p">,</span>
+<span class="linenos">177</span>            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">178</span>        <span class="p">},</span>
+<span class="linenos">179</span>        <span class="s2">&quot;threats&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">180</span>            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;array&quot;</span><span class="p">,</span>
+<span class="linenos">181</span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;list of threats for the animal&quot;</span><span class="p">,</span>
+<span class="linenos">182</span>            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+<span class="linenos">183</span>            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">[],</span>
+<span class="linenos">184</span>        <span class="p">},</span>
+<span class="linenos">185</span>    <span class="p">},</span>
+<span class="linenos">186</span><span class="p">}</span>
+<span class="linenos">187</span><span class="n">animal_descriptor</span> <span class="o">=</span> <span class="n">Property</span><span class="o">.</span><span class="n">from_json_schema</span><span class="p">(</span><span class="n">animal_json_schema</span><span class="p">)</span>
+<span class="linenos">188</span>
+<span class="linenos">189</span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span><span class="n">input_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;article&quot;</span><span class="p">)])</span>
+<span class="linenos">190</span><span class="n">summarize_step</span> <span class="o">=</span> <span class="n">PromptExecutionStep</span><span class="p">(</span>
+<span class="linenos">191</span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+<span class="linenos">192</span>    <span class="n">prompt_template</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Extract from the following article the name of the animal, its danger level and the threats it&#39;s subject to. The article:</span><span class="se">\n\n</span><span class="s2"> {{article}}&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">193</span>    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">animal_descriptor</span><span class="p">],</span>
+<span class="linenos">194</span><span class="p">)</span>
+<span class="linenos">195</span><span class="n">summarize_step_name</span> <span class="o">=</span> <span class="s2">&quot;summarize_step&quot;</span>
+<span class="linenos">196</span><span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+<span class="linenos">197</span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>
+<span class="linenos">198</span>    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">199</span>        <span class="s2">&quot;start_step&quot;</span><span class="p">:</span> <span class="n">start_step</span><span class="p">,</span>
+<span class="linenos">200</span>        <span class="n">summarize_step_name</span><span class="p">:</span> <span class="n">summarize_step</span><span class="p">,</span>
+<span class="linenos">201</span>    <span class="p">},</span>
+<span class="linenos">202</span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">203</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">summarize_step</span><span class="p">),</span>
+<span class="linenos">204</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">summarize_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="linenos">205</span>    <span class="p">],</span>
+<span class="linenos">206</span>    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">207</span>        <span class="n">DataFlowEdge</span><span class="p">(</span><span class="n">start_step</span><span class="p">,</span> <span class="s2">&quot;article&quot;</span><span class="p">,</span> <span class="n">summarize_step</span><span class="p">,</span> <span class="s2">&quot;article&quot;</span><span class="p">),</span>
+<span class="linenos">208</span>    <span class="p">],</span>
+<span class="linenos">209</span><span class="p">)</span>
+<span class="linenos">210</span>
+<span class="linenos">211</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article&quot;</span><span class="p">:</span> <span class="n">article</span><span class="p">})</span>
+<span class="linenos">212</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">213</span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+<span class="linenos">214</span>    <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
+<span class="linenos">215</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos">216</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">217</span><span class="c1"># {&#39;animal_object&#39;: {&#39;animal_name&#39;: &#39;Sea turtles&#39;, &#39;danger_level&#39;: &#39;MEDIUM&#39;, &#39;threats&#39;: [&#39;Poaching&#39;, &#39;Habitat loss&#39;, &#39;Pollution&#39;]}}</span>
+<span class="linenos">218</span>
+<span class="linenos">219</span>
+<span class="linenos">220</span>
+<span class="linenos">221</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">222</span><span class="c1">## Use structured generation with Agents in flows</span>
+<span class="linenos">223</span>
+<span class="linenos">224</span><span class="c1"># %%</span>
+<span class="linenos">225</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">CallerInputMode</span>
+<span class="linenos">226</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
+<span class="linenos">227</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentExecutionStep</span><span class="p">,</span> <span class="n">StartStep</span>
+<span class="linenos">228</span>
+<span class="linenos">229</span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span><span class="n">input_descriptors</span><span class="o">=</span><span class="p">[])</span>
+<span class="linenos">230</span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+<span class="linenos">231</span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+<span class="linenos">232</span>    <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Extract from the article given by the user the name of the animal, its danger level and the threats it&#39;s subject to.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">233</span>    <span class="n">initial_message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">234</span>    <span class="n">caller_input_mode</span><span class="o">=</span><span class="n">CallerInputMode</span><span class="o">.</span><span class="n">NEVER</span><span class="p">,</span>  <span class="c1"># &lt;- ensure the agent does not ask the user questions, just produces the expected outputs</span>
+<span class="linenos">235</span>    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">animal_output</span><span class="p">,</span> <span class="n">danger_level_output</span><span class="p">,</span> <span class="n">threats_output</span><span class="p">],</span>
+<span class="linenos">236</span><span class="p">)</span>
+<span class="linenos">237</span>
+<span class="linenos">238</span><span class="n">summarize_agent_step</span> <span class="o">=</span> <span class="n">AgentExecutionStep</span><span class="p">(</span><span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">)</span>
+<span class="linenos">239</span><span class="n">summarize_step_name</span> <span class="o">=</span> <span class="s2">&quot;summarize_step&quot;</span>
+<span class="linenos">240</span><span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+<span class="linenos">241</span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>
+<span class="linenos">242</span>    <span class="n">steps</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">243</span>        <span class="s2">&quot;start_step&quot;</span><span class="p">:</span> <span class="n">start_step</span><span class="p">,</span>
+<span class="linenos">244</span>        <span class="n">summarize_step_name</span><span class="p">:</span> <span class="n">summarize_agent_step</span><span class="p">,</span>
+<span class="linenos">245</span>    <span class="p">},</span>
+<span class="linenos">246</span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="p">[</span>
+<span class="linenos">247</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">summarize_agent_step</span><span class="p">),</span>
+<span class="linenos">248</span>        <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">summarize_agent_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="linenos">249</span>    <span class="p">],</span>
+<span class="linenos">250</span>    <span class="n">data_flow_edges</span><span class="o">=</span><span class="p">[],</span>
+<span class="linenos">251</span><span class="p">)</span>
+<span class="linenos">252</span>
+<span class="linenos">253</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="linenos">254</span><span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Here is the article: &quot;</span> <span class="o">+</span> <span class="n">article</span><span class="p">)</span>
+<span class="linenos">255</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">256</span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+<span class="linenos">257</span>    <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">)</span>
+<span class="linenos">258</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos">259</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid execution status, expected FinishedStatus, received </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">260</span><span class="c1"># {&#39;animal_name&#39;: &#39;Sea turtles&#39;, &#39;danger_level&#39;: &#39;HIGH&#39;, &#39;threats&#39;: [&#39;poaching&#39;, &#39;habitat loss&#39;, &#39;pollution&#39;]}</span>
+<span class="linenos">261</span>
+<span class="linenos">262</span>
+<span class="linenos">263</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">264</span><span class="c1">## Export config to Agent Spec</span>
+<span class="linenos">265</span>
+<span class="linenos">266</span><span class="c1"># %%</span>
+<span class="linenos">267</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+<span class="linenos">268</span><span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
+<span class="linenos">269</span>
+<span class="linenos">270</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">271</span><span class="c1">## Load Agent Spec config</span>
+<span class="linenos">272</span>
+<span class="linenos">273</span><span class="c1"># %%</span>
+<span class="linenos">274</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+<span class="linenos">275</span><span class="n">new_assistant</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">()</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -1697,7 +1735,7 @@ transform them recursively into a dictionary of entries of basic Python types (s
 
   <p class="copyright">
     
-      © Copyright 2025, Oracle and/or its affiliates..
+      © Copyright 2025-2026, Oracle and/or its affiliates..
       <br/>
     
   </p>
@@ -1706,7 +1744,7 @@ transform them recursively into a dictionary of entries of basic Python types (s
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

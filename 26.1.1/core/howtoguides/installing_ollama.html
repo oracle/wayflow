@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>How to Install and Use Ollama &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,12 +45,12 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/installing_ollama';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -69,7 +68,7 @@
     <link rel="prev" title="How to Use Asynchronous APIs" href="howto_async.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -280,7 +279,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -360,7 +359,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -431,7 +430,7 @@
                 <article class="bd-article">
                   
   <section id="how-to-install-and-use-ollama">
-<h1>How to Install and Use Ollama<a class="headerlink" href="#how-to-install-and-use-ollama" title="Permalink to this heading">#</a></h1>
+<h1>How to Install and Use Ollama<a class="headerlink" href="#how-to-install-and-use-ollama" title="Link to this heading">#</a></h1>
 <div class="admonition-prerequisites admonition">
 <p class="admonition-title">Prerequisites</p>
 <p>This guide does not assume any prior knowledge about WayFlow.</p>
@@ -441,28 +440,35 @@ Ollama does not require an internet connection to run the models,
 which makes it a great solution to quickly prototype WayFlow assistants without relying on external LLM providers.</p>
 <p>This how-to guide demonstrates how to install and use Ollama to build AI-powered assistants with WayFlow.</p>
 <section id="installing-ollama">
-<h2>Installing Ollama<a class="headerlink" href="#installing-ollama" title="Permalink to this heading">#</a></h2>
+<h2>Installing Ollama<a class="headerlink" href="#installing-ollama" title="Link to this heading">#</a></h2>
 <p>This section shows how to install Ollama on macOS.</p>
 <p><strong>Step 1:</strong> Go to the <a class="reference external" href="https://ollama.com/">Ollama</a> website and click on <code class="docutils literal notranslate"><span class="pre">Download</span></code>.</p>
-<a class="reference internal image-reference" href="../../_images/ollama_frontpage.png"><img alt="../../_images/ollama_frontpage.png" class="align-center" src="../../_images/ollama_frontpage.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="../../_images/ollama_frontpage.png"><img alt="../../_images/ollama_frontpage.png" class="align-center" src="../../_images/ollama_frontpage.png" style="width: 80%;" />
+</a>
 <p></p>
 <p><strong>Step 2:</strong> Navigate to your Downloads folder and extract the <cite>ollama`</cite> archive. On macOS, double-click the _.zip_ file to unzip it.</p>
-<a class="reference internal image-reference" href="../../_images/ollama_extract1_2.png"><img alt="../../_images/ollama_extract1_2.png" class="align-center" src="../../_images/ollama_extract1_2.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="../../_images/ollama_extract1_2.png"><img alt="../../_images/ollama_extract1_2.png" class="align-center" src="../../_images/ollama_extract1_2.png" style="width: 80%;" />
+</a>
 <p></p>
 <p><strong>Step3:</strong> Double-click the Ollama application to launch it. When prompted, click Move to Applications to relocate it to your Applications folder.
 Then, follow the on-screen instructions to complete the installation.</p>
-<a class="reference internal image-reference" href="../../_images/ollama_extract2_2.png"><img alt="../../_images/ollama_extract2_2.png" class="align-center" src="../../_images/ollama_extract2_2.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="../../_images/ollama_extract2_2.png"><img alt="../../_images/ollama_extract2_2.png" class="align-center" src="../../_images/ollama_extract2_2.png" style="width: 80%;" />
+</a>
 <p></p>
 <p>You may be prompted to enter your password to complete the installation.</p>
-<a class="reference internal image-reference" href="../../_images/ollama_install1_3.png"><img alt="../../_images/ollama_install1_3.png" src="../../_images/ollama_install1_3.png" style="width: 30%;" /></a>
-<a class="reference internal image-reference" href="../../_images/ollama_install2_3.png"><img alt="../../_images/ollama_install2_3.png" src="../../_images/ollama_install2_3.png" style="width: 30%;" /></a>
-<a class="reference internal image-reference" href="../../_images/ollama_install3_3.png"><img alt="../../_images/ollama_install3_3.png" src="../../_images/ollama_install3_3.png" style="width: 30%;" /></a>
+<a class="reference internal image-reference" href="../../_images/ollama_install1_3.png"><img alt="../../_images/ollama_install1_3.png" src="../../_images/ollama_install1_3.png" style="width: 30%;" />
+</a>
+<a class="reference internal image-reference" href="../../_images/ollama_install2_3.png"><img alt="../../_images/ollama_install2_3.png" src="../../_images/ollama_install2_3.png" style="width: 30%;" />
+</a>
+<a class="reference internal image-reference" href="../../_images/ollama_install3_3.png"><img alt="../../_images/ollama_install3_3.png" src="../../_images/ollama_install3_3.png" style="width: 30%;" />
+</a>
 <p></p>
 </section>
 <section id="testing-ollama-in-the-terminal">
-<h2>Testing Ollama in the terminal<a class="headerlink" href="#testing-ollama-in-the-terminal" title="Permalink to this heading">#</a></h2>
+<h2>Testing Ollama in the terminal<a class="headerlink" href="#testing-ollama-in-the-terminal" title="Link to this heading">#</a></h2>
 <p>To try Ollama in the terminal, open a terminal window and run <code class="docutils literal notranslate"><span class="pre">ollama</span> <span class="pre">run</span> <span class="pre">llama3.2</span></code> to use the latest model.</p>
-<a class="reference internal image-reference" href="../../_images/ollama_in_terminal.png"><img alt="../../_images/ollama_in_terminal.png" class="align-center" src="../../_images/ollama_in_terminal.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="../../_images/ollama_in_terminal.png"><img alt="../../_images/ollama_in_terminal.png" class="align-center" src="../../_images/ollama_in_terminal.png" style="width: 80%;" />
+</a>
 <p></p>
 <p>To exit the conversation, simply enter <code class="docutils literal notranslate"><span class="pre">/bye</span></code>.</p>
 <p>To display the list of running models, use the command <code class="docutils literal notranslate"><span class="pre">ollama</span> <span class="pre">ps</span></code>.</p>
@@ -472,7 +478,7 @@ Then, follow the on-screen instructions to complete the installation.</p>
 </div>
 </section>
 <section id="using-ollama-in-wayflow">
-<h2>Using Ollama in WayFlow<a class="headerlink" href="#using-ollama-in-wayflow" title="Permalink to this heading">#</a></h2>
+<h2>Using Ollama in WayFlow<a class="headerlink" href="#using-ollama-in-wayflow" title="Link to this heading">#</a></h2>
 <p>To use Ollama within WayFlow, set the model type to <cite>ollama`</cite> and specify the desired model ID (for example, <code class="docutils literal notranslate"><span class="pre">llama3.2</span></code>).</p>
 <p><strong>Important:</strong> Before using a model in WayFlow, ensure it is downloaded and running. Execute <code class="docutils literal notranslate"><span class="pre">ollama</span> <span class="pre">run</span> <span class="pre">&lt;model_name&gt;</span></code> in your terminal to start the model.
 For a comprehensive list of available models, visit the <a class="reference external" href="https://ollama.com/search">Ollama Library</a>.</p>
@@ -516,7 +522,7 @@ As a consequence, their performance may not match the performance of the origina
 To do this, first list all currently running model names by executing <code class="docutils literal notranslate"><span class="pre">ollama</span> <span class="pre">ps</span></code>, and then run <code class="docutils literal notranslate"><span class="pre">ollama</span> <span class="pre">stop</span> <span class="pre">&lt;model_name&gt;</span></code> to stop the desired model.</p>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>In this guide, you have learned how to install and use Ollama to start building assistants with WayFlow.</p>
 <p>To learn more, check out tutorials on how <a class="reference internal" href="../tutorials/basic_agent.html"><span class="doc">Build a Simple Conversational Assistant with Agents</span></a> as well as how to <a class="reference internal" href="../tutorials/basic_flow.html"><span class="doc">Build a Simple Fixed-Flow Assistant with Flows</span></a>.</p>
 </section>
@@ -586,7 +592,7 @@ To do this, first list all currently running model names by executing <code clas
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

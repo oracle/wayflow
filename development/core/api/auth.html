@@ -1,0 +1,943 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Auth &#8212; wayflowcore 26.2.0.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
+
+  
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/auth';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Search" href="search.html" />
+    <link rel="prev" title="Datastores" href="datastores.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="26.2.0.dev0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_event_system.html">Use the Event System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_rag.html">Build RAG-Powered Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">Evaluate Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">Evaluate Conversations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
+
+
+<li class="toctree-l2"><a class="reference internal" href="conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agentserver.html">Agent Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html">Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="a2a.html">A2A</a></li>
+</ul>
+</details></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/docs_mcp_server.html">Docs MCP Server</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Auth</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="auth">
+<h1>Auth<a class="headerlink" href="#auth" title="Link to this heading">#</a></h1>
+<p>This page presents all APIs and classes related to WayFlow Auth configuration components.</p>
+<section id="auth-classes">
+<h2>Auth classes<a class="headerlink" href="#auth-classes" title="Link to this heading">#</a></h2>
+<dl class="py class" id="authconfig">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.AuthConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.auth.auth.</span></span><span class="sig-name descname"><span class="pre">AuthConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.auth.auth.AuthConfig" title="Link to this definition">#</a></dt>
+<dd><p>Base class for Auth configurations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class" id="oauthendpoints">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthEndpoints">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.auth.auth.</span></span><span class="sig-name descname"><span class="pre">OAuthEndpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">authorization_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_endpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh_endpoint=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revocation_endpoint=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">userinfo_endpoint=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.auth.auth.OAuthEndpoints" title="Link to this definition">#</a></dt>
+<dd><p>Explicit OAuth endpoint configuration.</p>
+<p>Use this component when endpoint discovery is not available or not desired.
+This groups the relevant endpoints required to execute OAuth authorization
+code flows and token refresh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>authorization_endpoint</strong> (<em>str</em>)</p></li>
+<li><p><strong>token_endpoint</strong> (<em>str</em>)</p></li>
+<li><p><strong>refresh_endpoint</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>revocation_endpoint</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>userinfo_endpoint</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em>)</p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthEndpoints.authorization_endpoint">
+<span class="sig-name descname"><span class="pre">authorization_endpoint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthEndpoints.authorization_endpoint" title="Link to this definition">#</a></dt>
+<dd><p>Authorization endpoint where the user agent is redirected for login and consent.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthEndpoints.refresh_endpoint">
+<span class="sig-name descname"><span class="pre">refresh_endpoint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthEndpoints.refresh_endpoint" title="Link to this definition">#</a></dt>
+<dd><p>Optional endpoint for refresh token requests.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthEndpoints.revocation_endpoint">
+<span class="sig-name descname"><span class="pre">revocation_endpoint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthEndpoints.revocation_endpoint" title="Link to this definition">#</a></dt>
+<dd><p>Optional endpoint for token revocation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthEndpoints.token_endpoint">
+<span class="sig-name descname"><span class="pre">token_endpoint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthEndpoints.token_endpoint" title="Link to this definition">#</a></dt>
+<dd><p>Token endpoint where authorization codes are exchanged for access tokens.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthEndpoints.userinfo_endpoint">
+<span class="sig-name descname"><span class="pre">userinfo_endpoint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthEndpoints.userinfo_endpoint" title="Link to this definition">#</a></dt>
+<dd><p>Optional OIDC UserInfo endpoint.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="pkcemethod">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.PKCEMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.auth.auth.</span></span><span class="sig-name descname"><span class="pre">PKCEMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.auth.auth.PKCEMethod" title="Link to this definition">#</a></dt>
+<dd><p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.PKCEMethod.PLAIN">
+<span class="sig-name descname"><span class="pre">PLAIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'plain'</span></em><a class="headerlink" href="#wayflowcore.auth.auth.PKCEMethod.PLAIN" title="Link to this definition">#</a></dt>
+<dd><p>Code challenge is equal to code verifier.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.PKCEMethod.S256">
+<span class="sig-name descname"><span class="pre">S256</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'S256'</span></em><a class="headerlink" href="#wayflowcore.auth.auth.PKCEMethod.S256" title="Link to this definition">#</a></dt>
+<dd><p>Code verifier is hashed using SHA-256. Recommended over the <code class="docutils literal notranslate"><span class="pre">plain</span></code> method</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="pkcepolicy">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.PKCEPolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.auth.auth.</span></span><span class="sig-name descname"><span class="pre">PKCEPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">required=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method=PKCEMethod.S256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.auth.auth.PKCEPolicy" title="Link to this definition">#</a></dt>
+<dd><p>Policy configuration for Proof Key for Code Exchange (PKCE).</p>
+<p>PKCE mitigates authorization code interception and injection attacks in
+authorization code flows. Some protocols (such as MCP OAuth) require PKCE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>required</strong> (<em>bool</em>)</p></li>
+<li><p><strong>method</strong> (<a class="reference internal" href="#wayflowcore.auth.auth.PKCEMethod" title="wayflowcore.auth.auth.PKCEMethod"><em>PKCEMethod</em></a>)</p></li>
+<li><p><strong>id</strong> (<em>str</em>)</p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.PKCEPolicy.method">
+<span class="sig-name descname"><span class="pre">method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.auth.auth.PKCEMethod" title="wayflowcore.auth.auth.PKCEMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">PKCEMethod</span></code></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'S256'</span></em><a class="headerlink" href="#wayflowcore.auth.auth.PKCEPolicy.method" title="Link to this definition">#</a></dt>
+<dd><p>PKCE challenge method (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;S256&quot;</span></code>). Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;S256&quot;</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.PKCEPolicy.required">
+<span class="sig-name descname"><span class="pre">required</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#wayflowcore.auth.auth.PKCEPolicy.required" title="Link to this definition">#</a></dt>
+<dd><p>If True, the connection must be refused if PKCE cannot be used or
+cannot be validated as supported by the authorization server.
+Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="oauthclientconfig">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthClientConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.auth.auth.</span></span><span class="sig-name descname"><span class="pre">OAuthClientConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_secret=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_endpoint_auth_method=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id_metadata_url=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registration_endpoint=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.auth.auth.OAuthClientConfig" title="Link to this definition">#</a></dt>
+<dd><p>OAuth client identity / registration configuration.</p>
+<p>This configuration describes the OAuth client identity to use
+with the authorization server. It supports:
+- Pre-registered clients (static client_id/client_secret)
+- Client ID Metadata Documents (URL-formatted client_id)
+- Dynamic client registration (RFC 7591)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> (<em>Literal</em><em>[</em><em>'pre_registered'</em><em>, </em><em>'client_id_metadata_document'</em><em>, </em><em>'dynamic_registration'</em><em>]</em>)</p></li>
+<li><p><strong>client_id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>client_secret</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>token_endpoint_auth_method</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>client_id_metadata_url</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>registration_endpoint</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em>)</p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthClientConfig.client_id">
+<span class="sig-name descname"><span class="pre">client_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthClientConfig.client_id" title="Link to this definition">#</a></dt>
+<dd><p>OAuth client identifier (used for pre-registered clients).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthClientConfig.client_id_metadata_url">
+<span class="sig-name descname"><span class="pre">client_id_metadata_url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthClientConfig.client_id_metadata_url" title="Link to this definition">#</a></dt>
+<dd><p>HTTPS URL used as the OAuth <code class="docutils literal notranslate"><span class="pre">client_id</span></code> for Client ID Metadata Documents.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthClientConfig.client_secret">
+<span class="sig-name descname"><span class="pre">client_secret</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthClientConfig.client_secret" title="Link to this definition">#</a></dt>
+<dd><p>OAuth client secret (used for confidential pre-registered clients).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthClientConfig.registration_endpoint">
+<span class="sig-name descname"><span class="pre">registration_endpoint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthClientConfig.registration_endpoint" title="Link to this definition">#</a></dt>
+<dd><p>Optional dynamic registration endpoint. If omitted, may be obtained
+from authorization server discovery metadata when available.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthClientConfig.token_endpoint_auth_method">
+<span class="sig-name descname"><span class="pre">token_endpoint_auth_method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthClientConfig.token_endpoint_auth_method" title="Link to this definition">#</a></dt>
+<dd><p>Token endpoint authentication method (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;client_secret_basic&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;client_secret_post&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;private_key_jwt&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthClientConfig.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'pre_registered'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'client_id_metadata_document'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'dynamic_registration'</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthClientConfig.type" title="Link to this definition">#</a></dt>
+<dd><p>Strategy used to obtain client identity.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="oauthconfig">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.auth.auth.</span></span><span class="sig-name descname"><span class="pre">OAuthConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">issuer=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoints=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redirect_uri=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scopes=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope_policy=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pkce=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback_timeout_seconds=300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.auth.auth.OAuthConfig" title="Link to this definition">#</a></dt>
+<dd><p>Configure OAuth-based authentication for a tool or transport.</p>
+<p>OAuthConfig is a generic configuration that can be used for both MCP servers
+and non-MCP remote API tools. It supports discovery-based configuration (via
+<code class="docutils literal notranslate"><span class="pre">issuer</span></code>) and explicit endpoints (via <code class="docutils literal notranslate"><span class="pre">endpoints</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>issuer</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>endpoints</strong> (<a class="reference internal" href="#wayflowcore.auth.auth.OAuthEndpoints" title="wayflowcore.auth.auth.OAuthEndpoints"><em>OAuthEndpoints</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>client</strong> (<a class="reference internal" href="#wayflowcore.auth.auth.OAuthClientConfig" title="wayflowcore.auth.auth.OAuthClientConfig"><em>OAuthClientConfig</em></a>)</p></li>
+<li><p><strong>redirect_uri</strong> (<em>str</em>)</p></li>
+<li><p><strong>scopes</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>scope_policy</strong> (<em>Literal</em><em>[</em><em>'use_challenge_or_supported'</em><em>, </em><em>'fixed'</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>pkce</strong> (<a class="reference internal" href="#wayflowcore.auth.auth.PKCEPolicy" title="wayflowcore.auth.auth.PKCEPolicy"><em>PKCEPolicy</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>resource</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>callback_timeout_seconds</strong> (<em>float</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em>)</p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthConfig.callback_timeout_seconds">
+<span class="sig-name descname"><span class="pre">callback_timeout_seconds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">300.0</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthConfig.callback_timeout_seconds" title="Link to this definition">#</a></dt>
+<dd><p>Maximum time to wait for the OAuth callback/challenge results to be received before timing out.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthConfig.client">
+<span class="sig-name descname"><span class="pre">client</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wayflowcore.auth.auth.OAuthClientConfig" title="wayflowcore.auth.auth.OAuthClientConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">OAuthClientConfig</span></code></a></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthConfig.client" title="Link to this definition">#</a></dt>
+<dd><p>OAuth client identity / registration configuration.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthConfig.endpoints">
+<span class="sig-name descname"><span class="pre">endpoints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.auth.auth.OAuthEndpoints" title="wayflowcore.auth.auth.OAuthEndpoints"><code class="xref py py-class docutils literal notranslate"><span class="pre">OAuthEndpoints</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthConfig.endpoints" title="Link to this definition">#</a></dt>
+<dd><p>Explicit OAuth endpoints. When provided, these endpoints should be used
+directly instead of discovery.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthConfig.issuer">
+<span class="sig-name descname"><span class="pre">issuer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthConfig.issuer" title="Link to this definition">#</a></dt>
+<dd><p>Authorization server issuer URL used for discovery (e.g., OIDC discovery
+or RFC 8414).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthConfig.pkce">
+<span class="sig-name descname"><span class="pre">pkce</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><a class="reference internal" href="#wayflowcore.auth.auth.PKCEPolicy" title="wayflowcore.auth.auth.PKCEPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">PKCEPolicy</span></code></a><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthConfig.pkce" title="Link to this definition">#</a></dt>
+<dd><p>PKCE policy. For authorization code flows, this should typically be set
+to required with method <code class="docutils literal notranslate"><span class="pre">S256</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthConfig.redirect_uri">
+<span class="sig-name descname"><span class="pre">redirect_uri</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthConfig.redirect_uri" title="Link to this definition">#</a></dt>
+<dd><p>Redirect (callback) URI registered with the authorization server.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthConfig.resource">
+<span class="sig-name descname"><span class="pre">resource</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthConfig.resource" title="Link to this definition">#</a></dt>
+<dd><p>Optional resource indicator value (RFC 8707). If set, this should be
+includeed with relevant authorization and token requests when applicable.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthConfig.scope_policy">
+<span class="sig-name descname"><span class="pre">scope_policy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'use_challenge_or_supported'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'fixed'</span></code><span class="pre">]]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthConfig.scope_policy" title="Link to this definition">#</a></dt>
+<dd><p>How the scopes are selected.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;use_challenge_or_supported&quot;</span></code>: may prefer scopes indicated by</dt><dd><p>challenges/metadata.</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;fixed&quot;</span></code>: requests exactly the provided scopes.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.OAuthConfig.scopes">
+<span class="sig-name descname"><span class="pre">scopes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">],</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.OAuthConfig.scopes" title="Link to this definition">#</a></dt>
+<dd><p>Requested scopes, either as a space-delimited string or a list of scope
+strings.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="auth-related-classes">
+<h2>Auth-related Classes<a class="headerlink" href="#auth-related-classes" title="Link to this heading">#</a></h2>
+<dl class="py class" id="authchallengerequest">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.AuthChallengeRequest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.auth.auth.</span></span><span class="sig-name descname"><span class="pre">AuthChallengeRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">issuer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authorization_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_conversation_id=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.auth.auth.AuthChallengeRequest" title="Link to this definition">#</a></dt>
+<dd><p>Dataclass to store auth challenge request data to
+present to the client/app to complete an auth flow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resource_uri</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>issuer</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>authorization_url</strong> (<em>str</em>)</p></li>
+<li><p><strong>_conversation_id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em>)</p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.AuthChallengeRequest.authorization_url">
+<span class="sig-name descname"><span class="pre">authorization_url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.auth.auth.AuthChallengeRequest.authorization_url" title="Link to this definition">#</a></dt>
+<dd><p>The authorization endpoint URL to which the user agent should be directed
+to authenticate and grant consent.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.AuthChallengeRequest.issuer">
+<span class="sig-name descname"><span class="pre">issuer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]]</span></em><a class="headerlink" href="#wayflowcore.auth.auth.AuthChallengeRequest.issuer" title="Link to this definition">#</a></dt>
+<dd><p>The OAuth/OIDC authorization server issuer identifier (typically a URL).
+May be omitted if discovery is not used or issuer is unknown.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.AuthChallengeRequest.resource_uri">
+<span class="sig-name descname"><span class="pre">resource_uri</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.auth.auth.AuthChallengeRequest.resource_uri" title="Link to this definition">#</a></dt>
+<dd><p>The protected resource being accessed (e.g., MCP server URL or API base URL).
+May be omitted if not known or not applicable.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="authchallengeresult">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.AuthChallengeResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.auth.auth.</span></span><span class="sig-name descname"><span class="pre">AuthChallengeResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.auth.auth.AuthChallengeResult" title="Link to this definition">#</a></dt>
+<dd><p>Dataclass to store OAuth challenge result information.</p>
+<p>The auth <code class="docutils literal notranslate"><span class="pre">code</span></code> and <code class="docutils literal notranslate"><span class="pre">state</span></code> are then exchanged with the OAuth tokens.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>code</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>state</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>error</strong> (<em>Exception</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em>)</p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.AuthChallengeResult.code">
+<span class="sig-name descname"><span class="pre">code</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.AuthChallengeResult.code" title="Link to this definition">#</a></dt>
+<dd><p>OAuth 2.0 authorization code returned to the redirect URI, if the user
+successfully authenticated/consented.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.AuthChallengeResult.error">
+<span class="sig-name descname"><span class="pre">error</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.AuthChallengeResult.error" title="Link to this definition">#</a></dt>
+<dd><p>Exception describing failure to complete the challenge (e.g., user
+cancelled, redirect contained an error parameter, network/timeout).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wayflowcore.auth.auth.AuthChallengeResult.state">
+<span class="sig-name descname"><span class="pre">state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.auth.auth.AuthChallengeResult.state" title="Link to this definition">#</a></dt>
+<dd><p>Opaque value originally provided in the authorization request and returned
+in the callback. Used to correlate/validate the response.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#auth-classes">Auth classes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.AuthConfig"><code class="docutils literal notranslate"><span class="pre">AuthConfig</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthEndpoints"><code class="docutils literal notranslate"><span class="pre">OAuthEndpoints</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthEndpoints.authorization_endpoint"><code class="docutils literal notranslate"><span class="pre">OAuthEndpoints.authorization_endpoint</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthEndpoints.refresh_endpoint"><code class="docutils literal notranslate"><span class="pre">OAuthEndpoints.refresh_endpoint</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthEndpoints.revocation_endpoint"><code class="docutils literal notranslate"><span class="pre">OAuthEndpoints.revocation_endpoint</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthEndpoints.token_endpoint"><code class="docutils literal notranslate"><span class="pre">OAuthEndpoints.token_endpoint</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthEndpoints.userinfo_endpoint"><code class="docutils literal notranslate"><span class="pre">OAuthEndpoints.userinfo_endpoint</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.PKCEMethod"><code class="docutils literal notranslate"><span class="pre">PKCEMethod</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.PKCEMethod.PLAIN"><code class="docutils literal notranslate"><span class="pre">PKCEMethod.PLAIN</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.PKCEMethod.S256"><code class="docutils literal notranslate"><span class="pre">PKCEMethod.S256</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.PKCEPolicy"><code class="docutils literal notranslate"><span class="pre">PKCEPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.PKCEPolicy.method"><code class="docutils literal notranslate"><span class="pre">PKCEPolicy.method</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.PKCEPolicy.required"><code class="docutils literal notranslate"><span class="pre">PKCEPolicy.required</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthClientConfig"><code class="docutils literal notranslate"><span class="pre">OAuthClientConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthClientConfig.client_id"><code class="docutils literal notranslate"><span class="pre">OAuthClientConfig.client_id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthClientConfig.client_id_metadata_url"><code class="docutils literal notranslate"><span class="pre">OAuthClientConfig.client_id_metadata_url</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthClientConfig.client_secret"><code class="docutils literal notranslate"><span class="pre">OAuthClientConfig.client_secret</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthClientConfig.registration_endpoint"><code class="docutils literal notranslate"><span class="pre">OAuthClientConfig.registration_endpoint</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthClientConfig.token_endpoint_auth_method"><code class="docutils literal notranslate"><span class="pre">OAuthClientConfig.token_endpoint_auth_method</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthClientConfig.type"><code class="docutils literal notranslate"><span class="pre">OAuthClientConfig.type</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthConfig"><code class="docutils literal notranslate"><span class="pre">OAuthConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthConfig.callback_timeout_seconds"><code class="docutils literal notranslate"><span class="pre">OAuthConfig.callback_timeout_seconds</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthConfig.client"><code class="docutils literal notranslate"><span class="pre">OAuthConfig.client</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthConfig.endpoints"><code class="docutils literal notranslate"><span class="pre">OAuthConfig.endpoints</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthConfig.issuer"><code class="docutils literal notranslate"><span class="pre">OAuthConfig.issuer</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthConfig.pkce"><code class="docutils literal notranslate"><span class="pre">OAuthConfig.pkce</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthConfig.redirect_uri"><code class="docutils literal notranslate"><span class="pre">OAuthConfig.redirect_uri</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthConfig.resource"><code class="docutils literal notranslate"><span class="pre">OAuthConfig.resource</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthConfig.scope_policy"><code class="docutils literal notranslate"><span class="pre">OAuthConfig.scope_policy</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.OAuthConfig.scopes"><code class="docutils literal notranslate"><span class="pre">OAuthConfig.scopes</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#auth-related-classes">Auth-related Classes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.AuthChallengeRequest"><code class="docutils literal notranslate"><span class="pre">AuthChallengeRequest</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.AuthChallengeRequest.authorization_url"><code class="docutils literal notranslate"><span class="pre">AuthChallengeRequest.authorization_url</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.AuthChallengeRequest.issuer"><code class="docutils literal notranslate"><span class="pre">AuthChallengeRequest.issuer</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.AuthChallengeRequest.resource_uri"><code class="docutils literal notranslate"><span class="pre">AuthChallengeRequest.resource_uri</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.AuthChallengeResult"><code class="docutils literal notranslate"><span class="pre">AuthChallengeResult</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.AuthChallengeResult.code"><code class="docutils literal notranslate"><span class="pre">AuthChallengeResult.code</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.AuthChallengeResult.error"><code class="docutils literal notranslate"><span class="pre">AuthChallengeResult.error</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#wayflowcore.auth.auth.AuthChallengeResult.state"><code class="docutils literal notranslate"><span class="pre">AuthChallengeResult.state</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025-2026, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

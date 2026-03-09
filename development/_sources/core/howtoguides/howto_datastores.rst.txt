@@ -10,11 +10,16 @@ How to Connect Assistants to Your Data
 
 .. grid:: 2
 
-    .. grid-item-card:: |python-icon| Download Python Script
-        :link: ../end_to_end_code_examples/howto_datastores.py
-        :link-alt: Datastores how-to script
+   .. grid-item-card:: |python-icon| Download In-Memory Script
+      :link: ../end_to_end_code_examples/howto_datastores.py
+      :link-alt: In-memory datastore how-to script
 
-        Python script/notebook for this guide.
+      Python script/notebook for the In-Memory Datastore example in this guide.
+   .. grid-item-card:: |python-icon| Download Oracle Database Script
+      :link: ../end_to_end_code_examples/howto_connect_to_oracle_database.py
+      :link-alt: Oracle Database datastore how-to script
+
+      Python script/notebook for Oracle Database Datastore  example in this guide.
 
 .. admonition:: Prerequisites
 
@@ -36,6 +41,8 @@ In this tutorial, you will:
 - **Use Datastores in Flows and Agents** to create two types of inventory management assistants.
 
 To ensure reproducibility of this tutorial, you will use an in-memory data source.
+Check out the section :ref:`Using Oracle Database Datastore <using-oracle-datastore>` to see how to configure an
+Oracle Database connection for persistent storage.
 
 Concepts shown in this guide
 ============================
@@ -51,10 +58,11 @@ Concepts shown in this guide
    robust and scalable persistence layer in Oracle Database.
 
    Note that there are a few key differences between an in-memory and a database ``Datastore``:
+
    - With database Datastores, all tables relevant to the assistant must already be created in the database prior to connecting to it.
    - You may choose to only model a subset of the tables available in the database via the :ref:`Entity <entity>` construct.
    - Database Datastores offer an additional ``query`` method (and the corresponding :ref:`DatastoreQueryStep <datastorequerystep>`),
-   that enables flexible execution of SQL queries that cannot be modelled by the ``list`` operation on the in-memory datastore
+     that enables flexible execution of SQL queries that cannot be modelled by the ``list`` operation on the in-memory datastore
 
 Datastores in Flows
 ===================
@@ -203,13 +211,12 @@ Finally, create the inventory management agent by combining the LLM, the datasto
 .. literalinclude:: ../code_examples/howto_datastores.py
       :language: python
       :linenos:
-      :start-after: .. start-##_Create_agent
-      :end-before: .. end-##_Create_agent
+      :start-after: .. start-##_Create_the_agent
+      :end-before: .. end-##_Create_the_agent
 
 This agent can now respond to the user and perform actions on the data on their behalf.
 
 Refer to the :doc:`WayFlow Agents Tutorial <../tutorials/basic_agent>` to see how to run this Agent.
-
 
 Agent Spec Exporting/Loading
 ============================
@@ -265,6 +272,190 @@ You can then load the configuration back to an assistant using the ``AgentSpecLo
     See the list of available Agent Spec extension/plugin components in the :doc:`API Reference <../api/agentspec>`
 
 
+.. _using-oracle-datastore:
+
+Using Oracle Database Datastore
+===============================
+
+This guide mirrors the earlier **in-memory** demo, but leverages Oracle Database
+(Autonomous Database on OCI or an on-prem instance) for persistent storage.
+
+.. admonition:: Prerequisites
+   :class: tip
+
+   * An Oracle Database instance, reachable from your development machine
+   * Wallet files and/or database credentials for this instance
+   * A running LLM endpoint (the examples uses vLLM, but any provider works)
+
+Step 1. Configure the connection to the Database
+------------------------------------------------
+
+WayFlow supports two secure transport mechanisms for connecting to Oracle databases.
+
+When using **TLS** (one-way TLS) the database presents its certificate, the client verifies it,
+and the user authenticates with username and password.
+
+.. literalinclude:: ../code_examples/howto_connect_to_oracle_database.py
+   :language: python
+   :linenos:
+   :start-after: .. start-##_TLS_Connection
+   :end-before: .. end-##_TLS_Connection
+
+==============  =============================================================
+**Parameter**   **Meaning**
+--------------  -------------------------------------------------------------
+``user``        Database username (e.g., ``ADMIN``).
+``password``    Password for ``user``.
+``dsn``         Easy-connect string or TNS alias identifying the service.
+                (e.g., ``adb.us-ashburn-1.oraclecloud.com:1522/xyz_high``)
+==============  =============================================================
+
+When using **mTLS** (mutual TLS) both sides exchange certificates: the client proves its identity
+with a wallet (client cert + private key) in addition to the username and password.
+This gives stronger, certificate-based client authentication and is often required for
+Oracle Autonomous Database in "Require mTLS" mode.
+
+.. literalinclude:: ../code_examples/howto_connect_to_oracle_database.py
+   :language: python
+   :linenos:
+   :start-after: .. start-##_mTLS_Connection
+   :end-before: .. end-##_mTLS_Connection
+
+======================  =============================================================
+**Parameter**           **Meaning**
+----------------------  -------------------------------------------------------------
+``user``                Database username (e.g., ``ADMIN``).
+``password``            Password for ``user``.
+``dsn``                 Easy-connect string or TNS alias identifying the service.
+                        Example:
+                        ``adb.us-ashburn-1.oraclecloud.com:1522/xyz_high``
+``config_dir``          Directory containing ``sqlnet.ora`` / ``tnsnames.ora``.
+                        when you want to reference a
+                        TNS alias (e.g. ``<dbname>_high``) instead of a raw DSN.
+``wallet_location``     Path to the Oracle Wallet directory that contains
+                        ``cwallet.sso`` / ``ewallet.p12``.
+``wallet_password``     Password that protects the wallet’s private key.
+======================  =============================================================
+
+.. important::
+   Do **not** hard-code any database credentials or sensitive connection details directly in your code.
+   Please refer to our :doc:`Security Guidelines <../security>` for more information.
+
+Step 2. Define the data model and Datastore
+-------------------------------------------
+
+.. warning::
+   The following code snippet will create a new ``products`` table in the database.
+   Ensure you are using a throwaway schema with no other table named "products" when running this example.
+
+For this guide, we use the same data model as in the in-memory example.
+It manages products in an inventory, so a single collection is sufficient.
+Datastores also support managing multiple database tables at the same time if needed.
+
+Entities map the relational schema to strongly-typed objects that Flows and
+Agents can validate at runtime.
+The key difference to the in-memory example is that we require the Entity of
+interest to be already defined as a table in the database.
+
+Note that, if you have some columns in the database that are not relevant to your assistant,
+you may simply omit them from the Entity definition (as is done in this example with the ``external_system_id``).
+However, it may not be possible for the datastore or assistant to create such entities if the omitted columns are required.
+
+.. literalinclude:: ../code_examples/howto_connect_to_oracle_database.py
+   :language: python
+   :linenos:
+   :start-after: .. start-##_Schema
+   :end-before:  .. end-##_Schema
+
+
+Step 3. Create datastore steps
+------------------------------
+
+Now that the Datastore is set up, create steps to perform different operations in the flow.
+In this guide, your assistant will identify inconsistencies in product descriptions of the same category.
+To do so, you will use the :ref:`DatastoreQueryStep <DatastoreQueryStep>` to fetch product information, and a :ref:`PromptExecutionStep <PromptExecutionStep>` to identify the issues.
+
+In particular, the ``DatastoreQueryStep`` can be used with Database Datastores to execute developer-defined SQL queries.
+These queries can optionally be parametrized with bind variables.
+See the `bind variables guide on the python-oracledb documentation <https://python-oracledb.readthedocs.io/en/latest/user_guide/bind.html>`_ for more information.
+See also :ref:`the list of all available Datastore steps <datastoresteps>` for additional operations that can be performed with Oracle Database Datastores.
+
+
+.. literalinclude:: ../code_examples/howto_connect_to_oracle_database.py
+   :language: python
+   :linenos:
+   :start-after: .. start-##_Create_Datastore_step_and_flow
+   :end-before:  .. end-##_Create_Datastore_step_and_flow
+
+Finally, verify that the Flow works as expected:
+
+.. literalinclude:: ../code_examples/howto_connect_to_oracle_database.py
+      :language: python
+      :linenos:
+      :start-after: .. start-##_Execute_flow
+      :end-before: .. end-##_Execute_flow
+
+
+Agent Spec Exporting/Loading
+============================
+
+This flow can be exported to Agent Spec using the ``AgentSpecExporter`` as you have seen in the
+previous in-memory example, using the ``AgentSpecExporter``.
+
+.. literalinclude:: ../code_examples/howto_connect_to_oracle_database.py
+    :language: python
+    :start-after: .. start-##_Export_config_to_Agent_Spec
+    :end-before: .. end-##_Export_config_to_Agent_Spec
+
+
+Here is what the **Agent Spec representation will look like ↓**
+
+.. collapse:: Click here to see the assistant configuration.
+
+   .. tabs::
+
+      .. tab:: JSON
+
+         .. literalinclude:: ../config_examples/howto_connect_to_oracle_database.json
+            :language: json
+
+      .. tab:: YAML
+
+         .. literalinclude:: ../config_examples/howto_connect_to_oracle_database.yaml
+            :language: yaml
+
+
+.. warning::
+
+   The Oracle Database Connection Config objects contain several sensitive values
+   (like username, password, wallet location) that will not be serialized by the ``AgentSpecExporter``.
+   These will be serialized as references that must be resolved at loading time, by specifying the values
+   of these sensitive fields in the ``component_registry`` argument of the loader:
+
+   .. literalinclude:: ../code_examples/howto_connect_to_oracle_database.py
+      :language: python
+      :start-after: .. start-##_Provide_sensitive_information_when_loading_the_Agent_Spec_config
+      :end-before: .. end-##_Provide_sensitive_information_when_loading_the_Agent_Spec_config
+
+You can then load the configuration back to an assistant using the ``AgentSpecLoader``.
+
+.. literalinclude:: ../code_examples/howto_connect_to_oracle_database.py
+    :language: python
+    :start-after: .. start-##_Load_Agent_Spec_config
+    :end-before: .. end-##_Load_Agent_Spec_config
+
+.. note::
+
+    This guide uses the following extension/plugin Agent Spec components:
+
+    - ``PluginDatastoreQueryNode``
+    - ``PluginOracleDatabaseDatastore``
+    - ``PluginTlsOracleDatabaseConnectionConfig``
+    - ``PluginOutputMessageNode``
+
+    See the list of available Agent Spec extension/plugin components in the :doc:`API Reference <../api/agentspec>`
+
+
 Next steps
 ==========
 
@@ -277,8 +468,26 @@ Having learned how to connect WayFlow assistants to data sources, you may now pr
 Full code
 =========
 
-Click on the card at the :ref:`top of this page <top-howtodatastores>` to download the full code for this guide or copy the code below.
+In-memory datastore
+-------------------
 
-.. literalinclude:: ../end_to_end_code_examples/howto_datastores.py
-    :language: python
-    :linenos:
+Click on the card at the :ref:`top of this page <top-howtodatastores>`
+to download the full code for this guide or copy the code below.
+
+.. collapse:: Connecting Assistants to User Data (full code)
+
+    .. literalinclude:: ../end_to_end_code_examples/howto_datastores.py
+        :language: python
+        :linenos:
+
+Oracle Database datastore
+-------------------------
+
+Click on the card at the :ref:`top of this page <top-howtodatastores>`
+to download the full code for this guide, or copy the code below.
+
+.. collapse:: Connecting Assistants to Oracle Database (full code)
+
+    .. literalinclude:: ../end_to_end_code_examples/howto_connect_to_oracle_database.py
+        :language: python
+        :linenos:

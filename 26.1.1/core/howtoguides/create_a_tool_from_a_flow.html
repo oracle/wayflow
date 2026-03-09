@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>How to Create a Tool Using a Flow &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/create_a_tool_from_a_flow';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="How to Create Tools with Multiple Outputs" href="howto_multiple_output_tool.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -281,7 +280,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -361,7 +360,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -432,7 +431,7 @@
                 <article class="bd-article">
                   
   <section id="how-to-create-a-tool-using-a-flow">
-<h1>How to Create a Tool Using a Flow<a class="headerlink" href="#how-to-create-a-tool-using-a-flow" title="Permalink to this heading">#</a></h1>
+<h1>How to Create a Tool Using a Flow<a class="headerlink" href="#how-to-create-a-tool-using-a-flow" title="Link to this heading">#</a></h1>
 <div class="admonition-prerequisites admonition">
 <p class="admonition-title">Prerequisites</p>
 <p>This guide assumes familiarity with:</p>
@@ -448,7 +447,7 @@ In WayFlow, tools can be defined in various ways.
 One approach is to define a flow as the basis for the tool.
 In this guide, you will see a basic example of how a flow is used to define a tool.</p>
 <section id="defining-the-tool">
-<h2>Defining the tool<a class="headerlink" href="#defining-the-tool" title="Permalink to this heading">#</a></h2>
+<h2>Defining the tool<a class="headerlink" href="#defining-the-tool" title="Link to this heading">#</a></h2>
 <p>In this guide, you will use an LLM.</p>
 <p>WayFlow supports several LLM API providers.
 Select an LLM from the options below:</p>
@@ -533,7 +532,7 @@ Select an LLM from the options below:</p>
 </div>
 </section>
 <section id="recap">
-<h2>Recap<a class="headerlink" href="#recap" title="Permalink to this heading">#</a></h2>
+<h2>Recap<a class="headerlink" href="#recap" title="Link to this heading">#</a></h2>
 <p>In this guide, you learned how to create server tools from <code class="docutils literal notranslate"><span class="pre">Flows</span></code> by using the <code class="docutils literal notranslate"><span class="pre">ServerTool.from_flow</span></code> method.</p>
 <details class="summary-below-is-the-complete-code-from-this-guide">
 <summary>Below is the complete code from this guide.</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -580,7 +579,7 @@ Select an LLM from the options below:</p>
 </div>
 </details></section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Having learned how to use tools in WayFlow, you may now proceed to <a class="reference internal" href="howto_build_assistants_with_tools.html"><span class="doc">How to Build Assistants with Tools</span></a>.</p>
 </section>
 </section>
@@ -648,7 +647,7 @@ Select an LLM from the options below:</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

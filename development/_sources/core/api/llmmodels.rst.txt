@@ -113,6 +113,8 @@ OCI GenAI Models
 
 .. autoclass:: wayflowcore.models.ocigenaimodel.ModelProvider
 
+.. autoclass:: wayflowcore.models.ocigenaimodel.OciAPIType
+
 .. _ociclientconfigclassesforauthentication:
 
 OCI Client Config Classes for Authentication

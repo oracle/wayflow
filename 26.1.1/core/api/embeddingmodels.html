@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Embedding Models &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,12 +45,12 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/embeddingmodels';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -69,7 +68,7 @@
     <link rel="prev" title="Agent Server" href="agentserver.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -280,7 +279,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -360,7 +359,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -431,29 +430,29 @@
                 <article class="bd-article">
                   
   <section id="embedding-models">
-<h1>Embedding Models<a class="headerlink" href="#embedding-models" title="Permalink to this heading">#</a></h1>
+<h1>Embedding Models<a class="headerlink" href="#embedding-models" title="Link to this heading">#</a></h1>
 <p>This page presents all APIs and classes related to LLM Embedding models.</p>
 <section id="embeddingmodel">
-<h2>EmbeddingModel<a class="headerlink" href="#embeddingmodel" title="Permalink to this heading">#</a></h2>
-<span class="target" id="id1"></span><dl class="py class">
+<h2>EmbeddingModel<a class="headerlink" href="#embeddingmodel" title="Link to this heading">#</a></h2>
+<dl class="py class" id="id1">
 <dt class="sig sig-object py" id="wayflowcore.embeddingmodels.embeddingmodel.EmbeddingModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.embeddingmodel.</span></span><span class="sig-name descname"><span class="pre">EmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.embeddingmodel.EmbeddingModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.embeddingmodel.</span></span><span class="sig-name descname"><span class="pre">EmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.embeddingmodel.EmbeddingModel" title="Link to this definition">#</a></dt>
 <dd><p>Abstract base class for embedding models.</p>
 <p>Implementations should define the ‘embed’ method which returns a list of
 vector embeddings (each embedding is a list of floats) given a list of text strings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.embeddingmodels.embeddingmodel.EmbeddingModel.embed">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.embeddingmodel.EmbeddingModel.embed" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.embeddingmodel.EmbeddingModel.embed" title="Link to this definition">#</a></dt>
 <dd><p>Generate embeddings for the given list of text strings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -473,28 +472,28 @@ of the corresponding text.</p>
 
 </section>
 <section id="all-models">
-<h2>All models<a class="headerlink" href="#all-models" title="Permalink to this heading">#</a></h2>
+<h2>All models<a class="headerlink" href="#all-models" title="Link to this heading">#</a></h2>
 <section id="openai-compatible-embedding-models">
-<h3>OpenAI Compatible Embedding Models<a class="headerlink" href="#openai-compatible-embedding-models" title="Permalink to this heading">#</a></h3>
-<span class="target" id="openaicompatibleembeddingmodel"></span><dl class="py class">
+<h3>OpenAI Compatible Embedding Models<a class="headerlink" href="#openai-compatible-embedding-models" title="Link to this heading">#</a></h3>
+<dl class="py class" id="openaicompatibleembeddingmodel">
 <dt class="sig sig-object py" id="wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.openaicompatiblemodel.</span></span><span class="sig-name descname"><span class="pre">OpenAICompatibleEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.openaicompatiblemodel.</span></span><span class="sig-name descname"><span class="pre">OpenAICompatibleEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel" title="Link to this definition">#</a></dt>
 <dd><p>Base class for OpenAI-compatible embedding models.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the model to use for generating embeddings.</p></li>
 <li><p><strong>base_url</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The base URL for the embedding API. Both HTTP and HTTPS protocols are supported.</p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel.embed">
-<span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel.embed" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel.embed" title="Link to this definition">#</a></dt>
 <dd><p>Generate embeddings for the given list of text strings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -512,13 +511,13 @@ of the corresponding text.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel.embed_async">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embed_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel.embed_async" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embed_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.openaicompatiblemodel.OpenAICompatibleEmbeddingModel.embed_async" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]</p>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>data</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – </p>
+<dd class="field-even"><p><strong>data</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -527,10 +526,10 @@ of the corresponding text.</p>
 
 </section>
 <section id="openai-embedding-models">
-<h3>OpenAI Embedding Models<a class="headerlink" href="#openai-embedding-models" title="Permalink to this heading">#</a></h3>
-<span class="target" id="openaiembeddingmodel"></span><dl class="py class">
+<h3>OpenAI Embedding Models<a class="headerlink" href="#openai-embedding-models" title="Link to this heading">#</a></h3>
+<dl class="py class" id="openaiembeddingmodel">
 <dt class="sig sig-object py" id="wayflowcore.embeddingmodels.openaimodel.OpenAIEmbeddingModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.openaimodel.</span></span><span class="sig-name descname"><span class="pre">OpenAIEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_validate_api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.openaimodel.OpenAIEmbeddingModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.openaimodel.</span></span><span class="sig-name descname"><span class="pre">OpenAIEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_validate_api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.openaimodel.OpenAIEmbeddingModel" title="Link to this definition">#</a></dt>
 <dd><p>Embedding model for OpenAI’s embedding API using the requests library.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -538,11 +537,11 @@ of the corresponding text.</p>
 <li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the OpenAI model to use for generating embeddings.</p></li>
 <li><p><strong>api_key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The API key for the service. If not provided, the value of the
 OPENAI_API_KEY environment variable will be used, if set.</p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>_validate_api_key</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>_validate_api_key</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -564,10 +563,10 @@ If the API key is not provided and the environment variable <cite>OPENAI_API_KEY
 
 </section>
 <section id="vllm-embedding-models">
-<h3>VLLM Embedding Models<a class="headerlink" href="#vllm-embedding-models" title="Permalink to this heading">#</a></h3>
-<span class="target" id="vllmembeddingmodel"></span><dl class="py class">
+<h3>VLLM Embedding Models<a class="headerlink" href="#vllm-embedding-models" title="Link to this heading">#</a></h3>
+<dl class="py class" id="vllmembeddingmodel">
 <dt class="sig sig-object py" id="wayflowcore.embeddingmodels.vllmmodel.VllmEmbeddingModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.vllmmodel.</span></span><span class="sig-name descname"><span class="pre">VllmEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.vllmmodel.VllmEmbeddingModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.vllmmodel.</span></span><span class="sig-name descname"><span class="pre">VllmEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.vllmmodel.VllmEmbeddingModel" title="Link to this definition">#</a></dt>
 <dd><p>Embedding model for self-hosted models via vLLM.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -575,10 +574,10 @@ If the API key is not provided and the environment variable <cite>OPENAI_API_KEY
 <li><p><strong>base_url</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The complete URL of the vLLM server (e.g., “<a class="reference external" href="http://localhost:8000">http://localhost:8000</a>” or “<a class="reference external" href="https://secure-vllm.example.com">https://secure-vllm.example.com</a>”).
 Both HTTP and HTTPS protocols are supported.</p></li>
 <li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the model to use on the server.</p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -599,10 +598,10 @@ additional configuration may be needed at the application level.</p>
 
 </section>
 <section id="oci-genai-embedding-models">
-<h3>OCI GenAI Embedding Models<a class="headerlink" href="#oci-genai-embedding-models" title="Permalink to this heading">#</a></h3>
-<span class="target" id="ocigenaiembeddingmodel"></span><dl class="py class">
+<h3>OCI GenAI Embedding Models<a class="headerlink" href="#oci-genai-embedding-models" title="Link to this heading">#</a></h3>
+<dl class="py class" id="ocigenaiembeddingmodel">
 <dt class="sig sig-object py" id="wayflowcore.embeddingmodels.ocigenaimodel.OCIGenAIEmbeddingModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.ocigenaimodel.</span></span><span class="sig-name descname"><span class="pre">OCIGenAIEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compartment_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.ocigenaimodel.OCIGenAIEmbeddingModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.ocigenaimodel.</span></span><span class="sig-name descname"><span class="pre">OCIGenAIEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compartment_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.ocigenaimodel.OCIGenAIEmbeddingModel" title="Link to this definition">#</a></dt>
 <dd><p>Embedding model for Oracle OCI Generative AI service.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -610,10 +609,10 @@ additional configuration may be needed at the application level.</p>
 <li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The model identifier (e.g., ‘cohere.embed-english-light-v3.0’).</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.ociclientconfig.OCIClientConfig" title="wayflowcore.models.ociclientconfig.OCIClientConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">OCIClientConfig</span></code></a>) – OCI client configuration with authentication details.</p></li>
 <li><p><strong>compartment_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The compartment OCID</p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -659,7 +658,7 @@ For generating the OCI config file, please follow the WayFlow documentation.</p>
 <p>Available embedding models: <a class="reference external" href="https://docs.oracle.com/en-us/iaas/Content/generative-ai/pretrained-models.htm">https://docs.oracle.com/en-us/iaas/Content/generative-ai/pretrained-models.htm</a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.embeddingmodels.ocigenaimodel.OCIGenAIEmbeddingModel.embed">
-<span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.ocigenaimodel.OCIGenAIEmbeddingModel.embed" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.ocigenaimodel.OCIGenAIEmbeddingModel.embed" title="Link to this definition">#</a></dt>
 <dd><p>Generate embeddings for the given list of text strings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -679,10 +678,10 @@ of the corresponding text.</p>
 
 </section>
 <section id="ollama-embedding-models">
-<h3>Ollama Embedding Models<a class="headerlink" href="#ollama-embedding-models" title="Permalink to this heading">#</a></h3>
-<span class="target" id="ollamaembeddingmodel"></span><dl class="py class">
+<h3>Ollama Embedding Models<a class="headerlink" href="#ollama-embedding-models" title="Link to this heading">#</a></h3>
+<dl class="py class" id="ollamaembeddingmodel">
 <dt class="sig sig-object py" id="wayflowcore.embeddingmodels.ollamamodel.OllamaEmbeddingModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.ollamamodel.</span></span><span class="sig-name descname"><span class="pre">OllamaEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.ollamamodel.OllamaEmbeddingModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.embeddingmodels.ollamamodel.</span></span><span class="sig-name descname"><span class="pre">OllamaEmbeddingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.embeddingmodels.ollamamodel.OllamaEmbeddingModel" title="Link to this definition">#</a></dt>
 <dd><p>Embedding model for self-hosted models via Ollama.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -690,10 +689,10 @@ of the corresponding text.</p>
 <li><p><strong>base_url</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The complete URL of the Ollama server (e.g., “<a class="reference external" href="http://localhost:11434">http://localhost:11434</a>” or “<a class="reference external" href="https://ollama.example.com">https://ollama.example.com</a>”).
 Both HTTP and HTTPS protocols are supported.</p></li>
 <li><p><strong>model_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the model to use on the Ollama server.</p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -813,7 +812,7 @@ additional configuration may be needed at the application level.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

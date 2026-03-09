@@ -1,16 +1,15 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to Build a Hierarchical Multi-Agent System &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+    <title>How to Build a Hierarchical Multi-Agent System &#8212; wayflowcore 26.2.0.dev0 documentation</title>
   
   
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_multiagent';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="How to Use Agents in Flows" href="howto_agents_in_flows.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2.0.dev0" />
   </head>
   
   
@@ -108,6 +107,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -136,8 +138,8 @@
       
     
     
-    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
-    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
   
   
 </a></div>
@@ -281,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -308,6 +310,7 @@
 <li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
@@ -318,20 +321,24 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_event_system.html">Use the Event System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_rag.html">Build RAG-Powered Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">Evaluate Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">Evaluate Conversations</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
@@ -351,6 +358,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/auth.html">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/search.html">Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
@@ -358,13 +367,14 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/docs_mcp_server.html">Docs MCP Server</a></li>
 </ul>
 </div>
 </nav></div>
@@ -429,7 +439,7 @@
                 <article class="bd-article">
                   
   <section id="how-to-build-a-hierarchical-multi-agent-system">
-<h1>How to Build a Hierarchical Multi-Agent System<a class="headerlink" href="#how-to-build-a-hierarchical-multi-agent-system" title="Permalink to this heading">#</a></h1>
+<h1>How to Build a Hierarchical Multi-Agent System<a class="headerlink" href="#how-to-build-a-hierarchical-multi-agent-system" title="Link to this heading">#</a></h1>
 <div class="admonition-prerequisites admonition">
 <p class="admonition-title">Prerequisites</p>
 <p>This guide assumes familiarity with <a class="reference internal" href="../tutorials/basic_agent.html"><span class="doc">Agents</span></a>.</p>
@@ -445,7 +455,8 @@ Some notable examples include hierarchical structures, agent swarms, and mixture
 <li><p>Test the expert agents individually;</p></li>
 <li><p>Build and test a hierarchical multi-agent assistant.</p></li>
 </ul>
-<a class="reference internal image-reference" href="../../_images/howto_multiagent.svg"><img alt="Example of a multi-agent system" class="align-center" height="262" src="../../_images/howto_multiagent.svg" width="506" /></a>
+<a class="reference internal image-reference" href="../../_images/howto_multiagent.svg"><img alt="Example of a multi-agent system" class="align-center" src="../../_images/howto_multiagent.svg" style="width: 506.09999999999997px; height: 262.5px;" />
+</a>
 <p><strong>Diagram:</strong> Multi-agent system shown in this how-to guide, comprising a manager agent
 (customer service agent) and two expert agents equipped with tools (refund specialist
 and satisfaction surveyor).</p>
@@ -485,7 +496,7 @@ Select an LLM from the options below:</p>
 </div>
 </div></div>
 <section id="building-and-testing-expert-agents">
-<h2>Building and testing expert Agents<a class="headerlink" href="#building-and-testing-expert-agents" title="Permalink to this heading">#</a></h2>
+<h2>Building and testing expert Agents<a class="headerlink" href="#building-and-testing-expert-agents" title="Link to this heading">#</a></h2>
 <p>In this guide you will use the following helper function to print
 messages:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">print_messages</span><span class="p">(</span><span class="n">messages</span><span class="p">):</span>
@@ -510,9 +521,9 @@ messages:</p>
 </div>
 <p>API Reference: <a class="reference internal" href="../api/conversation.html#messagetype"><span class="std std-ref">MessageType</span></a></p>
 <section id="refund-specialist-agent">
-<h3>Refund specialist agent<a class="headerlink" href="#refund-specialist-agent" title="Permalink to this heading">#</a></h3>
+<h3>Refund specialist agent<a class="headerlink" href="#refund-specialist-agent" title="Link to this heading">#</a></h3>
 <section id="tools">
-<h4>Tools<a class="headerlink" href="#tools" title="Permalink to this heading">#</a></h4>
+<h4>Tools<a class="headerlink" href="#tools" title="Link to this heading">#</a></h4>
 <p>The refund specialist agent is equipped with two tools.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
 
@@ -578,7 +589,7 @@ messages:</p>
 while the second is used to process the specific refund.</p>
 </section>
 <section id="system-prompt">
-<h4>System prompt<a class="headerlink" href="#system-prompt" title="Permalink to this heading">#</a></h4>
+<h4>System prompt<a class="headerlink" href="#system-prompt" title="Link to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REFUND_SPECIALIST_SYSTEM_PROMPT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">You are a Refund Specialist agent whose objective is to process customer refund requests accurately and efficiently based on company policy.</span>
 
@@ -601,7 +612,7 @@ unintended effects as the number of agents scales up.</p>
 </div>
 </section>
 <section id="building-the-agent">
-<h4>Building the Agent<a class="headerlink" href="#building-the-agent" title="Permalink to this heading">#</a></h4>
+<h4>Building the Agent<a class="headerlink" href="#building-the-agent" title="Link to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
 
 <span class="n">refund_specialist_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
@@ -617,7 +628,7 @@ unintended effects as the number of agents scales up.</p>
 <p>API Reference: <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a></p>
 </section>
 <section id="testing-the-agent">
-<h4>Testing the Agent<a class="headerlink" href="#testing-the-agent" title="Permalink to this heading">#</a></h4>
+<h4>Testing the Agent<a class="headerlink" href="#testing-the-agent" title="Link to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">refund_conversation</span> <span class="o">=</span> <span class="n">refund_specialist_agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
 <span class="n">refund_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
     <span class="s2">&quot;Please handle a refund request. Details: Order ID=&#39;123&#39;, Customer ID=&#39;CUST456&#39;, Reason=&#39;Item arrived damaged&#39;.&quot;</span>
@@ -643,9 +654,9 @@ unintended effects as the number of agents scales up.</p>
 </section>
 </section>
 <section id="statisfaction-surveyor-agent">
-<h3>Statisfaction surveyor agent<a class="headerlink" href="#statisfaction-surveyor-agent" title="Permalink to this heading">#</a></h3>
+<h3>Statisfaction surveyor agent<a class="headerlink" href="#statisfaction-surveyor-agent" title="Link to this heading">#</a></h3>
 <section id="id1">
-<h4>Tools<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h4>
+<h4>Tools<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
 <p>The statisfaction surveyor agent is equipped with one tool.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@tool</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">record_survey_response</span><span class="p">(</span>
@@ -679,7 +690,7 @@ unintended effects as the number of agents scales up.</p>
 user feedback data.</p>
 </section>
 <section id="id2">
-<h4>System prompt<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h4>
+<h4>System prompt<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SURVEYOR_SYSTEM_PROMPT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">You are a Satisfaction Surveyor agent tasked with collecting customer feedback about their recent service experience in a friendly manner.</span>
 
@@ -696,7 +707,7 @@ user feedback data.</p>
 </div>
 </section>
 <section id="id3">
-<h4>Building the Agent<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h4>
+<h4>Building the Agent<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">surveyor_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SatisfactionSurveyor&quot;</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Conducts brief surveys to gather feedback on customer satisfaction following service interactions.&quot;</span><span class="p">,</span>
@@ -709,7 +720,7 @@ user feedback data.</p>
 </div>
 </section>
 <section id="id4">
-<h4>Testing the Agent<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h4>
+<h4>Testing the Agent<a class="headerlink" href="#id4" title="Link to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">surveyor_conversation</span> <span class="o">=</span> <span class="n">surveyor_agent</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
 <span class="n">surveyor_conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
     <span class="s2">&quot;Engage customer for feedback. Details: Customer ID=&#39;CUST456&#39;, Context=&#39;Recent successful refund&#39;.&quot;</span>
@@ -750,14 +761,14 @@ user feedback data.</p>
 </section>
 </section>
 <section id="building-and-testing-the-multi-agent-assistant">
-<h2>Building and testing the multi-agent assistant<a class="headerlink" href="#building-and-testing-the-multi-agent-assistant" title="Permalink to this heading">#</a></h2>
+<h2>Building and testing the multi-agent assistant<a class="headerlink" href="#building-and-testing-the-multi-agent-assistant" title="Link to this heading">#</a></h2>
 <section id="manager-agent">
-<h3>Manager Agent<a class="headerlink" href="#manager-agent" title="Permalink to this heading">#</a></h3>
+<h3>Manager Agent<a class="headerlink" href="#manager-agent" title="Link to this heading">#</a></h3>
 <p>In WayFlow, a hierarchical multi-agent system can simply be created as
 an agent equipped with expert agents (the ones defined earlier).</p>
 <p>This agent is also known as <strong>manager</strong> or <strong>router</strong> agent.</p>
 <section id="id5">
-<h4>System prompt<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h4>
+<h4>System prompt<a class="headerlink" href="#id5" title="Link to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MANAGER_SYSTEM_PROMPT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">You are a Customer Service Manager agent tasked with handling incoming customer interactions and orchestrating the resolution process efficiently.</span>
 
@@ -783,7 +794,7 @@ an agent equipped with expert agents (the ones defined earlier).</p>
 </div>
 </section>
 <section id="building-the-manager-agent">
-<h4>Building the manager Agent<a class="headerlink" href="#building-the-manager-agent" title="Permalink to this heading">#</a></h4>
+<h4>Building the manager Agent<a class="headerlink" href="#building-the-manager-agent" title="Link to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">customer_service_manager</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CustomerServiceManager&quot;</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Acts as the primary contact point for customer inquiries, analyzes the request, routes tasks to specialized agents (Refund Specialist, Satisfaction Surveyor), and ensures resolution.&quot;</span><span class="p">,</span>
@@ -797,7 +808,7 @@ an agent equipped with expert agents (the ones defined earlier).</p>
 </section>
 </section>
 <section id="testing-the-multi-agent-system">
-<h3>Testing the multi-agent system<a class="headerlink" href="#testing-the-multi-agent-system" title="Permalink to this heading">#</a></h3>
+<h3>Testing the multi-agent system<a class="headerlink" href="#testing-the-multi-agent-system" title="Link to this heading">#</a></h3>
 <p>The power of mult-agent systems is their high adaptiveness.
 In the following example, it is demonstrated how the manager can decide
 not to call the expert agents for simple user queries.</p>
@@ -880,7 +891,7 @@ This is demonstrated in the following example.</p>
 </section>
 </section>
 <section id="recap">
-<h2>Recap<a class="headerlink" href="#recap" title="Permalink to this heading">#</a></h2>
+<h2>Recap<a class="headerlink" href="#recap" title="Link to this heading">#</a></h2>
 <p>In this guide, you learned how to build a multi-agent system
 consisting of a manager agent and two expert sub-agents.</p>
 <details class="summary-below-is-the-complete-code-from-this-guide">
@@ -1206,7 +1217,7 @@ consisting of a manager agent and two expert sub-agents.</p>
 </div>
 </details></section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Having learned how to build a multi-agent system in WayFlow, you may now proceed to <a class="reference internal" href="create_a_tool_from_a_flow.html"><span class="doc">How to Use Agents in Flows</span></a>.</p>
 </section>
 </section>
@@ -1290,7 +1301,7 @@ consisting of a manager agent and two expert sub-agents.</p>
 
   <p class="copyright">
     
-      © Copyright 2025, Oracle and/or its affiliates..
+      © Copyright 2025-2026, Oracle and/or its affiliates..
       <br/>
     
   </p>
@@ -1299,7 +1310,7 @@ consisting of a manager agent and two expert sub-agents.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

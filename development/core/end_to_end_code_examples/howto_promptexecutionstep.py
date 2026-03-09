@@ -11,7 +11,7 @@
 # python -m venv venv-wayflowcore
 # source venv-wayflowcore/bin/activate
 # pip install --upgrade pip
-# pip install "wayflowcore==26.1" 
+# pip install "wayflowcore==26.2.0.dev0" 
 # ```
 
 # You can now run the script
@@ -81,9 +81,14 @@ flow = Flow(
 ## Run the flow to get the summary
 
 # %%
+from wayflowcore.executors.executionstatus import FinishedStatus
+
 conversation = flow.start_conversation(inputs={"article": article})
 status = conversation.execute()
-print(status.output_values["summary"])
+if isinstance(status, FinishedStatus):
+    print(status.output_values["summary"])
+else:
+    print(f"Invalid execution status, expected FinishedStatus, received {type(status)}")
 # Sea turtles face threats from poaching, habitat loss, and pollution globally.
 
 from wayflowcore.controlconnection import ControlFlowEdge
@@ -139,7 +144,10 @@ flow = Flow(
 
 conversation = flow.start_conversation(inputs={"article": article})
 status = conversation.execute()
-print(status.output_values)
+if isinstance(status, FinishedStatus):
+    print(status.output_values)
+else:
+    print(f"Invalid execution status, expected FinishedStatus, received {type(status)}")
 # {'threats': ['poaching', 'habitat loss', 'pollution'], 'danger_level': 'HIGH', 'animal_name': 'Sea turtles'}
 
 from wayflowcore.controlconnection import ControlFlowEdge
@@ -202,7 +210,10 @@ flow = Flow(
 
 conversation = flow.start_conversation(inputs={"article": article})
 status = conversation.execute()
-print(status.output_values)
+if isinstance(status, FinishedStatus):
+    print(status.output_values)
+else:
+    print(f"Invalid execution status, expected FinishedStatus, received {type(status)}")
 # {'animal_object': {'animal_name': 'Sea turtles', 'danger_level': 'MEDIUM', 'threats': ['Poaching', 'Habitat loss', 'Pollution']}}
 
 
@@ -242,7 +253,10 @@ flow = Flow(
 conversation = flow.start_conversation()
 conversation.append_user_message("Here is the article: " + article)
 status = conversation.execute()
-print(status.output_values)
+if isinstance(status, FinishedStatus):
+    print(status.output_values)
+else:
+    print(f"Invalid execution status, expected FinishedStatus, received {type(status)}")
 # {'animal_name': 'Sea turtles', 'danger_level': 'HIGH', 'threats': ['poaching', 'habitat loss', 'pollution']}
 
 

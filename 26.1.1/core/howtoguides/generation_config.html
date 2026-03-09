@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>How to Specify the Generation Configuration when Using LLMs &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/generation_config';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="How to Install and Use Ollama" href="installing_ollama.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -281,7 +280,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -361,7 +360,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -432,14 +431,14 @@
                 <article class="bd-article">
                   
   <section id="how-to-specify-the-generation-configuration-when-using-llms">
-<span id="top-howto-generationconfig"></span><h1>How to Specify the Generation Configuration when Using LLMs<a class="headerlink" href="#how-to-specify-the-generation-configuration-when-using-llms" title="Permalink to this heading">#</a></h1>
+<span id="top-howto-generationconfig"></span><h1>How to Specify the Generation Configuration when Using LLMs<a class="headerlink" href="#how-to-specify-the-generation-configuration-when-using-llms" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Python Script</div>
 <p class="sd-card-text">Python script/notebook for this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/example_generationconfig.py"><span>Generation Configuration how-to script</span></a></div>
@@ -460,9 +459,9 @@ In WayFlow, these parameters can be configured with the <a class="reference inte
 <p>For a deeper understanding of the impact of each generation parameter, refer to the resources at the bottom of this page.</p>
 </div>
 <section id="basic-implementation">
-<h2>Basic implementation<a class="headerlink" href="#basic-implementation" title="Permalink to this heading">#</a></h2>
+<h2>Basic implementation<a class="headerlink" href="#basic-implementation" title="Link to this heading">#</a></h2>
 <section id="configure-the-generation-parameters-for-an-agent">
-<h3>Configure the generation parameters for an agent<a class="headerlink" href="#configure-the-generation-parameters-for-an-agent" title="Permalink to this heading">#</a></h3>
+<h3>Configure the generation parameters for an agent<a class="headerlink" href="#configure-the-generation-parameters-for-an-agent" title="Link to this heading">#</a></h3>
 <p>Customizing the generation configuration for an agent requires the use of the following <code class="docutils literal notranslate"><span class="pre">wayflowcore</span></code> components.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmgenerationconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmGenerationConfig</span>
@@ -540,7 +539,7 @@ Select an LLM from the options below:</p>
 </div>
 </section>
 <section id="configure-the-generation-parameters-for-a-flow">
-<h3>Configure the generation parameters for a flow<a class="headerlink" href="#configure-the-generation-parameters-for-a-flow" title="Permalink to this heading">#</a></h3>
+<h3>Configure the generation parameters for a flow<a class="headerlink" href="#configure-the-generation-parameters-for-a-flow" title="Link to this heading">#</a></h3>
 <p>Customizing the generation configuration for a flow requires the use of the following <code class="docutils literal notranslate"><span class="pre">wayflowcore</span></code> components.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmgenerationconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmGenerationConfig</span>
@@ -579,10 +578,10 @@ using the <a class="reference internal" href="../api/llmmodels.html#llmgeneratio
 </section>
 </section>
 <section id="advanced-usage">
-<h2>Advanced usage<a class="headerlink" href="#advanced-usage" title="Permalink to this heading">#</a></h2>
+<h2>Advanced usage<a class="headerlink" href="#advanced-usage" title="Link to this heading">#</a></h2>
 <p>The <a class="reference internal" href="../api/llmmodels.html#llmgenerationconfig"><span class="std std-ref">LlmGenerationConfig</span></a> class is a serializable object. It can be instantiated from a dictionary or saved to one, as you will see below.</p>
 <section id="apply-the-generation-configuration-from-a-dictionary">
-<h3>Apply the generation configuration from a dictionary<a class="headerlink" href="#apply-the-generation-configuration-from-a-dictionary" title="Permalink to this heading">#</a></h3>
+<h3>Apply the generation configuration from a dictionary<a class="headerlink" href="#apply-the-generation-configuration-from-a-dictionary" title="Link to this heading">#</a></h3>
 <p>If you have a generation configuration in a dictionary (for example, from a JSON or YAML file),
 you can instantiate the <a class="reference internal" href="../api/llmmodels.html#llmgenerationconfig"><span class="std std-ref">LlmGenerationConfig</span></a> class as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config_dict</span> <span class="o">=</span> <span class="p">{</span>
@@ -595,7 +594,7 @@ you can instantiate the <a class="reference internal" href="../api/llmmodels.htm
 </div>
 </section>
 <section id="save-a-custom-generation-configuration">
-<h3>Save a custom generation configuration<a class="headerlink" href="#save-a-custom-generation-configuration" title="Permalink to this heading">#</a></h3>
+<h3>Save a custom generation configuration<a class="headerlink" href="#save-a-custom-generation-configuration" title="Link to this heading">#</a></h3>
 <p>If you would like to share your specific generation configuration, you can create a <a class="reference internal" href="../api/llmmodels.html#llmgenerationconfig"><span class="std std-ref">LlmGenerationConfig</span></a>
 class instance and store it to a dictionary.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
@@ -606,7 +605,7 @@ class instance and store it to a dictionary.</p>
 </section>
 </section>
 <section id="agent-spec-exporting-loading">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Link to this heading">#</a></h2>
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.
 The following example exports the serialization of the flow defined above.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
@@ -947,7 +946,7 @@ The following example exports the serialization of the flow defined above.</p>
 </div>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Having learned how to specify the generation configuration, you may now proceed to:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../api/llmmodels.html"><span class="doc">API Reference on LLM Models</span></a></p></li>
@@ -962,7 +961,7 @@ The following example exports the serialization of the flow defined above.</p>
 </ul>
 </section>
 <section id="full-code">
-<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <p>Click on the card at the <a class="reference internal" href="#top-howto-generationconfig"><span class="std std-ref">top of this page</span></a> to download the full code for this guide or copy the code below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
 <span class="linenos">  2</span><span class="c1">#</span>
@@ -977,7 +976,7 @@ The following example exports the serialization of the flow defined above.</p>
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1.1&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -1196,7 +1195,7 @@ The following example exports the serialization of the flow defined above.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

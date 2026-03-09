@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Build a Simple Fixed-Flow Assistant with Flows &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/tutorials/basic_flow';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="Build a Simple Conversational Assistant with Agents" href="basic_agent.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -281,7 +280,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tutorials &amp; Use Cases</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -361,7 +360,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -432,14 +431,14 @@
                 <article class="bd-article">
                   
   <section id="build-a-simple-fixed-flow-assistant-with-flows">
-<span id="core-basic-flow"></span><h1>Build a Simple Fixed-Flow Assistant with Flows<a class="headerlink" href="#build-a-simple-fixed-flow-assistant-with-flows" title="Permalink to this heading">#</a></h1>
+<span id="core-basic-flow"></span><h1>Build a Simple Fixed-Flow Assistant with Flows<a class="headerlink" href="#build-a-simple-fixed-flow-assistant-with-flows" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Python Script</div>
 <p class="sd-card-text">Python script/notebook for this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/tutorial_flow.py"><span>Simple flow tutorial script</span></a></div>
@@ -453,7 +452,7 @@ basic knowledge of Large Language Models (LLMs).</p>
 <p>You will need a working installation of WayFlow - see <a class="reference internal" href="../installation.html"><span class="doc">Installation</span></a>.</p>
 </div>
 <section id="learning-goals">
-<h2>Learning goals<a class="headerlink" href="#learning-goals" title="Permalink to this heading">#</a></h2>
+<h2>Learning goals<a class="headerlink" href="#learning-goals" title="Link to this heading">#</a></h2>
 <p>In this tutorial, you will develop a simple HR chatbot that answers an employee’s HR-related questions.</p>
 <p>By doing this tutorial, you will:</p>
 <ol class="arabic simple">
@@ -468,7 +467,7 @@ assistants with Agents, check out the <a class="reference internal" href="basic_
 </div>
 </section>
 <section id="a-primer-on-flows">
-<span id="primer-on-flows"></span><h2>A primer on Flows<a class="headerlink" href="#a-primer-on-flows" title="Permalink to this heading">#</a></h2>
+<span id="primer-on-flows"></span><h2>A primer on Flows<a class="headerlink" href="#a-primer-on-flows" title="Link to this heading">#</a></h2>
 <p>A <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> is a type of assistant composed of individual <strong>Steps</strong> connected to form a coherent sequence of actions. By
 using a flow-based approach WayFlow can tackle a wide range of business processes and tasks.</p>
 <p>Each step in the <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> performs a specific function. The flow you will build in this tutorial uses the following types
@@ -486,7 +485,7 @@ In contrast, the <code class="docutils literal notranslate"><span class="pre">Pr
 </div>
 </section>
 <section id="building-the-flow">
-<span id="id1"></span><h2>Building the flow<a class="headerlink" href="#building-the-flow" title="Permalink to this heading">#</a></h2>
+<span id="id1"></span><h2>Building the flow<a class="headerlink" href="#building-the-flow" title="Link to this heading">#</a></h2>
 <p>In this tutorial, you will create an HR chatbot that answers a user’s HR-related queries. You will do this by building a fixed-flow assistant
 using Python code.</p>
 <p>The chatbot will need to perform the following steps, in order, to answer a user’s HR questions.</p>
@@ -502,13 +501,13 @@ using Python code.</p>
 this tutorial addresses these tasks.</p>
 </section>
 <section id="setup-a-jupyter-notebook">
-<h2>Setup a Jupyter Notebook<a class="headerlink" href="#setup-a-jupyter-notebook" title="Permalink to this heading">#</a></h2>
+<h2>Setup a Jupyter Notebook<a class="headerlink" href="#setup-a-jupyter-notebook" title="Link to this heading">#</a></h2>
 <p>You can follow along with this tutorial by creating a Jupyter Notebook. Ensure that <code class="docutils literal notranslate"><span class="pre">wayflowcore</span></code> is installed — see the <a class="reference internal" href="../installation.html"><span class="doc">installation</span></a>
 instructions for details.</p>
 <p>Alternatively, you can use any Python environment to run the code in this tutorial.</p>
 </section>
 <section id="imports-and-llm-configuration">
-<h2>Imports and LLM configuration<a class="headerlink" href="#imports-and-llm-configuration" title="Permalink to this heading">#</a></h2>
+<h2>Imports and LLM configuration<a class="headerlink" href="#imports-and-llm-configuration" title="Link to this heading">#</a></h2>
 <p>First import what is needed for this tutorial:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">dedent</span>
 <span class="linenos"> 2</span>
@@ -566,7 +565,7 @@ instead.</p>
 </div>
 </section>
 <section id="naming-data">
-<h2>Naming data<a class="headerlink" href="#naming-data" title="Permalink to this heading">#</a></h2>
+<h2>Naming data<a class="headerlink" href="#naming-data" title="Link to this heading">#</a></h2>
 <p>Passing values between steps is a very common occurrence when building Flows. This is done using <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">DataFlowEdges</span></a> which define
 that a value is passed from one step to another.</p>
 <p>A step has input and output descriptors, which describe what values it requires to run and what values it produces. These can be thought of as
@@ -596,7 +595,7 @@ for a <code class="docutils literal notranslate"><span class="pre">ToolExecution
 <p>Later in this tutorial, you will examine in detail how passing values works.</p>
 </section>
 <section id="specifying-the-steps">
-<h2>Specifying the steps<a class="headerlink" href="#specifying-the-steps" title="Permalink to this heading">#</a></h2>
+<h2>Specifying the steps<a class="headerlink" href="#specifying-the-steps" title="Link to this heading">#</a></h2>
 <p>The flow follows a simple sequence of logical steps that were defined earlier in the tutorial. They consist of prompting the user for a question,
 searching the HR system for the required information, using an LLM to generate an answer from the retrieved data, and finally answering the user.</p>
 <p>In a nutshell, the flow consists of the following steps in order:</p>
@@ -609,7 +608,7 @@ searching the HR system for the required information, using an LLM to generate a
 </ul>
 <p>You now need to build each of the steps used in the flow.</p>
 <section id="start-step">
-<h3>START_STEP<a class="headerlink" href="#start-step" title="Permalink to this heading">#</a></h3>
+<h3>START_STEP<a class="headerlink" href="#start-step" title="Link to this heading">#</a></h3>
 <p>This is where the flow starts. It can take in a string to display to the user, but it is being used only as a starting point for the flow. The
 message to the user is displayed in the <code class="docutils literal notranslate"><span class="pre">USER_INPUT_STEP</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># A start step. This is where the flow starts.</span>
@@ -618,7 +617,7 @@ message to the user is displayed in the <code class="docutils literal notranslat
 </div>
 </section>
 <section id="user-input-step">
-<h3>USER_INPUT_STEP<a class="headerlink" href="#user-input-step" title="Permalink to this heading">#</a></h3>
+<h3>USER_INPUT_STEP<a class="headerlink" href="#user-input-step" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">InputMessageStep</span></code> prompts the user for information and saves the response for subsequent use. This step requires at least a message
 template, which defines the prompt presented to the user. In this context, the user is welcomed and asked to provide their HR-related question.</p>
 <p>An <code class="docutils literal notranslate"><span class="pre">output_mapping</span></code> is used to specify a new, more meaningful name for the <code class="docutils literal notranslate"><span class="pre">output_descriptor</span></code> of the step. By default, the <code class="docutils literal notranslate"><span class="pre">output_descriptor</span></code>
@@ -645,7 +644,7 @@ in <code class="docutils literal notranslate"><span class="pre">HR_QUERY</span><
 </div>
 </section>
 <section id="hr-lookup-step">
-<h3>HR_LOOKUP_STEP<a class="headerlink" href="#hr-lookup-step" title="Permalink to this heading">#</a></h3>
+<h3>HR_LOOKUP_STEP<a class="headerlink" href="#hr-lookup-step" title="Link to this heading">#</a></h3>
 <p>In this case the <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a> executes a tool, a decorated Python function, with the passed in query. Here, for
 simplicity, the tool is mocked out and always returns the same data. The mock data contains HR information for two fictional employees,
 <code class="docutils literal notranslate"><span class="pre">John</span> <span class="pre">Smith</span></code> and <code class="docutils literal notranslate"><span class="pre">Mary</span> <span class="pre">Jones</span></code>.</p>
@@ -681,7 +680,7 @@ This name can be used in a <code class="docutils literal notranslate"><span clas
 </div>
 </section>
 <section id="llm-answer-step">
-<h3>LLM_ANSWER_STEP<a class="headerlink" href="#llm-answer-step" title="Permalink to this heading">#</a></h3>
+<h3>LLM_ANSWER_STEP<a class="headerlink" href="#llm-answer-step" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">PromptExecutionStep</span></code> executes a prompt using an LLM. It requires a prompt template and an LLM(s) to do so.</p>
 <p>As in the <code class="docutils literal notranslate"><span class="pre">USER_INPUT_STEP</span></code>, the LLM’s <code class="docutils literal notranslate"><span class="pre">output_descriptor</span></code> is replaced with a more meaningful name.
 The default <code class="docutils literal notranslate"><span class="pre">output_descriptor</span></code> for the output of <code class="docutils literal notranslate"><span class="pre">PromptExecutionStep</span></code> is <code class="docutils literal notranslate"><span class="pre">PromptExecutionStep.OUTPUT</span></code>. It is renamed to the value
@@ -720,7 +719,7 @@ held in <code class="docutils literal notranslate"><span class="pre">QUERY_ANSWE
 </div>
 </section>
 <section id="user-output-step">
-<h3>USER_OUTPUT_STEP<a class="headerlink" href="#user-output-step" title="Permalink to this heading">#</a></h3>
+<h3>USER_OUTPUT_STEP<a class="headerlink" href="#user-output-step" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">OutputMessageStep</span></code> displays information to the user. It uses a message template to generate the output.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># Step that outputs the answer to the user&#39;s query.</span>
 <span class="linenos">2</span><span class="n">user_output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span>
@@ -732,7 +731,7 @@ held in <code class="docutils literal notranslate"><span class="pre">QUERY_ANSWE
 </section>
 </section>
 <section id="step-transitions">
-<h2>Step transitions<a class="headerlink" href="#step-transitions" title="Permalink to this heading">#</a></h2>
+<h2>Step transitions<a class="headerlink" href="#step-transitions" title="Link to this heading">#</a></h2>
 <p>The Flow is almost done, you just need to specify the <strong>control flow</strong>, i.e., the transitions between the steps defined earlier.
 These are straightforward here as you are building a “sequential” flow. Note that the final step, displaying the
 answer to the user, transitions <code class="docutils literal notranslate"><span class="pre">CompleteStep()</span></code> - a step that acts as a termination point for the flow.
@@ -785,7 +784,7 @@ parameter for the destination step which will consume the value.</p>
 </div>
 </section>
 <section id="creating-the-assistant">
-<h2>Creating the assistant<a class="headerlink" href="#creating-the-assistant" title="Permalink to this heading">#</a></h2>
+<h2>Creating the assistant<a class="headerlink" href="#creating-the-assistant" title="Link to this heading">#</a></h2>
 <p>Finally, you create the flow by using the <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> class.</p>
 <p>You set the initial step to be the <code class="docutils literal notranslate"><span class="pre">begin_step</span></code> and pass in <code class="docutils literal notranslate"><span class="pre">control_flow_edges</span></code> and <code class="docutils literal notranslate"><span class="pre">data_flow_edges</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># Create the flow passing in the steps, the name of the step to start with, the control_flow_edges and the data_flow_edges.</span>
@@ -799,7 +798,7 @@ parameter for the destination step which will consume the value.</p>
 <p>This completes the fixed-flow HR assistant.</p>
 </section>
 <section id="creating-the-assistant-with-the-flow-builder">
-<h2>Creating the assistant with the Flow Builder<a class="headerlink" href="#creating-the-assistant-with-the-flow-builder" title="Permalink to this heading">#</a></h2>
+<h2>Creating the assistant with the Flow Builder<a class="headerlink" href="#creating-the-assistant-with-the-flow-builder" title="Link to this heading">#</a></h2>
 <p>You can build the exact same flow with the chainable Flow Builder API.
 This keeps control and data wiring concise and readable.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># Create the same assistant using the Flow Builder API.</span>
@@ -825,7 +824,7 @@ This keeps control and data wiring concise and readable.</p>
 </div>
 </section>
 <section id="running-the-assistant">
-<h2>Running the assistant<a class="headerlink" href="#running-the-assistant" title="Permalink to this heading">#</a></h2>
+<h2>Running the assistant<a class="headerlink" href="#running-the-assistant" title="Link to this heading">#</a></h2>
 <p>Before we run the assistant, what are some questions that you could ask it? The following questions can be answered from the dummy HR data and are
 a good starting point.</p>
 <ol class="arabic simple">
@@ -884,7 +883,7 @@ final step back to the user input step in the final <code class="docutils litera
 <p>Congratulations, you have built your first fixed-flow assistant!</p>
 </section>
 <section id="agent-spec-exporting-loading">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Link to this heading">#</a></h2>
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
 
@@ -1761,7 +1760,7 @@ final step back to the user input step in the final <code class="docutils litera
 </div>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>In this tutorial, you learned how to build a fixed-flow assistant. To continue learning, check out:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="basic_agent.html"><span class="doc">Build a Simple Conversational Assistant with Agents</span></a>.</p></li>
@@ -1770,7 +1769,7 @@ final step back to the user input step in the final <code class="docutils litera
 </ul>
 </section>
 <section id="full-code">
-<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <p>Click on the card at the <a class="reference internal" href="#core-basic-flow"><span class="std std-ref">top of this page</span></a> to download the full code
 for this guide or copy the code below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
@@ -1786,7 +1785,7 @@ for this guide or copy the code below.</p>
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1.1&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -2157,7 +2156,7 @@ for this guide or copy the code below.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

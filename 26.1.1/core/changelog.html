@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Changelog &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,12 +45,12 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+    <script src="../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/changelog';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -69,7 +68,7 @@
     <link rel="prev" title="WayFlow" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -327,11 +326,11 @@
                 <article class="bd-article">
                   
   <section id="changelog">
-<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">#</a></h1>
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">#</a></h1>
 <section id="wayflow-26-1-1">
-<h2>WayFlow 26.1.1<a class="headerlink" href="#wayflow-26-1-1" title="Permalink to this heading">#</a></h2>
+<h2>WayFlow 26.1.1<a class="headerlink" href="#wayflow-26-1-1" title="Link to this heading">#</a></h2>
 <section id="new-features">
-<h3>New features<a class="headerlink" href="#new-features" title="Permalink to this heading">#</a></h3>
+<h3>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><strong>Tool output streaming:</strong></p>
 <p>Added a new event <code class="docutils literal notranslate"><span class="pre">ToolExecutionStreamingChunkReceived</span></code> to surface streamed tool chunks during tool execution.
@@ -341,7 +340,7 @@ Tool output streaming is supported for MCP tools and for <code class="docutils l
 </ul>
 </section>
 <section id="bug-fixes">
-<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this heading">#</a></h3>
+<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix: MCP tools now support union/optional output schemas for the <cite>result</cite> field (e.g., <cite>anyOf</cite> including <cite>null</cite>). This prevents KeyError during schema parsing. (#70)</p></li>
 <li><p>Fix: Gemini models with the OpenAiCompatible model now support native tool calling (#77)</p></li>
@@ -351,9 +350,9 @@ Tool output streaming is supported for MCP tools and for <code class="docutils l
 </section>
 </section>
 <section id="wayflow-26-1-0">
-<h2>WayFlow 26.1.0<a class="headerlink" href="#wayflow-26-1-0" title="Permalink to this heading">#</a></h2>
+<h2>WayFlow 26.1.0<a class="headerlink" href="#wayflow-26-1-0" title="Link to this heading">#</a></h2>
 <section id="security">
-<h3>Security<a class="headerlink" href="#security" title="Permalink to this heading">#</a></h3>
+<h3>Security<a class="headerlink" href="#security" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><strong>Stricter environment for jinja templates rendering:</strong></p>
 <p>We now use a stricter version of the SandboxedEnvironment for rendering jinja templates.
@@ -363,7 +362,7 @@ No access to object attributes is allowed, only key-based access to python dicti
 </ul>
 </section>
 <section id="id1">
-<h3>New features<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<h3>New features<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><strong>Added Flow Builder to simplify programmatic creation of WayFlow Flows.</strong></p>
 <p>The Flow Builder is a new chainable API to create WayFlow Flows more easily.</p>
@@ -404,7 +403,7 @@ Introduced the <a class="reference internal" href="api/agentserver.html#a2aserve
 </ul>
 </section>
 <section id="improvements">
-<h3>Improvements<a class="headerlink" href="#improvements" title="Permalink to this heading">#</a></h3>
+<h3>Improvements<a class="headerlink" href="#improvements" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><strong>Added ``sensitive_headers`` in components that perform remote calls:</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">ApiCallStep</span></code>, <code class="docutils literal notranslate"><span class="pre">RemoteTool</span></code>, and MCP <code class="docutils literal notranslate"><span class="pre">RemoteBaseTransport</span></code> now have a new attribute <code class="docutils literal notranslate"><span class="pre">sensitive_headers</span></code>.
@@ -464,7 +463,7 @@ as part of messages and tool_requests.</p>
 </ul>
 </section>
 <section id="possibly-breaking-changes">
-<h3>Possibly Breaking Changes<a class="headerlink" href="#possibly-breaking-changes" title="Permalink to this heading">#</a></h3>
+<h3>Possibly Breaking Changes<a class="headerlink" href="#possibly-breaking-changes" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><strong>Stricter environment for jinja templates rendering:</strong></p>
 <p>The new version of the Environment used to render templates could raise SecurityErrors on templates previously accepted.</p>
@@ -491,7 +490,7 @@ Use <code class="docutils literal notranslate"><span class="pre">append_last</sp
 </ul>
 </section>
 <section id="id2">
-<h3>Bug fixes<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<h3>Bug fixes<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><strong>Fixed several issues related to event tracing serialization when containing execution state:</strong></p>
 <p>Fixed an issue where <code class="docutils literal notranslate"><span class="pre">FlowExecutionIterationStartedEvent</span></code> and
@@ -554,9 +553,9 @@ Agents can now better complete the task and exit as expected.</p>
 </section>
 </section>
 <section id="wayflow-25-4-2">
-<h2>WayFlow 25.4.2<a class="headerlink" href="#wayflow-25-4-2" title="Permalink to this heading">#</a></h2>
+<h2>WayFlow 25.4.2<a class="headerlink" href="#wayflow-25-4-2" title="Link to this heading">#</a></h2>
 <section id="id3">
-<h3>New features<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<h3>New features<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><strong>Agent Spec structured generation:</strong>
 Open Agent Specification introduced Structured Generation in version 25.4.2.
@@ -575,7 +574,7 @@ Introduced a new Message Transform specialization that splits prompts on a marke
 </ul>
 </section>
 <section id="id4">
-<h3>Bug fixes<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<h3>Bug fixes<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><strong>Flow input and output descriptors</strong></p>
 <p>Fixed a bug where Flow input and output descriptors were sometimes ignored:</p>
@@ -598,7 +597,7 @@ data types on unrelated parts of the schema, i.e., tables and columns that are n
 </ul>
 </section>
 <section id="miscellaneous">
-<h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this heading">#</a></h3>
+<h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>Dependency Security Updates:</strong>
 Upgraded <strong>MCP</strong> to <strong>1.17.0</strong> and <strong>PyYAML</strong> to <strong>6.0.3</strong> to resolve known security vulnerabilities, including
@@ -609,7 +608,7 @@ and <a class="reference external" href="https://github.com/advisories/GHSA-8q59-
 </ul>
 </section>
 <section id="id5">
-<h3>Improvements<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<h3>Improvements<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <ul>
 <li><p><strong>Use execution statuses to interact with the components</strong>
 Users can now directly see the conversation state and interact with the agent via the execution status.</p>
@@ -642,7 +641,7 @@ Users can now directly see the conversation state and interact with the agent vi
 </section>
 </section>
 <section id="wayflow-25-4-1-initial-release">
-<h2>WayFlow 25.4.1 — Initial release<a class="headerlink" href="#wayflow-25-4-1-initial-release" title="Permalink to this heading">#</a></h2>
+<h2>WayFlow 25.4.1 — Initial release<a class="headerlink" href="#wayflow-25-4-1-initial-release" title="Link to this heading">#</a></h2>
 <p><strong>WayFlow is here:</strong> Build advanced AI-powered assistants with ease!</p>
 <p>With this release, WayFlow provides all you need for building AI-powered assistants, supporting structured workflows,
 autonomous agents, multi-agent collaboration, human-in-the-loop capabilities, and tool-based extensibility.
@@ -737,7 +736,7 @@ Modular design ensures you can rapidly build, iterate, and customize both simple
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

@@ -11,7 +11,7 @@
 # python -m venv venv-wayflowcore
 # source venv-wayflowcore/bin/activate
 # pip install --upgrade pip
-# pip install "wayflowcore==26.1" 
+# pip install "wayflowcore==26.2.0.dev0" 
 # ```
 
 # You can now run the script
@@ -48,7 +48,7 @@ from wayflowcore.models import VllmModel
 
 llm = VllmModel(
     model_id="LLAMA70B_MODEL_ID",
-    host_port="LLAMA70B_API_URL",
+    host_port="LLAMA70BV33_API_URL",
 )
 
 # %%[markdown]

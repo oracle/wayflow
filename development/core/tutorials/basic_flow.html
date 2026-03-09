@@ -1,16 +1,15 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Build a Simple Fixed-Flow Assistant with Flows &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+    <title>Build a Simple Fixed-Flow Assistant with Flows &#8212; wayflowcore 26.2.0.dev0 documentation</title>
   
   
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/tutorials/basic_flow';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="Build a Simple Conversational Assistant with Agents" href="basic_agent.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2.0.dev0" />
   </head>
   
   
@@ -108,6 +107,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -136,8 +138,8 @@
       
     
     
-    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
-    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
   
   
 </a></div>
@@ -281,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tutorials &amp; Use Cases</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -308,6 +310,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
@@ -318,20 +321,24 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_event_system.html">Use the Event System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_rag.html">Build RAG-Powered Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">Evaluate Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">Evaluate Conversations</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
@@ -351,6 +358,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/auth.html">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/search.html">Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
@@ -358,13 +367,14 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/docs_mcp_server.html">Docs MCP Server</a></li>
 </ul>
 </div>
 </nav></div>
@@ -429,14 +439,14 @@
                 <article class="bd-article">
                   
   <section id="build-a-simple-fixed-flow-assistant-with-flows">
-<span id="core-basic-flow"></span><h1>Build a Simple Fixed-Flow Assistant with Flows<a class="headerlink" href="#build-a-simple-fixed-flow-assistant-with-flows" title="Permalink to this heading">#</a></h1>
+<span id="core-basic-flow"></span><h1>Build a Simple Fixed-Flow Assistant with Flows<a class="headerlink" href="#build-a-simple-fixed-flow-assistant-with-flows" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Python Script</div>
 <p class="sd-card-text">Python script/notebook for this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/tutorial_flow.py"><span>Simple flow tutorial script</span></a></div>
@@ -450,7 +460,7 @@ basic knowledge of Large Language Models (LLMs).</p>
 <p>You will need a working installation of WayFlow - see <a class="reference internal" href="../installation.html"><span class="doc">Installation</span></a>.</p>
 </div>
 <section id="learning-goals">
-<h2>Learning goals<a class="headerlink" href="#learning-goals" title="Permalink to this heading">#</a></h2>
+<h2>Learning goals<a class="headerlink" href="#learning-goals" title="Link to this heading">#</a></h2>
 <p>In this tutorial, you will develop a simple HR chatbot that answers an employee’s HR-related questions.</p>
 <p>By doing this tutorial, you will:</p>
 <ol class="arabic simple">
@@ -465,7 +475,7 @@ assistants with Agents, check out the <a class="reference internal" href="basic_
 </div>
 </section>
 <section id="a-primer-on-flows">
-<span id="primer-on-flows"></span><h2>A primer on Flows<a class="headerlink" href="#a-primer-on-flows" title="Permalink to this heading">#</a></h2>
+<span id="primer-on-flows"></span><h2>A primer on Flows<a class="headerlink" href="#a-primer-on-flows" title="Link to this heading">#</a></h2>
 <p>A <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> is a type of assistant composed of individual <strong>Steps</strong> connected to form a coherent sequence of actions. By
 using a flow-based approach WayFlow can tackle a wide range of business processes and tasks.</p>
 <p>Each step in the <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> performs a specific function. The flow you will build in this tutorial uses the following types
@@ -483,7 +493,7 @@ In contrast, the <code class="docutils literal notranslate"><span class="pre">Pr
 </div>
 </section>
 <section id="building-the-flow">
-<span id="id1"></span><h2>Building the flow<a class="headerlink" href="#building-the-flow" title="Permalink to this heading">#</a></h2>
+<span id="id1"></span><h2>Building the flow<a class="headerlink" href="#building-the-flow" title="Link to this heading">#</a></h2>
 <p>In this tutorial, you will create an HR chatbot that answers a user’s HR-related queries. You will do this by building a fixed-flow assistant
 using Python code.</p>
 <p>The chatbot will need to perform the following steps, in order, to answer a user’s HR questions.</p>
@@ -499,31 +509,32 @@ using Python code.</p>
 this tutorial addresses these tasks.</p>
 </section>
 <section id="setup-a-jupyter-notebook">
-<h2>Setup a Jupyter Notebook<a class="headerlink" href="#setup-a-jupyter-notebook" title="Permalink to this heading">#</a></h2>
+<h2>Setup a Jupyter Notebook<a class="headerlink" href="#setup-a-jupyter-notebook" title="Link to this heading">#</a></h2>
 <p>You can follow along with this tutorial by creating a Jupyter Notebook. Ensure that <code class="docutils literal notranslate"><span class="pre">wayflowcore</span></code> is installed — see the <a class="reference internal" href="../installation.html"><span class="doc">installation</span></a>
 instructions for details.</p>
 <p>Alternatively, you can use any Python environment to run the code in this tutorial.</p>
 </section>
 <section id="imports-and-llm-configuration">
-<h2>Imports and LLM configuration<a class="headerlink" href="#imports-and-llm-configuration" title="Permalink to this heading">#</a></h2>
+<h2>Imports and LLM configuration<a class="headerlink" href="#imports-and-llm-configuration" title="Link to this heading">#</a></h2>
 <p>First import what is needed for this tutorial:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">dedent</span>
 <span class="linenos"> 2</span>
 <span class="linenos"> 3</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
 <span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
 <span class="linenos"> 5</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
-<span class="linenos"> 6</span>
-<span class="linenos"> 7</span><span class="c1"># Create an LLM model to use later in the tutorial.</span>
-<span class="linenos"> 8</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
-<span class="linenos"> 9</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-<span class="linenos">10</span>    <span class="n">CompleteStep</span><span class="p">,</span>
-<span class="linenos">11</span>    <span class="n">InputMessageStep</span><span class="p">,</span>
-<span class="linenos">12</span>    <span class="n">OutputMessageStep</span><span class="p">,</span>
-<span class="linenos">13</span>    <span class="n">PromptExecutionStep</span><span class="p">,</span>
-<span class="linenos">14</span>    <span class="n">StartStep</span><span class="p">,</span>
-<span class="linenos">15</span>    <span class="n">ToolExecutionStep</span><span class="p">,</span>
-<span class="linenos">16</span><span class="p">)</span>
-<span class="linenos">17</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowbuilder</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlowBuilder</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="c1"># Create an LLM model to use later in the tutorial.</span>
+<span class="linenos"> 9</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+<span class="linenos">10</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="linenos">11</span>    <span class="n">CompleteStep</span><span class="p">,</span>
+<span class="linenos">12</span>    <span class="n">InputMessageStep</span><span class="p">,</span>
+<span class="linenos">13</span>    <span class="n">OutputMessageStep</span><span class="p">,</span>
+<span class="linenos">14</span>    <span class="n">PromptExecutionStep</span><span class="p">,</span>
+<span class="linenos">15</span>    <span class="n">StartStep</span><span class="p">,</span>
+<span class="linenos">16</span>    <span class="n">ToolExecutionStep</span><span class="p">,</span>
+<span class="linenos">17</span><span class="p">)</span>
+<span class="linenos">18</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
 </pre></div>
 </div>
 <p>WayFlow supports several LLM API providers. First choose an LLM from one of the options below:</p>
@@ -562,7 +573,7 @@ instead.</p>
 </div>
 </section>
 <section id="naming-data">
-<h2>Naming data<a class="headerlink" href="#naming-data" title="Permalink to this heading">#</a></h2>
+<h2>Naming data<a class="headerlink" href="#naming-data" title="Link to this heading">#</a></h2>
 <p>Passing values between steps is a very common occurrence when building Flows. This is done using <a class="reference internal" href="../api/flows.html#dataflowedge"><span class="std std-ref">DataFlowEdges</span></a> which define
 that a value is passed from one step to another.</p>
 <p>A step has input and output descriptors, which describe what values it requires to run and what values it produces. These can be thought of as
@@ -592,7 +603,7 @@ for a <code class="docutils literal notranslate"><span class="pre">ToolExecution
 <p>Later in this tutorial, you will examine in detail how passing values works.</p>
 </section>
 <section id="specifying-the-steps">
-<h2>Specifying the steps<a class="headerlink" href="#specifying-the-steps" title="Permalink to this heading">#</a></h2>
+<h2>Specifying the steps<a class="headerlink" href="#specifying-the-steps" title="Link to this heading">#</a></h2>
 <p>The flow follows a simple sequence of logical steps that were defined earlier in the tutorial. They consist of prompting the user for a question,
 searching the HR system for the required information, using an LLM to generate an answer from the retrieved data, and finally answering the user.</p>
 <p>In a nutshell, the flow consists of the following steps in order:</p>
@@ -605,7 +616,7 @@ searching the HR system for the required information, using an LLM to generate a
 </ul>
 <p>You now need to build each of the steps used in the flow.</p>
 <section id="start-step">
-<h3>START_STEP<a class="headerlink" href="#start-step" title="Permalink to this heading">#</a></h3>
+<h3>START_STEP<a class="headerlink" href="#start-step" title="Link to this heading">#</a></h3>
 <p>This is where the flow starts. It can take in a string to display to the user, but it is being used only as a starting point for the flow. The
 message to the user is displayed in the <code class="docutils literal notranslate"><span class="pre">USER_INPUT_STEP</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># A start step. This is where the flow starts.</span>
@@ -614,7 +625,7 @@ message to the user is displayed in the <code class="docutils literal notranslat
 </div>
 </section>
 <section id="user-input-step">
-<h3>USER_INPUT_STEP<a class="headerlink" href="#user-input-step" title="Permalink to this heading">#</a></h3>
+<h3>USER_INPUT_STEP<a class="headerlink" href="#user-input-step" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">InputMessageStep</span></code> prompts the user for information and saves the response for subsequent use. This step requires at least a message
 template, which defines the prompt presented to the user. In this context, the user is welcomed and asked to provide their HR-related question.</p>
 <p>An <code class="docutils literal notranslate"><span class="pre">output_mapping</span></code> is used to specify a new, more meaningful name for the <code class="docutils literal notranslate"><span class="pre">output_descriptor</span></code> of the step. By default, the <code class="docutils literal notranslate"><span class="pre">output_descriptor</span></code>
@@ -641,7 +652,7 @@ in <code class="docutils literal notranslate"><span class="pre">HR_QUERY</span><
 </div>
 </section>
 <section id="hr-lookup-step">
-<h3>HR_LOOKUP_STEP<a class="headerlink" href="#hr-lookup-step" title="Permalink to this heading">#</a></h3>
+<h3>HR_LOOKUP_STEP<a class="headerlink" href="#hr-lookup-step" title="Link to this heading">#</a></h3>
 <p>In this case the <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a> executes a tool, a decorated Python function, with the passed in query. Here, for
 simplicity, the tool is mocked out and always returns the same data. The mock data contains HR information for two fictional employees,
 <code class="docutils literal notranslate"><span class="pre">John</span> <span class="pre">Smith</span></code> and <code class="docutils literal notranslate"><span class="pre">Mary</span> <span class="pre">Jones</span></code>.</p>
@@ -677,7 +688,7 @@ This name can be used in a <code class="docutils literal notranslate"><span clas
 </div>
 </section>
 <section id="llm-answer-step">
-<h3>LLM_ANSWER_STEP<a class="headerlink" href="#llm-answer-step" title="Permalink to this heading">#</a></h3>
+<h3>LLM_ANSWER_STEP<a class="headerlink" href="#llm-answer-step" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">PromptExecutionStep</span></code> executes a prompt using an LLM. It requires a prompt template and an LLM(s) to do so.</p>
 <p>As in the <code class="docutils literal notranslate"><span class="pre">USER_INPUT_STEP</span></code>, the LLM’s <code class="docutils literal notranslate"><span class="pre">output_descriptor</span></code> is replaced with a more meaningful name.
 The default <code class="docutils literal notranslate"><span class="pre">output_descriptor</span></code> for the output of <code class="docutils literal notranslate"><span class="pre">PromptExecutionStep</span></code> is <code class="docutils literal notranslate"><span class="pre">PromptExecutionStep.OUTPUT</span></code>. It is renamed to the value
@@ -716,7 +727,7 @@ held in <code class="docutils literal notranslate"><span class="pre">QUERY_ANSWE
 </div>
 </section>
 <section id="user-output-step">
-<h3>USER_OUTPUT_STEP<a class="headerlink" href="#user-output-step" title="Permalink to this heading">#</a></h3>
+<h3>USER_OUTPUT_STEP<a class="headerlink" href="#user-output-step" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">OutputMessageStep</span></code> displays information to the user. It uses a message template to generate the output.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># Step that outputs the answer to the user&#39;s query.</span>
 <span class="linenos">2</span><span class="n">user_output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span>
@@ -728,7 +739,7 @@ held in <code class="docutils literal notranslate"><span class="pre">QUERY_ANSWE
 </section>
 </section>
 <section id="step-transitions">
-<h2>Step transitions<a class="headerlink" href="#step-transitions" title="Permalink to this heading">#</a></h2>
+<h2>Step transitions<a class="headerlink" href="#step-transitions" title="Link to this heading">#</a></h2>
 <p>The Flow is almost done, you just need to specify the <strong>control flow</strong>, i.e., the transitions between the steps defined earlier.
 These are straightforward here as you are building a “sequential” flow. Note that the final step, displaying the
 answer to the user, transitions <code class="docutils literal notranslate"><span class="pre">CompleteStep()</span></code> - a step that acts as a termination point for the flow.
@@ -781,7 +792,7 @@ parameter for the destination step which will consume the value.</p>
 </div>
 </section>
 <section id="creating-the-assistant">
-<h2>Creating the assistant<a class="headerlink" href="#creating-the-assistant" title="Permalink to this heading">#</a></h2>
+<h2>Creating the assistant<a class="headerlink" href="#creating-the-assistant" title="Link to this heading">#</a></h2>
 <p>Finally, you create the flow by using the <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> class.</p>
 <p>You set the initial step to be the <code class="docutils literal notranslate"><span class="pre">begin_step</span></code> and pass in <code class="docutils literal notranslate"><span class="pre">control_flow_edges</span></code> and <code class="docutils literal notranslate"><span class="pre">data_flow_edges</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># Create the flow passing in the steps, the name of the step to start with, the control_flow_edges and the data_flow_edges.</span>
@@ -794,8 +805,34 @@ parameter for the destination step which will consume the value.</p>
 </div>
 <p>This completes the fixed-flow HR assistant.</p>
 </section>
+<section id="creating-the-assistant-with-the-flow-builder">
+<h2>Creating the assistant with the Flow Builder<a class="headerlink" href="#creating-the-assistant-with-the-flow-builder" title="Link to this heading">#</a></h2>
+<p>You can build the exact same flow with the chainable Flow Builder API.
+This keeps control and data wiring concise and readable.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># Create the same assistant using the Flow Builder API.</span>
+<span class="linenos"> 2</span><span class="n">assistant</span> <span class="o">=</span> <span class="p">(</span>
+<span class="linenos"> 3</span>    <span class="n">FlowBuilder</span><span class="p">()</span>
+<span class="linenos"> 4</span>    <span class="o">.</span><span class="n">add_sequence</span><span class="p">([</span><span class="n">user_input_step</span><span class="p">,</span> <span class="n">hr_lookup_step</span><span class="p">,</span> <span class="n">llm_answer_step</span><span class="p">,</span> <span class="n">user_output_step</span><span class="p">])</span>
+<span class="linenos"> 5</span>    <span class="o">.</span><span class="n">set_entry_point</span><span class="p">(</span><span class="n">user_input_step</span><span class="p">)</span>
+<span class="linenos"> 6</span>    <span class="c1"># Link the final step to completion</span>
+<span class="linenos"> 7</span>    <span class="o">.</span><span class="n">set_finish_points</span><span class="p">(</span><span class="n">user_output_step</span><span class="p">)</span>
+<span class="linenos"> 8</span>    <span class="c1"># Wire the data connections</span>
+<span class="linenos"> 9</span>    <span class="o">.</span><span class="n">add_data_edge</span><span class="p">(</span><span class="n">user_input_step</span><span class="p">,</span> <span class="n">hr_lookup_step</span><span class="p">,</span> <span class="p">(</span><span class="n">HR_QUERY</span><span class="p">,</span> <span class="n">TOOL_QUERY</span><span class="p">))</span>
+<span class="linenos">10</span>    <span class="o">.</span><span class="n">add_data_edge</span><span class="p">(</span><span class="n">user_input_step</span><span class="p">,</span> <span class="n">llm_answer_step</span><span class="p">,</span> <span class="p">(</span><span class="n">HR_QUERY</span><span class="p">,</span> <span class="n">USER_QUESTION</span><span class="p">))</span>
+<span class="linenos">11</span>    <span class="o">.</span><span class="n">add_data_edge</span><span class="p">(</span><span class="n">hr_lookup_step</span><span class="p">,</span> <span class="n">llm_answer_step</span><span class="p">,</span> <span class="p">(</span><span class="n">HR_DATA_CONTEXT</span><span class="p">,</span> <span class="n">HR_DATA_CONTEXT</span><span class="p">))</span>
+<span class="linenos">12</span>    <span class="o">.</span><span class="n">add_data_edge</span><span class="p">(</span><span class="n">llm_answer_step</span><span class="p">,</span> <span class="n">user_output_step</span><span class="p">,</span> <span class="p">(</span><span class="n">QUERY_ANSWER</span><span class="p">,</span> <span class="n">QUERY_ANSWER</span><span class="p">))</span>
+<span class="linenos">13</span>    <span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="linenos">14</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>API Reference: <a class="reference internal" href="../api/flows.html#flowbuilder"><span class="std std-ref">FlowBuilder</span></a></p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>For more information see the how-to guides about <a class="reference internal" href="../howtoguides/howto_flowbuilder.html"><span class="doc">how to use the Flow builder</span></a></p>
+</div>
+</section>
 <section id="running-the-assistant">
-<h2>Running the assistant<a class="headerlink" href="#running-the-assistant" title="Permalink to this heading">#</a></h2>
+<h2>Running the assistant<a class="headerlink" href="#running-the-assistant" title="Link to this heading">#</a></h2>
 <p>Before we run the assistant, what are some questions that you could ask it? The following questions can be answered from the dummy HR data and are
 a good starting point.</p>
 <ol class="arabic simple">
@@ -854,7 +891,7 @@ final step back to the user input step in the final <code class="docutils litera
 <p>Congratulations, you have built your first fixed-flow assistant!</p>
 </section>
 <section id="agent-spec-exporting-loading">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Link to this heading">#</a></h2>
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
 
@@ -1731,7 +1768,7 @@ final step back to the user input step in the final <code class="docutils litera
 </div>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>In this tutorial, you learned how to build a fixed-flow assistant. To continue learning, check out:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="basic_agent.html"><span class="doc">Build a Simple Conversational Assistant with Agents</span></a>.</p></li>
@@ -1740,7 +1777,7 @@ final step back to the user input step in the final <code class="docutils litera
 </ul>
 </section>
 <section id="full-code">
-<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <p>Click on the card at the <a class="reference internal" href="#core-basic-flow"><span class="std std-ref">top of this page</span></a> to download the full code
 for this guide or copy the code below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
@@ -1756,7 +1793,7 @@ for this guide or copy the code below.</p>
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2.0.dev0&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -1782,245 +1819,265 @@ for this guide or copy the code below.</p>
 <span class="linenos"> 37</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
 <span class="linenos"> 38</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
 <span class="linenos"> 39</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flow</span>
-<span class="linenos"> 40</span>
-<span class="linenos"> 41</span><span class="c1"># Create an LLM model to use later in the tutorial.</span>
-<span class="linenos"> 42</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
-<span class="linenos"> 43</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-<span class="linenos"> 44</span>    <span class="n">CompleteStep</span><span class="p">,</span>
-<span class="linenos"> 45</span>    <span class="n">InputMessageStep</span><span class="p">,</span>
-<span class="linenos"> 46</span>    <span class="n">OutputMessageStep</span><span class="p">,</span>
-<span class="linenos"> 47</span>    <span class="n">PromptExecutionStep</span><span class="p">,</span>
-<span class="linenos"> 48</span>    <span class="n">StartStep</span><span class="p">,</span>
-<span class="linenos"> 49</span>    <span class="n">ToolExecutionStep</span><span class="p">,</span>
-<span class="linenos"> 50</span><span class="p">)</span>
-<span class="linenos"> 51</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
-<span class="linenos"> 52</span>
-<span class="linenos"> 53</span><span class="c1"># LLM model configuration</span>
-<span class="linenos"> 54</span>
-<span class="linenos"> 55</span><span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
-<span class="linenos"> 56</span>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;LLAMA_MODEL_ID&quot;</span><span class="p">,</span>
-<span class="linenos"> 57</span>    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;LLAMA_API_URL&quot;</span><span class="p">,</span>
-<span class="linenos"> 58</span><span class="p">)</span>
-<span class="linenos"> 59</span>
+<span class="linenos"> 40</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.flowbuilder</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlowBuilder</span>
+<span class="linenos"> 41</span>
+<span class="linenos"> 42</span><span class="c1"># Create an LLM model to use later in the tutorial.</span>
+<span class="linenos"> 43</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+<span class="linenos"> 44</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="linenos"> 45</span>    <span class="n">CompleteStep</span><span class="p">,</span>
+<span class="linenos"> 46</span>    <span class="n">InputMessageStep</span><span class="p">,</span>
+<span class="linenos"> 47</span>    <span class="n">OutputMessageStep</span><span class="p">,</span>
+<span class="linenos"> 48</span>    <span class="n">PromptExecutionStep</span><span class="p">,</span>
+<span class="linenos"> 49</span>    <span class="n">StartStep</span><span class="p">,</span>
+<span class="linenos"> 50</span>    <span class="n">ToolExecutionStep</span><span class="p">,</span>
+<span class="linenos"> 51</span><span class="p">)</span>
+<span class="linenos"> 52</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+<span class="linenos"> 53</span>
+<span class="linenos"> 54</span><span class="c1"># LLM model configuration</span>
+<span class="linenos"> 55</span>
+<span class="linenos"> 56</span><span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+<span class="linenos"> 57</span>    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;LLAMA_MODEL_ID&quot;</span><span class="p">,</span>
+<span class="linenos"> 58</span>    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;LLAMA_API_URL&quot;</span><span class="p">,</span>
+<span class="linenos"> 59</span><span class="p">)</span>
 <span class="linenos"> 60</span>
-<span class="linenos"> 61</span><span class="c1"># %%[markdown]</span>
-<span class="linenos"> 62</span><span class="c1">## Define value names</span>
-<span class="linenos"> 63</span>
-<span class="linenos"> 64</span><span class="c1"># %%</span>
-<span class="linenos"> 65</span><span class="c1"># Names for the input parameters of the steps in the flow.</span>
-<span class="linenos"> 66</span><span class="n">HR_QUERY</span> <span class="o">=</span> <span class="s2">&quot;user_query&quot;</span>
-<span class="linenos"> 67</span><span class="n">TOOL_QUERY</span> <span class="o">=</span> <span class="s2">&quot;query&quot;</span>
-<span class="linenos"> 68</span><span class="n">HR_DATA_CONTEXT</span> <span class="o">=</span> <span class="s2">&quot;hr_data_context&quot;</span>
-<span class="linenos"> 69</span><span class="n">QUERY_ANSWER</span> <span class="o">=</span> <span class="s2">&quot;answer&quot;</span>
-<span class="linenos"> 70</span><span class="n">USER_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;user_question&quot;</span>
-<span class="linenos"> 71</span>
-<span class="linenos"> 72</span><span class="c1"># %%[markdown]</span>
-<span class="linenos"> 73</span><span class="c1">## Define start step</span>
-<span class="linenos"> 74</span>
-<span class="linenos"> 75</span><span class="c1"># %%</span>
-<span class="linenos"> 76</span><span class="c1"># A start step. This is where the flow starts.</span>
-<span class="linenos"> 77</span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;start_step&quot;</span><span class="p">,</span> <span class="n">input_descriptors</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="linenos"> 78</span>
-<span class="linenos"> 79</span><span class="c1"># %%[markdown]</span>
-<span class="linenos"> 80</span><span class="c1">## Define user input step</span>
-<span class="linenos"> 81</span>
-<span class="linenos"> 82</span><span class="c1"># %%</span>
-<span class="linenos"> 83</span><span class="n">user_input_message_template</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span>
-<span class="linenos"> 84</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="linenos"> 85</span><span class="sd">    I am an HR Assistant, designed to answer your questions about HR matters.</span>
-<span class="linenos"> 86</span><span class="sd">    What kinds of questions do you have today?</span>
-<span class="linenos"> 87</span><span class="sd">    Example of HR topics:</span>
-<span class="linenos"> 88</span><span class="sd">    - Employee benefits</span>
-<span class="linenos"> 89</span><span class="sd">    - Salaries</span>
-<span class="linenos"> 90</span><span class="sd">    - Career advancement</span>
-<span class="linenos"> 91</span><span class="sd">    &quot;&quot;&quot;</span>
-<span class="linenos"> 92</span><span class="p">)</span>
-<span class="linenos"> 93</span>
-<span class="linenos"> 94</span><span class="n">user_input_step</span> <span class="o">=</span> <span class="n">InputMessageStep</span><span class="p">(</span>
-<span class="linenos"> 95</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;user_input_step&quot;</span><span class="p">,</span>
-<span class="linenos"> 96</span>    <span class="n">message_template</span><span class="o">=</span><span class="n">user_input_message_template</span><span class="p">,</span>
-<span class="linenos"> 97</span>    <span class="n">output_mapping</span><span class="o">=</span><span class="p">{</span><span class="n">InputMessageStep</span><span class="o">.</span><span class="n">USER_PROVIDED_INPUT</span><span class="p">:</span> <span class="n">HR_QUERY</span><span class="p">},</span>
-<span class="linenos"> 98</span><span class="p">)</span>
-<span class="linenos"> 99</span>
-<span class="linenos">100</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">101</span><span class="c1">## Define HR lookup step</span>
-<span class="linenos">102</span>
-<span class="linenos">103</span><span class="c1"># %%</span>
-<span class="linenos">104</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringProperty</span>
-<span class="linenos">105</span>
-<span class="linenos">106</span><span class="c1"># A tool which will run a query on the HR system and return some data.</span>
-<span class="linenos">107</span><span class="nd">@tool</span><span class="p">(</span><span class="n">description_mode</span><span class="o">=</span><span class="s2">&quot;only_docstring&quot;</span><span class="p">,</span> <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">(</span><span class="n">HR_DATA_CONTEXT</span><span class="p">)])</span>
-<span class="linenos">108</span><span class="k">def</span><span class="w"> </span><span class="nf">search_hr_database</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="linenos">109</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Function that searches the HR database for employee benefits.</span>
-<span class="linenos">110</span>
-<span class="linenos">111</span><span class="sd">    Parameters</span>
-<span class="linenos">112</span><span class="sd">    ----------</span>
-<span class="linenos">113</span><span class="sd">    query:</span>
-<span class="linenos">114</span><span class="sd">        a query string</span>
-<span class="linenos">115</span>
-<span class="linenos">116</span><span class="sd">    Returns</span>
-<span class="linenos">117</span><span class="sd">    -------</span>
-<span class="linenos">118</span><span class="sd">        a JSON response</span>
-<span class="linenos">119</span>
-<span class="linenos">120</span><span class="sd">    &quot;&quot;&quot;</span>
-<span class="linenos">121</span>    <span class="c1"># Returns mock data.</span>
-<span class="linenos">122</span>    <span class="k">return</span> <span class="s1">&#39;{&quot;John Smith&quot;: {&quot;benefits&quot;: &quot;Unlimited PTO&quot;, &quot;salary&quot;: &quot;$1,000&quot;}, &quot;Mary Jones&quot;: {&quot;benefits&quot;: &quot;25 days&quot;, &quot;salary&quot;: &quot;$10,000&quot;}}&#39;</span>
-<span class="linenos">123</span>
-<span class="linenos">124</span><span class="c1"># Step that runs the lookup of a query using the tool.</span>
-<span class="linenos">125</span><span class="n">hr_lookup_step</span> <span class="o">=</span> <span class="n">ToolExecutionStep</span><span class="p">(</span>
-<span class="linenos">126</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;hr_lookup_step&quot;</span><span class="p">,</span>
-<span class="linenos">127</span>    <span class="n">tool</span><span class="o">=</span><span class="n">search_hr_database</span><span class="p">,</span>
-<span class="linenos">128</span><span class="p">)</span>
-<span class="linenos">129</span>
-<span class="linenos">130</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">131</span><span class="c1">## Define llm answer step</span>
-<span class="linenos">132</span>
-<span class="linenos">133</span><span class="c1"># %%</span>
-<span class="linenos">134</span><span class="c1"># The template for the prompt to be used by the LLM. Notice the use of parameters</span>
-<span class="linenos">135</span><span class="c1"># such as, {{ user_question }}. The template is evaluated using the parameters that</span>
-<span class="linenos">136</span><span class="c1"># are passed into the PromptExecutionStep.</span>
-<span class="linenos">137</span><span class="n">hrassistant_prompt_template</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span>
-<span class="linenos">138</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="linenos">139</span><span class="sd">    You are a knowledgeable, factual, and helpful HR assistant that can answer simple \</span>
-<span class="linenos">140</span><span class="sd">    HR-related questions like salary and benefits.</span>
-<span class="linenos">141</span><span class="sd">    Your task:</span>
-<span class="linenos">142</span><span class="sd">        - Based on the HR data given below, answer the user&#39;s question</span>
-<span class="linenos">143</span><span class="sd">    Important:</span>
-<span class="linenos">144</span><span class="sd">        - Be helpful and concise in your messages</span>
-<span class="linenos">145</span><span class="sd">        - Do not tell the user any details not mentioned in the tool response, let&#39;s be factual.</span>
-<span class="linenos">146</span>
-<span class="linenos">147</span><span class="sd">    Here is the User question:</span>
-<span class="linenos">148</span><span class="sd">    - {{ user_question }}</span>
-<span class="linenos">149</span>
-<span class="linenos">150</span><span class="sd">    Here is the HR data:</span>
-<span class="linenos">151</span><span class="sd">    - {{ hr_data_context }}</span>
-<span class="linenos">152</span><span class="sd">    &quot;&quot;&quot;</span>
-<span class="linenos">153</span><span class="p">)</span>
-<span class="linenos">154</span>
-<span class="linenos">155</span><span class="c1"># Step that evaluates the prompt template and then passes the prompt to the LLM.</span>
-<span class="linenos">156</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringProperty</span>
-<span class="linenos">157</span>
-<span class="linenos">158</span><span class="n">llm_answer_step</span> <span class="o">=</span> <span class="n">PromptExecutionStep</span><span class="p">(</span>
-<span class="linenos">159</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;llm_answer_step&quot;</span><span class="p">,</span>
-<span class="linenos">160</span>    <span class="n">prompt_template</span><span class="o">=</span><span class="n">hrassistant_prompt_template</span><span class="p">,</span>
-<span class="linenos">161</span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-<span class="linenos">162</span>    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">(</span><span class="n">QUERY_ANSWER</span><span class="p">)],</span>
-<span class="linenos">163</span><span class="p">)</span>
-<span class="linenos">164</span>
+<span class="linenos"> 61</span>
+<span class="linenos"> 62</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 63</span><span class="c1">## Define value names</span>
+<span class="linenos"> 64</span>
+<span class="linenos"> 65</span><span class="c1"># %%</span>
+<span class="linenos"> 66</span><span class="c1"># Names for the input parameters of the steps in the flow.</span>
+<span class="linenos"> 67</span><span class="n">HR_QUERY</span> <span class="o">=</span> <span class="s2">&quot;user_query&quot;</span>
+<span class="linenos"> 68</span><span class="n">TOOL_QUERY</span> <span class="o">=</span> <span class="s2">&quot;query&quot;</span>
+<span class="linenos"> 69</span><span class="n">HR_DATA_CONTEXT</span> <span class="o">=</span> <span class="s2">&quot;hr_data_context&quot;</span>
+<span class="linenos"> 70</span><span class="n">QUERY_ANSWER</span> <span class="o">=</span> <span class="s2">&quot;answer&quot;</span>
+<span class="linenos"> 71</span><span class="n">USER_QUESTION</span> <span class="o">=</span> <span class="s2">&quot;user_question&quot;</span>
+<span class="linenos"> 72</span>
+<span class="linenos"> 73</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 74</span><span class="c1">## Define start step</span>
+<span class="linenos"> 75</span>
+<span class="linenos"> 76</span><span class="c1"># %%</span>
+<span class="linenos"> 77</span><span class="c1"># A start step. This is where the flow starts.</span>
+<span class="linenos"> 78</span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;start_step&quot;</span><span class="p">,</span> <span class="n">input_descriptors</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="linenos"> 79</span>
+<span class="linenos"> 80</span><span class="c1"># %%[markdown]</span>
+<span class="linenos"> 81</span><span class="c1">## Define user input step</span>
+<span class="linenos"> 82</span>
+<span class="linenos"> 83</span><span class="c1"># %%</span>
+<span class="linenos"> 84</span><span class="n">user_input_message_template</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span>
+<span class="linenos"> 85</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos"> 86</span><span class="sd">    I am an HR Assistant, designed to answer your questions about HR matters.</span>
+<span class="linenos"> 87</span><span class="sd">    What kinds of questions do you have today?</span>
+<span class="linenos"> 88</span><span class="sd">    Example of HR topics:</span>
+<span class="linenos"> 89</span><span class="sd">    - Employee benefits</span>
+<span class="linenos"> 90</span><span class="sd">    - Salaries</span>
+<span class="linenos"> 91</span><span class="sd">    - Career advancement</span>
+<span class="linenos"> 92</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos"> 93</span><span class="p">)</span>
+<span class="linenos"> 94</span>
+<span class="linenos"> 95</span><span class="n">user_input_step</span> <span class="o">=</span> <span class="n">InputMessageStep</span><span class="p">(</span>
+<span class="linenos"> 96</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;user_input_step&quot;</span><span class="p">,</span>
+<span class="linenos"> 97</span>    <span class="n">message_template</span><span class="o">=</span><span class="n">user_input_message_template</span><span class="p">,</span>
+<span class="linenos"> 98</span>    <span class="n">output_mapping</span><span class="o">=</span><span class="p">{</span><span class="n">InputMessageStep</span><span class="o">.</span><span class="n">USER_PROVIDED_INPUT</span><span class="p">:</span> <span class="n">HR_QUERY</span><span class="p">},</span>
+<span class="linenos"> 99</span><span class="p">)</span>
+<span class="linenos">100</span>
+<span class="linenos">101</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">102</span><span class="c1">## Define HR lookup step</span>
+<span class="linenos">103</span>
+<span class="linenos">104</span><span class="c1"># %%</span>
+<span class="linenos">105</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringProperty</span>
+<span class="linenos">106</span>
+<span class="linenos">107</span><span class="c1"># A tool which will run a query on the HR system and return some data.</span>
+<span class="linenos">108</span><span class="nd">@tool</span><span class="p">(</span><span class="n">description_mode</span><span class="o">=</span><span class="s2">&quot;only_docstring&quot;</span><span class="p">,</span> <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">(</span><span class="n">HR_DATA_CONTEXT</span><span class="p">)])</span>
+<span class="linenos">109</span><span class="k">def</span><span class="w"> </span><span class="nf">search_hr_database</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="linenos">110</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Function that searches the HR database for employee benefits.</span>
+<span class="linenos">111</span>
+<span class="linenos">112</span><span class="sd">    Parameters</span>
+<span class="linenos">113</span><span class="sd">    ----------</span>
+<span class="linenos">114</span><span class="sd">    query:</span>
+<span class="linenos">115</span><span class="sd">        a query string</span>
+<span class="linenos">116</span>
+<span class="linenos">117</span><span class="sd">    Returns</span>
+<span class="linenos">118</span><span class="sd">    -------</span>
+<span class="linenos">119</span><span class="sd">        a JSON response</span>
+<span class="linenos">120</span>
+<span class="linenos">121</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos">122</span>    <span class="c1"># Returns mock data.</span>
+<span class="linenos">123</span>    <span class="k">return</span> <span class="s1">&#39;{&quot;John Smith&quot;: {&quot;benefits&quot;: &quot;Unlimited PTO&quot;, &quot;salary&quot;: &quot;$1,000&quot;}, &quot;Mary Jones&quot;: {&quot;benefits&quot;: &quot;25 days&quot;, &quot;salary&quot;: &quot;$10,000&quot;}}&#39;</span>
+<span class="linenos">124</span>
+<span class="linenos">125</span><span class="c1"># Step that runs the lookup of a query using the tool.</span>
+<span class="linenos">126</span><span class="n">hr_lookup_step</span> <span class="o">=</span> <span class="n">ToolExecutionStep</span><span class="p">(</span>
+<span class="linenos">127</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;hr_lookup_step&quot;</span><span class="p">,</span>
+<span class="linenos">128</span>    <span class="n">tool</span><span class="o">=</span><span class="n">search_hr_database</span><span class="p">,</span>
+<span class="linenos">129</span><span class="p">)</span>
+<span class="linenos">130</span>
+<span class="linenos">131</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">132</span><span class="c1">## Define llm answer step</span>
+<span class="linenos">133</span>
+<span class="linenos">134</span><span class="c1"># %%</span>
+<span class="linenos">135</span><span class="c1"># The template for the prompt to be used by the LLM. Notice the use of parameters</span>
+<span class="linenos">136</span><span class="c1"># such as, {{ user_question }}. The template is evaluated using the parameters that</span>
+<span class="linenos">137</span><span class="c1"># are passed into the PromptExecutionStep.</span>
+<span class="linenos">138</span><span class="n">hrassistant_prompt_template</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span>
+<span class="linenos">139</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">140</span><span class="sd">    You are a knowledgeable, factual, and helpful HR assistant that can answer simple \</span>
+<span class="linenos">141</span><span class="sd">    HR-related questions like salary and benefits.</span>
+<span class="linenos">142</span><span class="sd">    Your task:</span>
+<span class="linenos">143</span><span class="sd">        - Based on the HR data given below, answer the user&#39;s question</span>
+<span class="linenos">144</span><span class="sd">    Important:</span>
+<span class="linenos">145</span><span class="sd">        - Be helpful and concise in your messages</span>
+<span class="linenos">146</span><span class="sd">        - Do not tell the user any details not mentioned in the tool response, let&#39;s be factual.</span>
+<span class="linenos">147</span>
+<span class="linenos">148</span><span class="sd">    Here is the User question:</span>
+<span class="linenos">149</span><span class="sd">    - {{ user_question }}</span>
+<span class="linenos">150</span>
+<span class="linenos">151</span><span class="sd">    Here is the HR data:</span>
+<span class="linenos">152</span><span class="sd">    - {{ hr_data_context }}</span>
+<span class="linenos">153</span><span class="sd">    &quot;&quot;&quot;</span>
+<span class="linenos">154</span><span class="p">)</span>
+<span class="linenos">155</span>
+<span class="linenos">156</span><span class="c1"># Step that evaluates the prompt template and then passes the prompt to the LLM.</span>
+<span class="linenos">157</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringProperty</span>
+<span class="linenos">158</span>
+<span class="linenos">159</span><span class="n">llm_answer_step</span> <span class="o">=</span> <span class="n">PromptExecutionStep</span><span class="p">(</span>
+<span class="linenos">160</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;llm_answer_step&quot;</span><span class="p">,</span>
+<span class="linenos">161</span>    <span class="n">prompt_template</span><span class="o">=</span><span class="n">hrassistant_prompt_template</span><span class="p">,</span>
+<span class="linenos">162</span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+<span class="linenos">163</span>    <span class="n">output_descriptors</span><span class="o">=</span><span class="p">[</span><span class="n">StringProperty</span><span class="p">(</span><span class="n">QUERY_ANSWER</span><span class="p">)],</span>
+<span class="linenos">164</span><span class="p">)</span>
 <span class="linenos">165</span>
-<span class="linenos">166</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">167</span><span class="c1">## Define user output step</span>
-<span class="linenos">168</span>
-<span class="linenos">169</span><span class="c1"># %%</span>
-<span class="linenos">170</span><span class="c1"># Step that outputs the answer to the user&#39;s query.</span>
-<span class="linenos">171</span><span class="n">user_output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span>
-<span class="linenos">172</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;user_output_step&quot;</span><span class="p">,</span>
-<span class="linenos">173</span>    <span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;My Assistant&#39;s Response: {{ answer }}&quot;</span><span class="p">,</span>
-<span class="linenos">174</span><span class="p">)</span>
-<span class="linenos">175</span>
-<span class="linenos">176</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">177</span><span class="c1">## Define flow transitions</span>
-<span class="linenos">178</span>
-<span class="linenos">179</span><span class="c1"># %%</span>
-<span class="linenos">180</span><span class="c1"># Define the transitions between the steps.</span>
-<span class="linenos">181</span><span class="n">control_flow_edges</span> <span class="o">=</span> <span class="p">[</span>
-<span class="linenos">182</span>    <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">user_input_step</span><span class="p">),</span>
-<span class="linenos">183</span>    <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">user_input_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">hr_lookup_step</span><span class="p">),</span>
-<span class="linenos">184</span>    <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">hr_lookup_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">llm_answer_step</span><span class="p">),</span>
-<span class="linenos">185</span>    <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">llm_answer_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">user_output_step</span><span class="p">),</span>
-<span class="linenos">186</span>    <span class="c1"># Note: you can use a CompleteStep as the termination of the flow.</span>
-<span class="linenos">187</span>    <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">user_output_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">CompleteStep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;final_step&quot;</span><span class="p">)),</span>
-<span class="linenos">188</span><span class="p">]</span>
-<span class="linenos">189</span>
-<span class="linenos">190</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">191</span><span class="c1">## Define data transitions</span>
-<span class="linenos">192</span>
-<span class="linenos">193</span><span class="c1"># %%</span>
-<span class="linenos">194</span><span class="c1"># Define the data flows between steps.</span>
-<span class="linenos">195</span><span class="n">data_flow_edges</span> <span class="o">=</span> <span class="p">[</span>
-<span class="linenos">196</span>    <span class="n">DataFlowEdge</span><span class="p">(</span>
-<span class="linenos">197</span>        <span class="n">source_step</span><span class="o">=</span><span class="n">user_input_step</span><span class="p">,</span>
-<span class="linenos">198</span>        <span class="n">source_output</span><span class="o">=</span><span class="n">HR_QUERY</span><span class="p">,</span>
-<span class="linenos">199</span>        <span class="n">destination_step</span><span class="o">=</span><span class="n">hr_lookup_step</span><span class="p">,</span>
-<span class="linenos">200</span>        <span class="n">destination_input</span><span class="o">=</span><span class="n">TOOL_QUERY</span><span class="p">,</span>
-<span class="linenos">201</span>    <span class="p">),</span>
-<span class="linenos">202</span>    <span class="n">DataFlowEdge</span><span class="p">(</span>
-<span class="linenos">203</span>        <span class="n">source_step</span><span class="o">=</span><span class="n">user_input_step</span><span class="p">,</span>
-<span class="linenos">204</span>        <span class="n">source_output</span><span class="o">=</span><span class="n">HR_QUERY</span><span class="p">,</span>
-<span class="linenos">205</span>        <span class="n">destination_step</span><span class="o">=</span><span class="n">llm_answer_step</span><span class="p">,</span>
-<span class="linenos">206</span>        <span class="n">destination_input</span><span class="o">=</span><span class="n">USER_QUESTION</span><span class="p">,</span>
-<span class="linenos">207</span>    <span class="p">),</span>
-<span class="linenos">208</span>    <span class="n">DataFlowEdge</span><span class="p">(</span>
-<span class="linenos">209</span>        <span class="n">source_step</span><span class="o">=</span><span class="n">hr_lookup_step</span><span class="p">,</span>
-<span class="linenos">210</span>        <span class="n">source_output</span><span class="o">=</span><span class="n">HR_DATA_CONTEXT</span><span class="p">,</span>
-<span class="linenos">211</span>        <span class="n">destination_step</span><span class="o">=</span><span class="n">llm_answer_step</span><span class="p">,</span>
-<span class="linenos">212</span>        <span class="n">destination_input</span><span class="o">=</span><span class="n">HR_DATA_CONTEXT</span><span class="p">,</span>
-<span class="linenos">213</span>    <span class="p">),</span>
-<span class="linenos">214</span>    <span class="n">DataFlowEdge</span><span class="p">(</span>
-<span class="linenos">215</span>        <span class="n">source_step</span><span class="o">=</span><span class="n">llm_answer_step</span><span class="p">,</span>
-<span class="linenos">216</span>        <span class="n">source_output</span><span class="o">=</span><span class="n">QUERY_ANSWER</span><span class="p">,</span>
-<span class="linenos">217</span>        <span class="n">destination_step</span><span class="o">=</span><span class="n">user_output_step</span><span class="p">,</span>
-<span class="linenos">218</span>        <span class="n">destination_input</span><span class="o">=</span><span class="n">QUERY_ANSWER</span><span class="p">,</span>
-<span class="linenos">219</span>    <span class="p">),</span>
-<span class="linenos">220</span><span class="p">]</span>
-<span class="linenos">221</span>
-<span class="linenos">222</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">223</span><span class="c1">## Create assistant</span>
-<span class="linenos">224</span>
-<span class="linenos">225</span><span class="c1"># %%</span>
-<span class="linenos">226</span><span class="c1"># Create the flow passing in the steps, the name of the step to start with, the control_flow_edges and the data_flow_edges.</span>
-<span class="linenos">227</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
-<span class="linenos">228</span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>
-<span class="linenos">229</span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="n">control_flow_edges</span><span class="p">,</span>
-<span class="linenos">230</span>    <span class="n">data_flow_edges</span><span class="o">=</span><span class="n">data_flow_edges</span><span class="p">,</span>
-<span class="linenos">231</span><span class="p">)</span>
-<span class="linenos">232</span>
-<span class="linenos">233</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">234</span><span class="c1">## Run assistant</span>
-<span class="linenos">235</span>
-<span class="linenos">236</span><span class="c1"># %%</span>
-<span class="linenos">237</span><span class="c1"># Start a conversation.</span>
-<span class="linenos">238</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
-<span class="linenos">239</span>
-<span class="linenos">240</span><span class="c1"># Execute the assistant.</span>
-<span class="linenos">241</span><span class="c1"># This will print out the message to the user, then stop at the user input step.</span>
-<span class="linenos">242</span><span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="linenos">243</span>
-<span class="linenos">244</span><span class="c1"># Ask a question of the assistant by appending a user message.</span>
-<span class="linenos">245</span><span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Does John Smith earn more that Mary Jones?&quot;</span><span class="p">)</span>
-<span class="linenos">246</span>
-<span class="linenos">247</span><span class="c1"># Execute the assistant again. Continues from the UserInputStep.</span>
-<span class="linenos">248</span><span class="c1"># As there are no other steps the flow will run to the end.</span>
-<span class="linenos">249</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-<span class="linenos">250</span>
-<span class="linenos">251</span><span class="c1"># &quot;output_message&quot; is the default key name for the output value</span>
-<span class="linenos">252</span><span class="c1"># of the OutputMessageStep.</span>
-<span class="linenos">253</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">FinishedStatus</span>
-<span class="linenos">254</span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
-<span class="linenos">255</span>    <span class="n">answer</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">[</span><span class="n">OutputMessageStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">]</span>
-<span class="linenos">256</span>    <span class="nb">print</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
-<span class="linenos">257</span><span class="k">else</span><span class="p">:</span>
-<span class="linenos">258</span>    <span class="nb">print</span><span class="p">(</span>
-<span class="linenos">259</span>        <span class="sa">f</span><span class="s2">&quot;Incorrect execution status, expected FinishedStatus, got </span><span class="si">{</span><span class="n">status</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="linenos">260</span>    <span class="p">)</span>
-<span class="linenos">261</span>
-<span class="linenos">262</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">263</span><span class="c1">## Export config to Agent Spec</span>
-<span class="linenos">264</span>
-<span class="linenos">265</span><span class="c1"># %%</span>
-<span class="linenos">266</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
-<span class="linenos">267</span>
-<span class="linenos">268</span><span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
-<span class="linenos">269</span>
-<span class="linenos">270</span><span class="c1"># %%[markdown]</span>
-<span class="linenos">271</span><span class="c1">## Load Agent Spec config</span>
-<span class="linenos">272</span>
-<span class="linenos">273</span><span class="c1"># %%</span>
-<span class="linenos">274</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
-<span class="linenos">275</span>
-<span class="linenos">276</span><span class="n">tool_registry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;search_hr_database&quot;</span><span class="p">:</span> <span class="n">search_hr_database</span><span class="p">}</span>
-<span class="linenos">277</span>
-<span class="linenos">278</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span><span class="n">tool_registry</span><span class="o">=</span><span class="n">tool_registry</span><span class="p">)</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
+<span class="linenos">166</span>
+<span class="linenos">167</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">168</span><span class="c1">## Define user output step</span>
+<span class="linenos">169</span>
+<span class="linenos">170</span><span class="c1"># %%</span>
+<span class="linenos">171</span><span class="c1"># Step that outputs the answer to the user&#39;s query.</span>
+<span class="linenos">172</span><span class="n">user_output_step</span> <span class="o">=</span> <span class="n">OutputMessageStep</span><span class="p">(</span>
+<span class="linenos">173</span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;user_output_step&quot;</span><span class="p">,</span>
+<span class="linenos">174</span>    <span class="n">message_template</span><span class="o">=</span><span class="s2">&quot;My Assistant&#39;s Response: {{ answer }}&quot;</span><span class="p">,</span>
+<span class="linenos">175</span><span class="p">)</span>
+<span class="linenos">176</span>
+<span class="linenos">177</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">178</span><span class="c1">## Define flow transitions</span>
+<span class="linenos">179</span>
+<span class="linenos">180</span><span class="c1"># %%</span>
+<span class="linenos">181</span><span class="c1"># Define the transitions between the steps.</span>
+<span class="linenos">182</span><span class="n">control_flow_edges</span> <span class="o">=</span> <span class="p">[</span>
+<span class="linenos">183</span>    <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">user_input_step</span><span class="p">),</span>
+<span class="linenos">184</span>    <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">user_input_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">hr_lookup_step</span><span class="p">),</span>
+<span class="linenos">185</span>    <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">hr_lookup_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">llm_answer_step</span><span class="p">),</span>
+<span class="linenos">186</span>    <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">llm_answer_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">user_output_step</span><span class="p">),</span>
+<span class="linenos">187</span>    <span class="c1"># Note: you can use a CompleteStep as the termination of the flow.</span>
+<span class="linenos">188</span>    <span class="n">ControlFlowEdge</span><span class="p">(</span><span class="n">source_step</span><span class="o">=</span><span class="n">user_output_step</span><span class="p">,</span> <span class="n">destination_step</span><span class="o">=</span><span class="n">CompleteStep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;final_step&quot;</span><span class="p">)),</span>
+<span class="linenos">189</span><span class="p">]</span>
+<span class="linenos">190</span>
+<span class="linenos">191</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">192</span><span class="c1">## Define data transitions</span>
+<span class="linenos">193</span>
+<span class="linenos">194</span><span class="c1"># %%</span>
+<span class="linenos">195</span><span class="c1"># Define the data flows between steps.</span>
+<span class="linenos">196</span><span class="n">data_flow_edges</span> <span class="o">=</span> <span class="p">[</span>
+<span class="linenos">197</span>    <span class="n">DataFlowEdge</span><span class="p">(</span>
+<span class="linenos">198</span>        <span class="n">source_step</span><span class="o">=</span><span class="n">user_input_step</span><span class="p">,</span>
+<span class="linenos">199</span>        <span class="n">source_output</span><span class="o">=</span><span class="n">HR_QUERY</span><span class="p">,</span>
+<span class="linenos">200</span>        <span class="n">destination_step</span><span class="o">=</span><span class="n">hr_lookup_step</span><span class="p">,</span>
+<span class="linenos">201</span>        <span class="n">destination_input</span><span class="o">=</span><span class="n">TOOL_QUERY</span><span class="p">,</span>
+<span class="linenos">202</span>    <span class="p">),</span>
+<span class="linenos">203</span>    <span class="n">DataFlowEdge</span><span class="p">(</span>
+<span class="linenos">204</span>        <span class="n">source_step</span><span class="o">=</span><span class="n">user_input_step</span><span class="p">,</span>
+<span class="linenos">205</span>        <span class="n">source_output</span><span class="o">=</span><span class="n">HR_QUERY</span><span class="p">,</span>
+<span class="linenos">206</span>        <span class="n">destination_step</span><span class="o">=</span><span class="n">llm_answer_step</span><span class="p">,</span>
+<span class="linenos">207</span>        <span class="n">destination_input</span><span class="o">=</span><span class="n">USER_QUESTION</span><span class="p">,</span>
+<span class="linenos">208</span>    <span class="p">),</span>
+<span class="linenos">209</span>    <span class="n">DataFlowEdge</span><span class="p">(</span>
+<span class="linenos">210</span>        <span class="n">source_step</span><span class="o">=</span><span class="n">hr_lookup_step</span><span class="p">,</span>
+<span class="linenos">211</span>        <span class="n">source_output</span><span class="o">=</span><span class="n">HR_DATA_CONTEXT</span><span class="p">,</span>
+<span class="linenos">212</span>        <span class="n">destination_step</span><span class="o">=</span><span class="n">llm_answer_step</span><span class="p">,</span>
+<span class="linenos">213</span>        <span class="n">destination_input</span><span class="o">=</span><span class="n">HR_DATA_CONTEXT</span><span class="p">,</span>
+<span class="linenos">214</span>    <span class="p">),</span>
+<span class="linenos">215</span>    <span class="n">DataFlowEdge</span><span class="p">(</span>
+<span class="linenos">216</span>        <span class="n">source_step</span><span class="o">=</span><span class="n">llm_answer_step</span><span class="p">,</span>
+<span class="linenos">217</span>        <span class="n">source_output</span><span class="o">=</span><span class="n">QUERY_ANSWER</span><span class="p">,</span>
+<span class="linenos">218</span>        <span class="n">destination_step</span><span class="o">=</span><span class="n">user_output_step</span><span class="p">,</span>
+<span class="linenos">219</span>        <span class="n">destination_input</span><span class="o">=</span><span class="n">QUERY_ANSWER</span><span class="p">,</span>
+<span class="linenos">220</span>    <span class="p">),</span>
+<span class="linenos">221</span><span class="p">]</span>
+<span class="linenos">222</span>
+<span class="linenos">223</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">224</span><span class="c1">## Create assistant</span>
+<span class="linenos">225</span>
+<span class="linenos">226</span><span class="c1"># %%</span>
+<span class="linenos">227</span><span class="c1"># Create the flow passing in the steps, the name of the step to start with, the control_flow_edges and the data_flow_edges.</span>
+<span class="linenos">228</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">(</span>
+<span class="linenos">229</span>    <span class="n">begin_step</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>
+<span class="linenos">230</span>    <span class="n">control_flow_edges</span><span class="o">=</span><span class="n">control_flow_edges</span><span class="p">,</span>
+<span class="linenos">231</span>    <span class="n">data_flow_edges</span><span class="o">=</span><span class="n">data_flow_edges</span><span class="p">,</span>
+<span class="linenos">232</span><span class="p">)</span>
+<span class="linenos">233</span>
+<span class="linenos">234</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">235</span><span class="c1">## Create assistant FlowBuilder</span>
+<span class="linenos">236</span>
+<span class="linenos">237</span><span class="c1"># %%</span>
+<span class="linenos">238</span><span class="c1"># Create the same assistant using the Flow Builder API.</span>
+<span class="linenos">239</span><span class="n">assistant</span> <span class="o">=</span> <span class="p">(</span>
+<span class="linenos">240</span>    <span class="n">FlowBuilder</span><span class="p">()</span>
+<span class="linenos">241</span>    <span class="o">.</span><span class="n">add_sequence</span><span class="p">([</span><span class="n">user_input_step</span><span class="p">,</span> <span class="n">hr_lookup_step</span><span class="p">,</span> <span class="n">llm_answer_step</span><span class="p">,</span> <span class="n">user_output_step</span><span class="p">])</span>
+<span class="linenos">242</span>    <span class="o">.</span><span class="n">set_entry_point</span><span class="p">(</span><span class="n">user_input_step</span><span class="p">)</span>
+<span class="linenos">243</span>    <span class="c1"># Link the final step to completion</span>
+<span class="linenos">244</span>    <span class="o">.</span><span class="n">set_finish_points</span><span class="p">(</span><span class="n">user_output_step</span><span class="p">)</span>
+<span class="linenos">245</span>    <span class="c1"># Wire the data connections</span>
+<span class="linenos">246</span>    <span class="o">.</span><span class="n">add_data_edge</span><span class="p">(</span><span class="n">user_input_step</span><span class="p">,</span> <span class="n">hr_lookup_step</span><span class="p">,</span> <span class="p">(</span><span class="n">HR_QUERY</span><span class="p">,</span> <span class="n">TOOL_QUERY</span><span class="p">))</span>
+<span class="linenos">247</span>    <span class="o">.</span><span class="n">add_data_edge</span><span class="p">(</span><span class="n">user_input_step</span><span class="p">,</span> <span class="n">llm_answer_step</span><span class="p">,</span> <span class="p">(</span><span class="n">HR_QUERY</span><span class="p">,</span> <span class="n">USER_QUESTION</span><span class="p">))</span>
+<span class="linenos">248</span>    <span class="o">.</span><span class="n">add_data_edge</span><span class="p">(</span><span class="n">hr_lookup_step</span><span class="p">,</span> <span class="n">llm_answer_step</span><span class="p">,</span> <span class="p">(</span><span class="n">HR_DATA_CONTEXT</span><span class="p">,</span> <span class="n">HR_DATA_CONTEXT</span><span class="p">))</span>
+<span class="linenos">249</span>    <span class="o">.</span><span class="n">add_data_edge</span><span class="p">(</span><span class="n">llm_answer_step</span><span class="p">,</span> <span class="n">user_output_step</span><span class="p">,</span> <span class="p">(</span><span class="n">QUERY_ANSWER</span><span class="p">,</span> <span class="n">QUERY_ANSWER</span><span class="p">))</span>
+<span class="linenos">250</span>    <span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="linenos">251</span><span class="p">)</span>
+<span class="linenos">252</span>
+<span class="linenos">253</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">254</span><span class="c1">## Run assistant</span>
+<span class="linenos">255</span>
+<span class="linenos">256</span><span class="c1"># %%</span>
+<span class="linenos">257</span><span class="c1"># Start a conversation.</span>
+<span class="linenos">258</span><span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="linenos">259</span>
+<span class="linenos">260</span><span class="c1"># Execute the assistant.</span>
+<span class="linenos">261</span><span class="c1"># This will print out the message to the user, then stop at the user input step.</span>
+<span class="linenos">262</span><span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">263</span>
+<span class="linenos">264</span><span class="c1"># Ask a question of the assistant by appending a user message.</span>
+<span class="linenos">265</span><span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span><span class="s2">&quot;Does John Smith earn more that Mary Jones?&quot;</span><span class="p">)</span>
+<span class="linenos">266</span>
+<span class="linenos">267</span><span class="c1"># Execute the assistant again. Continues from the UserInputStep.</span>
+<span class="linenos">268</span><span class="c1"># As there are no other steps the flow will run to the end.</span>
+<span class="linenos">269</span><span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="linenos">270</span>
+<span class="linenos">271</span><span class="c1"># &quot;output_message&quot; is the default key name for the output value</span>
+<span class="linenos">272</span><span class="c1"># of the OutputMessageStep.</span>
+<span class="linenos">273</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">FinishedStatus</span>
+<span class="linenos">274</span><span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">FinishedStatus</span><span class="p">):</span>
+<span class="linenos">275</span>    <span class="n">answer</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">output_values</span><span class="p">[</span><span class="n">OutputMessageStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">]</span>
+<span class="linenos">276</span>    <span class="nb">print</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
+<span class="linenos">277</span><span class="k">else</span><span class="p">:</span>
+<span class="linenos">278</span>    <span class="nb">print</span><span class="p">(</span>
+<span class="linenos">279</span>        <span class="sa">f</span><span class="s2">&quot;Incorrect execution status, expected FinishedStatus, got </span><span class="si">{</span><span class="n">status</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="linenos">280</span>    <span class="p">)</span>
+<span class="linenos">281</span>
+<span class="linenos">282</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">283</span><span class="c1">## Export config to Agent Spec</span>
+<span class="linenos">284</span>
+<span class="linenos">285</span><span class="c1"># %%</span>
+<span class="linenos">286</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
+<span class="linenos">287</span>
+<span class="linenos">288</span><span class="n">serialized_assistant</span> <span class="o">=</span> <span class="n">AgentSpecExporter</span><span class="p">()</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">assistant</span><span class="p">)</span>
+<span class="linenos">289</span>
+<span class="linenos">290</span><span class="c1"># %%[markdown]</span>
+<span class="linenos">291</span><span class="c1">## Load Agent Spec config</span>
+<span class="linenos">292</span>
+<span class="linenos">293</span><span class="c1"># %%</span>
+<span class="linenos">294</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecLoader</span>
+<span class="linenos">295</span>
+<span class="linenos">296</span><span class="n">tool_registry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;search_hr_database&quot;</span><span class="p">:</span> <span class="n">search_hr_database</span><span class="p">}</span>
+<span class="linenos">297</span>
+<span class="linenos">298</span><span class="n">assistant</span> <span class="o">=</span> <span class="n">AgentSpecLoader</span><span class="p">(</span><span class="n">tool_registry</span><span class="o">=</span><span class="n">tool_registry</span><span class="p">)</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">serialized_assistant</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -2065,6 +2122,7 @@ for this guide or copy the code below.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-transitions">Step transitions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-the-assistant">Creating the assistant</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-the-assistant-with-the-flow-builder">Creating the assistant with the Flow Builder</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-assistant">Running the assistant</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agent-spec-exporting-loading">Agent Spec Exporting/Loading</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
@@ -2097,7 +2155,7 @@ for this guide or copy the code below.</p>
 
   <p class="copyright">
     
-      © Copyright 2025, Oracle and/or its affiliates..
+      © Copyright 2025-2026, Oracle and/or its affiliates..
       <br/>
     
   </p>
@@ -2106,7 +2164,7 @@ for this guide or copy the code below.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

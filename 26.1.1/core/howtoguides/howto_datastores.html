@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>How to Connect Assistants to Your Data &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_datastores';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="How to Use the Event System" href="howto_event_system.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -281,7 +280,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -361,7 +360,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -432,14 +431,14 @@
                 <article class="bd-article">
                   
   <section id="how-to-connect-assistants-to-your-data">
-<span id="top-howtodatastores"></span><h1>How to Connect Assistants to Your Data<a class="headerlink" href="#how-to-connect-assistants-to-your-data" title="Permalink to this heading">#</a></h1>
+<span id="top-howtodatastores"></span><h1>How to Connect Assistants to Your Data<a class="headerlink" href="#how-to-connect-assistants-to-your-data" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download In-Memory Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download In-Memory Script</div>
 <p class="sd-card-text">Python script/notebook for the In-Memory Datastore example in this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_datastores.py"><span>In-memory datastore how-to script</span></a></div>
@@ -448,7 +447,7 @@
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Oracle Database Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Oracle Database Script</div>
 <p class="sd-card-text">Python script/notebook for Oracle Database Datastore  example in this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_connect_to_oracle_database.py"><span>Oracle Database datastore how-to script</span></a></div>
@@ -477,7 +476,7 @@ This connection enables agents to perceive their environment, update their knowl
 Check out the section <a class="reference internal" href="#using-oracle-datastore"><span class="std std-ref">Using Oracle Database Datastore</span></a> to see how to configure an
 Oracle Database connection for persistent storage.</p>
 <section id="concepts-shown-in-this-guide">
-<h2>Concepts shown in this guide<a class="headerlink" href="#concepts-shown-in-this-guide" title="Permalink to this heading">#</a></h2>
+<h2>Concepts shown in this guide<a class="headerlink" href="#concepts-shown-in-this-guide" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="../api/datastores.html#id2"><span class="std std-ref">Entities</span></a> to model data</p></li>
 <li><p><a class="reference internal" href="../api/datastores.html#datastore"><span class="std std-ref">Datastore</span></a> and <a class="reference internal" href="../api/datastores.html#inmemorydatastore"><span class="std std-ref">InMemoryDatastore</span></a> to manipulate collections of data</p></li>
@@ -499,11 +498,11 @@ that enables flexible execution of SQL queries that cannot be modelled by the <c
 </div>
 </section>
 <section id="datastores-in-flows">
-<h2>Datastores in Flows<a class="headerlink" href="#datastores-in-flows" title="Permalink to this heading">#</a></h2>
+<h2>Datastores in Flows<a class="headerlink" href="#datastores-in-flows" title="Link to this heading">#</a></h2>
 <p>In this section, you will build a simple Flow that performs operations on an inventory database based on user input.
 This Flow helps users keep product descriptions up to date by leveraging an LLM for the creative writing component.</p>
 <section id="step-1-add-imports-and-llm-configuration">
-<h3>Step 1. Add imports and LLM configuration<a class="headerlink" href="#step-1-add-imports-and-llm-configuration" title="Permalink to this heading">#</a></h3>
+<h3>Step 1. Add imports and LLM configuration<a class="headerlink" href="#step-1-add-imports-and-llm-configuration" title="Link to this heading">#</a></h3>
 <p>Import the required packages:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">dedent</span>
 <span class="linenos"> 2</span>
@@ -566,7 +565,7 @@ Select an LLM from the options below:</p>
 </div>
 </section>
 <section id="step-2-define-data">
-<h3>Step 2. Define data<a class="headerlink" href="#step-2-define-data" title="Permalink to this heading">#</a></h3>
+<h3>Step 2. Define data<a class="headerlink" href="#step-2-define-data" title="Link to this heading">#</a></h3>
 <p>Start by defining the schema for your data using the <a class="reference internal" href="../api/datastores.html#id2"><span class="std std-ref">Entity</span></a> construct.
 In this example, you will manage products in an inventory, so a single collection is sufficient.
 Datastores also support managing multiple collections at the same time if needed.</p>
@@ -625,7 +624,7 @@ For simplicity, you will use dummy data:</p>
 </div>
 </section>
 <section id="step-3-create-datastore-steps">
-<h3>Step 3. Create datastore steps<a class="headerlink" href="#step-3-create-datastore-steps" title="Permalink to this heading">#</a></h3>
+<h3>Step 3. Create datastore steps<a class="headerlink" href="#step-3-create-datastore-steps" title="Link to this heading">#</a></h3>
 <p>Now that the Datastore is set up, create steps to perform different operations in the flow.
 In this case, the assistant only needs to retrieve the current description of products and update it.
 See <a class="reference internal" href="../api/flows.html#datastoresteps"><span class="std std-ref">the list of all available Datastore steps</span></a> for more details.</p>
@@ -656,7 +655,7 @@ The input to the <code class="docutils literal notranslate"><span class="pre">Da
 The output will be the new properties that were updated.</p>
 </section>
 <section id="step-4-create-the-flow">
-<h3>Step 4. Create the Flow<a class="headerlink" href="#step-4-create-the-flow" title="Permalink to this heading">#</a></h3>
+<h3>Step 4. Create the Flow<a class="headerlink" href="#step-4-create-the-flow" title="Link to this heading">#</a></h3>
 <p>Now define the <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> for this assistant.</p>
 <p>After the user enters which product they want to update, and how the description should be updated, the datastore is queried to find the matching product.
 The LLM is prompted with the product details and the user’s instructions.
@@ -785,20 +784,20 @@ This ensures that the LLM generates exactly the structure expected by the <code 
 </section>
 </section>
 <section id="datastores-in-agents">
-<h2>Datastores in Agents<a class="headerlink" href="#datastores-in-agents" title="Permalink to this heading">#</a></h2>
+<h2>Datastores in Agents<a class="headerlink" href="#datastores-in-agents" title="Link to this heading">#</a></h2>
 <p>This section assumes you have completed the previous steps on using datastores in Flows.</p>
 <p>The Flow you built earlier is quite helpful and reliable because it performs a single, specialized task.
 Next, you will see how to define an Agent for inventory management when the task is not defined in advance.
 This Agent will be able to interpret the user’s requests and autonomously decide which actions on the <code class="docutils literal notranslate"><span class="pre">Datastore</span></code> are required to fulfill each task.</p>
 <section id="id1">
-<h3>Step 1. Add imports and LLM configuration<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<h3>Step 1. Add imports and LLM configuration<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <p>Add the additional imports needed to use Agents:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
 </pre></div>
 </div>
 </section>
 <section id="step-2-create-datastore-flows-for-an-agent">
-<h3>Step 2. Create Datastore Flows for an Agent<a class="headerlink" href="#step-2-create-datastore-flows-for-an-agent" title="Permalink to this heading">#</a></h3>
+<h3>Step 2. Create Datastore Flows for an Agent<a class="headerlink" href="#step-2-create-datastore-flows-for-an-agent" title="Link to this heading">#</a></h3>
 <p>To use the  <code class="docutils literal notranslate"><span class="pre">Datastore</span></code> in an agent, create flows for the different operations you want the agent to perform.
 In the simplest setup, you can define one flow per basic <code class="docutils literal notranslate"><span class="pre">Datastore</span></code> operation.
 The agent will then determine the correct sequence of actions to achieve the user’s goal.</p>
@@ -842,7 +841,7 @@ The agent will then determine the correct sequence of actions to achieve the use
 For example, you could ask for user confirmation before deleting entities, or you could provide the user with an overview, and an editing option of the updates made by the agent before they are applied.</p>
 </section>
 <section id="step-3-create-the-agent">
-<h3>Step 3. Create the Agent<a class="headerlink" href="#step-3-create-the-agent" title="Permalink to this heading">#</a></h3>
+<h3>Step 3. Create the Agent<a class="headerlink" href="#step-3-create-the-agent" title="Link to this heading">#</a></h3>
 <p>Finally, create the inventory management agent by combining the LLM, the datastore flows, and a custom instruction:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
 <span class="linenos"> 2</span>    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
@@ -862,7 +861,7 @@ For example, you could ask for user confirmation before deleting entities, or yo
 </section>
 </section>
 <section id="agent-spec-exporting-loading">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Link to this heading">#</a></h2>
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
 
@@ -3029,7 +3028,7 @@ For example, you could ask for user confirmation before deleting entities, or yo
 </div>
 </section>
 <section id="using-oracle-database-datastore">
-<span id="using-oracle-datastore"></span><h2>Using Oracle Database Datastore<a class="headerlink" href="#using-oracle-database-datastore" title="Permalink to this heading">#</a></h2>
+<span id="using-oracle-datastore"></span><h2>Using Oracle Database Datastore<a class="headerlink" href="#using-oracle-database-datastore" title="Link to this heading">#</a></h2>
 <p>This guide mirrors the earlier <strong>in-memory</strong> demo, but leverages Oracle Database
 (Autonomous Database on OCI or an on-prem instance) for persistent storage.</p>
 <div class="tip admonition">
@@ -3041,7 +3040,7 @@ For example, you could ask for user confirmation before deleting entities, or yo
 </ul>
 </div>
 <section id="step-1-configure-the-connection-to-the-database">
-<h3>Step 1. Configure the connection to the Database<a class="headerlink" href="#step-1-configure-the-connection-to-the-database" title="Permalink to this heading">#</a></h3>
+<h3>Step 1. Configure the connection to the Database<a class="headerlink" href="#step-1-configure-the-connection-to-the-database" title="Link to this heading">#</a></h3>
 <p>WayFlow supports two secure transport mechanisms for connecting to Oracle databases.</p>
 <p>When using <strong>TLS</strong> (one-way TLS) the database presents its certificate, the client verifies it,
 and the user authenticates with username and password.</p>
@@ -3054,7 +3053,7 @@ and the user authenticates with username and password.</p>
 <span class="linenos">7</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="pst-scrollable-table-container"><table class="table">
+<table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><strong>Parameter</strong></p></td>
 <td><p><strong>Meaning</strong></p></td>
@@ -3071,7 +3070,6 @@ and the user authenticates with username and password.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <p>When using <strong>mTLS</strong> (mutual TLS) both sides exchange certificates: the client proves its identity
 with a wallet (client cert + private key) in addition to the username and password.
 This gives stronger, certificate-based client authentication and is often required for
@@ -3090,7 +3088,7 @@ Oracle Autonomous Database in “Require mTLS” mode.</p>
 <span class="linenos">12</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="pst-scrollable-table-container"><table class="table">
+<table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><strong>Parameter</strong></p></td>
 <td><p><strong>Meaning</strong></p></td>
@@ -3120,7 +3118,6 @@ TNS alias (e.g. <code class="docutils literal notranslate"><span class="pre">&lt
 </tr>
 </tbody>
 </table>
-</div>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Do <strong>not</strong> hard-code any database credentials or sensitive connection details directly in your code.
@@ -3128,7 +3125,7 @@ Please refer to our <a class="reference internal" href="../security.html"><span 
 </div>
 </section>
 <section id="step-2-define-the-data-model-and-datastore">
-<h3>Step 2. Define the data model and Datastore<a class="headerlink" href="#step-2-define-the-data-model-and-datastore" title="Permalink to this heading">#</a></h3>
+<h3>Step 2. Define the data model and Datastore<a class="headerlink" href="#step-2-define-the-data-model-and-datastore" title="Link to this heading">#</a></h3>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The following code snippet will create a new <code class="docutils literal notranslate"><span class="pre">products</span></code> table in the database.
@@ -3211,7 +3208,7 @@ However, it may not be possible for the datastore or assistant to create such en
 </div>
 </section>
 <section id="id2">
-<h3>Step 3. Create datastore steps<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<h3>Step 3. Create datastore steps<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <p>Now that the Datastore is set up, create steps to perform different operations in the flow.
 In this guide, your assistant will identify inconsistencies in product descriptions of the same category.
 To do so, you will use the <a class="reference internal" href="../api/flows.html#datastorequerystep"><span class="std std-ref">DatastoreQueryStep</span></a> to fetch product information, and a <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a> to identify the issues.</p>
@@ -3280,7 +3277,7 @@ See also <a class="reference internal" href="../api/flows.html#datastoresteps"><
 </section>
 </section>
 <section id="id3">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
 <p>This flow can be exported to Agent Spec using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code> as you have seen in the
 previous in-memory example, using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
@@ -4167,7 +4164,7 @@ of these sensitive fields in the <code class="docutils literal notranslate"><spa
 </div>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Having learned how to connect WayFlow assistants to data sources, you may now proceed to:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="conditional_flows.html"><span class="doc">Create Conditional Transitions in Flows</span></a></p></li>
@@ -4175,9 +4172,9 @@ of these sensitive fields in the <code class="docutils literal notranslate"><spa
 </ul>
 </section>
 <section id="full-code">
-<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <section id="in-memory-datastore">
-<h3>In-memory datastore<a class="headerlink" href="#in-memory-datastore" title="Permalink to this heading">#</a></h3>
+<h3>In-memory datastore<a class="headerlink" href="#in-memory-datastore" title="Link to this heading">#</a></h3>
 <p>Click on the card at the <a class="reference internal" href="#top-howtodatastores"><span class="std std-ref">top of this page</span></a>
 to download the full code for this guide or copy the code below.</p>
 <details class="summary-connecting-assistants-to-user-data-full-code">
@@ -4194,7 +4191,7 @@ to download the full code for this guide or copy the code below.</p>
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1.1&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -4526,7 +4523,7 @@ to download the full code for this guide or copy the code below.</p>
 </div>
 </details></section>
 <section id="oracle-database-datastore">
-<h3>Oracle Database datastore<a class="headerlink" href="#oracle-database-datastore" title="Permalink to this heading">#</a></h3>
+<h3>Oracle Database datastore<a class="headerlink" href="#oracle-database-datastore" title="Link to this heading">#</a></h3>
 <p>Click on the card at the <a class="reference internal" href="#top-howtodatastores"><span class="std std-ref">top of this page</span></a>
 to download the full code for this guide, or copy the code below.</p>
 <details class="summary-connecting-assistants-to-oracle-database-full-code">
@@ -4543,7 +4540,7 @@ to download the full code for this guide, or copy the code below.</p>
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1.1&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -4881,7 +4878,7 @@ to download the full code for this guide, or copy the code below.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

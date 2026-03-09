@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Context Providers &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,12 +45,12 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/contextproviders';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -69,7 +68,7 @@
     <link rel="prev" title="Embedding Models" href="embeddingmodels.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -280,7 +279,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -360,7 +359,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -431,41 +430,41 @@
                 <article class="bd-article">
                   
   <section id="context-providers">
-<h1>Context Providers<a class="headerlink" href="#context-providers" title="Permalink to this heading">#</a></h1>
+<h1>Context Providers<a class="headerlink" href="#context-providers" title="Link to this heading">#</a></h1>
 <section id="base-classes">
-<h2>Base classes<a class="headerlink" href="#base-classes" title="Permalink to this heading">#</a></h2>
-<span class="target" id="contextprovider"></span><dl class="py class">
+<h2>Base classes<a class="headerlink" href="#base-classes" title="Link to this heading">#</a></h2>
+<dl class="py class" id="contextprovider">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.contextprovider.ContextProvider">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.contextproviders.contextprovider.</span></span><span class="sig-name descname"><span class="pre">ContextProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.contextproviders.contextprovider.</span></span><span class="sig-name descname"><span class="pre">ContextProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider" title="Link to this definition">#</a></dt>
 <dd><p>Context providers are callable components that are used to provide dynamic contextual information to
 WayFlow assistants. They are useful to connect external datasources to an assistant.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.contextprovider.ContextProvider.call_async">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider.call_async" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider.call_async" title="Link to this definition">#</a></dt>
 <dd><p>Default sync callable of the context provider</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p>
+<dd class="field-even"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.contextprovider.ContextProvider.get_output_descriptors">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_output_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider.get_output_descriptors" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_output_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider.get_output_descriptors" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]</p>
@@ -475,7 +474,7 @@ WayFlow assistants. They are useful to connect external datasources to an assist
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.contextprovider.ContextProvider.get_static_configuration_descriptors">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_static_configuration_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider.get_static_configuration_descriptors" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_static_configuration_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider.get_static_configuration_descriptors" title="Link to this definition">#</a></dt>
 <dd><p>Returns a dictionary in which the keys are the names of the configuration items
 and the values are the expected type.</p>
 <dl class="field-list simple">
@@ -487,17 +486,17 @@ and the values are the expected type.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.contextprovider.ContextProvider.output_descriptors">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_descriptors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><span class="pre">Property</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider.output_descriptors" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_descriptors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><span class="pre">Property</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#wayflowcore.contextproviders.contextprovider.ContextProvider.output_descriptors" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="available-context-providers">
-<h2>Available Context Providers<a class="headerlink" href="#available-context-providers" title="Permalink to this heading">#</a></h2>
-<span class="target" id="toolcontextprovider"></span><dl class="py class">
+<h2>Available Context Providers<a class="headerlink" href="#available-context-providers" title="Link to this heading">#</a></h2>
+<dl class="py class" id="toolcontextprovider">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.contextproviders.toolcontextprovider.</span></span><span class="sig-name descname"><span class="pre">ToolContextProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.contextproviders.toolcontextprovider.</span></span><span class="sig-name descname"><span class="pre">ToolContextProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider" title="Link to this definition">#</a></dt>
 <dd><p>Context provider to wrap a tool execution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -506,9 +505,9 @@ and the values are the expected type.</p>
 <li><p><strong>output_name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the output of this context provider.
 If None is given, the name of the tool followed by <cite>_output</cite> is used.</p></li>
 <li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the context provider</p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -547,21 +546,21 @@ If None is given, the name of the tool followed by <cite>_output</cite> is used.
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.call_async">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.call_async" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.call_async" title="Link to this definition">#</a></dt>
 <dd><p>Default sync callable of the context provider</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p>
+<dd class="field-even"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.get_output_descriptors">
-<span class="sig-name descname"><span class="pre">get_output_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.get_output_descriptors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_output_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.get_output_descriptors" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]</p>
@@ -571,7 +570,7 @@ If None is given, the name of the tool followed by <cite>_output</cite> is used.
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.get_static_configuration_descriptors">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_static_configuration_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.get_static_configuration_descriptors" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_static_configuration_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.toolcontextprovider.ToolContextProvider.get_static_configuration_descriptors" title="Link to this definition">#</a></dt>
 <dd><p>Returns a dictionary in which the keys are the names of the configuration items
 and the values are the expected type.</p>
 <dl class="field-list simple">
@@ -583,9 +582,9 @@ and the values are the expected type.</p>
 
 </dd></dl>
 
-<span class="target" id="flowcontextprovider"></span><dl class="py class">
+<dl class="py class" id="flowcontextprovider">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.contextproviders.flowcontextprovider.</span></span><span class="sig-name descname"><span class="pre">FlowContextProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_output_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.contextproviders.flowcontextprovider.</span></span><span class="sig-name descname"><span class="pre">FlowContextProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_output_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider" title="Link to this definition">#</a></dt>
 <dd><p>Context provider that wraps and executes a flow.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -596,9 +595,9 @@ This list must contain unique names.
 These names, if specified, must be a subset of the context flow’s outputs.
 If not specified, defaults to all outputs from all steps of the provided flow</p></li>
 <li><p><strong>name</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The name of the context provider</p></li>
-<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>description</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -624,21 +623,21 @@ If not specified, defaults to all outputs from all steps of the provided flow</p
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.call_async">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.call_async" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.call_async" title="Link to this definition">#</a></dt>
 <dd><p>Default sync callable of the context provider</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></p>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p>
+<dd class="field-even"><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.get_output_descriptors">
-<span class="sig-name descname"><span class="pre">get_output_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.get_output_descriptors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_output_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.get_output_descriptors" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="flows.html#wayflowcore.property.Property" title="wayflowcore.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>]</p>
@@ -648,7 +647,7 @@ If not specified, defaults to all outputs from all steps of the provided flow</p
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.get_static_configuration_descriptors">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_static_configuration_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.get_static_configuration_descriptors" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_static_configuration_descriptors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.contextproviders.flowcontextprovider.FlowContextProvider.get_static_configuration_descriptors" title="Link to this definition">#</a></dt>
 <dd><p>Returns a dictionary in which the keys are the names of the configuration items
 and the values are the expected type.</p>
 <dl class="field-list simple">
@@ -748,7 +747,7 @@ and the values are the expected type.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

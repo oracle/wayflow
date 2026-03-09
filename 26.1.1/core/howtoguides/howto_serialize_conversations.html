@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>How to Serialize and Deserialize Conversations &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_serialize_conversations';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="How to Serialize and Deserialize Flows and Agents" href="howto_serdeser.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -281,7 +280,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -361,7 +360,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -432,14 +431,14 @@
                 <article class="bd-article">
                   
   <section id="how-to-serialize-and-deserialize-conversations">
-<span id="top-howtoserializeconversations"></span><h1>How to Serialize and Deserialize Conversations<a class="headerlink" href="#how-to-serialize-and-deserialize-conversations" title="Permalink to this heading">#</a></h1>
+<span id="top-howtoserializeconversations"></span><h1>How to Serialize and Deserialize Conversations<a class="headerlink" href="#how-to-serialize-and-deserialize-conversations" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Python Script</div>
 <p class="sd-card-text">Python script/notebook for this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_serialize_conversations.py"><span>Serialize conversation how-to script</span></a></div>
@@ -470,7 +469,7 @@ This is essential for creating persistent applications that can:</p>
 <li><p><strong>Build persistent conversation loops</strong> that survive application restarts</p></li>
 </ul>
 <section id="concepts-shown-in-this-guide">
-<h2>Concepts shown in this guide<a class="headerlink" href="#concepts-shown-in-this-guide" title="Permalink to this heading">#</a></h2>
+<h2>Concepts shown in this guide<a class="headerlink" href="#concepts-shown-in-this-guide" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="../api/serialization.html#serialize"><span class="std std-ref">serialize</span></a> to convert conversations to storable format</p></li>
 <li><p><a class="reference internal" href="../api/serialization.html#autodeserialize"><span class="std std-ref">autodeserialize</span></a> to restore conversations from storage</p></li>
@@ -478,9 +477,9 @@ This is essential for creating persistent applications that can:</p>
 </ul>
 </section>
 <section id="basic-serialization">
-<h2>Basic Serialization<a class="headerlink" href="#basic-serialization" title="Permalink to this heading">#</a></h2>
+<h2>Basic Serialization<a class="headerlink" href="#basic-serialization" title="Link to this heading">#</a></h2>
 <section id="step-1-add-imports-and-configure-llm">
-<h3>Step 1. Add imports and configure LLM<a class="headerlink" href="#step-1-add-imports-and-configure-llm" title="Permalink to this heading">#</a></h3>
+<h3>Step 1. Add imports and configure LLM<a class="headerlink" href="#step-1-add-imports-and-configure-llm" title="Link to this heading">#</a></h3>
 <p>Start by importing the necessary packages for serialization:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -535,7 +534,7 @@ Select an LLM from the options below:</p>
 </div></div>
 </section>
 <section id="step-2-create-storage-functions">
-<h3>Step 2. Create storage functions<a class="headerlink" href="#step-2-create-storage-functions" title="Permalink to this heading">#</a></h3>
+<h3>Step 2. Create storage functions<a class="headerlink" href="#step-2-create-storage-functions" title="Link to this heading">#</a></h3>
 <p>Define helper functions to store and load conversations:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DIR_PATH</span> <span class="o">=</span> <span class="s2">&quot;path/to/your/dir&quot;</span>
 
@@ -579,10 +578,10 @@ Select an LLM from the options below:</p>
 </section>
 </section>
 <section id="serializing-agent-conversations">
-<h2>Serializing Agent conversations<a class="headerlink" href="#serializing-agent-conversations" title="Permalink to this heading">#</a></h2>
+<h2>Serializing Agent conversations<a class="headerlink" href="#serializing-agent-conversations" title="Link to this heading">#</a></h2>
 <p>Agent conversations can be serialized at any point during execution:</p>
 <section id="step-1-create-an-agent">
-<h3>Step 1. Create an Agent<a class="headerlink" href="#step-1-create-an-agent" title="Permalink to this heading">#</a></h3>
+<h3>Step 1. Create an Agent<a class="headerlink" href="#step-1-create-an-agent" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assistant</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
     <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant. Be concise.&quot;</span><span class="p">,</span>
@@ -592,7 +591,7 @@ Select an LLM from the options below:</p>
 </div>
 </section>
 <section id="step-2-run-the-conversation">
-<h3>Step 2. Run the conversation<a class="headerlink" href="#step-2-run-the-conversation" title="Permalink to this heading">#</a></h3>
+<h3>Step 2. Run the conversation<a class="headerlink" href="#step-2-run-the-conversation" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start a conversation</span>
 <span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
 <span class="n">conversation_id</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">conversation_id</span>
@@ -613,7 +612,7 @@ Select an LLM from the options below:</p>
 </div>
 </section>
 <section id="step-3-serialize-the-conversation">
-<h3>Step 3. Serialize the conversation<a class="headerlink" href="#step-3-serialize-the-conversation" title="Permalink to this heading">#</a></h3>
+<h3>Step 3. Serialize the conversation<a class="headerlink" href="#step-3-serialize-the-conversation" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">AGENT_STORE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DIR_PATH</span><span class="p">,</span> <span class="s2">&quot;agent_conversation.json&quot;</span><span class="p">)</span>
 <span class="n">store_conversation</span><span class="p">(</span><span class="n">AGENT_STORE_PATH</span><span class="p">,</span> <span class="n">conversation</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;5. Conversation serialized to </span><span class="si">{</span><span class="n">AGENT_STORE_PATH</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -621,7 +620,7 @@ Select an LLM from the options below:</p>
 </div>
 </section>
 <section id="step-4-deserialize-the-conversation">
-<h3>Step 4. Deserialize the conversation<a class="headerlink" href="#step-4-deserialize-the-conversation" title="Permalink to this heading">#</a></h3>
+<h3>Step 4. Deserialize the conversation<a class="headerlink" href="#step-4-deserialize-the-conversation" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loaded_conversation</span> <span class="o">=</span> <span class="n">load_conversation</span><span class="p">(</span><span class="n">AGENT_STORE_PATH</span><span class="p">,</span> <span class="n">conversation_id</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;6. Conversation deserialized from </span><span class="si">{</span><span class="n">AGENT_STORE_PATH</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -649,10 +648,10 @@ Select an LLM from the options below:</p>
 </section>
 </section>
 <section id="serializing-flow-conversations">
-<h2>Serializing Flow Conversations<a class="headerlink" href="#serializing-flow-conversations" title="Permalink to this heading">#</a></h2>
+<h2>Serializing Flow Conversations<a class="headerlink" href="#serializing-flow-conversations" title="Link to this heading">#</a></h2>
 <p>Flow conversations require special attention as they can be serialized mid-execution:</p>
 <section id="step-1-create-a-flow">
-<h3>Step 1. Create a Flow<a class="headerlink" href="#step-1-create-a-flow" title="Permalink to this heading">#</a></h3>
+<h3>Step 1. Create a Flow<a class="headerlink" href="#step-1-create-a-flow" title="Link to this heading">#</a></h3>
 <p>First, create a flow using the builder function.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">start_step</span> <span class="o">=</span> <span class="n">StartStep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;start_step&quot;</span><span class="p">)</span>
 <span class="n">input_step</span> <span class="o">=</span> <span class="n">InputMessageStep</span><span class="p">(</span>
@@ -685,7 +684,7 @@ Select an LLM from the options below:</p>
 </div>
 </section>
 <section id="id1">
-<h3>Step 2. Run the conversation<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<h3>Step 2. Run the conversation<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <p>Then start and run the flow conversation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">flow_conversation</span> <span class="o">=</span> <span class="n">simple_flow</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
 <span class="n">flow_id</span> <span class="o">=</span> <span class="n">flow_conversation</span><span class="o">.</span><span class="n">conversation_id</span>
@@ -698,7 +697,7 @@ Select an LLM from the options below:</p>
 </div>
 </section>
 <section id="step-3-serialize-during-execution">
-<h3>Step 3. Serialize during execution<a class="headerlink" href="#step-3-serialize-during-execution" title="Permalink to this heading">#</a></h3>
+<h3>Step 3. Serialize during execution<a class="headerlink" href="#step-3-serialize-during-execution" title="Link to this heading">#</a></h3>
 <p>You can now serialize the conversation during its execution, for instance
 here the flow is requesting the user to input some information but you can
 serialize the conversation and resume it later.</p>
@@ -709,7 +708,7 @@ serialize the conversation and resume it later.</p>
 </div>
 </section>
 <section id="id2">
-<h3>Step 4. Deserialize the conversation<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<h3>Step 4. Deserialize the conversation<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <p>You can now load back the serialized conversation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loaded_flow_conversation</span> <span class="o">=</span> <span class="n">load_conversation</span><span class="p">(</span><span class="n">FLOW_STORE_PATH</span><span class="p">,</span> <span class="n">flow_id</span><span class="p">)</span>
 <span class="n">input_step_1</span> <span class="o">=</span> <span class="n">loaded_flow_conversation</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="s1">&#39;input_step&#39;</span><span class="p">]</span>
@@ -722,7 +721,7 @@ serialize the conversation and resume it later.</p>
 </div>
 </section>
 <section id="step-5-resume-the-conversation-execution">
-<h3>Step 5. Resume the conversation execution<a class="headerlink" href="#step-5-resume-the-conversation-execution" title="Permalink to this heading">#</a></h3>
+<h3>Step 5. Resume the conversation execution<a class="headerlink" href="#step-5-resume-the-conversation-execution" title="Link to this heading">#</a></h3>
 <p>You can resume the conversation from its state before serializing it.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">outputs</span> <span class="o">=</span> <span class="n">loaded_flow_conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;6. Flow output: </span><span class="si">{</span><span class="n">outputs</span><span class="o">.</span><span class="n">output_values</span><span class="p">[</span><span class="n">OutputMessageStep</span><span class="o">.</span><span class="n">OUTPUT</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -751,7 +750,7 @@ serialize the conversation and resume it later.</p>
 </section>
 </section>
 <section id="building-persistent-applications">
-<h2>Building persistent applications<a class="headerlink" href="#building-persistent-applications" title="Permalink to this heading">#</a></h2>
+<h2>Building persistent applications<a class="headerlink" href="#building-persistent-applications" title="Link to this heading">#</a></h2>
 <p>For real-world applications, you’ll want to create persistent conversation loops:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">run_persistent_agent</span><span class="p">(</span><span class="n">assistant</span><span class="p">:</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">store_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">conversation_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run an agent with persistent conversation storage.&quot;&quot;&quot;</span>
@@ -805,7 +804,7 @@ serialize the conversation and resume it later.</p>
 </ul>
 </section>
 <section id="best-practices">
-<h2>Best Practices<a class="headerlink" href="#best-practices" title="Permalink to this heading">#</a></h2>
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
 <ol class="arabic simple">
 <li><p><strong>Save before user input</strong>: Always serialize conversations before waiting for user input to prevent data loss.</p></li>
 <li><p><strong>Use unique IDs</strong>: Store conversations using their built-in <code class="docutils literal notranslate"><span class="pre">conversation_id</span></code> to avoid conflicts.</p></li>
@@ -815,7 +814,7 @@ serialize the conversation and resume it later.</p>
 </ol>
 </section>
 <section id="limitations">
-<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this heading">#</a></h2>
+<h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><strong>Tool state</strong>: When using tools with Agents, ensure tools are stateless or their state is managed separately.</p></li>
 <li><p><strong>Large conversations</strong>: Very long conversations may result in large serialized files.</p></li>
@@ -823,7 +822,7 @@ serialize the conversation and resume it later.</p>
 </ul>
 </section>
 <section id="agent-spec-exporting-loading">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Link to this heading">#</a></h2>
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
 
@@ -898,7 +897,7 @@ serialize the conversation and resume it later.</p>
 </div>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>In this guide, you learned how to:</p>
 <ul class="simple">
 <li><p>Serialize both Agent and Flow conversations</p></li>
@@ -912,7 +911,7 @@ serialize the conversation and resume it later.</p>
 </ul>
 </section>
 <section id="full-code">
-<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <p>Click on the card at the <a class="reference internal" href="#top-howtoserializeconversations"><span class="std std-ref">top of this page</span></a> to download the full code for this guide or copy the code below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
 <span class="linenos">  2</span><span class="c1">#</span>
@@ -927,7 +926,7 @@ serialize the conversation and resume it later.</p>
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1.1&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -1311,7 +1310,7 @@ serialize the conversation and resume it later.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>
