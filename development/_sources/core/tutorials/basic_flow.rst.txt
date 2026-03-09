@@ -272,6 +272,25 @@ You set the initial step to be the ``begin_step`` and pass in ``control_flow_edg
 
 This completes the fixed-flow HR assistant.
 
+
+Creating the assistant with the Flow Builder
+============================================
+
+You can build the exact same flow with the chainable Flow Builder API.
+This keeps control and data wiring concise and readable.
+
+.. literalinclude:: ../code_examples/tutorial_flow.py
+   :language: python
+   :linenos:
+   :start-after: .. start-##_Create_assistant_FlowBuilder
+   :end-before: .. end-##_Create_assistant_FlowBuilder
+
+API Reference: :ref:`FlowBuilder <flowbuilder>`
+
+.. seealso::
+
+   For more information see the how-to guides about :doc:`how to use the Flow builder <../howtoguides/howto_flowbuilder>`
+
 Running the assistant
 =====================
 

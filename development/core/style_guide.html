@@ -1,16 +1,15 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Documentation Style Guide &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+    <title>Documentation Style Guide &#8212; wayflowcore 26.2.0.dev0 documentation</title>
   
   
   
@@ -32,12 +31,12 @@
   <link href="../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,12 +45,12 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+    <script src="../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/style_guide';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -67,7 +66,7 @@
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2.0.dev0" />
   </head>
   
   
@@ -105,6 +104,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -133,8 +135,8 @@
       
     
     
-    <img src="../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
-    <img src="../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
   
   
 </a></div>
@@ -324,13 +326,13 @@
                 <article class="bd-article">
                   
   <section id="documentation-style-guide">
-<h1>Documentation Style Guide<a class="headerlink" href="#documentation-style-guide" title="Permalink to this heading">#</a></h1>
+<h1>Documentation Style Guide<a class="headerlink" href="#documentation-style-guide" title="Link to this heading">#</a></h1>
 <p>This style guide is short but specific to the project documentation, and aligns with the writing guidelines of the Oracle Documentation Style Guide
 and <a class="reference external" href="https://www.chicagomanualofstyle.org/home.html">Chicago Manual of Style</a>.
 These recommendations apply universally across all documentation types—be it reference materials, guides, or release notes.
 We do not enforce these recommendations, but following them will improve content readability and ensure consistency across all pages.</p>
 <section id="i-naming-conventions">
-<h2>I. Naming conventions<a class="headerlink" href="#i-naming-conventions" title="Permalink to this heading">#</a></h2>
+<h2>I. Naming conventions<a class="headerlink" href="#i-naming-conventions" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>The project name is <strong>WayFlow</strong>. It is a proper name; no article is required upfront. Example: <em>WayFlow is an open source project. You can find the source code in the WayFlow project repository on GitHub</em>.</p></li>
 <li><p>Use <strong>Agent</strong> and <strong>Flow</strong> with initial letters capitalized when referencing to the concept or a class name. As an alternative, you can write <strong>WayFlow Agent</strong>, <strong>WayFlow Flow</strong>.</p></li>
@@ -338,7 +340,7 @@ We do not enforce these recommendations, but following them will improve content
 </ul>
 </section>
 <section id="ii-verb-tense">
-<h2>II. Verb tense<a class="headerlink" href="#ii-verb-tense" title="Permalink to this heading">#</a></h2>
+<h2>II. Verb tense<a class="headerlink" href="#ii-verb-tense" title="Link to this heading">#</a></h2>
 <p>In technical documentation, the verb tense depends on the context, but the general guidelines are:</p>
 <ul class="simple">
 <li><p>Present tense – Most common, recommended, used for describing facts, or how a system behaves. Example: <em>The user inputs their question to the assistant</em>.</p></li>
@@ -348,7 +350,7 @@ We do not enforce these recommendations, but following them will improve content
 <p>For WayFlow documentation, the present tense is best for describing how flows, steps, and agents behave.</p>
 </section>
 <section id="iii-style-and-tone">
-<h2>III. Style and tone<a class="headerlink" href="#iii-style-and-tone" title="Permalink to this heading">#</a></h2>
+<h2>III. Style and tone<a class="headerlink" href="#iii-style-and-tone" title="Link to this heading">#</a></h2>
 <p>Be conversational and yet keep some level of formality.</p>
 <ul class="simple">
 <li><p>Avoid marketing pitch language in the technical documentation.</p></li>
@@ -374,10 +376,10 @@ We do not enforce these recommendations, but following them will improve content
 </ul>
 </section>
 <section id="iv-formatting-rules">
-<h2>IV. Formatting rules<a class="headerlink" href="#iv-formatting-rules" title="Permalink to this heading">#</a></h2>
+<h2>IV. Formatting rules<a class="headerlink" href="#iv-formatting-rules" title="Link to this heading">#</a></h2>
 <p>The following inconsistencies are important, common, and worth paying special attention to.</p>
 <section id="page-titles-and-subtitles">
-<h3>Page titles and subtitles<a class="headerlink" href="#page-titles-and-subtitles" title="Permalink to this heading">#</a></h3>
+<h3>Page titles and subtitles<a class="headerlink" href="#page-titles-and-subtitles" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>Main page title should have the first letter of each word capitalized</strong>, except for articles or prepositions. If a title contains a hyphenated term, each word should be capitalized, unless it is a preposition or article. Example: <em>How-to Guides</em>.</p></li>
 <li><p><strong>All subheadings should be sentence case</strong>.</p></li>
@@ -386,42 +388,42 @@ We do not enforce these recommendations, but following them will improve content
 </ul>
 </section>
 <section id="spacing">
-<h3>Spacing<a class="headerlink" href="#spacing" title="Permalink to this heading">#</a></h3>
+<h3>Spacing<a class="headerlink" href="#spacing" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Break the line if the sentence is getting long.</p></li>
 <li><p>Strive not to have code (lowercase) start sentences.</p></li>
 </ul>
 </section>
 <section id="referring-to-a-file-name-or-path">
-<h3>Referring to a file name or path<a class="headerlink" href="#referring-to-a-file-name-or-path" title="Permalink to this heading">#</a></h3>
+<h3>Referring to a file name or path<a class="headerlink" href="#referring-to-a-file-name-or-path" title="Link to this heading">#</a></h3>
 <p>To refer to a file name or repository path inside the text, italicize it. Example: “Save this code to a file named <em>File.py</em> in the current working directory.”</p>
 </section>
 <section id="button-names-in-the-text">
-<h3>Button names in the text<a class="headerlink" href="#button-names-in-the-text" title="Permalink to this heading">#</a></h3>
+<h3>Button names in the text<a class="headerlink" href="#button-names-in-the-text" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>When documenting the UI or API, match the terminology. Example: <em>To stop the process, click Abort</em>.</p></li>
 <li><p>Capitalize the button name (as it is onscreen).</p></li>
 </ul>
 </section>
 <section id="action-names-in-the-text">
-<h3>Action names in the text<a class="headerlink" href="#action-names-in-the-text" title="Permalink to this heading">#</a></h3>
+<h3>Action names in the text<a class="headerlink" href="#action-names-in-the-text" title="Link to this heading">#</a></h3>
 <p>When documenting the UI, match the terminology and wrap the actions in quotation marks (“”). Example: <em>Upon completion, invoke the “Set as Default Java” action</em>.</p>
 </section>
 <section id="referring-to-file-formats">
-<h3>Referring to file formats<a class="headerlink" href="#referring-to-file-formats" title="Permalink to this heading">#</a></h3>
+<h3>Referring to file formats<a class="headerlink" href="#referring-to-file-formats" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>When referring to a typical file format in the text, capitalize each letter. Example: JAR and JSON, not jar and json.</p></li>
 <li><p>Do not italicize types of files.</p></li>
 </ul>
 </section>
 <section id="oxford-comma">
-<h3>Oxford comma<a class="headerlink" href="#oxford-comma" title="Permalink to this heading">#</a></h3>
+<h3>Oxford comma<a class="headerlink" href="#oxford-comma" title="Link to this heading">#</a></h3>
 <p>The <strong>Oxford comma</strong> is the comma before words such as “and” or “or” in a list of three or more items.
 Example: <em>The flag is red, white, and blue</em>.</p>
 <p><strong>We suggest using the Oxford comma</strong> to keep sentences as clear and intelligible.</p>
 </section>
 <section id="british-english-vs-american-english-spelling">
-<h3>British English vs American English spelling<a class="headerlink" href="#british-english-vs-american-english-spelling" title="Permalink to this heading">#</a></h3>
+<h3>British English vs American English spelling<a class="headerlink" href="#british-english-vs-american-english-spelling" title="Link to this heading">#</a></h3>
 <p>As a convention, Oracle Corporation uses American English spelling rather than British English spelling.
 Use <strong>American English spelling</strong>.</p>
 <ul class="simple">
@@ -431,11 +433,11 @@ Use <strong>American English spelling</strong>.</p>
 </section>
 </section>
 <section id="how-to-become-a-contributor">
-<h2>How to become a contributor<a class="headerlink" href="#how-to-become-a-contributor" title="Permalink to this heading">#</a></h2>
+<h2>How to become a contributor<a class="headerlink" href="#how-to-become-a-contributor" title="Link to this heading">#</a></h2>
 <p>The WayFlow documentation is open source and anyone can contribute to make it perfect and comprehensive.
 If you consider contributing to the documentation, please read our <a class="reference internal" href="contributing.html"><span class="doc">contributing guidelines</span></a>.</p>
 <section id="the-end">
-<h3>The end<a class="headerlink" href="#the-end" title="Permalink to this heading">#</a></h3>
+<h3>The end<a class="headerlink" href="#the-end" title="Link to this heading">#</a></h3>
 <p>We thank you for taking the time to read this style guide.</p>
 <p>The WayFlow team</p>
 </section>
@@ -511,7 +513,7 @@ If you consider contributing to the documentation, please read our <a class="ref
 
   <p class="copyright">
     
-      © Copyright 2025, Oracle and/or its affiliates..
+      © Copyright 2025-2026, Oracle and/or its affiliates..
       <br/>
     
   </p>
@@ -520,7 +522,7 @@ If you consider contributing to the documentation, please read our <a class="ref
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

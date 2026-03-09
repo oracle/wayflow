@@ -11,7 +11,7 @@
 # python -m venv venv-wayflowcore
 # source venv-wayflowcore/bin/activate
 # pip install --upgrade pip
-# pip install "wayflowcore==26.1" 
+# pip install "wayflowcore==26.2.0.dev0" 
 # ```
 
 # You can now run the script
@@ -439,7 +439,7 @@ You are an assistant that helps the business with loan applications.
 
 ## Task
 Write a justification for a loan application, given certain customer data points.
-The justification should be concise and detailed, and include all infomration that could be relevant for the loan application.
+The justification should be concise and detailed, and include all information that could be relevant for the loan application.
 As an intermediate step before writing the justification, provide a reasoning section consisting of facts, arguments or any other relevant data that would help you with writing the justification.
 
 
@@ -465,7 +465,7 @@ Loan: {{ generated_row['loan_value'] }} at {{ generated_row['loan_proposed_inter
 Purpose: {{ generated_row['loan_reason'] }}
 
 
-## Insturctions
+## Instructions
 You must follow these guidelines:
 - The tone, length and level of details in your justification are similarly aligned with the provided example
 - The justification must be solely based on the provided data points
@@ -473,7 +473,7 @@ You must follow these guidelines:
 - The language should be professional and business-appropriate
 - Include any specific financial details if relevant
 
-The output must stricly follow the exacty format as below:
+The output must strictly follow the exactly format as below:
 Reasoning: <fill this section with any facts or arguments relevant to the justification>
 Justification: <fill this section with the justification>
 
@@ -489,7 +489,7 @@ You are an assistant that helps the bank evaluate loan applications.
 
 ## Task
 Evaluate the quality and plausibility of a loan justification against provided application data points of the customer.
-The evaluation has to consider the folllowing criteria:
+The evaluation has to consider the following criteria:
 1. Factual accuracy: All amounts, names, and details in the justification match the provided customer data points
 2. Logical consistency: The reasoning aligns with customer profile and loan parameters
 3. Realism: The justification is plausible for this type of loan application

@@ -1,0 +1,6 @@
+core
+  - api (21 items)
+  - end_to_end_code_examples (40 items)
+  - howtoguides (45 items)
+  - misc (3 items)
+  - tutorials (4 items)

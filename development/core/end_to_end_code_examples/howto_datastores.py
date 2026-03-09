@@ -11,7 +11,7 @@
 # python -m venv venv-wayflowcore
 # source venv-wayflowcore/bin/activate
 # pip install --upgrade pip
-# pip install "wayflowcore==26.1" 
+# pip install "wayflowcore==26.2.0.dev0" 
 # ```
 
 # You can now run the script
@@ -309,7 +309,7 @@ delete_product_flow = Flow.from_steps(
 )
 
 # %%[markdown]
-## Create agent
+## Create the agent
 
 # %%
 agent = Agent(

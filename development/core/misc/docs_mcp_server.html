@@ -1,0 +1,774 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Docs MCP Server &#8212; wayflowcore 26.2.0.dev0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
+
+  
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core/misc/docs_mcp_server';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://oracle.github.io/wayflow/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+  <script src="../../_static/announcement.js"></script>
+
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="Frequently Asked Questions" href="../faqs.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="26.2.0.dev0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/oracle/wayflow" title="WayFlow GitHub repository" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/github-icon.svg" class="icon-link-image" alt="WayFlow GitHub repository"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_flow.html">Build a Simple Fixed-flow Assistant with Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/usecase_prbot.html">Build a Simple Code Review Assistant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howtoguides/index.html">How-to Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/io_descriptors.html">Change Input and Output Descriptors of Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_async.html">Use Asynchronous APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/installing_ollama.html">Install and Use Ollama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/generation_config.html">Specify the Generation Configuration when Using LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/llm_from_different_providers.html">Use LLM from Different LLM Sources and Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_long_context.html">Handle long context with agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/agents.html">Create a ReAct Agent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_imagecontent.html">How to Send Images to LLMs and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_ociagent.html">Use OCI Generative AI Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2aagent.html">How to Connect to A2A Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_prompttemplate.html">Use Templates for Advanced Prompting Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userinputinflows.html">Ask for User Input in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/conditional_flows.html">Create Conditional Transitions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_promptexecutionstep.html">Do Structured LLM Generation in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_userconfirmation.html">Add User Confirmation to a Tool Call Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_managerworkers.html">Build a ManagerWorkers of Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serve_agents.html">Serve Agents with WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_a2a_serving.html">Serve Assistants with A2A protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_build_assistants_with_tools.html">Build Assistants with Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_event_system.html">Use the Event System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_rag.html">Build RAG-Powered Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">Evaluate Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">Evaluate Conversations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
+
+
+<li class="toctree-l2"><a class="reference internal" href="../api/conversation.html">Conversations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/llmmodels.html">LLMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/events.html">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/flows.html">Flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agent.html">Agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/agentserver.html">Agent Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/embeddingmodels.html">Embedding Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/contextproviders.html">Context Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/interrupts.html">Execution Interrupts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/prompttemplate.html">PromptTemplates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/serialization.html">Serialization/Deserialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/auth.html">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/search.html">Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/a2a.html">A2A</a></li>
+</ul>
+</details></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="reference_sheet.html">Reference Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Docs MCP Server</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">WayFlow</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Docs MCP Server</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="docs-mcp-server">
+<span id="id1"></span><h1>Docs MCP Server<a class="headerlink" href="#docs-mcp-server" title="Link to this heading">#</a></h1>
+<p>WayFlow includes a documentation-focused MCP server in <code class="docutils literal notranslate"><span class="pre">examples/mcp/docs_mcp.py</span></code>.
+It exposes a single tool, <code class="docutils literal notranslate"><span class="pre">get_docs</span></code>, that lets coding assistants safely navigate
+the published WayFlow Markdown docs bundle and the generated end-to-end example files.</p>
+<p>This is useful when you want an assistant to answer questions grounded in the current
+WayFlow documentation, inspect example code before writing new code, or locate the
+right guide/API page without giving the assistant unrestricted shell access.</p>
+<section id="what-the-server-does">
+<h2>What the server does<a class="headerlink" href="#what-the-server-does" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">get_docs</span></code> tool accepts a constrained shell-like command and runs it against the
+downloaded docs bundle. Supported commands are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ls</span> <span class="pre">[PATH]</span></code> or <code class="docutils literal notranslate"><span class="pre">ls</span> <span class="pre">-la</span> <span class="pre">[PATH]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rg</span> <span class="pre">--files</span> <span class="pre">[-g/--glob</span> <span class="pre">PATTERN]</span> <span class="pre">[PATH]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sed</span> <span class="pre">-n</span> <span class="pre">'START,ENDp'</span> <span class="pre">FILE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">head</span> <span class="pre">FILE</span></code> or <code class="docutils literal notranslate"><span class="pre">head</span> <span class="pre">-n</span> <span class="pre">N</span> <span class="pre">FILE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">FILE</span></code> or <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">-n</span> <span class="pre">N</span> <span class="pre">FILE</span></code></p></li>
+<li><p>exactly one pipe from a supported producer into <code class="docutils literal notranslate"><span class="pre">head</span></code>, <code class="docutils literal notranslate"><span class="pre">tail</span></code>, or filtering <code class="docutils literal notranslate"><span class="pre">rg</span></code></p></li>
+</ul>
+<p>The server is intentionally narrow in scope:</p>
+<ul class="simple">
+<li><p>it refreshes the Markdown bundle at startup from the base docs URL;</p></li>
+<li><p>it only allows navigation inside that bundle;</p></li>
+<li><p>it supports exactly one pipe and still blocks redirects, command chaining, and subshell syntax.</p></li>
+</ul>
+<p>The intended workflow is:</p>
+<ol class="arabic simple">
+<li><p>discover folders with <code class="docutils literal notranslate"><span class="pre">ls</span></code>;</p></li>
+<li><p>locate the relevant page or example with <code class="docutils literal notranslate"><span class="pre">rg</span> <span class="pre">--files</span></code> or <code class="docutils literal notranslate"><span class="pre">|</span> <span class="pre">rg</span></code> filtering;</p></li>
+<li><p>read or trim excerpts with <code class="docutils literal notranslate"><span class="pre">sed</span> <span class="pre">-n</span></code>, <code class="docutils literal notranslate"><span class="pre">head</span></code>, or <code class="docutils literal notranslate"><span class="pre">tail</span></code>.</p></li>
+</ol>
+<p>Typical pipeline examples include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">rg</span> <span class="pre">--files</span> <span class="pre">core/howtoguides</span> <span class="pre">|</span> <span class="pre">rg</span> <span class="pre">mcp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rg</span> <span class="pre">--files</span> <span class="pre">-g</span> <span class="pre">'*.md'</span> <span class="pre">core</span> <span class="pre">|</span> <span class="pre">head</span> <span class="pre">-n</span> <span class="pre">20</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sed</span> <span class="pre">-n</span> <span class="pre">'1,220p'</span> <span class="pre">core/howtoguides/howto_mcp.md</span> <span class="pre">|</span> <span class="pre">rg</span> <span class="pre">StdioTransport</span></code></p></li>
+</ul>
+</section>
+<section id="adding-the-server-to-codex">
+<h2>Adding the server to Codex<a class="headerlink" href="#adding-the-server-to-codex" title="Link to this heading">#</a></h2>
+<p>The example file includes the minimal Codex setup instructions at the top.</p>
+<p>From the <code class="docutils literal notranslate"><span class="pre">examples/mcp</span></code> directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>codex<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>wayflow_docs<span class="w"> </span>--<span class="w"> </span>python<span class="w"> </span>docs_mcp.py<span class="w"> </span>--base-docs-url<span class="w"> </span>https://oracle.github.io/wayflow/development
+</pre></div>
+</div>
+<p>If you prefer to edit the Codex configuration manually:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[mcp_servers.wayflow_docs]</span>
+<span class="n">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;python&quot;</span>
+<span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;docs_mcp.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--base-docs-url&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;https://oracle.github.io/wayflow/development&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>If you launch Codex from the repository root instead, use
+<code class="docutils literal notranslate"><span class="pre">examples/mcp/docs_mcp.py</span></code> as the script path.</p>
+<p>If you prefer a <code class="docutils literal notranslate"><span class="pre">uv</span></code>-based setup that does not require a local checkout of the
+WayFlow repository, you can run the server directly from GitHub:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>codex<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>wayflow_docs<span class="w"> </span>--<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>--with<span class="w"> </span>mcp<span class="w"> </span>--<span class="w"> </span>https://raw.githubusercontent.com/oracle/wayflow/refs/heads/main/examples/mcp/docs_mcp.py<span class="w"> </span>--base-docs-url<span class="w"> </span>https://oracle.github.io/wayflow/development
+</pre></div>
+</div>
+<p>Equivalent Codex configuration:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[mcp_servers.wayflow_docs]</span>
+<span class="n">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;uv&quot;</span>
+<span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;run&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--with&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;https://raw.githubusercontent.com/oracle/wayflow/refs/heads/main/examples/mcp/docs_mcp.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;--base-docs-url&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;https://oracle.github.io/wayflow/development&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="using-it-from-a-wayflow-agent">
+<h2>Using it from a WayFlow Agent<a class="headerlink" href="#using-it-from-a-wayflow-agent" title="Link to this heading">#</a></h2>
+<p>The docs MCP server can also be consumed from WayFlow through <a class="reference internal" href="../api/tools.html#mcptool"><span class="std std-ref">MCPTool</span></a>
+and the <a class="reference internal" href="../api/tools.html#stdiotransport"><span class="std std-ref">StdioTransport</span></a>.</p>
+<p>The example below starts the docs MCP server as a local subprocess, connects a
+single <code class="docutils literal notranslate"><span class="pre">get_docs</span></code> tool to an <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a>, and lets the agent inspect the
+docs before answering.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserMessageRequestStatus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.mcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">MCPTool</span><span class="p">,</span> <span class="n">StdioTransport</span><span class="p">,</span> <span class="n">enable_mcp_without_auth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;LLAMA_MODEL_ID&quot;</span><span class="p">,</span>
+    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;LLAMA_API_URL&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">enable_mcp_without_auth</span><span class="p">()</span>
+<span class="n">docs_transport</span> <span class="o">=</span> <span class="n">StdioTransport</span><span class="p">(</span>
+    <span class="n">command</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;examples/mcp/docs_mcp.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--base-docs-url&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;https://oracle.github.io/wayflow/development&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">cwd</span><span class="o">=</span><span class="s2">&quot;/path/to/wayflow&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">docs_tool</span> <span class="o">=</span> <span class="n">MCPTool</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_docs&quot;</span><span class="p">,</span>
+    <span class="n">client_transport</span><span class="o">=</span><span class="n">docs_transport</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">assistant</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">docs_tool</span><span class="p">],</span>
+    <span class="n">custom_instruction</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Use the get_docs tool to inspect the WayFlow docs and examples before &quot;</span>
+        <span class="s2">&quot;answering. Prefer ls, rg --files, head, tail, and short sed excerpts. &quot;</span>
+        <span class="s2">&quot;You may use a single pipe into head, tail, or filtering rg when helpful.&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
+<span class="n">conversation</span><span class="o">.</span><span class="n">append_user_message</span><span class="p">(</span>
+    <span class="s2">&quot;Find the MCP how-to and write a minimal stdio example for a WayFlow agent.&quot;</span>
+<span class="p">)</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">conversation</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">UserMessageRequestStatus</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">conversation</span><span class="o">.</span><span class="n">get_last_message</span><span class="p">()</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As with the rest of the <a class="reference internal" href="../howtoguides/howto_mcp.html"><span class="doc">MCP guide</span></a>,
+<code class="docutils literal notranslate"><span class="pre">enable_mcp_without_auth()</span></code> is for local and test usage only.</p>
+</div>
+</section>
+<section id="example-assistant-queries">
+<h2>Example assistant queries<a class="headerlink" href="#example-assistant-queries" title="Link to this heading">#</a></h2>
+<p>Below are representative queries you can send to a code assistant equipped with the
+<code class="docutils literal notranslate"><span class="pre">wayflow_docs.get_docs</span></code> tool. The tool calls were exercised against the docs bundle
+to illustrate the expected workflow and response style.</p>
+<section id="example-1-find-the-mcp-guide-and-the-recommended-local-transport">
+<h3>Example 1: Find the MCP guide and the recommended local transport<a class="headerlink" href="#example-1-find-the-mcp-guide-and-the-recommended-local-transport" title="Link to this heading">#</a></h3>
+<p><strong>User query</strong></p>
+<p>“Where is the MCP guide, and which transport should I use for a local subprocess server?”</p>
+<p><strong>Example tool calls</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>wayflow_docs.get_docs(&quot;rg --files core/howtoguides | rg mcp&quot;)
+wayflow_docs.get_docs(&quot;head -n 40 core/howtoguides/howto_mcp.md&quot;)
+wayflow_docs.get_docs(&quot;sed -n &#39;740,820p&#39; core/api/tools.md | rg StdioTransport&quot;)
+</pre></div>
+</div>
+<p><strong>Result the assistant would give</strong></p>
+<p>The MCP guide is in <code class="docutils literal notranslate"><span class="pre">core/howtoguides/howto_mcp.md</span></code>. For a locally launched MCP
+server, the docs recommend <a class="reference internal" href="../api/tools.html#stdiotransport"><span class="std std-ref">StdioTransport</span></a>, which is intended
+for subprocess-based communication on the same machine. The same guide also points to
+the <a class="reference internal" href="../api/tools.html"><span class="doc">Tools API</span></a> for the transport details.</p>
+</section>
+<section id="example-2-locate-an-end-to-end-mcp-example">
+<h3>Example 2: Locate an end-to-end MCP example<a class="headerlink" href="#example-2-locate-an-end-to-end-mcp-example" title="Link to this heading">#</a></h3>
+<p><strong>User query</strong></p>
+<p>“Show me an existing WayFlow example that connects an agent to an MCP server.”</p>
+<p><strong>Example tool calls</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>wayflow_docs.get_docs(&quot;ls core/end_to_end_code_examples | rg howto_mcp&quot;)
+wayflow_docs.get_docs(&quot;head -n 40 core/end_to_end_code_examples/howto_mcp.py&quot;)
+</pre></div>
+</div>
+<p><strong>Result the assistant would give</strong></p>
+<p>There is an end-to-end example in <code class="docutils literal notranslate"><span class="pre">core/end_to_end_code_examples/howto_mcp.py</span></code>.
+The relevant section shows a WayFlow <code class="docutils literal notranslate"><span class="pre">Agent</span></code> configured with MCP access, including
+the transport setup, the MCP tool wiring, and a simple execution loop.</p>
+</section>
+<section id="example-3-discover-what-documentation-areas-are-available">
+<h3>Example 3: Discover what documentation areas are available<a class="headerlink" href="#example-3-discover-what-documentation-areas-are-available" title="Link to this heading">#</a></h3>
+<p><strong>User query</strong></p>
+<p>“What can you browse in the WayFlow docs bundle?”</p>
+<p><strong>Example tool call</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>wayflow_docs.get_docs(&quot;ls core | head -n 10&quot;)
+</pre></div>
+</div>
+<p><strong>Result the assistant would give</strong></p>
+<p>The bundle includes the main documentation areas such as <code class="docutils literal notranslate"><span class="pre">api</span></code>, <code class="docutils literal notranslate"><span class="pre">howtoguides</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tutorials</span></code>, <code class="docutils literal notranslate"><span class="pre">misc</span></code>, and <code class="docutils literal notranslate"><span class="pre">end_to_end_code_examples</span></code>, plus top-level pages like
+<code class="docutils literal notranslate"><span class="pre">installation.md</span></code>, <code class="docutils literal notranslate"><span class="pre">security.md</span></code>, and <code class="docutils literal notranslate"><span class="pre">faqs.md</span></code>. A good next step is to narrow
+the search to one area with <code class="docutils literal notranslate"><span class="pre">rg</span> <span class="pre">--files</span></code> and then read a short excerpt with <code class="docutils literal notranslate"><span class="pre">sed</span></code>.</p>
+</section>
+<section id="example-4-pull-a-glossary-definition-before-writing-code">
+<h3>Example 4: Pull a glossary definition before writing code<a class="headerlink" href="#example-4-pull-a-glossary-definition-before-writing-code" title="Link to this heading">#</a></h3>
+<p><strong>User query</strong></p>
+<p>“Before you write code, remind me what WayFlow means by an Agent.”</p>
+<p><strong>Example tool call</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>wayflow_docs.get_docs(&quot;head -n 40 core/misc/glossary.md&quot;)
+</pre></div>
+</div>
+<p><strong>Result the assistant would give</strong></p>
+<p>According to the glossary, an Agent is a conversational WayFlow assistant that can
+interact with users, use tools, and collaborate with other WayFlow assistants to solve
+requests. It is the right building block when you want an assistant to plan tool usage
+flexibly instead of following a fixed flow.</p>
+</section>
+<section id="example-5-ask-the-assistant-to-synthesize-a-stdio-mcp-snippet">
+<h3>Example 5: Ask the assistant to synthesize a stdio MCP snippet<a class="headerlink" href="#example-5-ask-the-assistant-to-synthesize-a-stdio-mcp-snippet" title="Link to this heading">#</a></h3>
+<p><strong>User query</strong></p>
+<p>“Use the docs to write a minimal Agent example that talks to an MCP server over stdio.”</p>
+<p><strong>Example tool calls</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>wayflow_docs.get_docs(&quot;head -n 80 core/howtoguides/howto_mcp.md&quot;)
+wayflow_docs.get_docs(&quot;sed -n &#39;740,820p&#39; core/api/tools.md | rg StdioTransport&quot;)
+wayflow_docs.get_docs(&quot;head -n 40 core/end_to_end_code_examples/howto_mcp.py&quot;)
+</pre></div>
+</div>
+<p><strong>Result the assistant would give</strong></p>
+<p>Here is a minimal example based on the MCP how-to and the <code class="docutils literal notranslate"><span class="pre">StdioTransport</span></code> API:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserMessageRequestStatus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.mcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">MCPTool</span><span class="p">,</span> <span class="n">StdioTransport</span><span class="p">,</span> <span class="n">enable_mcp_without_auth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VllmModel</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">VllmModel</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;LLAMA_MODEL_ID&quot;</span><span class="p">,</span>
+    <span class="n">host_port</span><span class="o">=</span><span class="s2">&quot;LLAMA_API_URL&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">enable_mcp_without_auth</span><span class="p">()</span>
+<span class="n">docs_transport</span> <span class="o">=</span> <span class="n">StdioTransport</span><span class="p">(</span>
+    <span class="n">command</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;examples/mcp/docs_mcp.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--base-docs-url&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;https://oracle.github.io/wayflow/development&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">cwd</span><span class="o">=</span><span class="s2">&quot;/path/to/wayflow&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">docs_tool</span> <span class="o">=</span> <span class="n">MCPTool</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_docs&quot;</span><span class="p">,</span>
+    <span class="n">client_transport</span><span class="o">=</span><span class="n">docs_transport</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">assistant</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">docs_tool</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-server-does">What the server does</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-the-server-to-codex">Adding the server to Codex</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-it-from-a-wayflow-agent">Using it from a WayFlow Agent</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-assistant-queries">Example assistant queries</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-1-find-the-mcp-guide-and-the-recommended-local-transport">Example 1: Find the MCP guide and the recommended local transport</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-2-locate-an-end-to-end-mcp-example">Example 2: Locate an end-to-end MCP example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-3-discover-what-documentation-areas-are-available">Example 3: Discover what documentation areas are available</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-4-pull-a-glossary-definition-before-writing-code">Example 4: Pull a glossary definition before writing code</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-5-ask-the-assistant-to-synthesize-a-stdio-mcp-snippet">Example 5: Ask the assistant to synthesize a stdio MCP snippet</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=dba54f56160742ef5599"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025-2026, Oracle and/or its affiliates..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

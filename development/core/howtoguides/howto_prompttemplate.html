@@ -1,16 +1,15 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to Use Advanced Prompting Techniques &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+    <title>How to Use Advanced Prompting Techniques &#8212; wayflowcore 26.2.0.dev0 documentation</title>
   
   
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_prompttemplate';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="How to Connect to A2A Agents" href="howto_a2aagent.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2.0.dev0" />
   </head>
   
   
@@ -108,6 +107,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -136,8 +138,8 @@
       
     
     
-    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
-    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
   
   
 </a></div>
@@ -281,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -308,6 +310,7 @@
 <li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
@@ -318,20 +321,24 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_event_system.html">Use the Event System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_rag.html">Build RAG-Powered Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">Evaluate Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">Evaluate Conversations</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
@@ -351,6 +358,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/auth.html">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/search.html">Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
@@ -358,13 +367,14 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/docs_mcp_server.html">Docs MCP Server</a></li>
 </ul>
 </div>
 </nav></div>
@@ -429,14 +439,14 @@
                 <article class="bd-article">
                   
   <section id="how-to-use-advanced-prompting-techniques">
-<span id="top-howtoprompttemplates"></span><h1>How to Use Advanced Prompting Techniques<a class="headerlink" href="#how-to-use-advanced-prompting-techniques" title="Permalink to this heading">#</a></h1>
+<span id="top-howtoprompttemplates"></span><h1>How to Use Advanced Prompting Techniques<a class="headerlink" href="#how-to-use-advanced-prompting-techniques" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Python Script</div>
 <p class="sd-card-text">Python script/notebook for this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_prompttemplate.py"><span>Prompt templates how-to script</span></a></div>
@@ -462,7 +472,7 @@ To address this, WayFlow introduces the concept of <code class="docutils literal
 <li><p>Learn best practices for writing prompts</p></li>
 </ul>
 <section id="basics-of-prompting">
-<h2>Basics of prompting<a class="headerlink" href="#basics-of-prompting" title="Permalink to this heading">#</a></h2>
+<h2>Basics of prompting<a class="headerlink" href="#basics-of-prompting" title="Link to this heading">#</a></h2>
 <p>WayFlow leverages LLMs to perform chat completion, meaning that given a list of messages (which can be <code class="docutils literal notranslate"><span class="pre">system</span></code> (for instructions to the LLM),
 <code class="docutils literal notranslate"><span class="pre">agent</span></code> (a message generated by the LLM), and <code class="docutils literal notranslate"><span class="pre">user</span></code> (a message from the user)), it returns a new message.</p>
 <p>To perform agentic tasks, LLMs are equipped with <code class="docutils literal notranslate"><span class="pre">tools</span></code>, which are defined functions with names and arguments that the LLM may decide to call.
@@ -481,7 +491,7 @@ Using <code class="docutils literal notranslate"><span class="pre">PromptTemplat
 </ul>
 </section>
 <section id="configure-the-llm">
-<h2>Configure the LLM<a class="headerlink" href="#configure-the-llm" title="Permalink to this heading">#</a></h2>
+<h2>Configure the LLM<a class="headerlink" href="#configure-the-llm" title="Link to this heading">#</a></h2>
 <p>WayFlow supports several LLM API providers.
 Select an LLM from the options below:</p>
 <div class="sphinx-tabs docutils container">
@@ -514,7 +524,7 @@ Select an LLM from the options below:</p>
 </div></div>
 </section>
 <section id="basic-text-prompt-with-regex-parsing">
-<h2>Basic text prompt with Regex parsing<a class="headerlink" href="#basic-text-prompt-with-regex-parsing" title="Permalink to this heading">#</a></h2>
+<h2>Basic text prompt with Regex parsing<a class="headerlink" href="#basic-text-prompt-with-regex-parsing" title="Link to this heading">#</a></h2>
 <p>One possible use case is prompting an LLM and extracting some information from the raw text output.
 This is especially relevant in a prompt template, since the parsing method highly depends on how the LLM is prompted in the first place.</p>
 <p>The example below shows how to write a simple <code class="docutils literal notranslate"><span class="pre">Chain-of-Thoughts</span></code> prompt.
@@ -539,7 +549,7 @@ The <code class="docutils literal notranslate"><span class="pre">RegexOutputPars
 <p>API reference: <a class="reference internal" href="../api/prompttemplate.html#id1"><span class="std std-ref">PromptTemplate</span></a>,  <a class="reference internal" href="../api/prompttemplate.html#regexoutputparser"><span class="std std-ref">RegexOutputParser</span></a>, <a class="reference internal" href="../api/prompttemplate.html#regexpattern"><span class="std std-ref">RegexPattern</span></a>, <a class="reference internal" href="../api/prompttemplate.html#jsonoutputparser"><span class="std std-ref">JsonOutputParser</span></a>.</p>
 </section>
 <section id="prompt-with-chat-history">
-<h2>Prompt with chat history<a class="headerlink" href="#prompt-with-chat-history" title="Permalink to this heading">#</a></h2>
+<h2>Prompt with chat history<a class="headerlink" href="#prompt-with-chat-history" title="Link to this heading">#</a></h2>
 <p>In many cases—especially when working with agents—it is necessary to format a list of messages within a prompt.
 There are two ways to achieve this.
 Assume a list of messages is available:</p>
@@ -630,7 +640,7 @@ For example, to format the conversation as messages within a template, you can u
 <p>This will ensure only the last chat history message is formatted in the prompt.</p>
 </section>
 <section id="configure-how-to-use-tools-in-templates">
-<h2>Configure how to use tools in templates<a class="headerlink" href="#configure-how-to-use-tools-in-templates" title="Permalink to this heading">#</a></h2>
+<h2>Configure how to use tools in templates<a class="headerlink" href="#configure-how-to-use-tools-in-templates" title="Link to this heading">#</a></h2>
 <p>Assume a tool is available and should be used for LLM generation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 <span class="linenos">2</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
@@ -716,7 +726,7 @@ In such cases, tool calling can be configured directly within the prompt templat
 </ul>
 </section>
 <section id="configure-how-to-use-structured-generation-in-templates">
-<h2>Configure how to use structured generation in templates<a class="headerlink" href="#configure-how-to-use-structured-generation-in-templates" title="Permalink to this heading">#</a></h2>
+<h2>Configure how to use structured generation in templates<a class="headerlink" href="#configure-how-to-use-structured-generation-in-templates" title="Link to this heading">#</a></h2>
 <p>Structured generation can be handled using either <code class="docutils literal notranslate"><span class="pre">native_tool_calling</span></code> (if the LLM provider supports it) or custom methods.
 Assume the goal is to generate the following output:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObjectProperty</span><span class="p">,</span> <span class="n">StringProperty</span>
@@ -733,7 +743,7 @@ Assume the goal is to generate the following output:</p>
 </div>
 <p>API reference: <a class="reference internal" href="../api/flows.html#objectproperty"><span class="std std-ref">ObjectProperty</span></a>, <a class="reference internal" href="../api/flows.html#stringproperty"><span class="std std-ref">StringProperty</span></a>.</p>
 <section id="with-native-structured-generation">
-<h3>With native structured generation<a class="headerlink" href="#with-native-structured-generation" title="Permalink to this heading">#</a></h3>
+<h3>With native structured generation<a class="headerlink" href="#with-native-structured-generation" title="Link to this heading">#</a></h3>
 <p>Some providers allow passing the desired output format separately and ensure the generated output follows the given format.
 If the LLM provider supports it, then using a template is straightforward:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">template</span> <span class="o">=</span> <span class="n">PromptTemplate</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span>
@@ -750,7 +760,7 @@ If the LLM provider supports it, then using a template is straightforward:</p>
 </div>
 </section>
 <section id="with-custom-structured-generation">
-<h3>With custom structured generation<a class="headerlink" href="#with-custom-structured-generation" title="Permalink to this heading">#</a></h3>
+<h3>With custom structured generation<a class="headerlink" href="#with-custom-structured-generation" title="Link to this heading">#</a></h3>
 <p>If the LLM provider does not support native structured generation, it is possible to prompt the LLM to produce output in the desired format manually:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">text_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Extract information about a person. The person is 65 years old, named Johnny.</span>
 <span class="linenos"> 2</span><span class="s2">Just return a json document that respects this JSON Schema:</span>
@@ -818,7 +828,7 @@ Check out the <a class="reference internal" href="../api/prompttemplate.html#pro
 </section>
 </section>
 <section id="agent-spec-exporting-loading">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Link to this heading">#</a></h2>
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span><span class="p">,</span> <span class="n">AgentSpecLoader</span>
@@ -1058,11 +1068,11 @@ from/to Agent Spec. Passing a list of plugins overrides the default ones.</p>
 </div>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Having learned how to use the <code class="docutils literal notranslate"><span class="pre">PromptTemplate</span></code>, you may now proceed to using it in <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a> or <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a>.</p>
 </section>
 <section id="full-code">
-<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <p>Click on the card at the <a class="reference internal" href="#top-howtoprompttemplates"><span class="std std-ref">top of this page</span></a> to download the full code for this guide or copy the code below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
 <span class="linenos">  2</span><span class="c1">#</span>
@@ -1077,7 +1087,7 @@ from/to Agent Spec. Passing a list of plugins overrides the default ones.</p>
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2.0.dev0&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -1454,7 +1464,7 @@ from/to Agent Spec. Passing a list of plugins overrides the default ones.</p>
 
   <p class="copyright">
     
-      © Copyright 2025, Oracle and/or its affiliates..
+      © Copyright 2025-2026, Oracle and/or its affiliates..
       <br/>
     
   </p>
@@ -1463,7 +1473,7 @@ from/to Agent Spec. Passing a list of plugins overrides the default ones.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

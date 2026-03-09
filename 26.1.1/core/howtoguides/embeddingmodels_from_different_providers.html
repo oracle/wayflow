@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>How to Use Embedding Models from Different Providers &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,12 +45,12 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/embeddingmodels_from_different_providers';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -69,7 +68,7 @@
     <link rel="prev" title="How to Connect Assistants to Your Data" href="howto_datastores.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -280,7 +279,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -360,7 +359,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -431,7 +430,7 @@
                 <article class="bd-article">
                   
   <section id="how-to-use-embedding-models-from-different-providers">
-<h1>How to Use Embedding Models from Different Providers<a class="headerlink" href="#how-to-use-embedding-models-from-different-providers" title="Permalink to this heading">#</a></h1>
+<h1>How to Use Embedding Models from Different Providers<a class="headerlink" href="#how-to-use-embedding-models-from-different-providers" title="Link to this heading">#</a></h1>
 <p>WayFlow supports several embedding model providers. The available embedding models are:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../api/embeddingmodels.html#ocigenaiembeddingmodel"><span class="std std-ref">OCIGenAIEmbeddingModel</span></a></p></li>
@@ -442,7 +441,7 @@
 <p>Their configuration is specified directly to their respective class constructor.
 This guide will show you how to configure embedding models from different providers with examples and notes on usage.</p>
 <section id="basic-implementation">
-<h2>Basic Implementation<a class="headerlink" href="#basic-implementation" title="Permalink to this heading">#</a></h2>
+<h2>Basic Implementation<a class="headerlink" href="#basic-implementation" title="Link to this heading">#</a></h2>
 <p>WayFlow provides multiple ways to work with embedding models. You can directly instantiate embedding model classes for maximum flexibility and control, which is the approach demonstrated in this guide. Each embedding model class extends the abstract <code class="docutils literal notranslate"><span class="pre">EmbeddingModel</span></code> base class and implements the required <cite>embed</cite> method.</p>
 <p>For the embedding models shown in this guide:</p>
 <ul class="simple">
@@ -454,12 +453,12 @@ This guide will show you how to configure embedding models from different provid
 <p>The following sections provide detailed information about each supported embedding model type, with examples showing how to instantiate and use them.</p>
 </section>
 <section id="oci-genai-embedding-model">
-<h2>OCI GenAI Embedding Model<a class="headerlink" href="#oci-genai-embedding-model" title="Permalink to this heading">#</a></h2>
+<h2>OCI GenAI Embedding Model<a class="headerlink" href="#oci-genai-embedding-model" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="https://docs.oracle.com/iaas/Content/generative-ai/overview.htm">OCI GenAI Embedding Model</a> is powered by <a class="reference external" href="https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service/">OCI Generative AI</a>.</p>
 <p><strong>Parameters</strong></p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-arg-model_id">
-<span id="cmdoption-arg-model-id"></span><span class="sig-name descname"><span class="pre">model_id:</span></span><span class="sig-prename descclassname"> <span class="pre">str</span></span><a class="headerlink" href="#cmdoption-arg-model_id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_id:</span></span><span class="sig-prename descclassname"> <span class="pre">str</span></span><a class="headerlink" href="#cmdoption-arg-model_id" title="Link to this definition">#</a></dt>
 <dd><p>Name of the model to use. A list of the available models is given in
 <a class="reference external" href="https://docs.oracle.com/en-us/iaas/Content/generative-ai/deprecating.htm#">Oracle OCI Documentation</a>
 under the Model Retirement Dates (Embedding Models) section.</p>
@@ -467,7 +466,7 @@ under the Model Retirement Dates (Embedding Models) section.</p>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-arg-config">
-<span class="sig-name descname"><span class="pre">config:</span></span><span class="sig-prename descclassname"> <span class="pre">OCIClientConfig</span></span><a class="headerlink" href="#cmdoption-arg-config" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">config:</span></span><span class="sig-prename descclassname"> <span class="pre">OCIClientConfig</span></span><a class="headerlink" href="#cmdoption-arg-config" title="Link to this definition">#</a></dt>
 <dd><p>OCI client config to authenticate the OCI service.
 See the below examples and <a class="reference internal" href="../api/llmmodels.html#ociclientconfigclassesforauthentication"><span class="std std-ref">OCI Client Config Classes for Authentication</span></a> for the usage and more information.</p>
 </dd></dl>
@@ -564,7 +563,7 @@ You need to have a Dynamic Group that includes the instance and a policy that al
 </div>
 </section>
 <section id="openai-embedding-model">
-<h2>OpenAI Embedding Model<a class="headerlink" href="#openai-embedding-model" title="Permalink to this heading">#</a></h2>
+<h2>OpenAI Embedding Model<a class="headerlink" href="#openai-embedding-model" title="Link to this heading">#</a></h2>
 <p>OpenAI Embedding Model is powered by <a class="reference external" href="https://platform.openai.com/docs/guides/embeddings">OpenAI</a>.</p>
 <p><strong>Parameters</strong></p>
 <ul class="simple">
@@ -600,7 +599,7 @@ The API key for authentication with OpenAI. If not provided, the value of the
 </div>
 </section>
 <section id="vllm-embedding-model">
-<h2>vLLM Embedding Model<a class="headerlink" href="#vllm-embedding-model" title="Permalink to this heading">#</a></h2>
+<h2>vLLM Embedding Model<a class="headerlink" href="#vllm-embedding-model" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="https://docs.vllm.ai/en/latest/models/supported_models.html">vLLM Embedding Model</a> is a model hosted with a vLLM server.</p>
 <p><strong>Parameters</strong></p>
 <ul class="simple">
@@ -637,7 +636,7 @@ following the OpenAI API format. When using HTTPS, certificate verification is p
 For self-signed certificates, additional configuration may be needed at the application level.</p>
 </section>
 <section id="ollama-embedding-model">
-<h2>Ollama Embedding Model<a class="headerlink" href="#ollama-embedding-model" title="Permalink to this heading">#</a></h2>
+<h2>Ollama Embedding Model<a class="headerlink" href="#ollama-embedding-model" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="https://ollama.com/">Ollama Embedding Model</a> is powered by a locally hosted Ollama server.</p>
 <p><strong>Parameters</strong></p>
 <ul class="simple">
@@ -675,7 +674,7 @@ When using HTTPS, certificate verification is performed by default. For self-sig
 additional configuration may be needed at the application level.</p>
 </section>
 <section id="recap">
-<h2>Recap<a class="headerlink" href="#recap" title="Permalink to this heading">#</a></h2>
+<h2>Recap<a class="headerlink" href="#recap" title="Link to this heading">#</a></h2>
 <p>This guide provides detailed descriptions of each embedding model type supported by WayFlow, demonstrating how to use both the configuration dictionary and direct instantiation methods for each model.
 You can find below the complete code example presented in this guide:</p>
 <details class="summary-full-code">
@@ -745,7 +744,7 @@ You can find below the complete code example presented in this guide:</p>
 </div>
 </details></section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Having learned how to configure and initialize embedding models from different providers, you may now proceed to:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="howto_datastores.html"><span class="doc">Datastores</span></a></p></li>
@@ -820,7 +819,7 @@ You can find below the complete code example presented in this guide:</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

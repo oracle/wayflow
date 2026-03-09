@@ -11,7 +11,7 @@
 # python -m venv venv-wayflowcore
 # source venv-wayflowcore/bin/activate
 # pip install --upgrade pip
-# pip install "wayflowcore==26.1" 
+# pip install "wayflowcore==26.2.0.dev0" 
 # ```
 
 # You can now run the script
@@ -576,7 +576,7 @@ flatten_nested_comments_list_step = ToolExecutionStep(
 post_comment_step = ApiCallStep(
     url="https://example.com/rest/api/latest/projects/{{workspace}}/repos/{{repo_slug}}/pull-requests/{{pr_id}}/comments?diffType=EFFECTIVE&markup=true&avatarSize=48",
     method="POST",
-    json_body=json.dumps(
+    data=json.dumps(
         {
             "text": "{{content}}",
             "severity": "NORMAL",

@@ -11,7 +11,7 @@
 # python -m venv venv-wayflowcore
 # source venv-wayflowcore/bin/activate
 # pip install --upgrade pip
-# pip install "wayflowcore==26.1" 
+# pip install "wayflowcore==26.2.0.dev0" 
 # ```
 
 # You can now run the script
@@ -74,7 +74,7 @@ app = Starlette(debug=True, routes=[
 
 # Start the server: Uncomment these lines
 # import uvicorn
-# uvicorn.run(app, host="localhost", port=8001)
+# uvicorn.run(app, host="localhost", port=8003)
 
 # %%[markdown]
 ## Import libraries

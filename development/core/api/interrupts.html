@@ -1,16 +1,15 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Execution Interrupts &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+    <title>Execution Interrupts &#8212; wayflowcore 26.2.0.dev0 documentation</title>
   
   
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,12 +45,12 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/interrupts';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -69,7 +68,7 @@
     <link rel="prev" title="Context Providers" href="contextproviders.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2.0.dev0" />
   </head>
   
   
@@ -107,6 +106,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -135,8 +137,8 @@
       
     
     
-    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
-    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
   
   
 </a></div>
@@ -280,7 +282,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -307,6 +309,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
@@ -317,20 +320,24 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_event_system.html">Use the Event System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_rag.html">Build RAG-Powered Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">Evaluate Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">Evaluate Conversations</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
@@ -350,6 +357,8 @@
 <li class="toctree-l2"><a class="reference internal" href="tracing.html">Tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="variables.html">Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auth.html">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html">Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
@@ -357,13 +366,14 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/docs_mcp_server.html">Docs MCP Server</a></li>
 </ul>
 </div>
 </nav></div>
@@ -428,7 +438,7 @@
                 <article class="bd-article">
                   
   <section id="execution-interrupts">
-<h1>Execution Interrupts<a class="headerlink" href="#execution-interrupts" title="Permalink to this heading">#</a></h1>
+<h1>Execution Interrupts<a class="headerlink" href="#execution-interrupts" title="Link to this heading">#</a></h1>
 <p>We often need to interrupt the normal execution of an assistant to perform specific operations including but not limited to:</p>
 <ul class="simple">
 <li><p>Checking the token count</p></li>
@@ -438,23 +448,23 @@
 <p>For this reason, we provide execution interrupts, which let developers interact with the assistant’s execution at specific moments.</p>
 <p>This page presents all APIs and classes related to execution interrupts in WayFlow.</p>
 <section id="execution-interrupt-interface">
-<h2>Execution Interrupt interface<a class="headerlink" href="#execution-interrupt-interface" title="Permalink to this heading">#</a></h2>
-<span class="target" id="executioninterrupt"></span><dl class="py class">
+<h2>Execution Interrupt interface<a class="headerlink" href="#execution-interrupt-interface" title="Link to this heading">#</a></h2>
+<dl class="py class" id="executioninterrupt">
 <dt class="sig sig-object py" id="wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.executors.interrupts.executioninterrupt.</span></span><span class="sig-name descname"><span class="pre">ExecutionInterrupt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.executors.interrupts.executioninterrupt.</span></span><span class="sig-name descname"><span class="pre">ExecutionInterrupt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt" title="Link to this definition">#</a></dt>
 <dd><p>Execution Interrupts give developers a way to interact with the standard execution
 of an assistant, offering the chance to stop it when some events are triggered.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt.on_event">
-<span class="sig-name descname"><span class="pre">on_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt.on_event" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">on_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt.on_event" title="Link to this definition">#</a></dt>
 <dd><p>Checks if the interrupt should be triggered at the current state,
 based on the given execution status.
 If the interrupt is triggered, this method returns the <code class="docutils literal notranslate"><span class="pre">InterruptedExecutionStatus</span></code>
@@ -464,7 +474,7 @@ that should be returned to the execution caller.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>) – The current event happening.</p></li>
 <li><p><strong>state</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationExecutionState</span></code>) – The current <code class="docutils literal notranslate"><span class="pre">ConversationExecutionState</span></code>.</p></li>
-<li><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p></li>
+<li><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -482,9 +492,9 @@ that should be returned to the execution caller.</p>
 
 </dd></dl>
 
-<span class="target" id="interruptedexecutionstatus"></span><dl class="py class">
+<dl class="py class" id="interruptedexecutionstatus">
 <dt class="sig sig-object py" id="wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.executors.interrupts.executioninterrupt.</span></span><span class="sig-name descname"><span class="pre">InterruptedExecutionStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interrupter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_conversation_id=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.executors.interrupts.executioninterrupt.</span></span><span class="sig-name descname"><span class="pre">InterruptedExecutionStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interrupter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_conversation_id=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus" title="Link to this definition">#</a></dt>
 <dd><p>ExecutionStatus type thrown by the interrupts.
 It contains the <code class="docutils literal notranslate"><span class="pre">ExecutionInterrupt</span></code> that stopped the execution,
 and the reason why the execution was stopped.</p>
@@ -493,32 +503,32 @@ and the reason why the execution was stopped.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>interrupter</strong> (<a class="reference internal" href="#wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt" title="wayflowcore.executors.interrupts.executioninterrupt.ExecutionInterrupt"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionInterrupt</span></code></a>) – The <code class="docutils literal notranslate"><span class="pre">ExecutionInterrupt</span></code> that stopped the execution.</p></li>
 <li><p><strong>reason</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Why the execution was stopped.</p></li>
-<li><p><strong>id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
-<li><p><strong>_conversation_id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>id</strong> (<em>str</em>)</p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>_conversation_id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.interrupter">
-<span class="sig-name descname"><span class="pre">interrupter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ExecutionInterrupt</span></em><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.interrupter" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">interrupter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ExecutionInterrupt</span></em><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.interrupter" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.reason">
-<span class="sig-name descname"><span class="pre">reason</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.reason" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">reason</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wayflowcore.executors.interrupts.executioninterrupt.InterruptedExecutionStatus.reason" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="basic-execution-interrupt-classes">
-<h2>Basic Execution Interrupt classes<a class="headerlink" href="#basic-execution-interrupt-classes" title="Permalink to this heading">#</a></h2>
+<h2>Basic Execution Interrupt classes<a class="headerlink" href="#basic-execution-interrupt-classes" title="Link to this heading">#</a></h2>
 <section id="timeout-execution-interrupt">
-<h3>Timeout Execution Interrupt<a class="headerlink" href="#timeout-execution-interrupt" title="Permalink to this heading">#</a></h3>
-<span class="target" id="softtimeoutexecutioninterrupt"></span><dl class="py class">
+<h3>Timeout Execution Interrupt<a class="headerlink" href="#timeout-execution-interrupt" title="Link to this heading">#</a></h3>
+<dl class="py class" id="softtimeoutexecutioninterrupt">
 <dt class="sig sig-object py" id="wayflowcore.executors.interrupts.timeoutexecutioninterrupt.SoftTimeoutExecutionInterrupt">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.executors.interrupts.timeoutexecutioninterrupt.</span></span><span class="sig-name descname"><span class="pre">SoftTimeoutExecutionInterrupt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.interrupts.timeoutexecutioninterrupt.SoftTimeoutExecutionInterrupt" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.executors.interrupts.timeoutexecutioninterrupt.</span></span><span class="sig-name descname"><span class="pre">SoftTimeoutExecutionInterrupt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.interrupts.timeoutexecutioninterrupt.SoftTimeoutExecutionInterrupt" title="Link to this definition">#</a></dt>
 <dd><p>Execution interrupt that stops the assistant’s execution after a given time limit.
 This is a soft limit, as it does not force the interruption of the execution at any time.
 For example:
@@ -537,7 +547,7 @@ Default value set to 600 seconds (10 minutes).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecutionStatus</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.interrupts.executioninterrupt</span><span class="w"> </span><span class="kn">import</span> <span class="n">InterruptedExecutionStatus</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmmodelfactory</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmModelFactory</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">VLLM_CONFIG</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model_type&quot;</span><span class="p">:</span> <span class="s2">&quot;vllm&quot;</span><span class="p">,</span> <span class="s2">&quot;host_port&quot;</span><span class="p">:</span> <span class="n">LLAMA70B_API_ENDPOINT</span><span class="p">,</span> <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="s2">&quot;/storage/models/Llama-3.1-70B-Instruct&quot;</span><span class="p">,}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VLLM_CONFIG</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model_type&quot;</span><span class="p">:</span> <span class="s2">&quot;vllm&quot;</span><span class="p">,</span> <span class="s2">&quot;host_port&quot;</span><span class="p">:</span> <span class="n">LLAMA70B_API_ENDPOINT</span><span class="p">,</span> <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="s2">&quot;/storage/models/Llama-3.3-70B-Instruct&quot;</span><span class="p">,}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">llm</span> <span class="o">=</span> <span class="n">LlmModelFactory</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">VLLM_CONFIG</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">assistant</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
@@ -552,10 +562,10 @@ Default value set to 600 seconds (10 minutes).</p>
 
 </section>
 <section id="token-limit-execution-interrupt">
-<h3>Token Limit Execution Interrupt<a class="headerlink" href="#token-limit-execution-interrupt" title="Permalink to this heading">#</a></h3>
-<span class="target" id="softtokenlimitexecutioninterrupt"></span><dl class="py class">
+<h3>Token Limit Execution Interrupt<a class="headerlink" href="#token-limit-execution-interrupt" title="Link to this heading">#</a></h3>
+<dl class="py class" id="softtokenlimitexecutioninterrupt">
 <dt class="sig sig-object py" id="wayflowcore.executors.interrupts.tokenlimitexecutioninterrupt.SoftTokenLimitExecutionInterrupt">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.executors.interrupts.tokenlimitexecutioninterrupt.</span></span><span class="sig-name descname"><span class="pre">SoftTokenLimitExecutionInterrupt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens_per_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.interrupts.tokenlimitexecutioninterrupt.SoftTokenLimitExecutionInterrupt" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.executors.interrupts.tokenlimitexecutioninterrupt.</span></span><span class="sig-name descname"><span class="pre">SoftTokenLimitExecutionInterrupt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens_per_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">__metadata_info__</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.executors.interrupts.tokenlimitexecutioninterrupt.SoftTokenLimitExecutionInterrupt" title="Link to this definition">#</a></dt>
 <dd><p>Execution interrupt that stops the assistant’s execution after a given token limit for an LLM is reached.
 The interrupt counts the number of tokens generated by a given LLM object during the whole conversation.
 It stops the execution if:</p>
@@ -579,7 +589,7 @@ it is allowed to generate.</p></li>
 When a value for this parameter is provided, also <code class="docutils literal notranslate"><span class="pre">total_tokens</span></code> should be specified.</p></li>
 <li><p><strong>total_tokens</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Maximum number of tokens that should be globally generated by the LLMs in <code class="docutils literal notranslate"><span class="pre">all_models</span></code>.
 When a value for this parameter is provided, also <code class="docutils literal notranslate"><span class="pre">all_models</span></code> should be specified.</p></li>
-<li><p><strong>__metadata_info__</strong> (<em>Optional</em><em>[</em><em>MetadataType</em><em>]</em>) – </p></li>
+<li><p><strong>__metadata_info__</strong> (<em>Optional</em><em>[</em><em>MetadataType</em><em>]</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -589,7 +599,7 @@ When a value for this parameter is provided, also <code class="docutils literal 
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.executionstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecutionStatus</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.executors.interrupts.executioninterrupt</span><span class="w"> </span><span class="kn">import</span> <span class="n">InterruptedExecutionStatus</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmmodelfactory</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmModelFactory</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">VLLM_CONFIG</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model_type&quot;</span><span class="p">:</span> <span class="s2">&quot;vllm&quot;</span><span class="p">,</span> <span class="s2">&quot;host_port&quot;</span><span class="p">:</span> <span class="n">LLAMA70B_API_ENDPOINT</span><span class="p">,</span> <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="s2">&quot;/storage/models/Llama-3.1-70B-Instruct&quot;</span><span class="p">,}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VLLM_CONFIG</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model_type&quot;</span><span class="p">:</span> <span class="s2">&quot;vllm&quot;</span><span class="p">,</span> <span class="s2">&quot;host_port&quot;</span><span class="p">:</span> <span class="n">LLAMA70B_API_ENDPOINT</span><span class="p">,</span> <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="s2">&quot;/storage/models/Llama-3.3-70B-Instruct&quot;</span><span class="p">,}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">llm</span> <span class="o">=</span> <span class="n">LlmModelFactory</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">VLLM_CONFIG</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">assistant</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">custom_instruction</span><span class="o">=</span><span class="s2">&quot;You are a helpful assistant&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">conversation</span> <span class="o">=</span> <span class="n">assistant</span><span class="o">.</span><span class="n">start_conversation</span><span class="p">()</span>
@@ -688,7 +698,7 @@ When a value for this parameter is provided, also <code class="docutils literal 
 
   <p class="copyright">
     
-      © Copyright 2025, Oracle and/or its affiliates..
+      © Copyright 2025-2026, Oracle and/or its affiliates..
       <br/>
     
   </p>
@@ -697,7 +707,7 @@ When a value for this parameter is provided, also <code class="docutils literal 
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

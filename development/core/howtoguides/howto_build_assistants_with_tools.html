@@ -1,16 +1,15 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to Build Assistants with Tools &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+    <title>How to Build Assistants with Tools &#8212; wayflowcore 26.2.0.dev0 documentation</title>
   
   
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_build_assistants_with_tools';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="How to Serve Assistants with A2A Protocol" href="howto_a2a_serving.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2.0.dev0" />
   </head>
   
   
@@ -108,6 +107,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -136,8 +138,8 @@
       
     
     
-    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
-    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
   
   
 </a></div>
@@ -281,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -308,6 +310,7 @@
 <li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
@@ -318,20 +321,24 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_event_system.html">Use the Event System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_rag.html">Build RAG-Powered Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">Evaluate Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">Evaluate Conversations</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
@@ -351,6 +358,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/auth.html">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/search.html">Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
@@ -358,13 +367,14 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/docs_mcp_server.html">Docs MCP Server</a></li>
 </ul>
 </div>
 </nav></div>
@@ -429,14 +439,14 @@
                 <article class="bd-article">
                   
   <section id="how-to-build-assistants-with-tools">
-<span id="tool-use"></span><h1>How to Build Assistants with Tools<a class="headerlink" href="#how-to-build-assistants-with-tools" title="Permalink to this heading">#</a></h1>
+<span id="tool-use"></span><h1>How to Build Assistants with Tools<a class="headerlink" href="#how-to-build-assistants-with-tools" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Python Script</div>
 <p class="sd-card-text">Python script/notebook for this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_tooluse.py"><span>Tool use how-to script</span></a></div>
@@ -459,10 +469,11 @@ In WayFlow, tools can be used in both conversational assistants (also known as A
 <p>This guide focuses on using server/client tools. Read the <a class="reference internal" href="../api/tools.html#remotetool"><span class="std std-ref">API Documentation</span></a> to learn
 more about the <code class="docutils literal notranslate"><span class="pre">RemoteTool</span></code>.</p>
 </div>
-<a class="reference internal image-reference" href="../../_images/types_of_tools.svg"><img alt="../../_images/types_of_tools.svg" class="align-center" height="429" src="../../_images/types_of_tools.svg" width="446" /></a>
+<a class="reference internal image-reference" href="../../_images/types_of_tools.svg"><img alt="../../_images/types_of_tools.svg" class="align-center" src="../../_images/types_of_tools.svg" style="width: 446.40000000000003px; height: 429.6px;" />
+</a>
 <p>In this guide, you will build a <strong>PDF summarizer</strong> using the different types of supported tools, both within a flow and with an agent.</p>
 <section id="imports-and-llm-configuration">
-<h2>Imports and LLM configuration<a class="headerlink" href="#imports-and-llm-configuration" title="Permalink to this heading">#</a></h2>
+<h2>Imports and LLM configuration<a class="headerlink" href="#imports-and-llm-configuration" title="Link to this heading">#</a></h2>
 <p>To get started, first import the <code class="docutils literal notranslate"><span class="pre">PyPDF</span></code> library.
 First, install the PyPDF library:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pypdf
@@ -522,7 +533,7 @@ Select an LLM from the options below:</p>
 </div>
 </section>
 <section id="helper-functions">
-<h2>Helper functions<a class="headerlink" href="#helper-functions" title="Permalink to this heading">#</a></h2>
+<h2>Helper functions<a class="headerlink" href="#helper-functions" title="Link to this heading">#</a></h2>
 <p>The underlying tool used in this example is a PDF parser tool. The tool:</p>
 <ul class="simple">
 <li><p>loads a PDF file;</p></li>
@@ -564,7 +575,7 @@ Oracle Corporation is an American multinational computer technology company head
 </details><p></p>
 </section>
 <section id="overview-of-the-types-of-tools">
-<span id="overview-of-tool-types"></span><h2>Overview of the types of tools<a class="headerlink" href="#overview-of-the-types-of-tools" title="Permalink to this heading">#</a></h2>
+<span id="overview-of-tool-types"></span><h2>Overview of the types of tools<a class="headerlink" href="#overview-of-the-types-of-tools" title="Link to this heading">#</a></h2>
 <p>This section covers how to use the following tools:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&#64;tool</span></code> decorator - The simplest way to create server-side tools by decorating Python functions.</p></li>
@@ -572,7 +583,7 @@ Oracle Corporation is an American multinational computer technology company head
 <li><p><code class="docutils literal notranslate"><span class="pre">ClientTool</span></code> - For tools to be executed on the client application.</p></li>
 </ul>
 <section id="using-the-tool-decorator">
-<h3>Using the &#64;tool Decorator<a class="headerlink" href="#using-the-tool-decorator" title="Permalink to this heading">#</a></h3>
+<h3>Using the &#64;tool Decorator<a class="headerlink" href="#using-the-tool-decorator" title="Link to this heading">#</a></h3>
 <p>WayFlow provides a convenient <code class="docutils literal notranslate"><span class="pre">&#64;tool</span></code> decorator that simplifies the creation of server-side tools. By decorating a Python function with <code class="docutils literal notranslate"><span class="pre">&#64;tool</span></code>, you automatically convert it into a <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code> object ready to be used in your Flows and Agents.</p>
 <p>The decorator automatically extracts information from the function:</p>
 <ul class="simple">
@@ -608,7 +619,7 @@ the docstrings instead of having to manually define them using <code class="docu
 </div>
 </section>
 <section id="creating-a-servertool">
-<h3>Creating a ServerTool<a class="headerlink" href="#creating-a-servertool" title="Permalink to this heading">#</a></h3>
+<h3>Creating a ServerTool<a class="headerlink" href="#creating-a-servertool" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code> is defined by specifying:</p>
 <ul class="simple">
 <li><p>A tool name</p></li>
@@ -654,7 +665,7 @@ the docstrings instead of having to manually define them using <code class="docu
 </div>
 </section>
 <section id="creating-a-clienttool">
-<h3>Creating a ClientTool<a class="headerlink" href="#creating-a-clienttool" title="Permalink to this heading">#</a></h3>
+<h3>Creating a ClientTool<a class="headerlink" href="#creating-a-clienttool" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code> is defined similarly to a <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code>, except that it does not include a Python callable in its definition.
 When executed, a <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code> returns a <code class="docutils literal notranslate"><span class="pre">ToolRequest</span></code>, which must be executed on the client side.
 The client then sends the execution result back to the assistant.</p>
@@ -710,7 +721,7 @@ This function should be implemented based on the specific requirements of the as
 </section>
 </section>
 <section id="building-flows-with-tools-using-the-toolexecutionstep">
-<h2>Building Flows with Tools using the <cite>ToolExecutionStep</cite><a class="headerlink" href="#building-flows-with-tools-using-the-toolexecutionstep" title="Permalink to this heading">#</a></h2>
+<h2>Building Flows with Tools using the <cite>ToolExecutionStep</cite><a class="headerlink" href="#building-flows-with-tools-using-the-toolexecutionstep" title="Link to this heading">#</a></h2>
 <p>Executing tools in Flows can be done using the <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a>.
 The step simply requires the user to specify the tool to execute when the step is invoked.</p>
 <p>Once the tool execution step is defined, the Flow can be constructed as usual.
@@ -742,7 +753,7 @@ For more information, refer to the tutorial on <a class="reference internal" hre
 </pre></div>
 </div>
 <section id="executing-servertool-with-a-flow">
-<h3>Executing ServerTool with a Flow<a class="headerlink" href="#executing-servertool-with-a-flow" title="Permalink to this heading">#</a></h3>
+<h3>Executing ServerTool with a Flow<a class="headerlink" href="#executing-servertool-with-a-flow" title="Link to this heading">#</a></h3>
 <p>When using the <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code>, the tool execution is performed on the server side.
 As a consequence, the flow can be executed end-to-end with a single <code class="docutils literal notranslate"><span class="pre">execute</span></code> instruction.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_flow</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_server_tool</span><span class="p">)</span>
@@ -767,7 +778,7 @@ enterprise software products including ERP, HCM, CRM, and SCM software.</p>
 </details><p></p>
 </section>
 <section id="executing-clienttool-with-a-flow">
-<h3>Executing ClientTool with a Flow<a class="headerlink" href="#executing-clienttool-with-a-flow" title="Permalink to this heading">#</a></h3>
+<h3>Executing ClientTool with a Flow<a class="headerlink" href="#executing-clienttool-with-a-flow" title="Link to this heading">#</a></h3>
 <p>When using a <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code>, the tool execution is performed on the client side.
 Upon request, the assistant sends a <code class="docutils literal notranslate"><span class="pre">ToolRequest</span></code> to the client, which is responsible for executing the tool.
 Once completed, the client returns a <code class="docutils literal notranslate"><span class="pre">ToolResult</span></code> to the assistant, allowing it to continue execution until the task is complete.</p>
@@ -807,7 +818,7 @@ Once completed, the client returns a <code class="docutils literal notranslate">
 </section>
 </section>
 <section id="building-agents-with-tools">
-<h2>Building Agents with Tools<a class="headerlink" href="#building-agents-with-tools" title="Permalink to this heading">#</a></h2>
+<h2>Building Agents with Tools<a class="headerlink" href="#building-agents-with-tools" title="Link to this heading">#</a></h2>
 <p>Agents can be equipped with tools by specifying the list of tools the agent can access.</p>
 <p>You do not need to mention the tools in the agent’s <code class="docutils literal notranslate"><span class="pre">custom_instruction</span></code>, as tool descriptions are automatically added internally.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">build_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">:</span> <span class="n">LlmModel</span><span class="p">,</span> <span class="n">tool</span><span class="p">:</span> <span class="n">Tool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
@@ -846,7 +857,7 @@ Once completed, the client returns a <code class="docutils literal notranslate">
 <p><a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agents</span></a> can also be equipped with other flows and agents. This topic will be covered in a dedicated tutorial.</p>
 </div>
 <section id="executing-servertool-with-an-agent">
-<h3>Executing ServerTool with an Agent<a class="headerlink" href="#executing-servertool-with-an-agent" title="Permalink to this heading">#</a></h3>
+<h3>Executing ServerTool with an Agent<a class="headerlink" href="#executing-servertool-with-an-agent" title="Link to this heading">#</a></h3>
 <p>Similar to executing a Flow with a <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code>, Agents can be executed end-to-end using a single <code class="docutils literal notranslate"><span class="pre">execute</span></code> instruction.
 The key difference is that the file path is provided as a conversation message rather than as a flow input.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_server_tool</span><span class="p">)</span>
@@ -872,7 +883,7 @@ In general, assistant developers should try to avoid having LLMs to manipulate c
 </div>
 </section>
 <section id="executing-clienttool-with-an-agent">
-<h3>Executing ClientTool with an Agent<a class="headerlink" href="#executing-clienttool-with-an-agent" title="Permalink to this heading">#</a></h3>
+<h3>Executing ClientTool with an Agent<a class="headerlink" href="#executing-clienttool-with-an-agent" title="Link to this heading">#</a></h3>
 <p>Similar to executing a Flow with a <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code>, the tool request must be handled on the client side.
 The only difference is that the file path is provided as a conversation message instead of as a flow input.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">assistant</span> <span class="o">=</span> <span class="n">build_agent</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">read_pdf_client_tool</span><span class="p">)</span>
@@ -912,7 +923,7 @@ The only difference is that the file path is provided as a conversation message 
 </section>
 </section>
 <section id="agent-spec-exporting-loading">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Link to this heading">#</a></h2>
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
 
@@ -1238,7 +1249,7 @@ The only difference is that the file path is provided as a conversation message 
 </div>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Having learned how to use <code class="docutils literal notranslate"><span class="pre">ServerTool</span></code> and <code class="docutils literal notranslate"><span class="pre">ClientTool</span></code> with assistants in WayFlow, you may now proceed to:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="howto_multiple_output_tool.html"><span class="doc">How to Create Tools with Multiple Outputs</span></a></p></li>
@@ -1247,7 +1258,7 @@ The only difference is that the file path is provided as a conversation message 
 </ul>
 </section>
 <section id="full-code">
-<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <p>Click on the card at the <a class="reference internal" href="#tool-use"><span class="std std-ref">top of this page</span></a> to download the full code for this guide or copy the code below.</p>
 <p>download the full code for this guide or copy the code below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
@@ -1263,7 +1274,7 @@ The only difference is that the file path is provided as a conversation message 
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2.0.dev0&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -1714,7 +1725,7 @@ The only difference is that the file path is provided as a conversation message 
 
   <p class="copyright">
     
-      © Copyright 2025, Oracle and/or its affiliates..
+      © Copyright 2025-2026, Oracle and/or its affiliates..
       <br/>
     
   </p>
@@ -1723,7 +1734,7 @@ The only difference is that the file path is provided as a conversation message 
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

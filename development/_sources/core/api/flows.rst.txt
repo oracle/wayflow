@@ -62,6 +62,8 @@ Task steps
 .. autoclass:: wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep
 
 .. autoclass:: wayflowcore.steps.promptexecutionstep.StructuredGenerationMode
+.. _searchstep:
+.. autoclass:: wayflowcore.steps.searchstep.SearchStep
 
 .. _datastoresteps:
 
@@ -103,6 +105,9 @@ IO steps
 
 .. _getchathistorystep:
 .. autoclass:: wayflowcore.steps.getchathistorystep.GetChatHistoryStep
+
+.. _variablestep:
+.. autoclass:: wayflowcore.steps.variablesteps.variablestep.VariableStep
 
 .. _variablereadstep:
 .. autoclass:: wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep
@@ -192,9 +197,13 @@ Classes for the IO system properties
 .. _nullproperty:
 .. autoclass:: wayflowcore.property.NullProperty
 
+.. _vectorproperty:
+.. autoclass:: wayflowcore.property.VectorProperty
+
 .. autoclass:: wayflowcore.property._empty_default
 
 .. autoclass:: wayflowcore.property.JsonSchemaParam
+
 
 Other classes and helpers used in fixed flows
 ---------------------------------------------
@@ -209,3 +218,17 @@ Other classes and helpers used in fixed flows
 .. autoclass:: wayflowcore.flowhelpers.run_flow_and_return_outputs
 
 .. autoclass:: wayflowcore.flowhelpers.create_single_step_flow
+
+
+
+Flow Builder
+------------
+
+The Flow Builder provides a concise, chainable API to assemble WayFlow Flows programmatically.
+It helps wire control and data edges, use conditional branching, set entry/finish points,
+and serialize flows to JSON/YAML.
+
+See code examples in the :ref:`Reference Sheet <flowbuilder_ref_sheet>`.
+
+.. _flowbuilder:
+.. autoclass:: wayflowcore.flowbuilder.FlowBuilder

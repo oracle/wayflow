@@ -1,16 +1,15 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API Reference &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+    <title>API Reference &#8212; wayflowcore 26.2.0.dev0 documentation</title>
   
   
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,12 +45,12 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/index';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -66,10 +65,10 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Agent Spec Adapters" href="agentspec.html" />
-    <link rel="prev" title="How to Evaluate Assistant Conversations" href="../howtoguides/howto_conversation_evaluation.html" />
+    <link rel="prev" title="Data Flow Edges: What are they, when are they needed?" href="../conceptual_guides/data_flow_edges.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2.0.dev0" />
   </head>
   
   
@@ -107,6 +106,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -135,8 +137,8 @@
       
     
     
-    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
-    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
   
   
 </a></div>
@@ -276,7 +278,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -303,6 +305,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
@@ -313,20 +316,24 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_event_system.html">Use the Event System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_rag.html">Build RAG-Powered Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">Evaluate Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">Evaluate Conversations</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html">Agent Spec Adapters</a></li>
 
@@ -346,6 +353,8 @@
 <li class="toctree-l2"><a class="reference internal" href="tracing.html">Tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="variables.html">Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auth.html">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search.html">Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="component.html">Component</a></li>
@@ -353,13 +362,14 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/docs_mcp_server.html">Docs MCP Server</a></li>
 </ul>
 </div>
 </nav></div>
@@ -421,14 +431,14 @@
                 <article class="bd-article">
                   
   <section id="api-reference">
-<span id="api"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading">#</a></h1>
+<span id="api"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-1 sd-row-cols-lg-1 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/agentspec-icon.svg"><img alt="agentspec-icon" src="../../_images/agentspec-icon.svg" width="100px" /></a></div>
+<a class="reference internal" href="../../_images/agentspec-icon.svg"><img alt="agentspec-icon" src="../../_images/agentspec-icon.svg" style="width: 100px;" /></a></div>
 <p class="sd-card-text">Visit the Agent Spec API Documentation to learn more about the native Agent Spec Components.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="https://oracle.github.io/agent-spec/api/index.html"><span>Agent Spec - API Reference</span></a></div>
@@ -471,11 +481,13 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="agentspec.html#plugin-components">Plugin Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="agentspec.html#agentic-patterns">Agentic patterns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="agentspec.html#tools">Tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="agentspec.html#search">Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="agentspec.html#embedding-models">Embedding Models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="agentspec.html#messages">Messages</a></li>
 <li class="toctree-l3"><a class="reference internal" href="agentspec.html#nodes">Nodes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="agentspec.html#context-providers">Context Providers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="agentspec.html#datastores">Datastores</a></li>
-<li class="toctree-l3"><a class="reference internal" href="agentspec.html#tools">Tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="agentspec.html#id1">Tools</a></li>
 <li class="toctree-l3"><a class="reference internal" href="agentspec.html#context">Context</a></li>
 </ul>
 </li>
@@ -496,6 +508,7 @@
 <li class="toctree-l3"><a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.UserMessageRequestStatus"><code class="docutils literal notranslate"><span class="pre">UserMessageRequestStatus</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.FinishedStatus"><code class="docutils literal notranslate"><span class="pre">FinishedStatus</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ToolRequestStatus"><code class="docutils literal notranslate"><span class="pre">ToolRequestStatus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.AuthChallengeRequestStatus"><code class="docutils literal notranslate"><span class="pre">AuthChallengeRequestStatus</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="conversation.html#conversation">Conversation</a><ul>
@@ -560,6 +573,25 @@
 <li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent"><code class="docutils literal notranslate"><span class="pre">ConversationalComponentExecutionFinishedEvent</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ConversationCreatedEvent"><code class="docutils literal notranslate"><span class="pre">ConversationCreatedEvent</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ConversationMessageAddedEvent"><code class="docutils literal notranslate"><span class="pre">ConversationMessageAddedEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ConversationMessageStreamStartedEvent"><code class="docutils literal notranslate"><span class="pre">ConversationMessageStreamStartedEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ConversationMessageStreamChunkEvent"><code class="docutils literal notranslate"><span class="pre">ConversationMessageStreamChunkEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ConversationMessageStreamEndedEvent"><code class="docutils literal notranslate"><span class="pre">ConversationMessageStreamEndedEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ConversationExecutionStartedEvent"><code class="docutils literal notranslate"><span class="pre">ConversationExecutionStartedEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ConversationExecutionFinishedEvent"><code class="docutils literal notranslate"><span class="pre">ConversationExecutionFinishedEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ToolExecutionStartEvent"><code class="docutils literal notranslate"><span class="pre">ToolExecutionStartEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent"><code class="docutils literal notranslate"><span class="pre">ToolExecutionStreamingChunkReceivedEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ToolExecutionResultEvent"><code class="docutils literal notranslate"><span class="pre">ToolExecutionResultEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ToolConfirmationRequestStartEvent"><code class="docutils literal notranslate"><span class="pre">ToolConfirmationRequestStartEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ToolConfirmationRequestEndEvent"><code class="docutils literal notranslate"><span class="pre">ToolConfirmationRequestEndEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.StepInvocationStartEvent"><code class="docutils literal notranslate"><span class="pre">StepInvocationStartEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.StepInvocationResultEvent"><code class="docutils literal notranslate"><span class="pre">StepInvocationResultEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ContextProviderExecutionRequestEvent"><code class="docutils literal notranslate"><span class="pre">ContextProviderExecutionRequestEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ContextProviderExecutionResultEvent"><code class="docutils literal notranslate"><span class="pre">ContextProviderExecutionResultEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.FlowExecutionIterationStartedEvent"><code class="docutils literal notranslate"><span class="pre">FlowExecutionIterationStartedEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.FlowExecutionIterationFinishedEvent"><code class="docutils literal notranslate"><span class="pre">FlowExecutionIterationFinishedEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.AgentExecutionIterationStartedEvent"><code class="docutils literal notranslate"><span class="pre">AgentExecutionIterationStartedEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.AgentExecutionIterationFinishedEvent"><code class="docutils literal notranslate"><span class="pre">AgentExecutionIterationFinishedEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.ExceptionRaisedEvent"><code class="docutils literal notranslate"><span class="pre">ExceptionRaisedEvent</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.AgentNextActionDecisionStartEvent"><code class="docutils literal notranslate"><span class="pre">AgentNextActionDecisionStartEvent</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="events.html#wayflowcore.events.event.AgentDecidedNextActionEvent"><code class="docutils literal notranslate"><span class="pre">AgentDecidedNextActionEvent</span></code></a></li>
 </ul>
@@ -590,6 +622,7 @@
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.textextractionstep.extractvaluefromjsonstep.ExtractValueFromJsonStep"><code class="docutils literal notranslate"><span class="pre">ExtractValueFromJsonStep</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.textextractionstep.regexextractionstep.RegexExtractionStep"><code class="docutils literal notranslate"><span class="pre">RegexExtractionStep</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.promptexecutionstep.StructuredGenerationMode"><code class="docutils literal notranslate"><span class="pre">StructuredGenerationMode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.searchstep.SearchStep"><code class="docutils literal notranslate"><span class="pre">SearchStep</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#datastore-tasks">Datastore tasks</a></li>
 </ul>
 </li>
@@ -597,6 +630,7 @@
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.inputmessagestep.InputMessageStep"><code class="docutils literal notranslate"><span class="pre">InputMessageStep</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.outputmessagestep.OutputMessageStep"><code class="docutils literal notranslate"><span class="pre">OutputMessageStep</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.getchathistorystep.GetChatHistoryStep"><code class="docutils literal notranslate"><span class="pre">GetChatHistoryStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.variablesteps.variablestep.VariableStep"><code class="docutils literal notranslate"><span class="pre">VariableStep</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.variablesteps.variablereadstep.VariableReadStep"><code class="docutils literal notranslate"><span class="pre">VariableReadStep</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.variablesteps.variablewritestep.VariableWriteStep"><code class="docutils literal notranslate"><span class="pre">VariableWriteStep</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.steps.ConstantValuesStep"><code class="docutils literal notranslate"><span class="pre">ConstantValuesStep</span></code></a></li>
@@ -631,6 +665,7 @@
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.property.ObjectProperty"><code class="docutils literal notranslate"><span class="pre">ObjectProperty</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.property.UnionProperty"><code class="docutils literal notranslate"><span class="pre">UnionProperty</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.property.NullProperty"><code class="docutils literal notranslate"><span class="pre">NullProperty</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.property.VectorProperty"><code class="docutils literal notranslate"><span class="pre">VectorProperty</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.property._empty_default"><code class="docutils literal notranslate"><span class="pre">_empty_default</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.property.JsonSchemaParam"><code class="docutils literal notranslate"><span class="pre">JsonSchemaParam</span></code></a></li>
 </ul>
@@ -641,6 +676,10 @@
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.flowhelpers.run_step_and_return_outputs"><code class="docutils literal notranslate"><span class="pre">run_step_and_return_outputs</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.flowhelpers.run_flow_and_return_outputs"><code class="docutils literal notranslate"><span class="pre">run_flow_and_return_outputs</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.flowhelpers.create_single_step_flow"><code class="docutils literal notranslate"><span class="pre">create_single_step_flow</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="flows.html#flow-builder">Flow Builder</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="flows.html#wayflowcore.flowbuilder.FlowBuilder"><code class="docutils literal notranslate"><span class="pre">FlowBuilder</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -760,6 +799,7 @@
 <li class="toctree-l3"><a class="reference internal" href="prompttemplate.html#wayflowcore.transforms.RemoveEmptyNonUserMessageTransform"><code class="docutils literal notranslate"><span class="pre">RemoveEmptyNonUserMessageTransform</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="prompttemplate.html#wayflowcore.transforms.AppendTrailingSystemMessageToUserMessageTransform"><code class="docutils literal notranslate"><span class="pre">AppendTrailingSystemMessageToUserMessageTransform</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="prompttemplate.html#wayflowcore.transforms.SplitPromptOnMarkerMessageTransform"><code class="docutils literal notranslate"><span class="pre">SplitPromptOnMarkerMessageTransform</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="prompttemplate.html#wayflowcore.transforms.CanonicalizationMessageTransform"><code class="docutils literal notranslate"><span class="pre">CanonicalizationMessageTransform</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="prompttemplate.html#wayflowcore.transforms.MessageSummarizationTransform"><code class="docutils literal notranslate"><span class="pre">MessageSummarizationTransform</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="prompttemplate.html#wayflowcore.transforms.ConversationSummarizationTransform"><code class="docutils literal notranslate"><span class="pre">ConversationSummarizationTransform</span></code></a></li>
 </ul>
@@ -809,6 +849,10 @@
 <li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.tools.servertools.ServerTool"><code class="docutils literal notranslate"><span class="pre">ServerTool</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#tool-from-toolbox">Tool from ToolBox</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.tools.toolfromtoolbox.ToolFromToolBox"><code class="docutils literal notranslate"><span class="pre">ToolFromToolBox</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html#remote-tool">Remote Tool</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.tools.remotetools.RemoteTool"><code class="docutils literal notranslate"><span class="pre">RemoteTool</span></code></a></li>
 </ul>
@@ -816,8 +860,10 @@
 <li class="toctree-l2"><a class="reference internal" href="tools.html#mcp-tool">MCP Tool</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.mcp.MCPTool"><code class="docutils literal notranslate"><span class="pre">MCPTool</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.mcp.MCPToolBox"><code class="docutils literal notranslate"><span class="pre">MCPToolBox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.mcp.mcphelpers.mcp_streaming_tool"><code class="docutils literal notranslate"><span class="pre">mcp_streaming_tool()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.mcp.SessionParameters"><code class="docutils literal notranslate"><span class="pre">SessionParameters</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.mcp.enable_mcp_without_auth"><code class="docutils literal notranslate"><span class="pre">enable_mcp_without_auth()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.mcp.MCPOAuthConfigFactory"><code class="docutils literal notranslate"><span class="pre">MCPOAuthConfigFactory</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.mcp.ClientTransport"><code class="docutils literal notranslate"><span class="pre">ClientTransport</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.mcp.StdioTransport"><code class="docutils literal notranslate"><span class="pre">StdioTransport</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tools.html#wayflowcore.mcp.SSETransport"><code class="docutils literal notranslate"><span class="pre">SSETransport</span></code></a></li>
@@ -926,6 +972,55 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="auth.html">Auth</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="auth.html#auth-classes">Auth classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="auth.html#wayflowcore.auth.auth.AuthConfig"><code class="docutils literal notranslate"><span class="pre">AuthConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="auth.html#wayflowcore.auth.auth.OAuthEndpoints"><code class="docutils literal notranslate"><span class="pre">OAuthEndpoints</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="auth.html#wayflowcore.auth.auth.PKCEMethod"><code class="docutils literal notranslate"><span class="pre">PKCEMethod</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="auth.html#wayflowcore.auth.auth.PKCEPolicy"><code class="docutils literal notranslate"><span class="pre">PKCEPolicy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="auth.html#wayflowcore.auth.auth.OAuthClientConfig"><code class="docutils literal notranslate"><span class="pre">OAuthClientConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="auth.html#wayflowcore.auth.auth.OAuthConfig"><code class="docutils literal notranslate"><span class="pre">OAuthConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="auth.html#auth-related-classes">Auth-related Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="auth.html#wayflowcore.auth.auth.AuthChallengeRequest"><code class="docutils literal notranslate"><span class="pre">AuthChallengeRequest</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="auth.html#wayflowcore.auth.auth.AuthChallengeResult"><code class="docutils literal notranslate"><span class="pre">AuthChallengeResult</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="search.html">Search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="search.html#search-configuration">Search Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.config.SearchConfig"><code class="docutils literal notranslate"><span class="pre">SearchConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.config.VectorConfig"><code class="docutils literal notranslate"><span class="pre">VectorConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.config.RetrieverConfig"><code class="docutils literal notranslate"><span class="pre">RetrieverConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.config.VectorRetrieverConfig"><code class="docutils literal notranslate"><span class="pre">VectorRetrieverConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.config.SerializerConfig"><code class="docutils literal notranslate"><span class="pre">SerializerConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.config.ConcatSerializerConfig"><code class="docutils literal notranslate"><span class="pre">ConcatSerializerConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#similarity-metrics">Similarity Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.metrics.SimilarityMetric"><code class="docutils literal notranslate"><span class="pre">SimilarityMetric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#search-toolbox">Search Toolbox</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.toolbox.SearchToolBox"><code class="docutils literal notranslate"><span class="pre">SearchToolBox</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#vector-generator">Vector Generator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.vectorgenerator.VectorGenerator"><code class="docutils literal notranslate"><span class="pre">VectorGenerator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.vectorgenerator.SimpleVectorGenerator"><code class="docutils literal notranslate"><span class="pre">SimpleVectorGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="search.html#vector-indexes">Vector Indexes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.vectorindex.VectorIndex"><code class="docutils literal notranslate"><span class="pre">VectorIndex</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.vectorindex.OracleDatabaseVectorIndex"><code class="docutils literal notranslate"><span class="pre">OracleDatabaseVectorIndex</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.vectorindex.BaseInMemoryVectorIndex"><code class="docutils literal notranslate"><span class="pre">BaseInMemoryVectorIndex</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="search.html#wayflowcore.search.vectorindex.EntityVectorIndex"><code class="docutils literal notranslate"><span class="pre">EntityVectorIndex</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="warnings.html">Warnings</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="warnings.html#wayflowcore.warnings.SecurityWarning"><code class="docutils literal notranslate"><span class="pre">SecurityWarning</span></code></a></li>
 </ul>
@@ -1018,7 +1113,7 @@
 
   <p class="copyright">
     
-      © Copyright 2025, Oracle and/or its affiliates..
+      © Copyright 2025-2026, Oracle and/or its affiliates..
       <br/>
     
   </p>
@@ -1027,7 +1122,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

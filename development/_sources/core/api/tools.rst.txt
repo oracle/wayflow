@@ -42,6 +42,12 @@ Server Tool
 .. _servertool:
 .. autoclass:: wayflowcore.tools.servertools.ServerTool
 
+Tool from ToolBox
+-----------------
+
+.. _toolfromtoolbox:
+.. autoclass:: wayflowcore.tools.toolfromtoolbox.ToolFromToolBox
+
 Remote Tool
 -----------
 
@@ -59,12 +65,18 @@ MCP Tool
 .. _mcptoolbox:
 .. autoclass:: wayflowcore.mcp.MCPToolBox
 
+.. _mcpstreamingtool:
+.. autofunction:: wayflowcore.mcp.mcphelpers.mcp_streaming_tool
+
 .. _sessionparameters:
 .. autoclass:: wayflowcore.mcp.SessionParameters
     :exclude-members: to_dict
 
 .. _enablemcpwithoutauth:
 .. autofunction:: wayflowcore.mcp.enable_mcp_without_auth
+
+.. _mcpoauthconfigfactory:
+.. autoclass:: wayflowcore.mcp.MCPOAuthConfigFactory
 
 .. _clienttransport:
 .. autoclass:: wayflowcore.mcp.ClientTransport

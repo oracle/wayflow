@@ -1,16 +1,15 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to Perform Data Synthesis in WayFlow &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+    <title>How to Perform Data Synthesis in WayFlow &#8212; wayflowcore 26.2.0.dev0 documentation</title>
   
   
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_data_synthesis';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -66,11 +65,11 @@
     <link rel="icon" href="../../_static/favicon.png"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="How to Evaluate Assistants" href="howto_evaluation.html" />
+    <link rel="next" title="How to Build RAG-Powered Assistants" href="howto_rag.html" />
     <link rel="prev" title="How to Use Variables for Shared State in Flows" href="howto_variable.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2.0.dev0" />
   </head>
   
   
@@ -108,6 +107,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -136,8 +138,8 @@
       
     
     
-    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
-    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
   
   
 </a></div>
@@ -281,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -308,6 +310,7 @@
 <li class="toctree-l2"><a class="reference internal" href="catching_exceptions.html">Catch Exceptions in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_agents_in_flows.html">Use Agents in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_swarm.html">Build a Swarm of Agents</a></li>
@@ -318,20 +321,24 @@
 <li class="toctree-l2"><a class="reference internal" href="howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_event_system.html">Use the Event System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_variable.html">Use Variables for Shared State in Flows</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="howto_rag.html">Build RAG-Powered Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_evaluation.html">Evaluate Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="howto_conversation_evaluation.html">Evaluate Conversations</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
@@ -351,6 +358,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/auth.html">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/search.html">Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
@@ -358,13 +367,14 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/docs_mcp_server.html">Docs MCP Server</a></li>
 </ul>
 </div>
 </nav></div>
@@ -429,14 +439,14 @@
                 <article class="bd-article">
                   
   <section id="how-to-perform-data-synthesis-in-wayflow">
-<h1>How to Perform Data Synthesis in WayFlow<a class="headerlink" href="#how-to-perform-data-synthesis-in-wayflow" title="Permalink to this heading">#</a></h1>
+<h1>How to Perform Data Synthesis in WayFlow<a class="headerlink" href="#how-to-perform-data-synthesis-in-wayflow" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Python Script</div>
 <p class="sd-card-text">Python script/notebook for this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_data_synthesis.py"><span>Data Synthesis how-to script</span></a></div>
@@ -446,7 +456,7 @@
 <p>This guide provides practical and adaptable methods for generating synthetic datasets tailored to a range of real-world use cases. Use it when you need to create evaluation datasets for model testing, sample data for demonstrations, or address data privacy requirements. You will find reproducible workflows and techniques that you can flexibly adapt to your own data schema and constraints.</p>
 <p>Each synthesis approach is presented in relation to specific feature requirements. Most examples start from a seed dataset to capture authentic data characteristics. However, you can also apply these methods without real data by specifying a target schema and using tools such as <em>Faker</em>. With this guide, you can generate synthetic data that balances statistical realism with project flexibility.</p>
 <section id="prerequisites-and-setup">
-<h2>Prerequisites and setup<a class="headerlink" href="#prerequisites-and-setup" title="Permalink to this heading">#</a></h2>
+<h2>Prerequisites and setup<a class="headerlink" href="#prerequisites-and-setup" title="Link to this heading">#</a></h2>
 <ul>
 <li><p><strong>Desired output schema:</strong> Define the fields and features your synthetic dataset should contain. Specify each field’s type and any necessary constraints.</p></li>
 <li><p><strong>Seed dataset (optional, recommended):</strong></p>
@@ -469,9 +479,9 @@
 </div>
 </section>
 <section id="target-schema-and-feature-properties">
-<h2>Target schema and feature properties<a class="headerlink" href="#target-schema-and-feature-properties" title="Permalink to this heading">#</a></h2>
+<h2>Target schema and feature properties<a class="headerlink" href="#target-schema-and-feature-properties" title="Link to this heading">#</a></h2>
 <p>The following table summarizes the type, synthesis method, and key properties or constraints for each feature:</p>
-<div class="pst-scrollable-table-container"><table class="table">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Feature</p></th>
 <th class="head"><p>Type</p></th>
@@ -545,14 +555,13 @@ fields</p></td>
 </tr>
 </tbody>
 </table>
-</div>
 <ul class="simple">
 <li><p><strong>Interp./Extrap.:</strong> Indicates if the feature is synthesized from existing (seed) values (interpolation) or from new, plausible values (extrapolation).</p></li>
 <li><p><strong>Method or constraint:</strong> Specifies any specialized synthesis function or logic, including use of <em>Faker</em>.</p></li>
 </ul>
 </section>
 <section id="load-and-inspect-the-seed-data">
-<h2>Load and inspect the seed data<a class="headerlink" href="#load-and-inspect-the-seed-data" title="Permalink to this heading">#</a></h2>
+<h2>Load and inspect the seed data<a class="headerlink" href="#load-and-inspect-the-seed-data" title="Link to this heading">#</a></h2>
 <p>Begin by loading your seed dataset. This data provides distributions, feature values, and coherency patterns for synthetic data generation. For demonstration, the following example defines a small seed dataset matching the target schema above, but you can use your own data.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
@@ -675,9 +684,9 @@ fields</p></td>
 </div>
 </section>
 <section id="data-synthesis">
-<h2>Data synthesis<a class="headerlink" href="#data-synthesis" title="Permalink to this heading">#</a></h2>
+<h2>Data synthesis<a class="headerlink" href="#data-synthesis" title="Link to this heading">#</a></h2>
 <section id="synthesis-functions">
-<h3>Synthesis functions<a class="headerlink" href="#synthesis-functions" title="Permalink to this heading">#</a></h3>
+<h3>Synthesis functions<a class="headerlink" href="#synthesis-functions" title="Link to this heading">#</a></h3>
 <p>Define Python functions to generate feature values according to empirical distributions and project-specific constraints.</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">fake_categorical</span></code>: Sample a categorical column by seed frequency
@@ -738,10 +747,10 @@ It samples values for a numerical feature conditional on one or more categorical
 </section>
 </section>
 <section id="structured-data-generation">
-<h2>Structured data generation<a class="headerlink" href="#structured-data-generation" title="Permalink to this heading">#</a></h2>
+<h2>Structured data generation<a class="headerlink" href="#structured-data-generation" title="Link to this heading">#</a></h2>
 <p>Each section below demonstrates how to synthesize features while upholding a specific property. After each example, synthesize all other features by specification.</p>
 <section id="reproducibility">
-<h3>Reproducibility<a class="headerlink" href="#reproducibility" title="Permalink to this heading">#</a></h3>
+<h3>Reproducibility<a class="headerlink" href="#reproducibility" title="Link to this heading">#</a></h3>
 <p>Set seeds for all relevant random number generators to make synthesis repeatable.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">faker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Faker</span>
 
@@ -754,14 +763,14 @@ It samples values for a numerical feature conditional on one or more categorical
 </div>
 </section>
 <section id="generation-configuration">
-<h3>Generation configuration<a class="headerlink" href="#generation-configuration" title="Permalink to this heading">#</a></h3>
+<h3>Generation configuration<a class="headerlink" href="#generation-configuration" title="Link to this heading">#</a></h3>
 <p>Configure the synthetic data generation process.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">n_synthesized</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># adjust as needed</span>
 </pre></div>
 </div>
 </section>
 <section id="univariate-distribution-preservation-example-region">
-<h3>Univariate distribution preservation example (region)<a class="headerlink" href="#univariate-distribution-preservation-example-region" title="Permalink to this heading">#</a></h3>
+<h3>Univariate distribution preservation example (region)<a class="headerlink" href="#univariate-distribution-preservation-example-region" title="Link to this heading">#</a></h3>
 <p>Sample the <code class="docutils literal notranslate"><span class="pre">region</span></code> column according to the frequency distribution in the seed dataset.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">synth_region</span> <span class="o">=</span> <span class="n">fake_categorical</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="n">df_seed</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">n_synthesized</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">synth_region</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">())</span>
@@ -774,7 +783,7 @@ It samples values for a numerical feature conditional on one or more categorical
 </div>
 </section>
 <section id="coherency-constraint-example-region-vs-country">
-<h3>Coherency constraint example (region vs. country)<a class="headerlink" href="#coherency-constraint-example-region-vs-country" title="Permalink to this heading">#</a></h3>
+<h3>Coherency constraint example (region vs. country)<a class="headerlink" href="#coherency-constraint-example-region-vs-country" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">country</span></code> and <code class="docutils literal notranslate"><span class="pre">region</span></code> must be coherent: each country should map to its correct business region.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">region_country_map</span> <span class="o">=</span> <span class="n">df_seed</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;region&quot;</span><span class="p">)[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
 <span class="n">synth_country</span> <span class="o">=</span> <span class="p">[]</span>
@@ -796,7 +805,7 @@ It samples values for a numerical feature conditional on one or more categorical
 </div>
 </section>
 <section id="joint-distribution-example-customer-net-worth-region">
-<h3>Joint distribution example (customer_net_worth | region)<a class="headerlink" href="#joint-distribution-example-customer-net-worth-region" title="Permalink to this heading">#</a></h3>
+<h3>Joint distribution example (customer_net_worth | region)<a class="headerlink" href="#joint-distribution-example-customer-net-worth-region" title="Link to this heading">#</a></h3>
 <p>Synthesize <code class="docutils literal notranslate"><span class="pre">customer_net_worth</span></code> values respecting the empirical joint distribution over <code class="docutils literal notranslate"><span class="pre">region</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">demo_rows</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">synth_region</span><span class="p">})</span>
 <span class="n">synth_customer_net_worth</span> <span class="o">=</span> <span class="n">fake_joint_numerical</span><span class="p">(</span>
@@ -816,7 +825,7 @@ It samples values for a numerical feature conditional on one or more categorical
 </div>
 </section>
 <section id="extrapolation-new-values-example-customer-name">
-<h3>Extrapolation (new values) example (customer_name)<a class="headerlink" href="#extrapolation-new-values-example-customer-name" title="Permalink to this heading">#</a></h3>
+<h3>Extrapolation (new values) example (customer_name)<a class="headerlink" href="#extrapolation-new-values-example-customer-name" title="Link to this heading">#</a></h3>
 <p>Use <em>Faker</em> to synthesize new individual names or company names, even if not present in the seed.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">synth_customer_type</span> <span class="o">=</span> <span class="n">fake_categorical</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span> <span class="n">df_seed</span><span class="p">[</span><span class="s2">&quot;customer_type&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">n_synthesized</span><span class="p">)</span>
 <span class="n">synth_customer_name</span> <span class="o">=</span> <span class="p">[</span>
@@ -837,7 +846,7 @@ It samples values for a numerical feature conditional on one or more categorical
 </div>
 </section>
 <section id="synthesizing-remaining-structured-features-according-to-property-table">
-<h3>Synthesizing remaining structured features according to property table<a class="headerlink" href="#synthesizing-remaining-structured-features-according-to-property-table" title="Permalink to this heading">#</a></h3>
+<h3>Synthesizing remaining structured features according to property table<a class="headerlink" href="#synthesizing-remaining-structured-features-according-to-property-table" title="Link to this heading">#</a></h3>
 <p>With each property demonstrated, now synthesize the remaining structured features as specified above.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnyProperty</span><span class="p">,</span> <span class="n">IntegerProperty</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolExecutionStep</span>
@@ -917,7 +926,7 @@ It samples values for a numerical feature conditional on one or more categorical
 </section>
 </section>
 <section id="verification-sanity-checks-and-distribution-comparison">
-<h2>Verification: sanity checks and distribution comparison<a class="headerlink" href="#verification-sanity-checks-and-distribution-comparison" title="Permalink to this heading">#</a></h2>
+<h2>Verification: sanity checks and distribution comparison<a class="headerlink" href="#verification-sanity-checks-and-distribution-comparison" title="Link to this heading">#</a></h2>
 <p>Compare value counts and distributions for select features, and compare them to the original seed dataset.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Synthesized region distribution:&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df_synthesized</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">())</span>
@@ -940,10 +949,10 @@ It samples values for a numerical feature conditional on one or more categorical
 </div>
 </section>
 <section id="long-text-generation">
-<h2>Long text generation<a class="headerlink" href="#long-text-generation" title="Permalink to this heading">#</a></h2>
+<h2>Long text generation<a class="headerlink" href="#long-text-generation" title="Link to this heading">#</a></h2>
 <p>To generate realistic business justifications for each record, you will use a language model (LLM) as part of your synthesis workflow. This section explains the configuration of the LLM, describes the prompts and parsing logic, outlines the flow definition, and demonstrates parallelized generation and validation.</p>
 <section id="llm-selection-and-initialization">
-<h3>LLM selection and initialization<a class="headerlink" href="#llm-selection-and-initialization" title="Permalink to this heading">#</a></h3>
+<h3>LLM selection and initialization<a class="headerlink" href="#llm-selection-and-initialization" title="Link to this heading">#</a></h3>
 <p>For long text generation, you need to use an LLM.
 WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 <div class="sphinx-tabs docutils container">
@@ -976,7 +985,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 </div></div>
 </section>
 <section id="prompt-and-i-o-constants">
-<h3>Prompt and I/O constants<a class="headerlink" href="#prompt-and-i-o-constants" title="Permalink to this heading">#</a></h3>
+<h3>Prompt and I/O constants<a class="headerlink" href="#prompt-and-i-o-constants" title="Link to this heading">#</a></h3>
 <p>Begin by defining the necessary output constants and prompts used to instruct the LLM and structure the flow:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 <span class="c1"># Define I/O constants and step names</span>
@@ -998,7 +1007,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 
 <span class="s2">## Task</span>
 <span class="s2">Write a justification for a loan application, given certain customer data points.</span>
-<span class="s2">The justification should be concise and detailed, and include all infomration that could be relevant for the loan application.</span>
+<span class="s2">The justification should be concise and detailed, and include all information that could be relevant for the loan application.</span>
 <span class="s2">As an intermediate step before writing the justification, provide a reasoning section consisting of facts, arguments or any other relevant data that would help you with writing the justification.</span>
 
 
@@ -1024,7 +1033,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 <span class="s2">Purpose: {{ generated_row[&#39;loan_reason&#39;] }}</span>
 
 
-<span class="s2">## Insturctions</span>
+<span class="s2">## Instructions</span>
 <span class="s2">You must follow these guidelines:</span>
 <span class="s2">- The tone, length and level of details in your justification are similarly aligned with the provided example</span>
 <span class="s2">- The justification must be solely based on the provided data points</span>
@@ -1032,7 +1041,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 <span class="s2">- The language should be professional and business-appropriate</span>
 <span class="s2">- Include any specific financial details if relevant</span>
 
-<span class="s2">The output must stricly follow the exacty format as below:</span>
+<span class="s2">The output must strictly follow the exactly format as below:</span>
 <span class="s2">Reasoning: &lt;fill this section with any facts or arguments relevant to the justification&gt;</span>
 <span class="s2">Justification: &lt;fill this section with the justification&gt;</span>
 
@@ -1048,7 +1057,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 
 <span class="s2">## Task</span>
 <span class="s2">Evaluate the quality and plausibility of a loan justification against provided application data points of the customer.</span>
-<span class="s2">The evaluation has to consider the folllowing criteria:</span>
+<span class="s2">The evaluation has to consider the following criteria:</span>
 <span class="s2">1. Factual accuracy: All amounts, names, and details in the justification match the provided customer data points</span>
 <span class="s2">2. Logical consistency: The reasoning aligns with customer profile and loan parameters</span>
 <span class="s2">3. Realism: The justification is plausible for this type of loan application</span>
@@ -1095,7 +1104,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 </div>
 </section>
 <section id="parsing-functions">
-<h3>Parsing functions<a class="headerlink" href="#parsing-functions" title="Permalink to this heading">#</a></h3>
+<h3>Parsing functions<a class="headerlink" href="#parsing-functions" title="Link to this heading">#</a></h3>
 <p>Parsing functions are responsible for extracting and normalizing the LLM outputs produced during justification and validation steps:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">parse_cot_justification_output</span><span class="p">(</span><span class="n">llm_output</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="n">llm_output</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;Justification:&quot;</span><span class="p">)</span>
@@ -1114,7 +1123,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 </div>
 </section>
 <section id="justification-generation-flow-definition">
-<h3>Justification generation flow definition<a class="headerlink" href="#justification-generation-flow-definition" title="Permalink to this heading">#</a></h3>
+<h3>Justification generation flow definition<a class="headerlink" href="#justification-generation-flow-definition" title="Link to this heading">#</a></h3>
 <p>This flow defines a multi-step pipeline for generation, parsing, validation, and conditional retry of business justifications:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.models.llmgenerationconfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlmGenerationConfig</span>
@@ -1238,7 +1247,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 </div>
 </section>
 <section id="batch-justification-generation-and-validation">
-<h3>Batch justification generation and validation<a class="headerlink" href="#batch-justification-generation-and-validation" title="Permalink to this heading">#</a></h3>
+<h3>Batch justification generation and validation<a class="headerlink" href="#batch-justification-generation-and-validation" title="Link to this heading">#</a></h3>
 <p>Finally, apply the justification generation flow in parallel over your dataset using a <cite>MapStep</cite> (for more information see <a class="reference internal" href="howto_mapstep.html"><span class="doc">How to Do Map and Reduce Operations in Flows</span></a>). This enables efficient batch generation and validation:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.property</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListProperty</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapStep</span>
@@ -1270,22 +1279,22 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 </section>
 </section>
 <section id="synthetic-dataset-export">
-<h2>Synthetic dataset export<a class="headerlink" href="#synthetic-dataset-export" title="Permalink to this heading">#</a></h2>
+<h2>Synthetic dataset export<a class="headerlink" href="#synthetic-dataset-export" title="Link to this heading">#</a></h2>
 <p>Save the synthesized dataset for downstream use.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df_synthesized</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;records&quot;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="recap">
-<h2>Recap<a class="headerlink" href="#recap" title="Permalink to this heading">#</a></h2>
+<h2>Recap<a class="headerlink" href="#recap" title="Link to this heading">#</a></h2>
 <p>This guide demonstrated property-respecting structured data synthesis, including logic for univariate, joint, interpolated, extrapolated, and coherent features. It also described long text generation and validation with a language model as a judge, including conditional retries. By following these workflows and recommendations, you can create realistic, flexible synthetic datasets to support your WayFlow projects.</p>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Having learned how to synthesize data in WayFlow, you may now proceed to <a class="reference internal" href="howto_datastores.html"><span class="doc">How to Connect Assistants to Your Data</span></a> to learn how to integrate your synthesized datasets with your assistants for downstream applications and enhanced testing.</p>
 </section>
 <section id="full-code">
-<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <p>You can copy the full code for this guide below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
 <span class="linenos">  2</span><span class="c1">#</span>
@@ -1300,7 +1309,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2.0.dev0&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -1728,7 +1737,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 <span class="linenos">439</span>
 <span class="linenos">440</span><span class="s2">## Task</span>
 <span class="linenos">441</span><span class="s2">Write a justification for a loan application, given certain customer data points.</span>
-<span class="linenos">442</span><span class="s2">The justification should be concise and detailed, and include all infomration that could be relevant for the loan application.</span>
+<span class="linenos">442</span><span class="s2">The justification should be concise and detailed, and include all information that could be relevant for the loan application.</span>
 <span class="linenos">443</span><span class="s2">As an intermediate step before writing the justification, provide a reasoning section consisting of facts, arguments or any other relevant data that would help you with writing the justification.</span>
 <span class="linenos">444</span>
 <span class="linenos">445</span>
@@ -1754,7 +1763,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 <span class="linenos">465</span><span class="s2">Purpose: {{ generated_row[&#39;loan_reason&#39;] }}</span>
 <span class="linenos">466</span>
 <span class="linenos">467</span>
-<span class="linenos">468</span><span class="s2">## Insturctions</span>
+<span class="linenos">468</span><span class="s2">## Instructions</span>
 <span class="linenos">469</span><span class="s2">You must follow these guidelines:</span>
 <span class="linenos">470</span><span class="s2">- The tone, length and level of details in your justification are similarly aligned with the provided example</span>
 <span class="linenos">471</span><span class="s2">- The justification must be solely based on the provided data points</span>
@@ -1762,7 +1771,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 <span class="linenos">473</span><span class="s2">- The language should be professional and business-appropriate</span>
 <span class="linenos">474</span><span class="s2">- Include any specific financial details if relevant</span>
 <span class="linenos">475</span>
-<span class="linenos">476</span><span class="s2">The output must stricly follow the exacty format as below:</span>
+<span class="linenos">476</span><span class="s2">The output must strictly follow the exactly format as below:</span>
 <span class="linenos">477</span><span class="s2">Reasoning: &lt;fill this section with any facts or arguments relevant to the justification&gt;</span>
 <span class="linenos">478</span><span class="s2">Justification: &lt;fill this section with the justification&gt;</span>
 <span class="linenos">479</span>
@@ -1778,7 +1787,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 <span class="linenos">489</span>
 <span class="linenos">490</span><span class="s2">## Task</span>
 <span class="linenos">491</span><span class="s2">Evaluate the quality and plausibility of a loan justification against provided application data points of the customer.</span>
-<span class="linenos">492</span><span class="s2">The evaluation has to consider the folllowing criteria:</span>
+<span class="linenos">492</span><span class="s2">The evaluation has to consider the following criteria:</span>
 <span class="linenos">493</span><span class="s2">1. Factual accuracy: All amounts, names, and details in the justification match the provided customer data points</span>
 <span class="linenos">494</span><span class="s2">2. Logical consistency: The reasoning aligns with customer profile and loan parameters</span>
 <span class="linenos">495</span><span class="s2">3. Realism: The justification is plausible for this type of loan application</span>
@@ -2106,7 +2115,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
 
   <p class="copyright">
     
-      © Copyright 2025, Oracle and/or its affiliates..
+      © Copyright 2025-2026, Oracle and/or its affiliates..
       <br/>
     
   </p>
@@ -2115,7 +2124,7 @@ WayFlow supports several LLM providers. Select and configure your LLM below:</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

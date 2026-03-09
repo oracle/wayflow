@@ -92,6 +92,63 @@ Agentic patterns
 .. autoclass:: wayflowcore.agentspec.components.swarm.PluginSwarm
     :exclude-members: model_post_init, model_config
 
+Tools
+^^^^^
+
+.. _agentspectoolfromtoolbox:
+.. autoclass:: wayflowcore.agentspec.components.tools.PluginToolFromToolBox
+    :exclude-members: model_post_init, model_config
+
+Search
+^^^^^^
+
+.. _agentspecsearchtoolbox:
+.. autoclass:: wayflowcore.agentspec.components.search.PluginSearchToolBox
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecvectorretrieverconfig:
+.. autoclass:: wayflowcore.agentspec.components.search.PluginVectorRetrieverConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecsearchconfig:
+.. autoclass:: wayflowcore.agentspec.components.search.PluginSearchConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecvectorconfig:
+.. autoclass:: wayflowcore.agentspec.components.search.PluginVectorConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecoracledatabasedatastore:
+.. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseDatastore
+    :exclude-members: model_post_init, model_config
+
+
+Embedding Models
+^^^^^^^^^^^^^^^^
+
+.. _agentspec_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginEmbeddingConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspec_oci_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginOciGenAiEmbeddingConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspec_openai_compatible_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginOpenAiCompatibleEmbeddingConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspec_ollama_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginOllamaEmbeddingConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspec_openai_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginOpenAiEmbeddingConfig
+    :exclude-members: model_post_init, model_config
+
+.. _agentspec_vllm_embedding_model_config:
+.. autoclass:: wayflowcore.agentspec.components.embeddingmodels.PluginVllmEmbeddingConfig
+    :exclude-members: model_post_init, model_config
 
 Messages
 ^^^^^^^^
@@ -143,10 +200,6 @@ Messages
 .. autoclass:: wayflowcore.agentspec.components.template.PluginPromptTemplate
     :exclude-members: model_post_init, model_config
 
-.. _agentspecmessagetransform:
-.. autoclass:: wayflowcore.agentspec.components.transforms.PluginMessageTransform
-    :exclude-members: model_post_init, model_config
-
 .. _agentspeccoalescesystemmessagestransform:
 .. autoclass:: wayflowcore.agentspec.components.transforms.PluginCoalesceSystemMessagesTransform
     :exclude-members: model_post_init, model_config
@@ -167,6 +220,13 @@ Messages
 .. autoclass:: wayflowcore.agentspec.components.transforms.PluginReactMergeToolRequestAndCallsTransform
     :exclude-members: model_post_init, model_config
 
+.. _agentspeccanonicalizationmessagetransform:
+.. autoclass:: wayflowcore.agentspec.components.transforms.PluginCanonicalizationMessageTransform
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecsplitpromptonmarkermessagetransform:
+.. autoclass:: wayflowcore.agentspec.components.transforms.PluginSplitPromptOnMarkerMessageTransform
+    :exclude-members: model_post_init, model_config
 
 Nodes
 ^^^^^
@@ -212,42 +272,6 @@ Context Providers
 
 .. _agentspeccontextprovider:
 .. autoclass:: wayflowcore.agentspec.components.contextprovider.PluginContextProvider
-    :exclude-members: model_post_init, model_config
-
-
-Datastores
-^^^^^^^^^^
-
-.. _agentspecdatastore:
-.. autoclass:: wayflowcore.agentspec.components.datastores.datastore.PluginDatastore
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecentity:
-.. autoclass:: wayflowcore.agentspec.components.datastores.entity.PluginEntity
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecinmemorydatastore:
-.. autoclass:: wayflowcore.agentspec.components.datastores.inmemory_datastore.PluginInMemoryDatastore
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecmtlsoracledatabaseconnectionconfig:
-.. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginMTlsOracleDatabaseConnectionConfig
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecoracledatabaseconnectionconfig:
-.. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseConnectionConfig
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecoracledatabasedatastore:
-.. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginOracleDatabaseDatastore
-    :exclude-members: model_post_init, model_config
-
-.. _agentspectlsoracledatabaseconnectionconfig:
-.. autoclass:: wayflowcore.agentspec.components.datastores.oracle_datastore.PluginTlsOracleDatabaseConnectionConfig
-    :exclude-members: model_post_init, model_config
-
-.. _agentspecrelationaldatastore:
-.. autoclass:: wayflowcore.agentspec.components.datastores.relational_datastore.PluginRelationalDatastore
     :exclude-members: model_post_init, model_config
 
 Tools

@@ -1,16 +1,15 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Build a Simple Code Review Assistant &#8212; wayflowcore 26.1.0.dev0 documentation</title>
+    <title>Build a Simple Code Review Assistant &#8212; wayflowcore 26.2.0.dev0 documentation</title>
   
   
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=1f59c0cd"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/tutorials/usecase_prbot';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="Build a Simple Fixed-Flow Assistant with Flows" href="basic_flow.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.1" />
+  <meta name="docsearch:version" content="26.2.0.dev0" />
   </head>
   
   
@@ -108,6 +107,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><span><strong>New:</strong> The Docs MCP server lets assistants browse WayFlow docs and examples. See Resources → Docs MCP Server.</span><button id="close-announcement" aria-label="Close announcement" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1.15em;line-height:1">×</button></div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -136,8 +138,8 @@
       
     
     
-    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
-    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.1.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-light.svg" class="logo__image only-light" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="wayflowcore 26.2.0.dev0 documentation - Home"/>
   
   
 </a></div>
@@ -281,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tutorials &amp; Use Cases</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -308,6 +310,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/catching_exceptions.html">Catch Exceptions in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mapstep.html">Do Map and Reduce Operations in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_parallelflowexecution.html">Run Multiple Flows in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_flowbuilder.html">Build Flows with the Flow Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_agents_in_flows.html">Use Agents in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiagent.html">Build a Hierarchical Multi-Agent System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_swarm.html">Build a Swarm of Agents</a></li>
@@ -318,20 +321,24 @@
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_multiple_output_tool.html">Create Tools with Multiple Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/create_a_tool_from_a_flow.html">Convert Flows to Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_mcp.html">Connect MCP tools to Assistants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tooloutputstreaming.html">Enable Tool Output Streaming</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_remote_tool_expired_token.html">Do Remote API Calls with Tokens</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_execute_agentspec_with_wayflowcore.html">Load and Execute an Agent Spec Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serdeser.html">Serialize and Deserialize Flows and Agents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_serialize_conversations.html">Serialize and Deserialize Conversations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_plugins.html">Build a New WayFlow Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_tracing.html">Enable Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_event_system.html">Use the Event System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_datastores.html">Connect Assistants to Your Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/embeddingmodels_from_different_providers.html">Use Embedding Models from Different Providers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_variable.html">Use Variables for Shared State in Flows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_data_synthesis.html">Synthesize Data in WayFlow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_rag.html">Build RAG-Powered Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_evaluation.html">Evaluate Assistants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howtoguides/howto_conversation_evaluation.html">Evaluate Conversations</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../conceptual_guides/data_flow_edges.html">Conceptual Guides</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/agentspec.html">Agent Spec Adapters</a></li>
 
@@ -351,6 +358,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/tracing.html">Tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/variables.html">Variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/datastores.html">Datastores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/auth.html">Auth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/search.html">Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/warnings.html">Warnings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/evaluation.html">Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/component.html">Component</a></li>
@@ -358,13 +367,14 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../security.html">Security Considerations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">For Contributors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faqs.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/docs_mcp_server.html">Docs MCP Server</a></li>
 </ul>
 </div>
 </nav></div>
@@ -429,14 +439,14 @@
                 <article class="bd-article">
                   
   <section id="build-a-simple-code-review-assistant">
-<span id="top-simple-code-review-assistant"></span><h1>Build a Simple Code Review Assistant<a class="headerlink" href="#build-a-simple-code-review-assistant" title="Permalink to this heading">#</a></h1>
+<span id="top-simple-code-review-assistant"></span><h1>Build a Simple Code Review Assistant<a class="headerlink" href="#build-a-simple-code-review-assistant" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Python Script</div>
 <p class="sd-card-text">Python script/notebook for this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/usecase_prbot.py"><span>Simple Code Review Assistant tutorial script</span></a></div>
@@ -449,7 +459,7 @@
 <p>You will need a working installation of WayFlow - see <a class="reference internal" href="../installation.html"><span class="doc">Installation</span></a>.</p>
 </div>
 <section id="learning-goals">
-<h2>Learning goals<a class="headerlink" href="#learning-goals" title="Permalink to this heading">#</a></h2>
+<h2>Learning goals<a class="headerlink" href="#learning-goals" title="Link to this heading">#</a></h2>
 <p>In this use-case tutorial, you will build a more advanced WayFlow application, a <strong>Pull Request (PR) Reviewing Assistant</strong>, using a WayFlow
 <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> to automate basic reviews of Python source code.</p>
 <p>In this tutorial you will:</p>
@@ -461,7 +471,7 @@
 <p>You can download a Jupyter Notebook for this use-case to follow along from <a class="reference download internal" download="" href="../../_downloads/851f997ab457f57a59b6c42bfde5d608/usecase_prbot.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Code</span> <span class="pre">PR</span> <span class="pre">Review</span> <span class="pre">Bot</span> <span class="pre">Tutorial</span></code></a>.</p>
 </section>
 <section id="introduction-to-the-task">
-<h2>Introduction to the task<a class="headerlink" href="#introduction-to-the-task" title="Permalink to this heading">#</a></h2>
+<h2>Introduction to the task<a class="headerlink" href="#introduction-to-the-task" title="Link to this heading">#</a></h2>
 <p>Code reviews are crucial for maintaining code quality and reviewers often spend considerable time pointing out
 routine issues such as the presence of debug statements, formatting inconsistencies, or common coding convention violations that may not
 be fully captured by static code analysis tools. This consumes valuable time that could be spent on reviewing more important things such as the
@@ -484,7 +494,8 @@ be fully captured by static code analysis tools. This consumes valuable time tha
 </ul>
 <p>To build this assistant you will break the task into configuration and two sub-flows that will be composed into a single flow:</p>
 <p></p>
-<a class="reference internal image-reference" href="../../_images/prbot_main.svg"><img alt="Complete Flow of the PR Bot" class="align-center" height="290" src="../../_images/prbot_main.svg" width="555" /></a>
+<a class="reference internal image-reference" href="../../_images/prbot_main.svg"><img alt="Complete Flow of the PR Bot" class="align-center" src="../../_images/prbot_main.svg" style="width: 555.3000000000001px; height: 290.7px;" />
+</a>
 <p></p>
 <ol class="arabic simple">
 <li><p>Configure your application, choose an LLM and import required modules [<em>Part 1</em>].</p></li>
@@ -499,7 +510,7 @@ tools with the <a class="reference internal" href="../api/tools.html#servertool"
 </div>
 </section>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading">#</a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
 <p>First, let’s set up the environment. For this tutorial you need to have <code class="docutils literal notranslate"><span class="pre">wayflowcore</span></code> installed (for additional information please read the
 <a class="reference internal" href="../installation.html"><span class="doc">installation guide</span></a>).</p>
 <p>Next download the example codebase Git repository, <a class="reference download internal" download="" href="../../_downloads/110a2656d20dddee13a9d839f259851a/agentix.zip"><code class="xref download docutils literal notranslate"><span class="pre">example</span> <span class="pre">codebase</span> <span class="pre">Git</span> <span class="pre">repository</span></code></a>. This will be used
@@ -507,7 +518,7 @@ to generate the sample code diffs for the assistant to review.</p>
 <p>Extract the codebase Git repository folder from the compressed archive. Make a note of where the codebase Git repository is extracted to.</p>
 </section>
 <section id="part-1-imports-and-llm-configuration">
-<h2>Part 1: Imports and LLM configuration<a class="headerlink" href="#part-1-imports-and-llm-configuration" title="Permalink to this heading">#</a></h2>
+<h2>Part 1: Imports and LLM configuration<a class="headerlink" href="#part-1-imports-and-llm-configuration" title="Link to this heading">#</a></h2>
 <p>First, set up the environment. For this tutorial you need to have <code class="docutils literal notranslate"><span class="pre">wayflowcore</span></code> installed, for additional information, read the
 <a class="reference internal" href="../installation.html"><span class="doc">installation guide</span></a>.</p>
 <p>WayFlow supports several LLMs API providers. To learn more about the supported LLM providers, read the guide,
@@ -551,7 +562,7 @@ a provider that offers on-premises deployment options if you need to maintain st
 </div>
 </section>
 <section id="part-2-retrieve-the-pr-diff-information">
-<h2>Part 2: Retrieve the PR diff information<a class="headerlink" href="#part-2-retrieve-the-pr-diff-information" title="Permalink to this heading">#</a></h2>
+<h2>Part 2: Retrieve the PR diff information<a class="headerlink" href="#part-2-retrieve-the-pr-diff-information" title="Link to this heading">#</a></h2>
 <p>The first phase of the assistant requires retrieving information about the code diffs from a code repository. You have already extracted the sample
 codebase Git repository to your local environment.</p>
 <p>This will be a sub-flow that consists of two simple steps:</p>
@@ -560,7 +571,8 @@ codebase Git repository to your local environment.</p>
 <li><p><a class="reference internal" href="../api/flows.html#regexextractionstep"><span class="std std-ref">RegexExtractionStep</span></a> which separates the raw diff information into diffs for each file.</p></li>
 </ul>
 <p></p>
-<a class="reference internal image-reference" href="../../_images/prbot_retrieve_diffs.svg"><img alt="Steps to retrieve the PR diff information" class="align-center" height="200" src="../../_images/prbot_retrieve_diffs.svg" width="602" /></a>
+<a class="reference internal image-reference" href="../../_images/prbot_retrieve_diffs.svg"><img alt="Steps to retrieve the PR diff information" class="align-center" src="../../_images/prbot_retrieve_diffs.svg" style="width: 602.0px; height: 200.0px;" />
+</a>
 <p></p>
 <p>First, take a look at what a diff looks like. The following example shows how a real diff appears when using Git:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MOCK_DIFF</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -630,7 +642,7 @@ In this example, there were only additions.</p>
 This is an example diff and it is different from the diff that will be generated from the sample codebase.
 It is included here to show how a Git diff looks and is shorter than the diff that you generate from the sample codebase.</p>
 <section id="build-a-tool">
-<h3>Build a tool<a class="headerlink" href="#build-a-tool" title="Permalink to this heading">#</a></h3>
+<h3>Build a tool<a class="headerlink" href="#build-a-tool" title="Link to this heading">#</a></h3>
 <p>You need to create a tool to extract a code diff from the local code repository.
 The <a class="reference internal" href="../api/tools.html#tooldecorator"><span class="std std-ref">&#64;tool</span></a> decorator can be used for that purpose by simply wrapping a Python function.</p>
 <p>The function, <code class="docutils literal notranslate"><span class="pre">local_get_pr_diff_tool</span></code>, in the code below does the work of extracting the diffs by
@@ -658,7 +670,7 @@ running the <code class="docutils literal notranslate"><span class="pre">git</sp
 </div>
 </section>
 <section id="building-the-steps-and-the-sub-flow">
-<h3>Building the steps and the sub-flow<a class="headerlink" href="#building-the-steps-and-the-sub-flow" title="Permalink to this heading">#</a></h3>
+<h3>Building the steps and the sub-flow<a class="headerlink" href="#building-the-steps-and-the-sub-flow" title="Link to this heading">#</a></h3>
 <p>Let’s write the code for the first sub-flow.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.controlconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControlFlowEdge</span>
 <span class="linenos"> 2</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.dataconnection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFlowEdge</span>
@@ -740,7 +752,7 @@ magic strings in the code.</p>
 </div>
 <p>Now take a look at each of the steps used in the sub-flow in more detail.</p>
 <section id="get-the-pr-diff-get-pr-diff-step">
-<h4>Get the PR diff, <code class="docutils literal notranslate"><span class="pre">get_pr_diff_step</span></code><a class="headerlink" href="#get-the-pr-diff-get-pr-diff-step" title="Permalink to this heading">#</a></h4>
+<h4>Get the PR diff, <code class="docutils literal notranslate"><span class="pre">get_pr_diff_step</span></code><a class="headerlink" href="#get-the-pr-diff-get-pr-diff-step" title="Link to this heading">#</a></h4>
 <p>This uses a <code class="docutils literal notranslate"><span class="pre">ToolExecutionStep</span></code> to gather the diff information - see the notes on how this is done earlier. When creating it, you need to
 provide the following:</p>
 <ul class="simple">
@@ -751,7 +763,7 @@ provide the following:</p>
 </ul>
 </section>
 <section id="extract-file-diffs-into-a-list-extract-into-list-of-file-diff-step">
-<h4>Extract file diffs into a list, <code class="docutils literal notranslate"><span class="pre">extract_into_list_of_file_diff_step</span></code><a class="headerlink" href="#extract-file-diffs-into-a-list-extract-into-list-of-file-diff-step" title="Permalink to this heading">#</a></h4>
+<h4>Extract file diffs into a list, <code class="docutils literal notranslate"><span class="pre">extract_into_list_of_file_diff_step</span></code><a class="headerlink" href="#extract-file-diffs-into-a-list-extract-into-list-of-file-diff-step" title="Link to this heading">#</a></h4>
 <p>You now have the diff information from the PR. This step performs a regex extraction on the raw diff text to extract the code to review.</p>
 <p>Use a <code class="docutils literal notranslate"><span class="pre">RegexExtractionStep</span></code> to perform this action. When creating the step, you need to provide the following:</p>
 <ul class="simple">
@@ -788,7 +800,7 @@ errors.</p>
 </section>
 </section>
 <section id="defining-a-flow">
-<h3>Defining a Flow<a class="headerlink" href="#defining-a-flow" title="Permalink to this heading">#</a></h3>
+<h3>Defining a Flow<a class="headerlink" href="#defining-a-flow" title="Link to this heading">#</a></h3>
 <p>Defining the Flow is the last step in the code shown above. There are a couple of things that are worth highlighting:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">begin_step</span></code>: A start step needs to be defined for a <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a>.</p></li>
@@ -797,7 +809,7 @@ errors.</p>
 </ul>
 </section>
 <section id="testing-the-flow">
-<h3>Testing the flow<a class="headerlink" href="#testing-the-flow" title="Permalink to this heading">#</a></h3>
+<h3>Testing the flow<a class="headerlink" href="#testing-the-flow" title="Link to this heading">#</a></h3>
 <p>You can test this sub-flow by creating an assistant conversation with <a class="reference internal" href="../api/flows.html#wayflowcore.flow.Flow.start_conversation" title="wayflowcore.flow.Flow.start_conversation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Flow.start_conversation()</span></code></a> and specifying the inputs,
 in this case the location of the Git repository. The conversation can then be executed with <a class="reference internal" href="../api/conversation.html#wayflowcore.conversation.Conversation.execute" title="wayflowcore.conversation.Conversation.execute"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Conversation.execute()</span></code></a>.
 This returns an object that represents the status of the conversation which you can check to confirm that the conversation has successfully finished.</p>
@@ -829,7 +841,7 @@ Git repository to. You then extract the outputs from the conversation.</p>
 </section>
 </section>
 <section id="part-3-review-the-list-of-diffs">
-<h2>Part 3: Review the list of diffs<a class="headerlink" href="#part-3-review-the-list-of-diffs" title="Permalink to this heading">#</a></h2>
+<h2>Part 3: Review the list of diffs<a class="headerlink" href="#part-3-review-the-list-of-diffs" title="Link to this heading">#</a></h2>
 <p>Now that we have a list of diffs for each file, we can review them and generate comments using an LLM.</p>
 <p>This task can be broken into a sub-flow made up of five steps:</p>
 <ul class="simple">
@@ -840,10 +852,11 @@ Git repository to. You then extract the outputs from the conversation.</p>
 <li><p><a class="reference internal" href="../api/flows.html#extractvaluefromjsonstep"><span class="std std-ref">ExtractValueFromJsonStep</span></a>: This extracts the comments and lines they apply to from the LLM output.</p></li>
 </ul>
 <p></p>
-<a class="reference internal image-reference" href="../../_images/prbot_generate_comment.svg"><img alt="Sub Flow to review the PR diffs" class="align-center" height="341" src="../../_images/prbot_generate_comment.svg" width="1230" /></a>
+<a class="reference internal image-reference" href="../../_images/prbot_generate_comment.svg"><img alt="Sub Flow to review the PR diffs" class="align-center" src="../../_images/prbot_generate_comment.svg" style="width: 1230.0px; height: 341.0px;" />
+</a>
 <p></p>
 <section id="build-the-tools-and-checks">
-<h3>Build the tools and checks<a class="headerlink" href="#build-the-tools-and-checks" title="Permalink to this heading">#</a></h3>
+<h3>Build the tools and checks<a class="headerlink" href="#build-the-tools-and-checks" title="Link to this heading">#</a></h3>
 <p>Before creating the steps and sub-flow to generate the comments, it is important to define the list of checks
 the assistant should perform, along with any specific instructions. Additionally, a tool must be created to prefix
 the diffs with line numbers, allowing the LLM to determine where to add comments.</p>
@@ -971,7 +984,7 @@ the diffs with line numbers, allowing the LLM to determine where to add comments
 <p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#extractvaluefromjsonstep"><span class="std std-ref">ExtractValueFromJsonStep</span></a> | <a class="reference internal" href="../api/flows.html#mapstep"><span class="std std-ref">MapStep</span></a> |
 <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a> | <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a> | <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a></p>
 <section id="checks-and-llm-instructions">
-<h4>Checks and LLM instructions<a class="headerlink" href="#checks-and-llm-instructions" title="Permalink to this heading">#</a></h4>
+<h4>Checks and LLM instructions<a class="headerlink" href="#checks-and-llm-instructions" title="Link to this heading">#</a></h4>
 <p>You will use three simple checks that are shown below. For each check you specify a name, a description of what the LLM should be checking,
 as well as a code and expected comment example so that the LLM gets a better understanding of what the task is about.</p>
 <p>The prompt uses a simple structure:</p>
@@ -997,7 +1010,7 @@ context about the task, to solve would be sufficient for them to get to the inte
 </div>
 </section>
 <section id="diff-formatting-tool">
-<h4>Diff formatting tool<a class="headerlink" href="#diff-formatting-tool" title="Permalink to this heading">#</a></h4>
+<h4>Diff formatting tool<a class="headerlink" href="#diff-formatting-tool" title="Link to this heading">#</a></h4>
 <p>You next need to create a tool using the <a class="reference internal" href="../api/tools.html#servertool"><span class="std std-ref">ServerTool</span></a> to format the diffs in a manner that makes them consumable
 by the LLM. A tool, as you will have already seen, is a simple wrapper around a <code class="docutils literal notranslate"><span class="pre">python</span></code> callable that makes it useable within a flow.</p>
 <p>The function, <code class="docutils literal notranslate"><span class="pre">format_git_diff</span></code>, in the code above does the work of formatting the diffs.</p>
@@ -1008,7 +1021,7 @@ by the LLM. A tool, as you will have already seen, is a simple wrapper around a 
 </section>
 </section>
 <section id="id1">
-<h3>Building the steps and the sub-flow<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<h3>Building the steps and the sub-flow<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <p>With the prompts and diff formatting tool written you can now build the second sub-flow.
 This sub-flow will iterate over the diffs, generated previously, and then use an LLM to generate review comments from them.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore._utils._templating_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_template_partially</span>
@@ -1132,7 +1145,7 @@ This sub-flow will iterate over the diffs, generated previously, and then use an
 <a class="reference internal" href="../api/flows.html#extractvaluefromjsonstep"><span class="std std-ref">ExtractValueFromJsonStep</span></a> | <a class="reference internal" href="../api/flows.html#mapstep"><span class="std std-ref">MapStep</span></a> | <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a> | <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a> | <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a></p>
 <p>Take a look at each of the steps used in the sub-flow to get an understanding of what is happening.</p>
 <section id="format-diff-to-string-format-diff-to-string-step">
-<h4>Format diff to string, <code class="docutils literal notranslate"><span class="pre">format_diff_to_string_step</span></code><a class="headerlink" href="#format-diff-to-string-format-diff-to-string-step" title="Permalink to this heading">#</a></h4>
+<h4>Format diff to string, <code class="docutils literal notranslate"><span class="pre">format_diff_to_string_step</span></code><a class="headerlink" href="#format-diff-to-string-format-diff-to-string-step" title="Link to this heading">#</a></h4>
 <p>This step converts the file diff list into a string so that it can be used by the following steps.</p>
 <p>This is done with the <code class="docutils literal notranslate"><span class="pre">string</span></code> Jinja filter as follows: <code class="docutils literal notranslate"><span class="pre">{{</span> <span class="pre">message</span> <span class="pre">|</span> <span class="pre">string</span> <span class="pre">}}</span></code>. It uses an <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a>
 to achieve this.</p>
@@ -1143,28 +1156,28 @@ Please check our guide on <a class="reference internal" href="../howtoguides/how
 </div>
 </section>
 <section id="add-lines-to-the-diff-add-lines-on-diff-step">
-<h4>Add lines to the diff, <code class="docutils literal notranslate"><span class="pre">add_lines_on_diff_step</span></code><a class="headerlink" href="#add-lines-to-the-diff-add-lines-on-diff-step" title="Permalink to this heading">#</a></h4>
+<h4>Add lines to the diff, <code class="docutils literal notranslate"><span class="pre">add_lines_on_diff_step</span></code><a class="headerlink" href="#add-lines-to-the-diff-add-lines-on-diff-step" title="Link to this heading">#</a></h4>
 <p>This step prefixes the diff with the line numbers required to review comments. It uses a, <a class="reference internal" href="../api/flows.html#toolexecutionstep"><span class="std std-ref">ToolExecutionStep</span></a>, to run the
 tool that you previously defined in order to do this.</p>
 <p>The input to the tool, within the I/O dictionary, is specified using the <code class="docutils literal notranslate"><span class="pre">input_mapping</span></code>. For all these steps, it is important to remember
 that the outputs of one step are linked to the inputs of the next.</p>
 </section>
 <section id="extract-file-path-extract-file-path-step">
-<h4>Extract file path, <code class="docutils literal notranslate"><span class="pre">extract_file_path_step</span></code><a class="headerlink" href="#extract-file-path-extract-file-path-step" title="Permalink to this heading">#</a></h4>
+<h4>Extract file path, <code class="docutils literal notranslate"><span class="pre">extract_file_path_step</span></code><a class="headerlink" href="#extract-file-path-extract-file-path-step" title="Link to this heading">#</a></h4>
 <p>This extracts the file path from the diff string. The file path is needed for assigning the review comments. The <a class="reference internal" href="../api/flows.html#regexextractionstep"><span class="std std-ref">RegexExtractionStep</span></a> step
 is used to extract the file path from the diff.</p>
 <p>The regular expression is applied to the diff string, extracted form the input map using the <code class="docutils literal notranslate"><span class="pre">input_mapping</span></code> parameter.</p>
 <p>Note: Compared to the <a class="reference internal" href="../api/flows.html#regexextractionstep"><span class="std std-ref">RegexExtractionStep</span></a> used in Part 1, here only the first match is required.</p>
 </section>
 <section id="generate-comments-generate-comments-step">
-<h4>Generate comments, <code class="docutils literal notranslate"><span class="pre">generate_comments_step</span></code><a class="headerlink" href="#generate-comments-generate-comments-step" title="Permalink to this heading">#</a></h4>
+<h4>Generate comments, <code class="docutils literal notranslate"><span class="pre">generate_comments_step</span></code><a class="headerlink" href="#generate-comments-generate-comments-step" title="Link to this heading">#</a></h4>
 <p>This generates comments using the LLM and the prompt template defined earlier. The <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a> step executes
 the prompt with the LLM defined earlier in this tutorial.</p>
 <p>Since the list of checks has already been defined, the template can be pre-rendered using the <code class="docutils literal notranslate"><span class="pre">render_template_partially</span></code> method. This renders the parts of the
 template that have been provided, while the remaining information is gathered from the I/O dictionary.</p>
 </section>
 <section id="extract-comments-from-json-extract-comments-from-json-step">
-<h4>Extract comments from JSON, <code class="docutils literal notranslate"><span class="pre">extract_comments_from_json_step</span></code><a class="headerlink" href="#extract-comments-from-json-extract-comments-from-json-step" title="Permalink to this heading">#</a></h4>
+<h4>Extract comments from JSON, <code class="docutils literal notranslate"><span class="pre">extract_comments_from_json_step</span></code><a class="headerlink" href="#extract-comments-from-json-extract-comments-from-json-step" title="Link to this heading">#</a></h4>
 <p>This extracts the comments and line numbers from the generated LLM output, which is a serialized JSON structure due to the prompt used.
 A <a class="reference internal" href="../api/flows.html#extractvaluefromjsonstep"><span class="std std-ref">ExtractValueFromJsonStep</span></a> is used to do the extraction. When creating the step, specify the following in
 addition to the usual <code class="docutils literal notranslate"><span class="pre">input_mapping</span></code> and <code class="docutils literal notranslate"><span class="pre">output_mapping</span></code>:</p>
@@ -1175,12 +1188,12 @@ addition to the usual <code class="docutils literal notranslate"><span class="pr
 </ul>
 </section>
 <section id="create-the-sub-flow-generate-comments-subflow">
-<h4>Create the sub-flow, <code class="docutils literal notranslate"><span class="pre">generate_comments_subflow</span></code><a class="headerlink" href="#create-the-sub-flow-generate-comments-subflow" title="Permalink to this heading">#</a></h4>
+<h4>Create the sub-flow, <code class="docutils literal notranslate"><span class="pre">generate_comments_subflow</span></code><a class="headerlink" href="#create-the-sub-flow-generate-comments-subflow" title="Link to this heading">#</a></h4>
 <p>Here you define what steps are in the sub-flow, what the transitions between the steps are and what will be the starting step. This is exactly
 the same process you did previously when defining the sub-flow to fetch the PR data.</p>
 </section>
 <section id="applying-the-comment-generation-to-all-file-diffs">
-<h4>Applying the comment generation to all file diffs<a class="headerlink" href="#applying-the-comment-generation-to-all-file-diffs" title="Permalink to this heading">#</a></h4>
+<h4>Applying the comment generation to all file diffs<a class="headerlink" href="#applying-the-comment-generation-to-all-file-diffs" title="Link to this heading">#</a></h4>
 <p>Now that you have the sub-flow create, you need to apply it to every file diff. This is done using a <a class="reference internal" href="../api/flows.html#mapstep"><span class="std std-ref">MapStep</span></a>.
 <code class="docutils literal notranslate"><span class="pre">MapStep</span></code> takes a sub-flow as input, in this case, the <code class="docutils literal notranslate"><span class="pre">generate_comments_subflow</span></code>, and applies it to an iterable—in this case, the list of file
 diffs.</p>
@@ -1200,7 +1213,7 @@ diffs.</p>
 </section>
 </section>
 <section id="testing-the-sub-flow">
-<h3>Testing the sub-flow<a class="headerlink" href="#testing-the-sub-flow" title="Permalink to this heading">#</a></h3>
+<h3>Testing the sub-flow<a class="headerlink" href="#testing-the-sub-flow" title="Link to this heading">#</a></h3>
 <p>You can test the sub-flow by creating a conversation, as shown in the code below, and specifying the inputs as done in, <code class="docutils literal notranslate"><span class="pre">Part</span> <span class="pre">2:</span> <span class="pre">Retrieve</span> <span class="pre">the</span> <span class="pre">PR</span> <span class="pre">diff</span> <span class="pre">information</span></code>.</p>
 <p>Since each sub-flow is tested independently, you can reuse the output from the first sub-flow.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># we reuse the FILE_DIFF_LIST from the previous test</span>
@@ -1224,7 +1237,7 @@ diffs.</p>
 </section>
 </section>
 <section id="building-the-final-flow">
-<h2>Building the final Flow<a class="headerlink" href="#building-the-final-flow" title="Permalink to this heading">#</a></h2>
+<h2>Building the final Flow<a class="headerlink" href="#building-the-final-flow" title="Link to this heading">#</a></h2>
 <p>Congratulations! You have completed the three sub-flows, which, when combined into a single flow, will retrieve the PR diff information,
 generate comments on the diffs using an LLM.</p>
 <p>You will wire the sub-flows that you have built together by wrapping them in a <a class="reference internal" href="../api/flows.html#flowexecutionstep"><span class="std std-ref">FlowExecutionStep</span></a>. The
@@ -1260,7 +1273,7 @@ generate comments on the diffs using an LLM.</p>
 </div>
 <p><strong>API Reference:</strong> <a class="reference internal" href="../api/flows.html#flow"><span class="std std-ref">Flow</span></a> | <a class="reference internal" href="../api/flows.html#flowexecutionstep"><span class="std std-ref">FlowExecutionStep</span></a></p>
 <section id="testing-the-combined-assistant">
-<h3>Testing the combined assistant<a class="headerlink" href="#testing-the-combined-assistant" title="Permalink to this heading">#</a></h3>
+<h3>Testing the combined assistant<a class="headerlink" href="#testing-the-combined-assistant" title="Link to this heading">#</a></h3>
 <p>You can now run the PR bot end-to-end on your repo or locally.</p>
 <p>Set the <code class="docutils literal notranslate"><span class="pre">PATH_TO_DIR</span></code> to the actual path you extracted the sample codebase Git repository to. You can also see how the output of the conversation
 is extracted from the <code class="docutils literal notranslate"><span class="pre">execution_status</span></code> object, <code class="docutils literal notranslate"><span class="pre">execution_status.output_values</span></code>.</p>
@@ -1282,7 +1295,7 @@ is extracted from the <code class="docutils literal notranslate"><span class="pr
 </section>
 </section>
 <section id="agent-spec-exporting-loading">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Link to this heading">#</a></h2>
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
 
@@ -4069,7 +4082,7 @@ is extracted from the <code class="docutils literal notranslate"><span class="pr
 </div>
 </section>
 <section id="recap">
-<h2>Recap<a class="headerlink" href="#recap" title="Permalink to this heading">#</a></h2>
+<h2>Recap<a class="headerlink" href="#recap" title="Link to this heading">#</a></h2>
 <p>In this tutorial you learned how to build a simple PR bot using WayFlow Flows, and learned:</p>
 <ul class="simple">
 <li><p>How to use core steps such as the <a class="reference internal" href="../api/flows.html#outputmessagestep"><span class="std std-ref">OutputMessageStep</span></a> and <a class="reference internal" href="../api/flows.html#promptexecutionstep"><span class="std std-ref">PromptExecutionStep</span></a>.</p></li>
@@ -4081,7 +4094,7 @@ is extracted from the <code class="docutils literal notranslate"><span class="pr
 <p>This is an example of the kind of fully featured tool that you can build with WayFlow.</p>
 </section>
 <section id="next-steps">
-<h2>Next Steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Now that you learned how to build a PR reviewing assistant, you may want to check our other guides such as:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="basic_agent.html"><span class="doc">Build a Simple Agent</span></a></p></li>
@@ -4089,7 +4102,7 @@ is extracted from the <code class="docutils literal notranslate"><span class="pr
 </ul>
 </section>
 <section id="full-code">
-<h2>Full Code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full Code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <p>Click on the card at the <a class="reference internal" href="#top-simple-code-review-assistant"><span class="std std-ref">top of this page</span></a> to download the full code
 for this guide or copy the code below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
@@ -4105,7 +4118,7 @@ for this guide or copy the code below.</p>
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2.0.dev0&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -4670,7 +4683,7 @@ for this guide or copy the code below.</p>
 <span class="linenos">576</span><span class="n">post_comment_step</span> <span class="o">=</span> <span class="n">ApiCallStep</span><span class="p">(</span>
 <span class="linenos">577</span>    <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://example.com/rest/api/latest/projects/{{workspace}}/repos/{{repo_slug}}/pull-requests/{{pr_id}}/comments?diffType=EFFECTIVE&amp;markup=true&amp;avatarSize=48&quot;</span><span class="p">,</span>
 <span class="linenos">578</span>    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span>
-<span class="linenos">579</span>    <span class="n">json_body</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+<span class="linenos">579</span>    <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
 <span class="linenos">580</span>        <span class="p">{</span>
 <span class="linenos">581</span>            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;{{content}}&quot;</span><span class="p">,</span>
 <span class="linenos">582</span>            <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;NORMAL&quot;</span><span class="p">,</span>
@@ -4928,7 +4941,7 @@ for this guide or copy the code below.</p>
 
   <p class="copyright">
     
-      © Copyright 2025, Oracle and/or its affiliates..
+      © Copyright 2025-2026, Oracle and/or its affiliates..
       <br/>
     
   </p>
@@ -4937,7 +4950,7 @@ for this guide or copy the code below.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

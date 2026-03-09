@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Events &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,12 +45,12 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/api/events';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -69,7 +68,7 @@
     <link rel="prev" title="LLMs" href="llmmodels.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -280,7 +279,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -360,7 +359,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -431,44 +430,44 @@
                 <article class="bd-article">
                   
   <section id="events">
-<span id="id1"></span><h1>Events<a class="headerlink" href="#events" title="Permalink to this heading">#</a></h1>
+<span id="id1"></span><h1>Events<a class="headerlink" href="#events" title="Link to this heading">#</a></h1>
 <p>This page presents all APIs and classes related to events in WayFlow.</p>
 <section id="id2">
-<h2>Events<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
-<span class="target" id="event"></span><dl class="py class">
+<h2>Events<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<dl class="py class" id="event">
 <dt class="sig sig-object py" id="wayflowcore.events.event.Event">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.Event" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">Event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.Event" title="Link to this definition">#</a></dt>
 <dd><p>Base Event class. It contains information relevant to all events.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.Event.event_id">
-<span class="sig-name descname"><span class="pre">event_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.events.event.Event.event_id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">event_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.events.event.Event.event_id" title="Link to this definition">#</a></dt>
 <dd><p>A unique identifier for the event</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.Event.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.events.event.Event.name" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wayflowcore.events.event.Event.name" title="Link to this definition">#</a></dt>
 <dd><p>The optional name of the event</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.Event.timestamp">
-<span class="sig-name descname"><span class="pre">timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#wayflowcore.events.event.Event.timestamp" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#wayflowcore.events.event.Event.timestamp" title="Link to this definition">#</a></dt>
 <dd><p>The timestamp of when the event occurred</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wayflowcore.events.event.Event.to_tracing_info">
-<span class="sig-name descname"><span class="pre">to_tracing_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask_sensitive_information</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.Event.to_tracing_info" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_tracing_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask_sensitive_information</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.Event.to_tracing_info" title="Link to this definition">#</a></dt>
 <dd><p>Return a serialized version of the event’s information to be used for tracing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -485,739 +484,739 @@
 
 </dd></dl>
 
-<span class="target" id="llmgenerationrequestevent"></span><dl class="py class">
+<dl class="py class" id="llmgenerationrequestevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.LlmGenerationRequestEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">LlmGenerationRequestEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationRequestEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">LlmGenerationRequestEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationRequestEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded when the llm receives a generation request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a>) – </p></li>
-<li><p><strong>prompt</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><em>Prompt</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a>)</p></li>
+<li><p><strong>prompt</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><em>Prompt</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.LlmGenerationRequestEvent.llm">
-<span class="sig-name descname"><span class="pre">llm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmModel</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationRequestEvent.llm" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">llm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmModel</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationRequestEvent.llm" title="Link to this definition">#</a></dt>
 <dd><p>The model that receives the generation request</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.LlmGenerationRequestEvent.prompt">
-<span class="sig-name descname"><span class="pre">prompt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationRequestEvent.prompt" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">prompt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.Prompt" title="wayflowcore.models.llmmodel.Prompt"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prompt</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationRequestEvent.prompt" title="Link to this definition">#</a></dt>
 <dd><p>The prompt for the generation request</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="llmgenerationresponseevent"></span><dl class="py class">
+<dl class="py class" id="llmgenerationresponseevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.LlmGenerationResponseEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">LlmGenerationResponseEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">completion=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationResponseEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">LlmGenerationResponseEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">llm=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">completion=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationResponseEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded when the llm generates a response.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a>) – </p></li>
-<li><p><strong>completion</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.LlmCompletion" title="wayflowcore.models.llmmodel.LlmCompletion"><em>LlmCompletion</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>llm</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><em>LlmModel</em></a>)</p></li>
+<li><p><strong>completion</strong> (<a class="reference internal" href="llmmodels.html#wayflowcore.models.LlmCompletion" title="wayflowcore.models.llmmodel.LlmCompletion"><em>LlmCompletion</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.LlmGenerationResponseEvent.completion">
-<span class="sig-name descname"><span class="pre">completion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.LlmCompletion" title="wayflowcore.models.llmmodel.LlmCompletion"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmCompletion</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationResponseEvent.completion" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">completion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.LlmCompletion" title="wayflowcore.models.llmmodel.LlmCompletion"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmCompletion</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationResponseEvent.completion" title="Link to this definition">#</a></dt>
 <dd><p>The completion generated by the llm model</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.LlmGenerationResponseEvent.llm">
-<span class="sig-name descname"><span class="pre">llm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmModel</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationResponseEvent.llm" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">llm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="llmmodels.html#wayflowcore.models.llmmodel.LlmModel" title="wayflowcore.models.llmmodel.LlmModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LlmModel</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.LlmGenerationResponseEvent.llm" title="Link to this definition">#</a></dt>
 <dd><p>The model that was used for generating the response</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="conversationalcomponentexecutionstartedevent"></span><dl class="py class">
+<dl class="py class" id="conversationalcomponentexecutionstartedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationalComponentExecutionStartedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationalComponentExecutionStartedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversational_component=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationalComponentExecutionStartedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationalComponentExecutionStartedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversational_component=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationalComponentExecutionStartedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded when the agent/flow execution has started.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>conversational_component</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>conversational_component</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationalComponentExecutionStartedEvent.conversational_component">
-<span class="sig-name descname"><span class="pre">conversational_component</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationalComponentExecutionStartedEvent.conversational_component" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">conversational_component</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationalComponentExecutionStartedEvent.conversational_component" title="Link to this definition">#</a></dt>
 <dd><p>Agent/flow that started the execution of the conversation</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="conversationalcomponentexecutionfinishedevent"></span><dl class="py class">
+<dl class="py class" id="conversationalcomponentexecutionfinishedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationalComponentExecutionFinishedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversational_component=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_status=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationalComponentExecutionFinishedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversational_component=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_status=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded when the agent/flow execution has ended.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>conversational_component</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>) – </p></li>
-<li><p><strong>execution_status</strong> (<a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><em>ExecutionStatus</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>conversational_component</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>)</p></li>
+<li><p><strong>execution_status</strong> (<a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><em>ExecutionStatus</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent.conversational_component">
-<span class="sig-name descname"><span class="pre">conversational_component</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent.conversational_component" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">conversational_component</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent.conversational_component" title="Link to this definition">#</a></dt>
 <dd><p>Agent/flow that started the execution of the conversation</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent.execution_status">
-<span class="sig-name descname"><span class="pre">execution_status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionStatus</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent.execution_status" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execution_status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionStatus</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationalComponentExecutionFinishedEvent.execution_status" title="Link to this definition">#</a></dt>
 <dd><p>Indicates the status of the conversation (finished, yielding, etc.)</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="conversationcreatedevent"></span><dl class="py class">
+<dl class="py class" id="conversationcreatedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationCreatedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationCreatedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversational_component=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nesting_level=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationCreatedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversational_component=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nesting_level=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a new conversation with an agent or a flow was created.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>conversational_component</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>) – </p></li>
-<li><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>messages</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em>] </em><em>| </em><em>None</em>) – </p></li>
-<li><p><strong>conversation_id</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>nesting_level</strong> (<em>int</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>conversational_component</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><em>ConversationalComponent</em></a>)</p></li>
+<li><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>messages</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><em>MessageList</em></a><em> | </em><em>List</em><em>[</em><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>conversation_id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>nesting_level</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationCreatedEvent.conversation_id">
-<span class="sig-name descname"><span class="pre">conversation_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent.conversation_id" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">conversation_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent.conversation_id" title="Link to this definition">#</a></dt>
 <dd><p>Unique id of the conversation</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationCreatedEvent.conversational_component">
-<span class="sig-name descname"><span class="pre">conversational_component</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent.conversational_component" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">conversational_component</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversationalcomponent.ConversationalComponent" title="wayflowcore.conversationalcomponent.ConversationalComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConversationalComponent</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent.conversational_component" title="Link to this definition">#</a></dt>
 <dd><p>Agent/flow from which the conversation was created</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationCreatedEvent.inputs">
-<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]]</span></em><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent.inputs" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]]</span></em><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent.inputs" title="Link to this definition">#</a></dt>
 <dd><p>A dictionary of inputs where the keys are the input names and the values
 are the actual inputs of the conversation.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationCreatedEvent.messages">
-<span class="sig-name descname"><span class="pre">messages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageList</span></code></a><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a><span class="pre">],</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent.messages" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">messages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.MessageList" title="wayflowcore.messagelist.MessageList"><code class="xref py py-class docutils literal notranslate"><span class="pre">MessageList</span></code></a><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a><span class="pre">],</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent.messages" title="Link to this definition">#</a></dt>
 <dd><p>List of messages to populate the conversation</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationCreatedEvent.nesting_level">
-<span class="sig-name descname"><span class="pre">nesting_level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent.nesting_level" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">nesting_level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.events.event.ConversationCreatedEvent.nesting_level" title="Link to this definition">#</a></dt>
 <dd><p>The level of nested sub-conversations or tasks within the main conversation.</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="conversationmessageaddedevent"></span><dl class="py class">
+<dl class="py class" id="conversationmessageaddedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationMessageAddedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationMessageAddedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streamed=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageAddedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationMessageAddedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streamed=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageAddedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a new message was added to the conversation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p></li>
-<li><p><strong>streamed</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>)</p></li>
+<li><p><strong>streamed</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationMessageAddedEvent.message">
-<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageAddedEvent.message" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageAddedEvent.message" title="Link to this definition">#</a></dt>
 <dd><p>The message that is being appended to the conversation</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationMessageAddedEvent.streamed">
-<span class="sig-name descname"><span class="pre">streamed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageAddedEvent.streamed" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">streamed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageAddedEvent.streamed" title="Link to this definition">#</a></dt>
 <dd><p>Whether the message was streamed or not.</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="conversationmessagestreamstartedevent"></span><dl class="py class">
+<dl class="py class" id="conversationmessagestreamstartedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationMessageStreamStartedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationMessageStreamStartedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamStartedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationMessageStreamStartedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamStartedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever aa new message start being streamed to the conversation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationMessageStreamStartedEvent.message">
-<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamStartedEvent.message" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamStartedEvent.message" title="Link to this definition">#</a></dt>
 <dd><p>The message that is being appended to the conversation</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="conversationmessagestreamchunkevent"></span><dl class="py class">
+<dl class="py class" id="conversationmessagestreamchunkevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationMessageStreamChunkEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationMessageStreamChunkEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamChunkEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationMessageStreamChunkEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamChunkEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a message is being streamed and a delta is added to the conversation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>chunk</strong> (<em>str</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>chunk</strong> (<em>str</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationMessageStreamChunkEvent.chunk">
-<span class="sig-name descname"><span class="pre">chunk</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamChunkEvent.chunk" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">chunk</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamChunkEvent.chunk" title="Link to this definition">#</a></dt>
 <dd><p>The chunk that is being appended to the conversation</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="conversationmessagestreamendedevent"></span><dl class="py class">
+<dl class="py class" id="conversationmessagestreamendedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationMessageStreamEndedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationMessageStreamEndedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamEndedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationMessageStreamEndedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamEndedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever aa new message start being streamed to the conversation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>message</strong> (<a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><em>Message</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationMessageStreamEndedEvent.message">
-<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamEndedEvent.message" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.messagelist.Message" title="wayflowcore.messagelist.Message"><code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationMessageStreamEndedEvent.message" title="Link to this definition">#</a></dt>
 <dd><p>The message that is being appended to the conversation</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="conversationexecutionstartedevent"></span><dl class="py class">
+<dl class="py class" id="conversationexecutionstartedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationExecutionStartedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationExecutionStartedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationExecutionStartedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationExecutionStartedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationExecutionStartedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a conversation is started.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationExecutionStartedEvent.conversation">
-<span class="sig-name descname"><span class="pre">conversation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Conversation</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationExecutionStartedEvent.conversation" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">conversation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Conversation</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationExecutionStartedEvent.conversation" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<span class="target" id="conversationexecutionfinishedevent"></span><dl class="py class">
+<dl class="py class" id="conversationexecutionfinishedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationExecutionFinishedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationExecutionFinishedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_status=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationExecutionFinishedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ConversationExecutionFinishedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversation=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_status=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ConversationExecutionFinishedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a conversation is started.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>) – </p></li>
-<li><p><strong>execution_status</strong> (<a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><em>ExecutionStatus</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>conversation</strong> (<a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><em>Conversation</em></a>)</p></li>
+<li><p><strong>execution_status</strong> (<a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><em>ExecutionStatus</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationExecutionFinishedEvent.conversation">
-<span class="sig-name descname"><span class="pre">conversation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Conversation</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationExecutionFinishedEvent.conversation" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">conversation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.conversation.Conversation" title="wayflowcore.conversation.Conversation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Conversation</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationExecutionFinishedEvent.conversation" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ConversationExecutionFinishedEvent.execution_status">
-<span class="sig-name descname"><span class="pre">execution_status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionStatus</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationExecutionFinishedEvent.execution_status" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execution_status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="conversation.html#wayflowcore.executors.executionstatus.ExecutionStatus" title="wayflowcore.executors.executionstatus.ExecutionStatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionStatus</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ConversationExecutionFinishedEvent.execution_status" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<span class="target" id="toolexecutionstartevent"></span><dl class="py class">
+<dl class="py class" id="toolexecutionstartevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolExecutionStartEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ToolExecutionStartEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStartEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ToolExecutionStartEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStartEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a tool is executed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>) – </p></li>
-<li><p><strong>tool_request</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>)</p></li>
+<li><p><strong>tool_request</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolExecutionStartEvent.tool">
-<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStartEvent.tool" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStartEvent.tool" title="Link to this definition">#</a></dt>
 <dd><p>Tool that triggered this event</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolExecutionStartEvent.tool_request">
-<span class="sig-name descname"><span class="pre">tool_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStartEvent.tool_request" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStartEvent.tool_request" title="Link to this definition">#</a></dt>
 <dd><p>ToolRequest object containing the id of the tool request made as well as the tool call’s inputs</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="toolexecutionstreamingchunkreceivedevent"></span><dl class="py class">
+<dl class="py class" id="toolexecutionstreamingchunkreceivedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ToolExecutionStreamingChunkReceivedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ToolExecutionStreamingChunkReceivedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a tool output is being streamed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>) – </p></li>
-<li><p><strong>tool_request</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>) – </p></li>
-<li><p><strong>content</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>)</p></li>
+<li><p><strong>tool_request</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>)</p></li>
+<li><p><strong>content</strong> (<em>Any</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent.content">
-<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent.content" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent.content" title="Link to this definition">#</a></dt>
 <dd><p>The content of the chunk received from the tool execution</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent.tool">
-<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent.tool" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent.tool" title="Link to this definition">#</a></dt>
 <dd><p>Tool that triggered this event</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent.tool_request">
-<span class="sig-name descname"><span class="pre">tool_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent.tool_request" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionStreamingChunkReceivedEvent.tool_request" title="Link to this definition">#</a></dt>
 <dd><p>ToolRequest object containing the id of the tool request made as well as the tool call’s inputs</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="toolexecutionresultevent"></span><dl class="py class">
+<dl class="py class" id="toolexecutionresultevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolExecutionResultEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ToolExecutionResultEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_result=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionResultEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ToolExecutionResultEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_result=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionResultEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a tool has finished execution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>) – </p></li>
-<li><p><strong>tool_result</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><em>ToolResult</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>)</p></li>
+<li><p><strong>tool_result</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><em>ToolResult</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolExecutionResultEvent.tool">
-<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionResultEvent.tool" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionResultEvent.tool" title="Link to this definition">#</a></dt>
 <dd><p>Tool that triggered this event</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolExecutionResultEvent.tool_result">
-<span class="sig-name descname"><span class="pre">tool_result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolResult</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionResultEvent.tool_result" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolResult" title="wayflowcore.tools.tools.ToolResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolResult</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolExecutionResultEvent.tool_result" title="Link to this definition">#</a></dt>
 <dd><p>ToolResult object containing the id of the tool request made and the tool call’s output</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="toolconfirmationrequeststartevent"></span><dl class="py class">
+<dl class="py class" id="toolconfirmationrequeststartevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolConfirmationRequestStartEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ToolConfirmationRequestStartEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestStartEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ToolConfirmationRequestStartEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestStartEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a tool confirmation is required.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>) – </p></li>
-<li><p><strong>tool_request</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>)</p></li>
+<li><p><strong>tool_request</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolConfirmationRequestStartEvent.tool">
-<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestStartEvent.tool" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestStartEvent.tool" title="Link to this definition">#</a></dt>
 <dd><p>Tool that triggered this event</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolConfirmationRequestStartEvent.tool_request">
-<span class="sig-name descname"><span class="pre">tool_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestStartEvent.tool_request" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestStartEvent.tool_request" title="Link to this definition">#</a></dt>
 <dd><p>ToolRequest object containing the id of the tool request made as well as the tool call’s inputs</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="toolconfirmationrequestendevent"></span><dl class="py class">
+<dl class="py class" id="toolconfirmationrequestendevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolConfirmationRequestEndEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ToolConfirmationRequestEndEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestEndEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ToolConfirmationRequestEndEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool_request=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestEndEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a tool confirmation has been handled.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>) – </p></li>
-<li><p><strong>tool_request</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>tool</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><em>Tool</em></a>)</p></li>
+<li><p><strong>tool_request</strong> (<a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><em>ToolRequest</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolConfirmationRequestEndEvent.tool">
-<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestEndEvent.tool" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.Tool" title="wayflowcore.tools.tools.Tool"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tool</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestEndEvent.tool" title="Link to this definition">#</a></dt>
 <dd><p>Tool that triggered this event</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ToolConfirmationRequestEndEvent.tool_request">
-<span class="sig-name descname"><span class="pre">tool_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestEndEvent.tool_request" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tool_request</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tools.html#wayflowcore.tools.tools.ToolRequest" title="wayflowcore.tools.tools.ToolRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">ToolRequest</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ToolConfirmationRequestEndEvent.tool_request" title="Link to this definition">#</a></dt>
 <dd><p>ToolRequest object containing the id of the tool request made as well as the tool call’s inputs</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="stepinvocationstartevent"></span><dl class="py class">
+<dl class="py class" id="stepinvocationstartevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.StepInvocationStartEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">StepInvocationStartEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.StepInvocationStartEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">StepInvocationStartEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.StepInvocationStartEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a step is invoked.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>step</strong> (<a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><em>Step</em></a>) – </p></li>
-<li><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>step</strong> (<a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><em>Step</em></a>)</p></li>
+<li><p><strong>inputs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.StepInvocationStartEvent.inputs">
-<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.events.event.StepInvocationStartEvent.inputs" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]</span></em><a class="headerlink" href="#wayflowcore.events.event.StepInvocationStartEvent.inputs" title="Link to this definition">#</a></dt>
 <dd><p>Inputs to the step invocation</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.StepInvocationStartEvent.step">
-<span class="sig-name descname"><span class="pre">step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.StepInvocationStartEvent.step" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.StepInvocationStartEvent.step" title="Link to this definition">#</a></dt>
 <dd><p>Step that triggered the event</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="stepinvocationresultevent"></span><dl class="py class">
+<dl class="py class" id="stepinvocationresultevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.StepInvocationResultEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">StepInvocationResultEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_result=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.StepInvocationResultEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">StepInvocationResultEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_result=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.StepInvocationResultEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a step invocation has finished.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>step</strong> (<a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><em>Step</em></a>) – </p></li>
-<li><p><strong>step_result</strong> (<a class="reference internal" href="flows.html#wayflowcore.steps.step.StepResult" title="wayflowcore.steps.step.StepResult"><em>StepResult</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>step</strong> (<a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><em>Step</em></a>)</p></li>
+<li><p><strong>step_result</strong> (<a class="reference internal" href="flows.html#wayflowcore.steps.step.StepResult" title="wayflowcore.steps.step.StepResult"><em>StepResult</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.StepInvocationResultEvent.step">
-<span class="sig-name descname"><span class="pre">step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.StepInvocationResultEvent.step" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.steps.step.Step" title="wayflowcore.steps.step.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.StepInvocationResultEvent.step" title="Link to this definition">#</a></dt>
 <dd><p>Step that triggered the event</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.StepInvocationResultEvent.step_result">
-<span class="sig-name descname"><span class="pre">step_result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.steps.step.StepResult" title="wayflowcore.steps.step.StepResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">StepResult</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.StepInvocationResultEvent.step_result" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">step_result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="flows.html#wayflowcore.steps.step.StepResult" title="wayflowcore.steps.step.StepResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">StepResult</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.StepInvocationResultEvent.step_result" title="Link to this definition">#</a></dt>
 <dd><p>Result of the step invocation</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="contextproviderexecutionrequestevent"></span><dl class="py class">
+<dl class="py class" id="contextproviderexecutionrequestevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ContextProviderExecutionRequestEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ContextProviderExecutionRequestEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_provider=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ContextProviderExecutionRequestEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ContextProviderExecutionRequestEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_provider=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ContextProviderExecutionRequestEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a context provider is called.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>context_provider</strong> (<a class="reference internal" href="contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider" title="wayflowcore.contextproviders.contextprovider.ContextProvider"><em>ContextProvider</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>context_provider</strong> (<a class="reference internal" href="contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider" title="wayflowcore.contextproviders.contextprovider.ContextProvider"><em>ContextProvider</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ContextProviderExecutionRequestEvent.context_provider">
-<span class="sig-name descname"><span class="pre">context_provider</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider" title="wayflowcore.contextproviders.contextprovider.ContextProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContextProvider</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ContextProviderExecutionRequestEvent.context_provider" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">context_provider</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider" title="wayflowcore.contextproviders.contextprovider.ContextProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContextProvider</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ContextProviderExecutionRequestEvent.context_provider" title="Link to this definition">#</a></dt>
 <dd><p>Used to pass contextual information to assistants</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="contextproviderexecutionresultevent"></span><dl class="py class">
+<dl class="py class" id="contextproviderexecutionresultevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ContextProviderExecutionResultEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ContextProviderExecutionResultEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_provider=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ContextProviderExecutionResultEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ContextProviderExecutionResultEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_provider=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ContextProviderExecutionResultEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever a context provider has returned a result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>context_provider</strong> (<a class="reference internal" href="contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider" title="wayflowcore.contextproviders.contextprovider.ContextProvider"><em>ContextProvider</em></a>) – </p></li>
-<li><p><strong>output</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>span</strong> (<a class="reference internal" href="tracing.html#wayflowcore.tracing.span.Span" title="wayflowcore.tracing.span.Span"><em>Span</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>context_provider</strong> (<a class="reference internal" href="contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider" title="wayflowcore.contextproviders.contextprovider.ContextProvider"><em>ContextProvider</em></a>)</p></li>
+<li><p><strong>output</strong> (<em>Any</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ContextProviderExecutionResultEvent.context_provider">
-<span class="sig-name descname"><span class="pre">context_provider</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider" title="wayflowcore.contextproviders.contextprovider.ContextProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContextProvider</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ContextProviderExecutionResultEvent.context_provider" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">context_provider</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="contextproviders.html#wayflowcore.contextproviders.contextprovider.ContextProvider" title="wayflowcore.contextproviders.contextprovider.ContextProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContextProvider</span></code></a></em><a class="headerlink" href="#wayflowcore.events.event.ContextProviderExecutionResultEvent.context_provider" title="Link to this definition">#</a></dt>
 <dd><p>Used to pass contextual information to assistants</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ContextProviderExecutionResultEvent.output">
-<span class="sig-name descname"><span class="pre">output</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></em><a class="headerlink" href="#wayflowcore.events.event.ContextProviderExecutionResultEvent.output" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">output</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></em><a class="headerlink" href="#wayflowcore.events.event.ContextProviderExecutionResultEvent.output" title="Link to this definition">#</a></dt>
 <dd><p>Result of the context provider call</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="flowexecutioniterationstartedevent"></span><dl class="py class">
+<dl class="py class" id="flowexecutioniterationstartedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.FlowExecutionIterationStartedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">FlowExecutionIterationStartedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.FlowExecutionIterationStartedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">FlowExecutionIterationStartedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.FlowExecutionIterationStartedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever an iteration of a flow has started executing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>execution_state</strong> (<em>FlowConversationExecutionState</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>execution_state</strong> (<em>FlowConversationExecutionState</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.FlowExecutionIterationStartedEvent.execution_state">
-<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">FlowConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.FlowExecutionIterationStartedEvent.execution_state" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">FlowConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.FlowExecutionIterationStartedEvent.execution_state" title="Link to this definition">#</a></dt>
 <dd><p>State of a flow (doesn’t contain messages)</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="flowexecutioniterationfinishedevent"></span><dl class="py class">
+<dl class="py class" id="flowexecutioniterationfinishedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.FlowExecutionIterationFinishedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">FlowExecutionIterationFinishedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.FlowExecutionIterationFinishedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">FlowExecutionIterationFinishedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.FlowExecutionIterationFinishedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever an iteration of a flow has finished executing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>execution_state</strong> (<em>FlowConversationExecutionState</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>execution_state</strong> (<em>FlowConversationExecutionState</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.FlowExecutionIterationFinishedEvent.execution_state">
-<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">FlowConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.FlowExecutionIterationFinishedEvent.execution_state" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">FlowConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.FlowExecutionIterationFinishedEvent.execution_state" title="Link to this definition">#</a></dt>
 <dd><p>State of a flow (doesn’t contain messages)</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="agentexecutioniterationstartedevent"></span><dl class="py class">
+<dl class="py class" id="agentexecutioniterationstartedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.AgentExecutionIterationStartedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">AgentExecutionIterationStartedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.AgentExecutionIterationStartedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">AgentExecutionIterationStartedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.AgentExecutionIterationStartedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever an iteration of an agent has started executing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>execution_state</strong> (<em>AgentConversationExecutionState</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>execution_state</strong> (<em>AgentConversationExecutionState</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.AgentExecutionIterationStartedEvent.execution_state">
-<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">AgentConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.AgentExecutionIterationStartedEvent.execution_state" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">AgentConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.AgentExecutionIterationStartedEvent.execution_state" title="Link to this definition">#</a></dt>
 <dd><p>State of an agent (doesn’t contain messages)</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="agentexecutioniterationfinishedevent"></span><dl class="py class">
+<dl class="py class" id="agentexecutioniterationfinishedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.AgentExecutionIterationFinishedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">AgentExecutionIterationFinishedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.AgentExecutionIterationFinishedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">AgentExecutionIterationFinishedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.AgentExecutionIterationFinishedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever an iteration of an agent has finished executing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>execution_state</strong> (<em>AgentConversationExecutionState</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>execution_state</strong> (<em>AgentConversationExecutionState</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.AgentExecutionIterationFinishedEvent.execution_state">
-<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">AgentConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.AgentExecutionIterationFinishedEvent.execution_state" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">AgentConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.AgentExecutionIterationFinishedEvent.execution_state" title="Link to this definition">#</a></dt>
 <dd><p>State of an agent (doesn’t contain messages)</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="exceptionraisedevent"></span><dl class="py class">
+<dl class="py class" id="exceptionraisedevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ExceptionRaisedEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ExceptionRaisedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exception=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ExceptionRaisedEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">ExceptionRaisedEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exception=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.ExceptionRaisedEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever an exception occurs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>exception</strong> (<em>Exception</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>exception</strong> (<em>Exception</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.ExceptionRaisedEvent.exception">
-<span class="sig-name descname"><span class="pre">exception</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></em><a class="headerlink" href="#wayflowcore.events.event.ExceptionRaisedEvent.exception" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">exception</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></em><a class="headerlink" href="#wayflowcore.events.event.ExceptionRaisedEvent.exception" title="Link to this definition">#</a></dt>
 <dd><p>Exception that was thrown during execution</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="agentnextactiondecisionstartevent"></span><dl class="py class">
+<dl class="py class" id="agentnextactiondecisionstartevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.AgentNextActionDecisionStartEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">AgentNextActionDecisionStartEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.AgentNextActionDecisionStartEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">AgentNextActionDecisionStartEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.AgentNextActionDecisionStartEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded at the start of the agent taking a decision on what to do next.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>execution_state</strong> (<em>AgentConversationExecutionState</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>execution_state</strong> (<em>AgentConversationExecutionState</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.AgentNextActionDecisionStartEvent.execution_state">
-<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">AgentConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.AgentNextActionDecisionStartEvent.execution_state" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">AgentConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.AgentNextActionDecisionStartEvent.execution_state" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<span class="target" id="agentdecidednextactionevent"></span><dl class="py class">
+<dl class="py class" id="agentdecidednextactionevent">
 <dt class="sig sig-object py" id="wayflowcore.events.event.AgentDecidedNextActionEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">AgentDecidedNextActionEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_yield=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.AgentDecidedNextActionEvent" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.event.</span></span><span class="sig-name descname"><span class="pre">AgentDecidedNextActionEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_yield=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_state=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.event.AgentDecidedNextActionEvent" title="Link to this definition">#</a></dt>
 <dd><p>This event is recorded whenever the agent decided what to do next.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
-<li><p><strong>event_id</strong> (<em>str</em>) – </p></li>
-<li><p><strong>timestamp</strong> (<em>int</em>) – </p></li>
-<li><p><strong>should_yield</strong> (<em>bool</em>) – </p></li>
-<li><p><strong>execution_state</strong> (<em>AgentConversationExecutionState</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>)</p></li>
+<li><p><strong>should_yield</strong> (<em>bool</em>)</p></li>
+<li><p><strong>execution_state</strong> (<em>AgentConversationExecutionState</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.AgentDecidedNextActionEvent.execution_state">
-<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">AgentConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.AgentDecidedNextActionEvent.execution_state" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execution_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">AgentConversationExecutionState</span></code></em><a class="headerlink" href="#wayflowcore.events.event.AgentDecidedNextActionEvent.execution_state" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wayflowcore.events.event.AgentDecidedNextActionEvent.should_yield">
-<span class="sig-name descname"><span class="pre">should_yield</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#wayflowcore.events.event.AgentDecidedNextActionEvent.should_yield" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">should_yield</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#wayflowcore.events.event.AgentDecidedNextActionEvent.should_yield" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1228,17 +1227,17 @@ are the actual inputs of the conversation.</p>
 </div>
 </section>
 <section id="event-listeners">
-<span id="eventlisteners"></span><h2>Event Listeners<a class="headerlink" href="#event-listeners" title="Permalink to this heading">#</a></h2>
-<span class="target" id="eventlistener"></span><dl class="py class">
+<span id="eventlisteners"></span><h2>Event Listeners<a class="headerlink" href="#event-listeners" title="Link to this heading">#</a></h2>
+<dl class="py class" id="eventlistener">
 <dt class="sig sig-object py" id="wayflowcore.events.eventlistener.EventListener">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.eventlistener.</span></span><span class="sig-name descname"><span class="pre">EventListener</span></span><a class="headerlink" href="#wayflowcore.events.eventlistener.EventListener" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.eventlistener.</span></span><span class="sig-name descname"><span class="pre">EventListener</span></span><a class="headerlink" href="#wayflowcore.events.eventlistener.EventListener" title="Link to this definition">#</a></dt>
 <dd><p>Base class for EventListeners.</p>
 <p>An EventListener is a Callable that gets called every time an Event is recorded.</p>
 </dd></dl>
 
-<span class="target" id="genericeventlistener"></span><dl class="py class">
+<dl class="py class" id="genericeventlistener">
 <dt class="sig sig-object py" id="wayflowcore.events.eventlistener.GenericEventListener">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.eventlistener.</span></span><span class="sig-name descname"><span class="pre">GenericEventListener</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.eventlistener.GenericEventListener" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wayflowcore.events.eventlistener.</span></span><span class="sig-name descname"><span class="pre">GenericEventListener</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.eventlistener.GenericEventListener" title="Link to this definition">#</a></dt>
 <dd><p>Special implementation of EventListener that calls a function every time an event
 whose type is among the given event classes is recorded.</p>
 <dl class="field-list simple">
@@ -1252,9 +1251,9 @@ the event being recorded, it is not supposed to have any return value.</p></li>
 </dl>
 </dd></dl>
 
-<span class="target" id="registereventlisteners"></span><dl class="py function">
+<dl class="py function" id="registereventlisteners">
 <dt class="sig sig-object py" id="wayflowcore.events.eventlistener.register_event_listeners">
-<span class="sig-prename descclassname"><span class="pre">wayflowcore.events.eventlistener.</span></span><span class="sig-name descname"><span class="pre">register_event_listeners</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_listeners</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.eventlistener.register_event_listeners" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wayflowcore.events.eventlistener.</span></span><span class="sig-name descname"><span class="pre">register_event_listeners</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_listeners</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.eventlistener.register_event_listeners" title="Link to this definition">#</a></dt>
 <dd><p>Register event listeners to be called for all events recorded inside the context manager’s scope</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1266,9 +1265,9 @@ the event being recorded, it is not supposed to have any return value.</p></li>
 </dl>
 </dd></dl>
 
-<span class="target" id="geteventlisteners"></span><dl class="py function">
+<dl class="py function" id="geteventlisteners">
 <dt class="sig sig-object py" id="wayflowcore.events.eventlistener.get_event_listeners">
-<span class="sig-prename descclassname"><span class="pre">wayflowcore.events.eventlistener.</span></span><span class="sig-name descname"><span class="pre">get_event_listeners</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.eventlistener.get_event_listeners" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wayflowcore.events.eventlistener.</span></span><span class="sig-name descname"><span class="pre">get_event_listeners</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.eventlistener.get_event_listeners" title="Link to this definition">#</a></dt>
 <dd><p>Get all the event listeners that are registered in the current context</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1280,9 +1279,9 @@ the event being recorded, it is not supposed to have any return value.</p></li>
 </dl>
 </dd></dl>
 
-<span class="target" id="recordevent"></span><dl class="py function">
+<dl class="py function" id="recordevent">
 <dt class="sig sig-object py" id="wayflowcore.events.eventlistener.record_event">
-<span class="sig-prename descclassname"><span class="pre">wayflowcore.events.eventlistener.</span></span><span class="sig-name descname"><span class="pre">record_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.eventlistener.record_event" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wayflowcore.events.eventlistener.</span></span><span class="sig-name descname"><span class="pre">record_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wayflowcore.events.eventlistener.record_event" title="Link to this definition">#</a></dt>
 <dd><p>Record the event and execute all the event listeners that are registered in the current context</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1502,7 +1501,7 @@ the event being recorded, it is not supposed to have any return value.</p></li>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

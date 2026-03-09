@@ -11,7 +11,7 @@
 # python -m venv venv-wayflowcore
 # source venv-wayflowcore/bin/activate
 # pip install --upgrade pip
-# pip install "wayflowcore==26.2" 
+# pip install "wayflowcore==26.1.1" 
 # ```
 
 # You can now run the script

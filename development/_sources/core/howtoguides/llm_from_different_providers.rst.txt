@@ -307,6 +307,14 @@ To disable this behavior, set ``use_tools`` to ``False`` and ensure the prompt d
 See `this documentation <https://arxiv.org/abs/2210.03629>`_ for more details on the ReAct prompting technique.
 
 
+Troubleshooting
+---------------
+
+In certain situations, models may require messages to follow a specific order.
+Message transforms such as :ref:`CanonicalizationMessageTransform <canonicalizationtransform>` can
+be used to enforce the correct ordering of messages (for example, when working with Google models).
+For additional details on LLM prompting, refer to the :doc:`Prompt Template guide <howto_prompttemplate>`.
+
 Recap
 -----
 

@@ -56,6 +56,7 @@ These how-to guides demonstrate how to use the main features to create and custo
    Catch Exceptions in Flows <catching_exceptions>
    Do Map and Reduce Operations in Flows <howto_mapstep>
    Run Multiple Flows in Parallel <howto_parallelflowexecution>
+   Build Flows with the Flow Builder <howto_flowbuilder>
 
 .. toctree::
    :maxdepth: 1
@@ -90,6 +91,7 @@ and support for :ref:`Model Context Protocol (MCP) tools <mcptool>`.
    Create Tools with Multiple Outputs <howto_multiple_output_tool>
    Convert Flows to Tools <create_a_tool_from_a_flow>
    Connect MCP tools to Assistants <howto_mcp>
+   Enable Tool Output Streaming <howto_tooloutputstreaming>
    Do Remote API Calls with Tokens <howto_remote_tool_expired_token>
 
 
@@ -106,6 +108,7 @@ These guides demonstrate how to configure the components of assistants built wit
    Serialize and Deserialize Conversations <howto_serialize_conversations>
    Build a New WayFlow Component <howto_plugins>
    Enable Tracing <howto_tracing>
+   Use the Event System <howto_event_system>
 
 
 Data in Assistants
@@ -118,7 +121,7 @@ Data in Assistants
    Use Embedding Models from Different Providers <embeddingmodels_from_different_providers>
    Use Variables for Shared State in Flows <howto_variable>
    Synthesize Data in WayFlow <howto_data_synthesis>
-
+   Build RAG-Powered Assistants <howto_rag>
 
 
 Assistant Testing and Evaluation

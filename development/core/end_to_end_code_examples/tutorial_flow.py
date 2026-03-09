@@ -11,7 +11,7 @@
 # python -m venv venv-wayflowcore
 # source venv-wayflowcore/bin/activate
 # pip install --upgrade pip
-# pip install "wayflowcore==26.1" 
+# pip install "wayflowcore==26.2.0.dev0" 
 # ```
 
 # You can now run the script
@@ -37,6 +37,7 @@ from textwrap import dedent
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.flow import Flow
+from wayflowcore.flowbuilder import FlowBuilder
 
 # Create an LLM model to use later in the tutorial.
 from wayflowcore.models import VllmModel
@@ -228,6 +229,25 @@ assistant = Flow(
     begin_step=start_step,
     control_flow_edges=control_flow_edges,
     data_flow_edges=data_flow_edges,
+)
+
+# %%[markdown]
+## Create assistant FlowBuilder
+
+# %%
+# Create the same assistant using the Flow Builder API.
+assistant = (
+    FlowBuilder()
+    .add_sequence([user_input_step, hr_lookup_step, llm_answer_step, user_output_step])
+    .set_entry_point(user_input_step)
+    # Link the final step to completion
+    .set_finish_points(user_output_step)
+    # Wire the data connections
+    .add_data_edge(user_input_step, hr_lookup_step, (HR_QUERY, TOOL_QUERY))
+    .add_data_edge(user_input_step, llm_answer_step, (HR_QUERY, USER_QUESTION))
+    .add_data_edge(hr_lookup_step, llm_answer_step, (HR_DATA_CONTEXT, HR_DATA_CONTEXT))
+    .add_data_edge(llm_answer_step, user_output_step, (QUERY_ANSWER, QUERY_ANSWER))
+    .build()
 )
 
 # %%[markdown]

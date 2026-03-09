@@ -1,14 +1,13 @@
 
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>How to Send Images to LLMs and Agents &#8212; wayflowcore 26.1.1 documentation</title>
   
@@ -32,12 +31,12 @@
   <link href="../../_static/styles/theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=dba54f56160742ef5599" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/core.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css-style.css?v=aa3a767e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/core.css?v=862d0a3d" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=dba54f56160742ef5599"></script>
@@ -46,13 +45,13 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dba54f56160742ef5599" />
 
   
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/tabs.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=fef1741c"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'core/howtoguides/howto_imagecontent';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -70,7 +69,7 @@
     <link rel="prev" title="How to Configure Agents Instructions" href="agents.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="26.2" />
+  <meta name="docsearch:version" content="26.1.1" />
   </head>
   
   
@@ -281,7 +280,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials &amp; Use Cases</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/basic_agent.html">Build a Simple Conversational Assistant with Agents</a></li>
@@ -361,7 +360,7 @@
 </ul>
 </details></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Resources</span></p>
+<p class="caption" role="heading"><span class="caption-text">Resources</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../misc/reference_sheet.html">Reference Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/glossary.html">Glossary</a></li>
@@ -432,14 +431,14 @@
                 <article class="bd-article">
                   
   <section id="how-to-send-images-to-llms-and-agents">
-<span id="top-howtoimagecontent"></span><h1>How to Send Images to LLMs and Agents<a class="headerlink" href="#how-to-send-images-to-llms-and-agents" title="Permalink to this heading">#</a></h1>
+<span id="top-howtoimagecontent"></span><h1>How to Send Images to LLMs and Agents<a class="headerlink" href="#how-to-send-images-to-llms-and-agents" title="Link to this heading">#</a></h1>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
-<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" height="40px" src="../../_images/python-icon.svg" width="40px" /></a> Download Python Script</div>
+<a class="reference internal" href="../../_images/python-icon.svg"><img alt="python-icon" src="../../_images/python-icon.svg" style="width: 40px; height: 40px;" /></a> Download Python Script</div>
 <p class="sd-card-text">Python script/notebook for this guide.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="../end_to_end_code_examples/howto_imagecontent.py"><span>Tutorial on using Images with WayFlow models</span></a></div>
@@ -453,7 +452,7 @@
 </ul>
 </div>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <p>Some Large Language Models (LLMs) can handle images in addition to text.
 WayFlow supports passing images alongside text in both direct prompt requests and full agent conversations
 using the <cite>ImageContent</cite> API.</p>
@@ -465,13 +464,13 @@ using the <cite>ImageContent</cite> API.</p>
 <li><p>How to inspect and use model/agent outputs with image reasoning.</p></li>
 </ul>
 <section id="what-is-imagecontent">
-<h3>What is <code class="docutils literal notranslate"><span class="pre">ImageContent</span></code>?<a class="headerlink" href="#what-is-imagecontent" title="Permalink to this heading">#</a></h3>
+<h3>What is <code class="docutils literal notranslate"><span class="pre">ImageContent</span></code>?<a class="headerlink" href="#what-is-imagecontent" title="Link to this heading">#</a></h3>
 <p><cite>ImageContent</cite> is a type of message content that stores image bytes and format metadata.
 You can combine an image with additional <cite>TextContent</cite> in a single message.</p>
 </section>
 </section>
 <section id="basic-implementation">
-<h2>Basic implementation<a class="headerlink" href="#basic-implementation" title="Permalink to this heading">#</a></h2>
+<h2>Basic implementation<a class="headerlink" href="#basic-implementation" title="Link to this heading">#</a></h2>
 <p>First import what is needed for this guide:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
 <span class="linenos">2</span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
@@ -513,7 +512,7 @@ Select an LLM from the options below:</p>
 </div></div>
 </section>
 <section id="step-1-creating-a-prompt-with-imagecontent">
-<h2>Step 1: Creating a prompt with ImageContent<a class="headerlink" href="#step-1-creating-a-prompt-with-imagecontent" title="Permalink to this heading">#</a></h2>
+<h2>Step 1: Creating a prompt with ImageContent<a class="headerlink" href="#step-1-creating-a-prompt-with-imagecontent" title="Link to this heading">#</a></h2>
 <p>Before sending requests to your vision-capable LLMs or agents, you need to construct a prompt containing both the image and text content. The example below demonstrates:</p>
 <ul class="simple">
 <li><p>Downloading an image (here, the Oracle logo) via HTTP request</p></li>
@@ -538,7 +537,7 @@ Select an LLM from the options below:</p>
 </div>
 </section>
 <section id="step-2-sending-image-input-to-a-vision-capable-model">
-<h2>Step 2: Sending image input to a vision-capable model<a class="headerlink" href="#step-2-sending-image-input-to-a-vision-capable-model" title="Permalink to this heading">#</a></h2>
+<h2>Step 2: Sending image input to a vision-capable model<a class="headerlink" href="#step-2-sending-image-input-to-a-vision-capable-model" title="Link to this heading">#</a></h2>
 <p>You can send images directly to your LLM by constructing a prompt with both <cite>ImageContent</cite> and <cite>TextContent</cite>.
 The example below downloads the Oracle logo PNG and queries the LLM for recognition.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
@@ -550,7 +549,7 @@ The example below downloads the Oracle logo PNG and queries the LLM for recognit
 If your model does not support images, you will get an error.</p>
 </section>
 <section id="step-3-using-images-in-agent-conversations">
-<h2>Step 3: Using images in Agent conversations<a class="headerlink" href="#step-3-using-images-in-agent-conversations" title="Permalink to this heading">#</a></h2>
+<h2>Step 3: Using images in Agent conversations<a class="headerlink" href="#step-3-using-images-in-agent-conversations" title="Link to this heading">#</a></h2>
 <p>You can pass images in an Agent-driven chat workflow.
 This allows assistants to process visual information alongside user dialog.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create an Agent configured for vision</span>
@@ -575,20 +574,20 @@ This allows assistants to process visual information alongside user dialog.</p>
 <p><strong>Expected output:</strong> The agent response should mention “Oracle Corporation”.</p>
 </section>
 <section id="api-reference-and-practical-information">
-<h2>API Reference and Practical Information<a class="headerlink" href="#api-reference-and-practical-information" title="Permalink to this heading">#</a></h2>
+<h2>API Reference and Practical Information<a class="headerlink" href="#api-reference-and-practical-information" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="../api/conversation.html#imagecontent"><span class="std std-ref">ImageContent</span></a></p></li>
 <li><p><a class="reference internal" href="../api/conversation.html#textcontent"><span class="std std-ref">TextContent</span></a></p></li>
 <li><p><a class="reference internal" href="../api/agent.html#wayflowcore.agent.Agent" title="wayflowcore.agent.Agent"><code class="xref py py-class docutils literal notranslate"><span class="pre">wayflowcore.agent.Agent</span></code></a></p></li>
 </ul>
 <section id="supported-image-formats">
-<h3>Supported Image Formats<a class="headerlink" href="#supported-image-formats" title="Permalink to this heading">#</a></h3>
+<h3>Supported Image Formats<a class="headerlink" href="#supported-image-formats" title="Link to this heading">#</a></h3>
 <p>Most vision LLMs support PNG, JPG, JPEG, GIF, or WEBP.
 Always specify the correct format for ImageContent.</p>
 </section>
 </section>
 <section id="agent-spec-exporting-loading">
-<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Permalink to this heading">#</a></h2>
+<h2>Agent Spec Exporting/Loading<a class="headerlink" href="#agent-spec-exporting-loading" title="Link to this heading">#</a></h2>
 <p>You can export the assistant configuration to its Agent Spec configuration using the <code class="docutils literal notranslate"><span class="pre">AgentSpecExporter</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">wayflowcore.agentspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentSpecExporter</span>
 
@@ -663,14 +662,14 @@ Always specify the correct format for ImageContent.</p>
 </div>
 </section>
 <section id="next-steps">
-<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this heading">#</a></h2>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
 <p>Having learned how to send images to LLMs and Agents, you may now proceed to:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../tutorials/basic_agent.html"><span class="doc">Build a Simple Conversational Assistant with Agents</span></a></p></li>
 </ul>
 </section>
 <section id="full-code">
-<h2>Full code<a class="headerlink" href="#full-code" title="Permalink to this heading">#</a></h2>
+<h2>Full code<a class="headerlink" href="#full-code" title="Link to this heading">#</a></h2>
 <p>Click on the card at the <a class="reference internal" href="#top-howtoimagecontent"><span class="std std-ref">top of this page</span></a> to download the full code for this guide or copy the code below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># Copyright © 2025 Oracle and/or its affiliates.</span>
 <span class="linenos">  2</span><span class="c1">#</span>
@@ -685,7 +684,7 @@ Always specify the correct format for ImageContent.</p>
 <span class="linenos"> 11</span><span class="c1"># python -m venv venv-wayflowcore</span>
 <span class="linenos"> 12</span><span class="c1"># source venv-wayflowcore/bin/activate</span>
 <span class="linenos"> 13</span><span class="c1"># pip install --upgrade pip</span>
-<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.2&quot; </span>
+<span class="linenos"> 14</span><span class="c1"># pip install &quot;wayflowcore==26.1.1&quot; </span>
 <span class="linenos"> 15</span><span class="c1"># ```</span>
 <span class="linenos"> 16</span>
 <span class="linenos"> 17</span><span class="c1"># You can now run the script</span>
@@ -863,7 +862,7 @@ Always specify the correct format for ImageContent.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>
