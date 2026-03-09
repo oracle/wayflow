@@ -58,18 +58,23 @@ def get_current_conv_id_or_default() -> str:
 
 async def _call_with_parent_span(
     parent_span_stack: list[Span],
+    mcp_without_auth: bool,
     async_fn: Callable[..., Awaitable[T]],
     /,
     *args: Any,
     **kwargs: Any,
 ) -> T | Awaitable[T]:
+    from wayflowcore.mcp.mcphelpers import _GLOBAL_ENABLED_MCP_WITHOUT_AUTH
+
     token = _ACTIVE_SPAN_STACK.set(parent_span_stack)
+    auth_token = _GLOBAL_ENABLED_MCP_WITHOUT_AUTH.set(mcp_without_auth)
     try:
         result = async_fn(*args, **kwargs)
         if hasattr(result, "__await__"):
             return await result
         return result
     finally:
+        _GLOBAL_ENABLED_MCP_WITHOUT_AUTH.reset(auth_token)
         _ACTIVE_SPAN_STACK.reset(token)
 
 
@@ -205,7 +210,10 @@ class AsyncRuntime(metaclass=Singleton):
         # schema fetches before tool execution). To ensure tool progress callbacks
         # can resolve the active ToolExecutionSpan, explicitly forward the current
         # WayFlow span stack + event listeners to the portal task.
+        from wayflowcore.mcp.mcphelpers import _is_mcp_without_auth_enabled
+
         parent_span_stack = get_active_span_stack(return_copy=True)
+        mcp_without_auth = _is_mcp_without_auth_enabled()
 
         # Store the most recent caller context on the runtime so callbacks that are
         # invoked later (e.g., MCP progress callbacks inside a long-lived session
@@ -216,6 +224,7 @@ class AsyncRuntime(metaclass=Singleton):
         return self._portal.call(  # type: ignore
             _call_with_parent_span,
             parent_span_stack,
+            mcp_without_auth,
             async_fn,
             *args,
             **kwargs,
