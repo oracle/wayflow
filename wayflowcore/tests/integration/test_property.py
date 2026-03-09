@@ -294,3 +294,14 @@ def test_enum_can_be_casted_into_larger_enum():
     source_property = StringProperty(enum=("1", "2"))
     destination_property = StringProperty(enum=("1", "2", "3"))
     assert _property_can_be_casted_into_property(source_property, destination_property) is True
+
+
+def test_enum_default_case_mismatch_warns():
+    with pytest.warns(UserWarning, match="does not match enum casing"):
+        prop = StringProperty(default_value="all", enum=("ALL", "NONE"))
+    assert prop.default_value == "ALL"
+
+
+def test_enum_default_exact_match_does_not_warn():
+    prop = StringProperty(default_value="ALL", enum=("ALL", "NONE"))
+    assert prop.default_value == "ALL"

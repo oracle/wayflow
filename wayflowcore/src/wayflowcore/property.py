@@ -6,6 +6,7 @@
 
 import json
 import logging
+import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -138,6 +139,26 @@ class Property(SerializableObject, ABC):
         return self._type_default_value
 
     def __post_init__(self) -> None:
+        # Normalize string default to match enum casing (e.g. 'all' → 'ALL')
+        if (
+            self.has_default
+            and self.enum is not None
+            and isinstance(self.default_value, str)
+            and self.default_value not in self.enum
+        ):
+            lower = self.default_value.lower()
+            for ev in self.enum:
+                if isinstance(ev, str) and ev.lower() == lower:
+                    warnings.warn(
+                        f"Default value '{self.default_value}' does not match enum casing; "
+                        f"matched '{ev}' using case-insensitive comparison. "
+                        f"Please update the default to '{ev}'.",
+                        UserWarning,
+                        stacklevel=2,
+                    )
+                    object.__setattr__(self, 'default_value', ev)
+                    break
+
         if (
             self.has_default
             and self._validate_default_type
