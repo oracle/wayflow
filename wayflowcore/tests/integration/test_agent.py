@@ -20,7 +20,11 @@ from wayflowcore.contextproviders import ContextProvider, ToolContextProvider
 from wayflowcore.contextproviders.constantcontextprovider import ConstantContextProvider
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
-from wayflowcore.executors._agentexecutor import _SUBMIT_TOOL_NAME
+from wayflowcore.executors._agentexecutor import (
+    _SUBMIT_TOOL_NAME,
+    _TALK_TO_USER_INPUT_PARAM,
+    _TALK_TO_USER_TOOL_NAME,
+)
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolExecutionConfirmationStatus,
@@ -2327,3 +2331,44 @@ def test_agent_does_not_loop_until_max_iterations(remotely_hosted_llm):
     status = conv.execute()
     # it should not have exited because of max_iter
     assert conv.state.curr_iter != agent.max_iterations
+
+
+def test_agent_outputs_both_talk_user_and_normal_tool(remotely_hosted_llm):
+
+    tool = ClientTool(
+        name="some_tool",
+        description="",
+        input_descriptors=[],
+        output_descriptors=[],
+    )
+
+    agent = Agent(
+        llm=remotely_hosted_llm,
+        tools=[tool],
+    )
+    conv = agent.start_conversation(messages="do something")
+
+    with patch_llm(
+        remotely_hosted_llm,
+        outputs=[
+            [
+                ToolRequest(name="some_tool", args={}, tool_request_id="id100"),
+                ToolRequest(
+                    name=_TALK_TO_USER_TOOL_NAME,
+                    args={_TALK_TO_USER_INPUT_PARAM: "something"},
+                    tool_request_id="id3",
+                ),
+            ],
+            "something else",
+        ],
+    ):
+        status = conv.execute()
+        assert isinstance(status, ToolRequestStatus)
+        status.submit_tool_result(
+            tool_result=ToolResult(
+                tool_request_id=status.tool_requests[0].tool_request_id, content={}
+            )
+        )
+        status = conv.execute()
+        assert isinstance(status, UserMessageRequestStatus)
+        assert status.message.content == "something else"
