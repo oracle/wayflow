@@ -234,7 +234,20 @@ class AsyncRuntime(metaclass=Singleton):
         self, async_fn: Callable[..., Awaitable[T]], /, *args: Any, **kwargs: Any
     ) -> T:
         """This method should be called to ensure that an async method is called from the portal when in an async context."""
-        return await to_thread.run_sync(lambda: self.call(async_fn, *args, **kwargs))
+        # Capture ContextVar values here (in the caller's async context) because
+        # to_thread.run_sync spawns a new thread where ContextVars revert to defaults.
+        from wayflowcore.mcp.mcphelpers import _GLOBAL_ENABLED_MCP_WITHOUT_AUTH, _is_mcp_without_auth_enabled
+
+        mcp_without_auth = _is_mcp_without_auth_enabled()
+
+        def _run_in_thread() -> T:
+            token = _GLOBAL_ENABLED_MCP_WITHOUT_AUTH.set(mcp_without_auth)
+            try:
+                return self.call(async_fn, *args, **kwargs)
+            finally:
+                _GLOBAL_ENABLED_MCP_WITHOUT_AUTH.reset(token)
+
+        return await to_thread.run_sync(_run_in_thread)
 
     def get_or_create_session(self, client_transport: "ClientTransport") -> ClientSession:
         """
