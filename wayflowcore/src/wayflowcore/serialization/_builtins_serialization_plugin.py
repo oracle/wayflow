@@ -49,6 +49,9 @@ from pyagentspec.flows.nodes import ParallelMapNode as AgentSpecParallelMapNode
 from pyagentspec.flows.nodes import StartNode as AgentSpecStartNode
 from pyagentspec.flows.nodes import ToolNode as AgentSpecToolNode
 from pyagentspec.flows.nodes.mapnode import ReductionMethod
+from pyagentspec.llms import GeminiAiStudioAuthConfig as AgentSpecGeminiAiStudioAuthConfig
+from pyagentspec.llms import GeminiConfig as AgentSpecGeminiConfig
+from pyagentspec.llms import GeminiVertexAiAuthConfig as AgentSpecGeminiVertexAiAuthConfig
 from pyagentspec.llms import LlmConfig as AgentSpecLlmConfig
 from pyagentspec.llms import OciGenAiConfig as AgentSpecOciGenAiModel
 from pyagentspec.llms import OpenAiConfig as AgentSpecOpenAiConfig
@@ -134,7 +137,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_serialization_plugin
+from wayflowcore.agentspec.components import (
+    all_serialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -354,6 +359,9 @@ from wayflowcore.messagelist import Message as RuntimeMessage
 from wayflowcore.messagelist import MessageContent as RuntimeMessageContent
 from wayflowcore.messagelist import MessageType
 from wayflowcore.messagelist import TextContent as RuntimeTextContent
+from wayflowcore.models import GeminiApiKeyAuth as RuntimeGeminiApiKeyAuth
+from wayflowcore.models import GeminiCloudAuth as RuntimeGeminiCloudAuth
+from wayflowcore.models import GeminiModel as RuntimeGeminiModel
 from wayflowcore.models import LlmModel as RuntimeLlmModel
 from wayflowcore.models import OCIGenAIModel as RuntimeOCIGenAIModel
 from wayflowcore.models import OllamaModel as RuntimeOllamaModel
@@ -377,7 +385,9 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
-from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
+from wayflowcore.models.openaicompatiblemodel import (
+    EMPTY_API_KEY,
+)
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -1064,6 +1074,18 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             **extra_args,
         )
 
+    def _gemini_auth_convert_to_agentspec(self, runtime_auth: Any) -> Any:
+        """Convert a WayFlow Gemini auth object into its Agent Spec equivalent."""
+        if isinstance(runtime_auth, RuntimeGeminiApiKeyAuth):
+            return AgentSpecGeminiAiStudioAuthConfig(api_key=runtime_auth.api_key)
+        if isinstance(runtime_auth, RuntimeGeminiCloudAuth):
+            return AgentSpecGeminiVertexAiAuthConfig(
+                project_id=runtime_auth.project_id,
+                location=runtime_auth.location,
+                credentials=runtime_auth.vertex_credentials,
+            )
+        raise ValueError(f"Unsupported Gemini auth configuration: {type(runtime_auth)}")
+
     def _postgres_db_connection_config_convert_to_agentspec(
         self,
         conversion_context: "WayflowToAgentSpecConversionContext",
@@ -1317,6 +1339,16 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
                 api_key=runtime_llm.api_key if runtime_llm.api_key != EMPTY_API_KEY else None,
+            )
+        elif isinstance(runtime_llm, RuntimeGeminiModel):
+            return AgentSpecGeminiConfig(
+                name=runtime_llm.name,
+                model_id=runtime_llm.model_id,
+                auth=self._gemini_auth_convert_to_agentspec(runtime_llm.auth),
+                metadata=_create_agentspec_metadata_from_runtime_component(runtime_llm),
+                id=runtime_llm.id,
+                description=runtime_llm.description,
+                default_generation_parameters=generation_config,
             )
         elif isinstance(runtime_llm, RuntimeOpenAICompatibleModel):
             return AgentSpecOpenAiCompatibleConfig(

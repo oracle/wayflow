@@ -14,7 +14,7 @@ from .ocigenaimodel import ModelProvider, OciAPIType
 class LlmModelFactory:
     """Factory class that creates ``LlmModel`` instances from configuration dictionaries.
 
-    Supports vLLM, Ollama, OpenAI and OCIGenAI models.
+    Supports Gemini, vLLM, Ollama, OpenAI and OCIGenAI models.
     """
 
     @staticmethod
@@ -22,6 +22,7 @@ class LlmModelFactory:
         config_copy = deepcopy(model_config)
         model_type = config_copy.pop("model_type")
 
+        from .geminimodel import GeminiApiKeyAuth, GeminiCloudAuth, GeminiModel
         from .ociclientconfig import OCIClientConfig
         from .ocigenaimodel import OCIGenAIModel, ServingMode
         from .ollamamodel import OllamaModel
@@ -55,12 +56,33 @@ class LlmModelFactory:
                 config_copy["provider"] = ModelProvider(config_copy["provider"])
             if "api_type" in config_copy:
                 config_copy["api_type"] = OciAPIType(config_copy["api_type"])
+        elif model_type == "gemini":
+            auth_config_obj = config_copy.get("auth")
+            if auth_config_obj is None:
+                raise ValueError("Gemini configs must include a non-null 'auth' configuration.")
+            if isinstance(auth_config_obj, dict):
+                auth_type = auth_config_obj.get("type")
+                if auth_type is None:
+                    raise ValueError("Gemini auth configs must include a 'type' field.")
+                auth_kwargs = {k: v for k, v in auth_config_obj.items() if k != "type"}
+                if auth_type == "api_key":
+                    config_copy["auth"] = GeminiApiKeyAuth(**auth_kwargs)
+                elif auth_type == "cloud":
+                    config_copy["auth"] = GeminiCloudAuth(**auth_kwargs)
+                else:
+                    raise ValueError(f"Unknown type of Gemini auth: {auth_type}")
+            elif not isinstance(auth_config_obj, (GeminiApiKeyAuth, GeminiCloudAuth)):
+                raise TypeError(
+                    "'auth' should be either a dictionary, a GeminiApiKeyAuth object, "
+                    f"or a GeminiCloudAuth object. Got type {type(auth_config_obj)} instead."
+                )
 
         config_copy.pop("_component_type", None)
         config_copy.pop("_referenced_objects", None)
         override_tool_calling_default_method = config_copy.pop("_tool_calling_method", None)
 
         model_type_to_model_class_dict: Dict[str, Type[LlmModel]] = {
+            "gemini": GeminiModel,
             "vllm": VllmModel,
             "ollama": OllamaModel,
             "openai": OpenAIModel,
