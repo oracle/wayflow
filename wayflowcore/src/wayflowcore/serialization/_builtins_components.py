@@ -73,6 +73,7 @@ _BUILTIN_COMPONENTS = {
     "FlowExecutionStep",
     "FrozenDataclassComponent",
     "FrozenSerializableDataclass",
+    "GeminiModel",
     "GetChatHistoryStep",
     "HTTPmTLSBaseTransport",
     "HumanProxyAssistant",

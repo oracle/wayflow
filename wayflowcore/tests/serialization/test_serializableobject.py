@@ -82,6 +82,7 @@ ALL_SERIALIZABLE_CLASSES = {
     "FlowExecutionStep",
     "FrozenDataclassComponent",
     "FrozenSerializableDataclass",
+    "GeminiModel",
     "GetChatHistoryStep",
     "HTTPmTLSBaseTransport",
     "HumanProxyAssistant",
