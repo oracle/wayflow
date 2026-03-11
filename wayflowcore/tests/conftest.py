@@ -19,6 +19,9 @@ import pytest
 from _pytest.fixtures import FixtureRequest
 from dotenv import load_dotenv
 
+# Prevent LiteLLM from fetching the remote model-cost map during test imports.
+os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+
 from wayflowcore import Message, MessageType
 from wayflowcore._threading import shutdown_threadpool
 from wayflowcore.datastore import MTlsOracleDatabaseConnectionConfig
@@ -883,8 +886,9 @@ def anyio_backend():
 def pytest_sessionfinish(session, exitstatus):
     threads = [t for t in threading.enumerate() if t is not threading.main_thread()]
     if threads:
-        text = "Non-main threads still running at end of tests\n" + "\n".join(
-            f"{t.name}: {t.daemon}, {t.is_alive()}" for t in threads
+        text = (
+            "[WayFlow test suite] conftest.py pytest_sessionfinish hook: detected non-main threads still running at end of tests\n"
+            + "\n".join(f"{t.name}: {t.daemon}, {t.is_alive()}" for t in threads)
         )
         raise ValueError(text)
 

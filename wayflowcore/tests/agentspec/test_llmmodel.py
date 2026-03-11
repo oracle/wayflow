@@ -6,16 +6,24 @@
 from typing import Any, Mapping
 
 import pytest
+from pyagentspec.llms import GeminiConfig as AgentSpecGeminiConfig
+from pyagentspec.llms import GeminiVertexAiAuthConfig as AgentSpecGeminiVertexAiAuthConfig
 from pyagentspec.llms.ocigenaiconfig import ModelProvider, ServingMode
 
+from tests.testhelpers import litellm_testhelpers
 from wayflowcore import Agent
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
+from wayflowcore.messagelist import Message
 from wayflowcore.models import (
+    GeminiApiKeyAuth,
+    GeminiCloudAuth,
+    GeminiModel,
     LlmGenerationConfig,
     OCIGenAIModel,
     OllamaModel,
     OpenAICompatibleModel,
     OpenAIModel,
+    Prompt,
     VllmModel,
 )
 from wayflowcore.models.ociclientconfig import (
@@ -24,6 +32,11 @@ from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithResourcePrincipal,
     OCIClientConfigWithSecurityToken,
 )
+
+_ADC_CREDENTIALS_PATH = litellm_testhelpers.ADC_CREDENTIALS_PATH
+_VERTEX_ADC_PROJECT_ID = litellm_testhelpers.VERTEX_ADC_PROJECT_ID
+_VERTEX_ADC_LOCATION = litellm_testhelpers.VERTEX_ADC_LOCATION
+litellm_thread_cleanup = litellm_testhelpers.litellm_thread_cleanup
 
 
 def _deserialize_agent(
@@ -150,3 +163,149 @@ def test_llm_model_serde_restores_tls_sensitive_fields_from_components_registry(
     assert deserialized_llm_model.key_file == tls_material.client_key_path
     assert deserialized_llm_model.cert_file == tls_material.client_cert_path
     assert deserialized_llm_model.ca_file == tls_material.ca_cert_path
+@pytest.mark.parametrize(
+    "llm_model, components_registry",
+    [
+        (
+            GeminiModel(
+                model_id="gemini-2.5-flash",
+                auth=GeminiApiKeyAuth(api_key="something"),
+            ),
+            {"{id}.auth": {"type": "aistudio", "api_key": "something"}},
+        ),
+        (
+            GeminiModel(
+                model_id="gemini-2.0-flash-lite",
+                auth=GeminiCloudAuth(
+                    project_id="project-id",
+                    location="global",
+                    vertex_credentials={
+                        "type": "service_account",
+                        "client_email": "agent@example.com",
+                        "private_key": "line1\\nline2",
+                    },
+                ),
+            ),
+            {
+                "{id}.auth": {
+                    "type": "vertex_ai",
+                    "project_id": "project-id",
+                    "location": "global",
+                    "credentials": {
+                        "type": "service_account",
+                        "client_email": "agent@example.com",
+                        "private_key": "line1\\nline2",
+                    },
+                }
+            },
+        ),
+    ],
+)
+def test_gemini_llm_model_serde_works_and_is_equal(llm_model, components_registry) -> None:
+    agent = Agent(llm=llm_model, custom_instruction="Be nice.")
+    serialized_agent = AgentSpecExporter().to_json(agent)
+
+    assert "agent@example.com" not in serialized_agent
+    assert "something" not in serialized_agent
+    assert llm_model.model_id in serialized_agent
+    assert f"gemini/{llm_model.model_id}" not in serialized_agent
+    assert f"vertex_ai/{llm_model.model_id}" not in serialized_agent
+
+    resolved_registry = {
+        key.format(id=llm_model.id): value for key, value in components_registry.items()
+    }
+    deserialized_agent = cast(
+        Agent,
+        AgentSpecLoader().load_json(
+            serialized_agent,
+            components_registry=resolved_registry,
+        ),
+    )
+    deserialized_llm_model = deserialized_agent.llm
+
+    assert isinstance(deserialized_llm_model, GeminiModel)
+    assert deserialized_llm_model.model_id == llm_model.model_id
+    assert deserialized_llm_model.auth == llm_model.auth
+
+
+def test_gemini_llm_model_export_preserves_provided_model_id() -> None:
+    llm_model = GeminiModel(
+        model_id="vertex_ai/gemini-2.0-flash-lite",
+        auth=GeminiCloudAuth(project_id="project-id", location="global"),
+    )
+    agent = Agent(llm=llm_model, custom_instruction="Be nice.")
+
+    serialized_agent = AgentSpecExporter().to_json(agent)
+
+    assert '"model_id":"vertex_ai/gemini-2.0-flash-lite"' in serialized_agent.replace(" ", "")
+
+    deserialized_agent = cast(
+        Agent,
+        AgentSpecLoader().load_json(
+            serialized_agent,
+            components_registry={
+                f"{llm_model.id}.auth": {
+                    "type": "vertex_ai",
+                    "project_id": "project-id",
+                    "location": "global",
+                    "credentials": None,
+                }
+            },
+        ),
+    )
+    deserialized_llm_model = cast(GeminiModel, deserialized_agent.llm)
+
+    assert deserialized_llm_model.model_id == "vertex_ai/gemini-2.0-flash-lite"
+    assert deserialized_llm_model.auth == GeminiCloudAuth(
+        project_id="project-id", location="global"
+    )
+
+
+def test_agentspec_gemini_bare_model_id_loads_into_wayflow_with_vertex_prefix() -> None:
+    agentspec_llm = AgentSpecGeminiConfig(
+        name="gemini",
+        model_id="gemini-2.0-flash-lite",
+        auth=AgentSpecGeminiVertexAiAuthConfig(project_id="project-id", location="global"),
+    )
+
+    runtime_llm = cast(GeminiModel, AgentSpecLoader().load_component(agentspec_llm))
+    request = runtime_llm._build_litellm_request(
+        Prompt(messages=[Message(role="user", content="Hello")]),
+        stream=False,
+    )
+
+    assert runtime_llm.model_id == "gemini-2.0-flash-lite"
+    assert request["model"] == "vertex_ai/gemini-2.0-flash-lite"
+
+
+@pytest.mark.skipif(
+    not _ADC_CREDENTIALS_PATH.exists() or not _VERTEX_ADC_PROJECT_ID,
+    reason="Gemini ADC-backed Vertex auth not set up",
+)
+@pytest.mark.filterwarnings(
+    "ignore:Your application has authenticated using end user credentials from Google Cloud SDK without a quota project.*:UserWarning"
+)
+def test_agentspec_gemini_vertex_auth_without_vertex_credentials_loads_into_wayflow(
+    litellm_thread_cleanup,
+) -> None:
+    agentspec_llm = AgentSpecGeminiConfig(
+        name="gemini",
+        model_id="gemini-2.0-flash-lite",
+        auth=AgentSpecGeminiVertexAiAuthConfig(
+            project_id=_VERTEX_ADC_PROJECT_ID,
+            location=_VERTEX_ADC_LOCATION,
+        ),
+    )
+
+    runtime_llm = cast(GeminiModel, AgentSpecLoader().load_component(agentspec_llm))
+
+    assert isinstance(runtime_llm, GeminiModel)
+    assert isinstance(runtime_llm.auth, GeminiCloudAuth)
+    assert runtime_llm.auth.project_id == _VERTEX_ADC_PROJECT_ID
+    assert runtime_llm.auth.location == _VERTEX_ADC_LOCATION
+    assert runtime_llm.auth.vertex_credentials is None
+
+    completion = runtime_llm.generate(
+        Prompt(messages=[Message(role="user", content="Reply with exactly OK.")])
+    )
+    assert completion.message.content.strip().rstrip(".") == "OK"

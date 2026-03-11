@@ -5,6 +5,7 @@ How to Use LLMs from Different LLM Providers
 WayFlow supports several LLM API providers. The available LLMs are:
 
 - :ref:`OpenAIModel <openaimodel>`
+- :ref:`GeminiModel <geminimodel>`
 - :ref:`OpenAICompatibleModel <openaicompatiblemodel>`
 - :ref:`OCIGenAIModel <ocigenaimodel>`
 - :ref:`VllmModel <vllmmodel>`
@@ -220,6 +221,53 @@ OpenAI Model is powered by `OpenAI <https://platform.openai.com/docs/models>`_.
         :language: python
         :start-after: .. openai-llmfactory-start
         :end-before: .. openai-llmfactory-end
+
+Gemini Model
+------------
+
+`Gemini <https://deepmind.google/technologies/gemini/>`_ models can be accessed through
+Google AI Studio or Google Vertex AI.
+
+**Parameters**
+
+.. option:: model_id: str
+
+  Gemini model name as exposed by the selected service. For example, use the
+  model name listed in Google AI Studio when authenticating with
+  ``GeminiApiKeyAuth``, and use the model name listed in Vertex AI when
+  authenticating with ``GeminiCloudAuth``.
+
+.. option:: auth: GeminiApiKeyAuth | GeminiCloudAuth
+
+  Required authentication configuration for Gemini. Use ``GeminiApiKeyAuth()`` if
+  you want the runtime to read ``GEMINI_API_KEY`` from the environment, or
+  ``GeminiCloudAuth(...)`` for Vertex AI.
+
+.. option:: generation_config: dict, optional
+
+  Default parameters for text generation with this model.
+
+**Examples**
+
+.. literalinclude:: ../_snippets/example_initialize_gemini_llms.py
+    :language: python
+    :start-after: .. gemini-start
+    :end-before: .. gemini-end
+
+.. collapse:: Equivalent code example utilizing the LlmModelFactory class.
+
+    .. literalinclude:: ../_snippets/example_initialize_gemini_llms.py
+        :language: python
+        :start-after: .. gemini-llmfactory-start
+        :end-before: .. gemini-llmfactory-end
+
+**Notes**
+
+- Google AI Studio auth may read ``GEMINI_API_KEY`` from the environment.
+- The important part is the service-side model name. AI Studio and Vertex AI may expose different Gemini model names or availability, so use the exact model name shown by the service you are connecting to.
+- Vertex AI auth accepts an optional service-account JSON file path or an inline service-account JSON object.
+- When ``vertex_credentials`` is omitted, LiteLLM/Google auth may rely on Application Default Credentials (ADC), such as ``GOOGLE_APPLICATION_CREDENTIALS``, the local ADC file created by ``gcloud auth application-default login``, or an attached service account.
+- ADC does not always provide a default Vertex project, so ``project_id`` should usually still be set explicitly unless your environment already resolves it.
 
 vLLM Model
 ----------

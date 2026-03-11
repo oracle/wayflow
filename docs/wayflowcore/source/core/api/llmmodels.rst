@@ -91,6 +91,16 @@ OpenAI Models
 .. _openaimodel:
 .. autoclass:: wayflowcore.models.openaimodel.OpenAIModel
 
+Gemini Models
+~~~~~~~~~~~~~
+
+.. _geminimodel:
+.. autoclass:: wayflowcore.models.geminimodel.GeminiModel
+
+.. autoclass:: wayflowcore.models.geminimodel.GeminiApiKeyAuth
+
+.. autoclass:: wayflowcore.models.geminimodel.GeminiCloudAuth
+
 Ollama Models
 ~~~~~~~~~~~~~
 

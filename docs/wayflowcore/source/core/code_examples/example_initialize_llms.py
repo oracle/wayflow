@@ -130,6 +130,57 @@ if __name__ == "__main__":
         ca_file="/etc/certs/ca.pem",
     )
 # .. openai-compatible-tls-end
+# .. gemini-start
+from wayflowcore.models import GeminiApiKeyAuth, GeminiCloudAuth, GeminiModel
+
+if __name__ == "__main__":
+
+    generation_config = LlmGenerationConfig(max_tokens=256, temperature=0.7, top_p=0.9)
+
+    llm = GeminiModel(
+        model_id="gemini-2.5-flash",
+        auth=GeminiApiKeyAuth(),
+        generation_config=generation_config,
+    )
+
+    vertex_llm = GeminiModel(
+        model_id="gemini-2.0-flash-lite",
+        auth=GeminiCloudAuth(
+            # Often still required even when ADC supplies the credentials.
+            project_id="my-gcp-project",
+            location="global",
+            # Optional when Google Application Default Credentials are already configured.
+            vertex_credentials="path/to/service-account.json",
+        ),
+        generation_config=generation_config,
+    )
+# .. gemini-end
+
+# .. gemini-llmfactory-start
+if __name__ == "__main__":
+    GEMINI_AISTUDIO_CONFIG = {
+        "model_type": "gemini",
+        "model_id": "gemini-2.5-flash",
+        "auth": {"type": "api_key"},
+        "generation_config": {"max_tokens": 256, "temperature": 0.7, "top_p": 0.9},
+    }
+    GEMINI_VERTEX_CONFIG = {
+        "model_type": "gemini",
+        "model_id": "gemini-2.0-flash-lite",
+        "auth": {
+            "type": "cloud",
+            # Often still required even when ADC supplies the credentials.
+            "project_id": "my-gcp-project",
+            "location": "global",
+            # Optional when Google Application Default Credentials are already configured.
+            "vertex_credentials": "path/to/service-account.json",
+        },
+        "generation_config": {"max_tokens": 256, "temperature": 0.7, "top_p": 0.9},
+    }
+
+    llm = LlmModelFactory.from_config(GEMINI_AISTUDIO_CONFIG)
+    vertex_llm = LlmModelFactory.from_config(GEMINI_VERTEX_CONFIG)
+# .. gemini-llmfactory-end
 
 # .. ollama-start
 from wayflowcore.models import OllamaModel
@@ -159,7 +210,15 @@ if __name__ == "__main__":
 # .. ollama-llmfactory-end
 
 # .. recap:
-from wayflowcore.models import OCIGenAIModel, OllamaModel, OpenAIModel, VllmModel
+from wayflowcore.models import (
+    GeminiApiKeyAuth,
+    GeminiCloudAuth,
+    GeminiModel,
+    OCIGenAIModel,
+    OllamaModel,
+    OpenAIModel,
+    VllmModel,
+)
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 
 OCIGENAI_MODEL_ID = "cohere.command-r-plus"
@@ -199,6 +258,24 @@ if __name__ == "__main__":
 
     llm = OpenAIModel(
         model_id=OPENAI_MODEL_ID,
+        generation_config=generation_config,
+    )
+
+    llm = GeminiModel(
+        model_id="gemini-2.5-flash",
+        auth=GeminiApiKeyAuth(),
+        generation_config=generation_config,
+    )
+
+    vertex_llm = GeminiModel(
+        model_id="gemini-2.0-flash-lite",
+        auth=GeminiCloudAuth(
+            # Often still required even when ADC supplies the credentials.
+            project_id="my-gcp-project",
+            location="global",
+            # Optional when Google Application Default Credentials are already configured.
+            vertex_credentials="path/to/service-account.json",
+        ),
         generation_config=generation_config,
     )
 
