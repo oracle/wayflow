@@ -168,6 +168,7 @@ class AsyncRuntime(metaclass=Singleton):
         # This is a pragmatic workaround for contextvar propagation issues when the
         # portal task is created long before tool execution.
         self._portal_parent_span_stack: Dict[str, List[Span]] = {}
+        self._transport_locks: dict[str, threading.Lock] = {}
 
     def initialize(self) -> None:
         if self._portal is not None:
@@ -241,7 +242,18 @@ class AsyncRuntime(metaclass=Singleton):
         if conversation_id in sessions_by_transport:
             # session already exists
             return sessions_by_transport[conversation_id]
-        return self._create_long_lived_session(client_transport, conversation_id)
+        # Use a per-transport lock so that session creation for different
+        # transports can proceed in parallel, while concurrent creation for
+        # the same transport is serialized to prevent duplicate sessions.
+        with self._lock:
+            transport_lock = self._transport_locks.setdefault(
+                client_transport.id, threading.Lock()
+            )
+        with transport_lock:
+            sessions_by_transport = self._client_sessions.setdefault(client_transport.id, {})
+            if conversation_id in sessions_by_transport:
+                return sessions_by_transport[conversation_id]
+            return self._create_long_lived_session(client_transport, conversation_id)
 
     def get_parent_span_stack(self) -> List[Span]:
         # called by the _mcp_progress_handler
