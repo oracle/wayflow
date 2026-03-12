@@ -55,6 +55,10 @@ Events
 .. autoclass:: wayflowcore.events.event.ConversationExecutionFinishedEvent
    :exclude-members: to_tracing_info
 
+.. _statesnapshotevent:
+.. autoclass:: wayflowcore.events.event.StateSnapshotEvent
+   :exclude-members: to_tracing_info
+
 .. _toolexecutionstartevent:
 .. autoclass:: wayflowcore.events.event.ToolExecutionStartEvent
    :exclude-members: to_tracing_info

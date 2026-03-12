@@ -12,6 +12,8 @@ from pyagentspec.flows.flow import Flow as AgentSpecFlow
 from pyagentspec.flows.node import Node as AgentSpecNode
 from pyagentspec.llms import LlmConfig as AgentSpecLlmConfig
 from pyagentspec.llms import LlmGenerationConfig
+from pyagentspec.managerworkers import ManagerWorkers as AgentSpecManagerWorkers
+from pyagentspec.swarm import Swarm as AgentSpecSwarm
 from pyagentspec.tools import Tool as AgentSpecTool
 from pyagentspec.tracing.events import AgentExecutionEnd as AgentSpecAgentExecutionEnd
 from pyagentspec.tracing.events import AgentExecutionStart as AgentSpecAgentExecutionStart
@@ -23,8 +25,17 @@ from pyagentspec.tracing.events import (
 )
 from pyagentspec.tracing.events import LlmGenerationRequest as AgentSpecLlmGenerationRequest
 from pyagentspec.tracing.events import LlmGenerationResponse as AgentSpecLlmGenerationResponse
+from pyagentspec.tracing.events import (
+    ManagerWorkersExecutionEnd as AgentSpecManagerWorkersExecutionEnd,
+)
+from pyagentspec.tracing.events import (
+    ManagerWorkersExecutionStart as AgentSpecManagerWorkersExecutionStart,
+)
 from pyagentspec.tracing.events import NodeExecutionEnd as AgentSpecNodeExecutionEnd
 from pyagentspec.tracing.events import NodeExecutionStart as AgentSpecNodeExecutionStart
+from pyagentspec.tracing.events import StateSnapshotEmitted as AgentSpecStateSnapshotEmitted
+from pyagentspec.tracing.events import SwarmExecutionEnd as AgentSpecSwarmExecutionEnd
+from pyagentspec.tracing.events import SwarmExecutionStart as AgentSpecSwarmExecutionStart
 from pyagentspec.tracing.events import ToolExecutionRequest as AgentSpecToolExecutionRequest
 from pyagentspec.tracing.events import ToolExecutionResponse as AgentSpecToolExecutionResponse
 from pyagentspec.tracing.events.llmgeneration import ToolCall as AgentSpecToolCall
@@ -32,23 +43,30 @@ from pyagentspec.tracing.messages.message import Message as AgentSpecMessage
 from pyagentspec.tracing.spans import AgentExecutionSpan as AgentSpecAgentExecutionSpan
 from pyagentspec.tracing.spans import FlowExecutionSpan as AgentSpecFlowExecutionSpan
 from pyagentspec.tracing.spans import LlmGenerationSpan as AgentSpecLlmGenerationSpan
+from pyagentspec.tracing.spans import (
+    ManagerWorkersExecutionSpan as AgentSpecManagerWorkersExecutionSpan,
+)
 from pyagentspec.tracing.spans import NodeExecutionSpan as AgentSpecNodeExecutionSpan
 from pyagentspec.tracing.spans import Span as AgentSpecSpan
+from pyagentspec.tracing.spans import SwarmExecutionSpan as AgentSpecSwarmExecutionSpan
 from pyagentspec.tracing.spans import ToolExecutionSpan as AgentSpecToolExecutionSpan
 
 from wayflowcore._utils.formatting import stringify
 from wayflowcore.agentspec import AgentSpecExporter
 from wayflowcore.component import Component
+from wayflowcore.conversation import Conversation, _get_active_conversations
 from wayflowcore.events.event import (
     AgentExecutionFinishedEvent,
     AgentExecutionStartedEvent,
     ConversationMessageStreamChunkEvent,
+    EndSpanEvent,
     Event,
     ExceptionRaisedEvent,
     FlowExecutionFinishedEvent,
     FlowExecutionStartedEvent,
     LlmGenerationRequestEvent,
     LlmGenerationResponseEvent,
+    StateSnapshotEvent,
     StepInvocationResultEvent,
     StepInvocationStartEvent,
     ToolExecutionResultEvent,
@@ -56,6 +74,9 @@ from wayflowcore.events.event import (
 )
 from wayflowcore.events.eventlistener import EventListener
 from wayflowcore.executors.executionstatus import FinishedStatus
+from wayflowcore.managerworkers import ManagerWorkers as RuntimeManagerWorkers
+from wayflowcore.steps.agentexecutionstep import AgentExecutionStep as RuntimeAgentExecutionStep
+from wayflowcore.swarm import Swarm as RuntimeSwarm
 from wayflowcore.tracing.span import LlmGenerationSpan, get_active_span_stack, get_current_span
 
 
@@ -70,6 +91,12 @@ class AgentSpecEventListener(EventListener):
         self.agentspec_exporter: AgentSpecExporter = AgentSpecExporter()
         # We keep a registry of conversions, so that we do not repeat the conversion for the same object twice
         self.agentspec_components_registry: Dict[str, AgentSpecComponent] = {}
+        # State snapshots belong to the span that owns their conversation id, not
+        # necessarily to the runtime span that was active when the snapshot event
+        # was emitted.
+        self._conversation_spans_registry: Dict[str, AgentSpecSpan] = {}
+        self._pending_multi_agent_spans_by_component_id: Dict[str, AgentSpecSpan] = {}
+        self._multi_agent_spans_by_step_span_id: Dict[str, AgentSpecSpan] = {}
         # Track last assistant message id and a robust mapping tool_request_id -> assistant message id.
         # Some providers may emit tool events before final assistant message id is known; we allow
         # temporarily missing ids and backfill on LLM response.
@@ -82,6 +109,168 @@ class AgentSpecEventListener(EventListener):
                 component
             )
         return self.agentspec_components_registry[component.id]
+
+    def _get_active_wayflow_conversation(self) -> Conversation | None:
+        active_conversations = _get_active_conversations(return_copy=False)
+        if not active_conversations:
+            return None
+        return active_conversations[-1]
+
+    def _register_current_conversation_span(self, agentspec_span: AgentSpecSpan) -> None:
+        active_conversation = self._get_active_wayflow_conversation()
+        if active_conversation is not None:
+            self._conversation_spans_registry[active_conversation.conversation_id] = agentspec_span
+
+    def _start_multi_agent_span_if_needed(
+        self,
+        current_span_id: str,
+        event_name: str,
+        event: StepInvocationStartEvent,
+    ) -> None:
+        if not isinstance(event.step, RuntimeAgentExecutionStep):
+            return
+
+        if isinstance(event.step.agent, RuntimeManagerWorkers):
+            agentspec_managerworkers = cast(
+                AgentSpecManagerWorkers, self._convert_to_agentspec(event.step.agent)
+            )
+            multi_agent_span: AgentSpecManagerWorkersExecutionSpan | AgentSpecSwarmExecutionSpan = (
+                AgentSpecManagerWorkersExecutionSpan(
+                    id=f"{current_span_id}:managerworkers",
+                    name=f"ManagerWorkersExecution[{event.step.agent._get_display_name()}]",
+                    managerworkers=agentspec_managerworkers,
+                )
+            )
+            multi_agent_span.start()
+            multi_agent_span.add_event(
+                AgentSpecManagerWorkersExecutionStart(
+                    id=event.event_id,
+                    name=event_name,
+                    managerworkers=agentspec_managerworkers,
+                    inputs={
+                        input_name: input_value for input_name, input_value in event.inputs.items()
+                    },
+                )
+            )
+            self._multi_agent_spans_by_step_span_id[current_span_id] = multi_agent_span
+            self._pending_multi_agent_spans_by_component_id[event.step.agent.id] = multi_agent_span
+        elif isinstance(event.step.agent, RuntimeSwarm):
+            agentspec_swarm = cast(AgentSpecSwarm, self._convert_to_agentspec(event.step.agent))
+            multi_agent_span = AgentSpecSwarmExecutionSpan(
+                id=f"{current_span_id}:swarm",
+                name=f"SwarmExecution[{event.step.agent._get_display_name()}]",
+                swarm=agentspec_swarm,
+            )
+            multi_agent_span.start()
+            multi_agent_span.add_event(
+                AgentSpecSwarmExecutionStart(
+                    id=event.event_id,
+                    name=event_name,
+                    swarm=agentspec_swarm,
+                    inputs={
+                        input_name: input_value for input_name, input_value in event.inputs.items()
+                    },
+                )
+            )
+            self._multi_agent_spans_by_step_span_id[current_span_id] = multi_agent_span
+            self._pending_multi_agent_spans_by_component_id[event.step.agent.id] = multi_agent_span
+
+    def _end_multi_agent_span_if_needed(
+        self,
+        current_span_id: str,
+        event_name: str,
+        event: StepInvocationResultEvent,
+    ) -> None:
+        if not isinstance(event.step, RuntimeAgentExecutionStep):
+            return
+
+        multi_agent_span = self._multi_agent_spans_by_step_span_id.pop(current_span_id, None)
+        if multi_agent_span is None:
+            return
+
+        outputs = {
+            output_name: output_value
+            for output_name, output_value in event.step_result.outputs.items()
+            if output_name != "__execution_status__"
+        }
+        if isinstance(multi_agent_span, AgentSpecManagerWorkersExecutionSpan):
+            multi_agent_span.add_event(
+                AgentSpecManagerWorkersExecutionEnd(
+                    id=event.event_id,
+                    name=event_name,
+                    managerworkers=multi_agent_span.managerworkers,
+                    outputs=outputs,
+                )
+            )
+        elif isinstance(multi_agent_span, AgentSpecSwarmExecutionSpan):
+            multi_agent_span.add_event(
+                AgentSpecSwarmExecutionEnd(
+                    id=event.event_id,
+                    name=event_name,
+                    swarm=multi_agent_span.swarm,
+                    outputs=outputs,
+                )
+            )
+
+        multi_agent_span.end()
+        self._pending_multi_agent_spans_by_component_id.pop(event.step.agent.id, None)
+
+    def _get_snapshot_owner_span(
+        self,
+        event: StateSnapshotEvent,
+        current_agentspec_span: AgentSpecSpan | None,
+    ) -> AgentSpecSpan | None:
+        if event.conversation_id in self._conversation_spans_registry:
+            return self._conversation_spans_registry[event.conversation_id]
+
+        active_conversations = _get_active_conversations(return_copy=False)
+        matching_conversation = next(
+            (
+                conversation
+                for conversation in reversed(active_conversations)
+                if conversation.conversation_id == event.conversation_id
+            ),
+            None,
+        )
+        if matching_conversation is None:
+            return current_agentspec_span
+
+        pending_multi_agent_span = self._pending_multi_agent_spans_by_component_id.get(
+            matching_conversation.component.id
+        )
+        if pending_multi_agent_span is not None:
+            self._conversation_spans_registry[event.conversation_id] = pending_multi_agent_span
+            return pending_multi_agent_span
+
+        return current_agentspec_span
+
+    @staticmethod
+    def _move_snapshot_before_terminal_event(
+        agentspec_span: AgentSpecSpan,
+        snapshot_event: AgentSpecStateSnapshotEmitted,
+    ) -> None:
+        if len(agentspec_span.events) < 2 or not isinstance(
+            agentspec_span.events[-2],
+            (
+                AgentSpecAgentExecutionEnd,
+                AgentSpecExceptionRaised,
+                AgentSpecFlowExecutionEnd,
+                AgentSpecManagerWorkersExecutionEnd,
+                AgentSpecSwarmExecutionEnd,
+            ),
+        ):
+            return
+
+        terminal_event = agentspec_span.events[-2]
+        if agentspec_span.end_time is not None:
+            snapshot_event.timestamp = min(snapshot_event.timestamp, agentspec_span.end_time)
+        else:
+            snapshot_event.timestamp = min(snapshot_event.timestamp, terminal_event.timestamp)
+
+        agentspec_span.events[-2], agentspec_span.events[-1] = (
+            agentspec_span.events[-1],
+            agentspec_span.events[-2],
+        )
 
     def __call__(self, event: Event) -> None:
         # We intercept the wayflow events, and based on the type of event:
@@ -294,10 +483,12 @@ class AgentSpecEventListener(EventListener):
                         },
                     )
                 )
+                self._start_multi_agent_span_if_needed(current_span.span_id, event_name, event)
             case StepInvocationResultEvent():
                 # Step execution ends. Add the event to the agent spec span and close the span
                 if not current_agentspec_span:
                     return
+                self._end_multi_agent_span_if_needed(current_span.span_id, event_name, event)
                 agentspec_node = cast(AgentSpecNode, self._convert_to_agentspec(event.step))
                 current_agentspec_span.add_event(
                     AgentSpecNodeExecutionEnd(
@@ -312,6 +503,19 @@ class AgentSpecEventListener(EventListener):
                     )
                 )
                 current_agentspec_span.end()
+            case StateSnapshotEvent():
+                owner_span = self._get_snapshot_owner_span(event, current_agentspec_span)
+                if not owner_span:
+                    return
+                snapshot_event = AgentSpecStateSnapshotEmitted(
+                    id=event.event_id,
+                    name=event_name,
+                    conversation_id=event.conversation_id,
+                    state_snapshot=event.state_snapshot,
+                    extra_state=event.extra_state,
+                )
+                owner_span.add_event(snapshot_event)
+                self._move_snapshot_before_terminal_event(owner_span, snapshot_event)
             case FlowExecutionStartedEvent():
                 # Flow execution starts. Create the new agent spec span, start it, add the event
                 agentspec_flow = cast(
@@ -332,6 +536,7 @@ class AgentSpecEventListener(EventListener):
                         inputs={},
                     )
                 )
+                self._register_current_conversation_span(current_agentspec_span)
             case FlowExecutionFinishedEvent():
                 # Flow execution ends. Add the event to the agent spec span and close the span
                 if not current_agentspec_span:
@@ -375,6 +580,7 @@ class AgentSpecEventListener(EventListener):
                         inputs={},
                     )
                 )
+                self._register_current_conversation_span(current_agentspec_span)
             case AgentExecutionFinishedEvent():
                 # Agent execution ends. Add the event to the agent spec span and close the span
                 if not current_agentspec_span:
@@ -408,3 +614,7 @@ class AgentSpecEventListener(EventListener):
                         exception_stacktrace=str(event.exception.__traceback__),
                     )
                 )
+            case EndSpanEvent():
+                if not current_agentspec_span or current_agentspec_span.end_time is not None:
+                    return
+                current_agentspec_span.end()

@@ -58,6 +58,10 @@ class PluginSwarmToolRequestAndCallsTransform(MessageTransform):
     sequence of messages."""
 
 
+class PluginManagerWorkersToolRequestAndCallsTransform(MessageTransform):
+    """Format Tool requests as Agent messages and Tool results as User messages for manager-workers prompts."""
+
+
 class PluginCanonicalizationMessageTransform(MessageTransform):
     """
     Produce a conversation shaped like:
@@ -98,6 +102,7 @@ messagetransform_serialization_plugin = PydanticComponentSerializationPlugin(
         PluginAppendTrailingSystemMessageToUserMessageTransform.__name__: PluginAppendTrailingSystemMessageToUserMessageTransform,
         PluginLlamaMergeToolRequestAndCallsTransform.__name__: PluginLlamaMergeToolRequestAndCallsTransform,
         PluginReactMergeToolRequestAndCallsTransform.__name__: PluginReactMergeToolRequestAndCallsTransform,
+        PluginManagerWorkersToolRequestAndCallsTransform.__name__: PluginManagerWorkersToolRequestAndCallsTransform,
         PluginSwarmToolRequestAndCallsTransform.__name__: PluginSwarmToolRequestAndCallsTransform,
         PluginCanonicalizationMessageTransform.__name__: PluginCanonicalizationMessageTransform,
         PluginSplitPromptOnMarkerMessageTransform.__name__: PluginSplitPromptOnMarkerMessageTransform,
@@ -111,6 +116,7 @@ messagetransform_deserialization_plugin = PydanticComponentDeserializationPlugin
         PluginAppendTrailingSystemMessageToUserMessageTransform.__name__: PluginAppendTrailingSystemMessageToUserMessageTransform,
         PluginLlamaMergeToolRequestAndCallsTransform.__name__: PluginLlamaMergeToolRequestAndCallsTransform,
         PluginReactMergeToolRequestAndCallsTransform.__name__: PluginReactMergeToolRequestAndCallsTransform,
+        PluginManagerWorkersToolRequestAndCallsTransform.__name__: PluginManagerWorkersToolRequestAndCallsTransform,
         PluginSwarmToolRequestAndCallsTransform.__name__: PluginSwarmToolRequestAndCallsTransform,
         PluginCanonicalizationMessageTransform.__name__: PluginCanonicalizationMessageTransform,
         PluginSplitPromptOnMarkerMessageTransform.__name__: PluginSplitPromptOnMarkerMessageTransform,

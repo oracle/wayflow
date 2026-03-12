@@ -795,6 +795,32 @@ class ConversationExecutionFinishedEvent(EndSpanEvent["ConversationSpan"]):
 
 
 @dataclass(frozen=True)
+class StateSnapshotEvent(Event):
+    """Event emitted by WayFlow when a conversation state snapshot is recorded."""
+
+    conversation_id: str = field(default_factory=_required_attribute("conversation_id", str))
+    state_snapshot: Optional[Dict[str, Any]] = None
+    extra_state: Optional[Dict[str, Any]] = None
+    variable_state: Optional[Dict[str, Any]] = None
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        def _masked(value: Optional[Dict[str, Any]]) -> Any:
+            if value is None:
+                return None
+            if mask_sensitive_information:
+                return _PII_TEXT_MASK
+            return value
+
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            "conversation_id": self.conversation_id,
+            "state_snapshot": _masked(self.state_snapshot),
+            "extra_state": _masked(self.extra_state),
+            "variable_state": _masked(self.variable_state),
+        }
+
+
+@dataclass(frozen=True)
 class AgentNextActionDecisionStartEvent(Event):
     """
     This event is recorded at the start of the agent taking a decision on what to do next.

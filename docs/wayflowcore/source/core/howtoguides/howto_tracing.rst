@@ -152,6 +152,40 @@ Here's an example of how to use it in your code.
     :start-after: .. start-##_Enable_Agent_Spec_Tracing
     :end-before: .. end-##_Enable_Agent_Spec_Tracing
 
+State snapshot events
+---------------------
+
+WayFlow can also emit ``StateSnapshotEvent`` payloads at conversation, step, and tool
+boundaries by passing a ``StateSnapshotPolicy`` to ``conversation.execute()`` or
+``conversation.execute_async()``. When ``AgentSpecEventListener`` is registered and
+the installed ``pyagentspec`` version exposes ``StateSnapshotEmitted``, these runtime
+snapshots are bridged into Agent Spec ``StateSnapshotEmitted`` events on the active
+span. The WayFlow-only ``variable_state`` payload is not bridged, because Agent Spec
+does not define WayFlow variable semantics. When ``include_variable_state=True``,
+variable values must already be JSON-serializable.
+Snapshots are emitted only when the corresponding boundary event occurs. If a turn
+raises or is interrupted before its matching closing event, WayFlow does not
+synthesize an extra unwind snapshot. For step and tool intervals, the latest
+already-emitted start snapshot is the recovery point.
+For flows, ``NODE_TURNS`` snapshots are emitted around each step. For agents, the same
+policy emits snapshots around each decision-loop iteration. Tool start/end snapshots
+are emitted only for ``TOOL_TURNS`` and ``ALL_INTERNAL_TURNS``.
+
+.. code-block:: python
+
+    from wayflowcore.executors.statesnapshotpolicy import (
+        StateSnapshotInterval,
+        StateSnapshotPolicy,
+    )
+
+    status = conversation.execute(
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS,
+            include_variable_state=True,
+            extra_state_builder=lambda conv: {"ui": {"active_tab": "plan"}},
+        )
+    )
+
 
 Agent Spec Exporting/Loading
 ============================
