@@ -143,16 +143,23 @@ def record_state_snapshot(
     conversation.status_handled = status_handled
 
     try:
+        variable_state = None
+        if state_snapshot_policy.include_variable_state:
+            try:
+                variable_state = dump_variable_state(conversation)
+            except Exception:
+                logger.warning(
+                    "Failed to dump variable state for conversation '%s'",
+                    conversation.conversation_id,
+                    exc_info=True,
+                )
+
         record_event(
             StateSnapshotEvent(
                 conversation_id=conversation.conversation_id,
                 state_snapshot=dump_conversation_state(conversation),
                 extra_state=conversation._build_extra_state(),
-                variable_state=(
-                    dump_variable_state(conversation)
-                    if state_snapshot_policy.include_variable_state
-                    else None
-                ),
+                variable_state=variable_state,
             )
         )
         return True

@@ -16,17 +16,11 @@ from pyagentspec.tracing.events import AgentExecutionStart as AgentSpecAgentExec
 from pyagentspec.tracing.events import Event as AgentSpecEvent
 from pyagentspec.tracing.events import FlowExecutionEnd as AgentSpecFlowExecutionEnd
 from pyagentspec.tracing.events import FlowExecutionStart as AgentSpecFlowExecutionStart
-from pyagentspec.tracing.events import (
-    ManagerWorkersExecutionEnd as AgentSpecManagerWorkersExecutionEnd,
-)
 from pyagentspec.tracing.events import StateSnapshotEmitted as AgentSpecStateSnapshotEmitted
 from pyagentspec.tracing.events import SwarmExecutionEnd as AgentSpecSwarmExecutionEnd
 from pyagentspec.tracing.spanprocessor import SpanProcessor as AgentSpecSpanProcessor
 from pyagentspec.tracing.spans import AgentExecutionSpan as AgentSpecAgentExecutionSpan
 from pyagentspec.tracing.spans import FlowExecutionSpan as AgentSpecFlowExecutionSpan
-from pyagentspec.tracing.spans import (
-    ManagerWorkersExecutionSpan as AgentSpecManagerWorkersExecutionSpan,
-)
 from pyagentspec.tracing.spans import Span as AgentSpecSpan
 from pyagentspec.tracing.spans import SwarmExecutionSpan as AgentSpecSwarmExecutionSpan
 from pyagentspec.tracing.spans import ToolExecutionSpan as AgentSpecToolExecutionSpan
@@ -41,7 +35,6 @@ from wayflowcore.executors.statesnapshotpolicy import (
     StateSnapshotPolicy,
 )
 from wayflowcore.flow import Flow
-from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.serialization import dump_conversation_state
@@ -239,35 +232,6 @@ def _create_send_message_request(recipient_name: str, message: str) -> Message:
     )
 
 
-def _build_managerworkers_state_snapshot_flow() -> tuple[
-    Flow,
-    VllmModel,
-    list[Message | str],
-    VllmModel,
-    list[Message | str],
-    type[AgentSpecSpan],
-    str,
-    str,
-    type[AgentSpecEvent],
-]:
-    manager_llm = _create_mock_vllm_model("manager")
-    worker_llm = _create_mock_vllm_model("worker")
-    worker = WayflowAgent(llm=worker_llm, name="worker", description="worker")
-    managerworkers = ManagerWorkers(group_manager=manager_llm, workers=[worker], name="team")
-
-    return (
-        Flow.from_steps([AgentExecutionStep(agent=managerworkers), CompleteStep(name="end")]),
-        manager_llm,
-        [_create_send_message_request("worker", "Do it"), "manager final answer"],
-        worker_llm,
-        ["worker answer"],
-        AgentSpecManagerWorkersExecutionSpan,
-        "worker answer",
-        "manager final answer",
-        AgentSpecManagerWorkersExecutionEnd,
-    )
-
-
 def _build_swarm_state_snapshot_flow() -> tuple[
     Flow,
     VllmModel,
@@ -456,7 +420,6 @@ def test_agent_state_snapshots_support_the_agui_retrieval_export_flow() -> None:
 @pytest.mark.parametrize(
     "flow_builder",
     [
-        pytest.param(_build_managerworkers_state_snapshot_flow, id="managerworkers"),
         pytest.param(_build_swarm_state_snapshot_flow, id="swarm"),
     ],
 )

@@ -12,7 +12,6 @@ from pyagentspec.flows.flow import Flow as AgentSpecFlow
 from pyagentspec.flows.node import Node as AgentSpecNode
 from pyagentspec.llms import LlmConfig as AgentSpecLlmConfig
 from pyagentspec.llms import LlmGenerationConfig
-from pyagentspec.managerworkers import ManagerWorkers as AgentSpecManagerWorkers
 from pyagentspec.swarm import Swarm as AgentSpecSwarm
 from pyagentspec.tools import Tool as AgentSpecTool
 from pyagentspec.tracing.events import AgentExecutionEnd as AgentSpecAgentExecutionEnd
@@ -25,12 +24,6 @@ from pyagentspec.tracing.events import (
 )
 from pyagentspec.tracing.events import LlmGenerationRequest as AgentSpecLlmGenerationRequest
 from pyagentspec.tracing.events import LlmGenerationResponse as AgentSpecLlmGenerationResponse
-from pyagentspec.tracing.events import (
-    ManagerWorkersExecutionEnd as AgentSpecManagerWorkersExecutionEnd,
-)
-from pyagentspec.tracing.events import (
-    ManagerWorkersExecutionStart as AgentSpecManagerWorkersExecutionStart,
-)
 from pyagentspec.tracing.events import NodeExecutionEnd as AgentSpecNodeExecutionEnd
 from pyagentspec.tracing.events import NodeExecutionStart as AgentSpecNodeExecutionStart
 from pyagentspec.tracing.events import StateSnapshotEmitted as AgentSpecStateSnapshotEmitted
@@ -43,9 +36,6 @@ from pyagentspec.tracing.messages.message import Message as AgentSpecMessage
 from pyagentspec.tracing.spans import AgentExecutionSpan as AgentSpecAgentExecutionSpan
 from pyagentspec.tracing.spans import FlowExecutionSpan as AgentSpecFlowExecutionSpan
 from pyagentspec.tracing.spans import LlmGenerationSpan as AgentSpecLlmGenerationSpan
-from pyagentspec.tracing.spans import (
-    ManagerWorkersExecutionSpan as AgentSpecManagerWorkersExecutionSpan,
-)
 from pyagentspec.tracing.spans import NodeExecutionSpan as AgentSpecNodeExecutionSpan
 from pyagentspec.tracing.spans import Span as AgentSpecSpan
 from pyagentspec.tracing.spans import SwarmExecutionSpan as AgentSpecSwarmExecutionSpan
@@ -74,7 +64,6 @@ from wayflowcore.events.event import (
 )
 from wayflowcore.events.eventlistener import EventListener
 from wayflowcore.executors.executionstatus import FinishedStatus
-from wayflowcore.managerworkers import ManagerWorkers as RuntimeManagerWorkers
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep as RuntimeAgentExecutionStep
 from wayflowcore.swarm import Swarm as RuntimeSwarm
 from wayflowcore.tracing.span import LlmGenerationSpan, get_active_span_stack, get_current_span
@@ -130,31 +119,7 @@ class AgentSpecEventListener(EventListener):
         if not isinstance(event.step, RuntimeAgentExecutionStep):
             return
 
-        if isinstance(event.step.agent, RuntimeManagerWorkers):
-            agentspec_managerworkers = cast(
-                AgentSpecManagerWorkers, self._convert_to_agentspec(event.step.agent)
-            )
-            multi_agent_span: AgentSpecManagerWorkersExecutionSpan | AgentSpecSwarmExecutionSpan = (
-                AgentSpecManagerWorkersExecutionSpan(
-                    id=f"{current_span_id}:managerworkers",
-                    name=f"ManagerWorkersExecution[{event.step.agent._get_display_name()}]",
-                    managerworkers=agentspec_managerworkers,
-                )
-            )
-            multi_agent_span.start()
-            multi_agent_span.add_event(
-                AgentSpecManagerWorkersExecutionStart(
-                    id=event.event_id,
-                    name=event_name,
-                    managerworkers=agentspec_managerworkers,
-                    inputs={
-                        input_name: input_value for input_name, input_value in event.inputs.items()
-                    },
-                )
-            )
-            self._multi_agent_spans_by_step_span_id[current_span_id] = multi_agent_span
-            self._pending_multi_agent_spans_by_component_id[event.step.agent.id] = multi_agent_span
-        elif isinstance(event.step.agent, RuntimeSwarm):
+        if isinstance(event.step.agent, RuntimeSwarm):
             agentspec_swarm = cast(AgentSpecSwarm, self._convert_to_agentspec(event.step.agent))
             multi_agent_span = AgentSpecSwarmExecutionSpan(
                 id=f"{current_span_id}:swarm",
@@ -193,16 +158,7 @@ class AgentSpecEventListener(EventListener):
             for output_name, output_value in event.step_result.outputs.items()
             if output_name != "__execution_status__"
         }
-        if isinstance(multi_agent_span, AgentSpecManagerWorkersExecutionSpan):
-            multi_agent_span.add_event(
-                AgentSpecManagerWorkersExecutionEnd(
-                    id=event.event_id,
-                    name=event_name,
-                    managerworkers=multi_agent_span.managerworkers,
-                    outputs=outputs,
-                )
-            )
-        elif isinstance(multi_agent_span, AgentSpecSwarmExecutionSpan):
+        if isinstance(multi_agent_span, AgentSpecSwarmExecutionSpan):
             multi_agent_span.add_event(
                 AgentSpecSwarmExecutionEnd(
                     id=event.event_id,
@@ -255,7 +211,6 @@ class AgentSpecEventListener(EventListener):
                 AgentSpecAgentExecutionEnd,
                 AgentSpecExceptionRaised,
                 AgentSpecFlowExecutionEnd,
-                AgentSpecManagerWorkersExecutionEnd,
                 AgentSpecSwarmExecutionEnd,
             ),
         ):

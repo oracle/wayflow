@@ -29,6 +29,7 @@ from wayflowcore.executors.statesnapshotpolicy import (
 from wayflowcore.flow import Flow
 from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.messagelist import Message, MessageType
+from wayflowcore.property import AnyProperty
 from wayflowcore.serialization.serializer import SerializableNeedToBeImplementedMixin
 from wayflowcore.steps import (
     AgentExecutionStep,
@@ -36,9 +37,11 @@ from wayflowcore.steps import (
     FlowExecutionStep,
     OutputMessageStep,
     ToolExecutionStep,
+    VariableWriteStep,
 )
 from wayflowcore.swarm import Swarm
 from wayflowcore.tools import ServerTool, ToolRequest, tool
+from wayflowcore.variable import Variable
 
 from ..conftest import disable_streaming
 from ..test_interrupts import OnEventExecutionInterrupt
@@ -95,6 +98,10 @@ class WorkerExecutionEndInterrupt(SerializableNeedToBeImplementedMixin, _NullExe
             reason="worker execution end",
             _conversation_id=conversation.id,
         )
+
+
+class _UnserializableVariableValue:
+    pass
 
 
 def _create_output_flow_conversation(message: str = "Hello") -> Conversation:
@@ -765,6 +772,38 @@ def test_state_snapshot_emission_survives_broken_extra_state_builder() -> None:
     assert isinstance(status, FinishedStatus)
     assert len(state_snapshot_events) == 2
     assert all(snapshot_event.extra_state is None for snapshot_event in state_snapshot_events)
+
+
+def test_state_snapshot_emission_survives_unserializable_variable_state() -> None:
+    custom_variable = Variable(name="custom", type=AnyProperty())
+    conversation = Flow.from_steps(
+        [
+            VariableWriteStep(
+                variable=custom_variable,
+                input_mapping={VariableWriteStep.VALUE: custom_variable.name},
+            ),
+            OutputMessageStep(message_template="done"),
+            CompleteStep(name="end"),
+        ],
+        variables=[custom_variable],
+    ).start_conversation(inputs={custom_variable.name: _UnserializableVariableValue()})
+
+    status, state_snapshot_events = _execute_with_state_snapshots(
+        conversation,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS,
+            include_variable_state=True,
+        ),
+    )
+
+    assert isinstance(status, FinishedStatus)
+    assert len(state_snapshot_events) == 2
+    assert state_snapshot_events[0].variable_state == {"custom": None}
+    assert state_snapshot_events[-1].variable_state is None
+    assert (
+        state_snapshot_events[-1].state_snapshot["conversation"]["messages"][-1]["content"]
+        == "done"
+    )
 
 
 @pytest.mark.parametrize(

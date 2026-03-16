@@ -115,7 +115,6 @@ from .tools import (
 from .transforms import (
     PluginAppendTrailingSystemMessageToUserMessageTransform,
     PluginCoalesceSystemMessagesTransform,
-    PluginManagerWorkersToolRequestAndCallsTransform,
     PluginReactMergeToolRequestAndCallsTransform,
     PluginRemoveEmptyNonUserMessageTransform,
     PluginSwarmToolRequestAndCallsTransform,
@@ -226,7 +225,6 @@ __all__ = [
     "contextprovider_deserialization_plugin",
     "PluginAppendTrailingSystemMessageToUserMessageTransform",
     "PluginCoalesceSystemMessagesTransform",
-    "PluginManagerWorkersToolRequestAndCallsTransform",
     "PluginRemoveEmptyNonUserMessageTransform",
     "PluginReactMergeToolRequestAndCallsTransform",
     "PluginSwarmToolRequestAndCallsTransform",
@@ -249,7 +247,6 @@ __all__ = [
     "PluginManagerWorkers",
     "PluginAppendTrailingSystemMessageToUserMessageTransform",
     "PluginCoalesceSystemMessagesTransform",
-    "PluginManagerWorkersToolRequestAndCallsTransform",
     "PluginReactMergeToolRequestAndCallsTransform",
     "PluginRemoveEmptyNonUserMessageTransform",
     "messagetransform_deserialization_plugin",

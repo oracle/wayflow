@@ -281,9 +281,6 @@ from wayflowcore.agentspec.components.transforms import (
     PluginLlamaMergeToolRequestAndCallsTransform as AgentSpecPluginLlamaMergeToolRequestAndCallsTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
-    PluginManagerWorkersToolRequestAndCallsTransform as AgentSpecPluginManagerWorkersToolRequestAndCallsTransform,
-)
-from wayflowcore.agentspec.components.transforms import (
     PluginReactMergeToolRequestAndCallsTransform as AgentSpecPluginReactMergeToolRequestAndCallsTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
@@ -442,9 +439,6 @@ from wayflowcore.steps.variablesteps.variablewritestep import (
 )
 from wayflowcore.swarm import Swarm as RuntimeSwarm
 from wayflowcore.templates import PromptTemplate as RuntimePromptTemplate
-from wayflowcore.templates._managerworkerstemplate import (
-    _ToolRequestAndCallsTransform as RuntimeManagerWorkersToolRequestAndCallsTransform,
-)
 from wayflowcore.templates._swarmtemplate import (
     _ToolRequestAndCallsTransform as RuntimeSwarmToolRequestAndCallsTransform,
 )
@@ -1604,15 +1598,6 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     runtime_messagetransform
                 ),
             )
-        elif isinstance(
-            runtime_messagetransform, RuntimeManagerWorkersToolRequestAndCallsTransform
-        ):
-            return AgentSpecPluginManagerWorkersToolRequestAndCallsTransform(
-                name="managerworkerstoolrequestandcalls_messagetransform",
-                metadata=_create_agentspec_metadata_from_runtime_component(
-                    runtime_messagetransform
-                ),
-            )
         elif isinstance(runtime_messagetransform, RuntimeSwarmToolRequestAndCallsTransform):
             return AgentSpecPluginSwarmToolRequestAndCallsTransform(
                 name="swarmtoolrequestandcalls_messagetransform",
@@ -2519,11 +2504,6 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecManagerWorkers:
         metadata = _create_agentspec_metadata_from_runtime_component(runtime_managerworkers)
-        group_manager = (
-            runtime_managerworkers.manager_agent
-            if isinstance(runtime_managerworkers.group_manager, RuntimeLlmModel)
-            else runtime_managerworkers.group_manager
-        )
 
         return AgentSpecManagerWorkers(
             name=runtime_managerworkers.name
@@ -2531,9 +2511,17 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             description=runtime_managerworkers.description
             or runtime_managerworkers.__metadata_info__.get("description", ""),
             id=runtime_managerworkers.id,
-            group_manager=conversion_context.convert(group_manager, referenced_objects),
+            group_manager=cast(
+                Union[AgentSpecAgent, AgentSpecLlmConfig],
+                conversion_context.convert(
+                    runtime_managerworkers.group_manager, referenced_objects
+                ),
+            ),
             workers=[
-                conversion_context.convert(worker, referenced_objects)
+                cast(
+                    AgentSpecAgent,
+                    conversion_context.convert(worker, referenced_objects),
+                )
                 for worker in runtime_managerworkers.workers
             ],
             inputs=[
