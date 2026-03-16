@@ -282,7 +282,8 @@ class StateSnapshotEventListener(EventListener):
             ) | AgentExecutionFinishedEvent(execution_status=execution_status):
                 self._record_turn_end_snapshot(execution_status)
             case ExceptionRaisedEvent(exception=ExecutionInterruptedException() as exception):
-                self._record_turn_end_snapshot(exception.execution_status)
+                if self._should_record_interrupted_turn_end_snapshot():
+                    self._record_turn_end_snapshot(exception.execution_status)
 
     def __call__(self, event: Event) -> None:
         if isinstance(event, StateSnapshotEvent):

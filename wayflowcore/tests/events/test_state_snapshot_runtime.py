@@ -74,6 +74,29 @@ class MutatingExecutionEndInterrupt(SerializableNeedToBeImplementedMixin, _NullE
         return None
 
 
+class WorkerExecutionEndInterrupt(SerializableNeedToBeImplementedMixin, _NullExecutionInterrupt):
+    def __init__(self) -> None:
+        self.triggered = False
+        super().__init__()
+
+    def _on_execution_end(
+        self,
+        state: ConversationExecutionState,
+        conversation: Conversation,
+    ) -> InterruptedExecutionStatus | None:
+        if self.triggered:
+            return None
+        if getattr(conversation.component, "name", None) != "worker":
+            return None
+
+        self.triggered = True
+        return InterruptedExecutionStatus(
+            interrupter=self,
+            reason="worker execution end",
+            _conversation_id=conversation.id,
+        )
+
+
 def _create_output_flow_conversation(message: str = "Hello") -> Conversation:
     flow = Flow.from_steps(
         [
@@ -152,6 +175,23 @@ def _create_nested_managerworkers_flow_conversation() -> Conversation:
     conversation = Flow.from_steps(
         [AgentExecutionStep(agent=group), CompleteStep(name="end")]
     ).start_conversation()
+    conversation.append_user_message("dummy")
+    return conversation
+
+
+def _create_managerworkers_conversation() -> Conversation:
+    llm = DummyModel()
+    worker = Agent(llm=llm, name="worker", description="worker")
+    group = ManagerWorkers(group_manager=llm, workers=[worker])
+    llm.set_next_output(
+        [
+            _create_send_message_request("worker", "Do it"),
+            "worker answer",
+            "manager final answer",
+        ]
+    )
+
+    conversation = group.start_conversation()
     conversation.append_user_message("dummy")
     return conversation
 
@@ -360,6 +400,40 @@ def test_conversation_turn_policy_reflects_real_interrupt_side_effects_once() ->
     assert conversation.inputs["preview_count"] == 1
     assert _snapshot_status_types(state_snapshot_events) == [None, "FinishedStatus"]
     assert state_snapshot_events[-1].state_snapshot["conversation"]["inputs"]["preview_count"] == 1
+
+
+def test_parent_multi_agent_does_not_emit_turn_end_snapshot_when_child_turn_is_interrupted() -> (
+    None
+):
+    conversation = _create_managerworkers_conversation()
+
+    status, state_snapshot_events = _execute_with_state_snapshots(
+        conversation,
+        execution_interrupts=[WorkerExecutionEndInterrupt()],
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
+        use_disable_streaming=True,
+    )
+
+    assert isinstance(status, InterruptedExecutionStatus)
+
+    snapshot_events_by_conversation_id: dict[str, list[StateSnapshotEvent]] = {}
+    for snapshot_event in state_snapshot_events:
+        snapshot_events_by_conversation_id.setdefault(
+            snapshot_event.conversation_id,
+            [],
+        ).append(snapshot_event)
+
+    parent_multi_agent_snapshot_events = next(
+        snapshot_events
+        for snapshot_events in snapshot_events_by_conversation_id.values()
+        if snapshot_events[0].state_snapshot["conversation"]["component_type"] == "ManagerWorkers"
+    )
+
+    assert "InterruptedExecutionStatus" not in _snapshot_status_types(
+        parent_multi_agent_snapshot_events
+    )
 
 
 @pytest.mark.parametrize(
