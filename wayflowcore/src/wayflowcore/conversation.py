@@ -3,7 +3,6 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-import json
 import logging
 import warnings
 from abc import abstractmethod
@@ -21,7 +20,6 @@ from typing import (
     Optional,
     Sequence,
     Union,
-    cast,
 )
 
 from wayflowcore._utils.async_helpers import run_async_in_sync
@@ -100,10 +98,6 @@ class Conversation(DataclassComponent):
     """Whether the current status associated to this conversation was already handled or not
      (messages/tool results were added to the conversation)"""
 
-    _state_snapshot_policy: Optional[StateSnapshotPolicy] = field(
-        default=None, init=False, repr=False, compare=False
-    )
-
     def __post_init__(self) -> None:
         if self.inputs is None:
             self.inputs = {}
@@ -117,95 +111,6 @@ class Conversation(DataclassComponent):
 
     def _register_event(self, event: Event) -> None:
         self.state._register_event(event)
-
-    def _get_parent_state_snapshot_policy(self) -> Optional[StateSnapshotPolicy]:
-        active_conversations = _get_active_conversations(return_copy=True)
-        if not active_conversations or active_conversations[-1] is self:
-            return None
-        return active_conversations[-1]._get_state_snapshot_policy()
-
-    def _get_state_snapshot_policy(self) -> Optional[StateSnapshotPolicy]:
-        return self._state_snapshot_policy
-
-    def _build_extra_state(self) -> Optional[Dict[str, Any]]:
-        state_snapshot_policy = self._get_state_snapshot_policy()
-        if state_snapshot_policy is None or state_snapshot_policy.extra_state_builder is None:
-            return None
-
-        try:
-            extra_state = state_snapshot_policy.extra_state_builder(self)
-        except Exception:
-            logger.warning(
-                "Failed to build extra snapshot state for conversation '%s'",
-                self.conversation_id,
-                exc_info=True,
-            )
-            return None
-
-        if extra_state is None:
-            return None
-        if not isinstance(extra_state, dict):
-            logger.warning(
-                "Expected extra snapshot state to be a dictionary for conversation '%s'",
-                self.conversation_id,
-            )
-            return None
-
-        try:
-            return cast(Dict[str, Any], json.loads(json.dumps(extra_state)))
-        except Exception:
-            logger.warning(
-                "Extra snapshot state is not JSON serializable for conversation '%s'",
-                self.conversation_id,
-                exc_info=True,
-            )
-            return None
-
-    @contextmanager
-    def _use_state_snapshot(
-        self, state_snapshot_policy: Optional[StateSnapshotPolicy]
-    ) -> Generator[None, Any, None]:
-        """
-        Activate the effective state snapshot policy for this execution turn.
-
-        Child conversations inherit the parent's policy unless they explicitly
-        override it. When snapshots are enabled, listener registration happens
-        here in the same order the runtime depends on:
-        1. pre-interrupt snapshot listener
-        2. interrupts listener
-        3. post-interrupt snapshot listener
-        """
-        active_state_snapshot_policy = (
-            state_snapshot_policy
-            if state_snapshot_policy is not None
-            else self._get_parent_state_snapshot_policy()
-        )
-        previous_policy = self._state_snapshot_policy
-        self._state_snapshot_policy = active_state_snapshot_policy
-        try:
-            if active_state_snapshot_policy is None:
-                yield
-            else:
-                from wayflowcore.executors._interrupts_eventlistener import (
-                    get_interrupts_event_listener_context_for_conversation,
-                )
-                from wayflowcore.executors._statesnapshot_eventlistener import (
-                    StateSnapshotListenerPhase,
-                    get_state_snapshot_event_listener_context_for_conversation,
-                )
-
-                with get_state_snapshot_event_listener_context_for_conversation(
-                    self,
-                    phase=StateSnapshotListenerPhase.PRE_INTERRUPTS,
-                ):
-                    with get_interrupts_event_listener_context_for_conversation(self):
-                        with get_state_snapshot_event_listener_context_for_conversation(
-                            self,
-                            phase=StateSnapshotListenerPhase.POST_INTERRUPTS,
-                        ):
-                            yield
-        finally:
-            self._state_snapshot_policy = previous_policy
 
     def execute(
         self,
@@ -239,7 +144,11 @@ class Conversation(DataclassComponent):
         if self.status_handled is False:
             self._update_conversation_with_status()
 
-        with self._use_state_snapshot(state_snapshot_policy):
+        from wayflowcore.executors._statesnapshot_eventlistener import (
+            get_state_snapshot_execution_context_for_conversation,
+        )
+
+        with get_state_snapshot_execution_context_for_conversation(self, state_snapshot_policy):
             with _register_conversation(self):
                 new_status = await self.component.runner.execute_async(self, execution_interrupts)
 

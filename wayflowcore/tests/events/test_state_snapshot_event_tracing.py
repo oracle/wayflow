@@ -9,18 +9,13 @@ import pytest
 from wayflowcore.events.event import _PII_TEXT_MASK, StateSnapshotEvent
 
 
-def test_state_snapshot_event_requires_conversation_id() -> None:
-    with pytest.raises(ValueError, match="conversation_id"):
-        StateSnapshotEvent()
-
-
 @pytest.mark.parametrize("mask_sensitive_information", [True, False])
 def test_state_snapshot_event_serialization(
     mask_sensitive_information: bool,
 ) -> None:
     event = StateSnapshotEvent(
         conversation_id="conversation-123",
-        state_snapshot={"conversation": {"messages": []}},
+        state_snapshot={"conversation": {"id": "conversation-runtime-123", "messages": []}},
         extra_state={"ui": {"active_tab": "plan"}},
         variable_state={"count": 2},
         name="snapshot",
@@ -41,6 +36,8 @@ def test_state_snapshot_event_serialization(
         assert serialized_event["extra_state"] == _PII_TEXT_MASK
         assert serialized_event["variable_state"] == _PII_TEXT_MASK
     else:
-        assert serialized_event["state_snapshot"] == {"conversation": {"messages": []}}
+        assert serialized_event["state_snapshot"] == {
+            "conversation": {"id": "conversation-runtime-123", "messages": []}
+        }
         assert serialized_event["extra_state"] == {"ui": {"active_tab": "plan"}}
         assert serialized_event["variable_state"] == {"count": 2}

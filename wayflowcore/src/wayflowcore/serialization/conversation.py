@@ -30,6 +30,8 @@ if TYPE_CHECKING:
     from wayflowcore.executors._agentconversation import AgentConversation
     from wayflowcore.executors._flowconversation import FlowConversation
 
+_UNSET = object()
+
 
 def _dump_json_compatible_value(value: Any) -> Any:
     from wayflowcore.component import Component
@@ -46,6 +48,7 @@ def _dump_json_compatible_value(value: Any) -> Any:
         dumped_value = _dump_json_compatible_value(value.value)
     elif isinstance(value, Conversation):
         dumped_value = {
+            "id": value.id,
             "conversation_id": value.conversation_id,
             "conversation_type": value.__class__.__name__,
         }
@@ -184,7 +187,6 @@ def _dump_execution_status(execution_status: Optional[ExecutionStatus]) -> Optio
     else:
         dumped_status = {
             "type": execution_status.__class__.__name__,
-            "conversation_id": execution_status._conversation_id,
         }
 
         if isinstance(execution_status, FinishedStatus):
@@ -213,6 +215,7 @@ def _dump_execution_status(execution_status: Optional[ExecutionStatus]) -> Optio
 
 def _dump_conversation_info(conversation: "Conversation") -> dict[str, Any]:
     return {
+        "id": conversation.id,
         "conversation_id": conversation.conversation_id,
         "conversation_type": conversation.__class__.__name__,
         "component_type": conversation.component.__class__.__name__,
@@ -222,11 +225,20 @@ def _dump_conversation_info(conversation: "Conversation") -> dict[str, Any]:
     }
 
 
-def _dump_execution_info(conversation: "Conversation") -> dict[str, Any]:
+def _dump_execution_info(
+    conversation: "Conversation",
+    *,
+    status: object = _UNSET,
+    status_handled: object = _UNSET,
+) -> dict[str, Any]:
     return {
         "current_step_name": conversation.current_step_name,
-        "status": _dump_execution_status(conversation.status),
-        "status_handled": conversation.status_handled,
+        "status": _dump_execution_status(
+            conversation.status if status is _UNSET else cast(Optional[ExecutionStatus], status)
+        ),
+        "status_handled": (
+            conversation.status_handled if status_handled is _UNSET else cast(bool, status_handled)
+        ),
         "token_usage": _dump_json_compatible_value(conversation.token_usage),
     }
 
@@ -265,22 +277,39 @@ def _dump_agent_execution_info(conversation: "AgentConversation") -> dict[str, A
     }
 
 
-def dump_conversation_state(conversation: "Conversation") -> dict[str, Any]:
+def dump_conversation_state(
+    conversation: "Conversation",
+    *,
+    status: object = _UNSET,
+    status_handled: object = _UNSET,
+) -> dict[str, Any]:
     from wayflowcore.executors._agentconversation import AgentConversation
     from wayflowcore.executors._flowconversation import FlowConversation
 
     if isinstance(conversation, FlowConversation):
         execution_info = {
-            **_dump_execution_info(conversation),
+            **_dump_execution_info(
+                conversation,
+                status=status,
+                status_handled=status_handled,
+            ),
             **_dump_flow_execution_info(conversation),
         }
     elif isinstance(conversation, AgentConversation):
         execution_info = {
-            **_dump_execution_info(conversation),
+            **_dump_execution_info(
+                conversation,
+                status=status,
+                status_handled=status_handled,
+            ),
             **_dump_agent_execution_info(conversation),
         }
     else:
-        execution_info = _dump_execution_info(conversation)
+        execution_info = _dump_execution_info(
+            conversation,
+            status=status,
+            status_handled=status_handled,
+        )
 
     return {
         "conversation": _dump_conversation_info(conversation),

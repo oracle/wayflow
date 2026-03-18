@@ -163,13 +163,20 @@ snapshots are bridged into Agent Spec ``StateSnapshotEmitted`` events on the act
 span. The WayFlow-only ``variable_state`` payload is not bridged, because Agent Spec
 does not define WayFlow variable semantics. When ``include_variable_state=True``,
 variable values must already be JSON-serializable.
-Snapshots are emitted only when the corresponding boundary event occurs. If a turn
+``StateSnapshotEvent.conversation_id`` is the logical/public conversation id,
+while ``state_snapshot["conversation"]["id"]`` identifies the concrete runtime
+conversation instance that emitted the snapshot.
+Each policy emits snapshots only for its own boundaries. ``CONVERSATION_TURNS``
+emits opening and closing turn snapshots. Internal policies emit only step,
+iteration, and/or tool snapshots. Snapshots are emitted only when the
+corresponding boundary event occurs. If a turn
 raises or is interrupted before its matching closing event, WayFlow does not
 synthesize an extra unwind snapshot. For step and tool intervals, the latest
 already-emitted start snapshot is the recovery point.
-For flows, ``NODE_TURNS`` snapshots are emitted around each step. For agents, the same
-policy emits snapshots around each decision-loop iteration. Tool start/end snapshots
-are emitted only for ``TOOL_TURNS`` and ``ALL_INTERNAL_TURNS``.
+For flows, ``NODE_TURNS`` uses flow-iteration start/end events, which align with
+per-step execution while keeping the end snapshot on committed flow state. For
+agents, the same policy emits snapshots around each decision-loop iteration.
+Tool start/end snapshots are emitted only for ``TOOL_TURNS`` and ``ALL_INTERNAL_TURNS``.
 
 .. code-block:: python
 

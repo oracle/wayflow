@@ -82,8 +82,10 @@ class AgentSpecEventListener(EventListener):
         self.agentspec_components_registry: Dict[str, AgentSpecComponent] = {}
         # State snapshots belong to the span that owns their conversation id, not
         # necessarily to the runtime span that was active when the snapshot event
-        # was emitted.
-        self._conversation_spans_registry: Dict[str, AgentSpecSpan] = {}
+        # was emitted. Nested flow sub-conversations can intentionally reuse the
+        # same deprecated conversation_id, so we also track the live conversation
+        # object id that currently owns that stream.
+        self._conversation_spans_registry: Dict[str, tuple[str, AgentSpecSpan]] = {}
         self._pending_multi_agent_spans_by_component_id: Dict[str, AgentSpecSpan] = {}
         self._multi_agent_spans_by_step_span_id: Dict[str, AgentSpecSpan] = {}
         # Track last assistant message id and a robust mapping tool_request_id -> assistant message id.
@@ -108,7 +110,18 @@ class AgentSpecEventListener(EventListener):
     def _register_current_conversation_span(self, agentspec_span: AgentSpecSpan) -> None:
         active_conversation = self._get_active_wayflow_conversation()
         if active_conversation is not None:
-            self._conversation_spans_registry[active_conversation.conversation_id] = agentspec_span
+            current_owner = self._conversation_spans_registry.get(
+                active_conversation.conversation_id
+            )
+            if (
+                current_owner is None
+                or current_owner[0] == active_conversation.id
+                or current_owner[1].end_time is not None
+            ):
+                self._conversation_spans_registry[active_conversation.conversation_id] = (
+                    active_conversation.id,
+                    agentspec_span,
+                )
 
     def _start_multi_agent_span_if_needed(
         self,
@@ -177,25 +190,39 @@ class AgentSpecEventListener(EventListener):
         current_agentspec_span: AgentSpecSpan | None,
     ) -> AgentSpecSpan | None:
         if event.conversation_id in self._conversation_spans_registry:
-            return self._conversation_spans_registry[event.conversation_id]
+            return self._conversation_spans_registry[event.conversation_id][1]
+
+        if event.state_snapshot is None:
+            return None
+        if not isinstance(event.state_snapshot, dict):
+            return None
+        snapshot_conversation = event.state_snapshot.get("conversation")
+        if not isinstance(snapshot_conversation, dict):
+            return None
+        snapshot_runtime_conversation_id = snapshot_conversation.get("id")
+        if not isinstance(snapshot_runtime_conversation_id, str):
+            return None
 
         active_conversations = _get_active_conversations(return_copy=False)
         matching_conversation = next(
             (
                 conversation
                 for conversation in reversed(active_conversations)
-                if conversation.conversation_id == event.conversation_id
+                if conversation.id == snapshot_runtime_conversation_id
             ),
             None,
         )
         if matching_conversation is None:
-            return current_agentspec_span
+            return None
 
         pending_multi_agent_span = self._pending_multi_agent_spans_by_component_id.get(
             matching_conversation.component.id
         )
         if pending_multi_agent_span is not None:
-            self._conversation_spans_registry[event.conversation_id] = pending_multi_agent_span
+            self._conversation_spans_registry[event.conversation_id] = (
+                matching_conversation.id,
+                pending_multi_agent_span,
+            )
             return pending_multi_agent_span
 
         return current_agentspec_span
@@ -205,6 +232,11 @@ class AgentSpecEventListener(EventListener):
         agentspec_span: AgentSpecSpan,
         snapshot_event: AgentSpecStateSnapshotEmitted,
     ) -> None:
+        # State snapshots are emitted by a separate runtime listener in response
+        # to the turn-end event. That means this Agent Spec listener can record
+        # the terminal Agent/Flow/Swarm end event first and only see the derived
+        # snapshot event afterward. Keep the Agent Spec span readable by exposing
+        # the closing snapshot immediately before the terminal event.
         if len(agentspec_span.events) < 2 or not isinstance(
             agentspec_span.events[-2],
             (

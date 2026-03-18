@@ -6,10 +6,11 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from contextlib import contextmanager
-from enum import Enum
-from typing import Iterator, Optional
+from contextvars import ContextVar
+from typing import Any, Dict, Iterator, Optional, cast
 
 from wayflowcore.conversation import Conversation, _get_active_conversations
 from wayflowcore.events import Event, EventListener
@@ -21,9 +22,9 @@ from wayflowcore.events.event import (
     ExceptionRaisedEvent,
     FlowExecutionFinishedEvent,
     FlowExecutionIterationFinishedEvent,
+    FlowExecutionIterationStartedEvent,
     FlowExecutionStartedEvent,
     StateSnapshotEvent,
-    StepInvocationStartEvent,
     ToolExecutionResultEvent,
     ToolExecutionStartEvent,
 )
@@ -35,144 +36,173 @@ from wayflowcore.events.eventlistener import (
 from wayflowcore.executors._events.event import EventType as ExecutionEventType
 from wayflowcore.executors._executor import ExecutionInterruptedException
 from wayflowcore.executors.executionstatus import ExecutionStatus
-from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval
+from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.serialization.conversation import dump_conversation_state, dump_variable_state
 from wayflowcore.tracing.span import AgentExecutionSpan, FlowExecutionSpan, get_current_span
 
 logger = logging.getLogger(__name__)
 
 
-class StateSnapshotBoundary(str, Enum):
-    """
-    Concrete runtime boundaries at which a state snapshot may be recorded.
-
-    `TURN_START`
-        The opening boundary of a single `conversation.execute(...)` call. This
-        captures the turn's initial resume point before execution work begins.
-
-    `TURN_END`
-        The closing boundary of a single `conversation.execute(...)` call. This
-        is the stable resume point after the turn's final status is known.
-
-    `TOOL_START`
-        Right before a tool invocation begins.
-
-    `TOOL_END`
-        Right after a tool invocation completes and its result is available.
-
-    `NODE_START`
-        Right before a flow step starts executing.
-
-    `NODE_END`
-        Right after a flow step finishes executing.
-
-    `AGENT_LOOP_START`
-        Right before an agent reasoning/decision-loop iteration starts.
-
-    `AGENT_LOOP_END`
-        Right after an agent reasoning/decision-loop iteration finishes.
-    """
-
-    TURN_START = "turn_start"
-    TURN_END = "turn_end"
-    TOOL_START = "tool_start"
-    TOOL_END = "tool_end"
-    NODE_START = "node_start"
-    NODE_END = "node_end"
-    AGENT_LOOP_START = "agent_loop_start"
-    AGENT_LOOP_END = "agent_loop_end"
+_STATE_SNAPSHOT_POLICIES: ContextVar[Dict[str, StateSnapshotPolicy]] = ContextVar(
+    "_STATE_SNAPSHOT_POLICIES",
+    default={},
+)
+"""Execution-local mapping of active conversations to their effective snapshot policy."""
 
 
-class StateSnapshotListenerPhase(str, Enum):
-    PRE_INTERRUPTS = "pre_interrupts"
-    POST_INTERRUPTS = "post_interrupts"
+def _get_state_snapshot_policies(
+    return_copy: bool = True,
+) -> Dict[str, StateSnapshotPolicy]:
+    state_snapshot_policies = _STATE_SNAPSHOT_POLICIES.get()
+    return state_snapshot_policies.copy() if return_copy else state_snapshot_policies
 
 
-def should_emit_state_snapshot(
+def _get_parent_state_snapshot_policy(
     conversation: Conversation,
-    boundary: StateSnapshotBoundary,
-) -> bool:
-    state_snapshot_policy = conversation._get_state_snapshot_policy()
+) -> Optional[StateSnapshotPolicy]:
+    active_conversations = _get_active_conversations(return_copy=False)
+    if not active_conversations or active_conversations[-1] is conversation:
+        return None
+    return _get_state_snapshot_policy(active_conversations[-1])
+
+
+def _get_state_snapshot_policy(
+    conversation: Conversation,
+) -> Optional[StateSnapshotPolicy]:
+    return _get_state_snapshot_policies(return_copy=False).get(conversation.id)
+
+
+@contextmanager
+def _use_state_snapshot_policy(
+    conversation: Conversation,
+    state_snapshot_policy: Optional[StateSnapshotPolicy],
+) -> Iterator[None]:
+    # Copy-on-write is needed here because child anyio tasks inherit the current
+    # context, including references to mutable ContextVar values.
+    state_snapshot_policies = _get_state_snapshot_policies(return_copy=True)
     if state_snapshot_policy is None:
-        return False
+        state_snapshot_policies.pop(conversation.id, None)
+    else:
+        state_snapshot_policies[conversation.id] = state_snapshot_policy
+
+    token = _STATE_SNAPSHOT_POLICIES.set(state_snapshot_policies)
+    try:
+        yield
+    finally:
+        _STATE_SNAPSHOT_POLICIES.reset(token)
+
+
+def _build_extra_state(
+    conversation: Conversation,
+    state_snapshot_policy: StateSnapshotPolicy,
+) -> Optional[Dict[str, Any]]:
+    if state_snapshot_policy.extra_state_builder is None:
+        return None
+
+    try:
+        extra_state = state_snapshot_policy.extra_state_builder(conversation)
+    except Exception:
+        logger.warning(
+            "Failed to build extra snapshot state for conversation '%s'",
+            conversation.conversation_id,
+            exc_info=True,
+        )
+        return None
+
+    if extra_state is None:
+        return None
+    if not isinstance(extra_state, dict):
+        logger.warning(
+            "Expected extra snapshot state to be a dictionary for conversation '%s'",
+            conversation.conversation_id,
+        )
+        return None
+
+    try:
+        return cast(Dict[str, Any], json.loads(json.dumps(extra_state)))
+    except Exception:
+        logger.warning(
+            "Extra snapshot state is not JSON serializable for conversation '%s'",
+            conversation.conversation_id,
+            exc_info=True,
+        )
+        return None
+
+
+def _get_snapshot_policy_for_interval(
+    conversation: Conversation,
+    required_snapshot_interval: StateSnapshotInterval,
+) -> Optional[StateSnapshotPolicy]:
+    state_snapshot_policy = _get_state_snapshot_policy(conversation)
+    if state_snapshot_policy is None:
+        return None
 
     snapshot_interval = state_snapshot_policy.state_snapshot_interval
     if snapshot_interval == StateSnapshotInterval.OFF:
-        should_emit = False
-    elif boundary == StateSnapshotBoundary.TURN_START:
-        should_emit = snapshot_interval == StateSnapshotInterval.CONVERSATION_TURNS
-    elif boundary == StateSnapshotBoundary.TURN_END:
-        should_emit = True
-    elif boundary in {StateSnapshotBoundary.TOOL_START, StateSnapshotBoundary.TOOL_END}:
-        should_emit = snapshot_interval in {
-            StateSnapshotInterval.TOOL_TURNS,
-            StateSnapshotInterval.ALL_INTERNAL_TURNS,
-        }
-    elif boundary in {
-        StateSnapshotBoundary.NODE_START,
-        StateSnapshotBoundary.NODE_END,
-        StateSnapshotBoundary.AGENT_LOOP_START,
-        StateSnapshotBoundary.AGENT_LOOP_END,
-    }:
-        # Agents do not expose node execution events, so NODE_TURNS maps to
-        # per-step boundaries for flows and per-iteration boundaries for agents.
-        should_emit = snapshot_interval in {
-            StateSnapshotInterval.NODE_TURNS,
-            StateSnapshotInterval.ALL_INTERNAL_TURNS,
-        }
-    else:
-        should_emit = False
+        return None
 
-    return should_emit
+    if snapshot_interval == required_snapshot_interval:
+        return state_snapshot_policy
+
+    if required_snapshot_interval == StateSnapshotInterval.CONVERSATION_TURNS:
+        return None
+
+    if snapshot_interval == StateSnapshotInterval.ALL_INTERNAL_TURNS:
+        return state_snapshot_policy
+
+    return None
+
+
+def _build_variable_state(
+    conversation: Conversation,
+    state_snapshot_policy: StateSnapshotPolicy,
+) -> Optional[dict[str, Any]]:
+    if not state_snapshot_policy.include_variable_state:
+        return None
+
+    try:
+        return dump_variable_state(conversation)
+    except Exception:
+        logger.warning(
+            "Failed to dump variable state for conversation '%s'",
+            conversation.conversation_id,
+            exc_info=True,
+        )
+        return None
 
 
 def record_state_snapshot(
     conversation: Conversation,
-    boundary: StateSnapshotBoundary,
+    required_snapshot_interval: StateSnapshotInterval,
     *,
     execution_status: ExecutionStatus | None,
     status_handled: bool,
-) -> bool:
-    state_snapshot_policy = conversation._get_state_snapshot_policy()
-    if state_snapshot_policy is None or not should_emit_state_snapshot(conversation, boundary):
-        return False
-
-    previous_status = conversation.status
-    previous_status_handled = conversation.status_handled
-    conversation.status = execution_status
-    conversation.status_handled = status_handled
+) -> None:
+    state_snapshot_policy = _get_snapshot_policy_for_interval(
+        conversation, required_snapshot_interval
+    )
+    if state_snapshot_policy is None:
+        return
 
     try:
-        variable_state = None
-        if state_snapshot_policy.include_variable_state:
-            try:
-                variable_state = dump_variable_state(conversation)
-            except Exception:
-                logger.warning(
-                    "Failed to dump variable state for conversation '%s'",
-                    conversation.conversation_id,
-                    exc_info=True,
-                )
-
         record_event(
             StateSnapshotEvent(
                 conversation_id=conversation.conversation_id,
-                state_snapshot=dump_conversation_state(conversation),
-                extra_state=conversation._build_extra_state(),
-                variable_state=variable_state,
+                state_snapshot=dump_conversation_state(
+                    conversation,
+                    status=execution_status,
+                    status_handled=status_handled,
+                ),
+                extra_state=_build_extra_state(conversation, state_snapshot_policy),
+                variable_state=_build_variable_state(conversation, state_snapshot_policy),
             )
         )
-        return True
     except Exception:
         logger.warning(
             "Failed to emit state snapshot for conversation '%s'",
             conversation.conversation_id,
             exc_info=True,
         )
-        return False
-    finally:
-        conversation.status = previous_status
-        conversation.status_handled = previous_status_handled
 
 
 def _get_current_active_conversation() -> Optional[Conversation]:
@@ -207,90 +237,77 @@ class StateSnapshotEventListener(EventListener):
     def __init__(
         self,
         conversation: Conversation,
-        phase: StateSnapshotListenerPhase,
+        post_interrupts: bool,
     ) -> None:
         self.conversation = conversation
-        self.phase = phase
+        self.post_interrupts = post_interrupts
 
-    def _record_snapshot(self, boundary: StateSnapshotBoundary) -> None:
-        record_state_snapshot(
-            self.conversation,
-            boundary,
-            execution_status=None,
-            status_handled=False,
-        )
-
-    def _handle_pre_interrupt_event(self, event: Event) -> None:
-        match event:
-            case FlowExecutionStartedEvent():
-                self._record_snapshot(StateSnapshotBoundary.TURN_START)
-            case AgentExecutionStartedEvent():
-                self._record_snapshot(StateSnapshotBoundary.TURN_START)
-            case ToolExecutionStartEvent():
-                self._record_snapshot(StateSnapshotBoundary.TOOL_START)
-            case ToolExecutionResultEvent():
-                self._record_snapshot(StateSnapshotBoundary.TOOL_END)
-            case StepInvocationStartEvent():
-                self._record_snapshot(StateSnapshotBoundary.NODE_START)
-            case FlowExecutionIterationFinishedEvent():
-                self._record_snapshot(StateSnapshotBoundary.NODE_END)
-            case AgentExecutionIterationStartedEvent():
-                self._record_snapshot(StateSnapshotBoundary.AGENT_LOOP_START)
-            case AgentExecutionIterationFinishedEvent():
-                self._record_snapshot(StateSnapshotBoundary.AGENT_LOOP_END)
-
-    def _handle_pre_interrupt_event_for_parent_multi_agent(self, event: Event) -> None:
-        match event:
-            case AgentExecutionStartedEvent() | FlowExecutionStartedEvent():
-                self._record_snapshot(StateSnapshotBoundary.TURN_START)
-
-    def _record_turn_end_snapshot(
+    def _record_snapshot(
         self,
+        required_snapshot_interval: StateSnapshotInterval,
         execution_status: ExecutionStatus | None = None,
     ) -> None:
         record_state_snapshot(
             self.conversation,
-            StateSnapshotBoundary.TURN_END,
+            required_snapshot_interval,
             execution_status=execution_status,
             status_handled=False,
         )
 
-    def _latest_execution_event_is_turn_end(self) -> bool:
-        if not self.conversation.state.events:
-            return False
-        return self.conversation.state.events[-1].type == ExecutionEventType.EXECUTION_END
+    def _handle_pre_interrupt_event(
+        self,
+        event: Event,
+        *,
+        is_current_conversation: bool,
+    ) -> None:
+        # Agents do not expose node execution events, so NODE_TURNS maps to
+        # flow iteration boundaries and agent iteration boundaries.
+        match event:
+            case AgentExecutionStartedEvent() | FlowExecutionStartedEvent():
+                self._record_snapshot(StateSnapshotInterval.CONVERSATION_TURNS)
+            case _ if not is_current_conversation:
+                return
+            case ToolExecutionStartEvent() | ToolExecutionResultEvent():
+                self._record_snapshot(StateSnapshotInterval.TOOL_TURNS)
+            case (
+                FlowExecutionIterationStartedEvent()
+                | FlowExecutionIterationFinishedEvent()
+                | AgentExecutionIterationStartedEvent()
+                | AgentExecutionIterationFinishedEvent()
+            ):
+                self._record_snapshot(StateSnapshotInterval.NODE_TURNS)
 
     def _should_record_interrupted_turn_end_snapshot(
         self,
     ) -> bool:
-        if not self._latest_execution_event_is_turn_end():
-            should_record = False
-        elif not isinstance(get_current_span(), (FlowExecutionSpan, AgentExecutionSpan)):
-            should_record = False
-        else:
-            should_record = True
+        return (
+            bool(self.conversation.state.events)
+            and (self.conversation.state.events[-1].type == ExecutionEventType.EXECUTION_END)
+            and isinstance(get_current_span(), (FlowExecutionSpan, AgentExecutionSpan))
+        )
 
-        return should_record
+    def _is_parent_multi_agent_conversation(self) -> bool:
+        parent_multi_agent_conversation = _get_nearest_parent_multi_agent_conversation()
+        return (
+            parent_multi_agent_conversation is not None
+            and parent_multi_agent_conversation.id == self.conversation.id
+        )
 
     def _handle_post_interrupt_event(self, event: Event) -> None:
         match event:
             case FlowExecutionFinishedEvent(
                 execution_status=execution_status
             ) | AgentExecutionFinishedEvent(execution_status=execution_status):
-                self._record_turn_end_snapshot(execution_status)
+                self._record_snapshot(
+                    StateSnapshotInterval.CONVERSATION_TURNS,
+                    execution_status,
+                )
             case ExceptionRaisedEvent(exception=ExecutionInterruptedException() as exception):
                 if self._should_record_interrupted_turn_end_snapshot():
-                    self._record_turn_end_snapshot(exception.execution_status)
-
-    def _handle_post_interrupt_event_for_parent_multi_agent(self, event: Event) -> None:
-        match event:
-            case FlowExecutionFinishedEvent(
-                execution_status=execution_status
-            ) | AgentExecutionFinishedEvent(execution_status=execution_status):
-                self._record_turn_end_snapshot(execution_status)
-            case ExceptionRaisedEvent(exception=ExecutionInterruptedException() as exception):
-                if self._should_record_interrupted_turn_end_snapshot():
-                    self._record_turn_end_snapshot(exception.execution_status)
+                    self._record_snapshot(
+                        StateSnapshotInterval.CONVERSATION_TURNS,
+                        exception.execution_status,
+                    )
 
     def __call__(self, event: Event) -> None:
         if isinstance(event, StateSnapshotEvent):
@@ -301,32 +318,23 @@ class StateSnapshotEventListener(EventListener):
             return
 
         is_current_conversation = current_conversation.id == self.conversation.id
-        parent_multi_agent_conversation = _get_nearest_parent_multi_agent_conversation()
-        is_parent_multi_agent_conversation = (
-            parent_multi_agent_conversation is not None
-            and parent_multi_agent_conversation.id == self.conversation.id
-        )
-
-        if not is_current_conversation and not is_parent_multi_agent_conversation:
+        if not is_current_conversation and not self._is_parent_multi_agent_conversation():
             return
 
-        if self.phase == StateSnapshotListenerPhase.PRE_INTERRUPTS:
-            if is_current_conversation:
-                self._handle_pre_interrupt_event(event)
-            else:
-                self._handle_pre_interrupt_event_for_parent_multi_agent(event)
+        if self.post_interrupts:
+            self._handle_post_interrupt_event(event)
         else:
-            if is_current_conversation:
-                self._handle_post_interrupt_event(event)
-            else:
-                self._handle_post_interrupt_event_for_parent_multi_agent(event)
+            self._handle_pre_interrupt_event(
+                event,
+                is_current_conversation=is_current_conversation,
+            )
 
 
 @contextmanager
 def get_state_snapshot_event_listener_context_for_conversation(
     conversation: Conversation,
     *,
-    phase: StateSnapshotListenerPhase,
+    post_interrupts: bool,
 ) -> Iterator[StateSnapshotEventListener]:
     current_listener = next(
         (
@@ -334,7 +342,7 @@ def get_state_snapshot_event_listener_context_for_conversation(
             for event_listener in get_event_listeners()
             if isinstance(event_listener, StateSnapshotEventListener)
             and event_listener.conversation.id == conversation.id
-            and event_listener.phase == phase
+            and event_listener.post_interrupts == post_interrupts
         ),
         None,
     )
@@ -342,6 +350,50 @@ def get_state_snapshot_event_listener_context_for_conversation(
     if current_listener is not None:
         yield current_listener
     else:
-        listener = StateSnapshotEventListener(conversation, phase=phase)
+        listener = StateSnapshotEventListener(conversation, post_interrupts=post_interrupts)
         with register_event_listeners([listener]):
             yield listener
+
+
+@contextmanager
+def get_state_snapshot_execution_context_for_conversation(
+    conversation: Conversation,
+    state_snapshot_policy: Optional[StateSnapshotPolicy],
+) -> Iterator[None]:
+    """
+    Activate the effective snapshot policy for one `conversation.execute(...)` turn.
+
+    Child conversations inherit the currently active parent policy unless they
+    explicitly override it. When snapshots are enabled, listener registration
+    happens here in the runtime order the execution model depends on:
+    1. pre-interrupt snapshot listener
+    2. interrupts listener
+    3. post-interrupt snapshot listener
+    """
+    active_state_snapshot_policy = (
+        state_snapshot_policy
+        if state_snapshot_policy is not None
+        else _get_parent_state_snapshot_policy(conversation)
+    )
+
+    with _use_state_snapshot_policy(conversation, active_state_snapshot_policy):
+        if active_state_snapshot_policy is None:
+            yield
+            return
+
+        from wayflowcore.executors._interrupts_eventlistener import (
+            get_interrupts_event_listener_context_for_conversation,
+        )
+
+        with (
+            get_state_snapshot_event_listener_context_for_conversation(
+                conversation,
+                post_interrupts=False,
+            ),
+            get_interrupts_event_listener_context_for_conversation(conversation),
+            get_state_snapshot_event_listener_context_for_conversation(
+                conversation,
+                post_interrupts=True,
+            ),
+        ):
+            yield

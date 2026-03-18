@@ -78,6 +78,63 @@ def test_dump_conversation_state_is_json_serializable_and_lightweight() -> None:
     )
 
 
+def test_dump_conversation_state_overrides_execution_fields_without_mutating_conversation() -> None:
+    custom_variable = Variable(
+        name="custom",
+        type=StringProperty(),
+        description="Custom variable used for snapshot serialization tests",
+    )
+    flow = _build_snapshot_flow(custom_variable)
+    conversation = flow.start_conversation(inputs={custom_variable.name: "custom-value"})
+    conversation.execute()
+
+    previous_status = conversation.status
+    previous_status_handled = conversation.status_handled
+
+    snapshot = dump_conversation_state(
+        conversation,
+        status=None,
+        status_handled=True,
+    )
+
+    assert snapshot["execution"]["status"] is None
+    assert snapshot["execution"]["status_handled"] is True
+    assert conversation.status is previous_status
+    assert conversation.status_handled is previous_status_handled
+
+
+def test_dump_conversation_state_includes_runtime_conversation_id() -> None:
+    custom_variable = Variable(
+        name="custom",
+        type=StringProperty(),
+        description="Custom variable used for snapshot serialization tests",
+    )
+    flow = _build_snapshot_flow(custom_variable)
+    conversation = flow.start_conversation(inputs={custom_variable.name: "custom-value"})
+    conversation.execute()
+
+    snapshot = dump_conversation_state(conversation)
+
+    assert snapshot["conversation"]["id"] == conversation.id
+    assert snapshot["conversation"]["conversation_id"] == conversation.conversation_id
+
+
+def test_dump_conversation_state_does_not_overload_status_conversation_identity() -> None:
+    custom_variable = Variable(
+        name="custom",
+        type=StringProperty(),
+        description="Custom variable used for snapshot serialization tests",
+    )
+    flow = _build_snapshot_flow(custom_variable)
+    conversation = flow.start_conversation(inputs={custom_variable.name: "custom-value"})
+    conversation.execute()
+
+    snapshot = dump_conversation_state(conversation)
+
+    assert snapshot["execution"]["status"]["type"] == "FinishedStatus"
+    assert "conversation_id" not in snapshot["execution"]["status"]
+
+
 def test_dump_variable_state_rejects_non_json_serializable_values() -> None:
     custom_variable = Variable(
         name="custom",

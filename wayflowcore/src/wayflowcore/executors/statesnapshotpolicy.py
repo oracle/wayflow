@@ -21,21 +21,20 @@ class StateSnapshotInterval(str, Enum):
     `CONVERSATION_TURNS`
         Emit an opening turn snapshot before execution starts and a closing
         turn snapshot when the turn finishes or is interrupted at execution
-        end. This is the default policy because it gives a stable resume point
-        without emitting snapshots for every internal step.
+        end. This is the default policy because it gives a stable turn-level
+        checkpoint without emitting snapshots for every internal step.
 
     `TOOL_TURNS`
-        Emit the standard closing turn snapshot plus snapshots around each tool
-        invocation (`TOOL_START` and `TOOL_END`).
+        Emit snapshots around each tool invocation (`TOOL_START` and
+        `TOOL_END`) only.
 
     `NODE_TURNS`
-        Emit the standard closing turn snapshot plus snapshots around each
-        internal node boundary. For flows this means per-step snapshots; for
-        agents it maps to decision-loop iteration boundaries.
+        Emit snapshots around each internal node boundary only. For flows this
+        means per-step snapshots; for agents it maps to decision-loop
+        iteration boundaries.
 
     `ALL_INTERNAL_TURNS`
-        Emit the standard closing turn snapshot plus all tool and node
-        snapshots.
+        Emit all tool and node snapshots, without the broader turn snapshots.
 
     `OFF`
         Disable state snapshot emission entirely.
