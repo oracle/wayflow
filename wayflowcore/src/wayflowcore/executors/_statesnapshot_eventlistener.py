@@ -171,12 +171,11 @@ def _build_variable_state(
         return None
 
 
-def record_state_snapshot(
+def _record_state_snapshot(
     conversation: Conversation,
     required_snapshot_interval: StateSnapshotInterval,
     *,
     execution_status: ExecutionStatus | None,
-    status_handled: bool,
 ) -> None:
     state_snapshot_policy = _get_snapshot_policy_for_interval(
         conversation, required_snapshot_interval
@@ -191,7 +190,9 @@ def record_state_snapshot(
                 state_snapshot=dump_conversation_state(
                     conversation,
                     status=execution_status,
-                    status_handled=status_handled,
+                    # Snapshots should expose the canonical pre-consumption view
+                    # of a turn, not transient runtime bookkeeping.
+                    status_handled=False,
                 ),
                 extra_state=_build_extra_state(conversation, state_snapshot_policy),
                 variable_state=_build_variable_state(conversation, state_snapshot_policy),
@@ -203,13 +204,6 @@ def record_state_snapshot(
             conversation.conversation_id,
             exc_info=True,
         )
-
-
-def _get_current_active_conversation() -> Optional[Conversation]:
-    active_conversations = _get_active_conversations(return_copy=False)
-    if not active_conversations:
-        return None
-    return active_conversations[-1]
 
 
 class StateSnapshotEventListener(EventListener):
@@ -228,11 +222,10 @@ class StateSnapshotEventListener(EventListener):
         required_snapshot_interval: StateSnapshotInterval,
         execution_status: ExecutionStatus | None = None,
     ) -> None:
-        record_state_snapshot(
+        _record_state_snapshot(
             self.conversation,
             required_snapshot_interval,
             execution_status=execution_status,
-            status_handled=False,
         )
 
     def _handle_pre_interrupt_event(
@@ -264,10 +257,11 @@ class StateSnapshotEventListener(EventListener):
         )
 
     def _owns_current_conversation(self, current_conversation: Conversation) -> bool:
-        # Keep snapshot ownership resolution centralized here. Today a listener
-        # only reacts for its own active conversation. Follow-up PRs can widen
-        # this to parent multi-agent wrapper conversations without touching the
-        # snapshot emission logic.
+        # This is the intended extension point for future multi-agent snapshot
+        # ownership rules. Today a listener only reacts for its own active
+        # conversation. Follow-up PRs can widen this here to parent wrapper
+        # conversations (for example swarms or manager-workers) without
+        # changing the snapshot emission logic elsewhere in this listener.
         return current_conversation.id == self.conversation.id
 
     def _handle_post_interrupt_event(self, event: Event) -> None:
@@ -290,10 +284,11 @@ class StateSnapshotEventListener(EventListener):
         if isinstance(event, StateSnapshotEvent):
             return
 
-        current_conversation = _get_current_active_conversation()
-        if current_conversation is None:
+        active_conversations = _get_active_conversations(return_copy=False)
+        if not active_conversations:
             return
 
+        current_conversation = active_conversations[-1]
         if not self._owns_current_conversation(current_conversation):
             return
 

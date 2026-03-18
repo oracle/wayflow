@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -152,9 +152,9 @@ class Conversation(DataclassComponent):
             with _register_conversation(self):
                 new_status = await self.component.runner.execute_async(self, execution_interrupts)
 
-            self.status = new_status
-            self.status_handled = False
-            return self.status
+        self.status = new_status
+        self.status_handled = False
+        return self.status
 
     @property
     @abstractmethod

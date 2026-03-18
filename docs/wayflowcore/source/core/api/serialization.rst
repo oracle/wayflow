@@ -45,6 +45,12 @@ Conversation State Snapshots
 .. _deserializeconversationstate:
 .. autofunction:: wayflowcore.serialization.deserialize_conversation_state
 
+.. _loadconversationstate:
+.. autofunction:: wayflowcore.serialization.load_conversation_state
+
+.. _deserializeconversation:
+.. autofunction:: wayflowcore.serialization.deserialize_conversation
+
 .. _dumpvariablestate:
 .. autofunction:: wayflowcore.serialization.dump_variable_state
 

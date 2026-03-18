@@ -45,20 +45,11 @@ class SnapshotCollector(EventListener):
             self.state_snapshot_events.append(event)
 
 
-def build_state_snapshot_policy(
-    interval: StateSnapshotInterval,
-    **kwargs: Any,
-) -> StateSnapshotPolicy:
-    return StateSnapshotPolicy(state_snapshot_interval=interval, **kwargs)
-
-
-def snapshot_status_type(snapshot_event: Any) -> str | None:
-    status = snapshot_event.state_snapshot["execution"]["status"]
-    return status["type"] if status is not None else None
-
-
 def snapshot_status_types(snapshot_events: Sequence[Any]) -> list[str | None]:
-    return [snapshot_status_type(snapshot_event) for snapshot_event in snapshot_events]
+    return [
+        status["type"] if (status := snapshot_event.state_snapshot["execution"]["status"]) else None
+        for snapshot_event in snapshot_events
+    ]
 
 
 def snapshot_message(snapshot_event: Any) -> str | None:
@@ -68,12 +59,10 @@ def snapshot_message(snapshot_event: Any) -> str | None:
     return messages[-1].get("content")
 
 
-def snapshot_runtime_conversation_id(snapshot_event: Any) -> str:
-    return snapshot_event.state_snapshot["conversation"]["id"]
-
-
 def snapshot_runtime_conversation_ids(snapshot_events: Sequence[Any]) -> list[str]:
-    return [snapshot_runtime_conversation_id(snapshot_event) for snapshot_event in snapshot_events]
+    return [
+        snapshot_event.state_snapshot["conversation"]["id"] for snapshot_event in snapshot_events
+    ]
 
 
 def snapshot_step_histories(snapshot_events: Sequence[Any]) -> list[list[str]]:
@@ -247,7 +236,7 @@ def build_policy(
     interval: StateSnapshotInterval,
     **kwargs: object,
 ) -> StateSnapshotPolicy:
-    return build_state_snapshot_policy(interval, **kwargs)
+    return StateSnapshotPolicy(state_snapshot_interval=interval, **kwargs)
 
 
 def assert_terminal_snapshot(

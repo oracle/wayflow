@@ -28,7 +28,7 @@ from wayflowcore.steps import CompleteStep, OutputMessageStep, ToolExecutionStep
 from wayflowcore.tools import ServerTool
 
 from ..testhelpers.statesnapshots import (
-    build_state_snapshot_policy,
+    build_policy,
     snapshot_message,
     snapshot_step_histories,
 )
@@ -71,13 +71,6 @@ class SnapshotSpanRecorder(AgentSpecSpanProcessor):
         return None
 
 
-def _policy(
-    interval: StateSnapshotInterval,
-    **kwargs: Any,
-):
-    return build_state_snapshot_policy(interval, **kwargs)
-
-
 def _execute_with_trace(
     conversation,
     *,
@@ -94,26 +87,6 @@ def _execute_with_trace(
         stack.enter_context(AgentSpecTrace(span_processors=[span_recorder, *span_processors]))
         stack.enter_context(register_event_listeners([listener]))
         status = conversation.execute(state_snapshot_policy=state_snapshot_policy)
-
-    return status, span_recorder
-
-
-async def _execute_with_trace_async(
-    conversation,
-    *,
-    state_snapshot_policy,
-    span_processors: Sequence[AgentSpecSpanProcessor] = (),
-    contexts: Sequence[AbstractContextManager[Any]] = (),
-):
-    span_recorder = SnapshotSpanRecorder()
-    listener = AgentSpecEventListener()
-
-    async with AgentSpecTrace(span_processors=[span_recorder, *span_processors]):
-        with ExitStack() as stack:
-            for context in contexts:
-                stack.enter_context(context)
-            stack.enter_context(register_event_listeners([listener]))
-            status = await conversation.execute_async(state_snapshot_policy=state_snapshot_policy)
 
     return status, span_recorder
 
@@ -141,29 +114,6 @@ def _events(
     return [event for event in span.events if isinstance(event, event_type)]
 
 
-def _single_event(
-    span: AgentSpecSpan,
-    event_type: type[AgentSpecEvent],
-) -> AgentSpecEvent:
-    return next(event for event in span.events if isinstance(event, event_type))
-
-
-def _build_tool_state_snapshot_flow() -> Flow:
-    return Flow.from_steps(
-        [
-            ToolExecutionStep(
-                tool=ServerTool(
-                    name="say_hi",
-                    description="Say hi",
-                    func=lambda: "hi",
-                    input_descriptors=[],
-                )
-            ),
-            CompleteStep(name="end"),
-        ]
-    )
-
-
 def test_flow_state_snapshots_are_mapped_into_the_flow_span_before_flow_end() -> None:
     flow = Flow.from_steps(
         [OutputMessageStep(message_template="Hello"), CompleteStep(name="end")],
@@ -172,7 +122,7 @@ def test_flow_state_snapshots_are_mapped_into_the_flow_span_before_flow_end() ->
     conversation = flow.start_conversation()
     status, span_recorder = _execute_with_trace(
         conversation,
-        state_snapshot_policy=_policy(
+        state_snapshot_policy=build_policy(
             StateSnapshotInterval.CONVERSATION_TURNS,
             extra_state_builder=lambda _conversation: {"ui": {"active_tab": "plan"}},
         ),
@@ -201,13 +151,16 @@ async def test_flow_state_snapshots_are_mapped_into_the_flow_span_before_flow_en
         step_names=["single_step", "end"],
     )
     conversation = flow.start_conversation()
-    status, span_recorder = await _execute_with_trace_async(
-        conversation,
-        state_snapshot_policy=_policy(
-            StateSnapshotInterval.CONVERSATION_TURNS,
-            extra_state_builder=lambda _conversation: {"ui": {"active_tab": "plan"}},
-        ),
-    )
+    span_recorder = SnapshotSpanRecorder()
+
+    async with AgentSpecTrace(span_processors=[span_recorder]):
+        with register_event_listeners([AgentSpecEventListener()]):
+            status = await conversation.execute_async(
+                state_snapshot_policy=build_policy(
+                    StateSnapshotInterval.CONVERSATION_TURNS,
+                    extra_state_builder=lambda _conversation: {"ui": {"active_tab": "plan"}},
+                )
+            )
 
     assert isinstance(status, FinishedStatus)
 
@@ -232,7 +185,7 @@ def test_node_turn_state_snapshots_are_mapped_into_the_flow_span_not_node_spans(
     conversation = flow.start_conversation()
     status, span_recorder = _execute_with_trace(
         conversation,
-        state_snapshot_policy=_policy(StateSnapshotInterval.NODE_TURNS),
+        state_snapshot_policy=build_policy(StateSnapshotInterval.NODE_TURNS),
     )
 
     assert isinstance(status, FinishedStatus)
@@ -289,11 +242,23 @@ def test_internal_flow_state_snapshots_follow_conversation_ownership_for_agent_s
     interval: StateSnapshotInterval,
     expected_step_histories: list[list[str]],
 ) -> None:
-    flow = _build_tool_state_snapshot_flow()
+    flow = Flow.from_steps(
+        [
+            ToolExecutionStep(
+                tool=ServerTool(
+                    name="say_hi",
+                    description="Say hi",
+                    func=lambda: "hi",
+                    input_descriptors=[],
+                )
+            ),
+            CompleteStep(name="end"),
+        ]
+    )
     conversation = flow.start_conversation()
     status, span_recorder = _execute_with_trace(
         conversation,
-        state_snapshot_policy=_policy(interval),
+        state_snapshot_policy=build_policy(interval),
     )
 
     assert isinstance(status, FinishedStatus)
@@ -321,7 +286,7 @@ def test_off_policy_does_not_bridge_state_snapshots_into_agent_spec_spans() -> N
     conversation = flow.start_conversation()
     status, span_recorder = _execute_with_trace(
         conversation,
-        state_snapshot_policy=_policy(StateSnapshotInterval.OFF),
+        state_snapshot_policy=build_policy(StateSnapshotInterval.OFF),
     )
 
     assert isinstance(status, FinishedStatus)
@@ -353,7 +318,7 @@ def test_only_the_opening_state_snapshot_is_exported_when_a_turn_raises() -> Non
         with register_event_listeners([AgentSpecEventListener()]):
             with pytest.raises(RuntimeError, match="boom"):
                 conversation.execute(
-                    state_snapshot_policy=_policy(StateSnapshotInterval.CONVERSATION_TURNS)
+                    state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS)
                 )
 
     flow_span = _single_span(span_recorder, AgentSpecFlowExecutionSpan)

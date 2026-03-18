@@ -33,6 +33,18 @@ def deserialize_conversation_state(*args: Any, **kwargs: Any) -> Any:
     return _deserialize_conversation_state(*args, **kwargs)
 
 
+def load_conversation_state(*args: Any, **kwargs: Any) -> Any:
+    from .conversation import load_conversation_state as _load_conversation_state
+
+    return _load_conversation_state(*args, **kwargs)
+
+
+def deserialize_conversation(*args: Any, **kwargs: Any) -> Any:
+    from .conversation import deserialize_conversation as _deserialize_conversation
+
+    return _deserialize_conversation(*args, **kwargs)
+
+
 def dump_variable_state(*args: Any, **kwargs: Any) -> Any:
     from .conversation import dump_variable_state as _dump_variable_state
 
@@ -42,10 +54,12 @@ def dump_variable_state(*args: Any, **kwargs: Any) -> Any:
 __all__ = [
     "autodeserialize",
     "deserialize",
+    "deserialize_conversation",
     "deserialize_conversation_state",
     "deserialize_from_dict",
     "dump_conversation_state",
     "dump_variable_state",
+    "load_conversation_state",
     "serialize",
     "serialize_conversation_state",
     "serialize_to_dict",

@@ -9,7 +9,8 @@ New features
 
 * **State snapshot tracing events:**
 
-  Added ``StateSnapshotPolicy``, ``StateSnapshotEvent``, and conversation snapshot serialization helpers. State snapshots can now be enabled per ``conversation.execute()`` / ``execute_async()`` turn, emitted at conversation, node, or tool boundaries, and bridged to Agent Spec ``StateSnapshotEmitted`` events via ``AgentSpecEventListener``.
+  Added configurable conversation state snapshots for tracing, with emission at conversation, node, or tool boundaries and bridging into Agent Spec state snapshot events.
+  Added resumable conversation state serialization so persisted conversations can be restored and continued.
   Snapshot emission is covered on both synchronous and asynchronous execution paths, with snapshot ownership currently scoped to the active conversation.
 
 * **OAuth support for MCP Clients:**

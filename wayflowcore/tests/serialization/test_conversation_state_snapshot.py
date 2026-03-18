@@ -10,15 +10,27 @@ from typing import Any
 import pytest
 
 from wayflowcore.conversation import Conversation
+from wayflowcore.executors._flowconversation import FlowConversation
+from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.property import AnyProperty, StringProperty
 from wayflowcore.serialization import (
+    deserialize_conversation,
     deserialize_conversation_state,
     dump_conversation_state,
     dump_variable_state,
+    load_conversation_state,
     serialize_conversation_state,
 )
-from wayflowcore.steps import OutputMessageStep, VariableWriteStep
+from wayflowcore.serialization.context import DeserializationContext
+from wayflowcore.steps import (
+    CompleteStep,
+    InputMessageStep,
+    OutputMessageStep,
+    ToolExecutionStep,
+    VariableWriteStep,
+)
+from wayflowcore.tools import ServerTool, register_server_tool
 from wayflowcore.variable import Variable
 
 
@@ -65,9 +77,11 @@ def test_dump_conversation_state_is_json_serializable_and_lightweight() -> None:
 
     snapshot = dump_conversation_state(conversation)
     variable_state = dump_variable_state(conversation)
-    serialized_snapshot = serialize_conversation_state(conversation)
+    serialized_conversation_state = serialize_conversation_state(conversation)
+    deserialized_conversation_state = deserialize_conversation_state(serialized_conversation_state)
 
-    assert json.loads(json.dumps(snapshot)) == deserialize_conversation_state(serialized_snapshot)
+    assert json.loads(json.dumps(snapshot)) == snapshot
+    assert deserialized_conversation_state["_component_type"] == conversation.__class__.__name__
     assert variable_state == {"custom": "custom-value"}
     assert snapshot["conversation"]["component_type"] == "Flow"
     assert snapshot["conversation"]["messages"][-1]["content"] == "Hello there"
@@ -147,3 +161,80 @@ def test_dump_variable_state_rejects_non_json_serializable_values() -> None:
 
     with pytest.raises(TypeError, match="Variable 'custom' contains a non-JSON-serializable"):
         dump_variable_state(conversation)
+
+
+def test_load_conversation_state_restores_a_runnable_conversation() -> None:
+    flow = Flow.from_steps(
+        [InputMessageStep("Please answer"), OutputMessageStep("done")],
+        name="resume_flow",
+    )
+    conversation = flow.start_conversation()
+
+    status = conversation.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+
+    loaded_conversation = load_conversation_state(
+        deserialize_conversation_state(serialize_conversation_state(conversation))
+    )
+
+    assert isinstance(loaded_conversation, FlowConversation)
+    loaded_conversation.append_user_message("hello")
+    resumed_status = loaded_conversation.execute()
+
+    assert isinstance(resumed_status, FinishedStatus)
+    assert [message.content for message in loaded_conversation.get_messages()] == [
+        "Please answer",
+        "hello",
+        "done",
+    ]
+
+
+def test_deserialize_conversation_restores_a_runnable_conversation() -> None:
+    flow = Flow.from_steps(
+        [InputMessageStep("Please answer"), OutputMessageStep("done")],
+        name="resume_flow",
+    )
+    conversation = flow.start_conversation()
+
+    status = conversation.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+
+    deserialized_conversation = deserialize_conversation(serialize_conversation_state(conversation))
+
+    assert isinstance(deserialized_conversation, FlowConversation)
+    deserialized_conversation.append_user_message("hello")
+    resumed_status = deserialized_conversation.execute()
+
+    assert isinstance(resumed_status, FinishedStatus)
+    assert [message.content for message in deserialized_conversation.get_messages()] == [
+        "Please answer",
+        "hello",
+        "done",
+    ]
+
+
+def test_load_conversation_state_uses_the_given_deserialization_context() -> None:
+    tool = ServerTool(
+        name="say_hi",
+        description="Say hi",
+        func=lambda: "hi",
+        input_descriptors=[],
+    )
+    flow = Flow.from_steps(
+        [
+            ToolExecutionStep(tool=tool),
+            CompleteStep(name="end"),
+        ],
+        name="tool_flow",
+    )
+
+    deserialization_context = DeserializationContext()
+    register_server_tool(tool, deserialization_context.registered_tools)
+
+    conversation = load_conversation_state(
+        deserialize_conversation_state(serialize_conversation_state(flow.start_conversation())),
+        deserialization_context=deserialization_context,
+    )
+
+    assert isinstance(conversation, FlowConversation)
+    assert isinstance(conversation.execute(), FinishedStatus)

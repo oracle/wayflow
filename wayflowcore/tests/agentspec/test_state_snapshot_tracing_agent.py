@@ -30,7 +30,7 @@ from wayflowcore.serialization import dump_conversation_state
 
 from ..testhelpers.patching import patch_llm
 from ..testhelpers.statesnapshots import (
-    build_state_snapshot_policy,
+    build_policy,
     snapshot_message,
     snapshot_status_types,
 )
@@ -185,15 +185,6 @@ _RETRIEVAL_UI_STATE = RetrievalUIState(
 )
 
 
-def _create_retrieval_like_wayflow_agent() -> WayflowAgent:
-    agentspec_agent = AgentSpecAgent(
-        name="retrieval_agent",
-        llm_config=VllmConfig(name="llm", url="http://mock.url", model_id="mock.model"),
-        system_prompt="You are a helpful retrieval agent.",
-    )
-    return cast(WayflowAgent, AgentSpecLoader().load_component(agentspec_agent))
-
-
 def _build_retrieval_agent_state(
     *,
     conversation_inputs: dict[str, Any],
@@ -210,39 +201,6 @@ def _build_retrieval_agent_state(
         last_response=last_response,
         ui=_RETRIEVAL_UI_STATE,
     )
-
-
-def _build_retrieval_like_extra_state(conversation) -> dict[str, Any]:
-    conversation_snapshot = dump_conversation_state(conversation)["conversation"]
-    messages = conversation_snapshot["messages"]
-    last_response = next(
-        (
-            message.get("content")
-            for message in reversed(messages)
-            if message.get("role") == "assistant" and message.get("content")
-        ),
-        "",
-    )
-    return {
-        "agent_state": asdict(
-            _build_retrieval_agent_state(
-                conversation_inputs=conversation.inputs,
-                message_count=len(messages),
-                last_response=last_response,
-            )
-        )
-    }
-
-
-def _create_mock_vllm_model(name: str) -> VllmModel:
-    return VllmModel(model_id="mock.model", host_port="http://mock.url", name=name)
-
-
-def _policy(
-    interval: StateSnapshotInterval,
-    **kwargs: Any,
-):
-    return build_state_snapshot_policy(interval, **kwargs)
 
 
 def _execute_with_trace(
@@ -288,26 +246,49 @@ def _events(
     return [event for event in span.events if isinstance(event, event_type)]
 
 
-def _single_event(
-    span: AgentSpecSpan,
-    event_type: type[AgentSpecEvent],
-) -> AgentSpecEvent:
-    return next(event for event in span.events if isinstance(event, event_type))
-
-
 def test_agent_state_snapshots_support_the_agui_retrieval_export_flow() -> None:
     assistant_message = "I checked the warehouse and found 42 orders last week."
-    wayflow_agent = _create_retrieval_like_wayflow_agent()
+    wayflow_agent = cast(
+        WayflowAgent,
+        AgentSpecLoader().load_component(
+            AgentSpecAgent(
+                name="retrieval_agent",
+                llm_config=VllmConfig(name="llm", url="http://mock.url", model_id="mock.model"),
+                system_prompt="You are a helpful retrieval agent.",
+            )
+        ),
+    )
     conversation = wayflow_agent.start_conversation(inputs=_RETRIEVAL_INPUTS)
     conversation.append_user_message(_RETRIEVAL_INPUTS["input"])
 
     agui_exporter = AGUIStateSnapshotExporter()
 
+    def build_extra_state(conversation) -> dict[str, Any]:
+        conversation_snapshot = dump_conversation_state(conversation)["conversation"]
+        messages = conversation_snapshot["messages"]
+        last_response = next(
+            (
+                message.get("content")
+                for message in reversed(messages)
+                if message.get("role") == "assistant" and message.get("content")
+            ),
+            "",
+        )
+        return {
+            "agent_state": asdict(
+                _build_retrieval_agent_state(
+                    conversation_inputs=conversation.inputs,
+                    message_count=len(messages),
+                    last_response=last_response,
+                )
+            )
+        }
+
     status, span_recorder = _execute_with_trace(
         conversation,
-        state_snapshot_policy=_policy(
+        state_snapshot_policy=build_policy(
             StateSnapshotInterval.CONVERSATION_TURNS,
-            extra_state_builder=_build_retrieval_like_extra_state,
+            extra_state_builder=build_extra_state,
         ),
         span_processors=[agui_exporter],
         contexts=[patch_llm(wayflow_agent.llm, [assistant_message], patch_internal=True)],
@@ -351,13 +332,13 @@ def test_agent_state_snapshots_support_the_agui_retrieval_export_flow() -> None:
 
 def test_agent_node_turn_state_snapshots_are_mapped_into_the_agent_span_not_llm_spans() -> None:
     assistant_message = "Hello from agent"
-    llm = _create_mock_vllm_model("agent")
+    llm = VllmModel(model_id="mock.model", host_port="http://mock.url", name="agent")
     agent = WayflowAgent(llm=llm)
     conversation = agent.start_conversation()
     conversation.append_user_message("Hi")
     status, span_recorder = _execute_with_trace(
         conversation,
-        state_snapshot_policy=_policy(StateSnapshotInterval.NODE_TURNS),
+        state_snapshot_policy=build_policy(StateSnapshotInterval.NODE_TURNS),
         contexts=[patch_llm(llm, [assistant_message], patch_internal=True)],
     )
 

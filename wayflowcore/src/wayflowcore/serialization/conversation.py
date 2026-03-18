@@ -7,9 +7,12 @@
 from __future__ import annotations
 
 import json
+import warnings
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional, cast
+
+import yaml
 
 from wayflowcore._utils.formatting import stringify
 from wayflowcore.executors.executionstatus import (
@@ -21,14 +24,22 @@ from wayflowcore.executors.executionstatus import (
     UserMessageRequestStatus,
 )
 from wayflowcore.messagelist import ImageContent, Message, MessageContent, TextContent
-from wayflowcore.serialization.context import SerializationContext
-from wayflowcore.serialization.serializer import serialize_any_to_dict_or_stringify
+from wayflowcore.serialization.context import DeserializationContext, SerializationContext
+from wayflowcore.serialization.serializer import (
+    autodeserialize_from_dict,
+    serialize,
+    serialize_any_to_dict_or_stringify,
+)
 from wayflowcore.tools.tools import ToolRequest, ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
     from wayflowcore.executors._agentconversation import AgentConversation
     from wayflowcore.executors._flowconversation import FlowConversation
+    from wayflowcore.serialization.plugins import (
+        WayflowDeserializationPlugin,
+        WayflowSerializationPlugin,
+    )
 
 _UNSET = object()
 
@@ -283,6 +294,7 @@ def dump_conversation_state(
     status: object = _UNSET,
     status_handled: object = _UNSET,
 ) -> dict[str, Any]:
+    """Return a JSON-serializable runtime snapshot of the conversation state."""
     from wayflowcore.executors._agentconversation import AgentConversation
     from wayflowcore.executors._flowconversation import FlowConversation
 
@@ -317,15 +329,67 @@ def dump_conversation_state(
     }
 
 
-def serialize_conversation_state(conversation: "Conversation") -> str:
-    return json.dumps(dump_conversation_state(conversation), sort_keys=True)
+def serialize_conversation_state(
+    conversation: "Conversation",
+    serialization_context: Optional[SerializationContext] = None,
+    plugins: Optional[list["WayflowSerializationPlugin"]] = None,
+) -> str:
+    """Serialize a full conversation state into a stable text representation."""
+    return serialize(
+        conversation,
+        serialization_context=serialization_context,
+        plugins=plugins,
+    )
 
 
 def deserialize_conversation_state(state: str) -> dict[str, Any]:
-    return cast(dict[str, Any], json.loads(state))
+    """Parse a serialized conversation state string back into a dictionary."""
+    loaded_state = yaml.safe_load(state)
+    if not isinstance(loaded_state, dict):
+        raise TypeError("Serialized conversation state must deserialize into a dictionary.")
+    return cast(dict[str, Any], loaded_state)
+
+
+def load_conversation_state(
+    state: dict[str, Any],
+    deserialization_context: Optional[DeserializationContext] = None,
+    plugins: Optional[list["WayflowDeserializationPlugin"]] = None,
+) -> "Conversation":
+    """Reconstruct a conversation from a serialized state dictionary."""
+    from wayflowcore.conversation import Conversation
+
+    if deserialization_context is None:
+        deserialization_context = DeserializationContext(plugins=plugins)
+    elif plugins is not None:
+        warnings.warn(
+            "A list of plugins was provided together with a deserialization context instance in `load_conversation_state`. "
+            "Do not pass the plugins to `load_conversation_state`, but create the context instance passing the list of plugins instead.",
+            UserWarning,
+        )
+
+    conversation = autodeserialize_from_dict(state, deserialization_context)
+    if not isinstance(conversation, Conversation):
+        raise TypeError(
+            f"Loaded object is of type {conversation.__class__.__name__}, not Conversation."
+        )
+    return conversation
+
+
+def deserialize_conversation(
+    conversation_state: str,
+    deserialization_context: Optional[DeserializationContext] = None,
+    plugins: Optional[list["WayflowDeserializationPlugin"]] = None,
+) -> "Conversation":
+    """Reconstruct a conversation directly from its serialized state string."""
+    return load_conversation_state(
+        deserialize_conversation_state(conversation_state),
+        deserialization_context=deserialization_context,
+        plugins=plugins,
+    )
 
 
 def dump_variable_state(conversation: "Conversation") -> Optional[dict[str, Any]]:
+    """Return the JSON-serializable runtime-owned variable state for a conversation."""
     from wayflowcore.executors._flowconversation import FlowConversation
 
     if not isinstance(conversation, FlowConversation):
@@ -336,8 +400,10 @@ def dump_variable_state(conversation: "Conversation") -> Optional[dict[str, Any]
 
 
 __all__ = [
+    "deserialize_conversation",
     "deserialize_conversation_state",
     "dump_conversation_state",
     "dump_variable_state",
+    "load_conversation_state",
     "serialize_conversation_state",
 ]

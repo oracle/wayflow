@@ -4,8 +4,6 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from contextlib import ExitStack
-
 from pyagentspec.tracing.events import Event as AgentSpecEvent
 from pyagentspec.tracing.events import FlowExecutionStart as AgentSpecFlowExecutionStart
 from pyagentspec.tracing.events import StateSnapshotEmitted as AgentSpecStateSnapshotEmitted
@@ -22,7 +20,7 @@ from wayflowcore.flow import Flow
 from wayflowcore.steps import CompleteStep, FlowExecutionStep, OutputMessageStep
 
 from ..testhelpers.statesnapshots import (
-    build_state_snapshot_policy,
+    build_policy,
     snapshot_message,
     snapshot_runtime_conversation_ids,
 )
@@ -65,23 +63,6 @@ class SnapshotSpanRecorder(AgentSpecSpanProcessor):
         return None
 
 
-def _execute_with_trace(conversation) -> tuple[FinishedStatus, SnapshotSpanRecorder]:
-    span_recorder = SnapshotSpanRecorder()
-    listener = AgentSpecEventListener()
-
-    with ExitStack() as stack:
-        stack.enter_context(AgentSpecTrace(span_processors=[span_recorder]))
-        stack.enter_context(register_event_listeners([listener]))
-        status = conversation.execute(
-            state_snapshot_policy=build_state_snapshot_policy(
-                StateSnapshotInterval.CONVERSATION_TURNS
-            )
-        )
-
-    assert isinstance(status, FinishedStatus)
-    return status, span_recorder
-
-
 def test_nested_flow_state_snapshots_stay_on_the_root_flow_span_for_shared_conversations() -> None:
     child_flow = Flow.from_steps(
         [OutputMessageStep(message_template="child"), CompleteStep(name="end")],
@@ -98,8 +79,15 @@ def test_nested_flow_state_snapshots_stay_on_the_root_flow_span_for_shared_conve
         name="parent_flow",
     )
     conversation = parent_flow.start_conversation()
+    span_recorder = SnapshotSpanRecorder()
 
-    _, span_recorder = _execute_with_trace(conversation)
+    with AgentSpecTrace(span_processors=[span_recorder]):
+        with register_event_listeners([AgentSpecEventListener()]):
+            status = conversation.execute(
+                state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS)
+            )
+
+    assert isinstance(status, FinishedStatus)
 
     flow_spans = [
         span for span in span_recorder.started_spans if isinstance(span, AgentSpecFlowExecutionSpan)

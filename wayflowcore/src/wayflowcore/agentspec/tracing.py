@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
+from dataclasses import dataclass
 from typing import Dict, Optional, Union, cast
 
 from pyagentspec import Component as AgentSpecComponent
@@ -63,6 +64,12 @@ from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.tracing.span import LlmGenerationSpan, get_active_span_stack, get_current_span
 
 
+@dataclass(frozen=True)
+class _ConversationSpanOwner:
+    runtime_conversation_id: str
+    span: AgentSpecSpan
+
+
 class AgentSpecEventListener(EventListener):
     """Event listener that emits traces according to the Open Agent Spec Tracing standard"""
 
@@ -79,7 +86,7 @@ class AgentSpecEventListener(EventListener):
         # when the snapshot event was emitted. Nested flow sub-conversations can
         # intentionally reuse the same logical conversation_id, so we also track
         # the live runtime conversation id that currently owns that stream.
-        self._conversation_spans_registry: Dict[str, tuple[str, AgentSpecSpan]] = {}
+        self._conversation_span_owners: Dict[str, _ConversationSpanOwner] = {}
         # Track last assistant message id and a robust mapping tool_request_id -> assistant message id.
         # Some providers may emit tool events before final assistant message id is known; we allow
         # temporarily missing ids and backfill on LLM response.
@@ -101,19 +108,23 @@ class AgentSpecEventListener(EventListener):
 
     def _register_current_conversation_span(self, agentspec_span: AgentSpecSpan) -> None:
         active_conversation = self._get_active_wayflow_conversation()
-        if active_conversation is not None:
-            current_owner = self._conversation_spans_registry.get(
-                active_conversation.conversation_id
+        if active_conversation is None:
+            return
+
+        current_owner = self._conversation_span_owners.get(active_conversation.conversation_id)
+        if (
+            current_owner is not None
+            and current_owner.runtime_conversation_id != active_conversation.id
+            and current_owner.span.end_time is None
+        ):
+            return
+
+        self._conversation_span_owners[active_conversation.conversation_id] = (
+            _ConversationSpanOwner(
+                runtime_conversation_id=active_conversation.id,
+                span=agentspec_span,
             )
-            if (
-                current_owner is None
-                or current_owner[0] == active_conversation.id
-                or current_owner[1].end_time is not None
-            ):
-                self._conversation_spans_registry[active_conversation.conversation_id] = (
-                    active_conversation.id,
-                    agentspec_span,
-                )
+        )
 
     def _get_snapshot_owner_span(
         self,
@@ -125,8 +136,9 @@ class AgentSpecEventListener(EventListener):
         # nested flows. Future multi-agent tracing can extend this method to
         # route snapshots to a dedicated Swarm/ManagerWorkers wrapper span
         # without changing the StateSnapshotEvent handling below.
-        if event.conversation_id in self._conversation_spans_registry:
-            return self._conversation_spans_registry[event.conversation_id][1]
+        owner = self._conversation_span_owners.get(event.conversation_id)
+        if owner is not None:
+            return owner.span
 
         return current_agentspec_span
 
