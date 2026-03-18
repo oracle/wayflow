@@ -212,25 +212,6 @@ def _get_current_active_conversation() -> Optional[Conversation]:
     return active_conversations[-1]
 
 
-def _is_multi_agent_conversation(conversation: Conversation) -> bool:
-    from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
-    from wayflowcore.executors._swarmconversation import SwarmConversation
-
-    return isinstance(conversation, (ManagerWorkersConversation, SwarmConversation))
-
-
-def _get_nearest_parent_multi_agent_conversation() -> Optional[Conversation]:
-    active_conversations = _get_active_conversations(return_copy=False)
-    if len(active_conversations) < 2:
-        return None
-
-    for conversation in reversed(active_conversations[:-1]):
-        if _is_multi_agent_conversation(conversation):
-            return conversation
-
-    return None
-
-
 class StateSnapshotEventListener(EventListener):
     """Emit state snapshots for the active conversation."""
 
@@ -257,16 +238,12 @@ class StateSnapshotEventListener(EventListener):
     def _handle_pre_interrupt_event(
         self,
         event: Event,
-        *,
-        is_current_conversation: bool,
     ) -> None:
         # Agents do not expose node execution events, so NODE_TURNS maps to
         # flow iteration boundaries and agent iteration boundaries.
         match event:
             case AgentExecutionStartedEvent() | FlowExecutionStartedEvent():
                 self._record_snapshot(StateSnapshotInterval.CONVERSATION_TURNS)
-            case _ if not is_current_conversation:
-                return
             case ToolExecutionStartEvent() | ToolExecutionResultEvent():
                 self._record_snapshot(StateSnapshotInterval.TOOL_TURNS)
             case (
@@ -286,12 +263,12 @@ class StateSnapshotEventListener(EventListener):
             and isinstance(get_current_span(), (FlowExecutionSpan, AgentExecutionSpan))
         )
 
-    def _is_parent_multi_agent_conversation(self) -> bool:
-        parent_multi_agent_conversation = _get_nearest_parent_multi_agent_conversation()
-        return (
-            parent_multi_agent_conversation is not None
-            and parent_multi_agent_conversation.id == self.conversation.id
-        )
+    def _owns_current_conversation(self, current_conversation: Conversation) -> bool:
+        # Keep snapshot ownership resolution centralized here. Today a listener
+        # only reacts for its own active conversation. Follow-up PRs can widen
+        # this to parent multi-agent wrapper conversations without touching the
+        # snapshot emission logic.
+        return current_conversation.id == self.conversation.id
 
     def _handle_post_interrupt_event(self, event: Event) -> None:
         match event:
@@ -317,17 +294,13 @@ class StateSnapshotEventListener(EventListener):
         if current_conversation is None:
             return
 
-        is_current_conversation = current_conversation.id == self.conversation.id
-        if not is_current_conversation and not self._is_parent_multi_agent_conversation():
+        if not self._owns_current_conversation(current_conversation):
             return
 
         if self.post_interrupts:
             self._handle_post_interrupt_event(event)
         else:
-            self._handle_pre_interrupt_event(
-                event,
-                is_current_conversation=is_current_conversation,
-            )
+            self._handle_pre_interrupt_event(event)
 
 
 @contextmanager

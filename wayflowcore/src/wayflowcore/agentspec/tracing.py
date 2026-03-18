@@ -12,7 +12,6 @@ from pyagentspec.flows.flow import Flow as AgentSpecFlow
 from pyagentspec.flows.node import Node as AgentSpecNode
 from pyagentspec.llms import LlmConfig as AgentSpecLlmConfig
 from pyagentspec.llms import LlmGenerationConfig
-from pyagentspec.swarm import Swarm as AgentSpecSwarm
 from pyagentspec.tools import Tool as AgentSpecTool
 from pyagentspec.tracing.events import AgentExecutionEnd as AgentSpecAgentExecutionEnd
 from pyagentspec.tracing.events import AgentExecutionStart as AgentSpecAgentExecutionStart
@@ -27,8 +26,6 @@ from pyagentspec.tracing.events import LlmGenerationResponse as AgentSpecLlmGene
 from pyagentspec.tracing.events import NodeExecutionEnd as AgentSpecNodeExecutionEnd
 from pyagentspec.tracing.events import NodeExecutionStart as AgentSpecNodeExecutionStart
 from pyagentspec.tracing.events import StateSnapshotEmitted as AgentSpecStateSnapshotEmitted
-from pyagentspec.tracing.events import SwarmExecutionEnd as AgentSpecSwarmExecutionEnd
-from pyagentspec.tracing.events import SwarmExecutionStart as AgentSpecSwarmExecutionStart
 from pyagentspec.tracing.events import ToolExecutionRequest as AgentSpecToolExecutionRequest
 from pyagentspec.tracing.events import ToolExecutionResponse as AgentSpecToolExecutionResponse
 from pyagentspec.tracing.events.llmgeneration import ToolCall as AgentSpecToolCall
@@ -38,7 +35,6 @@ from pyagentspec.tracing.spans import FlowExecutionSpan as AgentSpecFlowExecutio
 from pyagentspec.tracing.spans import LlmGenerationSpan as AgentSpecLlmGenerationSpan
 from pyagentspec.tracing.spans import NodeExecutionSpan as AgentSpecNodeExecutionSpan
 from pyagentspec.tracing.spans import Span as AgentSpecSpan
-from pyagentspec.tracing.spans import SwarmExecutionSpan as AgentSpecSwarmExecutionSpan
 from pyagentspec.tracing.spans import ToolExecutionSpan as AgentSpecToolExecutionSpan
 
 from wayflowcore._utils.formatting import stringify
@@ -64,8 +60,6 @@ from wayflowcore.events.event import (
 )
 from wayflowcore.events.eventlistener import EventListener
 from wayflowcore.executors.executionstatus import FinishedStatus
-from wayflowcore.steps.agentexecutionstep import AgentExecutionStep as RuntimeAgentExecutionStep
-from wayflowcore.swarm import Swarm as RuntimeSwarm
 from wayflowcore.tracing.span import LlmGenerationSpan, get_active_span_stack, get_current_span
 
 
@@ -80,14 +74,12 @@ class AgentSpecEventListener(EventListener):
         self.agentspec_exporter: AgentSpecExporter = AgentSpecExporter()
         # We keep a registry of conversions, so that we do not repeat the conversion for the same object twice
         self.agentspec_components_registry: Dict[str, AgentSpecComponent] = {}
-        # State snapshots belong to the span that owns their conversation id, not
-        # necessarily to the runtime span that was active when the snapshot event
-        # was emitted. Nested flow sub-conversations can intentionally reuse the
-        # same deprecated conversation_id, so we also track the live conversation
-        # object id that currently owns that stream.
+        # State snapshots belong to the span that owns their logical
+        # conversation_id, not necessarily to the runtime span that was active
+        # when the snapshot event was emitted. Nested flow sub-conversations can
+        # intentionally reuse the same logical conversation_id, so we also track
+        # the live runtime conversation id that currently owns that stream.
         self._conversation_spans_registry: Dict[str, tuple[str, AgentSpecSpan]] = {}
-        self._pending_multi_agent_spans_by_component_id: Dict[str, AgentSpecSpan] = {}
-        self._multi_agent_spans_by_step_span_id: Dict[str, AgentSpecSpan] = {}
         # Track last assistant message id and a robust mapping tool_request_id -> assistant message id.
         # Some providers may emit tool events before final assistant message id is known; we allow
         # temporarily missing ids and backfill on LLM response.
@@ -123,141 +115,20 @@ class AgentSpecEventListener(EventListener):
                     agentspec_span,
                 )
 
-    def _start_multi_agent_span_if_needed(
-        self,
-        current_span_id: str,
-        event_name: str,
-        event: StepInvocationStartEvent,
-    ) -> None:
-        if not isinstance(event.step, RuntimeAgentExecutionStep):
-            return
-
-        if isinstance(event.step.agent, RuntimeSwarm):
-            agentspec_swarm = cast(AgentSpecSwarm, self._convert_to_agentspec(event.step.agent))
-            multi_agent_span = AgentSpecSwarmExecutionSpan(
-                id=f"{current_span_id}:swarm",
-                name=f"SwarmExecution[{event.step.agent._get_display_name()}]",
-                swarm=agentspec_swarm,
-            )
-            multi_agent_span.start()
-            multi_agent_span.add_event(
-                AgentSpecSwarmExecutionStart(
-                    id=event.event_id,
-                    name=event_name,
-                    swarm=agentspec_swarm,
-                    inputs={
-                        input_name: input_value for input_name, input_value in event.inputs.items()
-                    },
-                )
-            )
-            self._multi_agent_spans_by_step_span_id[current_span_id] = multi_agent_span
-            self._pending_multi_agent_spans_by_component_id[event.step.agent.id] = multi_agent_span
-
-    def _end_multi_agent_span_if_needed(
-        self,
-        current_span_id: str,
-        event_name: str,
-        event: StepInvocationResultEvent,
-    ) -> None:
-        if not isinstance(event.step, RuntimeAgentExecutionStep):
-            return
-
-        multi_agent_span = self._multi_agent_spans_by_step_span_id.pop(current_span_id, None)
-        if multi_agent_span is None:
-            return
-
-        outputs = {
-            output_name: output_value
-            for output_name, output_value in event.step_result.outputs.items()
-            if output_name != "__execution_status__"
-        }
-        if isinstance(multi_agent_span, AgentSpecSwarmExecutionSpan):
-            multi_agent_span.add_event(
-                AgentSpecSwarmExecutionEnd(
-                    id=event.event_id,
-                    name=event_name,
-                    swarm=multi_agent_span.swarm,
-                    outputs=outputs,
-                )
-            )
-
-        multi_agent_span.end()
-        self._pending_multi_agent_spans_by_component_id.pop(event.step.agent.id, None)
-
     def _get_snapshot_owner_span(
         self,
         event: StateSnapshotEvent,
         current_agentspec_span: AgentSpecSpan | None,
     ) -> AgentSpecSpan | None:
+        # Keep snapshot ownership resolution centralized here. Today we only
+        # support direct span ownership plus shared-conversation routing for
+        # nested flows. Future multi-agent tracing can extend this method to
+        # route snapshots to a dedicated Swarm/ManagerWorkers wrapper span
+        # without changing the StateSnapshotEvent handling below.
         if event.conversation_id in self._conversation_spans_registry:
             return self._conversation_spans_registry[event.conversation_id][1]
 
-        if event.state_snapshot is None:
-            return None
-        if not isinstance(event.state_snapshot, dict):
-            return None
-        snapshot_conversation = event.state_snapshot.get("conversation")
-        if not isinstance(snapshot_conversation, dict):
-            return None
-        snapshot_runtime_conversation_id = snapshot_conversation.get("id")
-        if not isinstance(snapshot_runtime_conversation_id, str):
-            return None
-
-        active_conversations = _get_active_conversations(return_copy=False)
-        matching_conversation = next(
-            (
-                conversation
-                for conversation in reversed(active_conversations)
-                if conversation.id == snapshot_runtime_conversation_id
-            ),
-            None,
-        )
-        if matching_conversation is None:
-            return None
-
-        pending_multi_agent_span = self._pending_multi_agent_spans_by_component_id.get(
-            matching_conversation.component.id
-        )
-        if pending_multi_agent_span is not None:
-            self._conversation_spans_registry[event.conversation_id] = (
-                matching_conversation.id,
-                pending_multi_agent_span,
-            )
-            return pending_multi_agent_span
-
         return current_agentspec_span
-
-    @staticmethod
-    def _move_snapshot_before_terminal_event(
-        agentspec_span: AgentSpecSpan,
-        snapshot_event: AgentSpecStateSnapshotEmitted,
-    ) -> None:
-        # State snapshots are emitted by a separate runtime listener in response
-        # to the turn-end event. That means this Agent Spec listener can record
-        # the terminal Agent/Flow/Swarm end event first and only see the derived
-        # snapshot event afterward. Keep the Agent Spec span readable by exposing
-        # the closing snapshot immediately before the terminal event.
-        if len(agentspec_span.events) < 2 or not isinstance(
-            agentspec_span.events[-2],
-            (
-                AgentSpecAgentExecutionEnd,
-                AgentSpecExceptionRaised,
-                AgentSpecFlowExecutionEnd,
-                AgentSpecSwarmExecutionEnd,
-            ),
-        ):
-            return
-
-        terminal_event = agentspec_span.events[-2]
-        if agentspec_span.end_time is not None:
-            snapshot_event.timestamp = min(snapshot_event.timestamp, agentspec_span.end_time)
-        else:
-            snapshot_event.timestamp = min(snapshot_event.timestamp, terminal_event.timestamp)
-
-        agentspec_span.events[-2], agentspec_span.events[-1] = (
-            agentspec_span.events[-1],
-            agentspec_span.events[-2],
-        )
 
     def __call__(self, event: Event) -> None:
         # We intercept the wayflow events, and based on the type of event:
@@ -470,12 +341,10 @@ class AgentSpecEventListener(EventListener):
                         },
                     )
                 )
-                self._start_multi_agent_span_if_needed(current_span.span_id, event_name, event)
             case StepInvocationResultEvent():
                 # Step execution ends. Add the event to the agent spec span and close the span
                 if not current_agentspec_span:
                     return
-                self._end_multi_agent_span_if_needed(current_span.span_id, event_name, event)
                 agentspec_node = cast(AgentSpecNode, self._convert_to_agentspec(event.step))
                 current_agentspec_span.add_event(
                     AgentSpecNodeExecutionEnd(
@@ -502,7 +371,6 @@ class AgentSpecEventListener(EventListener):
                     extra_state=event.extra_state,
                 )
                 owner_span.add_event(snapshot_event)
-                self._move_snapshot_before_terminal_event(owner_span, snapshot_event)
             case FlowExecutionStartedEvent():
                 # Flow execution starts. Create the new agent spec span, start it, add the event
                 agentspec_flow = cast(

@@ -5,7 +5,6 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import threading
-from collections import defaultdict
 from contextlib import AbstractContextManager, nullcontext
 from typing import Any, Callable, Sequence
 
@@ -21,7 +20,6 @@ from wayflowcore.executors.interrupts.executioninterrupt import (
 )
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.flow import Flow
-from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.property import AnyProperty, StringProperty
 from wayflowcore.serialization.serializer import SerializableNeedToBeImplementedMixin
@@ -32,7 +30,6 @@ from wayflowcore.steps import (
     ToolExecutionStep,
     VariableWriteStep,
 )
-from wayflowcore.swarm import Swarm
 from wayflowcore.tools import ServerTool, ToolRequest, tool
 from wayflowcore.variable import Variable
 
@@ -84,26 +81,6 @@ def snapshot_step_histories(snapshot_events: Sequence[Any]) -> list[list[str]]:
         snapshot_event.state_snapshot["execution"]["step_history"]
         for snapshot_event in snapshot_events
     ]
-
-
-def group_snapshot_events_by_conversation_id(
-    snapshot_events: Sequence[Any],
-) -> dict[str, list[Any]]:
-    grouped_snapshot_events: dict[str, list[Any]] = defaultdict(list)
-    for snapshot_event in snapshot_events:
-        grouped_snapshot_events[snapshot_event.conversation_id].append(snapshot_event)
-    return dict(grouped_snapshot_events)
-
-
-def find_snapshot_events_by_component_type(
-    snapshot_events: Sequence[Any],
-    component_type: str,
-) -> list[Any]:
-    return next(
-        grouped_events
-        for grouped_events in group_snapshot_events_by_conversation_id(snapshot_events).values()
-        if grouped_events[0].state_snapshot["conversation"]["component_type"] == component_type
-    )
 
 
 def execute_with_state_snapshots(
@@ -158,29 +135,6 @@ class MutatingExecutionEndInterrupt(SerializableNeedToBeImplementedMixin, _NullE
         conversation.inputs["preview_count"] = conversation.inputs.get("preview_count", 0) + 1
         self.count += 1
         return None
-
-
-class WorkerExecutionEndInterrupt(SerializableNeedToBeImplementedMixin, _NullExecutionInterrupt):
-    def __init__(self) -> None:
-        self.triggered = False
-        super().__init__()
-
-    def _on_execution_end(
-        self,
-        state: ConversationExecutionState,
-        conversation: Conversation,
-    ) -> InterruptedExecutionStatus | None:
-        if self.triggered:
-            return None
-        if getattr(conversation.component, "name", None) != "worker":
-            return None
-
-        self.triggered = True
-        return InterruptedExecutionStatus(
-            interrupter=self,
-            reason="worker execution end",
-            _conversation_id=conversation.id,
-        )
 
 
 class _UnserializableVariableValue:
@@ -246,84 +200,12 @@ def create_tool_calling_agent_conversation() -> Conversation:
     return conversation
 
 
-def _create_send_message_request(recipient_name: str, message: str) -> Message:
-    return Message(
-        content="",
-        message_type=MessageType.TOOL_REQUEST,
-        tool_requests=[
-            ToolRequest(
-                name="send_message",
-                args={"recipient": recipient_name, "message": message},
-            )
-        ],
-    )
-
-
 def create_nested_agent_step_flow_conversation() -> Conversation:
     llm = DummyModel()
     llm.set_next_output("agent answer")
     child_agent = Agent(llm=llm)
     conversation = Flow.from_steps(
         [AgentExecutionStep(agent=child_agent), CompleteStep(name="end")]
-    ).start_conversation()
-    conversation.append_user_message("dummy")
-    return conversation
-
-
-def create_nested_managerworkers_flow_conversation() -> Conversation:
-    llm = DummyModel()
-    worker = Agent(llm=llm, name="worker", description="worker")
-    group = ManagerWorkers(group_manager=llm, workers=[worker])
-    llm.set_next_output(
-        [
-            _create_send_message_request("worker", "Do it"),
-            "worker answer",
-            "manager final answer",
-        ]
-    )
-
-    conversation = Flow.from_steps(
-        [AgentExecutionStep(agent=group), CompleteStep(name="end")]
-    ).start_conversation()
-    conversation.append_user_message("dummy")
-    return conversation
-
-
-def create_managerworkers_conversation() -> Conversation:
-    llm = DummyModel()
-    worker = Agent(llm=llm, name="worker", description="worker")
-    group = ManagerWorkers(group_manager=llm, workers=[worker])
-    llm.set_next_output(
-        [
-            _create_send_message_request("worker", "Do it"),
-            "worker answer",
-            "manager final answer",
-        ]
-    )
-
-    conversation = group.start_conversation()
-    conversation.append_user_message("dummy")
-    return conversation
-
-
-def create_nested_swarm_flow_conversation() -> Conversation:
-    llm = DummyModel()
-    first_agent = Agent(llm=llm, name="agent1", description="agent1")
-    second_agent = Agent(llm=llm, name="agent2", description="agent2")
-    swarm = Swarm(
-        first_agent=first_agent,
-        relationships=[(first_agent, second_agent), (second_agent, first_agent)],
-    )
-    llm.set_next_output(
-        [
-            _create_send_message_request("agent2", "Do it"),
-            "agent2 answer",
-            "agent1 final answer",
-        ]
-    )
-
-    conversation = Flow.from_steps(
-        [AgentExecutionStep(agent=swarm), CompleteStep(name="end")]
     ).start_conversation()
     conversation.append_user_message("dummy")
     return conversation

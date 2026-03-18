@@ -11,7 +11,6 @@ from typing import Any, Sequence, cast
 from pyagentspec.adapters.wayflow import AgentSpecLoader
 from pyagentspec.agent import Agent as AgentSpecAgent
 from pyagentspec.llms import VllmConfig
-from pyagentspec.tracing.events import AgentExecutionEnd as AgentSpecAgentExecutionEnd
 from pyagentspec.tracing.events import AgentExecutionStart as AgentSpecAgentExecutionStart
 from pyagentspec.tracing.events import Event as AgentSpecEvent
 from pyagentspec.tracing.events import StateSnapshotEmitted as AgentSpecStateSnapshotEmitted
@@ -296,14 +295,6 @@ def _single_event(
     return next(event for event in span.events if isinstance(event, event_type))
 
 
-def _assert_snapshot_precedes_terminal_event(
-    span: AgentSpecSpan,
-    snapshot_events: Sequence[AgentSpecStateSnapshotEmitted],
-    terminal_event: AgentSpecEvent,
-) -> None:
-    assert span.events.index(snapshot_events[-1]) < span.events.index(terminal_event)
-
-
 def test_agent_state_snapshots_support_the_agui_retrieval_export_flow() -> None:
     assistant_message = "I checked the warehouse and found 42 orders last week."
     wayflow_agent = _create_retrieval_like_wayflow_agent()
@@ -326,7 +317,6 @@ def test_agent_state_snapshots_support_the_agui_retrieval_export_flow() -> None:
 
     agent_span = _single_span(span_recorder, AgentSpecAgentExecutionSpan)
     assert _events(agent_span, AgentSpecAgentExecutionStart)
-    agent_end_event = _single_event(agent_span, AgentSpecAgentExecutionEnd)
     state_snapshot_events = _events(agent_span, AgentSpecStateSnapshotEmitted)
     assert len(state_snapshot_events) == 2
 
@@ -347,7 +337,6 @@ def test_agent_state_snapshots_support_the_agui_retrieval_export_flow() -> None:
     )
     assert runtime_messages[-1]["content"] == assistant_message
     assert final_snapshot_event.extra_state == {"agent_state": expected_agent_state}
-    _assert_snapshot_precedes_terminal_event(agent_span, state_snapshot_events, agent_end_event)
 
     assert len(agui_exporter.exported_snapshots) == 2
     assert agui_exporter.exported_snapshots[-1] == ExportedAGUIStateSnapshot(
@@ -375,7 +364,6 @@ def test_agent_node_turn_state_snapshots_are_mapped_into_the_agent_span_not_llm_
     assert isinstance(status, UserMessageRequestStatus)
 
     agent_span = _single_span(span_recorder, AgentSpecAgentExecutionSpan)
-    agent_end_event = _single_event(agent_span, AgentSpecAgentExecutionEnd)
     state_snapshot_events = _events(agent_span, AgentSpecStateSnapshotEmitted)
 
     assert len(state_snapshot_events) == 2
@@ -385,7 +373,6 @@ def test_agent_node_turn_state_snapshots_are_mapped_into_the_agent_span_not_llm_
     ]
     assert snapshot_status_types(state_snapshot_events) == [None, None]
     assert snapshot_message(state_snapshot_events[-1]) == assistant_message
-    _assert_snapshot_precedes_terminal_event(agent_span, state_snapshot_events, agent_end_event)
 
     llm_spans = _spans(span_recorder, AgentSpecLlmGenerationSpan)
     assert llm_spans

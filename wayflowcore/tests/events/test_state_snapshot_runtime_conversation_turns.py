@@ -12,21 +12,17 @@ from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageReq
 from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval
 
-from ..conftest import disable_streaming
 from ..test_interrupts import OnEventExecutionInterrupt
 from ..testhelpers.statesnapshots import (
     MutatingExecutionEndInterrupt,
     SnapshotCollector,
-    WorkerExecutionEndInterrupt,
     assert_terminal_snapshot,
     build_policy,
     create_agent_conversation,
-    create_managerworkers_conversation,
     create_output_flow_conversation,
     create_tool_flow_conversation,
     execute_with_state_snapshots,
     execute_with_state_snapshots_async,
-    find_snapshot_events_by_component_type,
     snapshot_status_types,
 )
 
@@ -210,25 +206,3 @@ def test_conversation_turn_policy_reflects_real_interrupt_side_effects_once() ->
     assert conversation.inputs["preview_count"] == 1
     assert snapshot_status_types(state_snapshot_events) == [None, "FinishedStatus"]
     assert state_snapshot_events[-1].state_snapshot["conversation"]["inputs"]["preview_count"] == 1
-
-
-def test_parent_multi_agent_does_not_emit_turn_end_snapshot_when_child_turn_is_interrupted() -> (
-    None
-):
-    conversation = create_managerworkers_conversation()
-
-    status, state_snapshot_events = execute_with_state_snapshots(
-        conversation,
-        execution_interrupts=[WorkerExecutionEndInterrupt()],
-        state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS),
-        execution_context=disable_streaming(),
-    )
-
-    assert isinstance(status, InterruptedExecutionStatus)
-    parent_multi_agent_snapshot_events = find_snapshot_events_by_component_type(
-        state_snapshot_events,
-        "ManagerWorkers",
-    )
-    assert "InterruptedExecutionStatus" not in snapshot_status_types(
-        parent_multi_agent_snapshot_events
-    )
