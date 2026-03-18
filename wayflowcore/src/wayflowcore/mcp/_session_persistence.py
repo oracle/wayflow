@@ -239,8 +239,8 @@ class AsyncRuntime(metaclass=Singleton):
         """
         conversation_id = get_current_conv_id_or_default()
         sessions_by_transport = self._client_sessions.setdefault(client_transport.id, {})
+        # Intentional duplication to avoid acquiring the lock when a session already exists
         if conversation_id in sessions_by_transport:
-            # session already exists
             return sessions_by_transport[conversation_id]
         # Use a per-transport lock so that session creation for different
         # transports can proceed in parallel, while concurrent creation for
