@@ -10,56 +10,17 @@ from pyagentspec.tracing.events import StateSnapshotEmitted as AgentSpecStateSna
 from pyagentspec.tracing.spanprocessor import SpanProcessor as AgentSpecSpanProcessor
 from pyagentspec.tracing.spans import FlowExecutionSpan as AgentSpecFlowExecutionSpan
 from pyagentspec.tracing.spans import Span as AgentSpecSpan
-from pyagentspec.tracing.trace import Trace as AgentSpecTrace
 
-from wayflowcore.agentspec.tracing import AgentSpecEventListener
-from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.flow import Flow
 from wayflowcore.steps import CompleteStep, FlowExecutionStep, OutputMessageStep, ParallelMapStep
 
+from ..testhelpers.agentspec_tracing import execute_with_trace, spans
 from ..testhelpers.statesnapshots import (
     snapshot_message,
     snapshot_runtime_conversation_ids,
 )
-
-
-class SnapshotSpanRecorder(AgentSpecSpanProcessor):
-    def __init__(self) -> None:
-        super().__init__()
-        self.started_spans: list[AgentSpecSpan] = []
-        self.ended_spans: list[AgentSpecSpan] = []
-
-    def on_start(self, span: AgentSpecSpan) -> None:
-        self.started_spans.append(span)
-
-    async def on_start_async(self, span: AgentSpecSpan) -> None:
-        self.started_spans.append(span)
-
-    def on_end(self, span: AgentSpecSpan) -> None:
-        self.ended_spans.append(span)
-
-    async def on_end_async(self, span: AgentSpecSpan) -> None:
-        self.ended_spans.append(span)
-
-    def on_event(self, event: AgentSpecEvent, span: AgentSpecSpan) -> None:
-        return None
-
-    async def on_event_async(self, event: AgentSpecEvent, span: AgentSpecSpan) -> None:
-        return None
-
-    def startup(self) -> None:
-        return None
-
-    def shutdown(self) -> None:
-        return None
-
-    async def startup_async(self) -> None:
-        return None
-
-    async def shutdown_async(self) -> None:
-        return None
 
 
 class SnapshotRuntimeIdsByConversationExporter(AgentSpecSpanProcessor):
@@ -117,21 +78,16 @@ def test_nested_flow_state_snapshots_stay_on_the_root_flow_span_for_shared_conve
         name="parent_flow",
     )
     conversation = parent_flow.start_conversation()
-    span_recorder = SnapshotSpanRecorder()
-
-    with AgentSpecTrace(span_processors=[span_recorder]):
-        with register_event_listeners([AgentSpecEventListener()]):
-            status = conversation.execute(
-                state_snapshot_policy=StateSnapshotPolicy(
-                    state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
-                )
-            )
+    status, span_recorder = execute_with_trace(
+        conversation,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
+    )
 
     assert isinstance(status, FinishedStatus)
 
-    flow_spans = [
-        span for span in span_recorder.started_spans if isinstance(span, AgentSpecFlowExecutionSpan)
-    ]
+    flow_spans = spans(span_recorder, AgentSpecFlowExecutionSpan)
     assert len(flow_spans) == 2
 
     flow_spans_by_name = {
@@ -180,21 +136,16 @@ def test_nested_node_turn_state_snapshots_export_only_root_runtime_conversation_
         name="parent_flow",
     )
     conversation = parent_flow.start_conversation()
-    span_recorder = SnapshotSpanRecorder()
-
-    with AgentSpecTrace(span_processors=[span_recorder]):
-        with register_event_listeners([AgentSpecEventListener()]):
-            status = conversation.execute(
-                state_snapshot_policy=StateSnapshotPolicy(
-                    state_snapshot_interval=StateSnapshotInterval.NODE_TURNS
-                )
-            )
+    status, span_recorder = execute_with_trace(
+        conversation,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.NODE_TURNS
+        ),
+    )
 
     assert isinstance(status, FinishedStatus)
 
-    flow_spans = [
-        span for span in span_recorder.started_spans if isinstance(span, AgentSpecFlowExecutionSpan)
-    ]
+    flow_spans = spans(span_recorder, AgentSpecFlowExecutionSpan)
     flow_spans_by_name = {
         next(
             event for event in span.events if isinstance(event, AgentSpecFlowExecutionStart)
@@ -241,13 +192,13 @@ def test_parallel_map_snapshots_leave_agent_spec_exporters_with_root_resumable_s
     )
     snapshot_runtime_id_exporter = SnapshotRuntimeIdsByConversationExporter()
 
-    with AgentSpecTrace(span_processors=[snapshot_runtime_id_exporter]):
-        with register_event_listeners([AgentSpecEventListener()]):
-            status = conversation.execute(
-                state_snapshot_policy=StateSnapshotPolicy(
-                    state_snapshot_interval=StateSnapshotInterval.NODE_TURNS
-                )
-            )
+    status, _ = execute_with_trace(
+        conversation,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.NODE_TURNS
+        ),
+        span_processors=[snapshot_runtime_id_exporter],
+    )
 
     assert isinstance(status, FinishedStatus)
     assert snapshot_runtime_id_exporter.runtime_ids_by_conversation_id[conversation.conversation_id]

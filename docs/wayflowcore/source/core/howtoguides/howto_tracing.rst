@@ -168,9 +168,12 @@ JSON-serializable.
 while ``state_snapshot["conversation"]["id"]`` identifies the concrete runtime
 conversation instance that emitted the snapshot. The lightweight
 ``state_snapshot["conversation"]`` / ``state_snapshot["execution"]`` sections are
-intended for inspection and tracing, while
-``state_snapshot["conversation_state"]`` contains the authoritative serialized
-WayFlow conversation blob used for resumability. To restore from that blob, use
+intended for inspection and tracing. Only the root conversation-turn
+checkpoints emitted for the conversation passed directly to ``execute()`` /
+``execute_async()`` include ``state_snapshot["conversation_state"]``, which is
+the authoritative serialized WayFlow conversation blob used for resumability.
+Internal tool/node snapshots intentionally omit that serialized blob to stay
+lightweight. To restore from a resumable checkpoint, use
 ``wayflowcore.serialization.deserialize_conversation(...)`` or
 ``deserialize_conversation_state(...)`` together with
 ``load_conversation_state(...)``.

@@ -41,7 +41,10 @@ from wayflowcore.steps import (
 from wayflowcore.tools import ClientTool, ServerTool, ToolResult, register_server_tool
 from wayflowcore.variable import Variable
 
-from ..testhelpers.statesnapshots import execute_with_state_snapshots
+from ..testhelpers.statesnapshots import (
+    execute_with_state_snapshots,
+    restore_conversation_from_snapshot_payload,
+)
 
 
 class _UnserializableValue:
@@ -364,8 +367,7 @@ def test_emitted_snapshot_conversation_state_restores_variable_dependent_continu
     assert isinstance(status, UserMessageRequestStatus)
     assert state_snapshot_events[-1].state_snapshot is not None
     snapshot_payload = state_snapshot_events[-1].state_snapshot
-    assert isinstance(snapshot_payload["conversation_state"], str)
-    restored_conversation = deserialize_conversation(snapshot_payload["conversation_state"])
+    restored_conversation = restore_conversation_from_snapshot_payload(snapshot_payload)
 
     assert dump_variable_state(restored_conversation) == {"customer_name": "Alice"}
 

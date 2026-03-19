@@ -9,7 +9,6 @@ import pytest
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.flow import Flow
-from wayflowcore.serialization import deserialize_conversation
 from wayflowcore.steps import (
     CompleteStep,
     FlowExecutionStep,
@@ -23,6 +22,7 @@ from ..testhelpers.statesnapshots import (
     create_parallel_child_flow,
     execute_with_state_snapshots,
     execute_with_state_snapshots_async,
+    restore_conversation_from_snapshot_payload,
     snapshot_message,
     snapshot_runtime_conversation_ids,
     snapshot_status_types,
@@ -128,7 +128,7 @@ def test_nested_root_turn_snapshot_payload_can_resume_the_logical_parent_convers
     assert root_turn_snapshot_event.conversation_id == conversation.conversation_id
     assert root_turn_snapshot["conversation"]["id"] == conversation.id
 
-    restored_conversation = deserialize_conversation(root_turn_snapshot["conversation_state"])
+    restored_conversation = restore_conversation_from_snapshot_payload(root_turn_snapshot)
     assert restored_conversation.id == conversation.id
     assert restored_conversation.conversation_id == conversation.conversation_id
 
@@ -219,7 +219,7 @@ def test_parallel_root_turn_snapshot_payloads_can_resume_the_logical_parent_conv
         snapshot_payload = snapshot_event.state_snapshot
         assert snapshot_payload is not None
 
-        restored_conversation = deserialize_conversation(snapshot_payload["conversation_state"])
+        restored_conversation = restore_conversation_from_snapshot_payload(snapshot_payload)
         resumed_status = restored_conversation.execute()
 
         assert isinstance(resumed_status, FinishedStatus)
@@ -263,7 +263,7 @@ def test_parallel_map_emits_only_resumable_parent_turn_snapshots() -> None:
         snapshot_payload = snapshot_event.state_snapshot
         assert snapshot_payload is not None
 
-        restored_conversation = deserialize_conversation(snapshot_payload["conversation_state"])
+        restored_conversation = restore_conversation_from_snapshot_payload(snapshot_payload)
         resumed_status = restored_conversation.execute()
 
         assert isinstance(resumed_status, FinishedStatus)

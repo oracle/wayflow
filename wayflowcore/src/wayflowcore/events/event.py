@@ -801,14 +801,15 @@ class StateSnapshotEvent(Event):
     ``conversation_id`` is the logical/public conversation id. When a snapshot is
     present, ``state_snapshot["conversation"]["id"]`` identifies the runtime
     conversation instance described by the payload. WayFlow-emitted payloads
-    also place the authoritative serialized state in
-    ``state_snapshot["conversation_state"]`` while keeping
+    include the authoritative serialized state in
+    ``state_snapshot["conversation_state"]`` only for the root conversation-turn
+    checkpoints owned by the conversation that began the current ``execute()`` /
+    ``execute_async()`` run. All snapshots keep
     ``state_snapshot["conversation"]`` and ``state_snapshot["execution"]`` as
-    the lightweight inspection view. Snapshots emitted for the conversation that
-    began the current ``execute()`` / ``execute_async()`` run are the
-    resumable checkpoints for that run; nested child snapshots are primarily
-    tracing checkpoints and may be filtered by downstream bridges that need a
-    single checkpoint owner per logical conversation.
+    the lightweight inspection view. Nested child snapshots and internal
+    tool/node snapshots are primarily tracing checkpoints and may be filtered by
+    downstream bridges that need a single checkpoint owner per logical
+    conversation.
     """
 
     conversation_id: str = field(default_factory=_required_attribute("conversation_id", str))

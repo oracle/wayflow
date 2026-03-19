@@ -50,6 +50,24 @@ logger = logging.getLogger(__name__)
 
 _STATE_SNAPSHOT_RUNTIME = "wayflow"
 _STATE_SNAPSHOT_SCHEMA_VERSION = 1
+_STATE_SNAPSHOT_INTERVALS_BY_POLICY = {
+    StateSnapshotInterval.CONVERSATION_TURNS: {
+        StateSnapshotInterval.CONVERSATION_TURNS,
+    },
+    StateSnapshotInterval.TOOL_TURNS: {
+        StateSnapshotInterval.CONVERSATION_TURNS,
+        StateSnapshotInterval.TOOL_TURNS,
+    },
+    StateSnapshotInterval.NODE_TURNS: {
+        StateSnapshotInterval.CONVERSATION_TURNS,
+        StateSnapshotInterval.NODE_TURNS,
+    },
+    StateSnapshotInterval.ALL_INTERNAL_TURNS: {
+        StateSnapshotInterval.CONVERSATION_TURNS,
+        StateSnapshotInterval.TOOL_TURNS,
+        StateSnapshotInterval.NODE_TURNS,
+    },
+}
 
 
 _STATE_SNAPSHOT_POLICIES: ContextVar[Dict[str, StateSnapshotPolicy]] = ContextVar(
@@ -187,25 +205,7 @@ def _get_snapshot_policy_for_interval(
     if snapshot_interval == StateSnapshotInterval.OFF:
         return None
 
-    included_intervals = {
-        StateSnapshotInterval.CONVERSATION_TURNS: {
-            StateSnapshotInterval.CONVERSATION_TURNS,
-        },
-        StateSnapshotInterval.TOOL_TURNS: {
-            StateSnapshotInterval.CONVERSATION_TURNS,
-            StateSnapshotInterval.TOOL_TURNS,
-        },
-        StateSnapshotInterval.NODE_TURNS: {
-            StateSnapshotInterval.CONVERSATION_TURNS,
-            StateSnapshotInterval.NODE_TURNS,
-        },
-        StateSnapshotInterval.ALL_INTERNAL_TURNS: {
-            StateSnapshotInterval.CONVERSATION_TURNS,
-            StateSnapshotInterval.TOOL_TURNS,
-            StateSnapshotInterval.NODE_TURNS,
-        },
-    }
-    if required_snapshot_interval in included_intervals[snapshot_interval]:
+    if required_snapshot_interval in _STATE_SNAPSHOT_INTERVALS_BY_POLICY[snapshot_interval]:
         return state_snapshot_policy
     return None
 
@@ -231,6 +231,7 @@ def _build_variable_state(
 def _build_state_snapshot_payload(
     conversation: Conversation,
     *,
+    include_conversation_state: bool,
     status: object = _UNSET,
     status_handled: object = _UNSET,
 ) -> dict[str, Any]:
@@ -243,28 +244,29 @@ def _build_state_snapshot_payload(
         status=status,
         status_handled=status_handled,
     )
-    conversation_state = (
-        serialize_conversation_state(conversation)
-        if status is _UNSET and status_handled is _UNSET
-        else _serialize_conversation_state_with_runtime_overrides(
-            conversation,
-            status=cast(
-                Optional[ExecutionStatus],
-                conversation.status if status is _UNSET else status,
-            ),
-            status_handled=cast(
-                bool,
-                conversation.status_handled if status_handled is _UNSET else status_handled,
-            ),
-        )
-    )
-    return {
+    payload = {
         "runtime": _STATE_SNAPSHOT_RUNTIME,
         "schema_version": _STATE_SNAPSHOT_SCHEMA_VERSION,
-        "conversation_state": conversation_state,
         "conversation": dumped_state["conversation"],
         "execution": dumped_state["execution"],
     }
+    if include_conversation_state:
+        payload["conversation_state"] = (
+            serialize_conversation_state(conversation)
+            if status is _UNSET and status_handled is _UNSET
+            else _serialize_conversation_state_with_runtime_overrides(
+                conversation,
+                status=cast(
+                    Optional[ExecutionStatus],
+                    conversation.status if status is _UNSET else status,
+                ),
+                status_handled=cast(
+                    bool,
+                    conversation.status_handled if status_handled is _UNSET else status_handled,
+                ),
+            )
+        )
+    return payload
 
 
 def _record_state_snapshot(
@@ -290,25 +292,24 @@ def _record_state_snapshot(
         # conversation-turn checkpoints for the same run.
         return
 
-    try:
-        record_event(
-            StateSnapshotEvent(
-                conversation_id=conversation.conversation_id,
-                state_snapshot=_build_state_snapshot_payload(
-                    conversation,
-                    status=status,
-                    status_handled=status_handled,
+    # Snapshot delivery is part of the execution contract: downstream listener
+    # or storage failures must propagate to the caller instead of being silently
+    # converted into best-effort behavior.
+    record_event(
+        StateSnapshotEvent(
+            conversation_id=conversation.conversation_id,
+            state_snapshot=_build_state_snapshot_payload(
+                conversation,
+                include_conversation_state=(
+                    required_snapshot_interval == StateSnapshotInterval.CONVERSATION_TURNS
                 ),
-                extra_state=_build_extra_state(conversation, state_snapshot_policy),
-                variable_state=_build_variable_state(conversation, state_snapshot_policy),
-            )
+                status=status,
+                status_handled=status_handled,
+            ),
+            extra_state=_build_extra_state(conversation, state_snapshot_policy),
+            variable_state=_build_variable_state(conversation, state_snapshot_policy),
         )
-    except Exception:
-        logger.warning(
-            "Failed to emit state snapshot for conversation '%s'",
-            conversation.conversation_id,
-            exc_info=True,
-        )
+    )
 
 
 class StateSnapshotEventListener(EventListener):

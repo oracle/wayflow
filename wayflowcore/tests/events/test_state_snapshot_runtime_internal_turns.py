@@ -4,20 +4,27 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import json
+
 import pytest
 
 from wayflowcore.agent import Agent
+from wayflowcore.conversation import Conversation
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors._events.event import EventType
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
+from wayflowcore.flow import Flow
+from wayflowcore.property import StringProperty
+from wayflowcore.steps import CompleteStep, ToolExecutionStep
+from wayflowcore.tools import ServerTool
 
 from ..conftest import disable_streaming
 from ..test_interrupts import OnEventExecutionInterrupt
-from ..testhelpers.dummy import DummyModel
 from ..testhelpers.statesnapshots import (
     SnapshotCollector,
+    SnapshotSerializableDummyModel,
     create_agent_conversation,
     create_output_flow_conversation,
     create_tool_calling_agent_conversation,
@@ -29,10 +36,31 @@ from ..testhelpers.statesnapshots import (
 )
 
 
-class _SerializableDummyModel(DummyModel):
-    @property
-    def config(self) -> dict[str, object]:
-        return {"model_id": self.model_id}
+def _make_snapshot_size_stress_conversation() -> Conversation:
+    repeated_description = "serialized tool description " + ("D" * 1000)
+    tool_steps = [
+        ToolExecutionStep(
+            tool=ServerTool(
+                name=f"tool_{index}",
+                description=f"{repeated_description}-{index}",
+                func=lambda index=index: f"value-{index}",
+                input_descriptors=[],
+                output_descriptors=[StringProperty(name=f"out_{index}")],
+            ),
+            name=f"step_{index}",
+        )
+        for index in range(8)
+    ]
+
+    return Flow.from_steps(
+        steps=[*tool_steps, CompleteStep(name="end")],
+        step_names=[*(f"step_{index}" for index in range(8)), "end"],
+        name="state_snapshot_size_stress_flow",
+    ).start_conversation()
+
+
+def _snapshot_payload_num_bytes(snapshot_payload: dict[str, object]) -> int:
+    return len(json.dumps(snapshot_payload, sort_keys=True))
 
 
 @pytest.mark.parametrize(
@@ -190,8 +218,67 @@ def test_flow_node_turn_policy_uses_iteration_start_and_end_boundaries() -> None
     ]
 
 
+def test_node_turn_policy_keeps_only_root_turn_checkpoints_resumable() -> None:
+    conversation = create_output_flow_conversation()
+
+    status, state_snapshot_events = execute_with_state_snapshots(
+        conversation,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.NODE_TURNS
+        ),
+    )
+
+    assert isinstance(status, FinishedStatus)
+    assert [
+        isinstance(snapshot_event.state_snapshot.get("conversation_state"), str)
+        for snapshot_event in state_snapshot_events
+    ] == [True, False, False, False, False, False, False, True]
+
+
+def test_node_turn_policy_stays_lightweight_under_snapshot_size_stress() -> None:
+    conversation = _make_snapshot_size_stress_conversation()
+
+    status, state_snapshot_events = execute_with_state_snapshots(
+        conversation,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.NODE_TURNS
+        ),
+    )
+
+    assert isinstance(status, FinishedStatus)
+
+    snapshot_payloads = [snapshot_event.state_snapshot for snapshot_event in state_snapshot_events]
+    assert all(payload is not None for payload in snapshot_payloads)
+    snapshot_payloads = [payload for payload in snapshot_payloads if payload is not None]
+    internal_snapshot_payloads = snapshot_payloads[1:-1]
+    assert internal_snapshot_payloads
+    assert all("conversation_state" not in payload for payload in internal_snapshot_payloads)
+
+    largest_root_conversation_state = max(
+        (
+            payload["conversation_state"]
+            for payload in snapshot_payloads
+            if isinstance(payload.get("conversation_state"), str)
+        ),
+        key=len,
+    )
+    actual_total_bytes = sum(_snapshot_payload_num_bytes(payload) for payload in snapshot_payloads)
+    inflated_total_bytes = sum(
+        (
+            _snapshot_payload_num_bytes(payload)
+            if "conversation_state" in payload
+            else _snapshot_payload_num_bytes(
+                {**payload, "conversation_state": largest_root_conversation_state}
+            )
+        )
+        for payload in snapshot_payloads
+    )
+
+    assert actual_total_bytes < inflated_total_bytes * 0.2
+
+
 def test_internal_snapshots_do_not_reuse_the_previous_turn_status() -> None:
-    llm = _SerializableDummyModel()
+    llm = SnapshotSerializableDummyModel()
     llm.set_next_output(["Hello from agent", "Hello again"])
     conversation = Agent(llm=llm).start_conversation()
     conversation.append_user_message("Hi")
@@ -263,6 +350,23 @@ def test_tool_turn_policy_records_real_tool_boundaries(
 
     assert isinstance(status, expected_status_class)
     assert snapshot_status_types(state_snapshot_events) == expected_status_types
+
+
+def test_tool_turn_policy_keeps_only_root_turn_checkpoints_resumable() -> None:
+    conversation = create_tool_flow_conversation(lambda: "hi")
+
+    status, state_snapshot_events = execute_with_state_snapshots(
+        conversation,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.TOOL_TURNS
+        ),
+    )
+
+    assert isinstance(status, FinishedStatus)
+    assert [
+        isinstance(snapshot_event.state_snapshot.get("conversation_state"), str)
+        for snapshot_event in state_snapshot_events
+    ] == [True, False, False, True]
 
 
 @pytest.mark.anyio

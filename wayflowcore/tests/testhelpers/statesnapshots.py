@@ -22,6 +22,7 @@ from wayflowcore.executors.statesnapshotpolicy import StateSnapshotPolicy
 from wayflowcore.flow import Flow
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.property import AnyProperty, StringProperty
+from wayflowcore.serialization import deserialize_conversation, dump_conversation_state
 from wayflowcore.serialization.serializer import SerializableNeedToBeImplementedMixin
 from wayflowcore.steps import (
     AgentExecutionStep,
@@ -45,7 +46,7 @@ class SnapshotCollector(EventListener):
             self.state_snapshot_events.append(event)
 
 
-class _SnapshotSerializableDummyModel(DummyModel):
+class SnapshotSerializableDummyModel(DummyModel):
     @property
     def config(self) -> dict[str, Any]:
         return {"model_id": self.model_id}
@@ -167,7 +168,7 @@ def create_output_flow_conversation(message: str = "Hello") -> Conversation:
 
 
 def create_agent_conversation(message: str = "Hello from agent") -> Conversation:
-    llm = _SnapshotSerializableDummyModel()
+    llm = SnapshotSerializableDummyModel()
     llm.set_next_output(message)
     conversation = Agent(llm=llm).start_conversation()
     conversation.append_user_message("Hi")
@@ -180,7 +181,7 @@ def create_tool_calling_agent_conversation() -> Conversation:
         """Do nothing tool."""
         return "Tool called successfully"
 
-    llm = _SnapshotSerializableDummyModel()
+    llm = SnapshotSerializableDummyModel()
     llm.set_next_output(
         {
             "Please use the do_nothing_tool": Message(
@@ -196,7 +197,7 @@ def create_tool_calling_agent_conversation() -> Conversation:
 
 
 def create_nested_agent_step_flow_conversation() -> Conversation:
-    llm = _SnapshotSerializableDummyModel()
+    llm = SnapshotSerializableDummyModel()
     llm.set_next_output("agent answer")
     child_agent = Agent(llm=llm)
     conversation = Flow.from_steps(
@@ -247,3 +248,18 @@ def assert_terminal_snapshot(
     assert snapshot_status_types(snapshot_events)[-1] == expected_status_type
     assert snapshot_message(snapshot_events[-1]) == expected_message
     assert snapshot_events[-1].state_snapshot["execution"]["status_handled"] is False
+
+
+def restore_conversation_from_snapshot_payload(
+    snapshot_payload: dict[str, Any],
+) -> Conversation:
+    assert snapshot_payload["runtime"] == "wayflow"
+    assert snapshot_payload["schema_version"] == 1
+    assert isinstance(snapshot_payload["conversation_state"], str)
+
+    restored_conversation = deserialize_conversation(snapshot_payload["conversation_state"])
+    assert dump_conversation_state(restored_conversation) == {
+        "conversation": snapshot_payload["conversation"],
+        "execution": snapshot_payload["execution"],
+    }
+    return restored_conversation

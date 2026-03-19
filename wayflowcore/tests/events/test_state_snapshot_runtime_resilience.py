@@ -6,7 +6,12 @@
 
 from dataclasses import dataclass
 
+import pytest
+
 from wayflowcore.conversation import Conversation
+from wayflowcore.events import Event, EventListener
+from wayflowcore.events.event import StateSnapshotEvent
+from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.flow import Flow
@@ -77,3 +82,28 @@ def test_state_snapshot_emission_survives_unserializable_variable_state() -> Non
     assert state_snapshot_events[0].variable_state == {"custom": None}
     assert state_snapshot_events[-1].variable_state is None
     assert snapshot_message(state_snapshot_events[-1]) == "done"
+
+
+class _FailOnTerminalSnapshot(EventListener):
+    def __call__(self, event: Event) -> None:
+        if not isinstance(event, StateSnapshotEvent):
+            return
+
+        execution_status = (event.state_snapshot or {}).get("execution", {}).get("status")
+        if execution_status is not None:
+            raise RuntimeError("snapshot sink failed")
+
+
+def test_state_snapshot_listener_failures_propagate_to_the_caller() -> None:
+    conversation = create_output_flow_conversation()
+
+    with register_event_listeners([_FailOnTerminalSnapshot()]):
+        with pytest.raises(RuntimeError, match="snapshot sink failed"):
+            conversation.execute(
+                state_snapshot_policy=StateSnapshotPolicy(
+                    state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+                )
+            )
+
+    assert conversation.get_last_message() is not None
+    assert conversation.get_last_message().content == "Hello"

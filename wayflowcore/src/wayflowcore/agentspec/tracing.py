@@ -150,6 +150,34 @@ class AgentSpecEventListener(EventListener):
 
         return current_agentspec_span
 
+    def _get_current_conversation_owner(self) -> _ConversationSpanOwner | None:
+        active_conversation = self._get_active_wayflow_conversation()
+        if active_conversation is None:
+            return None
+        return self._conversation_span_owners.get(active_conversation.conversation_id)
+
+    def _span_has_state_snapshot(self, agentspec_span: AgentSpecSpan) -> bool:
+        return any(
+            isinstance(span_event, AgentSpecStateSnapshotEmitted)
+            for span_event in agentspec_span.events
+        )
+
+    def _span_has_execution_end_event(self, agentspec_span: AgentSpecSpan) -> bool:
+        return any(
+            isinstance(span_event, (AgentSpecFlowExecutionEnd, AgentSpecAgentExecutionEnd))
+            for span_event in agentspec_span.events
+        )
+
+    def _end_conversation_span_if_ready(self, agentspec_span: AgentSpecSpan) -> None:
+        owner = self._get_current_conversation_owner()
+        if (
+            owner is not None
+            and owner.span is agentspec_span
+            and self._span_has_state_snapshot(agentspec_span)
+        ):
+            return
+        agentspec_span.end()
+
     def __call__(self, event: Event) -> None:
         # We intercept the wayflow events, and based on the type of event:
         # - if it corresponds to a span start event, we create the corresponding agent spec span, and we start it
@@ -391,10 +419,7 @@ class AgentSpecEventListener(EventListener):
                     extra_state=event.extra_state,
                 )
                 owner_span.add_event(snapshot_event)
-                if owner_span.end_time is None and any(
-                    isinstance(span_event, (AgentSpecFlowExecutionEnd, AgentSpecAgentExecutionEnd))
-                    for span_event in owner_span.events
-                ):
+                if owner_span.end_time is None and self._span_has_execution_end_event(owner_span):
                     owner_span.end()
             case FlowExecutionStartedEvent():
                 # Flow execution starts. Create the new agent spec span, start it, add the event
@@ -441,21 +466,7 @@ class AgentSpecEventListener(EventListener):
                         branch_selected=branch_selected,
                     )
                 )
-                active_conversation = self._get_active_wayflow_conversation()
-                owner = (
-                    self._conversation_span_owners.get(active_conversation.conversation_id)
-                    if active_conversation is not None
-                    else None
-                )
-                if (
-                    owner is None
-                    or owner.span is not current_agentspec_span
-                    or not any(
-                        isinstance(span_event, AgentSpecStateSnapshotEmitted)
-                        for span_event in current_agentspec_span.events
-                    )
-                ):
-                    current_agentspec_span.end()
+                self._end_conversation_span_if_ready(current_agentspec_span)
             case AgentExecutionStartedEvent():
                 # Agent execution starts. Create the new agent spec span, start it, add the event
                 agentspec_agent = cast(
@@ -499,21 +510,7 @@ class AgentSpecEventListener(EventListener):
                         outputs=outputs,
                     )
                 )
-                active_conversation = self._get_active_wayflow_conversation()
-                owner = (
-                    self._conversation_span_owners.get(active_conversation.conversation_id)
-                    if active_conversation is not None
-                    else None
-                )
-                if (
-                    owner is None
-                    or owner.span is not current_agentspec_span
-                    or not any(
-                        isinstance(span_event, AgentSpecStateSnapshotEmitted)
-                        for span_event in current_agentspec_span.events
-                    )
-                ):
-                    current_agentspec_span.end()
+                self._end_conversation_span_if_ready(current_agentspec_span)
             case ExceptionRaisedEvent():
                 if not current_agentspec_span:
                     return
