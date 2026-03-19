@@ -165,7 +165,14 @@ does not define WayFlow variable semantics. When ``include_variable_state=True``
 variable values must already be JSON-serializable.
 ``StateSnapshotEvent.conversation_id`` is the logical/public conversation id,
 while ``state_snapshot["conversation"]["id"]`` identifies the concrete runtime
-conversation instance that emitted the snapshot.
+conversation instance that emitted the snapshot. The lightweight
+``state_snapshot["conversation"]`` / ``state_snapshot["execution"]`` sections are
+intended for inspection and tracing, while
+``state_snapshot["conversation_state"]`` contains the authoritative serialized
+WayFlow conversation blob used for resumability. To restore from that blob, use
+``wayflowcore.serialization.deserialize_conversation(...)`` or
+``deserialize_conversation_state(...)`` together with
+``load_conversation_state(...)``.
 Each policy emits snapshots only for its own boundaries. ``CONVERSATION_TURNS``
 emits opening and closing turn snapshots. Internal policies emit only step,
 iteration, and/or tool snapshots. Snapshots are emitted only when the

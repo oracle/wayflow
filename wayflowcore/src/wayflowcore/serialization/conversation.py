@@ -8,9 +8,10 @@ from __future__ import annotations
 
 import json
 import warnings
+from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Iterator, Optional, cast
 
 import yaml
 
@@ -242,7 +243,6 @@ def _dump_common_execution_info(
         "status_handled": (
             conversation.status_handled if status_handled is _UNSET else cast(bool, status_handled)
         ),
-        "token_usage": _dump_json_compatible_value(conversation.token_usage),
     }
 
 
@@ -298,10 +298,11 @@ def dump_conversation_state(
     """
     Return a JSON-serializable runtime snapshot of a conversation.
 
-    The returned dictionary is intended for inspection, tracing, and state snapshot
-    emission. It captures the user-visible conversation state and the runtime
-    execution state without embedding live component objects. Optional ``status``
-    and ``status_handled`` overrides are available so callers can snapshot a
+    The returned dictionary is a lightweight inspection/tracing view. It captures
+    the user-visible conversation state and the runtime execution state without
+    embedding live component objects or the authoritative serialized
+    conversation blob used for resumability. Optional ``status`` and
+    ``status_handled`` overrides are available so callers can snapshot a
     slightly adjusted view of the current runtime state without mutating the
     conversation itself.
 
@@ -335,6 +336,46 @@ def dump_conversation_state(
     }
 
 
+@contextmanager
+def _use_conversation_runtime_overrides(
+    conversation: "Conversation",
+    *,
+    status: Optional[ExecutionStatus],
+    status_handled: bool,
+) -> Iterator[None]:
+    previous_status = conversation.status
+    previous_status_handled = conversation.status_handled
+    conversation.status = status
+    conversation.status_handled = status_handled
+    try:
+        yield
+    finally:
+        conversation.status = previous_status
+        conversation.status_handled = previous_status_handled
+
+
+def _serialize_conversation_state_with_runtime_overrides(
+    conversation: "Conversation",
+    *,
+    status: Optional[ExecutionStatus],
+    status_handled: bool,
+    serialization_context: Optional[SerializationContext] = None,
+    plugins: Optional[list["WayflowSerializationPlugin"]] = None,
+) -> str:
+    """Serialize a conversation as if its runtime status fields already matched a snapshot."""
+
+    with _use_conversation_runtime_overrides(
+        conversation,
+        status=status,
+        status_handled=status_handled,
+    ):
+        return serialize_conversation_state(
+            conversation,
+            serialization_context=serialization_context,
+            plugins=plugins,
+        )
+
+
 def serialize_conversation_state(
     conversation: "Conversation",
     serialization_context: Optional[SerializationContext] = None,
@@ -346,7 +387,9 @@ def serialize_conversation_state(
     This is the string form meant for storage or transport when the full runtime
     conversation needs to be preserved for later loading. Unlike
     ``dump_conversation_state()``, this serializes the actual conversation object
-    graph using WayFlow serialization.
+    graph using WayFlow serialization. For WayFlow-emitted state snapshots, this
+    is the authoritative resumable blob stored under
+    ``state_snapshot["conversation_state"]``.
 
     Parameters
     ----------
@@ -376,7 +419,8 @@ def deserialize_conversation_state(state: str) -> dict[str, Any]:
     This is the dictionary-level counterpart of
     ``serialize_conversation_state()``. It is useful when callers need to inspect
     or adjust the serialized payload before loading it back into a live
-    ``Conversation`` object.
+    ``Conversation`` object, including the ``conversation_state`` string emitted
+    in WayFlow state snapshots.
 
     Parameters
     ----------
@@ -409,7 +453,10 @@ def load_conversation_state(
 
     The input dictionary is expected to come from
     ``deserialize_conversation_state()`` or another equivalent WayFlow
-    serialization source.
+    serialization source. When resuming from a WayFlow state snapshot payload,
+    first parse ``state_snapshot["conversation_state"]`` with
+    ``deserialize_conversation_state()`` and then pass the resulting dictionary
+    here.
 
     Parameters
     ----------
@@ -457,6 +504,8 @@ def deserialize_conversation(
 
     This is a convenience wrapper around
     ``deserialize_conversation_state()`` followed by ``load_conversation_state()``.
+    It is the simplest restore API when you already have the serialized
+    ``conversation_state`` string from a WayFlow snapshot payload.
 
     Parameters
     ----------

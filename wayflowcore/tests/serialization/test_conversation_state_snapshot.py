@@ -9,13 +9,16 @@ from typing import Any
 
 import pytest
 
+from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.conversation import Conversation
+from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.executors._flowconversation import FlowConversation
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
+from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval
 from wayflowcore.flow import Flow
 from wayflowcore.property import AnyProperty, StringProperty
 from wayflowcore.serialization import (
@@ -32,10 +35,13 @@ from wayflowcore.steps import (
     InputMessageStep,
     OutputMessageStep,
     ToolExecutionStep,
+    VariableReadStep,
     VariableWriteStep,
 )
 from wayflowcore.tools import ClientTool, ServerTool, ToolResult, register_server_tool
 from wayflowcore.variable import Variable
+
+from ..testhelpers.statesnapshots import build_policy, execute_with_state_snapshots
 
 
 class _UnserializableValue:
@@ -298,3 +304,75 @@ def test_load_conversation_state_uses_the_given_deserialization_context() -> Non
 
     assert isinstance(conversation, FlowConversation)
     assert isinstance(conversation.execute(), FinishedStatus)
+
+
+def test_emitted_snapshot_conversation_state_restores_variable_dependent_continuation() -> None:
+    customer_name = Variable(
+        name="customer_name",
+        type=StringProperty(),
+        description="Customer name persisted across resumable snapshots",
+    )
+    capture_name = VariableWriteStep(
+        variable=customer_name,
+        input_mapping={VariableWriteStep.VALUE: customer_name.name},
+        name="capture_name",
+    )
+    ask_follow_up = InputMessageStep(
+        message_template="How can I help {{customer_name}}?",
+        name="ask_follow_up",
+    )
+    read_name = VariableReadStep(variable=customer_name, name="read_name")
+    final_message = OutputMessageStep(
+        message_template="Stored {{stored_name}}. Reply: {{reply}}",
+        name="final_message",
+    )
+    flow = Flow(
+        begin_step=capture_name,
+        steps={
+            "capture_name": capture_name,
+            "ask_follow_up": ask_follow_up,
+            "read_name": read_name,
+            "final_message": final_message,
+        },
+        control_flow_edges=[
+            ControlFlowEdge(capture_name, ask_follow_up),
+            ControlFlowEdge(ask_follow_up, read_name),
+            ControlFlowEdge(read_name, final_message),
+            ControlFlowEdge(final_message, None),
+        ],
+        data_flow_edges=[
+            DataFlowEdge(
+                ask_follow_up,
+                InputMessageStep.USER_PROVIDED_INPUT,
+                final_message,
+                "reply",
+            ),
+            DataFlowEdge(read_name, VariableReadStep.VALUE, final_message, "stored_name"),
+        ],
+        variables=[customer_name],
+        name="snapshot_variable_resume_flow",
+    )
+    conversation = flow.start_conversation(inputs={customer_name.name: "Alice"})
+
+    status, state_snapshot_events = execute_with_state_snapshots(
+        conversation,
+        state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS),
+    )
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert state_snapshot_events[-1].state_snapshot is not None
+    snapshot_payload = state_snapshot_events[-1].state_snapshot
+    assert isinstance(snapshot_payload["conversation_state"], str)
+    restored_conversation = deserialize_conversation(snapshot_payload["conversation_state"])
+
+    assert dump_variable_state(restored_conversation) == {"customer_name": "Alice"}
+
+    restored_conversation.append_user_message("Need pricing")
+    resumed_status = restored_conversation.execute()
+
+    assert isinstance(resumed_status, FinishedStatus)
+    assert [message.content for message in restored_conversation.get_messages()] == [
+        "How can I help Alice?",
+        "Need pricing",
+        "Stored Alice. Reply: Need pricing",
+    ]

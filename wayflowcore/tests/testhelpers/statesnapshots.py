@@ -45,6 +45,12 @@ class SnapshotCollector(EventListener):
             self.state_snapshot_events.append(event)
 
 
+class _SnapshotSerializableDummyModel(DummyModel):
+    @property
+    def config(self) -> dict[str, Any]:
+        return {"model_id": self.model_id}
+
+
 def snapshot_status_types(snapshot_events: Sequence[Any]) -> list[str | None]:
     return [
         status["type"] if (status := snapshot_event.state_snapshot["execution"]["status"]) else None
@@ -161,7 +167,7 @@ def create_output_flow_conversation(message: str = "Hello") -> Conversation:
 
 
 def create_agent_conversation(message: str = "Hello from agent") -> Conversation:
-    llm = DummyModel()
+    llm = _SnapshotSerializableDummyModel()
     llm.set_next_output(message)
     conversation = Agent(llm=llm).start_conversation()
     conversation.append_user_message("Hi")
@@ -174,7 +180,7 @@ def create_tool_calling_agent_conversation() -> Conversation:
         """Do nothing tool."""
         return "Tool called successfully"
 
-    llm = DummyModel()
+    llm = _SnapshotSerializableDummyModel()
     llm.set_next_output(
         {
             "Please use the do_nothing_tool": Message(
@@ -190,7 +196,7 @@ def create_tool_calling_agent_conversation() -> Conversation:
 
 
 def create_nested_agent_step_flow_conversation() -> Conversation:
-    llm = DummyModel()
+    llm = _SnapshotSerializableDummyModel()
     llm.set_next_output("agent answer")
     child_agent = Agent(llm=llm)
     conversation = Flow.from_steps(

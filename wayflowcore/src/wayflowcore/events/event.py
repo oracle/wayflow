@@ -800,7 +800,11 @@ class StateSnapshotEvent(Event):
 
     ``conversation_id`` is the logical/public conversation id. When a snapshot is
     present, the emitting runtime conversation instance is identified by
-    ``state_snapshot["conversation"]["id"]``.
+    ``state_snapshot["conversation"]["id"]``. WayFlow-emitted payloads also place
+    the authoritative resumable serialized state in
+    ``state_snapshot["conversation_state"]`` while keeping
+    ``state_snapshot["conversation"]`` and ``state_snapshot["execution"]`` as the
+    lightweight inspection view.
     """
 
     conversation_id: str = field(default_factory=_required_attribute("conversation_id", str))

@@ -37,10 +37,17 @@ from wayflowcore.executors._events.event import EventType as ExecutionEventType
 from wayflowcore.executors._executor import ExecutionInterruptedException
 from wayflowcore.executors.executionstatus import ExecutionStatus
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
-from wayflowcore.serialization.conversation import dump_conversation_state, dump_variable_state
+from wayflowcore.serialization.conversation import (
+    _serialize_conversation_state_with_runtime_overrides,
+    dump_conversation_state,
+    dump_variable_state,
+)
 from wayflowcore.tracing.span import AgentExecutionSpan, FlowExecutionSpan, get_current_span
 
 logger = logging.getLogger(__name__)
+
+_STATE_SNAPSHOT_RUNTIME = "wayflow"
+_STATE_SNAPSHOT_SCHEMA_VERSION = 1
 
 
 _STATE_SNAPSHOT_POLICIES: ContextVar[Dict[str, StateSnapshotPolicy]] = ContextVar(
@@ -171,6 +178,34 @@ def _build_variable_state(
         return None
 
 
+def _build_state_snapshot_payload(
+    conversation: Conversation,
+    *,
+    execution_status: ExecutionStatus | None,
+) -> dict[str, Any]:
+    # Snapshots should expose the canonical pre-consumption view of a turn, not
+    # transient runtime bookkeeping. The serialized conversation_state blob must
+    # match the same logical boundary as the lightweight conversation/execution
+    # sections so it can be restored directly.
+    snapshot_status_handled = False
+    dumped_state = dump_conversation_state(
+        conversation,
+        status=execution_status,
+        status_handled=snapshot_status_handled,
+    )
+    return {
+        "runtime": _STATE_SNAPSHOT_RUNTIME,
+        "schema_version": _STATE_SNAPSHOT_SCHEMA_VERSION,
+        "conversation_state": _serialize_conversation_state_with_runtime_overrides(
+            conversation,
+            status=execution_status,
+            status_handled=snapshot_status_handled,
+        ),
+        "conversation": dumped_state["conversation"],
+        "execution": dumped_state["execution"],
+    }
+
+
 def _record_state_snapshot(
     conversation: Conversation,
     required_snapshot_interval: StateSnapshotInterval,
@@ -187,12 +222,9 @@ def _record_state_snapshot(
         record_event(
             StateSnapshotEvent(
                 conversation_id=conversation.conversation_id,
-                state_snapshot=dump_conversation_state(
+                state_snapshot=_build_state_snapshot_payload(
                     conversation,
-                    status=execution_status,
-                    # Snapshots should expose the canonical pre-consumption view
-                    # of a turn, not transient runtime bookkeeping.
-                    status_handled=False,
+                    execution_status=execution_status,
                 ),
                 extra_state=_build_extra_state(conversation, state_snapshot_policy),
                 variable_state=_build_variable_state(conversation, state_snapshot_policy),

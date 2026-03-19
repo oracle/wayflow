@@ -26,7 +26,7 @@ from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors.executionstatus import UserMessageRequestStatus
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval
 from wayflowcore.models.vllmmodel import VllmModel
-from wayflowcore.serialization import dump_conversation_state
+from wayflowcore.serialization import deserialize_conversation, dump_conversation_state
 
 from ..testhelpers.patching import patch_llm
 from ..testhelpers.statesnapshots import (
@@ -302,7 +302,12 @@ def test_agent_state_snapshots_support_the_agui_retrieval_export_flow() -> None:
     assert len(state_snapshot_events) == 2
 
     final_snapshot_event = state_snapshot_events[-1]
-    runtime_messages = final_snapshot_event.state_snapshot["conversation"]["messages"]
+    assert final_snapshot_event.state_snapshot is not None
+    snapshot_payload = final_snapshot_event.state_snapshot
+    assert isinstance(snapshot_payload["conversation_state"], str)
+    restored_conversation = deserialize_conversation(snapshot_payload["conversation_state"])
+    restored_snapshot = dump_conversation_state(restored_conversation)
+    runtime_messages = snapshot_payload["conversation"]["messages"]
     expected_agent_state = asdict(
         _build_retrieval_agent_state(
             conversation_inputs=_RETRIEVAL_INPUTS,
@@ -312,10 +317,37 @@ def test_agent_state_snapshots_support_the_agui_retrieval_export_flow() -> None:
     )
 
     assert final_snapshot_event.conversation_id == conversation.conversation_id
+    assert snapshot_payload["runtime"] == "wayflow"
+    assert snapshot_payload["schema_version"] == 1
+    assert restored_snapshot["conversation"] == snapshot_payload["conversation"]
     assert (
-        final_snapshot_event.state_snapshot["conversation"]["inputs"]["input"]
-        == _RETRIEVAL_INPUTS["input"]
+        restored_snapshot["execution"]["current_step_name"]
+        == snapshot_payload["execution"]["current_step_name"]
     )
+    assert restored_snapshot["execution"]["status"] == snapshot_payload["execution"]["status"]
+    assert restored_snapshot["execution"]["status_handled"] is False
+    assert restored_snapshot["execution"]["curr_iter"] == snapshot_payload["execution"]["curr_iter"]
+    assert (
+        restored_snapshot["execution"]["has_confirmed_conversation_exit"]
+        == snapshot_payload["execution"]["has_confirmed_conversation_exit"]
+    )
+    assert (
+        restored_snapshot["execution"]["tool_call_queue"]
+        == snapshot_payload["execution"]["tool_call_queue"]
+    )
+    assert (
+        restored_snapshot["execution"]["current_tool_request"]
+        == snapshot_payload["execution"]["current_tool_request"]
+    )
+    assert (
+        restored_snapshot["execution"]["current_flow_conversation"]
+        == snapshot_payload["execution"]["current_flow_conversation"]
+    )
+    assert (
+        restored_snapshot["execution"]["current_sub_component_conversations"]
+        == snapshot_payload["execution"]["current_sub_component_conversations"]
+    )
+    assert snapshot_payload["conversation"]["inputs"]["input"] == _RETRIEVAL_INPUTS["input"]
     assert runtime_messages[-1]["content"] == assistant_message
     assert final_snapshot_event.extra_state == {"agent_state": expected_agent_state}
 

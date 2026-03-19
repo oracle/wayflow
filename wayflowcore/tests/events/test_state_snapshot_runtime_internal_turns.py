@@ -30,6 +30,12 @@ from ..testhelpers.statesnapshots import (
 )
 
 
+class _SerializableDummyModel(DummyModel):
+    @property
+    def config(self) -> dict[str, object]:
+        return {"model_id": self.model_id}
+
+
 @pytest.mark.parametrize(
     (
         "conversation_factory",
@@ -176,7 +182,7 @@ def test_flow_node_turn_policy_uses_iteration_start_and_end_boundaries() -> None
 
 
 def test_internal_snapshots_do_not_reuse_the_previous_turn_status() -> None:
-    llm = DummyModel()
+    llm = _SerializableDummyModel()
     llm.set_next_output(["Hello from agent", "Hello again"])
     conversation = Agent(llm=llm).start_conversation()
     conversation.append_user_message("Hi")
