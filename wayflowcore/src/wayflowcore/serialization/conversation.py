@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Any, Optional, cast
 
 import yaml
 
-from wayflowcore._utils.formatting import stringify
 from wayflowcore.executors.executionstatus import (
     AuthChallengeRequestStatus,
     ExecutionStatus,
@@ -23,7 +22,6 @@ from wayflowcore.executors.executionstatus import (
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
-from wayflowcore.messagelist import ImageContent, Message, MessageContent, TextContent
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import (
     autodeserialize_from_dict,
@@ -36,6 +34,7 @@ if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
     from wayflowcore.executors._agentconversation import AgentConversation
     from wayflowcore.executors._flowconversation import FlowConversation
+    from wayflowcore.messagelist import Message, MessageContent
     from wayflowcore.serialization.plugins import (
         WayflowDeserializationPlugin,
         WayflowSerializationPlugin,
@@ -44,7 +43,23 @@ if TYPE_CHECKING:
 _UNSET = object()
 
 
+def _dump_conversation_reference(conversation: "Conversation") -> dict[str, Any]:
+    return {
+        "id": conversation.id,
+        "conversation_id": conversation.conversation_id,
+        "conversation_type": conversation.__class__.__name__,
+    }
+
+
+def _dump_component_reference(component: Any) -> dict[str, Any]:
+    return {
+        "component_id": component.id,
+        "component_type": component.__class__.__name__,
+    }
+
+
 def _dump_json_compatible_value(value: Any) -> Any:
+    from wayflowcore._utils.formatting import stringify
     from wayflowcore.component import Component
     from wayflowcore.conversation import Conversation
 
@@ -58,16 +73,9 @@ def _dump_json_compatible_value(value: Any) -> Any:
     elif isinstance(value, Enum):
         dumped_value = _dump_json_compatible_value(value.value)
     elif isinstance(value, Conversation):
-        dumped_value = {
-            "id": value.id,
-            "conversation_id": value.conversation_id,
-            "conversation_type": value.__class__.__name__,
-        }
+        dumped_value = _dump_conversation_reference(value)
     elif isinstance(value, Component):
-        dumped_value = {
-            "component_id": value.id,
-            "component_type": value.__class__.__name__,
-        }
+        dumped_value = _dump_component_reference(value)
     elif isinstance(value, dict):
         dumped_value = {
             str(key): _dump_json_compatible_value(inner_value) for key, inner_value in value.items()
@@ -85,16 +93,6 @@ def _dump_json_compatible_value(value: Any) -> Any:
     return dumped_value
 
 
-def _dump_variable_value(variable_name: str, value: Any) -> Any:
-    try:
-        serialized_value = json.dumps(value, sort_keys=True, allow_nan=False)
-    except (TypeError, ValueError) as e:
-        raise TypeError(
-            f"Variable '{variable_name}' contains a non-JSON-serializable value of type {type(value).__name__}"
-        ) from e
-    return cast(Any, json.loads(serialized_value))
-
-
 def _dump_string_keyed_mapping(values: dict[Any, Any]) -> dict[str, Any]:
     return {str(key): _dump_json_compatible_value(value) for key, value in values.items()}
 
@@ -106,11 +104,10 @@ def _dump_flow_input_output_key_values(values: dict[Any, Any]) -> dict[str, Any]
     }
 
 
-def _dump_variable_store(variable_store: dict[str, Any]) -> dict[str, Any]:
-    return {
-        variable_name: _dump_variable_value(variable_name, variable_value)
-        for variable_name, variable_value in variable_store.items()
-    }
+def _dump_tool_requests(
+    tool_requests: Optional[list[ToolRequest]],
+) -> list[Optional[dict[str, Any]]]:
+    return [_dump_tool_request(tool_request) for tool_request in tool_requests or []]
 
 
 def _dump_tool_request(tool_request: Optional[ToolRequest]) -> Optional[dict[str, Any]]:
@@ -139,7 +136,22 @@ def _dump_tool_result(tool_result: Optional[ToolResult]) -> Optional[dict[str, A
     return dumped_tool_result
 
 
+def _dump_tool_related_execution_status(
+    execution_status: ToolRequestStatus | ToolExecutionConfirmationStatus,
+) -> dict[str, Any]:
+    dumped_status = {
+        "tool_requests": _dump_tool_requests(execution_status.tool_requests),
+    }
+    if isinstance(execution_status, ToolRequestStatus):
+        dumped_status["tool_results"] = [
+            _dump_tool_result(tool_result) for tool_result in execution_status._tool_results or []
+        ]
+    return dumped_status
+
+
 def _dump_message_content(content: MessageContent) -> dict[str, Any]:
+    from wayflowcore.messagelist import ImageContent, TextContent
+
     content_type = getattr(content, "type", content.__class__.__name__)
 
     if isinstance(content, TextContent):
@@ -179,9 +191,7 @@ def _dump_message(message: Message) -> dict[str, Any]:
         "contents": [_dump_message_content(content) for content in message.contents],
     }
 
-    tool_requests = [
-        _dump_tool_request(tool_request) for tool_request in message.tool_requests or []
-    ]
+    tool_requests = _dump_tool_requests(message.tool_requests)
     dumped_tool_result = _dump_tool_result(message.tool_result)
 
     if tool_requests:
@@ -192,43 +202,25 @@ def _dump_message(message: Message) -> dict[str, Any]:
 
 
 def _dump_execution_status(execution_status: Optional[ExecutionStatus]) -> Optional[dict[str, Any]]:
-    dumped_status: dict[str, Any] | None
     if execution_status is None:
-        dumped_status = None
-    else:
-        dumped_status = {
-            "type": execution_status.__class__.__name__,
-        }
+        return None
 
-        if isinstance(execution_status, FinishedStatus):
-            dumped_status["output_values"] = _dump_json_compatible_value(
-                execution_status.output_values
-            )
-            dumped_status["complete_step_name"] = execution_status.complete_step_name
-        elif isinstance(execution_status, UserMessageRequestStatus):
-            dumped_status["message"] = _dump_message(execution_status.message)
-        elif isinstance(execution_status, ToolRequestStatus):
-            dumped_status["tool_requests"] = [
-                _dump_tool_request(tool_request) for tool_request in execution_status.tool_requests
-            ]
-            dumped_status["tool_results"] = [
-                _dump_tool_result(tool_result)
-                for tool_result in execution_status._tool_results or []
-            ]
-        elif isinstance(execution_status, ToolExecutionConfirmationStatus):
-            dumped_status["tool_requests"] = [
-                _dump_tool_request(tool_request) for tool_request in execution_status.tool_requests
-            ]
-        elif isinstance(execution_status, AuthChallengeRequestStatus):
-            dumped_status["client_transport_id"] = execution_status.client_transport_id
+    dumped_status: dict[str, Any] = {"type": execution_status.__class__.__name__}
+    if isinstance(execution_status, FinishedStatus):
+        dumped_status["output_values"] = _dump_json_compatible_value(execution_status.output_values)
+        dumped_status["complete_step_name"] = execution_status.complete_step_name
+    elif isinstance(execution_status, UserMessageRequestStatus):
+        dumped_status["message"] = _dump_message(execution_status.message)
+    elif isinstance(execution_status, (ToolRequestStatus, ToolExecutionConfirmationStatus)):
+        dumped_status.update(_dump_tool_related_execution_status(execution_status))
+    elif isinstance(execution_status, AuthChallengeRequestStatus):
+        dumped_status["client_transport_id"] = execution_status.client_transport_id
     return dumped_status
 
 
 def _dump_conversation_info(conversation: "Conversation") -> dict[str, Any]:
     return {
-        "id": conversation.id,
-        "conversation_id": conversation.conversation_id,
-        "conversation_type": conversation.__class__.__name__,
+        **_dump_conversation_reference(conversation),
         "component_type": conversation.component.__class__.__name__,
         "name": conversation.name,
         "inputs": _dump_json_compatible_value(conversation.inputs),
@@ -236,7 +228,7 @@ def _dump_conversation_info(conversation: "Conversation") -> dict[str, Any]:
     }
 
 
-def _dump_execution_info(
+def _dump_common_execution_info(
     conversation: "Conversation",
     *,
     status: object = _UNSET,
@@ -275,9 +267,7 @@ def _dump_agent_execution_info(conversation: "AgentConversation") -> dict[str, A
     return {
         "curr_iter": conversation.state.curr_iter,
         "has_confirmed_conversation_exit": conversation.state.has_confirmed_conversation_exit,
-        "tool_call_queue": [
-            _dump_tool_request(tool_request) for tool_request in conversation.state.tool_call_queue
-        ],
+        "tool_call_queue": _dump_tool_requests(conversation.state.tool_call_queue),
         "current_tool_request": _dump_tool_request(conversation.state.current_tool_request),
         "current_flow_conversation": _dump_json_compatible_value(
             conversation.state.current_flow_conversation
@@ -288,44 +278,60 @@ def _dump_agent_execution_info(conversation: "AgentConversation") -> dict[str, A
     }
 
 
+def _dump_component_execution_info(conversation: "Conversation") -> dict[str, Any]:
+    from wayflowcore.executors._agentconversation import AgentConversation
+    from wayflowcore.executors._flowconversation import FlowConversation
+
+    if isinstance(conversation, FlowConversation):
+        return _dump_flow_execution_info(conversation)
+    if isinstance(conversation, AgentConversation):
+        return _dump_agent_execution_info(conversation)
+    return {}
+
+
 def dump_conversation_state(
     conversation: "Conversation",
     *,
     status: object = _UNSET,
     status_handled: object = _UNSET,
 ) -> dict[str, Any]:
-    """Return a JSON-serializable runtime snapshot of the conversation state."""
-    from wayflowcore.executors._agentconversation import AgentConversation
-    from wayflowcore.executors._flowconversation import FlowConversation
+    """
+    Return a JSON-serializable runtime snapshot of a conversation.
 
-    if isinstance(conversation, FlowConversation):
-        execution_info = {
-            **_dump_execution_info(
-                conversation,
-                status=status,
-                status_handled=status_handled,
-            ),
-            **_dump_flow_execution_info(conversation),
-        }
-    elif isinstance(conversation, AgentConversation):
-        execution_info = {
-            **_dump_execution_info(
-                conversation,
-                status=status,
-                status_handled=status_handled,
-            ),
-            **_dump_agent_execution_info(conversation),
-        }
-    else:
-        execution_info = _dump_execution_info(
-            conversation,
-            status=status,
-            status_handled=status_handled,
-        )
+    The returned dictionary is intended for inspection, tracing, and state snapshot
+    emission. It captures the user-visible conversation state and the runtime
+    execution state without embedding live component objects. Optional ``status``
+    and ``status_handled`` overrides are available so callers can snapshot a
+    slightly adjusted view of the current runtime state without mutating the
+    conversation itself.
 
+    Parameters
+    ----------
+    conversation:
+        Conversation instance to snapshot.
+    status:
+        Optional execution status override to include in the dumped state instead
+        of ``conversation.status``.
+    status_handled:
+        Optional ``status_handled`` override to include in the dumped state
+        instead of ``conversation.status_handled``.
+
+    Returns
+    -------
+    dict[str, Any]
+        JSON-compatible conversation snapshot containing ``conversation`` and
+        ``execution`` sections.
+    """
     return {
         "conversation": _dump_conversation_info(conversation),
-        "execution": execution_info,
+        "execution": {
+            **_dump_common_execution_info(
+                conversation,
+                status=status,
+                status_handled=status_handled,
+            ),
+            **_dump_component_execution_info(conversation),
+        },
     }
 
 
@@ -334,7 +340,28 @@ def serialize_conversation_state(
     serialization_context: Optional[SerializationContext] = None,
     plugins: Optional[list["WayflowSerializationPlugin"]] = None,
 ) -> str:
-    """Serialize a full conversation state into a stable text representation."""
+    """
+    Serialize a conversation into its stable textual state representation.
+
+    This is the string form meant for storage or transport when the full runtime
+    conversation needs to be preserved for later loading. Unlike
+    ``dump_conversation_state()``, this serializes the actual conversation object
+    graph using WayFlow serialization.
+
+    Parameters
+    ----------
+    conversation:
+        Conversation instance to serialize.
+    serialization_context:
+        Optional serialization context to use.
+    plugins:
+        Optional serialization plugins to use.
+
+    Returns
+    -------
+    str
+        Serialized conversation state string.
+    """
     return serialize(
         conversation,
         serialization_context=serialization_context,
@@ -343,7 +370,29 @@ def serialize_conversation_state(
 
 
 def deserialize_conversation_state(state: str) -> dict[str, Any]:
-    """Parse a serialized conversation state string back into a dictionary."""
+    """
+    Parse a serialized conversation state string into a dictionary.
+
+    This is the dictionary-level counterpart of
+    ``serialize_conversation_state()``. It is useful when callers need to inspect
+    or adjust the serialized payload before loading it back into a live
+    ``Conversation`` object.
+
+    Parameters
+    ----------
+    state:
+        Serialized conversation state string.
+
+    Returns
+    -------
+    dict[str, Any]
+        Parsed serialized state.
+
+    Raises
+    ------
+    TypeError
+        If the serialized payload does not deserialize into a dictionary.
+    """
     loaded_state = yaml.safe_load(state)
     if not isinstance(loaded_state, dict):
         raise TypeError("Serialized conversation state must deserialize into a dictionary.")
@@ -355,17 +404,40 @@ def load_conversation_state(
     deserialization_context: Optional[DeserializationContext] = None,
     plugins: Optional[list["WayflowDeserializationPlugin"]] = None,
 ) -> "Conversation":
-    """Reconstruct a conversation from a serialized state dictionary."""
+    """
+    Reconstruct a live conversation from a serialized state dictionary.
+
+    The input dictionary is expected to come from
+    ``deserialize_conversation_state()`` or another equivalent WayFlow
+    serialization source.
+
+    Parameters
+    ----------
+    state:
+        Serialized conversation state as a dictionary.
+    deserialization_context:
+        Optional deserialization context to use. This is the preferred way to
+        provide tool registries or plugins.
+    plugins:
+        Optional deserialization plugins. When a deserialization context is
+        already provided, plugins should be attached to that context instead.
+
+    Returns
+    -------
+    Conversation
+        Reconstructed live conversation instance.
+
+    Raises
+    ------
+    TypeError
+        If the deserialized object is not a ``Conversation``.
+    """
     from wayflowcore.conversation import Conversation
 
-    if deserialization_context is None:
-        deserialization_context = DeserializationContext(plugins=plugins)
-    elif plugins is not None:
-        warnings.warn(
-            "A list of plugins was provided together with a deserialization context instance in `load_conversation_state`. "
-            "Do not pass the plugins to `load_conversation_state`, but create the context instance passing the list of plugins instead.",
-            UserWarning,
-        )
+    deserialization_context = _resolve_deserialization_context(
+        deserialization_context=deserialization_context,
+        plugins=plugins,
+    )
 
     conversation = autodeserialize_from_dict(state, deserialization_context)
     if not isinstance(conversation, Conversation):
@@ -380,7 +452,26 @@ def deserialize_conversation(
     deserialization_context: Optional[DeserializationContext] = None,
     plugins: Optional[list["WayflowDeserializationPlugin"]] = None,
 ) -> "Conversation":
-    """Reconstruct a conversation directly from its serialized state string."""
+    """
+    Reconstruct a conversation directly from its serialized string form.
+
+    This is a convenience wrapper around
+    ``deserialize_conversation_state()`` followed by ``load_conversation_state()``.
+
+    Parameters
+    ----------
+    conversation_state:
+        Serialized conversation state string.
+    deserialization_context:
+        Optional deserialization context to use.
+    plugins:
+        Optional deserialization plugins.
+
+    Returns
+    -------
+    Conversation
+        Reconstructed live conversation instance.
+    """
     return load_conversation_state(
         deserialize_conversation_state(conversation_state),
         deserialization_context=deserialization_context,
@@ -389,14 +480,59 @@ def deserialize_conversation(
 
 
 def dump_variable_state(conversation: "Conversation") -> Optional[dict[str, Any]]:
-    """Return the JSON-serializable runtime-owned variable state for a conversation."""
+    """
+    Return the JSON-serializable runtime-owned variable state for a conversation.
+
+    Only flow conversations expose runtime variable storage. For other
+    conversation types, this returns ``None``.
+
+    Parameters
+    ----------
+    conversation:
+        Conversation whose runtime-owned variable values should be dumped.
+
+    Returns
+    -------
+    dict[str, Any] | None
+        JSON-compatible mapping of variable names to values for flow
+        conversations, otherwise ``None``.
+
+    Raises
+    ------
+    TypeError
+        If a variable contains a value that cannot be represented as JSON.
+    """
     from wayflowcore.executors._flowconversation import FlowConversation
 
     if not isinstance(conversation, FlowConversation):
-        variable_state = None
-    else:
-        variable_state = _dump_variable_store(conversation.state.variable_store)
+        return None
+
+    variable_state: dict[str, Any] = {}
+    for variable_name, variable_value in conversation.state.variable_store.items():
+        try:
+            serialized_value = json.dumps(variable_value, sort_keys=True, allow_nan=False)
+        except (TypeError, ValueError) as e:
+            raise TypeError(
+                f"Variable '{variable_name}' contains a non-JSON-serializable value of type {type(variable_value).__name__}"
+            ) from e
+        variable_state[variable_name] = cast(Any, json.loads(serialized_value))
     return variable_state
+
+
+def _resolve_deserialization_context(
+    *,
+    deserialization_context: Optional[DeserializationContext],
+    plugins: Optional[list["WayflowDeserializationPlugin"]],
+) -> DeserializationContext:
+    if deserialization_context is None:
+        return DeserializationContext(plugins=plugins)
+    if plugins is not None:
+        warnings.warn(
+            "A list of plugins was provided together with a deserialization context instance in `load_conversation_state`. "
+            "Do not pass the plugins to `load_conversation_state`, but create the context instance passing the list of plugins instead.",
+            UserWarning,
+        )
+    return deserialization_context
 
 
 __all__ = [

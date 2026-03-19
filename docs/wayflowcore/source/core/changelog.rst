@@ -68,6 +68,10 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+* **Serialization imports:**
+
+  Reduced import coupling in conversation state serialization so the public conversation state helpers remain directly re-exported from ``wayflowcore.serialization``.
+
 WayFlow 26.1.1
 --------------
 

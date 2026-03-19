@@ -11,7 +11,11 @@ import pytest
 
 from wayflowcore.conversation import Conversation
 from wayflowcore.executors._flowconversation import FlowConversation
-from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
+from wayflowcore.executors.executionstatus import (
+    FinishedStatus,
+    ToolRequestStatus,
+    UserMessageRequestStatus,
+)
 from wayflowcore.flow import Flow
 from wayflowcore.property import AnyProperty, StringProperty
 from wayflowcore.serialization import (
@@ -30,7 +34,7 @@ from wayflowcore.steps import (
     ToolExecutionStep,
     VariableWriteStep,
 )
-from wayflowcore.tools import ServerTool, register_server_tool
+from wayflowcore.tools import ClientTool, ServerTool, ToolResult, register_server_tool
 from wayflowcore.variable import Variable
 
 
@@ -161,6 +165,62 @@ def test_dump_variable_state_rejects_non_json_serializable_values() -> None:
 
     with pytest.raises(TypeError, match="Variable 'custom' contains a non-JSON-serializable"):
         dump_variable_state(conversation)
+
+
+def test_conversation_state_roundtrip_preserves_pending_tool_results() -> None:
+    client_tool = ClientTool(
+        name="client_lookup",
+        description="Look up some data on the client side",
+        parameters={},
+    )
+    flow = Flow.from_steps(
+        [
+            ToolExecutionStep(tool=client_tool),
+            CompleteStep(name="end"),
+        ],
+        name="tool_resume_flow",
+    )
+    conversation = flow.start_conversation()
+
+    status = conversation.execute()
+    assert isinstance(status, ToolRequestStatus)
+
+    tool_request = status.tool_requests[0]
+    conversation.append_tool_result(
+        ToolResult(tool_request_id=tool_request.tool_request_id, content="client-result")
+    )
+
+    snapshot = dump_conversation_state(conversation)
+    assert snapshot["execution"]["status"]["type"] == "ToolRequestStatus"
+    assert snapshot["execution"]["status"]["tool_results"] == [
+        {
+            "tool_request_id": tool_request.tool_request_id,
+            "content": "client-result",
+        }
+    ]
+    assert all(message.tool_result is None for message in conversation.get_messages())
+
+    loaded_conversation = load_conversation_state(
+        deserialize_conversation_state(serialize_conversation_state(conversation))
+    )
+    loaded_snapshot = dump_conversation_state(loaded_conversation)
+
+    assert loaded_snapshot["execution"]["status"]["tool_results"] == [
+        {
+            "tool_request_id": tool_request.tool_request_id,
+            "content": "client-result",
+        }
+    ]
+
+    resumed_status = loaded_conversation.execute()
+    assert isinstance(resumed_status, FinishedStatus)
+
+    tool_result_messages = [
+        message.tool_result for message in loaded_conversation.get_messages() if message.tool_result
+    ]
+    assert len(tool_result_messages) == 1
+    assert tool_result_messages[0].tool_request_id == tool_request.tool_request_id
+    assert tool_result_messages[0].content == "client-result"
 
 
 def test_load_conversation_state_restores_a_runnable_conversation() -> None:
