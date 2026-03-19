@@ -9,10 +9,11 @@ from typing import List, Optional
 import pytest
 
 from wayflowcore import Tool
+from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import run_step_and_return_outputs
 from wayflowcore.property import IntegerProperty, ListProperty, StringProperty
-from wayflowcore.steps import InputMessageStep, OutputMessageStep, ToolExecutionStep
+from wayflowcore.steps import CompleteStep, InputMessageStep, OutputMessageStep, ToolExecutionStep
 from wayflowcore.steps.parallelflowexecutionstep import ParallelFlowExecutionStep
 from wayflowcore.tools import ServerTool
 
@@ -223,6 +224,53 @@ def test_parallel_subflow_execution_raises_when_flow_contains_yielding_steps() -
 def test_parallel_subflow_execution_cannot_yield():
     step = ParallelFlowExecutionStep(flows=[Flow.from_steps([OutputMessageStep("")])])
     assert step.might_yield is False
+
+
+def test_parallel_subflow_execution_reuses_previously_finished_child_conversations() -> None:
+    left_flow = get_flow_from_tools([get_tool(output_name="left_output")])
+    right_flow = get_flow_from_tools([get_tool(output_name="right_output")])
+    step = ParallelFlowExecutionStep(flows=[left_flow, right_flow], name="parallel")
+    conversation = Flow.from_steps([step, CompleteStep(name="end")]).start_conversation()
+
+    for sub_flow in step.flows:
+        sub_conversation = conversation._get_or_create_current_sub_conversation(
+            step=step,
+            flow=sub_flow,
+            inputs={},
+            sub_conversation_id=sub_flow.id,
+        )
+        status = sub_conversation.execute()
+        assert isinstance(status, FinishedStatus)
+
+        async def _should_not_execute_again() -> FinishedStatus:
+            raise AssertionError("finished child conversation should not be executed again")
+
+        sub_conversation.execute_async = _should_not_execute_again  # type: ignore[method-assign]
+
+    status = conversation.execute()
+
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values == {
+        "left_output": "{}_from_left_output",
+        "right_output": "{}_from_right_output",
+    }
+
+
+def test_parallel_subflow_execution_cleans_up_custom_id_sub_conversations_from_parent() -> None:
+    left_flow = get_flow_from_tools([get_tool(output_name="left_output")])
+    right_flow = get_flow_from_tools([get_tool(output_name="right_output")])
+    step = ParallelFlowExecutionStep(flows=[left_flow, right_flow], name="parallel")
+    conversation = Flow.from_steps([step, CompleteStep(name="end")]).start_conversation()
+
+    status = conversation.execute()
+
+    assert isinstance(status, FinishedStatus)
+    assert (
+        conversation._get_current_sub_conversation(step, sub_conversation_id=left_flow.id) is None
+    )
+    assert (
+        conversation._get_current_sub_conversation(step, sub_conversation_id=right_flow.id) is None
+    )
 
 
 def test_step_raises_when_two_flows_have_inputs_with_same_name_but_different_types():

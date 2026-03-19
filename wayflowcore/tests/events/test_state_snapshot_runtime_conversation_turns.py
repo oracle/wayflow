@@ -8,6 +8,8 @@ from typing import Any
 
 import pytest
 
+from wayflowcore.events import Event, EventListener
+from wayflowcore.events.event import StateSnapshotEvent
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors._events.event import EventType
 from wayflowcore.executors.executionstatus import (
@@ -16,7 +18,7 @@ from wayflowcore.executors.executionstatus import (
     UserMessageRequestStatus,
 )
 from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
-from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval
+from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.flow import Flow
 from wayflowcore.serialization import deserialize_conversation, dump_conversation_state
 from wayflowcore.steps import CompleteStep, InputMessageStep, OutputMessageStep, ToolExecutionStep
@@ -27,7 +29,6 @@ from ..testhelpers.statesnapshots import (
     MutatingExecutionEndInterrupt,
     SnapshotCollector,
     assert_terminal_snapshot,
-    build_policy,
     create_agent_conversation,
     create_output_flow_conversation,
     create_tool_flow_conversation,
@@ -48,6 +49,18 @@ def _restore_conversation_from_snapshot_payload(snapshot_payload: dict[str, Any]
         "execution": snapshot_payload["execution"],
     }
     return restored_conversation
+
+
+class _LiveConversationSnapshotObserver(EventListener):
+    def __init__(self, conversation) -> None:
+        self.conversation = conversation
+        self.live_snapshots: list[dict[str, Any]] = []
+
+    def __call__(self, event: Event) -> None:
+        if not isinstance(event, StateSnapshotEvent):
+            return
+
+        self.live_snapshots.append(dump_conversation_state(self.conversation))
 
 
 @pytest.mark.parametrize(
@@ -84,7 +97,9 @@ def test_conversation_turn_policy_records_opening_and_closing_checkpoints(
 
     status, state_snapshot_events = execute_with_state_snapshots(
         conversation,
-        state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS),
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
     )
 
     assert isinstance(status, expected_status_class)
@@ -131,7 +146,9 @@ async def test_conversation_turn_policy_records_opening_and_closing_checkpoints_
 
     status, state_snapshot_events = await execute_with_state_snapshots_async(
         conversation,
-        state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS),
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
     )
 
     assert isinstance(status, expected_status_class)
@@ -158,7 +175,9 @@ def test_off_policy_disables_state_snapshot_emission(
 
     status, state_snapshot_events = execute_with_state_snapshots(
         conversation,
-        state_snapshot_policy=build_policy(StateSnapshotInterval.OFF),
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.OFF
+        ),
     )
 
     assert isinstance(status, expected_status_class)
@@ -181,7 +200,9 @@ def test_conversation_turn_policy_records_interrupted_turn_end_checkpoints(
     status, state_snapshot_events = execute_with_state_snapshots(
         conversation,
         execution_interrupts=[OnEventExecutionInterrupt(EventType.EXECUTION_END)],
-        state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS),
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
     )
 
     assert isinstance(status, InterruptedExecutionStatus)
@@ -207,7 +228,9 @@ def test_conversation_turn_policy_keeps_only_the_opening_checkpoint_when_turn_ra
     with register_event_listeners([collector]):
         with pytest.raises(RuntimeError, match="boom"):
             conversation.execute(
-                state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS)
+                state_snapshot_policy=StateSnapshotPolicy(
+                    state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+                )
             )
 
     assert len(collector.state_snapshot_events) == 1
@@ -221,7 +244,9 @@ def test_conversation_turn_policy_reflects_real_interrupt_side_effects_once() ->
     status, state_snapshot_events = execute_with_state_snapshots(
         conversation,
         execution_interrupts=[interrupt],
-        state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS),
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
     )
 
     assert isinstance(status, FinishedStatus)
@@ -229,6 +254,81 @@ def test_conversation_turn_policy_reflects_real_interrupt_side_effects_once() ->
     assert conversation.inputs["preview_count"] == 1
     assert snapshot_status_types(state_snapshot_events) == [None, "FinishedStatus"]
     assert state_snapshot_events[-1].state_snapshot["conversation"]["inputs"]["preview_count"] == 1
+
+
+@pytest.mark.parametrize(
+    (
+        "interval",
+        "execution_interrupts",
+        "expected_status_class",
+        "expected_status_type",
+    ),
+    [
+        pytest.param(
+            StateSnapshotInterval.CONVERSATION_TURNS,
+            None,
+            FinishedStatus,
+            "FinishedStatus",
+            id="conversation_turns-finished",
+        ),
+        pytest.param(
+            StateSnapshotInterval.TOOL_TURNS,
+            None,
+            FinishedStatus,
+            "FinishedStatus",
+            id="tool_turns-finished",
+        ),
+        pytest.param(
+            StateSnapshotInterval.NODE_TURNS,
+            None,
+            FinishedStatus,
+            "FinishedStatus",
+            id="node_turns-finished",
+        ),
+        pytest.param(
+            StateSnapshotInterval.ALL_INTERNAL_TURNS,
+            None,
+            FinishedStatus,
+            "FinishedStatus",
+            id="all_internal_turns-finished",
+        ),
+        pytest.param(
+            StateSnapshotInterval.CONVERSATION_TURNS,
+            [OnEventExecutionInterrupt(EventType.EXECUTION_END)],
+            InterruptedExecutionStatus,
+            "InterruptedExecutionStatus",
+            id="conversation_turns-interrupted",
+        ),
+    ],
+)
+def test_closing_turn_snapshot_is_emitted_before_live_conversation_status_commit(
+    interval: StateSnapshotInterval,
+    execution_interrupts,
+    expected_status_class,
+    expected_status_type: str,
+) -> None:
+    conversation = create_output_flow_conversation()
+    collector = SnapshotCollector()
+    observer = _LiveConversationSnapshotObserver(conversation)
+
+    with register_event_listeners([collector, observer]):
+        status = conversation.execute(
+            execution_interrupts=execution_interrupts,
+            state_snapshot_policy=StateSnapshotPolicy(state_snapshot_interval=interval),
+        )
+
+    assert isinstance(status, expected_status_class)
+    assert conversation.status is status
+    assert conversation.status_handled is False
+    assert observer.live_snapshots[-1]["execution"]["status"] is None
+    assert collector.state_snapshot_events[-1].state_snapshot is not None
+    assert collector.state_snapshot_events[-1].state_snapshot["execution"]["status"]["type"] == (
+        expected_status_type
+    )
+    assert observer.live_snapshots[-1] != {
+        "conversation": collector.state_snapshot_events[-1].state_snapshot["conversation"],
+        "execution": collector.state_snapshot_events[-1].state_snapshot["execution"],
+    }
 
 
 def test_conversation_turn_snapshot_payload_can_resume_waiting_for_client_tool_result() -> None:
@@ -247,7 +347,9 @@ def test_conversation_turn_snapshot_payload_can_resume_waiting_for_client_tool_r
 
     status, state_snapshot_events = execute_with_state_snapshots(
         conversation,
-        state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS),
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
     )
 
     assert isinstance(status, ToolRequestStatus)
@@ -286,7 +388,9 @@ async def test_conversation_turn_snapshot_payload_can_resume_waiting_for_user_in
 
     status, state_snapshot_events = await execute_with_state_snapshots_async(
         conversation,
-        state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS),
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
     )
 
     assert isinstance(status, UserMessageRequestStatus)

@@ -38,9 +38,11 @@ from wayflowcore.executors._executor import ExecutionInterruptedException
 from wayflowcore.executors.executionstatus import ExecutionStatus
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.serialization.conversation import (
+    _UNSET,
     _serialize_conversation_state_with_runtime_overrides,
     dump_conversation_state,
     dump_variable_state,
+    serialize_conversation_state,
 )
 from wayflowcore.tracing.span import AgentExecutionSpan, FlowExecutionSpan, get_current_span
 
@@ -55,6 +57,12 @@ _STATE_SNAPSHOT_POLICIES: ContextVar[Dict[str, StateSnapshotPolicy]] = ContextVa
     default={},
 )
 """Execution-local mapping of active conversations to their effective snapshot policy."""
+
+_STATE_SNAPSHOT_EXECUTION_ROOT_CONVERSATION_ID: ContextVar[Optional[str]] = ContextVar(
+    "_STATE_SNAPSHOT_EXECUTION_ROOT_CONVERSATION_ID",
+    default=None,
+)
+"""Runtime conversation id for the root conversation of the current snapshot-enabled run."""
 
 
 def _get_state_snapshot_policies(
@@ -71,6 +79,21 @@ def _get_parent_state_snapshot_policy(
     if not active_conversations or active_conversations[-1] is conversation:
         return None
     return _get_state_snapshot_policy(active_conversations[-1])
+
+
+def get_effective_state_snapshot_policy_for_conversation(
+    conversation: Conversation,
+    state_snapshot_policy: Optional[StateSnapshotPolicy],
+) -> Optional[StateSnapshotPolicy]:
+    return (
+        state_snapshot_policy
+        if state_snapshot_policy is not None
+        else _get_parent_state_snapshot_policy(conversation)
+    )
+
+
+def _is_state_snapshot_execution_root(conversation: Conversation) -> bool:
+    return _STATE_SNAPSHOT_EXECUTION_ROOT_CONVERSATION_ID.get() == conversation.id
 
 
 def _get_state_snapshot_policy(
@@ -97,6 +120,22 @@ def _use_state_snapshot_policy(
         yield
     finally:
         _STATE_SNAPSHOT_POLICIES.reset(token)
+
+
+@contextmanager
+def _use_state_snapshot_execution_root(
+    conversation: Conversation,
+) -> Iterator[None]:
+    current_root_conversation_id = _STATE_SNAPSHOT_EXECUTION_ROOT_CONVERSATION_ID.get()
+    if current_root_conversation_id is not None:
+        yield
+        return
+
+    token = _STATE_SNAPSHOT_EXECUTION_ROOT_CONVERSATION_ID.set(conversation.id)
+    try:
+        yield
+    finally:
+        _STATE_SNAPSHOT_EXECUTION_ROOT_CONVERSATION_ID.reset(token)
 
 
 def _build_extra_state(
@@ -148,15 +187,26 @@ def _get_snapshot_policy_for_interval(
     if snapshot_interval == StateSnapshotInterval.OFF:
         return None
 
-    if snapshot_interval == required_snapshot_interval:
+    included_intervals = {
+        StateSnapshotInterval.CONVERSATION_TURNS: {
+            StateSnapshotInterval.CONVERSATION_TURNS,
+        },
+        StateSnapshotInterval.TOOL_TURNS: {
+            StateSnapshotInterval.CONVERSATION_TURNS,
+            StateSnapshotInterval.TOOL_TURNS,
+        },
+        StateSnapshotInterval.NODE_TURNS: {
+            StateSnapshotInterval.CONVERSATION_TURNS,
+            StateSnapshotInterval.NODE_TURNS,
+        },
+        StateSnapshotInterval.ALL_INTERNAL_TURNS: {
+            StateSnapshotInterval.CONVERSATION_TURNS,
+            StateSnapshotInterval.TOOL_TURNS,
+            StateSnapshotInterval.NODE_TURNS,
+        },
+    }
+    if required_snapshot_interval in included_intervals[snapshot_interval]:
         return state_snapshot_policy
-
-    if required_snapshot_interval == StateSnapshotInterval.CONVERSATION_TURNS:
-        return None
-
-    if snapshot_interval == StateSnapshotInterval.ALL_INTERNAL_TURNS:
-        return state_snapshot_policy
-
     return None
 
 
@@ -181,26 +231,37 @@ def _build_variable_state(
 def _build_state_snapshot_payload(
     conversation: Conversation,
     *,
-    execution_status: ExecutionStatus | None,
+    status: object = _UNSET,
+    status_handled: object = _UNSET,
 ) -> dict[str, Any]:
-    # Snapshots should expose the canonical pre-consumption view of a turn, not
-    # transient runtime bookkeeping. The serialized conversation_state blob must
-    # match the same logical boundary as the lightweight conversation/execution
-    # sections so it can be restored directly.
-    snapshot_status_handled = False
+    # The snapshot payload should match the intended runtime view at the
+    # boundary where it is emitted. Opening/tool/node snapshots mask any
+    # previous turn status, and turn-end snapshots can override the runtime
+    # fields before the live conversation object commits that new status.
     dumped_state = dump_conversation_state(
         conversation,
-        status=execution_status,
-        status_handled=snapshot_status_handled,
+        status=status,
+        status_handled=status_handled,
+    )
+    conversation_state = (
+        serialize_conversation_state(conversation)
+        if status is _UNSET and status_handled is _UNSET
+        else _serialize_conversation_state_with_runtime_overrides(
+            conversation,
+            status=cast(
+                Optional[ExecutionStatus],
+                conversation.status if status is _UNSET else status,
+            ),
+            status_handled=cast(
+                bool,
+                conversation.status_handled if status_handled is _UNSET else status_handled,
+            ),
+        )
     )
     return {
         "runtime": _STATE_SNAPSHOT_RUNTIME,
         "schema_version": _STATE_SNAPSHOT_SCHEMA_VERSION,
-        "conversation_state": _serialize_conversation_state_with_runtime_overrides(
-            conversation,
-            status=execution_status,
-            status_handled=snapshot_status_handled,
-        ),
+        "conversation_state": conversation_state,
         "conversation": dumped_state["conversation"],
         "execution": dumped_state["execution"],
     }
@@ -210,12 +271,23 @@ def _record_state_snapshot(
     conversation: Conversation,
     required_snapshot_interval: StateSnapshotInterval,
     *,
-    execution_status: ExecutionStatus | None,
+    status: object = _UNSET,
+    status_handled: object = _UNSET,
 ) -> None:
     state_snapshot_policy = _get_snapshot_policy_for_interval(
         conversation, required_snapshot_interval
     )
     if state_snapshot_policy is None:
+        return
+
+    if (
+        required_snapshot_interval == StateSnapshotInterval.CONVERSATION_TURNS
+        and not _is_state_snapshot_execution_root(conversation)
+    ):
+        # The conversation passed to `execute()` / `execute_async()` owns the
+        # resumable turn-level checkpoint stream. Nested child conversations may
+        # still emit internal tracing snapshots, but they do not emit competing
+        # conversation-turn checkpoints for the same run.
         return
 
     try:
@@ -224,7 +296,8 @@ def _record_state_snapshot(
                 conversation_id=conversation.conversation_id,
                 state_snapshot=_build_state_snapshot_payload(
                     conversation,
-                    execution_status=execution_status,
+                    status=status,
+                    status_handled=status_handled,
                 ),
                 extra_state=_build_extra_state(conversation, state_snapshot_policy),
                 variable_state=_build_variable_state(conversation, state_snapshot_policy),
@@ -252,12 +325,15 @@ class StateSnapshotEventListener(EventListener):
     def _record_snapshot(
         self,
         required_snapshot_interval: StateSnapshotInterval,
-        execution_status: ExecutionStatus | None = None,
+        *,
+        status: object = None,
+        status_handled: object = False,
     ) -> None:
         _record_state_snapshot(
             self.conversation,
             required_snapshot_interval,
-            execution_status=execution_status,
+            status=status,
+            status_handled=status_handled,
         )
 
     def _handle_pre_interrupt_event(
@@ -303,13 +379,15 @@ class StateSnapshotEventListener(EventListener):
             ) | AgentExecutionFinishedEvent(execution_status=execution_status):
                 self._record_snapshot(
                     StateSnapshotInterval.CONVERSATION_TURNS,
-                    execution_status,
+                    status=execution_status,
+                    status_handled=False,
                 )
             case ExceptionRaisedEvent(exception=ExecutionInterruptedException() as exception):
                 if self._should_record_interrupted_turn_end_snapshot():
                     self._record_snapshot(
                         StateSnapshotInterval.CONVERSATION_TURNS,
-                        exception.execution_status,
+                        status=exception.execution_status,
+                        status_handled=False,
                     )
 
     def __call__(self, event: Event) -> None:
@@ -364,16 +442,18 @@ def get_state_snapshot_execution_context_for_conversation(
     Activate the effective snapshot policy for one `conversation.execute(...)` turn.
 
     Child conversations inherit the currently active parent policy unless they
-    explicitly override it. When snapshots are enabled, listener registration
-    happens here in the runtime order the execution model depends on:
+    explicitly override it. Only the conversation that started the current
+    snapshot-enabled execution emits conversation-turn checkpoints; nested
+    children may still emit internal snapshots that describe their own runtime
+    state. When snapshots are enabled, listener registration happens here in the
+    runtime order the execution model depends on:
     1. pre-interrupt snapshot listener
     2. interrupts listener
     3. post-interrupt snapshot listener
     """
-    active_state_snapshot_policy = (
-        state_snapshot_policy
-        if state_snapshot_policy is not None
-        else _get_parent_state_snapshot_policy(conversation)
+    active_state_snapshot_policy = get_effective_state_snapshot_policy_for_conversation(
+        conversation,
+        state_snapshot_policy,
     )
 
     with _use_state_snapshot_policy(conversation, active_state_snapshot_policy):
@@ -386,6 +466,7 @@ def get_state_snapshot_execution_context_for_conversation(
         )
 
         with (
+            _use_state_snapshot_execution_root(conversation),
             get_state_snapshot_event_listener_context_for_conversation(
                 conversation,
                 post_interrupts=False,

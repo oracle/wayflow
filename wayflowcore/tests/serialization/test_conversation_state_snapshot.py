@@ -18,7 +18,7 @@ from wayflowcore.executors.executionstatus import (
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
-from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval
+from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.flow import Flow
 from wayflowcore.property import AnyProperty, StringProperty
 from wayflowcore.serialization import (
@@ -41,7 +41,7 @@ from wayflowcore.steps import (
 from wayflowcore.tools import ClientTool, ServerTool, ToolResult, register_server_tool
 from wayflowcore.variable import Variable
 
-from ..testhelpers.statesnapshots import build_policy, execute_with_state_snapshots
+from ..testhelpers.statesnapshots import execute_with_state_snapshots
 
 
 class _UnserializableValue:
@@ -356,7 +356,9 @@ def test_emitted_snapshot_conversation_state_restores_variable_dependent_continu
 
     status, state_snapshot_events = execute_with_state_snapshots(
         conversation,
-        state_snapshot_policy=build_policy(StateSnapshotInterval.CONVERSATION_TURNS),
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
     )
 
     assert isinstance(status, UserMessageRequestStatus)

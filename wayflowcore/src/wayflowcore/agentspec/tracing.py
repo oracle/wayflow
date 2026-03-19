@@ -138,6 +138,14 @@ class AgentSpecEventListener(EventListener):
         # without changing the StateSnapshotEvent handling below.
         owner = self._conversation_span_owners.get(event.conversation_id)
         if owner is not None:
+            snapshot_conversation = (
+                event.state_snapshot.get("conversation") if event.state_snapshot else {}
+            )
+            snapshot_runtime_conversation_id = (
+                snapshot_conversation.get("id") if isinstance(snapshot_conversation, dict) else None
+            )
+            if snapshot_runtime_conversation_id != owner.runtime_conversation_id:
+                return None
             return owner.span
 
         return current_agentspec_span
@@ -148,10 +156,10 @@ class AgentSpecEventListener(EventListener):
         # - we map the wayflow event to the corresponding agent spec one, and we emit that
         # - if it corresponds to a span end event, we retrieve the corresponding agent spec span, and we close it
         current_span = get_current_span()
-        if not current_span:
+        if current_span is None:
             return
-        current_agentspec_span = self.agentspec_spans_registry.get(current_span.span_id, None)
         current_span_name = current_span.name or ""
+        current_agentspec_span = self.agentspec_spans_registry.get(current_span.span_id, None)
         event_name = event.name or ""
         match event:
             case LlmGenerationRequestEvent():
@@ -383,6 +391,11 @@ class AgentSpecEventListener(EventListener):
                     extra_state=event.extra_state,
                 )
                 owner_span.add_event(snapshot_event)
+                if owner_span.end_time is None and any(
+                    isinstance(span_event, (AgentSpecFlowExecutionEnd, AgentSpecAgentExecutionEnd))
+                    for span_event in owner_span.events
+                ):
+                    owner_span.end()
             case FlowExecutionStartedEvent():
                 # Flow execution starts. Create the new agent spec span, start it, add the event
                 agentspec_flow = cast(
@@ -405,7 +418,9 @@ class AgentSpecEventListener(EventListener):
                 )
                 self._register_current_conversation_span(current_agentspec_span)
             case FlowExecutionFinishedEvent():
-                # Flow execution ends. Add the event to the agent spec span and close the span
+                # Flow execution ends. Add the event to the agent spec span. If this span owns
+                # the logical conversation checkpoint stream, delay closing until the final
+                # StateSnapshotEvent is bridged so span processors still see the final snapshot.
                 if not current_agentspec_span:
                     return
                 agentspec_flow = cast(
@@ -426,7 +441,21 @@ class AgentSpecEventListener(EventListener):
                         branch_selected=branch_selected,
                     )
                 )
-                current_agentspec_span.end()
+                active_conversation = self._get_active_wayflow_conversation()
+                owner = (
+                    self._conversation_span_owners.get(active_conversation.conversation_id)
+                    if active_conversation is not None
+                    else None
+                )
+                if (
+                    owner is None
+                    or owner.span is not current_agentspec_span
+                    or not any(
+                        isinstance(span_event, AgentSpecStateSnapshotEmitted)
+                        for span_event in current_agentspec_span.events
+                    )
+                ):
+                    current_agentspec_span.end()
             case AgentExecutionStartedEvent():
                 # Agent execution starts. Create the new agent spec span, start it, add the event
                 agentspec_agent = cast(
@@ -449,7 +478,9 @@ class AgentSpecEventListener(EventListener):
                 )
                 self._register_current_conversation_span(current_agentspec_span)
             case AgentExecutionFinishedEvent():
-                # Agent execution ends. Add the event to the agent spec span and close the span
+                # Agent execution ends. Add the event to the agent spec span. If this span owns
+                # the logical conversation checkpoint stream, delay closing until the final
+                # StateSnapshotEvent is bridged so span processors still see the final snapshot.
                 if not current_agentspec_span:
                     return
                 agentspec_agent = cast(
@@ -468,7 +499,21 @@ class AgentSpecEventListener(EventListener):
                         outputs=outputs,
                     )
                 )
-                current_agentspec_span.end()
+                active_conversation = self._get_active_wayflow_conversation()
+                owner = (
+                    self._conversation_span_owners.get(active_conversation.conversation_id)
+                    if active_conversation is not None
+                    else None
+                )
+                if (
+                    owner is None
+                    or owner.span is not current_agentspec_span
+                    or not any(
+                        isinstance(span_event, AgentSpecStateSnapshotEmitted)
+                        for span_event in current_agentspec_span.events
+                    )
+                ):
+                    current_agentspec_span.end()
             case ExceptionRaisedEvent():
                 if not current_agentspec_span:
                     return

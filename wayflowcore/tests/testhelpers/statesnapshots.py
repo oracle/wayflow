@@ -18,7 +18,7 @@ from wayflowcore.executors.interrupts.executioninterrupt import (
     InterruptedExecutionStatus,
     _NullExecutionInterrupt,
 )
-from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
+from wayflowcore.executors.statesnapshotpolicy import StateSnapshotPolicy
 from wayflowcore.flow import Flow
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.property import AnyProperty, StringProperty
@@ -236,13 +236,6 @@ def create_unserializable_variable_conversation() -> Conversation:
         ],
         variables=[custom_variable],
     ).start_conversation(inputs={custom_variable.name: _UnserializableVariableValue()})
-
-
-def build_policy(
-    interval: StateSnapshotInterval,
-    **kwargs: object,
-) -> StateSnapshotPolicy:
-    return StateSnapshotPolicy(state_snapshot_interval=interval, **kwargs)
 
 
 def assert_terminal_snapshot(

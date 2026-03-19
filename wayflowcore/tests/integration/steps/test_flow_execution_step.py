@@ -22,6 +22,7 @@ from wayflowcore.steps import (
     CompleteStep,
     FlowExecutionStep,
     InputMessageStep,
+    OutputMessageStep,
     ToolExecutionStep,
 )
 from wayflowcore.tools import ClientTool, ServerTool, ToolResult
@@ -208,6 +209,58 @@ def test_sub_conversation_shares_same_message_list_as_main_conversation() -> Non
     assert conversation.get_messages() == subconversation.get_messages()
     conversation.append_message(Message(content="hello"))
     assert conversation.get_messages() == subconversation.get_messages()
+
+
+def test_subflow_execution_reuses_finished_child_conversation_and_preserves_branch() -> None:
+    child_success = CompleteStep(name="child_success")
+    child_message = OutputMessageStep(message_template="child", name="child_message")
+    child_flow = Flow(
+        begin_step=child_message,
+        steps={
+            "child_message": child_message,
+            "child_success": child_success,
+        },
+        control_flow_edges=[
+            ControlFlowEdge(child_message, child_success),
+        ],
+    )
+    child_step = FlowExecutionStep(flow=child_flow, name="child_step")
+    success_message = OutputMessageStep(message_template="parent-success", name="success_message")
+    parent_flow = Flow(
+        begin_step=child_step,
+        steps={
+            "child_step": child_step,
+            "success_message": success_message,
+        },
+        control_flow_edges=[
+            ControlFlowEdge(child_step, success_message, source_branch="child_success"),
+            ControlFlowEdge(success_message, None),
+        ],
+    )
+    conversation = parent_flow.start_conversation()
+
+    sub_conversation = conversation._get_or_create_current_sub_conversation(
+        step=child_step,
+        flow=child_flow,
+        inputs={},
+    )
+    sub_status = sub_conversation.execute()
+    assert isinstance(sub_status, FinishedStatus)
+    assert sub_status.complete_step_name == "child_success"
+
+    async def _should_not_execute_again() -> FinishedStatus:
+        raise AssertionError("finished child conversation should not be executed again")
+
+    sub_conversation.execute_async = _should_not_execute_again  # type: ignore[method-assign]
+
+    status = conversation.execute()
+
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values == {"output_message": "parent-success"}
+    assert [message.content for message in conversation.get_messages()] == [
+        "child",
+        "parent-success",
+    ]
 
 
 def test_subflow_execution_might_yield_when_flow_contains_yielding_steps() -> None:

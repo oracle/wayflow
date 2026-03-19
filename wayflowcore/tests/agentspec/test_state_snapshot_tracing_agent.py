@@ -11,6 +11,7 @@ from typing import Any, Sequence, cast
 from pyagentspec.adapters.wayflow import AgentSpecLoader
 from pyagentspec.agent import Agent as AgentSpecAgent
 from pyagentspec.llms import VllmConfig
+from pyagentspec.tracing.events import AgentExecutionEnd as AgentSpecAgentExecutionEnd
 from pyagentspec.tracing.events import AgentExecutionStart as AgentSpecAgentExecutionStart
 from pyagentspec.tracing.events import Event as AgentSpecEvent
 from pyagentspec.tracing.events import StateSnapshotEmitted as AgentSpecStateSnapshotEmitted
@@ -24,13 +25,12 @@ from wayflowcore import Agent as WayflowAgent
 from wayflowcore.agentspec.tracing import AgentSpecEventListener
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors.executionstatus import UserMessageRequestStatus
-from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval
+from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.serialization import deserialize_conversation, dump_conversation_state
 
 from ..testhelpers.patching import patch_llm
 from ..testhelpers.statesnapshots import (
-    build_policy,
     snapshot_message,
     snapshot_status_types,
 )
@@ -139,6 +139,42 @@ class SnapshotSpanRecorder(AgentSpecSpanProcessor):
 
     async def on_end_async(self, span: AgentSpecSpan) -> None:
         self.ended_spans.append(span)
+
+    def on_event(self, event: AgentSpecEvent, span: AgentSpecSpan) -> None:
+        return None
+
+    async def on_event_async(self, event: AgentSpecEvent, span: AgentSpecSpan) -> None:
+        return None
+
+    def startup(self) -> None:
+        return None
+
+    def shutdown(self) -> None:
+        return None
+
+    async def startup_async(self) -> None:
+        return None
+
+    async def shutdown_async(self) -> None:
+        return None
+
+
+class SnapshotEventsSeenAtSpanEndRecorder(AgentSpecSpanProcessor):
+    def __init__(self) -> None:
+        super().__init__()
+        self.events_by_span_id: dict[str, list[AgentSpecEvent]] = {}
+
+    def on_start(self, span: AgentSpecSpan) -> None:
+        return None
+
+    async def on_start_async(self, span: AgentSpecSpan) -> None:
+        return None
+
+    def on_end(self, span: AgentSpecSpan) -> None:
+        self.events_by_span_id[span.id] = list(span.events)
+
+    async def on_end_async(self, span: AgentSpecSpan) -> None:
+        self.events_by_span_id[span.id] = list(span.events)
 
     def on_event(self, event: AgentSpecEvent, span: AgentSpecSpan) -> None:
         return None
@@ -286,8 +322,8 @@ def test_agent_state_snapshots_support_the_agui_retrieval_export_flow() -> None:
 
     status, span_recorder = _execute_with_trace(
         conversation,
-        state_snapshot_policy=build_policy(
-            StateSnapshotInterval.CONVERSATION_TURNS,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS,
             extra_state_builder=build_extra_state,
         ),
         span_processors=[agui_exporter],
@@ -370,7 +406,9 @@ def test_agent_node_turn_state_snapshots_are_mapped_into_the_agent_span_not_llm_
     conversation.append_user_message("Hi")
     status, span_recorder = _execute_with_trace(
         conversation,
-        state_snapshot_policy=build_policy(StateSnapshotInterval.NODE_TURNS),
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.NODE_TURNS
+        ),
         contexts=[patch_llm(llm, [assistant_message], patch_internal=True)],
     )
 
@@ -379,12 +417,19 @@ def test_agent_node_turn_state_snapshots_are_mapped_into_the_agent_span_not_llm_
     agent_span = _single_span(span_recorder, AgentSpecAgentExecutionSpan)
     state_snapshot_events = _events(agent_span, AgentSpecStateSnapshotEmitted)
 
-    assert len(state_snapshot_events) == 2
+    assert len(state_snapshot_events) == 4
     assert [event.state_snapshot["execution"]["curr_iter"] for event in state_snapshot_events] == [
         0,
+        0,
+        1,
         1,
     ]
-    assert snapshot_status_types(state_snapshot_events) == [None, None]
+    assert snapshot_status_types(state_snapshot_events) == [
+        None,
+        None,
+        None,
+        "UserMessageRequestStatus",
+    ]
     assert snapshot_message(state_snapshot_events[-1]) == assistant_message
 
     llm_spans = _spans(span_recorder, AgentSpecLlmGenerationSpan)
@@ -394,3 +439,40 @@ def test_agent_node_turn_state_snapshots_are_mapped_into_the_agent_span_not_llm_
         for span in llm_spans
         for event in span.events
     )
+
+
+def test_agent_final_state_snapshot_is_visible_to_span_processors_inside_on_end() -> None:
+    assistant_message = "Hello from agent"
+    llm = VllmModel(model_id="mock.model", host_port="http://mock.url", name="agent")
+    agent = WayflowAgent(llm=llm)
+    conversation = agent.start_conversation()
+    conversation.append_user_message("Hi")
+    on_end_recorder = SnapshotEventsSeenAtSpanEndRecorder()
+
+    status, span_recorder = _execute_with_trace(
+        conversation,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
+        span_processors=[on_end_recorder],
+        contexts=[patch_llm(llm, [assistant_message], patch_internal=True)],
+    )
+
+    assert isinstance(status, UserMessageRequestStatus)
+
+    agent_span = _single_span(span_recorder, AgentSpecAgentExecutionSpan)
+    events_seen_at_end = on_end_recorder.events_by_span_id[agent_span.id]
+
+    assert any(isinstance(event, AgentSpecAgentExecutionEnd) for event in events_seen_at_end)
+    assert (
+        len(
+            [
+                event
+                for event in events_seen_at_end
+                if isinstance(event, AgentSpecStateSnapshotEmitted)
+            ]
+        )
+        == 2
+    )
+    assert isinstance(events_seen_at_end[-1], AgentSpecStateSnapshotEmitted)
+    assert snapshot_message(events_seen_at_end[-1]) == assistant_message
