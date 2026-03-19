@@ -38,6 +38,15 @@ from wayflowcore.models.openaiapitype import OpenAIAPIType
 from wayflowcore.steps import OutputMessageStep
 from wayflowcore.tools import ToolRequest
 
+# Import shared HTTPS fixtures here so pytest registers them globally, even for
+# test modules that use them without importing the helper module directly.
+from .testhelpers.httpsserver import (  # noqa: F401
+    https_json_server,
+    https_json_server_factory,
+    tls_material,
+    tls_material_factory,
+)
+
 if os.environ.get("DEBUG_LEVEL") == "info":
     logging.basicConfig(
         format="%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",

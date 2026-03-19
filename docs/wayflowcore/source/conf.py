@@ -94,6 +94,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
+    "sphinx_prompt",
     "sphinx_substitution_extensions",
     "sphinx.ext.extlinks",
     "sphinx_toolbox.collapse",
@@ -249,6 +250,8 @@ nitpick_ignore_regex = [
     ("py:class", r"wayflowcore\..*\.Annotated"),
     # Failing one one case in `SoftTokenLimitExecutionInterrupt`
     ("py:class", r"MetadataType"),
+    # Pydantic field metadata marker rendered as a bogus cross-reference.
+    ("py:class", r"'?SENSITIVE_FIELD_MARKER'?"),
     # Purposely ignoring classes:
     ("py:class", r"wayflowcore.executors._events.event.Event"),
     ("py:class", r"(?:wayflowcore\.executors\._executor\.)?ConversationExecutor"),

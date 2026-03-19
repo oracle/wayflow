@@ -3,7 +3,9 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+import logging
 import os
+import ssl
 import time
 from contextlib import contextmanager, nullcontext
 from copy import deepcopy
@@ -30,6 +32,7 @@ from wayflowcore.models.llmmodel import LlmGenerationConfig
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
 from wayflowcore.property import StringProperty
+from wayflowcore.serialization.serializer import serialize_to_dict
 from wayflowcore.tools import ServerTool, ToolRequest
 from wayflowcore.tools.tools import ToolResult
 
@@ -502,6 +505,115 @@ def test_model_has_correct_api_key():
     assert payload.get("headers", {}).get("Authorization") == "Bearer sk-012-MOCKED_KEY"
 
 
+def test_openai_compatible_model_supports_custom_ca_file(tls_material, https_json_server):
+    with https_json_server(
+        response_factory=lambda request: (
+            200,
+            {"choices": [{"message": {"role": "assistant", "content": "secured hello"}}]},
+        ),
+    ) as base_url:
+        llm = OpenAICompatibleModel(
+            model_id="secured-model",
+            base_url=base_url,
+            ca_file=tls_material.ca_cert_path,
+        )
+        llm._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
+
+        completion = llm.generate("hello")
+
+    assert completion.message.content == "secured hello"
+    assert isinstance(llm._ssl_verify, ssl.SSLContext)
+
+
+def test_openai_compatible_model_supports_mtls(tls_material, https_json_server):
+    with https_json_server(
+        response_factory=lambda request: (
+            200,
+            {"choices": [{"message": {"role": "assistant", "content": "mutual tls hello"}}]},
+        ),
+        require_client_cert=True,
+    ) as base_url:
+        llm = OpenAICompatibleModel(
+            model_id="secured-model",
+            base_url=base_url,
+            key_file=tls_material.client_key_path,
+            cert_file=tls_material.client_cert_path,
+            ca_file=tls_material.ca_cert_path,
+        )
+        llm._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
+
+        completion = llm.generate("hello")
+
+    assert completion.message.content == "mutual tls hello"
+
+
+def test_openai_compatible_model_rejects_invalid_ca_file(
+    tls_material_factory, https_json_server_factory
+):
+    tls_material = tls_material_factory("server")
+    invalid_ca_material = tls_material_factory("invalid-ca")
+
+    with https_json_server_factory(
+        response_factory=lambda request: (
+            200,
+            {"choices": [{"message": {"role": "assistant", "content": "unexpected"}}]},
+        ),
+        tls_material=tls_material,
+    ) as base_url:
+        llm = OpenAICompatibleModel(
+            model_id="secured-model",
+            base_url=base_url,
+            ca_file=invalid_ca_material.ca_cert_path,
+        )
+        llm._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
+
+        with pytest.raises(Exception, match="certificate verify failed|CERTIFICATE_VERIFY_FAILED"):
+            llm.generate("hello")
+
+
+def test_openai_compatible_model_requires_complete_client_certificate_configuration(tls_material):
+    with pytest.raises(
+        ValueError, match="Both `key_file` and `cert_file` must be provided together"
+    ):
+        OpenAICompatibleModel(
+            model_id="secured-model",
+            base_url="https://example.test",
+            cert_file=tls_material.client_cert_path,
+        )
+
+
+def test_openai_compatible_model_does_not_serialize_certificate_fields(tls_material):
+    llm = OpenAICompatibleModel(
+        model_id="secured-model",
+        base_url="https://example.test",
+        key_file=tls_material.client_key_path,
+        cert_file=tls_material.client_cert_path,
+        ca_file=tls_material.ca_cert_path,
+    )
+
+    serialized_dict = serialize_to_dict(llm)
+
+    assert "key_file" not in serialized_dict
+    assert "cert_file" not in serialized_dict
+    assert "ca_file" not in serialized_dict
+
+
+@pytest.mark.parametrize("model_cls", [VllmModel, OllamaModel])
+def test_vllm_and_ollama_models_accept_tls_configuration(model_cls, tls_material):
+    llm = model_cls(
+        model_id="secured-model",
+        host_port="https://example.test",
+        key_file=tls_material.client_key_path,
+        cert_file=tls_material.client_cert_path,
+        ca_file=tls_material.ca_cert_path,
+    )
+
+    assert llm.key_file == tls_material.client_key_path
+    assert llm.cert_file == tls_material.client_cert_path
+    assert llm.ca_file == tls_material.ca_cert_path
+    assert isinstance(llm._ssl_verify, ssl.SSLContext)
+
+
 @retry_test(max_attempts=3)
 def test_responses_open_ai_compatible_model_works_with_multiple_inputs(openai_responses_llm):
     """
@@ -739,6 +851,17 @@ def test_vllm_ollama_with_api_key(model_cls):
     payload = model._generate_request_params(prompt, stream=False)
     payload["headers"] = model._get_headers()
     assert payload.get("headers", {}).get("Authorization") == "Bearer sk-034-MOCKED_KEY"
+
+
+@pytest.mark.parametrize("model_cls", [VllmModel, OllamaModel])
+@mock.patch.dict(os.environ, {"OPENAI_API_KEY": "sk-034-MOCKED_KEY"})
+def test_vllm_ollama_config_does_not_warn_for_placeholder_api_key(model_cls, caplog):
+    model = model_cls(model_id="my.model-id", host_port="localhost:80000")
+
+    with caplog.at_level(logging.WARNING):
+        _ = model.config
+
+    assert "API was configured on" not in caplog.text
 
 
 @pytest.fixture

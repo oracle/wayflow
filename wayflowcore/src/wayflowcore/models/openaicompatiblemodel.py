@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import logging
 import os
+import ssl
 from contextlib import aclosing
 from typing import TYPE_CHECKING, Any, AsyncIterable, AsyncIterator, Dict, Optional
 
@@ -45,6 +46,9 @@ class OpenAICompatibleModel(LlmModel):
         base_url: str,
         proxy: Optional[str] = None,
         api_key: Optional[str] = None,
+        key_file: Optional[str] = None,
+        cert_file: Optional[str] = None,
+        ca_file: Optional[str] = None,
         generation_config: Optional[LlmGenerationConfig] = None,
         supports_structured_generation: Optional[bool] = True,
         supports_tool_calling: Optional[bool] = True,
@@ -72,6 +76,12 @@ class OpenAICompatibleModel(LlmModel):
             API key to use for the request if needed. It will be formatted in the OpenAI format.
             (as "Bearer API_KEY" in the request header)
             If not provided, will attempt to read from the environment variable OPENAI_API_KEY
+        key_file:
+            The path to an optional client private key file (PEM format).
+        cert_file:
+            The path to an optional client certificate chain file (PEM format).
+        ca_file:
+            The path to an optional trusted CA certificate file (PEM format) to verify the server.
         generation_config:
             default parameters for text generation with this model
         supports_structured_generation:
@@ -105,7 +115,15 @@ class OpenAICompatibleModel(LlmModel):
         self.base_url = base_url
         self.proxy = proxy
         self.api_key = api_key
+        self.key_file = key_file
+        self.cert_file = cert_file
+        self.ca_file = ca_file
         self._api_key = _resolve_api_key(api_key)
+        self._ssl_verify = _build_ssl_verification(
+            key_file=key_file,
+            cert_file=cert_file,
+            ca_file=ca_file,
+        )
         self.api_type = api_type
 
         self._retry_strategy = _RetryStrategy()
@@ -130,7 +148,10 @@ class OpenAICompatibleModel(LlmModel):
         request_params = self._generate_request_params(prompt, stream=False)
         request_params["headers"] = self._get_headers()
         response_data = await self._post(
-            request_params=request_params, retry_strategy=self._retry_strategy, proxy=self.proxy
+            request_params=request_params,
+            retry_strategy=self._retry_strategy,
+            proxy=self.proxy,
+            verify=self._ssl_verify,
         )
         logger.debug(f"Raw LLM answer: %s", response_data)
         message = self.api_processor._convert_openai_response_into_message(response_data)
@@ -154,6 +175,7 @@ class OpenAICompatibleModel(LlmModel):
             request_args,
             retry_strategy=self._retry_strategy,
             proxy=self.proxy,
+            verify=self._ssl_verify,
             api_processor=self.api_processor,
         )
 
@@ -186,10 +208,13 @@ class OpenAICompatibleModel(LlmModel):
 
     @staticmethod
     async def _post(
-        request_params: Dict[str, Any], retry_strategy: _RetryStrategy, proxy: Optional[str]
+        request_params: Dict[str, Any],
+        retry_strategy: _RetryStrategy,
+        proxy: Optional[str],
+        verify: bool | str | ssl.SSLContext,
     ) -> Dict[str, Any]:
         logger.debug(f"Request to remote endpoint: {_sanitize_request_parameters(request_params)}")
-        response = await request_post_with_retries(request_params, retry_strategy, proxy)
+        response = await request_post_with_retries(request_params, retry_strategy, proxy, verify)
         logger.debug(f"Raw remote endpoint response: {response}")
         return response
 
@@ -198,13 +223,17 @@ class OpenAICompatibleModel(LlmModel):
         request_params: Dict[str, Any],
         retry_strategy: _RetryStrategy,
         proxy: Optional[str],
+        verify: bool | str | ssl.SSLContext,
         api_processor: _APIProcessor,
     ) -> AsyncIterator[Dict[str, Any]]:
         logger.debug(
             f"Streaming request to remote endpoint: {_sanitize_request_parameters(request_params)}"
         )
         line_iterator = request_streaming_post_with_retries(
-            request_params, retry_strategy=retry_strategy, proxy=proxy
+            request_params,
+            retry_strategy=retry_strategy,
+            proxy=proxy,
+            verify=verify,
         )
         # ensure the generator is closed at the end
         async with aclosing(line_iterator):
@@ -213,10 +242,7 @@ class OpenAICompatibleModel(LlmModel):
 
     @property
     def config(self) -> Dict[str, Any]:
-        if self._api_key is not None:
-            logger.warning(
-                f"API was configured on {self} but it will not be serialized in the config"
-            )
+        self._warn_about_runtime_only_configuration()
         return {
             "model_type": "openaicompatible",
             "model_id": self.model_id,
@@ -228,6 +254,20 @@ class OpenAICompatibleModel(LlmModel):
                 self.generation_config.to_dict() if self.generation_config is not None else None
             ),
         }
+
+    def _warn_about_runtime_only_configuration(self) -> None:
+        if self.api_key and self.api_key != EMPTY_API_KEY:
+            logger.warning(
+                f"API was configured on {self} but it will not be serialized in the config"
+            )
+        if any(
+            certificate_path is not None
+            for certificate_path in (self.key_file, self.cert_file, self.ca_file)
+        ):
+            logger.warning(
+                "SSL certificate configuration was set on %s but it will not be serialized in the config",
+                self,
+            )
 
     def _generate_request_params(self, prompt: "Prompt", stream: bool) -> Dict[str, Any]:
         """Generate Request Parameters for the API type"""
@@ -254,6 +294,31 @@ def _resolve_api_key(provided_api_key: Optional[str]) -> Optional[str]:
                 "No api_key provided. It might be OK if it is not necessary to access the model. If however the access requires it, either specify the api_key parameter, or set the OPENAI_API_KEY environment variable."
             )
     return api_key
+
+
+def _build_ssl_verification(
+    key_file: Optional[str],
+    cert_file: Optional[str],
+    ca_file: Optional[str],
+) -> bool | ssl.SSLContext:
+    if bool(key_file) != bool(cert_file):
+        raise ValueError("Both `key_file` and `cert_file` must be provided together.")
+
+    for field_name, file_path in (
+        ("key_file", key_file),
+        ("cert_file", cert_file),
+        ("ca_file", ca_file),
+    ):
+        if file_path is not None and not os.path.isfile(file_path):
+            raise ValueError(f"{field_name} path does not exist: {file_path}")
+
+    if not any(file_path is not None for file_path in (key_file, cert_file, ca_file)):
+        return True
+
+    ssl_context = ssl.create_default_context(cafile=ca_file)
+    if cert_file is not None and key_file is not None:
+        ssl_context.load_cert_chain(certfile=cert_file, keyfile=key_file)
+    return ssl_context
 
 
 def _sanitize_request_parameters(request_params: Dict[str, Any]) -> Dict[str, Any]:

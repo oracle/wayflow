@@ -26,6 +26,22 @@ For the embedding models shown in this guide:
 
 The following sections provide detailed information about each supported embedding model type, with examples showing how to instantiate and use them.
 
+.. _openaicompatible_embedding_custom_tls:
+
+Custom TLS Certificates for OpenAI-Compatible Embedding Endpoints
+-----------------------------------------------------------------
+
+``OpenAICompatibleEmbeddingModel``, ``VllmEmbeddingModel`` and ``OllamaEmbeddingModel`` accept optional
+TLS certificate parameters for HTTPS endpoints that use private certificate authorities or mutual TLS.
+
+.. literalinclude:: ../code_examples/example_initialize_embedding_models.py
+    :language: python
+    :start-after: .. openai-compatible-embedding-tls-start
+    :end-before: .. openai-compatible-embedding-tls-end
+
+Use ``ca_file`` to trust a custom certificate authority, and use ``key_file`` together with ``cert_file`` for mutual TLS (mTLS).
+These certificate fields are runtime-only and are intentionally omitted from WayFlow serialization output.
+
 OCI GenAI Embedding Model
 -------------------------
 

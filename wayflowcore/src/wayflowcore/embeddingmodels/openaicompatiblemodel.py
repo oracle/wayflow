@@ -10,7 +10,7 @@ from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.embeddingmodels.embeddingmodel import EmbeddingModel
 from wayflowcore.models._requesthelpers import _RetryStrategy, request_post_with_retries
-from wayflowcore.models.openaicompatiblemodel import _resolve_api_key
+from wayflowcore.models.openaicompatiblemodel import _build_ssl_verification, _resolve_api_key
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
 
@@ -31,6 +31,12 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         API key to use for the request if needed. It will be formatted in the OpenAI format.
         (as "Bearer API_KEY" in the request header)
         If not provided, will attempt to read from the environment variable OPENAI_API_KEY
+    key_file:
+        The path to an optional client private key file (PEM format).
+    cert_file:
+        The path to an optional client certificate chain file (PEM format).
+    ca_file:
+        The path to an optional trusted CA certificate file (PEM format) to verify the server.
     """
 
     def __init__(
@@ -38,6 +44,9 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         model_id: str,
         base_url: str,
         api_key: Optional[str] = None,
+        key_file: Optional[str] = None,
+        cert_file: Optional[str] = None,
+        ca_file: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
@@ -53,6 +62,14 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         self._base_url = _add_leading_http_if_needed(base_url).rstrip("/")
         self._retry_strategy = _RetryStrategy()
         self._api_key = _resolve_api_key(api_key)
+        self.key_file = key_file
+        self.cert_file = cert_file
+        self.ca_file = ca_file
+        self._ssl_verify = _build_ssl_verification(
+            key_file=key_file,
+            cert_file=cert_file,
+            ca_file=ca_file,
+        )
 
     def _get_headers(self) -> Dict[str, Any]:
         headers = {
@@ -77,6 +94,7 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         response_data = await request_post_with_retries(
             request_params=dict(url=url, headers=headers, json=payload),
             retry_strategy=self._retry_strategy,
+            verify=self._ssl_verify,
         )
 
         return [item["embedding"] for item in response_data["data"]]

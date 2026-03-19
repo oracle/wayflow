@@ -782,6 +782,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             return RuntimeOllamaEmbeddingModel(
                 model_id=agentspec_component.model_id,
                 base_url=_format_embedding_model_url(agentspec_component.url),
+                key_file=agentspec_component.key_file,
+                cert_file=agentspec_component.cert_file,
+                ca_file=agentspec_component.ca_file,
                 name=agentspec_component.name,
                 description=agentspec_component.description,
                 id=agentspec_component.id,
@@ -862,6 +865,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             return RuntimeVllmEmbeddingModel(
                 model_id=agentspec_component.model_id,
                 base_url=_format_embedding_model_url(agentspec_component.url),
+                key_file=agentspec_component.key_file,
+                cert_file=agentspec_component.cert_file,
+                ca_file=agentspec_component.ca_file,
                 name=agentspec_component.name,
                 description=agentspec_component.description,
                 id=agentspec_component.id,
@@ -880,6 +886,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             return RuntimeOpenAiCompatibleEmbeddingModel(
                 model_id=agentspec_component.model_id,
                 base_url=_format_embedding_model_url(agentspec_component.url),
+                key_file=agentspec_component.key_file,
+                cert_file=agentspec_component.cert_file,
+                ca_file=agentspec_component.ca_file,
                 name=agentspec_component.name,
                 description=agentspec_component.description,
                 id=agentspec_component.id,
@@ -2360,6 +2369,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 generation_config=generation_config,
                 api_type=self._convert_openai_apitype_to_runtime(agentspec_component.api_type),
                 api_key=agentspec_component.api_key,
+                key_file=agentspec_component.key_file,
+                cert_file=agentspec_component.cert_file,
+                ca_file=agentspec_component.ca_file,
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecOciGenAiModel):
@@ -2383,6 +2395,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 model_id=agentspec_component.model_id,
                 host_port=agentspec_component.url,
                 generation_config=generation_config,
+                key_file=agentspec_component.key_file,
+                cert_file=agentspec_component.cert_file,
+                ca_file=agentspec_component.ca_file,
                 **self._get_component_arguments(agentspec_component),
             )
         elif isinstance(agentspec_component, AgentSpecOpenAiConfig):
@@ -2400,6 +2415,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 generation_config=generation_config,
                 api_type=self._convert_openai_apitype_to_runtime(agentspec_component.api_type),
                 api_key=agentspec_component.api_key,
+                key_file=agentspec_component.key_file,
+                cert_file=agentspec_component.cert_file,
+                ca_file=agentspec_component.ca_file,
                 **self._get_component_arguments(agentspec_component),
             )
         else:

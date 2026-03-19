@@ -7,6 +7,13 @@ WayFlow |current_version|
 New features
 ^^^^^^^^^^^^
 
+* **Custom TLS certificates for OpenAI-compatible models:**
+
+  :ref:`OpenAICompatibleModel <openaicompatiblemodel>` and :ref:`OpenAICompatibleEmbeddingModel <openaicompatibleembeddingmodel>`
+  now support optional ``key_file``, ``cert_file`` and ``ca_file`` parameters for custom CAs and mutual TLS.
+
+  For more information read :ref:`how to configure custom TLS certificates for OpenAI-compatible endpoints <openaicompatible_custom_tls>`.
+
 * **OAuth support for MCP Clients:**
 
   MCP Clients now support OAuth-based authorization.
