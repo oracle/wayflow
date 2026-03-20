@@ -28,7 +28,9 @@ from wayflowcore.property import IntegerProperty, StringProperty
 from wayflowcore.serialization import deserialize, serialize
 from wayflowcore.steps import OutputMessageStep
 from wayflowcore.swarm import HandoffMode, Swarm
+from wayflowcore.templates._swarmtemplate import _DEFAULT_SWARM_CHAT_TEMPLATE
 from wayflowcore.tools import ClientTool, ToolRequest, ToolResult, tool
+from wayflowcore.transforms.transforms import MessageTransform
 
 from .testhelpers.dummy import DummyModel
 from .testhelpers.patching import patch_llm
@@ -111,6 +113,44 @@ def _get_zbuk_agent(llm):
         name="zbuk_agent",
         description="An specialized AI Assistant that can answer any question/request related to the zbuk operation.",
     )
+
+
+class _PrefixContentTransform(MessageTransform):
+    def __init__(self, prefix: str):
+        super().__init__()
+        self.prefix = prefix
+
+    def __call__(self, messages: list[Message]) -> list[Message]:
+        transformed_messages = []
+        for message in messages:
+            if isinstance(message.content, str):
+                transformed_messages.append(
+                    message.copy(content=f"{self.prefix}\n{message.content}")
+                )
+            else:
+                transformed_messages.append(message)
+        return transformed_messages
+
+
+def _capture_first_swarm_prompt_messages(
+    monkeypatch: pytest.MonkeyPatch, llm: DummyModel, swarm: Swarm
+):
+    monkeypatch.setenv("WAYFLOW_EXP_DISABLE_STREAMING", "1")
+    captured_prompts = []
+    original_generate_async = llm.generate_async
+
+    async def wrapped_generate_async(prompt, _conversation=None):
+        captured_prompts.append(prompt)
+        return await original_generate_async(prompt, _conversation=_conversation)
+
+    monkeypatch.setattr(llm, "generate_async", wrapped_generate_async)
+
+    conv = swarm.start_conversation(messages="Original user message")
+    status = conv.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert len(captured_prompts) == 1
+    return captured_prompts[0].messages
 
 
 @pytest.fixture
@@ -234,6 +274,66 @@ def test_can_execute_swarm_with_initial_params_passed_in_start_conversation(
     # The first message must be not the default message as the init messages are passed.
     assert conversation.get_last_message().content != "Hi! How can I help you?"
     assert conversation.conversation_id == "12345"
+
+
+def test_swarm_preserves_agent_rendering_transforms_in_pre_render_phase(monkeypatch):
+    llm = DummyModel(fails_if_not_set=False)
+    agent_transform = _PrefixContentTransform("[AGENT]")
+    swarm_transform = _PrefixContentTransform("[SWARM]")
+
+    first_agent = Agent(
+        llm=llm,
+        name="agent1",
+        description="first agent",
+        transforms=[agent_transform],
+    )
+    second_agent = Agent(
+        llm=llm,
+        name="agent2",
+        description="second agent",
+    )
+    swarm = Swarm(
+        first_agent=first_agent,
+        relationships=[(first_agent, second_agent)],
+        swarm_template=_DEFAULT_SWARM_CHAT_TEMPLATE.with_additional_pre_rendering_transform(
+            swarm_transform,
+            append_last=False,
+        ),
+    )
+
+    prompt_messages = _capture_first_swarm_prompt_messages(monkeypatch, llm, swarm)
+    user_message = next(message for message in prompt_messages if message.role == "user")
+
+    assert "[AGENT]" in user_message.content
+    assert "[SWARM]" in user_message.content
+
+
+def test_swarm_preserves_agent_rendering_transforms_in_post_render_phase(monkeypatch):
+    llm = DummyModel(fails_if_not_set=False)
+    post_transform = _PrefixContentTransform("[AGENT_POST]")
+
+    first_agent = Agent(
+        llm=llm,
+        name="agent1",
+        description="first agent",
+        agent_template=llm.agent_template.with_additional_post_rendering_transform(post_transform),
+    )
+    second_agent = Agent(
+        llm=llm,
+        name="agent2",
+        description="second agent",
+    )
+    swarm = Swarm(
+        first_agent=first_agent,
+        relationships=[(first_agent, second_agent)],
+    )
+
+    prompt_messages = _capture_first_swarm_prompt_messages(monkeypatch, llm, swarm)
+
+    assert any(
+        isinstance(message.content, str) and message.content.startswith("[AGENT_POST]")
+        for message in prompt_messages
+    )
 
 
 def test_can_create_swarm(example_medical_agents):

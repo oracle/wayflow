@@ -72,6 +72,10 @@ Bug fixes
 * Fix: conversations no longer replay already-materialized tool results when resuming manager-worker executions,
   which could previously duplicate internal `send_message` results and break continued execution after serialization.
 
+* **Swarm agent transforms:**
+
+  Swarm executions now preserve the participating agent's pre/post message transforms on top of the swarm template, so agent-level summarization and other prompt-shaping transforms are still applied inside swarms.
+
 WayFlow 26.1.1
 --------------
 

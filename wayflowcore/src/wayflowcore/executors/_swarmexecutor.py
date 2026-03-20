@@ -36,9 +36,40 @@ from wayflowcore.tools import ClientTool, ToolRequest, ToolResult
 if TYPE_CHECKING:
     from wayflowcore.executors._agentconversation import AgentConversation
     from wayflowcore.executors._swarmconversation import SwarmConversation, SwarmThread
+    from wayflowcore.templates import PromptTemplate
 
 
 logger = logging.getLogger(__name__)
+
+
+def _merge_swarm_template_with_agent_transforms(
+    swarm_template: "PromptTemplate", agent_template: "PromptTemplate"
+) -> "PromptTemplate":
+    """
+    Preserve agent-level message transforms when the swarm injects its own prompt template.
+
+    Swarm needs a dedicated system prompt and output parser, so we cannot reuse the full agent
+    template as-is. We still carry over the agent template's pre/post rendering transforms so
+    features such as summarization and model-specific prompt shaping remain active in swarm mode.
+    """
+
+    merged_template = swarm_template
+
+    # Agent-specific pre transforms should see the raw swarm chat history before any swarm-wide
+    # pre transforms mutate it further.
+    for transform in reversed(agent_template.pre_rendering_transforms or []):
+        merged_template = merged_template.with_additional_pre_rendering_transform(
+            transform, append_last=False
+        )
+
+    # Swarm post transforms first normalize tool traffic into plain chat messages. Agent-level
+    # post transforms then run on that final prompt representation.
+    for transform in agent_template.post_rendering_transforms or []:
+        merged_template = merged_template.with_additional_post_rendering_transform(
+            transform, append_last=True
+        )
+
+    return merged_template
 
 
 def _validate_agent_unicity(
@@ -189,6 +220,10 @@ class SwarmRunner(ConversationExecutor):
                     ],
                     "handoff": swarm_config.handoff.value,  # type: ignore
                 }
+            )
+            mutated_agent_template = _merge_swarm_template_with_agent_transforms(
+                mutated_agent_template,
+                current_agent.agent_template,
             )
             with _MutatedConversationalComponent(
                 current_agent,
