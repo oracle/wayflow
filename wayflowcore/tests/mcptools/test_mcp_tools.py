@@ -7,7 +7,9 @@
 import logging
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Generator, List, Tuple, cast
+from unittest.mock import patch
 
 import anyio
 import httpx
@@ -40,6 +42,7 @@ from wayflowcore.mcp import (
     StreamableHTTPTransport,
 )
 from wayflowcore.mcp._auth import headless_auth_flow_handler
+from wayflowcore.mcp._session_persistence import get_mcp_async_runtime
 from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
 from wayflowcore.property import (
     AnyProperty,
@@ -304,6 +307,104 @@ def test_mcp_toolboxes_from_different_servers_do_not_conflict(
     # The alternate server exposes `alt_*` tools only.
     assert tool_names_2.issuperset({"alt_add_tool", "alt_mul_tool"})
     assert tool_names_1.intersection(tool_names_2) == set()
+
+
+def test_concurrent_cold_session_creation_returns_same_session(
+    sse_client_transport, with_mcp_enabled
+):
+    """
+    Concurrent get_or_create_session() calls for the same transport must
+    produce exactly one session and return it to all callers.
+    """
+    runtime = get_mcp_async_runtime()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [
+            pool.submit(runtime.get_or_create_session, sse_client_transport),
+            pool.submit(runtime.get_or_create_session, sse_client_transport),
+        ]
+        results = [f.result(timeout=30) for f in futures]
+
+    assert results[0] is results[1], "Both threads must get the exact same session object"
+
+
+@pytest.mark.anyio
+async def test_async_session_creation_does_not_block_event_loop(
+    sse_client_transport, with_mcp_enabled
+):
+    """
+    MCPToolBox.get_tools_async() offloads get_or_create_session() to a
+    worker thread via to_thread.run_sync().  A heartbeat coroutine scheduled
+    alongside it must keep running while session creation is in progress.
+
+    Patch get_or_create_session to inject a deliberate 0.5s delay so the
+    heartbeat has time to accumulate ticks regardless of how fast the local
+    MCP server responds.
+    """
+    runtime = get_mcp_async_runtime()
+    original = runtime.get_or_create_session
+
+    def slow_get_or_create_session(transport):
+        time.sleep(0.5)
+        return original(transport)
+
+    heartbeat_ticks: list[float] = []
+
+    async def heartbeat():
+        """Record timestamps at short intervals to prove the loop is alive."""
+        for _ in range(20):
+            heartbeat_ticks.append(time.monotonic())
+            await anyio.sleep(0.05)
+
+    toolbox = MCPToolBox(client_transport=sse_client_transport)
+
+    with patch.object(runtime, "get_or_create_session", slow_get_or_create_session):
+        async with anyio.create_task_group() as tg:
+            tg.start_soon(heartbeat)
+            tools = await toolbox.get_tools_async()
+            tg.cancel_scope.cancel()  # stop the heartbeat once get_tools_async returns
+
+    assert len(tools) > 0, "get_tools_async must return tools"
+    assert len(heartbeat_ticks) >= 2, (
+        "Heartbeat should have ticked multiple times while session was being created, "
+        f"but only got {len(heartbeat_ticks)} tick(s) — the event loop was likely blocked"
+    )
+
+
+@pytest.mark.anyio
+async def test_async_mcp_tool_run_does_not_block_event_loop(
+    sse_client_transport, with_mcp_enabled
+):
+    """MCPTool.run_async() also offloads session creation to a worker thread.
+    Verify the event loop stays responsive during the call.
+    """
+    runtime = get_mcp_async_runtime()
+    original = runtime.get_or_create_session
+
+    def slow_get_or_create_session(transport):
+        time.sleep(0.5)
+        return original(transport)
+
+    heartbeat_ticks: list[float] = []
+
+    async def heartbeat():
+        for _ in range(20):
+            heartbeat_ticks.append(time.monotonic())
+            await anyio.sleep(0.05)
+
+    tool = MCPTool(name="fooza_tool", client_transport=sse_client_transport)
+
+    with patch.object(runtime, "get_or_create_session", slow_get_or_create_session):
+        async with anyio.create_task_group() as tg:
+            tg.start_soon(heartbeat)
+            result = await tool.run_async(a=1, b=2)
+            tg.cancel_scope.cancel()
+
+    assert result == "7"
+    assert len(heartbeat_ticks) >= 2, (
+        "Heartbeat should have ticked multiple times while run_async was in progress, "
+        f"but only got {len(heartbeat_ticks)} tick(s) — the event loop was likely blocked"
+    )
 
 
 @pytest.mark.anyio
