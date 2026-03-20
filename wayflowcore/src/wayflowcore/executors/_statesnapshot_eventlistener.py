@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import json
-import logging
 from contextlib import contextmanager
 from contextvars import ContextVar
 from typing import Any, Dict, Iterator, Optional, cast
@@ -45,8 +44,6 @@ from wayflowcore.serialization.conversation import (
     serialize_conversation_state,
 )
 from wayflowcore.tracing.span import AgentExecutionSpan, FlowExecutionSpan, get_current_span
-
-logger = logging.getLogger(__name__)
 
 _STATE_SNAPSHOT_RUNTIME = "wayflow"
 _STATE_SNAPSHOT_SCHEMA_VERSION = 1
@@ -163,34 +160,20 @@ def _build_extra_state(
     if state_snapshot_policy.extra_state_builder is None:
         return None
 
-    try:
-        extra_state = state_snapshot_policy.extra_state_builder(conversation)
-    except Exception:
-        logger.warning(
-            "Failed to build extra snapshot state for conversation '%s'",
-            conversation.conversation_id,
-            exc_info=True,
-        )
-        return None
-
+    extra_state = state_snapshot_policy.extra_state_builder(conversation)
     if extra_state is None:
         return None
     if not isinstance(extra_state, dict):
-        logger.warning(
-            "Expected extra snapshot state to be a dictionary for conversation '%s'",
-            conversation.conversation_id,
+        raise TypeError(
+            f"Expected extra snapshot state for conversation '{conversation.conversation_id}' to be a dictionary"
         )
-        return None
 
     try:
-        return cast(Dict[str, Any], json.loads(json.dumps(extra_state)))
-    except Exception:
-        logger.warning(
-            "Extra snapshot state is not JSON serializable for conversation '%s'",
-            conversation.conversation_id,
-            exc_info=True,
-        )
-        return None
+        return cast(Dict[str, Any], json.loads(json.dumps(extra_state, allow_nan=False)))
+    except (TypeError, ValueError) as exc:
+        raise TypeError(
+            f"Extra snapshot state for conversation '{conversation.conversation_id}' must be strict JSON-serializable"
+        ) from exc
 
 
 def _get_snapshot_policy_for_interval(
@@ -217,15 +200,7 @@ def _build_variable_state(
     if not state_snapshot_policy.include_variable_state:
         return None
 
-    try:
-        return dump_variable_state(conversation)
-    except Exception:
-        logger.warning(
-            "Failed to dump variable state for conversation '%s'",
-            conversation.conversation_id,
-            exc_info=True,
-        )
-        return None
+    return dump_variable_state(conversation)
 
 
 def _build_state_snapshot_payload(

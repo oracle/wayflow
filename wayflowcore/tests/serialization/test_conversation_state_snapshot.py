@@ -66,6 +66,24 @@ def _build_snapshot_flow(custom_variable: Variable) -> Flow:
     )
 
 
+def _build_non_finite_input_snapshot_flow() -> Flow:
+    return Flow.from_steps(
+        [
+            ToolExecutionStep(
+                tool=ServerTool(
+                    name="echo",
+                    description="Echo input",
+                    func=lambda bad: str(bad),
+                    input_descriptors=[AnyProperty(name="bad")],
+                    output_descriptors=[StringProperty(name="out")],
+                )
+            ),
+            CompleteStep(name="end"),
+        ],
+        name="non_finite_snapshot_flow",
+    )
+
+
 def _walk_scalars(value: Any):
     if isinstance(value, dict):
         for inner_value in value.values():
@@ -93,7 +111,7 @@ def test_dump_conversation_state_is_json_serializable_and_lightweight() -> None:
     serialized_conversation_state = serialize_conversation_state(conversation)
     deserialized_conversation_state = deserialize_conversation_state(serialized_conversation_state)
 
-    assert json.loads(json.dumps(snapshot)) == snapshot
+    assert json.loads(json.dumps(snapshot, allow_nan=False)) == snapshot
     assert deserialized_conversation_state["_component_type"] == conversation.__class__.__name__
     assert variable_state == {"custom": "custom-value"}
     assert snapshot["conversation"]["component_type"] == "Flow"
@@ -174,6 +192,27 @@ def test_dump_variable_state_rejects_non_json_serializable_values() -> None:
 
     with pytest.raises(TypeError, match="Variable 'custom' contains a non-JSON-serializable"):
         dump_variable_state(conversation)
+
+
+@pytest.mark.parametrize(
+    ("value", "expected_dumped_value"),
+    [
+        pytest.param(float("nan"), "NaN", id="nan"),
+        pytest.param(float("inf"), "Infinity", id="infinity"),
+        pytest.param(float("-inf"), "-Infinity", id="negative-infinity"),
+    ],
+)
+def test_dump_conversation_state_normalizes_non_finite_floats_for_strict_json(
+    value: float,
+    expected_dumped_value: str,
+) -> None:
+    flow = _build_non_finite_input_snapshot_flow()
+    conversation = flow.start_conversation(inputs={"bad": value})
+
+    snapshot = dump_conversation_state(conversation)
+
+    assert json.loads(json.dumps(snapshot, allow_nan=False)) == snapshot
+    assert snapshot["conversation"]["inputs"]["bad"] == expected_dumped_value
 
 
 def test_conversation_state_roundtrip_preserves_pending_tool_results() -> None:

@@ -4,6 +4,8 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import json
+
 import pytest
 from pyagentspec.tracing.events import FlowExecutionEnd as AgentSpecFlowExecutionEnd
 from pyagentspec.tracing.events import FlowExecutionStart as AgentSpecFlowExecutionStart
@@ -18,6 +20,7 @@ from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.flow import Flow
+from wayflowcore.property import AnyProperty
 from wayflowcore.steps import CompleteStep, OutputMessageStep, ToolExecutionStep
 from wayflowcore.tools import ServerTool
 
@@ -99,6 +102,46 @@ def test_flow_final_state_snapshot_is_visible_to_span_processors_inside_on_end()
     )
     assert isinstance(events_seen_at_end[-1], AgentSpecStateSnapshotEmitted)
     assert snapshot_message(events_seen_at_end[-1]) == "Hello"
+
+
+def test_flow_state_snapshots_normalize_non_finite_floats_before_agent_spec_export() -> None:
+    flow = Flow.from_steps(
+        [
+            ToolExecutionStep(
+                tool=ServerTool(
+                    name="echo",
+                    description="Echo input",
+                    func=lambda bad: str(bad),
+                    input_descriptors=[AnyProperty(name="bad")],
+                )
+            ),
+            CompleteStep(name="end"),
+        ]
+    )
+    conversation = flow.start_conversation(inputs={"bad": float("nan")})
+
+    status, span_recorder = execute_with_trace(
+        conversation,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS,
+            include_variable_state=False,
+        ),
+    )
+
+    assert isinstance(status, FinishedStatus)
+
+    flow_span = single_span(span_recorder, AgentSpecFlowExecutionSpan)
+    state_snapshot_events = events(flow_span, AgentSpecStateSnapshotEmitted)
+
+    assert len(state_snapshot_events) == 2
+    assert all(
+        event.state_snapshot["conversation"]["inputs"]["bad"] == "NaN"
+        for event in state_snapshot_events
+    )
+    assert all(
+        json.loads(json.dumps(event.state_snapshot, allow_nan=False)) == event.state_snapshot
+        for event in state_snapshot_events
+    )
 
 
 @pytest.mark.anyio

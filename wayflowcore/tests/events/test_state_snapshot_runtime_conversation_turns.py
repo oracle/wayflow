@@ -386,7 +386,9 @@ def test_conversation_turn_snapshot_payload_round_trips_through_json_like_run_ag
     assert isinstance(status, UserMessageRequestStatus)
     assert state_snapshot_events[-1].state_snapshot is not None
 
-    run_agent_input_state = json.loads(json.dumps(state_snapshot_events[-1].state_snapshot))
+    run_agent_input_state = json.loads(
+        json.dumps(state_snapshot_events[-1].state_snapshot, allow_nan=False)
+    )
     restored_conversation = restore_conversation_from_snapshot_payload(run_agent_input_state)
     restored_conversation.append_user_message("hello")
     resumed_status = restored_conversation.execute()

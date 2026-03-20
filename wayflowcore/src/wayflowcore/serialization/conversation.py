@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+import math
 import warnings
 from contextlib import contextmanager
 from datetime import datetime
@@ -65,8 +66,10 @@ def _dump_json_compatible_value(value: Any) -> Any:
     from wayflowcore.conversation import Conversation
 
     dumped_value: Any
-    if value is None or isinstance(value, (bool, int, float, str)):
+    if value is None or isinstance(value, (bool, int, str)):
         dumped_value = value
+    elif isinstance(value, float):
+        dumped_value = value if math.isfinite(value) else stringify(value)
     elif isinstance(value, bytes):
         dumped_value = value.decode("utf-8", errors="replace")
     elif isinstance(value, datetime):
@@ -296,7 +299,7 @@ def dump_conversation_state(
     status_handled: object = _UNSET,
 ) -> dict[str, Any]:
     """
-    Return a JSON-serializable runtime snapshot of a conversation.
+    Return a strict-JSON-serializable runtime snapshot of a conversation.
 
     The returned dictionary is a lightweight inspection/tracing view. It captures
     the user-visible conversation state and the runtime execution state without
@@ -530,7 +533,7 @@ def deserialize_conversation(
 
 def dump_variable_state(conversation: "Conversation") -> Optional[dict[str, Any]]:
     """
-    Return the JSON-serializable runtime-owned variable state for a conversation.
+    Return the strict-JSON-serializable runtime-owned variable state for a conversation.
 
     Only flow conversations expose runtime variable storage. For other
     conversation types, this returns ``None``.
@@ -543,7 +546,7 @@ def dump_variable_state(conversation: "Conversation") -> Optional[dict[str, Any]
     Returns
     -------
     dict[str, Any] | None
-        JSON-compatible mapping of variable names to values for flow
+        Strict-JSON-compatible mapping of variable names to values for flow
         conversations, otherwise ``None``.
 
     Raises
