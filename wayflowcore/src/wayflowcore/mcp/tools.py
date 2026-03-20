@@ -7,6 +7,7 @@ import logging
 from dataclasses import InitVar, dataclass, field
 from typing import Any, Dict, List, Optional, Sequence, Union
 
+from anyio import to_thread
 from mcp import ClientSession
 
 from wayflowcore._metadata import MetadataType
@@ -122,7 +123,10 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
     async def run_async(self, *args: Any, **kwargs: Any) -> Any:
         """Runs the MCP tool in an asynchronous manner."""
         mcp_runtime = get_mcp_async_runtime()
-        session = mcp_runtime.get_or_create_session(self.client_transport)
+        # Offload to worker thread so the event loop does not block when creating sessions.
+        session = await to_thread.run_sync(
+            lambda: mcp_runtime.get_or_create_session(self.client_transport)
+        )
 
         return await mcp_runtime.call_async(
             _invoke_mcp_tool_call_async, session, self.name, kwargs, self.output_descriptors
@@ -236,8 +240,10 @@ class MCPToolBox(ToolBox, DataclassComponent):
 
     async def _get_tools_inner_async(self) -> Sequence[ServerTool]:
         mcp_runtime = get_mcp_async_runtime()
-        # 1. Ensure session is created (from the portal)
-        session = mcp_runtime.get_or_create_session(self.client_transport)
+        # 1. Ensure session is created (from the portal), offloaded to a worker thread.
+        session = await to_thread.run_sync(
+            lambda: mcp_runtime.get_or_create_session(self.client_transport)
+        )
 
         # 2. Perform the call (from the portal)
         return await mcp_runtime.call_async(self._get_tools_async_impl, session)
