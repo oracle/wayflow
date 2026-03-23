@@ -94,7 +94,7 @@ Documentation of the package lives in another folder `../docs/wayflowcore/source
 ### Python & Dependencies
 - Python 3.10–3.13 supported (see `setup.py`, `tox.ini`).
 - Dependency pins in `constraints/constraints*.txt` (runtime + dev).
-- `requirements-dev.txt` installs testing extras (starlette, uvicorn, litellm, google-adk[a2a], cryptography, etc.).
+- `requirements-dev.txt` installs testing extras (fastapi, uvicorn, litellm, google-adk[a2a], cryptography, etc.).
 - Installation scripts (`install-dev.sh`, `install.sh`) rely on pip; **do not introduce `uv`**.
 
 ### Formatting & Linting

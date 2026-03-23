@@ -65,7 +65,6 @@ setup(
         "pydantic>=2.7.4,<3.0.0",
         "mcp>=1.24.0,<1.25.0",
         "anyio>=4.10.0,<4.12.0",
-        "starlette>=0.49.1",
         "typing_extensions>=4.12.2",
         "exceptiongroup>=1.0.2",
         "uvicorn>=0.23.1",

@@ -19,6 +19,13 @@ New features
   Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
   You can now declare your agents with summarization transforms and summary caching in Agent Spec and run them in WayFlow.
 
+Improvements
+^^^^^^^^^^^^
+
+* **Removed ``starlette`` from third party dependencies**
+
+  Direct ``starlette`` imports were removed in favor of FastAPI equivalent alternatives, so ``wayflowcore`` no longer
+  relies on ``starlette`` as a direct, third party dependency.
 
 Documentation
 ^^^^^^^^^^^^^
@@ -62,7 +69,8 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
-* Fix: conversations no longer replay already-materialized tool results when resuming manager-worker executions, which could previously duplicate internal `send_message` results and break continued execution after serialization.
+* Fix: conversations no longer replay already-materialized tool results when resuming manager-worker executions,
+  which could previously duplicate internal `send_message` results and break continued execution after serialization.
 
 WayFlow 26.1.1
 --------------
