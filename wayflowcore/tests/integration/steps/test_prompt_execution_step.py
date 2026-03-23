@@ -19,6 +19,7 @@ from wayflowcore.flowhelpers import (
     _run_single_step_to_finish,
     run_step_and_return_outputs,
 )
+from wayflowcore.messagelist import TextContent, TextTokenLogProb
 from wayflowcore.models import LlmCompletion
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import Prompt
@@ -42,6 +43,7 @@ from wayflowcore.templates.structuredgeneration import (
     adapt_prompt_template_for_json_structured_generation,
 )
 
+from ...testhelpers.dummy import DummyModel
 from ...testhelpers.flowscriptrunner import FlowScript, FlowScriptInteraction, FlowScriptRunner
 from ...testhelpers.patching import patch_llm
 from ...testhelpers.testhelpers import retry_test
@@ -59,6 +61,18 @@ def run_conversation(assistant: Flow, user_inputs: List[str]) -> None:
     )
     runner = FlowScriptRunner(assistants=[assistant], flow_scripts=[script])
     runner.execute(raise_exceptions=True)
+
+
+def _message_with_logprobs(content: str = "hi") -> Message:
+    return Message(
+        message_type=MessageType.AGENT,
+        contents=[
+            TextContent(
+                content=content,
+                logprobs=[TextTokenLogProb(token=content, logprob=-0.01)],
+            )
+        ],
+    )
 
 
 def test_basic_generation() -> None:
@@ -828,6 +842,72 @@ def test_prompt_execution_step_adds_logprobs_output_when_enabled(remotely_hosted
     assert outputs[PromptExecutionStep.LOGPROBS]
 
 
+def test_prompt_execution_step_uses_generation_config_top_logprobs_with_patch_llm(
+    remotely_hosted_llm,
+) -> None:
+    step = PromptExecutionStep(
+        prompt_template="Say hi",
+        llm=remotely_hosted_llm,
+        generation_config=LlmGenerationConfig(top_logprobs=2),
+    )
+
+    output_names = [d.name for d in step.output_descriptors]
+    assert PromptExecutionStep.OUTPUT in output_names
+    assert PromptExecutionStep.LOGPROBS in output_names
+
+    with patch_llm(remotely_hosted_llm, outputs=[_message_with_logprobs()]):
+        outputs = run_step_and_return_outputs(step)
+    assert outputs[PromptExecutionStep.OUTPUT] == "hi"
+    assert outputs[PromptExecutionStep.LOGPROBS]
+
+
+def test_prompt_execution_step_adds_logprobs_to_custom_string_output(
+    remotely_hosted_llm,
+) -> None:
+    step = PromptExecutionStep(
+        prompt_template="Say hi",
+        llm=remotely_hosted_llm,
+        top_logprobs=2,
+        output_descriptors=[StringProperty(name="result")],
+    )
+
+    output_names = [d.name for d in step.output_descriptors]
+    assert output_names == ["result", PromptExecutionStep.LOGPROBS]
+
+    with patch_llm(remotely_hosted_llm, outputs=[_message_with_logprobs()]):
+        outputs = run_step_and_return_outputs(step)
+    assert outputs["result"] == "hi"
+    assert outputs[PromptExecutionStep.LOGPROBS]
+
+
+def test_prompt_execution_step_merges_top_logprobs_for_prompt_template(
+    remotely_hosted_llm,
+) -> None:
+    step = PromptExecutionStep(
+        prompt_template=PromptTemplate.from_string("Say hi"),
+        llm=remotely_hosted_llm,
+        top_logprobs=2,
+    )
+
+    assert step.prepared_template.generation_config is not None
+    assert step.prepared_template.generation_config.top_logprobs == 2
+    assert PromptExecutionStep.LOGPROBS in [d.name for d in step.output_descriptors]
+
+
+def test_prompt_execution_step_raises_if_logprobs_are_requested_but_missing(
+    remotely_hosted_llm,
+) -> None:
+    step = PromptExecutionStep(
+        prompt_template="Say hi",
+        llm=remotely_hosted_llm,
+        top_logprobs=2,
+    )
+
+    with patch_llm(remotely_hosted_llm, outputs=["hi"]):
+        with pytest.raises(ValueError, match="did not return logprobs"):
+            run_step_and_return_outputs(step)
+
+
 def test_prompt_execution_step_top_logprobs_not_allowed_with_structured_output(
     remotely_hosted_llm,
 ) -> None:
@@ -838,5 +918,19 @@ def test_prompt_execution_step_top_logprobs_not_allowed_with_structured_output(
             prompt_template="Say hi",
             llm=remotely_hosted_llm,
             top_logprobs=2,
+            output_descriptors=[BooleanProperty(name="x")],
+        )
+
+
+def test_prompt_execution_step_generation_config_top_logprobs_not_allowed_with_structured_output(
+    remotely_hosted_llm,
+) -> None:
+    with pytest.raises(
+        ValueError, match="top_logprobs is not supported with structured generation"
+    ):
+        PromptExecutionStep(
+            prompt_template="Say hi",
+            llm=remotely_hosted_llm,
+            generation_config=LlmGenerationConfig(top_logprobs=2),
             output_descriptors=[BooleanProperty(name="x")],
         )

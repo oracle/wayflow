@@ -1211,6 +1211,11 @@ _UNSUPPORTED_ARGUMENT_PATTERNS = [
     "does not support parameter",
 ]
 
+_UNSUPPORTED_ARGUMENT_ALIASES = {
+    "max_tokens": ["max_tokens", "max_completion_tokens"],
+    "top_logprobs": ["top_logprobs", "log_probs"],
+}
+
 
 def _adapt_generation_config_with_error_message(
     generation_config: LlmGenerationConfig, error_message: str
@@ -1219,11 +1224,16 @@ def _adapt_generation_config_with_error_message(
     new_generation_parameters = generation_config.to_dict()
 
     params_to_remove = []
-    for param_name, param_value in new_generation_parameters.items():
-        if any(
-            pattern.format(param_name=param_name) in error_message
-            for pattern in _UNSUPPORTED_ARGUMENT_PATTERNS_WITH_NAMES
-        ):
+    for param_name in new_generation_parameters:
+        if _unsupported_error_mentions_parameter(error_message, param_name):
+            if param_name == "top_logprobs":
+                warning_message = (
+                    "The OCI GenAI endpoint does not support returning logprobs although "
+                    "`top_logprobs` was requested. The step will fail instead of retrying "
+                    f"without logprobs. Full error message: {error_message}"
+                )
+                logger.warning(warning_message)
+                raise ValueError(warning_message)
             logger.warning(
                 f"Parameter `{param_name}` is not supported by the OCI GenAI endpoint."
                 f"Careful, the behavior of the agentic system might be impacted by not using this parameter."
@@ -1235,3 +1245,12 @@ def _adapt_generation_config_with_error_message(
         new_generation_parameters.pop(param_to_remove)
 
     return LlmGenerationConfig.from_dict(new_generation_parameters)
+
+
+def _unsupported_error_mentions_parameter(error_message: str, param_name: str) -> bool:
+    param_names = _UNSUPPORTED_ARGUMENT_ALIASES.get(param_name, [param_name])
+    return any(
+        pattern.format(param_name=candidate_name) in error_message
+        for candidate_name in param_names
+        for pattern in _UNSUPPORTED_ARGUMENT_PATTERNS_WITH_NAMES
+    )
