@@ -31,6 +31,7 @@ from wayflowcore.models._requesthelpers import RetryingAsyncClient, request_post
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import LlmModel, Prompt
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
+from wayflowcore.models.ocigenaimodel import _adapt_generation_config_with_error_message
 from wayflowcore.models.openaicompatiblemodel import OpenAICompatibleModel
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import (
@@ -2127,3 +2128,16 @@ def test_hosted_llm_can_return_logprobs_if_supported(llm_config):
     assert text_chunk.logprobs is not None
     assert len(text_chunk.logprobs) > 0
     assert isinstance(text_chunk.logprobs[0], TextTokenLogProb)
+
+
+def test_unsupported_oci_top_logprobs_raise_instead_of_retrying(caplog) -> None:
+    generation_config = LlmGenerationConfig(top_logprobs=2, max_tokens=16)
+
+    with caplog.at_level(logging.WARNING):
+        with pytest.raises(ValueError, match="does not support returning logprobs"):
+            _adapt_generation_config_with_error_message(
+                generation_config=generation_config,
+                error_message="Unsupported parameter: 'log_probs'",
+            )
+
+    assert any("does not support returning logprobs" in record.message for record in caplog.records)

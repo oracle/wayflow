@@ -204,7 +204,12 @@ class PromptExecutionStep(Step):
         self.generation_config = generation_config
         self.structured_generation_mode = _structured_generation_mode
         self.top_logprobs = top_logprobs
+        self._requested_top_logprobs = _get_requested_top_logprobs(
+            generation_config=self.generation_config,
+            top_logprobs=self.top_logprobs,
+        )
         self.send_message = send_message
+        self._ensure_logprob_output_is_exposed()
         self.prepared_template, self.use_structured_generation = self._build_template(
             output_descriptors
         )
@@ -297,17 +302,15 @@ class PromptExecutionStep(Step):
                     raise ValueError(
                         f"Structured_generation_mode not supported: {self.structured_generation_mode}"
                     )
-            # if top_logprobs, we add it to generation config
-            current_generation_config = self.generation_config
-            if self.top_logprobs is not None:
-                top_logprob_config = LlmGenerationConfig(top_logprobs=self.top_logprobs)
-
-                current_generation_config = (
-                    current_generation_config.merge_config(top_logprob_config)
-                    if current_generation_config
-                    else top_logprob_config
-                )
-            built_template = built_template.with_generation_config(current_generation_config)
+        current_generation_config = self.generation_config
+        if self._requested_top_logprobs is not None:
+            top_logprob_config = LlmGenerationConfig(top_logprobs=self._requested_top_logprobs)
+            current_generation_config = (
+                current_generation_config.merge_config(top_logprob_config)
+                if current_generation_config
+                else top_logprob_config
+            )
+        built_template = built_template.with_generation_config(current_generation_config)
         return built_template, use_structured_generation
 
     @classmethod
@@ -323,6 +326,7 @@ class PromptExecutionStep(Step):
             "llm": LlmModel,
             "generation_config": Optional[LlmGenerationConfig],
             "send_message": bool,
+            "top_logprobs": Optional[int],
         }
 
     @classmethod
@@ -359,6 +363,7 @@ class PromptExecutionStep(Step):
         send_message: bool,
         top_logprobs: Optional[int] = None,
     ) -> List[Property]:
+        requested_top_logprobs = _get_requested_top_logprobs(generation_config, top_logprobs)
 
         # case 1: the template is defined, the output descriptors need to match
         if (
@@ -366,7 +371,7 @@ class PromptExecutionStep(Step):
             and prompt_template.response_format is not None
         ):
             template_output_descriptors = [prompt_template.response_format]
-            if top_logprobs is not None:
+            if requested_top_logprobs is not None:
                 raise ValueError("top_logprobs is not supported with structured generation")
 
             if output_descriptors is not None and output_descriptors != template_output_descriptors:
@@ -377,10 +382,12 @@ class PromptExecutionStep(Step):
 
         # case 2: string prompt template, but output_descriptors are set
         if output_descriptors is not None and len(output_descriptors) > 0:
-            if top_logprobs is not None and (
-                len(output_descriptors) > 1 or not isinstance(output_descriptors[0], StringProperty)
+            if requested_top_logprobs is not None and _uses_structured_generation_output(
+                output_descriptors
             ):
                 raise ValueError("top_logprobs is not supported with structured generation")
+            if requested_top_logprobs is not None:
+                return _append_logprob_output(output_descriptors)
             return output_descriptors
 
         # case 3: simple string generation
@@ -390,10 +397,8 @@ class PromptExecutionStep(Step):
                 description="the generated text",
             )
         ]
-        if (
-            generation_config is not None and generation_config.top_logprobs is not None
-        ) or top_logprobs is not None:
-            descriptors.append(_get_logprob_property())
+        if requested_top_logprobs is not None:
+            descriptors = _append_logprob_output(descriptors)
         return descriptors
 
     async def _invoke_step_async(
@@ -474,13 +479,23 @@ class PromptExecutionStep(Step):
             # case 3: no structured generation, just putting the raw string under the right output name
             outputs = {self._internal_output_descriptors[0].name: new_message.content}
 
-            if self.top_logprobs is not None:
+            if _has_logprob_output(self._internal_output_descriptors):
                 text_chunk = next(
                     (c for c in new_message.contents if isinstance(c, TextContent)),
                     None,
                 )
-                if text_chunk is not None and text_chunk.logprobs is not None:
-                    outputs[self.LOGPROBS] = text_chunk.logprobs
+                if (
+                    text_chunk is None
+                    or text_chunk.logprobs is None
+                    or (text_chunk.content != "" and len(text_chunk.logprobs) == 0)
+                ):
+                    warning_message = (
+                        "The LLM did not return logprobs although `top_logprobs` was requested. "
+                        "The model may not support returning logprobs."
+                    )
+                    logger.warning(warning_message)
+                    raise ValueError(warning_message)
+                outputs[self.LOGPROBS] = text_chunk.logprobs
         return outputs, branch_name
 
     @staticmethod
@@ -542,10 +557,58 @@ class PromptExecutionStep(Step):
 
         return all_tools
 
+    def _ensure_logprob_output_is_exposed(self) -> None:
+        if not _has_logprob_output(self._internal_output_descriptors):
+            return
 
-def _get_logprob_property() -> Property:
+        external_logprob_name = self.output_mapping.get(self.LOGPROBS, self.LOGPROBS)
+        if any(
+            output_descriptor.name == external_logprob_name
+            for output_descriptor in self.output_descriptors
+        ):
+            return
+
+        self.output_descriptors = [
+            *self.output_descriptors,
+            _get_logprob_property(name=external_logprob_name),
+        ]
+
+
+def _get_logprob_property(name: str = PromptExecutionStep.LOGPROBS) -> Property:
     return ListProperty(
-        name=PromptExecutionStep.LOGPROBS,
+        name=name,
         description="token-level log probabilities for the generated text",
         item_type=AnyProperty(),
+    )
+
+
+def _get_requested_top_logprobs(
+    generation_config: Optional[LlmGenerationConfig],
+    top_logprobs: Optional[int],
+) -> Optional[int]:
+    if top_logprobs is not None:
+        return top_logprobs
+    if generation_config is not None:
+        return generation_config.top_logprobs
+    return None
+
+
+def _append_logprob_output(output_descriptors: List[Property]) -> List[Property]:
+    if _has_logprob_output(output_descriptors):
+        return [*output_descriptors]
+    return [*output_descriptors, _get_logprob_property()]
+
+
+def _has_logprob_output(output_descriptors: List[Property]) -> bool:
+    return any(
+        output_descriptor.name == PromptExecutionStep.LOGPROBS
+        for output_descriptor in output_descriptors
+    )
+
+
+def _uses_structured_generation_output(output_descriptors: List[Property]) -> bool:
+    return not (
+        len(output_descriptors) == 1
+        and isinstance(output_descriptors[0], StringProperty)
+        and output_descriptors[0].enum is None
     )
