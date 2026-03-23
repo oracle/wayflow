@@ -159,7 +159,7 @@ class AsyncRuntime(metaclass=Singleton):
         self._portal: Optional[from_thread.BlockingPortal] = None
         self._closed = False
         self._exit_stack = ExitStack()
-        # sessions/handlers are stored in dict[transport_id, dict[conv_id, ...]]
+        # sessions/handlers are stored in dict[transport_id, dict[conversation_id, ...]]
         self._client_sessions: dict[str, dict[str, ClientSession]] = {}
         self._oauth_handlers: dict[str, dict[str, "OAuthFlowHandler"]] = {}
         self._memory_streams: List[MemoryStreamTypeT] = []
@@ -246,9 +246,7 @@ class AsyncRuntime(metaclass=Singleton):
         # transports can proceed in parallel, while concurrent creation for
         # the same transport is serialized to prevent duplicate sessions.
         with self._lock:
-            transport_lock = self._transport_locks.setdefault(
-                client_transport.id, threading.Lock()
-            )
+            transport_lock = self._transport_locks.setdefault(client_transport.id, threading.Lock())
         with transport_lock:
             sessions_by_transport = self._client_sessions.setdefault(client_transport.id, {})
             if conversation_id in sessions_by_transport:

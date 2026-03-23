@@ -18,6 +18,7 @@ from wayflowcore.serialization.serializer import SerializableDataclassMixin, Ser
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.conversation import Conversation
 
 
@@ -102,6 +103,11 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, Message, List[Message], MessageList] = None,
+        conversation_id: Optional[str] = None,
+        *,
+        root_conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
     ) -> "Conversation":
         """
         Initializes a conversation with the agent.
@@ -126,8 +132,20 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             _init_oci_agent_session,
         )
 
+        if any(value is not None for value in (checkpointer, checkpoint_id)):
+            raise NotImplementedError("`OciAgent` checkpoint restore is not supported yet.")
+
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
+
+        conversation_runtime_id, conversation_root_id = (
+            self._resolve_runtime_and_root_conversation_ids(
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=None,
+                restored_conversation_id=None,
+            )
+        )
 
         _client = _init_oci_agent_client(self)
 
@@ -141,7 +159,9 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             inputs=inputs or {},
             message_list=messages,
             status=None,
-            conversation_id=IdGenerator.get_or_generate_id(None),
+            id=conversation_runtime_id,
+            conversation_id=conversation_runtime_id,
+            root_conversation_id=conversation_root_id,
             name="oci_conversation",
             __metadata_info__={},
         )

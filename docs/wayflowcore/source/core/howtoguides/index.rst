@@ -104,6 +104,7 @@ These guides demonstrate how to configure the components of assistants built wit
    :maxdepth: 1
 
    Load and Execute an Agent Spec Configuration <howto_execute_agentspec_with_wayflowcore>
+   Checkpoint and Resume Conversations <howto_checkpointing>
    Serialize and Deserialize Flows and Agents <howto_serdeser>
    Serialize and Deserialize Conversations <howto_serialize_conversations>
    Build a New WayFlow Component <howto_plugins>

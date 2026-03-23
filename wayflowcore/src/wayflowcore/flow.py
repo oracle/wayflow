@@ -22,9 +22,11 @@ from typing import (
     Tuple,
     TypeGuard,
     Union,
+    cast,
 )
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.checkpointing.runtime import _attach_checkpointer_to_conversation
 from wayflowcore.contextproviders import ContextProvider
 from wayflowcore.contextproviders.toolcontextprovider import (
     _convert_context_provider_dict_to_tool_provider,
@@ -45,6 +47,7 @@ from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.executors._flowconversation import FlowConversation
     from wayflowcore.executors._flowexecutor import _IoKeyType
     from wayflowcore.messagelist import Message
@@ -1166,6 +1169,10 @@ class Flow(ConversationalComponent, SerializableObject):
         conversation_id: Optional[str] = None,
         nesting_level: int = 0,
         context_providers_from_parent_flow: Optional[Set[str]] = None,
+        *,
+        root_conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
     ) -> "FlowConversation":
         """
         Start the conversation.
@@ -1176,9 +1183,11 @@ class Flow(ConversationalComponent, SerializableObject):
             Dictionary of inputs. Keys are the variable identifiers and
             values are the actual inputs to start the conversation.
         conversation_id:
-            Conversation id of the parent conversation.
+            Conversation id of the conversation.
         messages:
             List of messages (``MessageList`` object) before starting the conversation.
+        root_conversation_id:
+            Root conversation id used to group nested conversations under the same lineage.
         context_providers_from_parent_flow:
             Context provider that don't need to be checked when validating existing inputs.
         nesting_level:
@@ -1193,12 +1202,34 @@ class Flow(ConversationalComponent, SerializableObject):
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.executors._flowconversation import FlowConversation
 
+        restored_conversation, restored_conversation_id = (
+            self._restore_or_prepare_checkpoint_conversation(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+            )
+        )
+        if restored_conversation is not None:
+            return cast("FlowConversation", restored_conversation)
+
         context_providers_from_parent_flow = context_providers_from_parent_flow or set()
         if inputs is None:
             inputs = {}
 
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
+
+        conversation_runtime_id, conversation_root_id = (
+            self._resolve_runtime_and_root_conversation_ids(
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=checkpointer,
+                restored_conversation_id=restored_conversation_id,
+            )
+        )
 
         # Check that there is no missing input value to start the flow execution
         for input_name, input_descriptor in self.input_descriptors_dict.items():
@@ -1242,7 +1273,7 @@ class Flow(ConversationalComponent, SerializableObject):
                 conversational_component=self,
                 inputs=inputs,
                 messages=messages,
-                conversation_id=conversation_id,
+                conversation_id=conversation_runtime_id,
                 nesting_level=nesting_level,
             )
         )
@@ -1271,15 +1302,21 @@ class Flow(ConversationalComponent, SerializableObject):
             nesting_level=nesting_level,
         )
 
-        return FlowConversation(
+        conversation = FlowConversation(
             component=self,
             inputs=inputs,
-            conversation_id=IdGenerator.get_or_generate_id(conversation_id),
+            id=conversation_runtime_id,
+            conversation_id=conversation_runtime_id,
+            root_conversation_id=conversation_root_id,
             message_list=messages,
             __metadata_info__={},
             status=None,
             name="flow_conversation",
             state=state,
+        )
+        return cast(
+            "FlowConversation",
+            _attach_checkpointer_to_conversation(conversation, checkpointer=checkpointer),
         )
 
     @property
