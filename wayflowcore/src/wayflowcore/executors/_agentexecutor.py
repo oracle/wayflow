@@ -347,9 +347,20 @@ class AgentConversationExecutor(ConversationExecutor):
         if len(tool_requests) > 1 and any(
             tr.name in _NON_PARALLEL_TOOL_NAMES for tr in tool_requests
         ):
-            new_message.tool_requests = [
-                tr for tr in new_message.tool_requests if tr.name not in _NON_PARALLEL_TOOL_NAMES
-            ]
+            if all(tr.name in _NON_PARALLEL_TOOL_NAMES for tr in tool_requests):
+                # we have several mnon-parallel tool calls. We'll use the first and drop the rest
+                new_message.tool_requests = new_message.tool_requests[:1]
+            else:
+                logger.warning(
+                    "The LLM tries to call tools and answer to the user. The tools "
+                    "will be run and the LLM will be re-prompted for its answer to "
+                    "the user."
+                )
+                new_message.tool_requests = [
+                    tr
+                    for tr in new_message.tool_requests
+                    if tr.name not in _NON_PARALLEL_TOOL_NAMES
+                ]
 
         state.tool_call_queue.extend(new_message.tool_requests)
         return False

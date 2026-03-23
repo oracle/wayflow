@@ -3,6 +3,9 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+from collections import Counter
+from copy import deepcopy
+
 import pytest
 
 from wayflowcore.agent import Agent
@@ -11,14 +14,18 @@ from wayflowcore.executors._managerworkersconversation import (
     ManagerWorkersConversation,
     ManagerWorkersConversationExecutionState,
 )
+from wayflowcore.executors.executionstatus import UserMessageRequestStatus
 from wayflowcore.flow import Flow
 from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.models import LlmModel
+from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.serialization import deserialize, serialize, serialize_to_dict
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep
+from wayflowcore.tools import ToolRequest
 
-from ..conftest import _assert_config_are_equal
+from ..conftest import GEMMA_CONFIG, VLLM_MODEL_CONFIG, _assert_config_are_equal
 from ..test_managerworkers import simple_math_agents_example  # noqa
+from ..testhelpers.patching import patch_llm
 from .test_conversation_serialization import (
     assert_agent_conversations_are_equal,
     assert_flow_conversations_are_equal,
@@ -124,6 +131,16 @@ def assert_managerworkers_conversations_are_equal(
     assert old_conv.__metadata_info__ == new_conv.__metadata_info__
 
 
+def _get_main_subconversation_tool_result_counts(
+    conversation: ManagerWorkersConversation,
+) -> Counter:
+    return Counter(
+        message.tool_result.tool_request_id
+        for message in conversation._get_main_subconversation().get_messages()
+        if message.tool_result is not None
+    )
+
+
 def test_can_serialize_simple_managerworkers(simple_managerworkers: ManagerWorkers):
     serialized_managerworkers = serialize(simple_managerworkers)
     assert isinstance(serialized_managerworkers, str)
@@ -183,6 +200,89 @@ def test_can_continue_a_deserialized_conversation(simple_managerworkers: Manager
     assert len(deser_conv.get_messages()) == conv_length_before
     deser_conv.append_user_message("Hello")
     deser_conv.execute()
+
+
+def test_deserialized_conversation_does_not_duplicate_internal_tool_results() -> None:
+    manager_llm = LlmModelFactory.from_config(deepcopy(VLLM_MODEL_CONFIG))
+    addition_llm = LlmModelFactory.from_config(deepcopy(GEMMA_CONFIG))
+    multiplication_llm = LlmModelFactory.from_config(deepcopy(GEMMA_CONFIG))
+
+    addition_agent = Agent(
+        name="addition_agent",
+        description="Agent that can do additions",
+        llm=addition_llm,
+        custom_instruction="You can do additions. Please use your tools if available",
+    )
+    multiplication_agent = Agent(
+        name="multiplication_agent",
+        description="Agent that can do multiplication",
+        llm=multiplication_llm,
+        custom_instruction="You can do multiplication.Please use your tools if available.",
+    )
+    managerworkers = ManagerWorkers(
+        workers=[addition_agent, multiplication_agent],
+        group_manager=manager_llm,
+    )
+
+    manager_tool_requests = [
+        ToolRequest(
+            name="send_message",
+            args={
+                "message": "Please help with an addition request.",
+                "recipient": addition_agent.name,
+            },
+            tool_request_id="send_message_addition",
+        ),
+        ToolRequest(
+            name="send_message",
+            args={
+                "message": "Please help with a multiplication request.",
+                "recipient": multiplication_agent.name,
+            },
+            tool_request_id="send_message_multiplication",
+        ),
+    ]
+
+    with (
+        patch_llm(
+            manager_llm,
+            outputs=[manager_tool_requests, "What calculation do you need performed?"],
+        ),
+        patch_llm(addition_llm, outputs=["Addition worker ready."]),
+        patch_llm(multiplication_llm, outputs=["Multiplication worker ready."]),
+    ):
+        conversation = managerworkers.start_conversation()
+        conversation.append_user_message("Hello")
+        status = conversation.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+
+    expected_tool_results = Counter(
+        {
+            "send_message_addition": 1,
+            "send_message_multiplication": 1,
+        }
+    )
+    assert _get_main_subconversation_tool_result_counts(conversation) == expected_tool_results
+
+    deserialized_conversation = deserialize(
+        ManagerWorkersConversation,
+        serialize(conversation),
+    )
+
+    assert (
+        _get_main_subconversation_tool_result_counts(deserialized_conversation)
+        == expected_tool_results
+    )
+
+    with patch_llm(
+        deserialized_conversation.component.manager_agent.llm,
+        outputs=["I can continue from here."],
+    ):
+        deserialized_conversation.append_user_message("Please continue")
+        status = deserialized_conversation.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
 
 
 def test_can_serialize_simple_managerworkers_in_flow(simple_managerworkers_in_flow: Flow):

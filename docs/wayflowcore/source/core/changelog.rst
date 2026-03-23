@@ -62,6 +62,8 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+* Fix: conversations no longer replay already-materialized tool results when resuming manager-worker executions, which could previously duplicate internal `send_message` results and break continued execution after serialization.
+
 WayFlow 26.1.1
 --------------
 
