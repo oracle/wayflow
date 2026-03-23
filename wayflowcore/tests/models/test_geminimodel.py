@@ -33,7 +33,6 @@ from wayflowcore.models.geminimodel import (
     GeminiApiKeyAuth,
     GeminiCloudAuth,
     GeminiModel,
-    _LiteLLMStreamAccumulator,
 )
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import Prompt
@@ -213,6 +212,41 @@ def test_geminimodel_build_request_accepts_vertex_credentials_dict() -> None:
     assert request["vertex_credentials"]["private_key"] == "line1\nline2"
 
 
+def test_geminimodel_build_request_accepts_vertex_credentials_json_string() -> None:
+    llm = GeminiModel(
+        model_id="gemini-2.0-flash-lite",
+        auth=GeminiCloudAuth(
+            project_id="project-id",
+            location="global",
+            vertex_credentials=json.dumps(
+                {
+                    "type": "service_account",
+                    "private_key": "line1\\nline2",
+                }
+            ),
+        ),
+    )
+
+    request = llm._build_litellm_request(
+        Prompt(messages=[Message(role="user", content="Hello")]),
+        stream=False,
+    )
+
+    assert request["vertex_project"] == "project-id"
+    assert request["vertex_location"] == "global"
+    assert request["model"] == "vertex_ai/gemini-2.0-flash-lite"
+    assert request["vertex_credentials"]["private_key"] == "line1\nline2"
+
+
+def test_litellm_testhelpers_read_vertex_project_id_from_inline_json(monkeypatch) -> None:
+    monkeypatch.setenv("VERTEX_CREDENTIALS", json.dumps({"project_id": "project-id"}))
+
+    assert litellm_testhelpers.get_vertex_credentials_dict() == {"project_id": "project-id"}
+    assert litellm_testhelpers._get_vertex_project_id_from_service_account_credentials() == (
+        "project-id"
+    )
+
+
 def test_geminicloudauth_defaults_to_global_location() -> None:
     assert GeminiCloudAuth().location == "global"
 
@@ -271,7 +305,7 @@ def test_geminimodel_preserves_message_extra_content_without_wrapping() -> None:
         ],
     )
 
-    message = llm._litellm_response_to_message(response)
+    message = llm._litellm_adapter.litellm_response_to_wayflow_message(response)
 
     assert message.content == "hello"
     assert message._extra_content == {"foo": "bar"}
@@ -279,7 +313,7 @@ def test_geminimodel_preserves_message_extra_content_without_wrapping() -> None:
 
 def test_geminimodel_streaming_reconstructs_partial_tool_call_deltas() -> None:
     llm = GeminiModel(model_id="gemini-2.5-flash", auth=GeminiApiKeyAuth())
-    accumulator = _LiteLLMStreamAccumulator()
+    stream_state = llm._litellm_adapter.new_stream_state()
     first_function = Function(name="tool_g", arguments='{"echo')
     second_function = Function(name="reet", arguments='_text": "hello"}')
 
@@ -315,9 +349,9 @@ def test_geminimodel_streaming_reconstructs_partial_tool_call_deltas() -> None:
         ]
     )
 
-    accumulator.ingest_chunk(llm, first_chunk)
-    accumulator.ingest_chunk(llm, second_chunk)
-    message = accumulator.build_final_message()
+    llm._litellm_adapter.ingest_litellm_stream_chunk(stream_state, first_chunk)
+    llm._litellm_adapter.ingest_litellm_stream_chunk(stream_state, second_chunk)
+    message = llm._litellm_adapter.stream_state_to_wayflow_message(stream_state)
 
     assert message.tool_requests is not None
     assert len(message.tool_requests) == 1
@@ -404,8 +438,8 @@ async def test_geminimodel_vertex_async(
     reason="Gemini Vertex-auth test credentials not set up",
 )
 def test_litellm_works_properly(litellm_thread_cleanup) -> None:
-    with open(os.environ["VERTEX_CREDENTIALS"], "r") as file:
-        vertex_credentials = json.load(file)
+    vertex_credentials = litellm_testhelpers.get_vertex_credentials_dict()
+    assert vertex_credentials is not None
     vertex_credentials_json = json.dumps(vertex_credentials)
     response = litellm.completion(
         model="vertex_ai/gemini-2.0-flash-lite",

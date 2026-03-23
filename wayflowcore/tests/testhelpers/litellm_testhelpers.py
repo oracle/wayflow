@@ -12,6 +12,7 @@ import os
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import Any
 
 os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
 
@@ -50,8 +51,6 @@ def _get_project_id_from_json_value(json_value: object) -> str | None:
 
 def _get_project_id_from_json_file(path: Path) -> str | None:
     """Extract a Google Cloud project id from a JSON file when present."""
-    if not path.exists():
-        return None
     try:
         with open(path, "r") as file:
             return _get_project_id_from_json_value(json.load(file))
@@ -59,21 +58,35 @@ def _get_project_id_from_json_file(path: Path) -> str | None:
         return None
 
 
-def _get_vertex_project_id_from_service_account_credentials() -> str | None:
-    """Read the project id from the configured Vertex service-account payload, when present."""
-    vertex_credentials_path = os.getenv("VERTEX_CREDENTIALS")
-    if not vertex_credentials_path:
-        return None
-
-    credentials_path = Path(vertex_credentials_path).expanduser()
-    project_id = _get_project_id_from_json_file(credentials_path)
-    if project_id is not None:
-        return project_id
+def _load_json_value_from_string_or_file(value: str) -> object | None:
+    """Decode JSON from an inline string or from a JSON file path."""
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError:
+        pass
 
     try:
-        return _get_project_id_from_json_value(json.loads(vertex_credentials_path))
-    except json.JSONDecodeError:
+        with open(Path(value).expanduser(), "r") as file:
+            return json.load(file)
+    except (OSError, json.JSONDecodeError):
         return None
+
+
+def get_vertex_credentials_dict() -> dict[str, Any] | None:
+    """Return ``VERTEX_CREDENTIALS`` as a decoded credentials dictionary when configured."""
+    vertex_credentials = _get_non_empty_env_var("VERTEX_CREDENTIALS")
+    if vertex_credentials is None:
+        return None
+
+    json_value = _load_json_value_from_string_or_file(vertex_credentials)
+    if isinstance(json_value, dict):
+        return dict(json_value)
+    return None
+
+
+def _get_vertex_project_id_from_service_account_credentials() -> str | None:
+    """Read the project id from the configured Vertex service-account payload, when present."""
+    return _get_project_id_from_json_value(get_vertex_credentials_dict())
 
 
 def _get_vertex_project_id_from_gcloud_config() -> str | None:
