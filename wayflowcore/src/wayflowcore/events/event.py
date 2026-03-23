@@ -795,6 +795,58 @@ class ConversationExecutionFinishedEvent(EndSpanEvent["ConversationSpan"]):
 
 
 @dataclass(frozen=True)
+class StateSnapshotEvent(Event):
+    """Event emitted by WayFlow when a conversation state snapshot is recorded.
+
+    ``conversation_id`` is the logical/public conversation id. When a snapshot is
+    present, ``state_snapshot["conversation"]["id"]`` identifies the runtime
+    conversation instance described by the payload. WayFlow-emitted payloads
+    include the authoritative serialized state in
+    ``state_snapshot["conversation_state"]`` only for the root conversation-turn
+    checkpoints owned by the conversation that began the current ``execute()`` /
+    ``execute_async()`` run. All snapshots keep
+    ``state_snapshot["conversation"]`` and ``state_snapshot["execution"]`` as
+    the lightweight inspection view. Nested child snapshots and internal
+    tool/node snapshots are primarily tracing checkpoints and may be filtered by
+    downstream bridges that need a single checkpoint owner per logical
+    conversation.
+    """
+
+    conversation_id: str = field(default_factory=_required_attribute("conversation_id", str))
+    state_snapshot: Optional[Dict[str, Any]] = None
+    extra_state: Optional[Dict[str, Any]] = None
+    variable_state: Optional[Dict[str, Any]] = None
+
+    def __post_init__(self) -> None:
+        if self.state_snapshot is None:
+            return
+        if not isinstance(self.state_snapshot, dict):
+            raise ValueError("state_snapshot must be a dictionary")
+
+        snapshot_conversation = self.state_snapshot.get("conversation")
+        if not isinstance(snapshot_conversation, dict):
+            raise ValueError("state_snapshot must contain a 'conversation' object")
+        if not isinstance(snapshot_conversation.get("id"), str):
+            raise ValueError("state_snapshot['conversation']['id'] must be a string")
+
+    def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
+        def _masked(value: Optional[Dict[str, Any]]) -> Any:
+            if value is None:
+                return None
+            if mask_sensitive_information:
+                return _PII_TEXT_MASK
+            return value
+
+        return {
+            **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
+            "conversation_id": self.conversation_id,
+            "state_snapshot": _masked(self.state_snapshot),
+            "extra_state": _masked(self.extra_state),
+            "variable_state": _masked(self.variable_state),
+        }
+
+
+@dataclass(frozen=True)
 class AgentNextActionDecisionStartEvent(Event):
     """
     This event is recorded at the start of the agent taking a decision on what to do next.

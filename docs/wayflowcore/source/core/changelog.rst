@@ -7,6 +7,12 @@ WayFlow |current_version|
 New features
 ^^^^^^^^^^^^
 
+* **State snapshot tracing events:**
+
+  Added configurable conversation state snapshots for tracing, with emission at conversation, node, or tool boundaries and bridging into Agent Spec state snapshot events.
+  Added resumable conversation state serialization so persisted conversations can be restored and continued.
+  Snapshot emission is covered on both synchronous and asynchronous execution paths, with snapshot ownership currently scoped to the active conversation.
+
 * **OAuth support for MCP Clients:**
 
   MCP Clients now support OAuth-based authorization.
@@ -61,6 +67,10 @@ Possibly Breaking Changes
 
 Bug fixes
 ^^^^^^^^^
+
+* **State snapshot test coverage:**
+
+  Reduced duplicated flow/agent, sync/async, nested-conversation, internal-turn, serialization, and Agent Spec tracing wrappers in the state snapshot tests, and moved the reusable state snapshot fixtures plus explicit tracing/runtime helpers into shared test helper modules/plugins.
 
 WayFlow 26.1.1
 --------------

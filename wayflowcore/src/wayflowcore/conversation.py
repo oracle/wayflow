@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -32,6 +32,7 @@ from wayflowcore.executors.executionstatus import (
     ToolRequestStatus,
     UserMessageRequestStatus,
 )
+from wayflowcore.executors.statesnapshotpolicy import StateSnapshotPolicy
 from wayflowcore.messagelist import Message, MessageContent, MessageList
 from wayflowcore.planning import ExecutionPlan
 from wayflowcore.tokenusage import TokenUsage
@@ -114,6 +115,7 @@ class Conversation(DataclassComponent):
     def execute(
         self,
         execution_interrupts: Optional[Sequence["ExecutionInterrupt"]] = None,
+        state_snapshot_policy: Optional[StateSnapshotPolicy] = None,
     ) -> "ExecutionStatus":
         """
         Execute the conversation and get its ``ExecutionStatus`` based on the outcome.
@@ -122,12 +124,16 @@ class Conversation(DataclassComponent):
         finished the conversation.
         """
         return run_async_in_sync(
-            self.execute_async, execution_interrupts, method_name="execute_async"
+            self.execute_async,
+            execution_interrupts,
+            state_snapshot_policy,
+            method_name="execute_async",
         )
 
     async def execute_async(
         self,
         execution_interrupts: Optional[Sequence["ExecutionInterrupt"]] = None,
+        state_snapshot_policy: Optional[StateSnapshotPolicy] = None,
     ) -> "ExecutionStatus":
         """
         Execute the conversation and get its ``ExecutionStatus`` based on the outcome.
@@ -138,8 +144,13 @@ class Conversation(DataclassComponent):
         if self.status_handled is False:
             self._update_conversation_with_status()
 
-        with _register_conversation(self):
-            new_status = await self.component.runner.execute_async(self, execution_interrupts)
+        from wayflowcore.executors._statesnapshot_eventlistener import (
+            get_state_snapshot_execution_context_for_conversation,
+        )
+
+        with get_state_snapshot_execution_context_for_conversation(self, state_snapshot_policy):
+            with _register_conversation(self):
+                new_status = await self.component.runner.execute_async(self, execution_interrupts)
 
         self.status = new_status
         self.status_handled = False

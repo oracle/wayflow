@@ -250,7 +250,9 @@ class FlowExecutionStep(Step):
             flow=self.flow,
             inputs=inputs,
         )
-        status = await sub_conversation.execute_async()
+        status = sub_conversation.status
+        if not isinstance(status, FinishedStatus):
+            status = await sub_conversation.execute_async()
 
         if isinstance(status, InterruptedExecutionStatus):
             return StepResult(

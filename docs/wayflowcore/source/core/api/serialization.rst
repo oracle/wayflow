@@ -33,6 +33,28 @@ Deserialization
 .. autofunction:: wayflowcore.serialization.serializer.autodeserialize
 
 
+Conversation State Snapshots
+----------------------------
+
+.. _dumpconversationstate:
+.. autofunction:: wayflowcore.serialization.dump_conversation_state
+
+.. _serializeconversationstate:
+.. autofunction:: wayflowcore.serialization.serialize_conversation_state
+
+.. _deserializeconversationstate:
+.. autofunction:: wayflowcore.serialization.deserialize_conversation_state
+
+.. _loadconversationstate:
+.. autofunction:: wayflowcore.serialization.load_conversation_state
+
+.. _deserializeconversation:
+.. autofunction:: wayflowcore.serialization.deserialize_conversation
+
+.. _dumpvariablestate:
+.. autofunction:: wayflowcore.serialization.dump_variable_state
+
+
 Plugins
 -------
 
