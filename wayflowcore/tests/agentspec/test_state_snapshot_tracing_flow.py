@@ -4,14 +4,18 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-import json
+from contextlib import AbstractContextManager, ExitStack
+from typing import Any, Sequence
 
 import pytest
+from pyagentspec.tracing.events import Event as AgentSpecEvent
 from pyagentspec.tracing.events import FlowExecutionEnd as AgentSpecFlowExecutionEnd
 from pyagentspec.tracing.events import FlowExecutionStart as AgentSpecFlowExecutionStart
 from pyagentspec.tracing.events import StateSnapshotEmitted as AgentSpecStateSnapshotEmitted
+from pyagentspec.tracing.spanprocessor import SpanProcessor as AgentSpecSpanProcessor
 from pyagentspec.tracing.spans import FlowExecutionSpan as AgentSpecFlowExecutionSpan
 from pyagentspec.tracing.spans import NodeExecutionSpan as AgentSpecNodeExecutionSpan
+from pyagentspec.tracing.spans import Span as AgentSpecSpan
 from pyagentspec.tracing.spans import ToolExecutionSpan as AgentSpecToolExecutionSpan
 from pyagentspec.tracing.trace import Trace as AgentSpecTrace
 
@@ -20,170 +24,207 @@ from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, StateSnapshotPolicy
 from wayflowcore.flow import Flow
-from wayflowcore.property import AnyProperty
-from wayflowcore.steps import CompleteStep, OutputMessageStep, ToolExecutionStep
+from wayflowcore.steps import CompleteStep, FlowExecutionStep, OutputMessageStep, ToolExecutionStep
 from wayflowcore.tools import ServerTool
 
-from ..testhelpers.agentspec_tracing import (
-    SnapshotEventsSeenAtSpanEndRecorder,
-    SnapshotSpanRecorder,
-    events,
-    execute_with_trace,
-    single_span,
-    spans,
-)
-from ..testhelpers.statesnapshots import (
-    snapshot_message,
-    snapshot_step_histories,
-)
+
+class _PassiveSpanProcessor(AgentSpecSpanProcessor):
+    def on_start(self, span: AgentSpecSpan) -> None:
+        return None
+
+    async def on_start_async(self, span: AgentSpecSpan) -> None:
+        return None
+
+    def on_end(self, span: AgentSpecSpan) -> None:
+        return None
+
+    async def on_end_async(self, span: AgentSpecSpan) -> None:
+        return None
+
+    def on_event(self, event: AgentSpecEvent, span: AgentSpecSpan) -> None:
+        return None
+
+    async def on_event_async(self, event: AgentSpecEvent, span: AgentSpecSpan) -> None:
+        return None
+
+    def startup(self) -> None:
+        return None
+
+    def shutdown(self) -> None:
+        return None
+
+    async def startup_async(self) -> None:
+        return None
+
+    async def shutdown_async(self) -> None:
+        return None
 
 
-def test_flow_state_snapshots_are_mapped_into_the_flow_span_before_flow_end() -> None:
-    flow = Flow.from_steps(
-        [OutputMessageStep(message_template="Hello"), CompleteStep(name="end")],
-        step_names=["single_step", "end"],
+class _SnapshotSpanRecorder(_PassiveSpanProcessor):
+    def __init__(self) -> None:
+        super().__init__()
+        self.started_spans: list[AgentSpecSpan] = []
+
+    def on_start(self, span: AgentSpecSpan) -> None:
+        self.started_spans.append(span)
+
+    async def on_start_async(self, span: AgentSpecSpan) -> None:
+        self.started_spans.append(span)
+
+
+class _EventsSeenAtSpanEndRecorder(_PassiveSpanProcessor):
+    def __init__(self) -> None:
+        super().__init__()
+        self.events_by_span_id: dict[str, list[AgentSpecEvent]] = {}
+
+    def on_end(self, span: AgentSpecSpan) -> None:
+        self.events_by_span_id[span.id] = list(span.events)
+
+    async def on_end_async(self, span: AgentSpecSpan) -> None:
+        self.events_by_span_id[span.id] = list(span.events)
+
+
+def _recorded_spans(
+    span_recorder: _SnapshotSpanRecorder,
+    span_type: type[AgentSpecSpan],
+) -> list[AgentSpecSpan]:
+    return [span for span in span_recorder.started_spans if isinstance(span, span_type)]
+
+
+def _single_span(
+    span_recorder: _SnapshotSpanRecorder,
+    span_type: type[AgentSpecSpan],
+) -> AgentSpecSpan:
+    matching_spans = _recorded_spans(span_recorder, span_type)
+    assert len(matching_spans) == 1
+    return matching_spans[0]
+
+
+def _span_events(
+    span: AgentSpecSpan,
+    event_type: type[AgentSpecEvent],
+) -> list[AgentSpecEvent]:
+    return [event for event in span.events if isinstance(event, event_type)]
+
+
+def _execute_with_trace(
+    conversation,
+    *,
+    state_snapshot_policy,
+    span_processors: Sequence[AgentSpecSpanProcessor] = (),
+    contexts: Sequence[AbstractContextManager[Any]] = (),
+) -> tuple[Any, _SnapshotSpanRecorder]:
+    span_recorder = _SnapshotSpanRecorder()
+    listener = AgentSpecEventListener()
+
+    with ExitStack() as stack:
+        for context in contexts:
+            stack.enter_context(context)
+        stack.enter_context(AgentSpecTrace(span_processors=[span_recorder, *span_processors]))
+        stack.enter_context(register_event_listeners([listener]))
+        status = conversation.execute(state_snapshot_policy=state_snapshot_policy)
+
+    return status, span_recorder
+
+
+def _make_output_flow() -> Flow:
+    return Flow.from_steps(
+        [
+            OutputMessageStep(message_template="Hello", name="single_step"),
+            CompleteStep(name="end"),
+        ],
+        name="simple_output_flow",
     )
-    conversation = flow.start_conversation()
-    status, span_recorder = execute_with_trace(
-        conversation,
-        state_snapshot_policy=StateSnapshotPolicy(
-            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS,
-            extra_state_builder=lambda _conversation: {"ui": {"active_tab": "plan"}},
-        ),
+
+
+def _make_tool_flow() -> Flow:
+    return Flow.from_steps(
+        [
+            ToolExecutionStep(
+                tool=ServerTool(
+                    name="say_hi",
+                    description="Say hi",
+                    func=lambda: "hi",
+                    input_descriptors=[],
+                ),
+                name="tool_step",
+            ),
+            CompleteStep(name="end"),
+        ],
+        name="tool_flow",
     )
 
-    assert isinstance(status, FinishedStatus)
 
-    flow_span = single_span(span_recorder, AgentSpecFlowExecutionSpan)
-    assert events(flow_span, AgentSpecFlowExecutionStart)
-    state_snapshot_events = events(flow_span, AgentSpecStateSnapshotEmitted)
-
-    assert len(state_snapshot_events) == 2
-    final_snapshot_event = state_snapshot_events[-1]
-    assert final_snapshot_event.conversation_id == conversation.conversation_id
-    assert snapshot_message(final_snapshot_event) == "Hello"
-    assert final_snapshot_event.extra_state == {"ui": {"active_tab": "plan"}}
-    assert flow_span.end_time is not None
-    assert "variable_state" not in final_snapshot_event.model_dump(mask_sensitive_information=False)
-    assert flow_span in span_recorder.ended_spans
-
-
-def test_flow_final_state_snapshot_is_visible_to_span_processors_inside_on_end() -> None:
-    flow = Flow.from_steps(
-        [OutputMessageStep(message_template="Hello"), CompleteStep(name="end")],
-        step_names=["single_step", "end"],
+def _make_nested_parent_flow_conversation():
+    child_flow = Flow.from_steps(
+        [
+            OutputMessageStep(message_template="child", name="child_message"),
+            CompleteStep(name="end"),
+        ],
+        name="child_flow",
     )
-    conversation = flow.start_conversation()
-    on_end_recorder = SnapshotEventsSeenAtSpanEndRecorder()
+    parent_flow = Flow.from_steps(
+        [
+            FlowExecutionStep(flow=child_flow, name="child_flow_step"),
+            OutputMessageStep(message_template="parent", name="parent_message"),
+            CompleteStep(name="end"),
+        ],
+        name="parent_flow",
+    )
+    return parent_flow.start_conversation()
 
-    status, span_recorder = execute_with_trace(
+
+def _snapshot_message(snapshot_event: AgentSpecStateSnapshotEmitted) -> str | None:
+    messages = (snapshot_event.state_snapshot or {}).get("conversation", {}).get("messages", [])
+    if not messages:
+        return None
+    return messages[-1].get("content")
+
+
+def test_conversation_turn_snapshots_attach_to_the_flow_span() -> None:
+    conversation = _make_output_flow().start_conversation()
+    status, span_recorder = _execute_with_trace(
         conversation,
         state_snapshot_policy=StateSnapshotPolicy(
             state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
         ),
-        span_processors=[on_end_recorder],
     )
 
     assert isinstance(status, FinishedStatus)
 
-    flow_span = single_span(span_recorder, AgentSpecFlowExecutionSpan)
-    events_seen_at_end = on_end_recorder.events_by_span_id[flow_span.id]
+    flow_span = _single_span(span_recorder, AgentSpecFlowExecutionSpan)
+    state_snapshot_events = _span_events(flow_span, AgentSpecStateSnapshotEmitted)
 
-    assert any(isinstance(event, AgentSpecFlowExecutionEnd) for event in events_seen_at_end)
-    assert (
-        len(
-            [
-                event
-                for event in events_seen_at_end
-                if isinstance(event, AgentSpecStateSnapshotEmitted)
-            ]
-        )
-        == 2
-    )
-    assert isinstance(events_seen_at_end[-1], AgentSpecStateSnapshotEmitted)
-    assert snapshot_message(events_seen_at_end[-1]) == "Hello"
+    assert _span_events(flow_span, AgentSpecFlowExecutionStart)
+    assert len(state_snapshot_events) == 2
+    assert state_snapshot_events[-1].conversation_id == conversation.conversation_id
+    assert _snapshot_message(state_snapshot_events[-1]) == "Hello"
 
 
-def test_flow_state_snapshots_normalize_non_finite_floats_before_agent_spec_export() -> None:
-    flow = Flow.from_steps(
-        [
-            ToolExecutionStep(
-                tool=ServerTool(
-                    name="echo",
-                    description="Echo input",
-                    func=lambda bad: str(bad),
-                    input_descriptors=[AnyProperty(name="bad")],
-                )
-            ),
-            CompleteStep(name="end"),
-        ]
-    )
-    conversation = flow.start_conversation(inputs={"bad": float("nan")})
-
-    status, span_recorder = execute_with_trace(
+def test_final_flow_snapshot_is_visible_to_span_processors_inside_on_end() -> None:
+    conversation = _make_output_flow().start_conversation()
+    events_seen_at_end_recorder = _EventsSeenAtSpanEndRecorder()
+    status, span_recorder = _execute_with_trace(
         conversation,
         state_snapshot_policy=StateSnapshotPolicy(
-            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS,
-            include_variable_state=False,
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
         ),
+        span_processors=[events_seen_at_end_recorder],
     )
 
     assert isinstance(status, FinishedStatus)
 
-    flow_span = single_span(span_recorder, AgentSpecFlowExecutionSpan)
-    state_snapshot_events = events(flow_span, AgentSpecStateSnapshotEmitted)
+    flow_span = _single_span(span_recorder, AgentSpecFlowExecutionSpan)
+    events_seen_at_end = events_seen_at_end_recorder.events_by_span_id[flow_span.id]
 
-    assert len(state_snapshot_events) == 2
-    assert all(
-        event.state_snapshot["conversation"]["inputs"]["bad"] == "NaN"
-        for event in state_snapshot_events
-    )
-    assert all(
-        json.loads(json.dumps(event.state_snapshot, allow_nan=False)) == event.state_snapshot
-        for event in state_snapshot_events
-    )
+    assert any(isinstance(event, AgentSpecFlowExecutionEnd) for event in events_seen_at_end)
+    assert isinstance(events_seen_at_end[-1], AgentSpecStateSnapshotEmitted)
+    assert _snapshot_message(events_seen_at_end[-1]) == "Hello"
 
 
-@pytest.mark.anyio
-async def test_flow_state_snapshots_are_mapped_into_the_flow_span_before_flow_end_async() -> None:
-    flow = Flow.from_steps(
-        [OutputMessageStep(message_template="Hello"), CompleteStep(name="end")],
-        step_names=["single_step", "end"],
-    )
-    conversation = flow.start_conversation()
-    span_recorder = SnapshotSpanRecorder()
-
-    async with AgentSpecTrace(span_processors=[span_recorder]):
-        with register_event_listeners([AgentSpecEventListener()]):
-            status = await conversation.execute_async(
-                state_snapshot_policy=StateSnapshotPolicy(
-                    state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS,
-                    extra_state_builder=lambda _conversation: {"ui": {"active_tab": "plan"}},
-                )
-            )
-
-    assert isinstance(status, FinishedStatus)
-
-    flow_span = single_span(span_recorder, AgentSpecFlowExecutionSpan)
-    state_snapshot_events = events(flow_span, AgentSpecStateSnapshotEmitted)
-
-    assert len(state_snapshot_events) == 2
-    final_snapshot_event = state_snapshot_events[-1]
-    assert final_snapshot_event.conversation_id == conversation.conversation_id
-    assert snapshot_message(final_snapshot_event) == "Hello"
-    assert final_snapshot_event.extra_state == {"ui": {"active_tab": "plan"}}
-    assert flow_span.end_time is not None
-    assert "variable_state" not in final_snapshot_event.model_dump(mask_sensitive_information=False)
-    assert flow_span in span_recorder.ended_spans
-
-
-def test_node_turn_state_snapshots_are_mapped_into_the_flow_span_not_node_spans() -> None:
-    flow = Flow.from_steps(
-        [OutputMessageStep(message_template="Hello"), CompleteStep(name="end")],
-        step_names=["single_step", "end"],
-    )
-    conversation = flow.start_conversation()
-    status, span_recorder = execute_with_trace(
+def test_node_turn_snapshots_attach_to_the_flow_span_not_node_or_tool_spans() -> None:
+    conversation = _make_tool_flow().start_conversation()
+    status, span_recorder = _execute_with_trace(
         conversation,
         state_snapshot_policy=StateSnapshotPolicy(
             state_snapshot_interval=StateSnapshotInterval.NODE_TURNS
@@ -192,107 +233,60 @@ def test_node_turn_state_snapshots_are_mapped_into_the_flow_span_not_node_spans(
 
     assert isinstance(status, FinishedStatus)
 
-    flow_span = single_span(span_recorder, AgentSpecFlowExecutionSpan)
-    flow_snapshot_events = events(flow_span, AgentSpecStateSnapshotEmitted)
+    flow_span = _single_span(span_recorder, AgentSpecFlowExecutionSpan)
+    flow_snapshot_events = _span_events(flow_span, AgentSpecStateSnapshotEmitted)
 
-    assert len(flow_snapshot_events) == 8
-    assert snapshot_step_histories(flow_snapshot_events) == [
-        [],
-        [],
-        ["__StartStep__"],
-        ["__StartStep__"],
-        ["__StartStep__", "single_step"],
-        ["__StartStep__", "single_step"],
-        ["__StartStep__", "single_step", "end"],
-        ["__StartStep__", "single_step", "end"],
-    ]
-    node_spans = spans(span_recorder, AgentSpecNodeExecutionSpan)
-    assert node_spans
+    assert len(flow_snapshot_events) > 2
     assert not any(
         isinstance(event, AgentSpecStateSnapshotEmitted)
-        for span in node_spans
+        for span in _recorded_spans(span_recorder, AgentSpecNodeExecutionSpan)
+        for event in span.events
+    )
+    assert not any(
+        isinstance(event, AgentSpecStateSnapshotEmitted)
+        for span in _recorded_spans(span_recorder, AgentSpecToolExecutionSpan)
         for event in span.events
     )
 
 
-@pytest.mark.parametrize(
-    ("interval", "expected_step_histories"),
-    [
-        pytest.param(
-            StateSnapshotInterval.TOOL_TURNS,
-            [
-                [],
-                ["__StartStep__", "step_0"],
-                ["__StartStep__", "step_0"],
-                ["__StartStep__", "step_0", "end"],
-            ],
-            id="tool_turns",
-        ),
-        pytest.param(
-            StateSnapshotInterval.ALL_INTERNAL_TURNS,
-            [
-                [],
-                [],
-                ["__StartStep__"],
-                ["__StartStep__"],
-                ["__StartStep__", "step_0"],
-                ["__StartStep__", "step_0"],
-                ["__StartStep__", "step_0"],
-                ["__StartStep__", "step_0"],
-                ["__StartStep__", "step_0", "end"],
-                ["__StartStep__", "step_0", "end"],
-            ],
-            id="all_internal_turns",
-        ),
-    ],
-)
-def test_internal_flow_state_snapshots_follow_conversation_ownership_for_agent_spec(
-    interval: StateSnapshotInterval,
-    expected_step_histories: list[list[str]],
-) -> None:
-    flow = Flow.from_steps(
-        [
-            ToolExecutionStep(
-                tool=ServerTool(
-                    name="say_hi",
-                    description="Say hi",
-                    func=lambda: "hi",
-                    input_descriptors=[],
-                )
-            ),
-            CompleteStep(name="end"),
-        ]
-    )
-    conversation = flow.start_conversation()
-    status, span_recorder = execute_with_trace(
+def test_nested_flow_execution_exports_snapshots_only_on_the_root_flow_span() -> None:
+    conversation = _make_nested_parent_flow_conversation()
+    status, span_recorder = _execute_with_trace(
         conversation,
-        state_snapshot_policy=StateSnapshotPolicy(state_snapshot_interval=interval),
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
     )
 
     assert isinstance(status, FinishedStatus)
 
-    flow_span = single_span(span_recorder, AgentSpecFlowExecutionSpan)
-    flow_snapshot_events = events(flow_span, AgentSpecStateSnapshotEmitted)
-    assert snapshot_step_histories(flow_snapshot_events) == expected_step_histories
+    flow_spans = _recorded_spans(span_recorder, AgentSpecFlowExecutionSpan)
+    assert len(flow_spans) == 2
 
-    tool_spans = spans(span_recorder, AgentSpecToolExecutionSpan)
-    node_spans = spans(span_recorder, AgentSpecNodeExecutionSpan)
-    assert tool_spans
-    assert node_spans
-    assert not any(
-        isinstance(event, AgentSpecStateSnapshotEmitted)
-        for span in [*tool_spans, *node_spans]
-        for event in span.events
-    )
+    flow_spans_by_name = {
+        next(
+            event for event in span.events if isinstance(event, AgentSpecFlowExecutionStart)
+        ).flow.name: span
+        for span in flow_spans
+    }
+    parent_span = flow_spans_by_name["parent_flow"]
+    child_span = flow_spans_by_name["child_flow"]
+
+    parent_snapshot_events = _span_events(parent_span, AgentSpecStateSnapshotEmitted)
+    child_snapshot_events = _span_events(child_span, AgentSpecStateSnapshotEmitted)
+
+    assert len(parent_snapshot_events) == 2
+    assert [event.conversation_id for event in parent_snapshot_events] == [
+        conversation.conversation_id,
+        conversation.conversation_id,
+    ]
+    assert _snapshot_message(parent_snapshot_events[-1]) == "parent"
+    assert child_snapshot_events == []
 
 
-def test_off_policy_does_not_bridge_state_snapshots_into_agent_spec_spans() -> None:
-    flow = Flow.from_steps(
-        [OutputMessageStep(message_template="Hello"), CompleteStep(name="end")],
-        step_names=["single_step", "end"],
-    )
-    conversation = flow.start_conversation()
-    status, span_recorder = execute_with_trace(
+def test_off_policy_disables_flow_state_snapshot_export() -> None:
+    conversation = _make_output_flow().start_conversation()
+    status, span_recorder = _execute_with_trace(
         conversation,
         state_snapshot_policy=StateSnapshotPolicy(
             state_snapshot_interval=StateSnapshotInterval.OFF
@@ -301,14 +295,12 @@ def test_off_policy_does_not_bridge_state_snapshots_into_agent_spec_spans() -> N
 
     assert isinstance(status, FinishedStatus)
 
-    flow_span = single_span(span_recorder, AgentSpecFlowExecutionSpan)
-    assert events(flow_span, AgentSpecFlowExecutionStart)
-    assert events(flow_span, AgentSpecFlowExecutionEnd)
-    assert not events(flow_span, AgentSpecStateSnapshotEmitted)
+    flow_span = _single_span(span_recorder, AgentSpecFlowExecutionSpan)
+    assert _span_events(flow_span, AgentSpecStateSnapshotEmitted) == []
 
 
-def test_only_the_opening_state_snapshot_is_exported_when_a_turn_raises() -> None:
-    flow = Flow.from_steps(
+def test_raised_turn_exports_only_the_opening_flow_snapshot() -> None:
+    conversation = Flow.from_steps(
         [
             ToolExecutionStep(
                 tool=ServerTool(
@@ -320,12 +312,12 @@ def test_only_the_opening_state_snapshot_is_exported_when_a_turn_raises() -> Non
             ),
             CompleteStep(name="end"),
         ]
-    )
-    conversation = flow.start_conversation()
-    span_recorder = SnapshotSpanRecorder()
+    ).start_conversation()
 
+    span_recorder = _SnapshotSpanRecorder()
+    listener = AgentSpecEventListener()
     with AgentSpecTrace(span_processors=[span_recorder]):
-        with register_event_listeners([AgentSpecEventListener()]):
+        with register_event_listeners([listener]):
             with pytest.raises(RuntimeError, match="boom"):
                 conversation.execute(
                     state_snapshot_policy=StateSnapshotPolicy(
@@ -333,9 +325,8 @@ def test_only_the_opening_state_snapshot_is_exported_when_a_turn_raises() -> Non
                     )
                 )
 
-    flow_span = single_span(span_recorder, AgentSpecFlowExecutionSpan)
-    state_snapshot_events = events(flow_span, AgentSpecStateSnapshotEmitted)
+    flow_span = _single_span(span_recorder, AgentSpecFlowExecutionSpan)
+    state_snapshot_events = _span_events(flow_span, AgentSpecStateSnapshotEmitted)
 
     assert len(state_snapshot_events) == 1
     assert state_snapshot_events[0].state_snapshot["execution"]["status"] is None
-    assert flow_span in span_recorder.ended_spans

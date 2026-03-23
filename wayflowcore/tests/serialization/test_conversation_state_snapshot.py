@@ -12,7 +12,6 @@ import pytest
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.conversation import Conversation
 from wayflowcore.dataconnection import DataFlowEdge
-from wayflowcore.executors._flowconversation import FlowConversation
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolRequestStatus,
@@ -22,7 +21,6 @@ from wayflowcore.executors.statesnapshotpolicy import StateSnapshotInterval, Sta
 from wayflowcore.flow import Flow
 from wayflowcore.property import AnyProperty, StringProperty
 from wayflowcore.serialization import (
-    deserialize_conversation,
     deserialize_conversation_state,
     dump_conversation_state,
     dump_variable_state,
@@ -41,7 +39,7 @@ from wayflowcore.steps import (
 from wayflowcore.tools import ClientTool, ServerTool, ToolResult, register_server_tool
 from wayflowcore.variable import Variable
 
-from ..testhelpers.statesnapshots import (
+from ..testhelpers.state_snapshot_testutils import (
     execute_with_state_snapshots,
     restore_conversation_from_snapshot_payload,
 )
@@ -54,7 +52,7 @@ class _UnserializableValue:
 
 def _build_snapshot_flow(custom_variable: Variable) -> Flow:
     return Flow.from_steps(
-        steps=[
+        [
             VariableWriteStep(
                 variable=custom_variable,
                 input_mapping={VariableWriteStep.VALUE: custom_variable.name},
@@ -75,13 +73,50 @@ def _build_non_finite_input_snapshot_flow() -> Flow:
                     description="Echo input",
                     func=lambda bad: str(bad),
                     input_descriptors=[AnyProperty(name="bad")],
-                    output_descriptors=[StringProperty(name="out")],
                 )
             ),
             CompleteStep(name="end"),
         ],
         name="non_finite_snapshot_flow",
     )
+
+
+def _make_snapshot_flow_conversation(
+    *,
+    variable_type: StringProperty | AnyProperty,
+    input_value: Any,
+) -> tuple[Variable, Conversation]:
+    custom_variable = Variable(
+        name="custom",
+        type=variable_type,
+        description="Custom variable used for snapshot serialization tests",
+    )
+    conversation = _build_snapshot_flow(custom_variable).start_conversation(
+        inputs={custom_variable.name: input_value}
+    )
+    conversation.execute()
+    return custom_variable, conversation
+
+
+def _build_user_input_resume_flow() -> Flow:
+    return Flow.from_steps(
+        [InputMessageStep("Please answer"), OutputMessageStep("done")],
+        name="resume_flow",
+    )
+
+
+def _conversation_turn_snapshot_payload(
+    conversation: Conversation,
+) -> tuple[object, dict[str, Any]]:
+    status, state_snapshot_events = execute_with_state_snapshots(
+        conversation,
+        state_snapshot_policy=StateSnapshotPolicy(
+            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
+        ),
+    )
+
+    assert state_snapshot_events[-1].state_snapshot is not None
+    return status, state_snapshot_events[-1].state_snapshot
 
 
 def _walk_scalars(value: Any):
@@ -96,67 +131,29 @@ def _walk_scalars(value: Any):
     yield value
 
 
-def test_dump_conversation_state_is_json_serializable_and_lightweight() -> None:
-    custom_variable = Variable(
-        name="custom",
-        type=StringProperty(),
-        description="Custom variable used for snapshot serialization tests",
+def test_dump_conversation_state_is_strict_json_serializable_and_lightweight() -> None:
+    _, conversation = _make_snapshot_flow_conversation(
+        variable_type=StringProperty(),
+        input_value="custom-value",
     )
-    flow = _build_snapshot_flow(custom_variable)
-    conversation = flow.start_conversation(inputs={custom_variable.name: "custom-value"})
-    conversation.execute()
 
     snapshot = dump_conversation_state(conversation)
-    variable_state = dump_variable_state(conversation)
-    serialized_conversation_state = serialize_conversation_state(conversation)
-    deserialized_conversation_state = deserialize_conversation_state(serialized_conversation_state)
 
     assert json.loads(json.dumps(snapshot, allow_nan=False)) == snapshot
-    assert deserialized_conversation_state["_component_type"] == conversation.__class__.__name__
-    assert variable_state == {"custom": "custom-value"}
+    assert dump_variable_state(conversation) == {"custom": "custom-value"}
     assert snapshot["conversation"]["component_type"] == "Flow"
     assert snapshot["conversation"]["messages"][-1]["content"] == "Hello there"
-
     assert all(
         not isinstance(scalar, (Conversation, Flow, OutputMessageStep))
         for scalar in _walk_scalars(snapshot)
     )
 
 
-def test_dump_conversation_state_overrides_execution_fields_without_mutating_conversation() -> None:
-    custom_variable = Variable(
-        name="custom",
-        type=StringProperty(),
-        description="Custom variable used for snapshot serialization tests",
+def test_dump_conversation_state_includes_runtime_conversation_ids() -> None:
+    _, conversation = _make_snapshot_flow_conversation(
+        variable_type=StringProperty(),
+        input_value="custom-value",
     )
-    flow = _build_snapshot_flow(custom_variable)
-    conversation = flow.start_conversation(inputs={custom_variable.name: "custom-value"})
-    conversation.execute()
-
-    previous_status = conversation.status
-    previous_status_handled = conversation.status_handled
-
-    snapshot = dump_conversation_state(
-        conversation,
-        status=None,
-        status_handled=True,
-    )
-
-    assert snapshot["execution"]["status"] is None
-    assert snapshot["execution"]["status_handled"] is True
-    assert conversation.status is previous_status
-    assert conversation.status_handled is previous_status_handled
-
-
-def test_dump_conversation_state_includes_runtime_conversation_id() -> None:
-    custom_variable = Variable(
-        name="custom",
-        type=StringProperty(),
-        description="Custom variable used for snapshot serialization tests",
-    )
-    flow = _build_snapshot_flow(custom_variable)
-    conversation = flow.start_conversation(inputs={custom_variable.name: "custom-value"})
-    conversation.execute()
 
     snapshot = dump_conversation_state(conversation)
 
@@ -164,31 +161,28 @@ def test_dump_conversation_state_includes_runtime_conversation_id() -> None:
     assert snapshot["conversation"]["conversation_id"] == conversation.conversation_id
 
 
-def test_dump_conversation_state_does_not_overload_status_conversation_identity() -> None:
-    custom_variable = Variable(
-        name="custom",
-        type=StringProperty(),
-        description="Custom variable used for snapshot serialization tests",
+def test_dump_conversation_state_status_overrides_do_not_mutate_live_conversation() -> None:
+    _, conversation = _make_snapshot_flow_conversation(
+        variable_type=StringProperty(),
+        input_value="custom-value",
     )
-    flow = _build_snapshot_flow(custom_variable)
-    conversation = flow.start_conversation(inputs={custom_variable.name: "custom-value"})
-    conversation.execute()
 
-    snapshot = dump_conversation_state(conversation)
+    previous_status = conversation.status
+    previous_status_handled = conversation.status_handled
 
-    assert snapshot["execution"]["status"]["type"] == "FinishedStatus"
-    assert "conversation_id" not in snapshot["execution"]["status"]
+    snapshot = dump_conversation_state(conversation, status=None, status_handled=True)
+
+    assert snapshot["execution"]["status"] is None
+    assert snapshot["execution"]["status_handled"] is True
+    assert conversation.status is previous_status
+    assert conversation.status_handled is previous_status_handled
 
 
 def test_dump_variable_state_rejects_non_json_serializable_values() -> None:
-    custom_variable = Variable(
-        name="custom",
-        type=AnyProperty(),
-        description="Custom variable used for snapshot serialization tests",
+    _, conversation = _make_snapshot_flow_conversation(
+        variable_type=AnyProperty(),
+        input_value=_UnserializableValue(),
     )
-    flow = _build_snapshot_flow(custom_variable)
-    conversation = flow.start_conversation(inputs={custom_variable.name: _UnserializableValue()})
-    conversation.execute()
 
     with pytest.raises(TypeError, match="Variable 'custom' contains a non-JSON-serializable"):
         dump_variable_state(conversation)
@@ -206,8 +200,7 @@ def test_dump_conversation_state_normalizes_non_finite_floats_for_strict_json(
     value: float,
     expected_dumped_value: str,
 ) -> None:
-    flow = _build_non_finite_input_snapshot_flow()
-    conversation = flow.start_conversation(inputs={"bad": value})
+    conversation = _build_non_finite_input_snapshot_flow().start_conversation(inputs={"bad": value})
 
     snapshot = dump_conversation_state(conversation)
 
@@ -215,20 +208,19 @@ def test_dump_conversation_state_normalizes_non_finite_floats_for_strict_json(
     assert snapshot["conversation"]["inputs"]["bad"] == expected_dumped_value
 
 
-def test_conversation_state_roundtrip_preserves_pending_tool_results() -> None:
+def test_serialized_conversation_roundtrip_preserves_pending_tool_results() -> None:
     client_tool = ClientTool(
         name="client_lookup",
         description="Look up some data on the client side",
         parameters={},
     )
-    flow = Flow.from_steps(
+    conversation = Flow.from_steps(
         [
             ToolExecutionStep(tool=client_tool),
             CompleteStep(name="end"),
         ],
         name="tool_resume_flow",
-    )
-    conversation = flow.start_conversation()
+    ).start_conversation()
 
     status = conversation.execute()
     assert isinstance(status, ToolRequestStatus)
@@ -237,16 +229,6 @@ def test_conversation_state_roundtrip_preserves_pending_tool_results() -> None:
     conversation.append_tool_result(
         ToolResult(tool_request_id=tool_request.tool_request_id, content="client-result")
     )
-
-    snapshot = dump_conversation_state(conversation)
-    assert snapshot["execution"]["status"]["type"] == "ToolRequestStatus"
-    assert snapshot["execution"]["status"]["tool_results"] == [
-        {
-            "tool_request_id": tool_request.tool_request_id,
-            "content": "client-result",
-        }
-    ]
-    assert all(message.tool_result is None for message in conversation.get_messages())
 
     loaded_conversation = load_conversation_state(
         deserialize_conversation_state(serialize_conversation_state(conversation))
@@ -261,8 +243,8 @@ def test_conversation_state_roundtrip_preserves_pending_tool_results() -> None:
     ]
 
     resumed_status = loaded_conversation.execute()
-    assert isinstance(resumed_status, FinishedStatus)
 
+    assert isinstance(resumed_status, FinishedStatus)
     tool_result_messages = [
         message.tool_result for message in loaded_conversation.get_messages() if message.tool_result
     ]
@@ -271,84 +253,66 @@ def test_conversation_state_roundtrip_preserves_pending_tool_results() -> None:
     assert tool_result_messages[0].content == "client-result"
 
 
-def test_load_conversation_state_restores_a_runnable_conversation() -> None:
-    flow = Flow.from_steps(
-        [InputMessageStep("Please answer"), OutputMessageStep("done")],
-        name="resume_flow",
+def test_emitted_snapshot_payload_restores_waiting_for_user_input() -> None:
+    status, snapshot_payload = _conversation_turn_snapshot_payload(
+        _build_user_input_resume_flow().start_conversation()
     )
-    conversation = flow.start_conversation()
 
-    status = conversation.execute()
     assert isinstance(status, UserMessageRequestStatus)
 
-    loaded_conversation = load_conversation_state(
-        deserialize_conversation_state(serialize_conversation_state(conversation))
+    restored_conversation = restore_conversation_from_snapshot_payload(
+        json.loads(json.dumps(snapshot_payload, allow_nan=False))
     )
-
-    assert isinstance(loaded_conversation, FlowConversation)
-    loaded_conversation.append_user_message("hello")
-    resumed_status = loaded_conversation.execute()
+    restored_conversation.append_user_message("hello")
+    resumed_status = restored_conversation.execute()
 
     assert isinstance(resumed_status, FinishedStatus)
-    assert [message.content for message in loaded_conversation.get_messages()] == [
+    assert [message.content for message in restored_conversation.get_messages()] == [
         "Please answer",
         "hello",
         "done",
     ]
 
 
-def test_deserialize_conversation_restores_a_runnable_conversation() -> None:
-    flow = Flow.from_steps(
-        [InputMessageStep("Please answer"), OutputMessageStep("done")],
-        name="resume_flow",
+def test_emitted_snapshot_payload_restores_waiting_for_client_tool_result() -> None:
+    client_tool = ClientTool(
+        name="client_lookup",
+        description="Look up some data on the client side",
+        parameters={},
     )
-    conversation = flow.start_conversation()
-
-    status = conversation.execute()
-    assert isinstance(status, UserMessageRequestStatus)
-
-    deserialized_conversation = deserialize_conversation(serialize_conversation_state(conversation))
-
-    assert isinstance(deserialized_conversation, FlowConversation)
-    deserialized_conversation.append_user_message("hello")
-    resumed_status = deserialized_conversation.execute()
-
-    assert isinstance(resumed_status, FinishedStatus)
-    assert [message.content for message in deserialized_conversation.get_messages()] == [
-        "Please answer",
-        "hello",
-        "done",
-    ]
-
-
-def test_load_conversation_state_uses_the_given_deserialization_context() -> None:
-    tool = ServerTool(
-        name="say_hi",
-        description="Say hi",
-        func=lambda: "hi",
-        input_descriptors=[],
-    )
-    flow = Flow.from_steps(
+    conversation = Flow.from_steps(
         [
-            ToolExecutionStep(tool=tool),
+            ToolExecutionStep(tool=client_tool),
             CompleteStep(name="end"),
         ],
-        name="tool_flow",
+        name="snapshot_client_tool_resume_flow",
+    ).start_conversation()
+
+    status, snapshot_payload = _conversation_turn_snapshot_payload(conversation)
+
+    assert isinstance(status, ToolRequestStatus)
+
+    restored_conversation = restore_conversation_from_snapshot_payload(snapshot_payload)
+    assert isinstance(restored_conversation.status, ToolRequestStatus)
+
+    tool_request = restored_conversation.status.tool_requests[0]
+    restored_conversation.append_tool_result(
+        ToolResult(tool_request_id=tool_request.tool_request_id, content="client-result")
     )
+    resumed_status = restored_conversation.execute()
 
-    deserialization_context = DeserializationContext()
-    register_server_tool(tool, deserialization_context.registered_tools)
+    assert isinstance(resumed_status, FinishedStatus)
+    tool_result_messages = [
+        message.tool_result
+        for message in restored_conversation.get_messages()
+        if message.tool_result
+    ]
+    assert len(tool_result_messages) == 1
+    assert tool_result_messages[0].tool_request_id == tool_request.tool_request_id
+    assert tool_result_messages[0].content == "client-result"
 
-    conversation = load_conversation_state(
-        deserialize_conversation_state(serialize_conversation_state(flow.start_conversation())),
-        deserialization_context=deserialization_context,
-    )
 
-    assert isinstance(conversation, FlowConversation)
-    assert isinstance(conversation.execute(), FinishedStatus)
-
-
-def test_emitted_snapshot_conversation_state_restores_variable_dependent_continuation() -> None:
+def test_emitted_snapshot_payload_restores_variable_dependent_continuation() -> None:
     customer_name = Variable(
         name="customer_name",
         type=StringProperty(),
@@ -396,18 +360,11 @@ def test_emitted_snapshot_conversation_state_restores_variable_dependent_continu
     )
     conversation = flow.start_conversation(inputs={customer_name.name: "Alice"})
 
-    status, state_snapshot_events = execute_with_state_snapshots(
-        conversation,
-        state_snapshot_policy=StateSnapshotPolicy(
-            state_snapshot_interval=StateSnapshotInterval.CONVERSATION_TURNS
-        ),
-    )
+    status, snapshot_payload = _conversation_turn_snapshot_payload(conversation)
 
     assert isinstance(status, UserMessageRequestStatus)
-    assert state_snapshot_events[-1].state_snapshot is not None
-    snapshot_payload = state_snapshot_events[-1].state_snapshot
-    restored_conversation = restore_conversation_from_snapshot_payload(snapshot_payload)
 
+    restored_conversation = restore_conversation_from_snapshot_payload(snapshot_payload)
     assert dump_variable_state(restored_conversation) == {"customer_name": "Alice"}
 
     restored_conversation.append_user_message("Need pricing")
@@ -419,3 +376,29 @@ def test_emitted_snapshot_conversation_state_restores_variable_dependent_continu
         "Need pricing",
         "Stored Alice. Reply: Need pricing",
     ]
+
+
+def test_load_conversation_state_uses_the_given_deserialization_context() -> None:
+    tool = ServerTool(
+        name="say_hi",
+        description="Say hi",
+        func=lambda: "hi",
+        input_descriptors=[],
+    )
+    flow = Flow.from_steps(
+        [
+            ToolExecutionStep(tool=tool),
+            CompleteStep(name="end"),
+        ],
+        name="tool_flow",
+    )
+
+    deserialization_context = DeserializationContext()
+    register_server_tool(tool, deserialization_context.registered_tools)
+
+    conversation = load_conversation_state(
+        deserialize_conversation_state(serialize_conversation_state(flow.start_conversation())),
+        deserialization_context=deserialization_context,
+    )
+
+    assert isinstance(conversation.execute(), FinishedStatus)

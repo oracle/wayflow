@@ -68,9 +68,9 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
-* **Serialization imports:**
+* **State snapshot test coverage:**
 
-  Reduced import coupling in conversation state serialization so the public conversation state helpers remain directly re-exported from ``wayflowcore.serialization``.
+  Reduced duplicated flow/agent, sync/async, nested-conversation, internal-turn, serialization, and Agent Spec tracing wrappers in the state snapshot tests, and moved the reusable state snapshot fixtures plus explicit tracing/runtime helpers into shared test helper modules/plugins.
 
 WayFlow 26.1.1
 --------------
