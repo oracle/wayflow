@@ -445,7 +445,9 @@ class AgentConversationExecutor(ConversationExecutor):
 
         init_messages.append_message(caller_request_message)
         sub_agent_conversation = expert_agent.start_conversation(
-            messages=init_messages, inputs=inputs
+            messages=init_messages,
+            inputs=inputs,
+            root_conversation_id=caller_conv.root_conversation_id,
         )
         return sub_agent_conversation
 
@@ -502,6 +504,7 @@ class AgentConversationExecutor(ConversationExecutor):
         messages: MessageList,
         flow: Flow,
         inputs: Dict[str, Any],
+        root_conversation_id: Optional[str],
     ) -> Tuple[Any, str, ExecutionStatus]:
         """
         Execute a flow and return its outputs and its execution status.
@@ -514,6 +517,7 @@ class AgentConversationExecutor(ConversationExecutor):
                 state.current_flow_conversation = flow.start_conversation(
                     inputs=inputs,
                     messages=messages,
+                    root_conversation_id=root_conversation_id,
                 )
                 messages.append_message(
                     Message(
@@ -572,7 +576,7 @@ class AgentConversationExecutor(ConversationExecutor):
         for flow in config.flows:
             if tool_request.name == _sanitize_tool_name(flow.name):
                 return await AgentConversationExecutor._handle_flow_call(
-                    config, state, flow, tool_request, messages
+                    config, state, flow, tool_request, messages, conversation
                 )
 
         if state.current_retrieved_tools is None:
@@ -724,6 +728,7 @@ class AgentConversationExecutor(ConversationExecutor):
         flow: Flow,
         tool_request: ToolRequest,
         messages: MessageList,
+        conversation: "AgentConversation",
     ) -> Optional[ExecutionStatus]:
         logger.debug(
             'Agent executing flow "%s" (id=%s) with arguments: %s',
@@ -732,7 +737,13 @@ class AgentConversationExecutor(ConversationExecutor):
             tool_request.args,
         )
         output, serialized_output, flow_execution_status = (
-            await AgentConversationExecutor._execute_flow(state, messages, flow, tool_request.args)
+            await AgentConversationExecutor._execute_flow(
+                state,
+                messages,
+                flow,
+                tool_request.args,
+                conversation.root_conversation_id,
+            )
         )
 
         logger.debug(

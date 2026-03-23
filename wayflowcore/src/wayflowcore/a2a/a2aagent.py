@@ -6,10 +6,11 @@
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Set, Union
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Set, Union, cast
 from warnings import warn
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.checkpointing.runtime import _attach_checkpointer_to_conversation
 from wayflowcore.component import DataclassComponent
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
@@ -18,6 +19,7 @@ from wayflowcore.serialization.serializer import SerializableDataclassMixin, Ser
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
 
 logger = logging.getLogger(__name__)
@@ -241,6 +243,11 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, Message, List[Message], MessageList] = None,
+        conversation_id: Optional[str] = None,
+        *,
+        root_conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
     ) -> "A2AAgentConversation":
         """
         Initiates a new conversation with the remote server agent.
@@ -265,18 +272,46 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
         from wayflowcore.executors._a2aagentexecutor import A2AAgentState
 
+        restored_conversation, restored_conversation_id = (
+            self._restore_or_prepare_checkpoint_conversation(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+            )
+        )
+        if restored_conversation is not None:
+            return cast("A2AAgentConversation", restored_conversation)
+
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
 
-        return A2AAgentConversation(
+        conversation_runtime_id, conversation_root_id = (
+            self._resolve_runtime_and_root_conversation_ids(
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=checkpointer,
+                restored_conversation_id=restored_conversation_id,
+            )
+        )
+
+        conversation = A2AAgentConversation(
             component=self,
             state=A2AAgentState(last_message_idx=-1),
             inputs=inputs or {},  # Inputs are ignored in execution
             message_list=messages,
             status=None,
-            conversation_id=IdGenerator.get_or_generate_id(None),
+            id=conversation_runtime_id,
+            conversation_id=conversation_runtime_id,
+            root_conversation_id=conversation_root_id,
             name="a2a_conversation",
             __metadata_info__={},
+        )
+        return cast(
+            "A2AAgentConversation",
+            _attach_checkpointer_to_conversation(conversation, checkpointer=checkpointer),
         )
 
     @property

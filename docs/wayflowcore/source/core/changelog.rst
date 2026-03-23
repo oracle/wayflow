@@ -19,6 +19,18 @@ New features
   Added support for converting `MessageSummarizationTransform` and `ConversationSummarizationTransform` between Agent Spec and Wayflow. Similarly for Datastores (`OracleDatabaseDatastore`, `PostgreSQLDatabaseDatastore`).
   You can now declare your agents with summarization transforms and summary caching in Agent Spec and run them in WayFlow.
 
+* **First-class conversation checkpointing**
+
+  Added shared conversation checkpointing for Agents, Flows, Swarms, ManagerWorkers, and A2A agents through
+  ``ConversationCheckpoint``, ``Checkpointer``, ``InMemoryCheckpointer``, ``PostgresCheckpointer``, and
+  ``OracleDatabaseCheckpointer``. Conversations can now resume from ``conversation_id``, load specific checkpoints for
+  time-travel debugging, and choose checkpoint save frequency with ``CheckpointingInterval``.
+
+  The OpenAI Responses server path now uses this shared checkpointing subsystem as well, so persisted
+  ``previous_response_id`` and ``conversation`` behavior is handled through the same checkpoint model.
+
+  For more information, see :doc:`how to checkpoint and resume conversations <howtoguides/howto_checkpointing>`.
+
 
 Documentation
 ^^^^^^^^^^^^^

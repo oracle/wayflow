@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent, CallerInputMode
+from wayflowcore.checkpointing.runtime import _attach_checkpointer_to_conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
@@ -22,6 +23,7 @@ from wayflowcore.templates._swarmtemplate import _DEFAULT_SWARM_CHAT_TEMPLATE
 from wayflowcore.tools import ClientTool, Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.conversation import Conversation
     from wayflowcore.messagelist import Message
 
@@ -242,6 +244,10 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         messages: Union[None, str, "Message", List["Message"], MessageList] = None,
         conversation_id: Optional[str] = None,
         conversation_name: Optional[str] = None,
+        *,
+        root_conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
     ) -> "Conversation":
         from wayflowcore.executors._swarmconversation import (
             SwarmConversation,
@@ -250,11 +256,30 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             SwarmUser,
         )
 
+        restored_conversation, restored_conversation_id = (
+            self._restore_or_prepare_checkpoint_conversation(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+            )
+        )
+        if restored_conversation is not None:
+            return restored_conversation
+
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
 
-        if conversation_id is None:
-            conversation_id = IdGenerator.get_or_generate_id(conversation_id)
+        conversation_runtime_id, conversation_root_id = (
+            self._resolve_runtime_and_root_conversation_ids(
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=checkpointer,
+                restored_conversation_id=restored_conversation_id,
+            )
+        )
 
         main_thread = SwarmThread(
             caller=SwarmUser(), recipient_agent=self.first_agent, is_main_thread=True
@@ -274,17 +299,21 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             context_providers=[],
             inputs=inputs,
             messages=messages,
+            root_conversation_id=conversation_root_id,
         )
-        return SwarmConversation(
+        conversation = SwarmConversation(
             component=self,
             inputs=inputs or {},
             message_list=messages,
+            id=conversation_runtime_id,
             name=conversation_name or "swarm_conversation",
             state=state,
             status=None,
-            conversation_id=conversation_id,
+            conversation_id=conversation_runtime_id,
+            root_conversation_id=conversation_root_id,
             __metadata_info__={},
         )
+        return _attach_checkpointer_to_conversation(conversation, checkpointer=checkpointer)
 
     def _referenced_tools_dict_inner(
         self, recursive: bool, visited_set: Set[str]

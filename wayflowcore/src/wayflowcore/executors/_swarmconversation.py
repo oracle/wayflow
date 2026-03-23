@@ -55,6 +55,7 @@ class SwarmConversationExecutionState(ConversationExecutionState):
     main_thread: SwarmThread
     agents_and_threads: Dict[str, Dict[str, SwarmThread]]
     context_providers: List["ContextProvider"]
+    root_conversation_id: str = ""
     current_thread: Optional["SwarmThread"] = None
     thread_stack: List["SwarmThread"] = field(default_factory=list)
 
@@ -89,6 +90,7 @@ class SwarmConversationExecutionState(ConversationExecutionState):
         conversation = thread.recipient_agent.start_conversation(
             inputs=inputs,
             messages=thread.message_list,
+            root_conversation_id=self.root_conversation_id or None,
         )
         self.thread_subconversations[thread_id] = conversation
 

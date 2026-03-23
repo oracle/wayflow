@@ -6,10 +6,11 @@
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union, cast
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent, CallerInputMode
+from wayflowcore.checkpointing.runtime import _attach_checkpointer_to_conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
@@ -21,6 +22,7 @@ from wayflowcore.templates._managerworkerstemplate import _DEFAULT_MANAGERWORKER
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
     from wayflowcore.messagelist import Message
 
@@ -155,6 +157,10 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
         conversation_name: Optional[str] = None,
+        *,
+        root_conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
     ) -> "ManagerWorkersConversation":
         """
         Initializes a conversation with the managerworkers.
@@ -167,7 +173,9 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         messages:
             Message list of the manager agent and the end-user.
         conversation_id:
-            Conversation id of the main conversation.
+            Conversation id of the conversation.
+        root_conversation_id:
+            Root conversation id used to group nested conversations under the same lineage.
 
         Returns
         -------
@@ -182,18 +190,37 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             ManagerWorkersConversationExecutionState,
         )
 
+        restored_conversation, restored_conversation_id = (
+            self._restore_or_prepare_checkpoint_conversation(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+            )
+        )
+        if restored_conversation is not None:
+            return cast("ManagerWorkersConversation", restored_conversation)
+
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
 
-        if conversation_id is None:
-            conversation_id = IdGenerator.get_or_generate_id(conversation_id)
+        conversation_runtime_id, conversation_root_id = (
+            self._resolve_runtime_and_root_conversation_ids(
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=checkpointer,
+                restored_conversation_id=restored_conversation_id,
+            )
+        )
 
         record_event(
             ConversationCreatedEvent(
                 conversational_component=self,
                 inputs=inputs or {},
                 messages=messages,
-                conversation_id=conversation_id,
+                conversation_id=conversation_runtime_id,
                 nesting_level=None,
             )
         )
@@ -202,22 +229,30 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         subconversations[self.manager_agent.name] = self.manager_agent.start_conversation(
             inputs=inputs,
             messages=messages,
+            root_conversation_id=conversation_root_id,
         )
 
         state = ManagerWorkersConversationExecutionState(
             current_agent_name=self.manager_agent.name,
             subconversations=subconversations,
+            root_conversation_id=conversation_root_id,
         )
 
-        return ManagerWorkersConversation(
+        conversation = ManagerWorkersConversation(
             component=self,
             inputs={},
             message_list=messages,
+            id=conversation_runtime_id,
             name=conversation_name or "managerworkers_conversation",
             state=state,
             status=None,
-            conversation_id=conversation_id,
+            conversation_id=conversation_runtime_id,
+            root_conversation_id=conversation_root_id,
             __metadata_info__={},
+        )
+        return cast(
+            "ManagerWorkersConversation",
+            _attach_checkpointer_to_conversation(conversation, checkpointer=checkpointer),
         )
 
     def _referenced_tools_dict_inner(

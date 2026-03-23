@@ -8,10 +8,23 @@ import warnings
 from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Sequence, Set, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+    cast,
+)
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils._templating_helpers import get_variables_names_and_types_from_template
+from wayflowcore.checkpointing.runtime import _attach_checkpointer_to_conversation
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.executors._executor import ConversationExecutor
@@ -26,6 +39,7 @@ from wayflowcore.tools.servertools import _convert_previously_supported_tools_if
 from wayflowcore.transforms import MessageTransform
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.contextproviders import ContextProvider
     from wayflowcore.executors._agentconversation import AgentConversation
     from wayflowcore.flow import Flow
@@ -386,6 +400,10 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
+        *,
+        root_conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
     ) -> "AgentConversation":
         """
         Initializes a conversation with the agent.
@@ -398,7 +416,9 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         messages:
             Message list to which the agent will participate
         conversation_id:
-            Conversation id of the parent conversation.
+            Conversation id of the conversation.
+        root_conversation_id:
+            Root conversation id used to group nested conversations under the same lineage.
 
         Returns
         -------
@@ -409,8 +429,30 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.executors._agentconversation import AgentConversation
 
+        restored_conversation, restored_conversation_id = (
+            self._restore_or_prepare_checkpoint_conversation(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+            )
+        )
+        if restored_conversation is not None:
+            return cast("AgentConversation", restored_conversation)
+
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
+
+        conversation_runtime_id, conversation_root_id = (
+            self._resolve_runtime_and_root_conversation_ids(
+                conversation_id=conversation_id,
+                root_conversation_id=root_conversation_id,
+                checkpointer=checkpointer,
+                restored_conversation_id=restored_conversation_id,
+            )
+        )
 
         required_input_names = [
             input_descriptor.name
@@ -451,22 +493,28 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 conversational_component=self,
                 inputs=inputs,
                 messages=messages,
-                conversation_id=conversation_id,
+                conversation_id=conversation_runtime_id,
                 nesting_level=None,
             )
         )
 
         from wayflowcore.executors._agentexecutor import AgentConversationExecutionState
 
-        return AgentConversation(
+        conversation = AgentConversation(
             component=self,
             message_list=messages,
-            conversation_id=IdGenerator.get_or_generate_id(conversation_id),
+            id=conversation_runtime_id,
+            conversation_id=conversation_runtime_id,
+            root_conversation_id=conversation_root_id,
             inputs=inputs or {},
             name="agent_conversation",
             state=AgentConversationExecutionState(),
             status=None,
             __metadata_info__={},
+        )
+        return cast(
+            "AgentConversation",
+            _attach_checkpointer_to_conversation(conversation, checkpointer=checkpointer),
         )
 
     @property

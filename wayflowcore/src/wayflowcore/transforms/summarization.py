@@ -329,8 +329,8 @@ class MessageSummarizationTransform(MessageTransform):
 
     async def call_async(self, messages: List["Message"]) -> List["Message"]:
 
-        conv_id = _get_current_conversation_id()
-        if not conv_id:
+        conversation_id = _get_current_conversation_id()
+        if not conversation_id:
             logger.warning("conversation_id is None. Messages will not be summarized.")
             return messages
 
@@ -340,7 +340,7 @@ class MessageSummarizationTransform(MessageTransform):
             message = messages[msg_idx]
 
             summarized_content = await self.summarize_if_needed(
-                message.contents, conv_id, msg_idx, "content"
+                message.contents, conversation_id, msg_idx, "content"
             )
             new_message = message.copy(contents=summarized_content)
 
@@ -348,7 +348,7 @@ class MessageSummarizationTransform(MessageTransform):
                 # If there's a tool_result, we also summarize it.
                 summarized_content = await self.summarize_if_needed(
                     [TextContent(stringify(new_message.tool_result.content))],
-                    conv_id,
+                    conversation_id,
                     msg_idx,
                     "toolres",
                 )
@@ -375,7 +375,7 @@ class MessageSummarizationTransform(MessageTransform):
     async def summarize_if_needed(
         self,
         contents: List[MessageContent],
-        conv_id: str,
+        conversation_id: str,
         msg_idx: int,
         _type: Literal["toolres", "content"] = "content",
     ) -> List[MessageContent]:
@@ -383,7 +383,7 @@ class MessageSummarizationTransform(MessageTransform):
             return contents
         # Fetch from cache the content of the summarized version of messages.
         cache_content = (
-            self.cache.retrieve(self._get_cache_key(conv_id, msg_idx, _type))
+            self.cache.retrieve(self._get_cache_key(conversation_id, msg_idx, _type))
             if self.cache is not None
             else None
         )
@@ -392,7 +392,7 @@ class MessageSummarizationTransform(MessageTransform):
             summarized_content = await self._summarizer.summarize(contents, self.max_tokens)
             if self.cache is not None:
                 self.cache.store(
-                    self._get_cache_key(conv_id, msg_idx, _type),
+                    self._get_cache_key(conversation_id, msg_idx, _type),
                     {"cache_content": summarized_content},
                 )
         else:
@@ -562,8 +562,8 @@ class ConversationSummarizationTransform(MessageTransform):
         return Message(contents=[TextContent(summarized_message)]), messages[prefix_size:]
 
     async def call_async(self, messages: List["Message"]) -> List["Message"]:
-        conv_id = _get_current_conversation_id()
-        if not conv_id:
+        conversation_id = _get_current_conversation_id()
+        if not conversation_id:
             logger.warning("conversation_id is None. Messages will not be summarized.")
             return messages
 
@@ -573,7 +573,7 @@ class ConversationSummarizationTransform(MessageTransform):
 
         # The current message list is : previously summarized part + non summarized part + new messages.
         previous_summarized_message, non_summarized_messages = self._construct_messages_using_cache(
-            conv_id, messages
+            conversation_id, messages
         )
 
         current_messages = non_summarized_messages
@@ -605,7 +605,7 @@ class ConversationSummarizationTransform(MessageTransform):
 
         if self.cache is not None:
             self.cache.store(
-                conv_id,
+                conversation_id,
                 {
                     "prefix_size": len(messages) - len(messages_to_keep),
                     "cache_content": summarized_message,
