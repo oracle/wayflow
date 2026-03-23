@@ -305,5 +305,8 @@ class Conversation(DataclassComponent):
                 )
             for tool_result in tool_results:
                 self.message_list.append_message(Message(tool_result=tool_result, role="assistant"))
+            # Tool results are now materialized in the message list, so they should not be
+            # replayed if the same pending ToolRequestStatus is revisited.
+            self.status._tool_results = None
 
         self.status_handled = True
