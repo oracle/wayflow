@@ -28,7 +28,7 @@ def _convert_a2a_parts_to_wayflow_contents(
             if part["metadata"]["type"] == "tool_request":
                 tool_requests.append(ToolRequest(**part["data"]))
             elif part["metadata"]["type"] == "tool_result":
-                tool_result = ToolResult(**part["data"])
+                tool_result = ToolResult.from_raw_dict(part["data"])
             else:
                 raise ValueError("Data's type is wrong")
         elif part["kind"] == "file":
@@ -86,7 +86,7 @@ def _convert_wayflow_messages_to_a2a_messages(
         if message.tool_result:
             parts.append(
                 DataPart(
-                    data=message.tool_result.__dict__,
+                    data=message.tool_result.to_raw_dict(),
                     metadata={"type": "tool_result"},
                     kind="data",
                 )

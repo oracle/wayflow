@@ -11,13 +11,29 @@ from .remotetools import RemoteTool
 from .servertools import ServerTool, register_server_tool
 from .toolbox import ToolBox
 from .toolhelpers import tool
-from .tools import Tool, ToolRequest, ToolResult
+from .tools import (
+    ReturnArtifact,
+    Tool,
+    ToolOutputArtifact,
+    ToolOutputArtifactT,
+    ToolOutputArtifactTypeT,
+    ToolOutputType,
+    ToolRequest,
+    ToolResult,
+    reset_max_tool_artifact_size_bytes,
+    set_max_tool_artifact_size_bytes,
+)
 
 __all__ = [
     "DescribedAgent",
     "ClientTool",
     "tool",
+    "ReturnArtifact",
     "Tool",
+    "ToolOutputArtifact",
+    "ToolOutputArtifactT",
+    "ToolOutputArtifactTypeT",
+    "ToolOutputType",
     "ToolBox",
     "ToolRequest",
     "ToolResult",
@@ -25,4 +41,6 @@ __all__ = [
     "ServerTool",
     "RemoteTool",
     "register_server_tool",
+    "set_max_tool_artifact_size_bytes",
+    "reset_max_tool_artifact_size_bytes",
 ]

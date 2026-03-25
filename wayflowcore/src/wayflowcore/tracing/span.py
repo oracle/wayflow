@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from dataclasses import dataclass, field
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, cast
 
 from typing_extensions import Self
 
@@ -28,7 +28,7 @@ from wayflowcore.events.eventlistener import (
 from wayflowcore.messagelist import Message, MessageList
 from wayflowcore.serialization import serialize_to_dict
 from wayflowcore.steps.step import Step, StepResult
-from wayflowcore.tools.tools import Tool, ToolRequest, ToolResult
+from wayflowcore.tools.tools import Tool, ToolOutputArtifact, ToolRequest, ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore.agent import Agent
@@ -613,7 +613,9 @@ class ToolExecutionSpan(Span):
             tool_request=self.tool_request,
         )
 
-    def record_end_span_event(self, output: Any) -> None:
+    def record_end_span_event(
+        self, output: Any, artifacts: Optional[Tuple[ToolOutputArtifact, ...]] = None
+    ) -> None:
         from wayflowcore.events.event import ToolExecutionResultEvent
 
         self._record_end_span_event(
@@ -621,7 +623,9 @@ class ToolExecutionSpan(Span):
                 span=self,
                 tool=self.tool,
                 tool_result=ToolResult(
-                    content=output, tool_request_id=self.tool_request.tool_request_id
+                    content=output,
+                    tool_request_id=self.tool_request.tool_request_id,
+                    artifacts=artifacts or (),
                 ),
             )
         )

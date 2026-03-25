@@ -8,7 +8,7 @@ import ast
 import json
 import logging
 import uuid
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Tuple, cast
 
 from json_repair import json_repair
 
@@ -398,7 +398,11 @@ def render_message_dict_template(message_dict: "MessageAsDictT") -> "Message":
             if tool_requests_content is not None
             else None
         ),
-        tool_result=ToolResult(**tool_result_content) if tool_result_content is not None else None,  # type: ignore
+        tool_result=(
+            ToolResult.from_raw_dict(cast(Dict[str, Any], tool_result_content))
+            if tool_result_content is not None
+            else None
+        ),
         **message_dict_copy,  # type: ignore
     )
 

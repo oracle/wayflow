@@ -45,9 +45,14 @@ from .toolbox import ToolBox
 from .tools import (
     SupportedToolTypesT,
     Tool,
+    ToolOutputArtifact,
+    ToolOutputType,
     ToolRequest,
     ToolResult,
+    _is_named_tool_output_artifact_mapping,
+    _is_tool_output_artifact_item,
     _make_tool_key,
+    _normalize_tool_output_artifacts,
     _sanitize_tool_name,
 )
 
@@ -158,6 +163,8 @@ class ServerTool(Tool):
         tool callable
     requires_confirmation: bool
         Flag to make tool require confirmation before execution. Yields a ToolExecutionConfirmationStatus during execution.
+    output_type: ToolOutputType
+        Controls whether the callable returns content only, or a ``(content, artifacts)`` tuple.
 
 
     Examples
@@ -216,6 +223,7 @@ class ServerTool(Tool):
         id: Optional[str] = None,
         _cpu_bounded: bool = False,
         __metadata_info__: Optional[MetadataType] = None,
+        output_type: ToolOutputType = ToolOutputType.CONTENT_ONLY,
     ):
         # _cpu_bounded:
         #   Whether the tool can be ran in a separate process (for cpu-bound
@@ -236,17 +244,84 @@ class ServerTool(Tool):
             requires_confirmation=requires_confirmation,
             id=id,
             __metadata_info__=__metadata_info__,
+            output_type=output_type,
         )
 
     @property
     def _tool_type(self) -> SupportedToolTypesT:
         return "server"
 
-    async def run_async(self, *args: Any, **kwargs: Any) -> Any:
+    def _normalize_tool_outputs_and_artifacts(
+        self,
+        tool_outputs: Any,
+    ) -> tuple[Any, tuple[ToolOutputArtifact, ...]]:
+        return self._extract_tool_outputs_and_artifacts(
+            tool_outputs,
+            warn_on_missing_artifacts_tuple=True,
+            add_output_defaults=True,
+        )
+
+    def _extract_tool_outputs_and_artifacts(
+        self,
+        tool_outputs: Any,
+        *,
+        warn_on_missing_artifacts_tuple: bool,
+        add_output_defaults: bool,
+    ) -> tuple[Any, tuple[ToolOutputArtifact, ...]]:
+        if self.output_type == ToolOutputType.CONTENT_ONLY:
+            if (
+                isinstance(tool_outputs, tuple)
+                and len(tool_outputs) == 2
+                and self._looks_like_tool_artifact_payload(tool_outputs[1])
+            ):
+                logger.warning(
+                    "Tool '%s' returned a potential artifact payload but is configured with "
+                    "output_type='%s'. The tuple will be treated as the tool content.",
+                    self.name,
+                    self.output_type.value,
+                )
+            content = tool_outputs
+            normalized_artifacts: tuple[ToolOutputArtifact, ...] = ()
+        elif not isinstance(tool_outputs, tuple) or len(tool_outputs) != 2:
+            if warn_on_missing_artifacts_tuple:
+                logger.warning(
+                    "Tool '%s' is configured with output_type='%s' but returned %s instead of a "
+                    "(content, artifacts) tuple. The value will be treated as content and no "
+                    "artifacts will be attached.",
+                    self.name,
+                    self.output_type.value,
+                    type(tool_outputs).__name__,
+                )
+            content = tool_outputs
+            normalized_artifacts = ()
+        else:
+            content, artifacts = tool_outputs
+            try:
+                normalized_artifacts = _normalize_tool_output_artifacts(artifacts)
+            except Exception as exc:
+                logger.warning(
+                    "Tool '%s' returned invalid artifacts (%s). Artifacts were dropped.",
+                    self.name,
+                    exc,
+                )
+                normalized_artifacts = ()
+
+        if add_output_defaults:
+            content = self._add_defaults_to_tool_outputs(content)
+        return content, normalized_artifacts
+
+    @staticmethod
+    def _looks_like_tool_artifact_payload(value: Any) -> bool:
+        if isinstance(value, tuple):
+            return all(_is_tool_output_artifact_item(item) for item in value)
+        return _is_tool_output_artifact_item(value) or _is_named_tool_output_artifact_mapping(value)
+
+    async def _execute_raw_tool_outputs_async(self, *args: Any, **kwargs: Any) -> Any:
         """
-        Runs the tool in an asynchronous manner, no matter the
-        synchronous or asynchronous aspect of its `func` attribute.
-        If `func` is synchronous, it will run in an anyio worker thread.
+        Execute the tool and return its raw output before artifact normalization.
+
+        Subclasses can override this hook to customize runtime execution while still
+        letting ``ServerTool`` handle output defaulting and artifact normalization.
         """
         if inspect.isgeneratorfunction(self.func):
             raise TypeError(
@@ -256,22 +331,22 @@ class ServerTool(Tool):
         elif inspect.isasyncgenfunction(self.func):
             return await self._run_async_generator_streaming(*args, **kwargs)
         elif is_coroutine_function(self.func):
-            tool_outputs = await self.func(*args, **kwargs)
-            return self._add_defaults_to_tool_outputs(tool_outputs)
+            return await self.func(*args, **kwargs)
         else:
             # wrap to handle named arguments
             def _wrap() -> Any:
-                return self._add_defaults_to_tool_outputs(self.func(*args, **kwargs))
+                return self.func(*args, **kwargs)
 
             if self._cpu_bounded:
                 return await run_sync_in_process(_wrap)
-            else:
-                return await run_sync_in_thread(_wrap)
+            return await run_sync_in_thread(_wrap)
 
-    def run(self, *args: Any, **kwargs: Any) -> Any:
+    def _execute_raw_tool_outputs_sync(self, *args: Any, **kwargs: Any) -> Any:
         """
-        Runs the tool in a synchronous manner, no matter the
-        synchronous or asynchronous aspect of its `func` attribute.
+        Execute the tool synchronously and return its raw output before normalization.
+
+        Subclasses overriding asynchronous execution should also override this method
+        if they expose synchronous ``run()`` behavior.
         """
         if inspect.isgeneratorfunction(self.func):
             raise TypeError(
@@ -284,14 +359,37 @@ class ServerTool(Tool):
                 "be executed via 'run' method directly. Please run an assistant conversation instead."
             )
         elif not is_coroutine_function(self.func):
-            return self._add_defaults_to_tool_outputs(self.func(*args, **kwargs))
-        else:
-            # wrap to handle named arguments
-            async def _wrap() -> Any:
-                tool_outputs = await self.func(*args, **kwargs)
-                return self._add_defaults_to_tool_outputs(tool_outputs)
+            return self.func(*args, **kwargs)
 
-            return run_async_in_sync(_wrap)
+        async def _wrap() -> Any:
+            return await self._execute_raw_tool_outputs_async(*args, **kwargs)
+
+        return run_async_in_sync(_wrap)
+
+    async def _run_async_with_artifacts(
+        self, *args: Any, **kwargs: Any
+    ) -> tuple[Any, tuple[ToolOutputArtifact, ...]]:
+        tool_outputs = await self._execute_raw_tool_outputs_async(*args, **kwargs)
+        return self._normalize_tool_outputs_and_artifacts(tool_outputs)
+
+    async def run_async(self, *args: Any, **kwargs: Any) -> Any:
+        """
+        Runs the tool in an asynchronous manner, no matter the
+        synchronous or asynchronous aspect of its `func` attribute.
+        If `func` is synchronous, it will run in an anyio worker thread.
+        """
+        tool_outputs, _ = await self._run_async_with_artifacts(*args, **kwargs)
+        return tool_outputs
+
+    def run(self, *args: Any, **kwargs: Any) -> Any:
+        """
+        Runs the tool in a synchronous manner, no matter the
+        synchronous or asynchronous aspect of its `func` attribute.
+        """
+        tool_outputs, _ = self._normalize_tool_outputs_and_artifacts(
+            self._execute_raw_tool_outputs_sync(*args, **kwargs)
+        )
+        return tool_outputs
 
     async def _run(
         self,
@@ -319,13 +417,17 @@ class ServerTool(Tool):
             tool_request=tool_request,
         ) as span:
             try:
-                output = await self.run_async(**inputs)
+                output, artifacts = await self._run_async_with_artifacts(**inputs)
                 # serialize as part of the try/catch so that if there is a serialization error, it is caught
                 serialized_output = _serialize_output(output)
             except Exception as e:
-                output, serialized_output = e, str(e)
+                output, artifacts, serialized_output = e, (), str(e)
 
-            tool_result = ToolResult(content=output, tool_request_id=tool_request.tool_request_id)
+            tool_result = ToolResult(
+                content=output,
+                tool_request_id=tool_request.tool_request_id,
+                artifacts=artifacts,
+            )
             if isinstance(output, AuthInterrupt):
                 # Auth interrupt: we should return directly
                 span.record_end_span_event(str(output))
@@ -340,7 +442,9 @@ class ServerTool(Tool):
                     )
 
                 tool_result = ToolResult(
-                    content=output, tool_request_id=tool_request.tool_request_id
+                    content=output,
+                    tool_request_id=tool_request.tool_request_id,
+                    artifacts=artifacts,
                 )
                 sender = None
                 recipients = None
@@ -357,9 +461,7 @@ class ServerTool(Tool):
                     )
                 )
 
-            span.record_end_span_event(
-                output=output,
-            )
+            span.record_end_span_event(output=tool_result.content, artifacts=tool_result.artifacts)
         logger.debug(
             'Tool "%s" (id=%s) returned: %s',
             tool_request.name,
@@ -401,16 +503,22 @@ class ServerTool(Tool):
         try:
             second_chunk = await agenerator.__anext__()
         except StopAsyncIteration:
-            return self._add_defaults_to_tool_outputs(first_chunk)
+            return first_chunk
 
-        def _emit_tool_streaming_event(content: Any) -> None:
+        def _emit_tool_streaming_event(tool_output: Any) -> None:
             current_span = get_current_span()
             if isinstance(current_span, ToolExecutionSpan):
+                content, artifacts = self._extract_tool_outputs_and_artifacts(
+                    tool_output,
+                    warn_on_missing_artifacts_tuple=False,
+                    add_output_defaults=False,
+                )
                 record_event(
                     ToolExecutionStreamingChunkReceivedEvent(
                         tool=self,
                         tool_request=current_span.tool_request,
                         content=content,
+                        artifacts=artifacts,
                     )
                 )
             else:
@@ -432,7 +540,7 @@ class ServerTool(Tool):
             try:
                 next_chunk = await agenerator.__anext__()
             except StopAsyncIteration:
-                return self._add_defaults_to_tool_outputs(previous_chunk)
+                return previous_chunk
             _emit_tool_streaming_event(previous_chunk)
             chunk_count += 1
             previous_chunk = next_chunk

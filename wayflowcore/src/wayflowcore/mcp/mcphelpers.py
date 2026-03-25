@@ -4,12 +4,14 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import base64
 import inspect
 import json
 import logging
 from collections.abc import AsyncGenerator as cAsyncGenerator
 from contextlib import contextmanager
 from contextvars import ContextVar
+from dataclasses import replace
 from functools import wraps
 from typing import (
     Any,
@@ -20,9 +22,12 @@ from typing import (
     Literal,
     Optional,
     Protocol,
+    Tuple,
     Type,
+    TypeAlias,
     TypedDict,
     TypeVar,
+    Union,
     cast,
     get_args,
     get_origin,
@@ -34,6 +39,7 @@ from mcp import types as types
 from mcp.server.fastmcp import Context
 from mcp.server.session import ServerSessionT
 from mcp.shared.context import LifespanContextT, RequestT
+from typing_extensions import NotRequired
 
 from wayflowcore.events.event import ToolExecutionStreamingChunkReceivedEvent
 from wayflowcore.events.eventlistener import record_event
@@ -52,7 +58,13 @@ from wayflowcore.property import (
     UnionProperty,
 )
 from wayflowcore.tools.servertools import ServerTool
-from wayflowcore.tools.tools import Tool
+from wayflowcore.tools.toolhelpers import _unwrap_artifact_output_annotation
+from wayflowcore.tools.tools import (
+    TOOL_OUTPUT_TYPE_METADATA_KEY,
+    Tool,
+    ToolOutputArtifact,
+    ToolOutputType,
+)
 from wayflowcore.tracing.span import ToolExecutionSpan, get_current_span
 
 logger = logging.getLogger(__name__)
@@ -61,6 +73,40 @@ logger = logging.getLogger(__name__)
 _GLOBAL_ENABLED_MCP_WITHOUT_AUTH: ContextVar[bool] = ContextVar(
     "_GLOBAL_ENABLED_MCP_WITHOUT_AUTH", default=False
 )
+
+# Reserved structured-content key used to transport WayFlow artifacts over MCP
+# without exposing them as model-visible tool content.
+_MCP_TOOL_ARTIFACT_ENVELOPE_KEY = "__wayflowcore_tool_artifacts__"
+_MCP_TOOL_ARTIFACT_CONTENT_KEY = "content"
+_MCP_TOOL_ARTIFACT_ITEMS_KEY = "artifacts"
+_MCP_TOOL_ARTIFACT_DATA_ENCODING_KEY = "data_encoding"
+_MCP_TOOL_ARTIFACT_TEXT_ENCODING = "text"
+_MCP_TOOL_ARTIFACT_BASE64_ENCODING = "base64"
+_MCP_DEFAULT_TEXT_ARTIFACT_MIME_TYPE = "text/plain"
+_MCP_DEFAULT_BINARY_ARTIFACT_MIME_TYPE = "application/octet-stream"
+
+
+MCPToolOutputT = TypeVar("MCPToolOutputT")
+
+
+class MCPToolOutputArtifactT(TypedDict):
+    """Developer-facing MCP artifact dictionary."""
+
+    data: str | bytes
+    mime_type: NotRequired[str]
+    name: NotRequired[str]
+
+
+MCPToolOutputArtifactTypeT: TypeAlias = Union[
+    str,
+    bytes,
+    MCPToolOutputArtifactT,
+    Tuple[MCPToolOutputArtifactT, ...],
+]
+"""Accepted artifact payload shapes for WayFlow's MCP streaming helper."""
+
+ReturnArtifact: TypeAlias = Tuple[MCPToolOutputT, MCPToolOutputArtifactTypeT]
+"""Convenience alias for MCP server-tool return annotations."""
 
 
 def enable_mcp_without_auth() -> None:
@@ -137,6 +183,258 @@ def _extract_text_content_from_tool_result(result: types.CallToolResult) -> str:
     return text_content
 
 
+def _serialize_normalized_tool_output_artifacts_for_mcp(
+    artifacts: tuple[ToolOutputArtifact, ...],
+) -> list[dict[str, Any]]:
+    serialized_artifacts: list[dict[str, Any]] = []
+    for artifact in artifacts:
+        artifact_data: str
+        data_encoding = _MCP_TOOL_ARTIFACT_TEXT_ENCODING
+        if isinstance(artifact.data, bytes):
+            artifact_data = base64.b64encode(artifact.data).decode("ascii")
+            data_encoding = _MCP_TOOL_ARTIFACT_BASE64_ENCODING
+        else:
+            artifact_data = artifact.data
+
+        serialized_artifacts.append(
+            {
+                "name": artifact.name,
+                "mime_type": artifact.mime_type,
+                "data": artifact_data,
+                _MCP_TOOL_ARTIFACT_DATA_ENCODING_KEY: data_encoding,
+            }
+        )
+
+    return serialized_artifacts
+
+
+def _normalize_mcp_tool_output_artifact(
+    artifact: str | bytes | MCPToolOutputArtifactT,
+    *,
+    require_name: bool,
+) -> ToolOutputArtifact:
+    if isinstance(artifact, str):
+        if require_name:
+            raise TypeError(
+                "MCP artifact tuples only accept named artifact dictionaries for each artifact item."
+            )
+        return ToolOutputArtifact(
+            mime_type=_MCP_DEFAULT_TEXT_ARTIFACT_MIME_TYPE,
+            data=artifact,
+        )
+
+    if isinstance(artifact, bytes):
+        if require_name:
+            raise TypeError(
+                "MCP artifact tuples only accept named artifact dictionaries for each artifact item."
+            )
+        return ToolOutputArtifact(
+            mime_type=_MCP_DEFAULT_BINARY_ARTIFACT_MIME_TYPE,
+            data=artifact,
+        )
+
+    if not isinstance(artifact, dict) or "data" not in artifact:
+        raise TypeError(
+            "MCP artifacts should be returned as `str | bytes | MCPToolOutputArtifactT | "
+            "tuple[MCPToolOutputArtifactT, ...]`."
+        )
+
+    name = artifact.get("name")
+    if require_name and not name:
+        raise ValueError(
+            "Each MCP artifact dictionary inside a tuple should define a non-empty `name`."
+        )
+    if name is not None and (not isinstance(name, str) or not name):
+        raise TypeError("MCP artifact dictionary field `name` should be a non-empty string")
+
+    data = artifact["data"]
+    if not isinstance(data, (str, bytes)):
+        raise TypeError("MCP artifact dictionary field `data` should be `str | bytes`")
+
+    mime_type = artifact.get(
+        "mime_type",
+        (
+            _MCP_DEFAULT_TEXT_ARTIFACT_MIME_TYPE
+            if isinstance(data, str)
+            else _MCP_DEFAULT_BINARY_ARTIFACT_MIME_TYPE
+        ),
+    )
+    if not isinstance(mime_type, str) or not mime_type:
+        raise TypeError("MCP artifact dictionary field `mime_type` should be a non-empty string")
+
+    return ToolOutputArtifact(name=name, mime_type=mime_type, data=data)
+
+
+def _normalize_mcp_tool_output_artifacts(
+    artifacts: MCPToolOutputArtifactTypeT,
+) -> tuple[ToolOutputArtifact, ...]:
+    if isinstance(artifacts, tuple):
+        return tuple(
+            _normalize_mcp_tool_output_artifact(artifact, require_name=True)
+            for artifact in artifacts
+        )
+
+    return (_normalize_mcp_tool_output_artifact(artifacts, require_name=False),)
+
+
+def _deserialize_tool_output_artifacts_from_mcp(
+    artifact_payloads: Any,
+) -> tuple[ToolOutputArtifact, ...]:
+    if not isinstance(artifact_payloads, list):
+        raise TypeError("MCP artifact payload should be a list")
+
+    deserialized_artifacts: list[ToolOutputArtifact] = []
+    for artifact_payload in artifact_payloads:
+        if not isinstance(artifact_payload, dict):
+            raise TypeError("Each MCP artifact payload should be a dictionary")
+
+        name = artifact_payload.get("name")
+        mime_type = artifact_payload.get("mime_type")
+        data = artifact_payload.get("data")
+        data_encoding = artifact_payload.get(
+            _MCP_TOOL_ARTIFACT_DATA_ENCODING_KEY, _MCP_TOOL_ARTIFACT_TEXT_ENCODING
+        )
+
+        if data_encoding == _MCP_TOOL_ARTIFACT_BASE64_ENCODING:
+            if not isinstance(data, str):
+                raise TypeError("Base64-encoded MCP artifact payloads should be strings")
+            artifact_data: str | bytes = base64.b64decode(data)
+        elif data_encoding == _MCP_TOOL_ARTIFACT_TEXT_ENCODING:
+            if not isinstance(data, str):
+                raise TypeError("Text MCP artifact payloads should be strings")
+            artifact_data = data
+        else:
+            raise ValueError(f"Unsupported MCP artifact payload encoding '{data_encoding}'")
+
+        deserialized_artifacts.append(
+            ToolOutputArtifact(name=name, mime_type=mime_type, data=artifact_data)
+        )
+
+    return tuple(deserialized_artifacts)
+
+
+def _extract_mcp_tool_output_and_artifacts(
+    tool_output: Any,
+    *,
+    tool_name: str,
+    warn_on_missing_artifacts_tuple: bool,
+) -> tuple[Any, tuple[ToolOutputArtifact, ...]]:
+    if not isinstance(tool_output, tuple) or len(tool_output) != 2:
+        if warn_on_missing_artifacts_tuple:
+            logger.warning(
+                "Streaming MCP tool '%s' is configured with output_type='%s' but returned %s "
+                "instead of a (content, artifacts) tuple. Artifacts were dropped.",
+                tool_name,
+                ToolOutputType.CONTENT_AND_ARTIFACT.value,
+                type(tool_output).__name__,
+            )
+        return tool_output, ()
+
+    content, artifacts = tool_output
+    try:
+        normalized_artifacts = _normalize_mcp_tool_output_artifacts(artifacts)
+    except Exception as exc:
+        logger.warning(
+            "Streaming MCP tool '%s' returned invalid artifacts (%s). Artifacts were dropped.",
+            tool_name,
+            exc,
+        )
+        return content, ()
+
+    return content, normalized_artifacts
+
+
+def _build_mcp_tool_artifact_result(
+    content: Any,
+    artifacts: tuple[ToolOutputArtifact, ...],
+) -> Any:
+    from fastmcp.tools.tool import ToolResult as FastMCPToolResult
+
+    structured_content: dict[str, Any]
+    if isinstance(content, dict):
+        structured_content = dict(content)
+    else:
+        structured_content = {"result": content}
+
+    structured_content[_MCP_TOOL_ARTIFACT_ENVELOPE_KEY] = {
+        _MCP_TOOL_ARTIFACT_CONTENT_KEY: content,
+        _MCP_TOOL_ARTIFACT_ITEMS_KEY: _serialize_normalized_tool_output_artifacts_for_mcp(
+            artifacts
+        ),
+    }
+
+    return FastMCPToolResult(
+        content=content,
+        structured_content=structured_content,
+    )
+
+
+def _build_mcp_tool_artifact_result_or_fallback(
+    final_output: Any,
+    tool_name: str,
+) -> Any:
+    content, artifacts = _extract_mcp_tool_output_and_artifacts(
+        final_output,
+        tool_name=tool_name,
+        warn_on_missing_artifacts_tuple=True,
+    )
+    if not isinstance(final_output, tuple) or len(final_output) != 2:
+        return content
+    return _build_mcp_tool_artifact_result(content, artifacts)
+
+
+def _try_extract_artifact_output_from_mcp_result(
+    result: types.CallToolResult,
+    tool_name: str,
+    output_type: ToolOutputType,
+) -> Optional[Any]:
+    structured_output = result.structuredContent
+    if not isinstance(structured_output, dict):
+        return None
+
+    envelope = structured_output.get(_MCP_TOOL_ARTIFACT_ENVELOPE_KEY)
+    if envelope is None and isinstance(structured_output.get("result"), dict):
+        envelope = structured_output["result"].get(_MCP_TOOL_ARTIFACT_ENVELOPE_KEY)
+    if envelope is None:
+        return None
+
+    if not isinstance(envelope, dict):
+        logger.warning(
+            "Encountered malformed MCP artifact envelope for tool '%s'. Artifacts were dropped.",
+            tool_name,
+        )
+        fallback_output = _extract_text_content_from_tool_result(result)
+        return (
+            (fallback_output, ())
+            if output_type == ToolOutputType.CONTENT_AND_ARTIFACT
+            else fallback_output
+        )
+
+    content = envelope.get(_MCP_TOOL_ARTIFACT_CONTENT_KEY)
+    artifact_payloads = envelope.get(_MCP_TOOL_ARTIFACT_ITEMS_KEY, [])
+    try:
+        artifacts = _deserialize_tool_output_artifacts_from_mcp(artifact_payloads)
+    except Exception as exc:
+        logger.warning(
+            "Failed to decode MCP tool artifacts for tool '%s' (%s). Artifacts were dropped.",
+            tool_name,
+            exc,
+        )
+        return (content, ()) if output_type == ToolOutputType.CONTENT_AND_ARTIFACT else content
+
+    if output_type == ToolOutputType.CONTENT_AND_ARTIFACT:
+        return content, artifacts
+
+    if len(artifacts) != 0:
+        logger.warning(
+            "MCP tool '%s' returned artifacts but is configured with output_type='%s'. "
+            "Artifacts were dropped.",
+            tool_name,
+            output_type.value,
+        )
+    return content
+
+
 def _try_handle_structured_content_from_tool_result(
     result: types.CallToolResult, output_descriptors: List[Property]
 ) -> Optional[Any]:
@@ -195,6 +493,7 @@ def _try_handle_structured_content_from_tool_result(
 class MCPProgressMessage(TypedDict):
     type: Literal["tool/stream"]
     content: Any
+    artifacts: NotRequired[list[dict[str, Any]]]
 
 
 async def _mcp_progress_handler(progress: float, total: float | None, message: str | None) -> None:
@@ -233,11 +532,33 @@ async def _mcp_progress_handler(progress: float, total: float | None, message: s
     message_type = message_dict["type"]
     content = message_dict["content"]
     if message_type == "tool/stream":
+        chunk_artifacts: tuple[ToolOutputArtifact, ...] = ()
+        artifact_payloads = message_dict.get("artifacts", [])
+        if artifact_payloads:
+            try:
+                chunk_artifacts = _deserialize_tool_output_artifacts_from_mcp(artifact_payloads)
+            except Exception as exc:
+                logger.warning(
+                    "Failed to decode streamed MCP tool artifacts (%s). Artifacts were dropped.",
+                    exc,
+                )
+        if (
+            len(chunk_artifacts) != 0
+            and current_span.tool.output_type != ToolOutputType.CONTENT_AND_ARTIFACT
+        ):
+            logger.warning(
+                "MCP tool '%s' streamed artifacts but is configured with output_type='%s'. "
+                "Artifacts were dropped.",
+                current_span.tool.name,
+                current_span.tool.output_type.value,
+            )
+            chunk_artifacts = ()
         record_event(
             ToolExecutionStreamingChunkReceivedEvent(
                 tool=current_span.tool,
                 tool_request=current_span.tool_request,
                 content=content,
+                artifacts=chunk_artifacts,
             )
         )
     else:
@@ -249,11 +570,20 @@ async def _invoke_mcp_tool_call_async(
     tool_name: str,
     tool_args: Dict[str, Any],
     output_descriptors: List[Property],
+    output_type: ToolOutputType,
 ) -> Any:
     with _catch_and_raise_mcp_connection_errors():
         result: types.CallToolResult = await session.call_tool(
             tool_name, tool_args, progress_callback=_mcp_progress_handler
         )
+
+        artifact_output = _try_extract_artifact_output_from_mcp_result(
+            result=result,
+            tool_name=tool_name,
+            output_type=output_type,
+        )
+        if artifact_output is not None:
+            return artifact_output
 
         output = _try_handle_structured_content_from_tool_result(result, output_descriptors)
         if output is not None:
@@ -327,6 +657,7 @@ async def get_server_tools_from_mcp_server(
     session: ClientSession,
     expected_signatures_by_name: Dict[str, Optional[Tool]],
     client_transport: ClientTransport,
+    use_remote_output_type: bool = False,
 ) -> List[ServerTool]:
     from wayflowcore.mcp.tools import MCPTool
 
@@ -369,8 +700,25 @@ async def get_server_tools_from_mcp_server(
             tool_title=(exposed_tool.title or exposed_tool.name) + "Output",
         )
         remote_description = exposed_tool.description or ""
+        remote_output_type = ToolOutputType.CONTENT_ONLY
+        if exposed_tool.meta and TOOL_OUTPUT_TYPE_METADATA_KEY in exposed_tool.meta:
+            try:
+                remote_output_type = ToolOutputType(
+                    exposed_tool.meta[TOOL_OUTPUT_TYPE_METADATA_KEY]
+                )
+            except ValueError:
+                logger.warning(
+                    "Remote MCP tool '%s' exposed an invalid output_type metadata value '%s'. "
+                    "Falling back to '%s'.",
+                    exposed_tool_name,
+                    exposed_tool.meta[TOOL_OUTPUT_TYPE_METADATA_KEY],
+                    ToolOutputType.CONTENT_ONLY.value,
+                )
 
         output_descriptors: Optional[List[Property]]
+        resolved_output_type = (
+            remote_output_type if use_remote_output_type else ToolOutputType.CONTENT_ONLY
+        )
         if (
             expected_signatures_by_name
             and expected_signatures_by_name[exposed_tool_name] is not None
@@ -403,12 +751,29 @@ async def get_server_tools_from_mcp_server(
                 )
             description = expected_tool_signature.description
             requires_confirmation = expected_tool_signature.requires_confirmation
+            resolved_output_type = expected_tool_signature.output_type
+            if expected_tool_signature.output_type != remote_output_type:
+                logger.warning(
+                    "The output type exposed by the remote MCP server does not match the locally defined output type for tool `%s`: local output_type=%s, remote output_type=%s",
+                    expected_tool_signature.name,
+                    expected_tool_signature.output_type.value,
+                    remote_output_type.value,
+                )
         else:
             # we use the ones exposed by the MCP server
             input_descriptors = remote_input_descriptors
             output_descriptors = remote_output_descriptors
             description = remote_description
             requires_confirmation = False
+            if remote_output_type != ToolOutputType.CONTENT_ONLY and not use_remote_output_type:
+                logger.warning(
+                    "Remote MCP tool '%s' exposed output_type='%s', but WayFlow defaults to "
+                    "'%s' unless the local MCPTool or tool signature explicitly sets "
+                    "`output_type`.",
+                    exposed_tool_name,
+                    remote_output_type.value,
+                    ToolOutputType.CONTENT_ONLY.value,
+                )
 
         processed_tool_signatures.append(
             MCPTool(
@@ -419,6 +784,7 @@ async def get_server_tools_from_mcp_server(
                 client_transport=client_transport,
                 _validate_tool_exist_on_server=False,
                 requires_confirmation=requires_confirmation,
+                output_type=resolved_output_type,
             )
         )
     return processed_tool_signatures
@@ -428,7 +794,12 @@ async def _get_tool_on_server(
     session: ClientSession, name: str, client_transport: ClientTransport
 ) -> Tool:
     try:
-        tools = await get_server_tools_from_mcp_server(session, {name: None}, client_transport)
+        tools = await get_server_tools_from_mcp_server(
+            session,
+            {name: None},
+            client_transport,
+            use_remote_output_type=True,
+        )
     except NoSuchToolFoundOnMCPServerError as e:
         tools = []
     except Exception as e:
@@ -445,7 +816,10 @@ async def _get_tool_on_server(
 ToolOutuptTypeT = TypeVar("ToolOutuptTypeT")
 
 
-def _extract_async_generator_inner_return_type(func: Callable[..., Any]) -> Any:
+def _extract_async_generator_inner_return_type(
+    func: Callable[..., Any],
+    output_type: ToolOutputType = ToolOutputType.CONTENT_ONLY,
+) -> Any:
     """
     If func is annotated as AsyncGenerator[T, None], return T; else return Any.
     """
@@ -456,15 +830,54 @@ def _extract_async_generator_inner_return_type(func: Callable[..., Any]) -> Any:
         # typing.AsyncGenerator is an alias of collections.abc.AsyncGenerator
         # but they are not equal, so we need both.
         args = get_args(annotations)
-        return args[0] if args else Any
+        if not args:
+            return Any
+        return _unwrap_artifact_output_annotation(
+            args[0],
+            output_type=output_type,
+            tool_name=getattr(func, "__name__", "<anonymous>"),
+        )
 
     return Any
 
 
+def _attach_output_type_metadata_to_fastmcp_callable(
+    func: Callable[..., Any],
+    output_type: ToolOutputType,
+) -> None:
+    if output_type == ToolOutputType.CONTENT_ONLY:
+        return
+
+    from fastmcp.decorators import get_fastmcp_meta
+    from fastmcp.tools.function_tool import ToolMeta
+
+    existing_metadata = get_fastmcp_meta(func)
+    merged_meta = (
+        dict(existing_metadata.meta)
+        if isinstance(existing_metadata, ToolMeta) and existing_metadata.meta
+        else {}
+    )
+    merged_meta[TOOL_OUTPUT_TYPE_METADATA_KEY] = output_type.value
+
+    metadata = (
+        replace(existing_metadata, meta=merged_meta)
+        if isinstance(existing_metadata, ToolMeta)
+        else ToolMeta(meta=merged_meta)
+    )
+
+    target = func.__func__ if hasattr(func, "__func__") else func
+    target.__fastmcp__ = metadata  # type: ignore[attr-defined]
+
+
 async def _stream_tool_output_chunk(
-    ctx: Context[ServerSessionT, LifespanContextT, RequestT], progress: int, payload: Any
+    ctx: Context[ServerSessionT, LifespanContextT, RequestT],
+    progress: int,
+    payload: Any,
+    artifacts: tuple[ToolOutputArtifact, ...] = (),
 ) -> None:
     message: MCPProgressMessage = {"type": "tool/stream", "content": payload}
+    if len(artifacts) != 0:
+        message["artifacts"] = _serialize_normalized_tool_output_artifacts_for_mcp(artifacts)
     msg_str = json.dumps(message, default=str)
     await ctx.report_progress(progress, message=msg_str)
 
@@ -480,8 +893,10 @@ class ContextType(Protocol):
 
 
 def mcp_streaming_tool(
-    func: Callable[..., AsyncGenerator[ToolOutuptTypeT, None]],
+    func: Optional[Callable[..., AsyncGenerator[ToolOutuptTypeT, None]]] = None,
+    *,
     context_cls: Optional[Type[ContextType]] = None,
+    output_type: ToolOutputType = ToolOutputType.CONTENT_ONLY,
 ) -> Callable[..., Any]:
     """
     Decorate an MCP tool callable to enable streaming tool outputs.
@@ -502,7 +917,22 @@ def mcp_streaming_tool(
         If ``None``, the decorator uses the ``Context`` type from the official
         MCP SDK. When using third-party MCP libraries, provide the appropriate
         context class so the decorator can correctly locate and use the context.
+    output_type:
+        Controls the yielded value artifact contract.
 
+        * With ``ToolOutputType.CONTENT_ONLY``, the final yielded value is returned as the
+          MCP tool result.
+        * With ``ToolOutputType.CONTENT_AND_ARTIFACT``, each yielded value may be either
+          ``content`` or ``(content, artifacts)``.
+
+          * A single artifact may be returned as ``str``, ``bytes``, or a dictionary with
+            ``data`` and optional ``mime_type`` / ``name``.
+          * Several artifacts should be returned as a tuple of named dictionaries.
+
+        Earlier yielded artifacts are exposed on
+        ``ToolExecutionStreamingChunkReceivedEvent.artifacts``.
+        Only artifacts returned by the final yielded value are attached to the final
+        ``ToolExecutionResultEvent`` and ``ToolResult``.
 
     Note
     ----
@@ -521,100 +951,155 @@ def mcp_streaming_tool(
     >>> import anyio
     >>> from typing import AsyncGenerator
     >>> from mcp.server.fastmcp import FastMCP
-    >>> from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
+    >>> from wayflowcore.mcp.mcphelpers import ReturnArtifact, mcp_streaming_tool
     >>> server = FastMCP(
     ...     name="Example MCP Server",
     ...     instructions="A MCP Server.",
     ... )
     >>> @server.tool(description="Stream intermediate outputs, then yield the final result.")
     ... @mcp_streaming_tool
-    ... async def my_streaming_tool(topic: str) -> AsyncGenerator[str, None]:
+    ... async def my_streaming_tool(topic: str) -> AsyncGenerator[ReturnArtifact[str], None]:
     ...     all_sentences = [f"{topic} part {i}" for i in range(2)]
     ...     for i in range(2):
     ...         await anyio.sleep(0.2)  # simulate work
-    ...         yield all_sentences[i]
-    ...     yield ". ".join(all_sentences)
+    ...         yield all_sentences[i], {"name": f"{i}.txt", "data": all_sentences[i]}
+    ...     yield ". ".join(all_sentences), {"name": "full.txt", "data": ". ".join(all_sentences)}
     >>>
     >>> # server.run(transport="streamable-http")
 
     """
-    if not inspect.isasyncgenfunction(func):
-        raise TypeError("@mcp_streaming_tool can only be applied to async generator functions")
 
-    context_cls_ = context_cls or Context
+    def _decorate(
+        target_func: Callable[..., AsyncGenerator[ToolOutuptTypeT, None]],
+    ) -> Callable[..., Any]:
+        if not inspect.isasyncgenfunction(target_func):
+            raise TypeError("@mcp_streaming_tool can only be applied to async generator functions")
 
-    callable_signature = inspect.signature(func)
-    callable_parameters = list(callable_signature.parameters.values())
-    func_return_type = _extract_async_generator_inner_return_type(func)
+        context_cls_ = context_cls or Context
+        tool_name = getattr(target_func, "__name__", "<anonymous>")
 
-    # Decide whether to pass ctx into the underlying generator
-    has_ctx_parameter = "ctx" in callable_signature.parameters
-    has_kwargs_parameter = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in callable_parameters)
-
-    @wraps(func)
-    async def wrapped(
-        ctx: Context[ServerSessionT, LifespanContextT, RequestT], *args: Any, **kwargs: Any
-    ) -> Any:
-        if has_ctx_parameter and "ctx" not in kwargs:
-            kwargs["ctx"] = ctx
-        elif (not has_ctx_parameter) and has_kwargs_parameter:
-            # If user declared **kwargs, allow ctx to be consumed optionally.
-            kwargs.setdefault("ctx", ctx)
-
-        agenerator = func(*args, **kwargs)
-        try:
-            # Pull first item
-            try:
-                first = await agenerator.__anext__()
-            except StopAsyncIteration:
-                raise ValueError("Tool generator produced no items; expected at least one yield")
-
-            # Try to pull second item to determine whether `first` is final.
-            try:
-                second = await agenerator.__anext__()
-            except StopAsyncIteration:
-                # Single-yield generator: treat that item as the final result (no progress)
-                return first
-
-            progress_idx = 0
-            # We now know there is more than one item, so report `first` as progress.
-            await _stream_tool_output_chunk(ctx, progress_idx, first)
-            prev = second
-            while True:
-                progress_idx += 1
-                try:
-                    nxt = await agenerator.__anext__()
-                except StopAsyncIteration:
-                    # prev is the last element -> return as main result
-                    return prev
-
-                await _stream_tool_output_chunk(ctx, progress_idx, prev)
-                prev = nxt
-        finally:
-            try:
-                await agenerator.aclose()
-            except Exception:
-                logger.error("Encountered error while closing async generator '%s'", agenerator)
-
-    if has_ctx_parameter:
-        wrapped.__signature__ = callable_signature.replace(return_annotation=func_return_type)  # type: ignore
-    else:
-        new_params = [
-            inspect.Parameter(
-                "ctx",
-                kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
-                annotation=context_cls_,
-            ),
-            *callable_parameters,
-        ]
-        wrapped.__signature__ = callable_signature.replace(  # type: ignore
-            parameters=new_params, return_annotation=func_return_type
+        callable_signature = inspect.signature(target_func)
+        callable_parameters = list(callable_signature.parameters.values())
+        func_return_type = _extract_async_generator_inner_return_type(
+            target_func,
+            output_type=output_type,
         )
 
-    # Fix annotations so tool frameworks see a normal return type.
-    wrapped.__annotations__ = dict(getattr(func, "__annotations__", {}))
-    wrapped.__annotations__["return"] = func_return_type
-    if not has_ctx_parameter:
-        wrapped.__annotations__.setdefault("ctx", context_cls_)
+        # Decide whether to pass ctx into the underlying generator
+        has_ctx_parameter = "ctx" in callable_signature.parameters
+        has_kwargs_parameter = any(
+            p.kind == inspect.Parameter.VAR_KEYWORD for p in callable_parameters
+        )
 
-    return wrapped
+        @wraps(target_func)
+        async def wrapped(
+            ctx: Context[ServerSessionT, LifespanContextT, RequestT], *args: Any, **kwargs: Any
+        ) -> Any:
+            if has_ctx_parameter and "ctx" not in kwargs:
+                kwargs["ctx"] = ctx
+            elif (not has_ctx_parameter) and has_kwargs_parameter:
+                # If user declared **kwargs, allow ctx to be consumed optionally.
+                kwargs.setdefault("ctx", ctx)
+
+            agenerator = target_func(*args, **kwargs)
+            try:
+                # Pull first item
+                try:
+                    first = await agenerator.__anext__()
+                except StopAsyncIteration:
+                    raise ValueError(
+                        "Tool generator produced no items; expected at least one yield"
+                    )
+
+                # Try to pull second item to determine whether `first` is final.
+                try:
+                    second = await agenerator.__anext__()
+                except StopAsyncIteration:
+                    # Single-yield generator: treat that item as the final result (no progress)
+                    if output_type == ToolOutputType.CONTENT_AND_ARTIFACT:
+                        return _build_mcp_tool_artifact_result_or_fallback(
+                            first,
+                            tool_name,
+                        )
+                    return first
+
+                progress_idx = 0
+                # We now know there is more than one item, so report `first` as progress.
+                if output_type == ToolOutputType.CONTENT_AND_ARTIFACT:
+                    first_content, first_artifacts = _extract_mcp_tool_output_and_artifacts(
+                        first,
+                        tool_name=tool_name,
+                        warn_on_missing_artifacts_tuple=False,
+                    )
+                    await _stream_tool_output_chunk(
+                        ctx,
+                        progress_idx,
+                        first_content,
+                        first_artifacts,
+                    )
+                else:
+                    await _stream_tool_output_chunk(ctx, progress_idx, first)
+                prev = second
+                while True:
+                    progress_idx += 1
+                    try:
+                        nxt = await agenerator.__anext__()
+                    except StopAsyncIteration:
+                        # prev is the last element -> return as main result
+                        if output_type == ToolOutputType.CONTENT_AND_ARTIFACT:
+                            return _build_mcp_tool_artifact_result_or_fallback(
+                                prev,
+                                tool_name,
+                            )
+                        return prev
+
+                    if output_type == ToolOutputType.CONTENT_AND_ARTIFACT:
+                        prev_content, prev_artifacts = _extract_mcp_tool_output_and_artifacts(
+                            prev,
+                            tool_name=tool_name,
+                            warn_on_missing_artifacts_tuple=False,
+                        )
+                        await _stream_tool_output_chunk(
+                            ctx,
+                            progress_idx,
+                            prev_content,
+                            prev_artifacts,
+                        )
+                    else:
+                        await _stream_tool_output_chunk(ctx, progress_idx, prev)
+                    prev = nxt
+            finally:
+                try:
+                    await agenerator.aclose()
+                except Exception:
+                    logger.error("Encountered error while closing async generator '%s'", agenerator)
+
+        if has_ctx_parameter:
+            wrapped.__signature__ = callable_signature.replace(  # type: ignore[attr-defined]
+                return_annotation=func_return_type
+            )
+        else:
+            new_params = [
+                inspect.Parameter(
+                    "ctx",
+                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    annotation=context_cls_,
+                ),
+                *callable_parameters,
+            ]
+            wrapped.__signature__ = callable_signature.replace(  # type: ignore[attr-defined]
+                parameters=new_params, return_annotation=func_return_type
+            )
+
+        # Fix annotations so tool frameworks see a normal return type.
+        wrapped.__annotations__ = dict(getattr(target_func, "__annotations__", {}))
+        wrapped.__annotations__["return"] = func_return_type
+        if not has_ctx_parameter:
+            wrapped.__annotations__.setdefault("ctx", context_cls_)
+
+        _attach_output_type_metadata_to_fastmcp_callable(wrapped, output_type)
+        return wrapped
+
+    if func is None:
+        return _decorate
+    return _decorate(func)

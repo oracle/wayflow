@@ -26,7 +26,7 @@ from wayflowcore.serialization.context import DeserializationContext, Serializat
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.toolbox import ToolBox
-from wayflowcore.tools.tools import Tool
+from wayflowcore.tools.tools import Tool, ToolOutputArtifact, ToolOutputType
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +51,7 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
         description: Optional[str] = None,
         input_descriptors: Optional[List[Property]] = None,
         output_descriptors: Optional[List[Property]] = None,
+        output_type: Optional[ToolOutputType] = None,
         _validate_server_exists: bool = True,
         _validate_tool_exist_on_server: bool = True,
         __metadata_info__: Optional[MetadataType] = None,
@@ -100,11 +101,28 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
                     output_descriptors,
                     tool.output_descriptors,
                 )
+            if output_type is None and tool.output_type != ToolOutputType.CONTENT_ONLY:
+                logger.warning(
+                    "Remote MCP tool '%s' exposed output_type=%s, but local MCPTool defaults "
+                    "to output_type=%s unless configured explicitly.",
+                    name,
+                    tool.output_type.value,
+                    ToolOutputType.CONTENT_ONLY.value,
+                )
+            elif output_type is not None and output_type != tool.output_type:
+                logger.warning(
+                    "The output type exposed by the remote MCP server does not match the locally defined output type for tool `%s`: local output_type=%s, remote output_type=%s",
+                    name,
+                    output_type.value,
+                    tool.output_type.value,
+                )
 
         if description is None or input_descriptors is None:
             raise ValueError(
                 f"For the tool to be usable, it should have a description and input_descriptors, but got: {description} and {input_descriptors}"
             )
+        if output_type is None:
+            output_type = ToolOutputType.CONTENT_ONLY
 
         async def wrapped_async(**kwargs: Any) -> Any:
             raise RuntimeError("Should not be called")
@@ -118,10 +136,11 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
             id=id,
             __metadata_info__=__metadata_info__,
             requires_confirmation=requires_confirmation,
+            output_type=output_type,
         )
 
-    async def run_async(self, *args: Any, **kwargs: Any) -> Any:
-        """Runs the MCP tool in an asynchronous manner."""
+    async def _execute_raw_tool_outputs_async(self, *args: Any, **kwargs: Any) -> Any:
+        """Execute the MCP tool asynchronously and return its raw output."""
         mcp_runtime = get_mcp_async_runtime()
         # Offload to worker thread so the event loop does not block when creating sessions.
         session = await to_thread.run_sync(
@@ -129,17 +148,43 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
         )
 
         return await mcp_runtime.call_async(
-            _invoke_mcp_tool_call_async, session, self.name, kwargs, self.output_descriptors
+            _invoke_mcp_tool_call_async,
+            session,
+            self.name,
+            kwargs,
+            self.output_descriptors,
+            self.output_type,
         )
 
-    def run(self, *args: Any, **kwargs: Any) -> Any:
-        """Runs the MCP tool in a synchronous manner."""
+    def _execute_raw_tool_outputs_sync(self, *args: Any, **kwargs: Any) -> Any:
+        """Execute the MCP tool synchronously and return its raw output."""
         mcp_runtime = get_mcp_async_runtime()
         session = mcp_runtime.get_or_create_session(self.client_transport)
 
         return mcp_runtime.call(
-            _invoke_mcp_tool_call_async, session, self.name, kwargs, self.output_descriptors
+            _invoke_mcp_tool_call_async,
+            session,
+            self.name,
+            kwargs,
+            self.output_descriptors,
+            self.output_type,
         )
+
+    def _normalize_tool_outputs_and_artifacts(
+        self,
+        tool_outputs: Any,
+    ) -> tuple[Any, tuple[ToolOutputArtifact, ...]]:
+        if (
+            self.output_type == ToolOutputType.CONTENT_AND_ARTIFACT
+            and isinstance(tool_outputs, tuple)
+            and len(tool_outputs) == 2
+            and isinstance(tool_outputs[1], tuple)
+            and all(isinstance(artifact, ToolOutputArtifact) for artifact in tool_outputs[1])
+        ):
+            content, artifacts = tool_outputs
+            return self._add_defaults_to_tool_outputs(content), artifacts
+
+        return super()._normalize_tool_outputs_and_artifacts(tool_outputs)
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
         from wayflowcore.serialization.serializer import serialize_any_to_dict
@@ -153,6 +198,7 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
                 "output_descriptors",
                 "client_transport",
                 "requires_confirmation",
+                "output_type",
             ]
         }
 
@@ -174,7 +220,9 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
                     "output_descriptors",
                     "client_transport",
                     "requires_confirmation",
+                    "output_type",
                 ]
+                if attr_name in input_dict
             },
             # deserialization should not require to be able to reach the server
             _validate_server_exists=False,

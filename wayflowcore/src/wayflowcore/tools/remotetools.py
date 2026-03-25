@@ -14,7 +14,7 @@ from wayflowcore.property import Property
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 
 from .servertools import ServerTool
-from .tools import SupportedToolTypesT
+from .tools import SupportedToolTypesT, ToolOutputType
 
 if TYPE_CHECKING:
     from wayflowcore.serialization.context import SerializationContext
@@ -238,8 +238,12 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         tool_description: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
         requires_confirmation: bool = False,
+        output_type: ToolOutputType = ToolOutputType.CONTENT_ONLY,
     ) -> None:
         from wayflowcore.steps import ApiCallStep
+
+        if output_type != ToolOutputType.CONTENT_ONLY:
+            raise ValueError("RemoteTool does not support output artifacts")
 
         step_output = ApiCallStep.HTTP_RESPONSE if output_jq_query is None else "step_output"
         if json_body:
@@ -286,6 +290,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
             id=id,
             __metadata_info__=__metadata_info__,
             requires_confirmation=requires_confirmation,
+            output_type=output_type,
         )
         self.tool_name = self.name
         self.tool_description = self.description

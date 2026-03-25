@@ -11,18 +11,22 @@ import anyio
 import pytest
 
 from wayflowcore.agent import Agent
-from wayflowcore.events.event import Event, ToolExecutionStreamingChunkReceivedEvent
+from wayflowcore.events.event import (
+    Event,
+    ToolExecutionResultEvent,
+    ToolExecutionStreamingChunkReceivedEvent,
+)
 from wayflowcore.events.eventlistener import EventListener, register_event_listeners
 from wayflowcore.flowhelpers import run_step_and_return_outputs, run_step_and_return_outputs_async
 from wayflowcore.property import IntegerProperty, StringProperty
 from wayflowcore.steps import ToolExecutionStep
-from wayflowcore.tools import ServerTool, tool
+from wayflowcore.tools import ReturnArtifact, ServerTool, tool
 from wayflowcore.tools.servertools import (
     _get_max_tool_stream_chunks,
     reset_max_tool_stream_chunks,
     set_max_tool_stream_chunks,
 )
-from wayflowcore.tools.tools import ToolRequest
+from wayflowcore.tools.tools import ToolOutputType, ToolRequest
 
 from ..testhelpers.patching import patch_llm
 
@@ -31,11 +35,14 @@ class ServerToolStreamingListener(EventListener):
     def __init__(self) -> None:
         self.chunks: list[tuple[Any, float]] = []
         self.events: list[ToolExecutionStreamingChunkReceivedEvent] = []
+        self.result_events: list[ToolExecutionResultEvent] = []
 
     def __call__(self, event: Event) -> None:
         if isinstance(event, ToolExecutionStreamingChunkReceivedEvent):
             self.chunks.append((event.content, time.time()))
             self.events.append(event)
+        elif isinstance(event, ToolExecutionResultEvent):
+            self.result_events.append(event)
 
 
 async def _streaming_tool_impl() -> AsyncGenerator[str, None]:
@@ -174,6 +181,40 @@ def test_server_tool_streams_chunks_sync_path_and_event_fields() -> None:
     assert all(e.tool_request.args == {"prefix": "Hello-", "count": 3} for e in events)
 
 
+def test_server_tool_streams_chunk_artifacts_without_accumulating_them_in_final_result() -> None:
+    @tool(
+        description_mode="only_docstring",
+        output_type=ToolOutputType.CONTENT_AND_ARTIFACT,
+    )
+    async def streaming_tool_with_artifacts() -> AsyncGenerator[ReturnArtifact[str], None]:
+        """Stream chunk artifacts and attach a different final artifact."""
+
+        yield "chunk 0", {"chunk.txt": "chunk artifact", "chunk.bin": b"\x00\x01"}
+        yield "summary", {"final.txt": "full artifact"}
+
+    step = ToolExecutionStep(tool=streaming_tool_with_artifacts)
+    listener = ServerToolStreamingListener()
+    with register_event_listeners([listener]):
+        outputs = run_step_and_return_outputs(step)
+
+    assert outputs == {ToolExecutionStep.TOOL_OUTPUT: "summary"}
+    assert len(listener.events) == 1
+    assert listener.events[0].content == "chunk 0"
+    assert [artifact.name for artifact in listener.events[0].artifacts] == [
+        "chunk.txt",
+        "chunk.bin",
+    ]
+    assert listener.events[0].artifacts[0].data == "chunk artifact"
+    assert listener.events[0].artifacts[1].data == b"\x00\x01"
+
+    assert len(listener.result_events) == 1
+    assert listener.result_events[0].tool_result.content == "summary"
+    assert [artifact.name for artifact in listener.result_events[0].tool_result.artifacts] == [
+        "final.txt"
+    ]
+    assert listener.result_events[0].tool_result.artifacts[0].data == "full artifact"
+
+
 @pytest.mark.anyio
 async def test_streaming_tool_yields_no_items_async() -> None:
     @tool(description_mode="only_docstring")
@@ -258,3 +299,26 @@ def test_agent_with_streaming_tool_emits_tool_chunks(big_llama) -> None:
     assert all(event.tool is my_stream_tool for event in listener.events)
     assert all(event.tool_request is tool_request for event in listener.events)
     assert [c for (c, _) in listener.chunks] == ["first", "second"]
+
+
+def test_streaming_tool_with_artifacts_streams_chunks_and_emits_artifacts() -> None:
+    @tool(description_mode="only_docstring", output_type=ToolOutputType.CONTENT_AND_ARTIFACT)
+    async def stream_logs() -> AsyncGenerator[tuple[str, str], None]:
+        """Tool that streams log lines and returns an artifact at the end."""
+
+        yield "chunk 1"
+        yield "chunk 2"
+        yield "summary", "full log"
+
+    step = ToolExecutionStep(tool=stream_logs)
+    listener = ServerToolStreamingListener()
+
+    with register_event_listeners([listener]):
+        outputs = run_step_and_return_outputs(step)
+
+    assert outputs == {ToolExecutionStep.TOOL_OUTPUT: "summary"}
+    assert [c for (c, _) in listener.chunks] == ["chunk 1", "chunk 2"]
+    assert len(listener.result_events) == 1
+    assert listener.result_events[0].tool_result.content == "summary"
+    assert len(listener.result_events[0].tool_result.artifacts) == 1
+    assert listener.result_events[0].tool_result.artifacts[0].data == "full log"

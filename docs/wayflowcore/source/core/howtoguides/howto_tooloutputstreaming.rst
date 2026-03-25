@@ -56,20 +56,20 @@ When running the async tool callable, yielded items are streamed via the event
 
 The last yielded item is treated as the final tool result **and is not streamed.**
 
-Here is an example using the :ref:`@tool decorator <tooldecorator>`:
+Here is a simple example using the :ref:`@tool decorator <tooldecorator>`:
 
 .. literalinclude:: ../code_examples/howto_tooloutputstreaming.py
    :language: python
-   :start-after: .. start-##_Define_streaming_tool
-   :end-before: .. end-##_Define_streaming_tool
+   :start-after: .. start-##_Define_simple_streaming_tool
+   :end-before: .. end-##_Define_simple_streaming_tool
 
 
 You can then define an :ref:`EventListener <eventlistener>` to observe the streamed chunks:
 
 .. literalinclude:: ../code_examples/howto_tooloutputstreaming.py
    :language: python
-   :start-after: .. start-##_Define_event_listener
-   :end-before: .. end-##_Define_event_listener
+   :start-after: .. start-##_Define_simple_stream_listener
+   :end-before: .. end-##_Define_simple_stream_listener
 
 
 Finally, register a listener before running your Agent/Flow:
@@ -78,6 +78,39 @@ Finally, register a listener before running your Agent/Flow:
    :language: python
    :start-after: .. start-##_Run_agent_with_stream_listener
    :end-before: .. end-##_Run_agent_with_stream_listener
+
+
+.. _streaming-server-tools-with-artifacts:
+
+Streaming server tools with artifacts
+-------------------------------------
+
+.. note::
+
+   Streaming server tools can also return artifacts.
+   When the tool is configured with ``output_type=ToolOutputType.CONTENT_AND_ARTIFACT``,
+   each yielded item may be either ``content`` or ``(content, artifacts)``.
+   Earlier yielded artifacts are exposed on
+   :ref:`ToolExecutionStreamingChunkReceivedEvent <toolexecutionstreamingchunkreceivedevent>`
+   through ``event.artifacts``.
+   Only artifacts returned by the final yielded item are exposed on the final
+   :ref:`ToolExecutionResultEvent <toolexecutionresultevent>` and in-memory tool result
+   messages.
+
+Here is an artifact-enabled streaming tool using the :ref:`@tool decorator <tooldecorator>`:
+
+.. literalinclude:: ../code_examples/howto_tooloutputstreaming.py
+   :language: python
+   :start-after: .. start-##_Define_streaming_tool_with_artifacts
+   :end-before: .. end-##_Define_streaming_tool_with_artifacts
+
+
+Use a listener like this to observe both streamed chunk artifacts and final result artifacts:
+
+.. literalinclude:: ../code_examples/howto_tooloutputstreaming.py
+   :language: python
+   :start-after: .. start-##_Define_artifact_stream_listener
+   :end-before: .. end-##_Define_artifact_stream_listener
 
 
 Tool output streaming for MCP Tools
@@ -91,6 +124,11 @@ with the :ref:`@mcp_streaming_tool <mcpstreamingtool>` decorator.
    Wrapping the callable allows to automatically handle the streaming by using the progress
    notification feature from MCP. This feature only works in async code, so you need to write an
    async callable to use the output streaming feature for MCP tools.
+
+   ``mcp_streaming_tool`` also supports ``output_type=ToolOutputType.CONTENT_AND_ARTIFACT``.
+   In that mode, each yielded value may be ``content`` or ``(content, artifacts)``.
+   Earlier yielded artifacts are exposed on chunk events, while only artifacts from the
+   final yielded value populate ``ToolExecutionResultEvent.tool_result.artifacts``.
 
 Here is an example using the official MCP SDK:
 
@@ -146,6 +184,12 @@ provide the context class when using the ``mcp_streaming_tool`` wrapper.
 From the client-side, you can consume the MCP tool and observe the streamed chunks
 using an event listener as shown above with server tools.
 
+Final MCP tool artifacts, when present, are available on
+``ToolExecutionResultEvent.tool_result.artifacts`` and on in-memory tool result messages.
+To consume those artifacts, the local :ref:`MCPTool <mcptool>` (or toolbox tool signature)
+must explicitly set ``output_type=ToolOutputType.CONTENT_AND_ARTIFACT``. Remote metadata is
+used only for validation warnings.
+
 .. literalinclude:: ../code_examples/howto_tooloutputstreaming.py
    :language: python
    :start-after: .. start-##_Run_mcp_streaming_tool
@@ -197,6 +241,7 @@ In this guide, you learned how to:
 
 - Implement streaming Server Tools using async generators
 - Listen to tool chunk events and correlate them with executions
+- Return artifacts together with the final streamed tool result
 - Adjust the streaming cap (including unlimited)
 
 

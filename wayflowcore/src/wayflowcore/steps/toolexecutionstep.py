@@ -294,14 +294,20 @@ class ToolExecutionStep(Step):
                 raise tool_result.content
             else:
                 tool_result = ToolResult(
-                    content=str(tool_result.content), tool_request_id=tool_result.tool_request_id
+                    content=str(tool_result.content),
+                    tool_request_id=tool_result.tool_request_id,
+                    artifacts=tool_result.artifacts,
                 )
 
         # Note: At this point no exception will be passed to this method
         tool_output = self.tool._check_tool_outputs_copyable(
             tool_result.content, self.raise_exceptions
         )
-        tool_result = ToolResult(content=tool_output, tool_request_id=tool_result.tool_request_id)
+        tool_result = ToolResult(
+            content=tool_output,
+            tool_request_id=tool_result.tool_request_id,
+            artifacts=tool_result.artifacts,
+        )
 
         # 6. Normal terminal output path: clear tool request, return structured output
         conversation._put_internal_context_key_value_for_step(

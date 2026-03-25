@@ -1,0 +1,49 @@
+component_type: ExtendedAgent
+id: 4bed7424-9347-40c0-8580-c623a2db3e49
+name: artifact-agent
+description: Agent that returns tool artifacts
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+llm_config:
+  component_type: VllmConfig
+  id: eba2a062-3125-41d0-a04b-e525029844d8
+  name: llm_ec922d6d__auto
+  description: null
+  metadata:
+    __metadata_info__: {}
+  default_generation_parameters: null
+  url: LLAMA_API_URL
+  model_id: LLAMA_MODEL_ID
+system_prompt: Use tools to summarize logs and keep bulky outputs as artifacts.
+tools:
+- component_type: ServerTool
+  id: fb43241d-9826-4a54-85e5-193a7d8ad03a
+  name: analyze_logs
+  description: Summarize a log file for the agent and attach the full log for the
+    UI.
+  metadata:
+    __metadata_info__:
+      wayflowcore_tool_output_type: content_and_artifact
+  inputs:
+  - type: string
+    title: path
+  outputs:
+  - type: string
+    title: tool_output
+toolboxes: []
+human_in_the_loop: true
+transforms: []
+context_providers: null
+can_finish_conversation: false
+raise_exceptions: false
+max_iterations: 10
+initial_message: Hi! How can I help you?
+caller_input_mode: always
+agents: []
+flows: []
+agent_template: null
+component_plugin_name: AgentPlugin
+component_plugin_version: 26.2.0.dev1
+agentspec_version: 25.4.1

@@ -134,7 +134,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_serialization_plugin
+from wayflowcore.agentspec.components import (
+    all_serialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -377,7 +379,9 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
-from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
+from wayflowcore.models.openaicompatiblemodel import (
+    EMPTY_API_KEY,
+)
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -454,8 +458,10 @@ from wayflowcore.tools import RemoteTool as RuntimeRemoteTool
 from wayflowcore.tools import ServerTool as RuntimeServerTool
 from wayflowcore.tools import Tool as RuntimeTool
 from wayflowcore.tools import ToolBox as RuntimeToolBox
+from wayflowcore.tools import ToolOutputType as RuntimeToolOutputType
 from wayflowcore.tools.servertools import _FlowAsToolCallable
 from wayflowcore.tools.toolfromtoolbox import ToolFromToolBox as RuntimeToolFromToolBox
+from wayflowcore.tools.tools import TOOL_OUTPUT_TYPE_METADATA_KEY
 from wayflowcore.transforms import (
     AppendTrailingSystemMessageToUserMessageTransform as RuntimeAppendTrailingSystemMessageToUserMessageTransform,
 )
@@ -1358,6 +1364,15 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
     ) -> AgentSpecTool:
 
         metadata = _create_agentspec_metadata_from_runtime_component(runtime_tool)
+        if (
+            isinstance(runtime_tool, RuntimeServerTool)
+            and runtime_tool.output_type != RuntimeToolOutputType.CONTENT_ONLY
+        ):
+            # Agent Spec has no first-class field for WayFlow's runtime-only tool output mode,
+            # so we preserve it in metadata and restore it when loading the config back.
+            metadata_info = dict(metadata.get(METADATA_KEY, {}))
+            metadata_info[TOOL_OUTPUT_TYPE_METADATA_KEY] = runtime_tool.output_type.value
+            metadata = {**metadata, METADATA_KEY: metadata_info}
 
         # We need to check the RemoteTool first, as it is also an instance of ServerTool
         if isinstance(runtime_tool, RuntimeRemoteTool):

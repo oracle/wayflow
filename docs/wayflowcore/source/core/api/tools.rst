@@ -68,6 +68,15 @@ MCP Tool
 .. _mcpstreamingtool:
 .. autofunction:: wayflowcore.mcp.mcphelpers.mcp_streaming_tool
 
+.. _mcptooloutputt:
+.. autodata:: wayflowcore.mcp.mcphelpers.MCPToolOutputT
+
+.. _mcptooloutputartifact:
+.. autoclass:: wayflowcore.mcp.mcphelpers.MCPToolOutputArtifactT
+
+.. _mcpreturnartifact:
+.. autodata:: wayflowcore.mcp.mcphelpers.ReturnArtifact
+
 .. _sessionparameters:
 .. autoclass:: wayflowcore.mcp.SessionParameters
     :exclude-members: to_dict
@@ -102,6 +111,30 @@ Tool decorator
 
 .. _tooldecorator:
 .. autofunction:: wayflowcore.tools.toolhelpers.tool
+
+Tool Output Types and Artifacts
+-------------------------------
+
+.. _tooloutputtype:
+.. autoclass:: wayflowcore.tools.tools.ToolOutputType
+
+.. _tooloutputartifact:
+.. autoclass:: wayflowcore.tools.tools.ToolOutputArtifact
+
+.. _tooloutputt:
+.. autodata:: wayflowcore.tools.tools.ToolOutputT
+
+.. _tooloutputartifactt:
+.. autoclass:: wayflowcore.tools.tools.ToolOutputArtifactT
+
+.. _returnartifact:
+.. autodata:: wayflowcore.tools.tools.ReturnArtifact
+
+.. _setmaxtoolartifactsizebytes:
+.. autofunction:: wayflowcore.tools.tools.set_max_tool_artifact_size_bytes
+
+.. _resetmaxtoolartifactsizebytes:
+.. autofunction:: wayflowcore.tools.tools.reset_max_tool_artifact_size_bytes
 
 Tool Request and Result Classes
 -------------------------------
