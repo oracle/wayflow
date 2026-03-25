@@ -11,7 +11,7 @@
 # docs-title: Code Example - How to Do Remote API Calls with Potentially Expiring Tokens
 
 # .. start-##_Mock_server
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import FastAPI, HTTPException, Request, status as fastapi_status
 from fastapi.responses import JSONResponse
 
 async def protected_endpoint(request: Request):
@@ -22,7 +22,7 @@ async def protected_endpoint(request: Request):
     authorization = request.headers.get("authorization")
     if authorization is None or not authorization.startswith("Bearer "):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=fastapi_status.HTTP_401_UNAUTHORIZED,
             detail="Missing or malformed Authorization header.",
             headers={"WWW-Authenticate": "Bearer"},
         )
@@ -32,13 +32,13 @@ async def protected_endpoint(request: Request):
         return JSONResponse({"response": f"Success! You are authenticated, {user}."})
     elif token == "expired-token":
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=fastapi_status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired.",
             headers={"WWW-Authenticate": "Bearer error='invalid_token', error_description='The access token expired'"},
         )
     else:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=fastapi_status.HTTP_401_UNAUTHORIZED,
             detail="Invalid access token.",
             headers={"WWW-Authenticate": "Bearer error='invalid_token'"},
         )

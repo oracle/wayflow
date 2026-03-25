@@ -18,8 +18,15 @@ from fastapi.responses import Response
 
 from ._task_manager import TaskManager, TaskNotifier
 
+# ``FastAPI`` instances are regular ASGI applications, so ``__call__`` receives the
+# standard ``(scope, receive, send)`` trio from the server.
+
+# Connection metadata for the current request, for example the protocol type,
+# path, headers, and server/client information.
 ASGIScope = MutableMapping[str, Any]
+# Awaitable that yields the next inbound ASGI event, such as the incoming HTTP request body.
 ASGIReceive = Callable[[], Awaitable[MutableMapping[str, Any]]]
+# Awaitable used to emit outbound ASGI events back to the server, such as response start/body messages.
 ASGISend = Callable[[MutableMapping[str, Any]], Awaitable[None]]
 
 
