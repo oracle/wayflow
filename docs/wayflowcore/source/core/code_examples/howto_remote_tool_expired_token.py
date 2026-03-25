@@ -11,12 +11,8 @@
 # docs-title: Code Example - How to Do Remote API Calls with Potentially Expiring Tokens
 
 # .. start-##_Mock_server
-from starlette.applications import Starlette
-from starlette.responses import JSONResponse
-from starlette.requests import Request
-from starlette.routing import Route
-from starlette.exceptions import HTTPException
-from starlette.status import HTTP_401_UNAUTHORIZED
+from fastapi import FastAPI, HTTPException, Request, status as fastapi_status
+from fastapi.responses import JSONResponse
 
 async def protected_endpoint(request: Request):
     user = request.query_params.get("user")
@@ -26,7 +22,7 @@ async def protected_endpoint(request: Request):
     authorization = request.headers.get("authorization")
     if authorization is None or not authorization.startswith("Bearer "):
         raise HTTPException(
-            status_code=HTTP_401_UNAUTHORIZED,
+            status_code=fastapi_status.HTTP_401_UNAUTHORIZED,
             detail="Missing or malformed Authorization header.",
             headers={"WWW-Authenticate": "Bearer"},
         )
@@ -36,20 +32,19 @@ async def protected_endpoint(request: Request):
         return JSONResponse({"response": f"Success! You are authenticated, {user}."})
     elif token == "expired-token":
         raise HTTPException(
-            status_code=HTTP_401_UNAUTHORIZED,
+            status_code=fastapi_status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired.",
             headers={"WWW-Authenticate": "Bearer error='invalid_token', error_description='The access token expired'"},
         )
     else:
         raise HTTPException(
-            status_code=HTTP_401_UNAUTHORIZED,
+            status_code=fastapi_status.HTTP_401_UNAUTHORIZED,
             detail="Invalid access token.",
             headers={"WWW-Authenticate": "Bearer error='invalid_token'"},
         )
 
-app = Starlette(debug=True, routes=[
-    Route("/protected", protected_endpoint)
-])
+app = FastAPI(debug=True, docs_url=None, redoc_url=None, openapi_url=None)
+app.add_api_route("/protected", protected_endpoint, methods=["GET"])
 
 # Start the server: Uncomment these lines
 # import uvicorn

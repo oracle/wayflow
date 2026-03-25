@@ -38,7 +38,7 @@ class A2AServer:
         """
         A server for exposing a WayFlow conversational component via the A2A protocol.
 
-        The `A2AServer` wraps around an internal `A2AApp` (a Starlette application)
+        The `A2AServer` wraps around an internal `A2AApp` (an ASGI application)
         to handle HTTP-based communication between external A2A clients and an agent.
         It automatically serves the agent card and task endpoints.
 

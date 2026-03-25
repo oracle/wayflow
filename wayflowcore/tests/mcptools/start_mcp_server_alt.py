@@ -5,53 +5,12 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import argparse
-from contextvars import ContextVar
-from os import PathLike
 from typing import Literal
 
-from mcp.server.fastmcp import FastMCP as BaseFastMCP
-from starlette.applications import Starlette
-from typing_extensions import TypedDict
-
-UvicornExtraConfig = TypedDict(
-    "UvicornExtraConfig",
-    {
-        "ssl_keyfile": str | PathLike[str] | None,
-        "ssl_certfile": str | PathLike[str] | None,
-        "ssl_ca_certs": str | None,
-        "ssl_cert_reqs": int,
-    },
-    total=False,
-)
-
-_EXTRA_CONFIG: ContextVar[UvicornExtraConfig | None] = ContextVar("_EXTRA_CONFIG", default=None)
+from fastmcp import FastMCP
 
 
-class FastMCP(BaseFastMCP):
-    async def _start_server(self, starlette_app: Starlette) -> None:
-        import uvicorn
-
-        extra_config = _EXTRA_CONFIG.get() or {}
-        config = uvicorn.Config(
-            starlette_app,
-            host=self.settings.host,
-            port=self.settings.port,
-            log_level=self.settings.log_level.lower(),
-            **extra_config,
-        )
-        server = uvicorn.Server(config)
-        await server.serve()
-
-    async def run_sse_async(self, mount_path: str | None = None) -> None:
-        starlette_app = self.sse_app(mount_path)
-        await self._start_server(starlette_app)
-
-    async def run_streamable_http_async(self) -> None:
-        starlette_app = self.streamable_http_app()
-        await self._start_server(starlette_app)
-
-
-def create_server(host: str, port: int) -> FastMCP:
+def create_server() -> FastMCP:
     """Alternate MCP server exposing a different tool set.
 
     This server is used to validate that WayFlow's MCP session persistence does
@@ -62,8 +21,6 @@ def create_server(host: str, port: int) -> FastMCP:
     server = FastMCP(
         name="Alternate MCP Server",
         instructions="Alternate MCP Server with a different tool set.",
-        host=host,
-        port=port,
     )
 
     @server.tool(description="Return the result of the alt_add operation between numbers a and b")
@@ -86,16 +43,22 @@ def main(
     ssl_ca_certs: str | None,
     ssl_cert_reqs: int,
 ) -> None:
-    _EXTRA_CONFIG.set(
-        dict(
+    import logging
+
+    server = create_server()
+    server.run(
+        transport=mode,
+        show_banner=False,
+        host=host,
+        port=port,
+        uvicorn_config=dict(
             ssl_keyfile=ssl_keyfile,
             ssl_certfile=ssl_certfile,
             ssl_ca_certs=ssl_ca_certs,
             ssl_cert_reqs=ssl_cert_reqs,
-        )
+            log_level=logging.DEBUG,
+        ),
     )
-    server = create_server(host=host, port=port)
-    server.run(transport=mode)
 
 
 if __name__ == "__main__":

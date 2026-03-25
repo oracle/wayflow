@@ -26,7 +26,7 @@ In this guide, you will build an assistant that calls a mock service requiring a
 Setup
 =====
 
-To demonstrate the concept in a safe environment, we first set up a local mock API server (here, using Starlette).
+To demonstrate the concept in a safe environment, we first set up a local mock API server (here, using FastAPI).
 This simulates an endpoint that requires and validates an authentication token. If the token provided is:
 
 * a valid token (`valid-token`): the service responds with a success message.

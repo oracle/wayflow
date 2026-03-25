@@ -6,21 +6,28 @@
 
 from __future__ import annotations as _annotations
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable, MutableMapping
 from contextlib import asynccontextmanager
 from typing import Any, Optional, Sequence
 
 from fasta2a.broker import Broker
 from fasta2a.schema import AgentCard, a2a_request_ta, a2a_response_ta, agent_card_ta
 from fasta2a.storage import Storage
-from starlette.applications import Starlette
-from starlette.middleware import Middleware
-from starlette.requests import Request
-from starlette.responses import Response
-from starlette.routing import Route
-from starlette.types import ExceptionHandler, Lifespan, Receive, Scope, Send
+from fastapi import FastAPI, Request
+from fastapi.responses import Response
 
 from ._task_manager import TaskManager, TaskNotifier
+
+# ``FastAPI`` instances are regular ASGI applications, so ``__call__`` receives the
+# standard ``(scope, receive, send)`` trio from the server.
+
+# Connection metadata for the current request, for example the protocol type,
+# path, headers, and server/client information.
+ASGIScope = MutableMapping[str, Any]
+# Awaitable that yields the next inbound ASGI event, such as the incoming HTTP request body.
+ASGIReceive = Callable[[], Awaitable[MutableMapping[str, Any]]]
+# Awaitable used to emit outbound ASGI events back to the server, such as response start/body messages.
+ASGISend = Callable[[MutableMapping[str, Any]], Awaitable[None]]
 
 
 @asynccontextmanager
@@ -29,29 +36,31 @@ async def _default_lifespan(app: A2AApp) -> AsyncIterator[None]:
         yield
 
 
-class A2AApp(Starlette):
+class A2AApp(FastAPI):
     def __init__(
         self,
         storage: Storage,
         broker: Broker,
         notifer: TaskNotifier,
         agent_card: AgentCard,
-        # Starlette
         debug: bool = False,
-        routes: Sequence[Route] | None = None,
-        middleware: Sequence[Middleware] | None = None,
-        exception_handlers: dict[Any, ExceptionHandler] | None = None,
-        lifespan: Lifespan[A2AApp] | None = None,
+        routes: Sequence[Any] | None = None,
+        middleware: Sequence[Any] | None = None,
+        exception_handlers: dict[Any, Any] | None = None,
+        lifespan: Any | None = None,
     ):
         if lifespan is None:
             lifespan = _default_lifespan
 
         super().__init__(
             debug=debug,
-            routes=routes,
-            middleware=middleware,
+            routes=list(routes) if routes is not None else None,
+            middleware=list(middleware) if middleware is not None else None,
             exception_handlers=exception_handlers,
             lifespan=lifespan,
+            docs_url=None,
+            redoc_url=None,
+            openapi_url=None,
         )
 
         self.agent_card = agent_card
@@ -60,14 +69,20 @@ class A2AApp(Starlette):
         self.task_manager = TaskManager(broker=broker, storage=storage, notifier=notifer)
 
         # Routes
-        self.router.add_route("/", self._agent_execution_endpoint, methods=["POST"])
-        self.router.add_route(
+        self.add_api_route(
+            "/",
+            self._agent_execution_endpoint,
+            methods=["POST"],
+            include_in_schema=False,
+        )
+        self.add_api_route(
             "/.well-known/agent-card.json",  # This the standard endpoint specified by A2A protocol
             self._agent_card_endpoint,
             methods=["HEAD", "GET", "OPTIONS"],
+            include_in_schema=False,
         )
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+    async def __call__(self, scope: ASGIScope, receive: ASGIReceive, send: ASGISend) -> None:
         if scope["type"] == "http" and not self.task_manager.is_running:
             raise RuntimeError("TaskManager was not properly initialized.")
         await super().__call__(scope, receive, send)
