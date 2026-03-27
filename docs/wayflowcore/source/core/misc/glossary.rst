@@ -153,7 +153,7 @@ Generation Config
 =================
 
 The :ref:`LLM generation config <llmgenerationconfig>` is the set of parameters that control the output of a :ref:`Large Language Model (LLM) <llmmodel>` in WayFlow.
-These parameters include the maximum number of tokens to generate (``max_tokens``), the sampling ``temperature``, and the probability threshold for nucleus sampling (``top_p``).
+These parameters include the maximum number of tokens to generate (``max_tokens``), the sampling ``temperature``, the probability threshold for nucleus sampling (``top_p``), and optional token log probabilities (``top_logprobs``).
 
 Learn more about the LLM generation config in the :doc:`How to Specify the Generation Configuration when Using LLMs <../howtoguides/generation_config>`
 or read the :ref:`API reference <llmgenerationconfig>`.
