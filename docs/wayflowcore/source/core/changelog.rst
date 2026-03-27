@@ -40,7 +40,7 @@ New features
   :doc:`how to use LLMs from different providers <howtoguides/llm_from_different_providers>`.
 
 
-* **Logprob support in `LlmGenerationConfig` and `PromptExecutionStep`
+* **Logprob support in `LlmGenerationConfig` and `PromptExecutionStep`**
 
   Add token logprobs support with the `top_logprobs` generation config parameter and support returning
   logprobs in the `PromptExecutionStep`.
