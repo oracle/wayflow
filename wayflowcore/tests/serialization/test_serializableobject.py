@@ -163,6 +163,8 @@ ALL_SERIALIZABLE_CLASSES = {
     "SearchStep",
     "SearchConfig",
     "ToolFromToolBox",
+    "TextTokenLogProb",
+    "TextTokenTopLogProb",
     "SearchToolBox",
     "SoftTimeoutExecutionInterrupt",
     "SoftTokenLimitExecutionInterrupt",
