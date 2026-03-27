@@ -16,6 +16,12 @@ Messages
 .. _textcontent:
 .. autoclass:: wayflowcore.messagelist.TextContent
 
+.. _texttokenlogprob:
+.. autoclass:: wayflowcore.messagelist.TextTokenLogProb
+
+.. _texttokentoplogprob:
+.. autoclass:: wayflowcore.messagelist.TextTokenTopLogProb
+
 .. _imagecontent:
 .. autoclass:: wayflowcore.messagelist.ImageContent
 
