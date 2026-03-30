@@ -134,10 +134,12 @@ def test_runtime_remote_tool_preserves_custom_io_descriptors_when_exported(
     exported_remote_tool = AgentSpecExporter().to_component(runtime_remote_tool_with_specified_io)
 
     assert isinstance(exported_remote_tool, AgentSpecRemoteTool)
-    assert [descriptor.title for descriptor in exported_remote_tool.inputs or []] == ["query"]
-    assert [descriptor.title for descriptor in exported_remote_tool.outputs or []] == [
-        "search_results"
-    ]
+    assert exported_remote_tool.inputs is not None and [
+        descriptor.title for descriptor in exported_remote_tool.inputs
+    ] == ["query"]
+    assert exported_remote_tool.outputs is not None and [
+        descriptor.title for descriptor in exported_remote_tool.outputs
+    ] == ["search_results"]
 
 
 @pytest.mark.parametrize(
