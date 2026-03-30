@@ -134,7 +134,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_serialization_plugin
+from wayflowcore.agentspec.components import (
+    all_serialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -377,7 +379,9 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
-from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
+from wayflowcore.models.openaicompatiblemodel import (
+    EMPTY_API_KEY,
+)
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -1361,6 +1365,14 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 description=runtime_tool.description,
                 url=runtime_tool.url,
                 http_method=inner_api_step.method,
+                inputs=[
+                    _runtime_property_to_pyagentspec_property(input_)
+                    for input_ in runtime_tool.input_descriptors or []
+                ],
+                outputs=[
+                    _runtime_property_to_pyagentspec_property(output)
+                    for output in runtime_tool.output_descriptors or []
+                ],
                 data=data_param,
                 query_params=(
                     inner_api_step.params if isinstance(inner_api_step.params, dict) else dict()

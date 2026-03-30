@@ -10,14 +10,19 @@ from typing import Any, Dict, Union, cast
 
 import pytest
 from pyagentspec.agent import Agent as AgentSpecAgent
+from pyagentspec.flows.nodes.toolnode import ToolNode as AgentSpecToolNode
 from pyagentspec.llms import VllmConfig
+from pyagentspec.property import StringProperty as AgentSpecStringProperty
 from pyagentspec.serialization import AgentSpecSerializer
+from pyagentspec.tools.remotetool import RemoteTool as AgentSpecRemoteTool
 
 from wayflowcore.agent import Agent as RuntimeAgent
 from wayflowcore.agent import CallerInputMode
 from wayflowcore.agentspec import AgentSpecLoader
 from wayflowcore.executors.executionstatus import ExecutionStatus, FinishedStatus
 from wayflowcore.flow import Flow as RuntimeFlow
+from wayflowcore.steps import ToolExecutionStep
+from wayflowcore.tools import RemoteTool as RuntimeRemoteTool
 from wayflowcore.tools.servertools import ServerTool
 
 from ..testhelpers.testhelpers import retry_test
@@ -31,6 +36,19 @@ from ..conftest import (  # isort:skip
 from ..mcptools.conftest import sse_mcp_server_http  # isort:skip
 
 CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
+
+
+@pytest.fixture
+def agentspec_search_remote_tool() -> AgentSpecRemoteTool:
+    return AgentSpecRemoteTool(
+        name="search_service",
+        description="Searches a remote service and returns structured results.",
+        url="https://example.com",
+        http_method="POST",
+        data={"payload": {"query": "{{query}}"}},
+        inputs=[AgentSpecStringProperty(title="query", type="string")],
+        outputs=[AgentSpecStringProperty(title="search_results", type="string")],
+    )
 
 
 @pytest.mark.parametrize(
@@ -201,6 +219,37 @@ def test_apinode_exposes_http_response_among_outputs_when_executed() -> None:
     status = conversation.execute()
     assert isinstance(status, FinishedStatus)
     assert "http_response" in status.output_values
+
+
+def test_agentspec_remote_tool_preserves_custom_io_descriptors_when_loaded(
+    agentspec_search_remote_tool: AgentSpecRemoteTool,
+) -> None:
+    loaded_remote_tool = AgentSpecLoader().load_component(agentspec_search_remote_tool)
+
+    assert isinstance(loaded_remote_tool, RuntimeRemoteTool)
+    assert [descriptor.name for descriptor in loaded_remote_tool.input_descriptors] == ["query"]
+    assert [descriptor.name for descriptor in loaded_remote_tool.output_descriptors] == [
+        "search_results"
+    ]
+
+
+def test_toolnode_with_remote_tool_custom_output_can_be_loaded(
+    agentspec_search_remote_tool: AgentSpecRemoteTool,
+) -> None:
+    tool_node = AgentSpecToolNode(
+        name="search_tool",
+        tool=agentspec_search_remote_tool,
+        inputs=[AgentSpecStringProperty(title="query", type="string")],
+        outputs=[AgentSpecStringProperty(title="search_results", type="string")],
+    )
+
+    loaded_step = AgentSpecLoader().load_component(tool_node)
+
+    assert isinstance(loaded_step, ToolExecutionStep)
+    assert [descriptor.name for descriptor in loaded_step.tool.output_descriptors] == [
+        "search_results"
+    ]
+    assert [descriptor.name for descriptor in loaded_step.output_descriptors] == ["search_results"]
 
 
 @pytest.mark.parametrize(
