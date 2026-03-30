@@ -1541,6 +1541,14 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     if agentspec_component.sensitive_headers
                     else None
                 ),
+                input_descriptors=[
+                    self._convert_property_to_runtime(input_property)
+                    for input_property in agentspec_component.inputs or []
+                ],
+                output_descriptors=[
+                    self._convert_property_to_runtime(output_property)
+                    for output_property in agentspec_component.outputs or []
+                ],
                 requires_confirmation=agentspec_component.requires_confirmation,
                 **self._get_component_arguments(agentspec_component),
             )

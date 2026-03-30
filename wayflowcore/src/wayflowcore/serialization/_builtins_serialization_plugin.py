@@ -1361,6 +1361,14 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 description=runtime_tool.description,
                 url=runtime_tool.url,
                 http_method=inner_api_step.method,
+                inputs=[
+                    _runtime_property_to_pyagentspec_property(input_)
+                    for input_ in runtime_tool.input_descriptors or []
+                ],
+                outputs=[
+                    _runtime_property_to_pyagentspec_property(output)
+                    for output in runtime_tool.output_descriptors or []
+                ],
                 data=data_param,
                 query_params=(
                     inner_api_step.params if isinstance(inner_api_step.params, dict) else dict()

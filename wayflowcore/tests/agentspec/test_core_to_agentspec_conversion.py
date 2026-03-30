@@ -11,6 +11,7 @@ from typing import Dict, Union, cast
 
 import pytest
 import yaml
+from pyagentspec.tools.remotetool import RemoteTool as AgentSpecRemoteTool
 
 from wayflowcore.a2a.a2aagent import A2AAgent as RuntimeA2AAgent
 from wayflowcore.agent import Agent as RuntimeAgent
@@ -18,12 +19,27 @@ from wayflowcore.agent import CallerInputMode
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
 from wayflowcore.flow import Flow as RuntimeFlow
 from wayflowcore.ociagent import OciAgent as RuntimeOciAgent
+from wayflowcore.property import StringProperty as RuntimeStringProperty
+from wayflowcore.tools import RemoteTool as RuntimeRemoteTool
 from wayflowcore.tools.servertools import ServerTool
 
 from ..conftest import mock_llm
 from ..testhelpers.testhelpers import assert_agents_are_copies, assert_flows_are_copies
 
 CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
+
+
+@pytest.fixture
+def runtime_remote_tool_with_specified_io() -> RuntimeRemoteTool:
+    return RuntimeRemoteTool(
+        tool_name="search_service",
+        tool_description="Searches a remote service and returns structured results.",
+        url="https://example.com",
+        method="POST",
+        data={"payload": {"query": "{{query}}"}},
+        input_descriptors=[RuntimeStringProperty(name="query")],
+        output_descriptors=[RuntimeStringProperty(name="search_results")],
+    )
 
 
 @pytest.mark.parametrize(
@@ -115,6 +131,20 @@ def test_agentspec_config_can_be_converted_to_core_then_back_to_agentspec(
     )
     assert '"inputs":' in agentspec_json
     assert '"outputs":' in agentspec_json
+
+
+def test_runtime_remote_tool_preserves_custom_io_descriptors_when_exported(
+    runtime_remote_tool_with_specified_io: RuntimeRemoteTool,
+) -> None:
+    exported_remote_tool = AgentSpecExporter().to_component(runtime_remote_tool_with_specified_io)
+
+    assert isinstance(exported_remote_tool, AgentSpecRemoteTool)
+    assert exported_remote_tool.inputs is not None and [
+        descriptor.title for descriptor in exported_remote_tool.inputs
+    ] == ["query"]
+    assert exported_remote_tool.outputs is not None and [
+        descriptor.title for descriptor in exported_remote_tool.outputs
+    ] == ["search_results"]
 
 
 @pytest.mark.parametrize(
