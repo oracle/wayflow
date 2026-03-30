@@ -239,7 +239,6 @@ def test_toolnode_with_remote_tool_custom_output_can_be_loaded(
     tool_node = AgentSpecToolNode(
         name="search_tool",
         tool=agentspec_remote_tool_with_specified_io,
-        outputs=[AgentSpecStringProperty(title="search_results", type="string")],
     )
 
     loaded_step = AgentSpecLoader().load_component(tool_node)
