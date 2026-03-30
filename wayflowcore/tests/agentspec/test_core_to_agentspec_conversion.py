@@ -32,7 +32,7 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
 
 
 @pytest.fixture
-def runtime_search_remote_tool() -> RuntimeRemoteTool:
+def runtime_remote_tool_with_specified_io() -> RuntimeRemoteTool:
     return RuntimeRemoteTool(
         tool_name="search_service",
         tool_description="Searches a remote service and returns structured results.",
@@ -129,9 +129,9 @@ def test_agentspec_config_can_be_converted_to_core_then_back_to_agentspec(
 
 
 def test_runtime_remote_tool_preserves_custom_io_descriptors_when_exported(
-    runtime_search_remote_tool: RuntimeRemoteTool,
+    runtime_remote_tool_with_specified_io: RuntimeRemoteTool,
 ) -> None:
-    exported_remote_tool = AgentSpecExporter().to_component(runtime_search_remote_tool)
+    exported_remote_tool = AgentSpecExporter().to_component(runtime_remote_tool_with_specified_io)
 
     assert isinstance(exported_remote_tool, AgentSpecRemoteTool)
     assert [descriptor.title for descriptor in exported_remote_tool.inputs or []] == ["query"]

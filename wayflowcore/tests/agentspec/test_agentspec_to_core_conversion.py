@@ -39,7 +39,7 @@ CONFIGS_DIR = Path(os.path.dirname(__file__)) / "configs"
 
 
 @pytest.fixture
-def agentspec_search_remote_tool() -> AgentSpecRemoteTool:
+def agentspec_remote_tool_with_specified_io() -> AgentSpecRemoteTool:
     return AgentSpecRemoteTool(
         name="search_service",
         description="Searches a remote service and returns structured results.",
@@ -215,9 +215,9 @@ def test_apinode_exposes_http_response_among_outputs_when_executed() -> None:
 
 
 def test_agentspec_remote_tool_preserves_custom_io_descriptors_when_loaded(
-    agentspec_search_remote_tool: AgentSpecRemoteTool,
+    agentspec_remote_tool_with_specified_io: AgentSpecRemoteTool,
 ) -> None:
-    loaded_remote_tool = AgentSpecLoader().load_component(agentspec_search_remote_tool)
+    loaded_remote_tool = AgentSpecLoader().load_component(agentspec_remote_tool_with_specified_io)
 
     assert isinstance(loaded_remote_tool, RuntimeRemoteTool)
     assert [descriptor.name for descriptor in loaded_remote_tool.input_descriptors] == ["query"]
@@ -227,12 +227,11 @@ def test_agentspec_remote_tool_preserves_custom_io_descriptors_when_loaded(
 
 
 def test_toolnode_with_remote_tool_custom_output_can_be_loaded(
-    agentspec_search_remote_tool: AgentSpecRemoteTool,
+    agentspec_remote_tool_with_specified_io: AgentSpecRemoteTool,
 ) -> None:
     tool_node = AgentSpecToolNode(
         name="search_tool",
-        tool=agentspec_search_remote_tool,
-        inputs=[AgentSpecStringProperty(title="query", type="string")],
+        tool=agentspec_remote_tool_with_specified_io,
         outputs=[AgentSpecStringProperty(title="search_results", type="string")],
     )
 
