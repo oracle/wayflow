@@ -49,12 +49,16 @@ from pyagentspec.flows.nodes import ParallelMapNode as AgentSpecParallelMapNode
 from pyagentspec.flows.nodes import StartNode as AgentSpecStartNode
 from pyagentspec.flows.nodes import ToolNode as AgentSpecToolNode
 from pyagentspec.flows.nodes.mapnode import ReductionMethod
-from pyagentspec.llms import GeminiAiStudioAuthConfig as AgentSpecGeminiAiStudioAuthConfig
 from pyagentspec.llms import GeminiConfig as AgentSpecGeminiConfig
-from pyagentspec.llms import GeminiVertexAiAuthConfig as AgentSpecGeminiVertexAiAuthConfig
 from pyagentspec.llms import LlmConfig as AgentSpecLlmConfig
 from pyagentspec.llms import OciGenAiConfig as AgentSpecOciGenAiModel
 from pyagentspec.llms import OpenAiConfig as AgentSpecOpenAiConfig
+from pyagentspec.llms.geminiauthconfig import (
+    GeminiAIStudioAuthConfig as AgentSpecGeminiAIStudioAuthConfig,
+)
+from pyagentspec.llms.geminiauthconfig import (
+    GeminiVertexAIAuthConfig as AgentSpecGeminiVertexAIAuthConfig,
+)
 from pyagentspec.llms.llmgenerationconfig import LlmGenerationConfig as AgentSpecLlmGenerationConfig
 from pyagentspec.llms.ociclientconfig import OciClientConfig as AgentSpecOciClientConfig
 from pyagentspec.llms.ociclientconfig import (
@@ -1086,9 +1090,13 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
     def _gemini_auth_convert_to_agentspec(self, runtime_auth: Any) -> Any:
         """Convert a WayFlow Gemini auth object into its Agent Spec equivalent."""
         if isinstance(runtime_auth, RuntimeGeminiApiKeyAuth):
-            return AgentSpecGeminiAiStudioAuthConfig(api_key=runtime_auth.api_key)
+            return AgentSpecGeminiAIStudioAuthConfig(
+                name="GeminiAIStudioAuthConfig",
+                api_key=runtime_auth.api_key,
+            )
         if isinstance(runtime_auth, RuntimeGeminiCloudAuth):
-            return AgentSpecGeminiVertexAiAuthConfig(
+            return AgentSpecGeminiVertexAIAuthConfig(
+                name="GeminiVertexAIAuthConfig",
                 project_id=runtime_auth.project_id,
                 location=runtime_auth.location,
                 credentials=runtime_auth.vertex_credentials,

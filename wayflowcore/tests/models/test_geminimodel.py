@@ -262,6 +262,8 @@ def test_geminimodel_runtime_config_roundtrip_omits_secret_vertex_credentials() 
                 "private_key": "line1\\nline2",
             },
         ),
+        supports_structured_generation=False,
+        supports_tool_calling=False,
     )
 
     serialized_llm = serialize_to_dict(llm)
@@ -271,13 +273,15 @@ def test_geminimodel_runtime_config_roundtrip_omits_secret_vertex_credentials() 
         "project_id": "project-id",
         "location": "global",
     }
-    assert "supports_structured_generation" not in serialized_llm
-    assert "supports_tool_calling" not in serialized_llm
+    assert serialized_llm["supports_structured_generation"] is False
+    assert serialized_llm["supports_tool_calling"] is False
 
     deserialized_llm = LlmModelFactory.from_config(serialized_llm)
 
     assert isinstance(deserialized_llm, GeminiModel)
     assert deserialized_llm.auth == GeminiCloudAuth(project_id="project-id", location="global")
+    assert deserialized_llm.supports_structured_generation is False
+    assert deserialized_llm.supports_tool_calling is False
 
     request = deserialized_llm._build_litellm_request(
         Prompt(messages=[Message(role="user", content="Hello")]),

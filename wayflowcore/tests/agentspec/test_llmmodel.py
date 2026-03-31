@@ -3,11 +3,14 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-from typing import Any, Mapping
+import json
+from typing import Any, Mapping, cast
 
 import pytest
 from pyagentspec.llms import GeminiConfig as AgentSpecGeminiConfig
-from pyagentspec.llms import GeminiVertexAiAuthConfig as AgentSpecGeminiVertexAiAuthConfig
+from pyagentspec.llms.geminiauthconfig import (
+    GeminiVertexAIAuthConfig as AgentSpecGeminiVertexAIAuthConfig,
+)
 from pyagentspec.llms.ocigenaiconfig import ModelProvider, ServingMode
 
 from tests.testhelpers import litellm_testhelpers
@@ -164,14 +167,15 @@ def test_llm_model_serde_restores_tls_sensitive_fields_from_components_registry(
     assert deserialized_llm_model.cert_file == tls_material.client_cert_path
     assert deserialized_llm_model.ca_file == tls_material.ca_cert_path
 @pytest.mark.parametrize(
-    "llm_model, components_registry",
+    "llm_model, sensitive_field_name, sensitive_field_value",
     [
         (
             GeminiModel(
                 model_id="gemini-2.5-flash",
                 auth=GeminiApiKeyAuth(api_key="something"),
             ),
-            {"{id}.auth": {"type": "aistudio", "api_key": "something"}},
+            "api_key",
+            "something",
         ),
         (
             GeminiModel(
@@ -186,22 +190,18 @@ def test_llm_model_serde_restores_tls_sensitive_fields_from_components_registry(
                     },
                 ),
             ),
+            "credentials",
             {
-                "{id}.auth": {
-                    "type": "vertex_ai",
-                    "project_id": "project-id",
-                    "location": "global",
-                    "credentials": {
-                        "type": "service_account",
-                        "client_email": "agent@example.com",
-                        "private_key": "line1\\nline2",
-                    },
-                }
+                "type": "service_account",
+                "client_email": "agent@example.com",
+                "private_key": "line1\\nline2",
             },
         ),
     ],
 )
-def test_gemini_llm_model_serde_works_and_is_equal(llm_model, components_registry) -> None:
+def test_gemini_llm_model_serde_works_and_is_equal(
+    llm_model, sensitive_field_name, sensitive_field_value
+) -> None:
     agent = Agent(llm=llm_model, custom_instruction="Be nice.")
     serialized_agent = AgentSpecExporter().to_json(agent)
 
@@ -211,14 +211,17 @@ def test_gemini_llm_model_serde_works_and_is_equal(llm_model, components_registr
     assert f"gemini/{llm_model.model_id}" not in serialized_agent
     assert f"vertex_ai/{llm_model.model_id}" not in serialized_agent
 
-    resolved_registry = {
-        key.format(id=llm_model.id): value for key, value in components_registry.items()
-    }
+    serialized_agent_dict = json.loads(serialized_agent)
+    auth_config = serialized_agent_dict["llm_config"]["auth"]
+    sensitive_field = auth_config[sensitive_field_name]
+    assert isinstance(sensitive_field, dict)
+    sensitive_field_ref = sensitive_field["$component_ref"]
+
     deserialized_agent = cast(
         Agent,
         AgentSpecLoader().load_json(
             serialized_agent,
-            components_registry=resolved_registry,
+            components_registry={sensitive_field_ref: sensitive_field_value},
         ),
     )
     deserialized_llm_model = deserialized_agent.llm
@@ -241,17 +244,7 @@ def test_gemini_llm_model_export_preserves_provided_model_id() -> None:
 
     deserialized_agent = cast(
         Agent,
-        AgentSpecLoader().load_json(
-            serialized_agent,
-            components_registry={
-                f"{llm_model.id}.auth": {
-                    "type": "vertex_ai",
-                    "project_id": "project-id",
-                    "location": "global",
-                    "credentials": None,
-                }
-            },
-        ),
+        AgentSpecLoader().load_json(serialized_agent),
     )
     deserialized_llm_model = cast(GeminiModel, deserialized_agent.llm)
 
@@ -265,7 +258,11 @@ def test_agentspec_gemini_bare_model_id_loads_into_wayflow_with_vertex_prefix() 
     agentspec_llm = AgentSpecGeminiConfig(
         name="gemini",
         model_id="gemini-2.0-flash-lite",
-        auth=AgentSpecGeminiVertexAiAuthConfig(project_id="project-id", location="global"),
+        auth=AgentSpecGeminiVertexAIAuthConfig(
+            name="GeminiVertexAIAuthConfig",
+            project_id="project-id",
+            location="global",
+        ),
     )
 
     runtime_llm = cast(GeminiModel, AgentSpecLoader().load_component(agentspec_llm))
@@ -291,7 +288,8 @@ def test_agentspec_gemini_vertex_auth_without_vertex_credentials_loads_into_wayf
     agentspec_llm = AgentSpecGeminiConfig(
         name="gemini",
         model_id="gemini-2.0-flash-lite",
-        auth=AgentSpecGeminiVertexAiAuthConfig(
+        auth=AgentSpecGeminiVertexAIAuthConfig(
+            name="GeminiVertexAIAuthConfig",
             project_id=_VERTEX_ADC_PROJECT_ID,
             location=_VERTEX_ADC_LOCATION,
         ),

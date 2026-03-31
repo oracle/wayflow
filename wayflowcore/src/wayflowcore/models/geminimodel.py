@@ -372,6 +372,8 @@ class GeminiModel(LlmModel):
             "model_type": "gemini",
             "model_id": self.model_id,
             "proxy": self.proxy,
+            "supports_structured_generation": self.supports_structured_generation,
+            "supports_tool_calling": self.supports_tool_calling,
             "auth": self._serialize_auth_config(self.auth),
             "generation_config": (
                 self.generation_config.to_dict() if self.generation_config is not None else None

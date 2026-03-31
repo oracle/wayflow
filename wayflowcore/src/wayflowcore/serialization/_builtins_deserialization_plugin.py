@@ -55,11 +55,15 @@ from pyagentspec.flows.nodes.parallelflownode import ParallelFlowNode as AgentSp
 from pyagentspec.flows.nodes.parallelmapnode import ParallelMapNode as AgentSpecParallelMapNode
 from pyagentspec.flows.nodes.startnode import StartNode as AgentSpecStartNode
 from pyagentspec.flows.nodes.toolnode import ToolNode as AgentSpecToolNode
-from pyagentspec.llms import GeminiAiStudioAuthConfig as AgentSpecGeminiAiStudioAuthConfig
 from pyagentspec.llms import GeminiConfig as AgentSpecGeminiConfig
-from pyagentspec.llms import GeminiVertexAiAuthConfig as AgentSpecGeminiVertexAiAuthConfig
 from pyagentspec.llms import LlmConfig as AgentSpecLlmConfig
 from pyagentspec.llms import OciGenAiConfig as AgentSpecOciGenAiModel
+from pyagentspec.llms.geminiauthconfig import (
+    GeminiAIStudioAuthConfig as AgentSpecGeminiAIStudioAuthConfig,
+)
+from pyagentspec.llms.geminiauthconfig import (
+    GeminiVertexAIAuthConfig as AgentSpecGeminiVertexAIAuthConfig,
+)
 from pyagentspec.llms.llmgenerationconfig import LlmGenerationConfig as AgentSpecLlmGenerationConfig
 from pyagentspec.llms.ociclientconfig import OciClientConfig as AgentSpecOciClientConfig
 from pyagentspec.llms.ociclientconfig import (
@@ -2151,9 +2155,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
 
     def _convert_gemini_auth_to_runtime(self, agentspec_auth: Any) -> Any:
         """Convert an Agent Spec Gemini auth object into its WayFlow equivalent."""
-        if isinstance(agentspec_auth, AgentSpecGeminiAiStudioAuthConfig):
+        if isinstance(agentspec_auth, AgentSpecGeminiAIStudioAuthConfig):
             return RuntimeGeminiApiKeyAuth(api_key=agentspec_auth.api_key)
-        if isinstance(agentspec_auth, AgentSpecGeminiVertexAiAuthConfig):
+        if isinstance(agentspec_auth, AgentSpecGeminiVertexAIAuthConfig):
             return RuntimeGeminiCloudAuth(
                 project_id=agentspec_auth.project_id,
                 location=agentspec_auth.location,

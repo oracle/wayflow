@@ -249,14 +249,14 @@ Google AI Studio or Google Vertex AI.
 
 **Examples**
 
-.. literalinclude:: ../_snippets/example_initialize_gemini_llms.py
+.. literalinclude:: ../code_examples/example_initialize_llms.py
     :language: python
     :start-after: .. gemini-start
     :end-before: .. gemini-end
 
 .. collapse:: Equivalent code example utilizing the LlmModelFactory class.
 
-    .. literalinclude:: ../_snippets/example_initialize_gemini_llms.py
+    .. literalinclude:: ../code_examples/example_initialize_llms.py
         :language: python
         :start-after: .. gemini-llmfactory-start
         :end-before: .. gemini-llmfactory-end
