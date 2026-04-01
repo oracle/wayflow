@@ -12,28 +12,15 @@ os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
 
 import litellm
 import pytest
-from litellm.types.utils import (
-    ChatCompletionDeltaToolCall,
-    Choices,
-    Delta,
-    Function,
-)
+from litellm.types.utils import ChatCompletionDeltaToolCall, Choices, Delta, Function
 from litellm.types.utils import Message as LiteLLMMessage
-from litellm.types.utils import (
-    ModelResponse,
-    ModelResponseStream,
-    StreamingChoices,
-)
+from litellm.types.utils import ModelResponse, ModelResponseStream, StreamingChoices
 
 from tests.testhelpers import litellm_testhelpers
 from tests.testhelpers.testhelpers import retry_test
 from wayflowcore.messagelist import Message
 from wayflowcore.models._requesthelpers import StreamChunkType
-from wayflowcore.models.geminimodel import (
-    GeminiApiKeyAuth,
-    GeminiCloudAuth,
-    GeminiModel,
-)
+from wayflowcore.models.geminimodel import GeminiApiKeyAuth, GeminiCloudAuth, GeminiModel
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import Prompt
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
