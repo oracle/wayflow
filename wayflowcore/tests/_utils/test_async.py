@@ -24,6 +24,15 @@ def test_can_detect_non_async_context():
     assert get_execution_context() == AsyncContext.SYNC
 
 
+def test_can_detect_non_async_context_when_anyio_leaks_async_backend_marker(monkeypatch):
+    def _raise_no_event_loop() -> None:
+        raise RuntimeError("no running event loop")
+
+    monkeypatch.setattr(anyio, "get_current_task", _raise_no_event_loop)
+
+    assert get_execution_context() == AsyncContext.SYNC
+
+
 def test_can_detect_threaded_context():
     result = None
 

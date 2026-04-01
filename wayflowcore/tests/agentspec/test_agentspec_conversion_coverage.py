@@ -28,7 +28,7 @@ from wayflowcore.datastore._relational import RelationalDatastore
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.embeddingmodels import EmbeddingModel
 from wayflowcore.mcp import SSETransport
-from wayflowcore.models import LlmModel, VllmModel
+from wayflowcore.models import GeminiApiKeyAuth, GeminiModel, LlmModel, VllmModel
 from wayflowcore.models.ociclientconfig import OCIClientConfigWithApiKey
 from wayflowcore.outputparser import RegexPattern
 from wayflowcore.property import FloatProperty, IntegerProperty, ListProperty, StringProperty
@@ -342,6 +342,7 @@ with warnings.catch_warnings():
                 }
             )
         },
+        GeminiModel: {"auth": GeminiApiKeyAuth(api_key="")},
     }
 
 

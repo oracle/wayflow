@@ -220,7 +220,7 @@ def litellm_thread_cleanup():
 
 
 @pytest.fixture(autouse=True, scope="session")
-async def litellm_anyio_cleanup(anyio_backend) -> None:
-    """Keep LiteLLM async logging disabled for AnyIO-based Gemini tests."""
+def litellm_anyio_cleanup() -> None:
+    """Keep LiteLLM logging disabled without bootstrapping an async session fixture."""
     litellm.disable_streaming_logging = True
     litellm.turn_off_message_logging = True

@@ -68,6 +68,22 @@ def _no_event_loop_exc_types() -> tuple[type[BaseException], ...]:
 _NO_EVENT_LOOP_EXCS = _no_event_loop_exc_types()
 
 
+def _is_no_running_event_loop_error(exc: BaseException) -> bool:
+    return isinstance(exc, RuntimeError) and "no running event loop" in str(exc).lower()
+
+
+def _get_sync_context_from_current_thread() -> AsyncContext:
+    current_thread = from_thread.current_thread()  # type: ignore
+    worker_name = current_thread.name.lower()
+    if "worker" in worker_name and "anyio" in worker_name:
+        # for anyio workers, we can use specific methods to
+        # handle back asynchronous code to the main loop
+        return AsyncContext.SYNC_WORKER
+    else:
+        # otherwise, consider it as a synchronous thread
+        return AsyncContext.SYNC
+
+
 def get_execution_context() -> AsyncContext:
     """
     Return one of:
@@ -81,15 +97,14 @@ def get_execution_context() -> AsyncContext:
     except _NO_EVENT_LOOP_EXCS:
         # 1. if no backend is installed
         # 2. if no event loop is running
-        current_thread = from_thread.current_thread()  # type: ignore
-        worker_name = current_thread.name.lower()
-        if "worker" in worker_name and "anyio" in worker_name:
-            # for anyio workers, we can use specific methods to
-            # handle back asynchronous code to the main loop
-            return AsyncContext.SYNC_WORKER
-        else:
-            # otherwise, consider it as a synchronous thread
-            return AsyncContext.SYNC
+        return _get_sync_context_from_current_thread()
+    except RuntimeError as exc:
+        # Under some pytest/AnyIO combinations, sniffio still reports "asyncio"
+        # even though the loop has already been torn down. In that case
+        # anyio.get_current_task() bubbles up the raw asyncio RuntimeError.
+        if not _is_no_running_event_loop_error(exc):
+            raise
+        return _get_sync_context_from_current_thread()
 
 
 def run_async_in_sync(
