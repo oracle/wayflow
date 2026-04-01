@@ -104,9 +104,9 @@ async def request_post_with_retries(
     last_exc = None
     while tries <= retry_strategy.max_retries:
         try:
-            # Ignore ambient proxy environment variables. Jenkins and VPN setups can inject
-            # HTTPS proxy settings that hijack localhost TLS test traffic and cause the client
-            # to validate the proxy certificate instead of the test server certificate.
+            # Ignore ambient proxy environment variables with `trust_env=False` to prevent injected
+            # HTTPS proxy settings from hijack localhost TLS test traffic and cause the client to
+            # validate the proxy certificate instead of the test server certificate.
             async with httpx.AsyncClient(
                 proxy=proxy,
                 timeout=retry_strategy.timeout,
