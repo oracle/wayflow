@@ -104,8 +104,14 @@ async def request_post_with_retries(
     last_exc = None
     while tries <= retry_strategy.max_retries:
         try:
+            # Ignore ambient proxy environment variables. Jenkins and VPN setups can inject
+            # HTTPS proxy settings that hijack localhost TLS test traffic and cause the client
+            # to validate the proxy certificate instead of the test server certificate.
             async with httpx.AsyncClient(
-                proxy=proxy, timeout=retry_strategy.timeout, verify=verify
+                proxy=proxy,
+                timeout=retry_strategy.timeout,
+                verify=verify,
+                trust_env=False,
             ) as session:
                 response = await session.post(**request_params)
             if response.status_code == 200:
@@ -208,8 +214,13 @@ async def request_streaming_post_with_retries(
     with silence_generator_exit_warnings():
         while tries <= retry_strategy.max_retries:
             try:
+                # Match non-streaming behavior: only use the explicit `proxy` argument and do
+                # not inherit proxy settings from the process environment.
                 async with httpx.AsyncClient(
-                    proxy=proxy, timeout=retry_strategy.timeout, verify=verify
+                    proxy=proxy,
+                    timeout=retry_strategy.timeout,
+                    verify=verify,
+                    trust_env=False,
                 ) as session:
                     async with session.stream("POST", **request_params) as response:
                         if response.status_code == 200:

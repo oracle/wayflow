@@ -113,7 +113,14 @@ def session_tmp_path(tmp_path_factory):
 
 
 def reset_http_proxy():
-    for env_var in ["HTTP_PROXY", "http_proxy"]:
+    for env_var in [
+        "HTTP_PROXY",
+        "http_proxy",
+        "HTTPS_PROXY",
+        "https_proxy",
+        "ALL_PROXY",
+        "all_proxy",
+    ]:
         if env_var in os.environ:
             del os.environ[env_var]
 

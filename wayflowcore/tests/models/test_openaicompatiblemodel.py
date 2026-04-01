@@ -547,6 +547,34 @@ def test_openai_compatible_model_supports_mtls(tls_material, https_json_server):
     assert completion.message.content == "mutual tls hello"
 
 
+def test_openai_compatible_model_ignores_proxy_environment_for_local_tls_server(
+    monkeypatch, tls_material, https_json_server
+):
+    monkeypatch.delenv("NO_PROXY", raising=False)
+    monkeypatch.delenv("no_proxy", raising=False)
+    monkeypatch.setenv("HTTPS_PROXY", "http://127.0.0.1:1")
+    monkeypatch.setenv("https_proxy", "http://127.0.0.1:1")
+    monkeypatch.setenv("ALL_PROXY", "http://127.0.0.1:1")
+    monkeypatch.setenv("all_proxy", "http://127.0.0.1:1")
+
+    with https_json_server(
+        response_factory=lambda request: (
+            200,
+            {"choices": [{"message": {"role": "assistant", "content": "secured hello"}}]},
+        ),
+    ) as base_url:
+        llm = OpenAICompatibleModel(
+            model_id="secured-model",
+            base_url=base_url,
+            ca_file=tls_material.ca_cert_path,
+        )
+        llm._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
+
+        completion = llm.generate("hello")
+
+    assert completion.message.content == "secured hello"
+
+
 def test_openai_compatible_model_rejects_invalid_ca_file(
     tls_material_factory, https_json_server_factory
 ):

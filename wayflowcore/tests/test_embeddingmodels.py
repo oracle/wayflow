@@ -423,6 +423,34 @@ def test_openai_compatible_embedding_model_supports_mtls(tls_material, https_jso
     assert embeddings == [[0.4, 0.5, 0.6]]
 
 
+def test_openai_compatible_embedding_model_ignores_proxy_environment_for_local_tls_server(
+    monkeypatch, tls_material, https_json_server
+):
+    monkeypatch.delenv("NO_PROXY", raising=False)
+    monkeypatch.delenv("no_proxy", raising=False)
+    monkeypatch.setenv("HTTPS_PROXY", "http://127.0.0.1:1")
+    monkeypatch.setenv("https_proxy", "http://127.0.0.1:1")
+    monkeypatch.setenv("ALL_PROXY", "http://127.0.0.1:1")
+    monkeypatch.setenv("all_proxy", "http://127.0.0.1:1")
+
+    with https_json_server(
+        response_factory=lambda request: (
+            200,
+            {"data": [{"embedding": [0.1, 0.2, 0.3], "index": 0}]},
+        ),
+    ) as base_url:
+        model = OpenAICompatibleEmbeddingModel(
+            model_id="secured-embedding-model",
+            base_url=base_url,
+            ca_file=tls_material.ca_cert_path,
+        )
+        model._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
+
+        embeddings = model.embed(["hello world"])
+
+    assert embeddings == [[0.1, 0.2, 0.3]]
+
+
 def test_openai_compatible_embedding_model_requires_complete_client_certificate_configuration(
     tls_material,
 ):
