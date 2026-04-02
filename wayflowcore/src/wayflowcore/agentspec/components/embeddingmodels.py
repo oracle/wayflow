@@ -4,10 +4,12 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+from typing import Optional
 
 from pyagentspec import Component
 from pyagentspec.component import SerializeAsEnum
 from pyagentspec.llms.ociclientconfig import OciClientConfig
+from pyagentspec.sensitive_field import SensitiveField
 from pydantic import SerializeAsAny
 
 from wayflowcore.agentspec.components._pydantic_plugins import (
@@ -50,6 +52,12 @@ class PluginOpenAiCompatibleEmbeddingConfig(PluginEmbeddingConfig):
     """Url of the model deployment"""
     model_id: str
     """ID of the model to use"""
+    key_file: SensitiveField[Optional[str]] = None
+    """The path to an optional client private key file (PEM format)."""
+    cert_file: SensitiveField[Optional[str]] = None
+    """The path to an optional client certificate chain file (PEM format)."""
+    ca_file: SensitiveField[Optional[str]] = None
+    """The path to an optional trusted CA certificate file (PEM format) used to verify the server."""
 
 
 class PluginOllamaEmbeddingConfig(PluginOpenAiCompatibleEmbeddingConfig):

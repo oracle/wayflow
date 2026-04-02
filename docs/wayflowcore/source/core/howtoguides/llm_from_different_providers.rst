@@ -21,6 +21,21 @@ However, you can also achieve this by directly instantiating the model classes, 
 
 You can find a detailed description of each supported model type in this guide, demonstrating both methods — using the configuration dictionary and direct instantiation — for each model.
 
+.. _openaicompatible_custom_tls:
+
+Custom TLS Certificates for OpenAI-Compatible Endpoints
+-------------------------------------------------------
+
+``OpenAICompatibleModel``, ``VllmModel`` and ``OllamaModel`` accept optional TLS certificate parameters for HTTPS endpoints that are not covered by the system CA store.
+
+.. literalinclude:: ../code_examples/example_initialize_llms.py
+    :language: python
+    :start-after: .. openai-compatible-tls-start
+    :end-before: .. openai-compatible-tls-end
+
+Use ``ca_file`` to trust a custom certificate authority, and use ``key_file`` together with ``cert_file`` for mutual TLS (mTLS).
+These certificate fields are runtime-only and are intentionally omitted from WayFlow serialization output.
+
 OCI GenAI Model
 ---------------
 

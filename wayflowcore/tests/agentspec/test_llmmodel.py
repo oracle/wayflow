@@ -3,7 +3,7 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-from typing import cast
+from typing import Any, Mapping
 
 import pytest
 from pyagentspec.llms.ocigenaiconfig import ModelProvider, ServingMode
@@ -24,6 +24,18 @@ from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithResourcePrincipal,
     OCIClientConfigWithSecurityToken,
 )
+
+
+def _deserialize_agent(
+    serialized_agent: str,
+    components_registry: Mapping[str, Any] | None = None,
+) -> Agent:
+    deserialized_component = AgentSpecLoader().load_json(
+        serialized_agent,
+        components_registry=components_registry,
+    )
+    assert isinstance(deserialized_component, Agent)
+    return deserialized_component
 
 
 @pytest.mark.parametrize(
@@ -68,12 +80,9 @@ from wayflowcore.models.ociclientconfig import (
 )
 def test_llm_model_serde_works_and_is_equal(llm_model) -> None:
     agent = Agent(llm=llm_model, custom_instruction="Be nice.")
-    deserialized_agent = cast(
-        Agent,
-        AgentSpecLoader().load_json(
-            AgentSpecExporter().to_json(agent),
-            components_registry={f"{llm_model.id}.api_key": "something"},
-        ),
+    deserialized_agent = _deserialize_agent(
+        AgentSpecExporter().to_json(agent),
+        components_registry={f"{llm_model.id}.api_key": "something"},
     )
     deserialized_llm_model = deserialized_agent.llm
     assert type(deserialized_llm_model) is type(llm_model)
@@ -103,8 +112,41 @@ def test_llm_generation_config_serde_works_and_is_equal(llm_generation_config) -
         model_id="my.model-id", host_port="http://my.url", generation_config=llm_generation_config
     )
     agent = Agent(llm=llm_model, custom_instruction="Be nice.")
-    deserialized_agent = cast(
-        Agent, AgentSpecLoader().load_json(AgentSpecExporter().to_json(agent))
-    )
+    deserialized_agent = _deserialize_agent(AgentSpecExporter().to_json(agent))
     deserialized_llm_generation_config = deserialized_agent.llm.generation_config
     assert llm_generation_config == deserialized_llm_generation_config
+
+
+@pytest.mark.parametrize("llm_cls", [OpenAICompatibleModel, VllmModel, OllamaModel])
+def test_llm_model_serde_restores_tls_sensitive_fields_from_components_registry(
+    tls_material_factory, llm_cls
+) -> None:
+    tls_material = tls_material_factory("llm-serde")
+    constructor_kwargs = dict(
+        model_id="my.model-id",
+        key_file=tls_material.client_key_path,
+        cert_file=tls_material.client_cert_path,
+        ca_file=tls_material.ca_cert_path,
+    )
+    if llm_cls is OpenAICompatibleModel:
+        constructor_kwargs["base_url"] = "https://example.test"
+    else:
+        constructor_kwargs["host_port"] = "https://example.test"
+
+    llm_model = llm_cls(**constructor_kwargs)
+    agent = Agent(llm=llm_model, custom_instruction="Be nice.")
+    components_registry = {
+        f"{llm_model.id}.key_file": tls_material.client_key_path,
+        f"{llm_model.id}.cert_file": tls_material.client_cert_path,
+        f"{llm_model.id}.ca_file": tls_material.ca_cert_path,
+    }
+
+    deserialized_agent = _deserialize_agent(
+        AgentSpecExporter().to_json(agent),
+        components_registry=components_registry,
+    )
+    deserialized_llm_model = deserialized_agent.llm
+
+    assert deserialized_llm_model.key_file == tls_material.client_key_path
+    assert deserialized_llm_model.cert_file == tls_material.client_cert_path
+    assert deserialized_llm_model.ca_file == tls_material.ca_cert_path

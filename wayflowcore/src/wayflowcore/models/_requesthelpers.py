@@ -6,6 +6,7 @@
 
 import json
 import logging
+import ssl
 import sys
 from contextlib import contextmanager
 from dataclasses import dataclass, field
@@ -34,6 +35,8 @@ if TYPE_CHECKING:
 from wayflowcore.tokenusage import TokenUsage
 
 logger = logging.getLogger(__name__)
+
+VerifyType = Union[bool, str, ssl.SSLContext]
 
 
 @dataclass
@@ -94,13 +97,22 @@ async def request_post_with_retries(
     request_params: Dict[str, Any],
     retry_strategy: _RetryStrategy,
     proxy: Optional[str] = None,
+    verify: VerifyType = True,
 ) -> Dict[str, Any]:
     """Makes a POST request using requests.post with OpenAI-like retry behavior"""
     tries = 0
     last_exc = None
     while tries <= retry_strategy.max_retries:
         try:
-            async with httpx.AsyncClient(proxy=proxy, timeout=retry_strategy.timeout) as session:
+            # Ignore ambient proxy environment variables with `trust_env=False` to prevent injected
+            # HTTPS proxy settings from hijack localhost TLS test traffic and cause the client to
+            # validate the proxy certificate instead of the test server certificate.
+            async with httpx.AsyncClient(
+                proxy=proxy,
+                timeout=retry_strategy.timeout,
+                verify=verify,
+                trust_env=False,
+            ) as session:
                 response = await session.post(**request_params)
             if response.status_code == 200:
                 try:
@@ -194,6 +206,7 @@ async def request_streaming_post_with_retries(
     request_params: Dict[str, Any],
     retry_strategy: _RetryStrategy,
     proxy: Optional[str] = None,
+    verify: VerifyType = True,
 ) -> AsyncGenerator[str, None]:
     tries = 0
     last_exc = None
@@ -201,8 +214,13 @@ async def request_streaming_post_with_retries(
     with silence_generator_exit_warnings():
         while tries <= retry_strategy.max_retries:
             try:
+                # Match non-streaming behavior: only use the explicit `proxy` argument and do
+                # not inherit proxy settings from the process environment.
                 async with httpx.AsyncClient(
-                    proxy=proxy, timeout=retry_strategy.timeout
+                    proxy=proxy,
+                    timeout=retry_strategy.timeout,
+                    verify=verify,
+                    trust_env=False,
                 ) as session:
                     async with session.stream("POST", **request_params) as response:
                         if response.status_code == 200:

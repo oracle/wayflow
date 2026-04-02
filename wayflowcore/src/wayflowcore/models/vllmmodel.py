@@ -25,6 +25,9 @@ class VllmModel(OpenAICompatibleModel):
         model_id: str,
         host_port: str,
         proxy: Optional[str] = None,
+        key_file: Optional[str] = None,
+        cert_file: Optional[str] = None,
+        ca_file: Optional[str] = None,
         generation_config: Optional[LlmGenerationConfig] = None,
         supports_structured_generation: Optional[bool] = True,
         supports_tool_calling: Optional[bool] = True,
@@ -46,6 +49,12 @@ class VllmModel(OpenAICompatibleModel):
             Hostname and port of the vllm server where the model is hosted
         proxy:
             Proxy to use to connect to the remote LLM endpoint
+        key_file:
+            The path to an optional client private key file (PEM format).
+        cert_file:
+            The path to an optional client certificate chain file (PEM format).
+        ca_file:
+            The path to an optional trusted CA certificate file (PEM format) to verify the server.
         generation_config:
             default parameters for text generation with this model
         supports_structured_generation:
@@ -105,6 +114,9 @@ class VllmModel(OpenAICompatibleModel):
             model_id=model_id,
             proxy=proxy,
             api_key=api_key,
+            key_file=key_file,
+            cert_file=cert_file,
+            ca_file=ca_file,
             generation_config=generation_config,
             supports_structured_generation=supports_structured_generation,
             supports_tool_calling=supports_tool_calling,
@@ -117,6 +129,7 @@ class VllmModel(OpenAICompatibleModel):
 
     @property
     def config(self) -> Dict[str, Any]:
+        self._warn_about_runtime_only_configuration()
         return {
             "model_type": "vllm",
             "model_id": self.model_id,

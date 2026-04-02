@@ -34,6 +34,9 @@ class OllamaModel(OpenAICompatibleModel):
         model_id: str,
         host_port: str = DEFAULT_OLLAMA_HOST_PORT,
         proxy: Optional[str] = None,
+        key_file: Optional[str] = None,
+        cert_file: Optional[str] = None,
+        ca_file: Optional[str] = None,
         generation_config: Optional[LlmGenerationConfig] = None,
         supports_structured_generation: Optional[bool] = True,
         supports_tool_calling: Optional[bool] = True,
@@ -55,6 +58,12 @@ class OllamaModel(OpenAICompatibleModel):
             By default Ollama binds port 11434.
         proxy:
             Proxy to use to connect to the remote LLM endpoint
+        key_file:
+            The path to an optional client private key file (PEM format).
+        cert_file:
+            The path to an optional client certificate chain file (PEM format).
+        ca_file:
+            The path to an optional trusted CA certificate file (PEM format) to verify the server.
         generation_config:
             default parameters for text generation with this model
         supports_structured_generation:
@@ -102,6 +111,9 @@ class OllamaModel(OpenAICompatibleModel):
             base_url=host_port,
             proxy=proxy,
             api_key=EMPTY_API_KEY,
+            key_file=key_file,
+            cert_file=cert_file,
+            ca_file=ca_file,
             generation_config=generation_config,
             supports_tool_calling=supports_tool_calling,
             supports_structured_generation=supports_structured_generation,
@@ -128,6 +140,7 @@ class OllamaModel(OpenAICompatibleModel):
 
     @property
     def config(self) -> Dict[str, Any]:
+        self._warn_about_runtime_only_configuration()
         return {
             "model_type": "ollama",
             "model_id": self.model_id,

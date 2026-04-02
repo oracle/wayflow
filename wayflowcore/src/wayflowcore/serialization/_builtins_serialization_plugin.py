@@ -1023,12 +1023,18 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             return AgentSpecPluginOllamaEmbeddingConfig(
                 model_id=runtime_embedding_model._model_id,
                 url=runtime_embedding_model._base_url,
+                key_file=runtime_embedding_model.key_file,
+                cert_file=runtime_embedding_model.cert_file,
+                ca_file=runtime_embedding_model.ca_file,
                 **kwargs,
             )
         elif isinstance(runtime_embedding_model, RuntimeVllmEmbeddingModel):
             return AgentSpecPluginVllmEmbeddingConfig(
                 model_id=runtime_embedding_model._model_id,
                 url=runtime_embedding_model._base_url,
+                key_file=runtime_embedding_model.key_file,
+                cert_file=runtime_embedding_model.cert_file,
+                ca_file=runtime_embedding_model.ca_file,
                 **kwargs,
             )
         elif isinstance(runtime_embedding_model, RuntimeOpenAiEmbeddingModel):
@@ -1040,6 +1046,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             return AgentSpecPluginOpenAiCompatibleEmbeddingConfig(
                 model_id=runtime_embedding_model._model_id,
                 url=runtime_embedding_model._base_url,
+                key_file=runtime_embedding_model.key_file,
+                cert_file=runtime_embedding_model.cert_file,
+                ca_file=runtime_embedding_model.ca_file,
                 **kwargs,
             )
         else:
@@ -1277,6 +1286,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
                 api_key=runtime_llm.api_key if runtime_llm.api_key != EMPTY_API_KEY else None,
+                key_file=runtime_llm.key_file,
+                cert_file=runtime_llm.cert_file,
+                ca_file=runtime_llm.ca_file,
             )
         elif isinstance(runtime_llm, RuntimeOCIGenAIModel):
             client_config = self._ociclientconfig_convert_to_agentspec(
@@ -1306,6 +1318,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 id=runtime_llm.id,
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
+                key_file=runtime_llm.key_file,
+                cert_file=runtime_llm.cert_file,
+                ca_file=runtime_llm.ca_file,
             )
         elif isinstance(runtime_llm, RuntimeOpenAIModel):
             return AgentSpecOpenAiConfig(
@@ -1329,6 +1344,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
                 api_key=runtime_llm.api_key if runtime_llm.api_key != EMPTY_API_KEY else None,
+                key_file=runtime_llm.key_file,
+                cert_file=runtime_llm.cert_file,
+                ca_file=runtime_llm.ca_file,
             )
         raise ValueError(f"Unsupported type of LLM in Agent Spec: {type(runtime_llm)}")
 

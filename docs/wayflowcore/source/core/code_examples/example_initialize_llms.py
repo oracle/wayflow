@@ -117,6 +117,20 @@ if __name__ == "__main__":
     llm = LlmModelFactory.from_config(OPENAI_CONFIG)
 # .. openai-llmfactory-end
 
+# .. openai-compatible-tls-start
+from wayflowcore.models import OpenAICompatibleModel
+
+if __name__ == "__main__":
+
+    llm = OpenAICompatibleModel(
+        model_id="your-model",
+        base_url="https://internal-llm.example.com",
+        key_file="/etc/certs/client.key",
+        cert_file="/etc/certs/client.pem",
+        ca_file="/etc/certs/ca.pem",
+    )
+# .. openai-compatible-tls-end
+
 # .. ollama-start
 from wayflowcore.models import OllamaModel
 

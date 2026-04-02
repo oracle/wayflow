@@ -6,6 +6,7 @@
 
 import os
 import random
+import ssl
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -19,6 +20,7 @@ from wayflowcore.embeddingmodels.openaicompatiblemodel import (
 )
 from wayflowcore.embeddingmodels.openaimodel import OpenAIEmbeddingModel
 from wayflowcore.embeddingmodels.vllmmodel import VllmEmbeddingModel
+from wayflowcore.models._requesthelpers import _RetryStrategy
 from wayflowcore.serialization.serializer import autodeserialize, serialize, serialize_to_dict
 
 from .conftest import e5large_api_url, ollama_embedding_api_url
@@ -377,6 +379,158 @@ def test_openai_compatible_embedding_model_no_api_key_no_auth_header(
     headers = mock_openai_compatible_api.call_args.kwargs.get("headers")
     assert headers is not None
     assert "Authorization" not in headers
+
+
+def test_openai_compatible_embedding_model_supports_custom_ca_file(tls_material, https_json_server):
+    with https_json_server(
+        response_factory=lambda request: (
+            200,
+            {"data": [{"embedding": [0.1, 0.2, 0.3], "index": 0}]},
+        ),
+    ) as base_url:
+        model = OpenAICompatibleEmbeddingModel(
+            model_id="secured-embedding-model",
+            base_url=base_url,
+            ca_file=tls_material.ca_cert_path,
+        )
+        model._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
+
+        embeddings = model.embed(["hello world"])
+
+    assert embeddings == [[0.1, 0.2, 0.3]]
+    assert isinstance(model._ssl_verify, ssl.SSLContext)
+
+
+def test_openai_compatible_embedding_model_supports_mtls(tls_material, https_json_server):
+    with https_json_server(
+        response_factory=lambda request: (
+            200,
+            {"data": [{"embedding": [0.4, 0.5, 0.6], "index": 0}]},
+        ),
+        require_client_cert=True,
+    ) as base_url:
+        model = OpenAICompatibleEmbeddingModel(
+            model_id="secured-embedding-model",
+            base_url=base_url,
+            key_file=tls_material.client_key_path,
+            cert_file=tls_material.client_cert_path,
+            ca_file=tls_material.ca_cert_path,
+        )
+        model._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
+
+        embeddings = model.embed(["hello world"])
+
+    assert embeddings == [[0.4, 0.5, 0.6]]
+
+
+def test_openai_compatible_embedding_model_ignores_proxy_environment_for_local_tls_server(
+    monkeypatch, tls_material, https_json_server
+):
+    monkeypatch.delenv("NO_PROXY", raising=False)
+    monkeypatch.delenv("no_proxy", raising=False)
+    monkeypatch.setenv("HTTPS_PROXY", "http://127.0.0.1:1")
+    monkeypatch.setenv("https_proxy", "http://127.0.0.1:1")
+    monkeypatch.setenv("ALL_PROXY", "http://127.0.0.1:1")
+    monkeypatch.setenv("all_proxy", "http://127.0.0.1:1")
+
+    with https_json_server(
+        response_factory=lambda request: (
+            200,
+            {"data": [{"embedding": [0.1, 0.2, 0.3], "index": 0}]},
+        ),
+    ) as base_url:
+        model = OpenAICompatibleEmbeddingModel(
+            model_id="secured-embedding-model",
+            base_url=base_url,
+            ca_file=tls_material.ca_cert_path,
+        )
+        model._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
+
+        embeddings = model.embed(["hello world"])
+
+    assert embeddings == [[0.1, 0.2, 0.3]]
+
+
+def test_openai_compatible_embedding_model_requires_complete_client_certificate_configuration(
+    tls_material,
+):
+    with pytest.raises(
+        ValueError, match="Both `key_file` and `cert_file` must be provided together"
+    ):
+        OpenAICompatibleEmbeddingModel(
+            model_id="secured-embedding-model",
+            base_url="https://example.test",
+            cert_file=tls_material.client_cert_path,
+        )
+
+
+@pytest.mark.parametrize(
+    "constructor_kwargs, expected_error",
+    [
+        (
+            {"key_file": "/nonexistent/path/client.key", "cert_file": "/tmp/client.pem"},
+            "key_file path does not exist: /nonexistent/path/client.key",
+        ),
+        (
+            {"key_file": "/tmp/client.key", "cert_file": "/nonexistent/path/client.pem"},
+            "cert_file path does not exist: /nonexistent/path/client.pem",
+        ),
+        (
+            {"ca_file": "/nonexistent/path/ca.pem"},
+            "ca_file path does not exist: /nonexistent/path/ca.pem",
+        ),
+    ],
+)
+def test_openai_compatible_embedding_model_rejects_nonexistent_certificate_paths(
+    tmp_path, constructor_kwargs, expected_error
+):
+    if "key_file" in constructor_kwargs and constructor_kwargs["key_file"].startswith("/tmp/"):
+        tmp_key = tmp_path / "client.key"
+        tmp_key.write_text("placeholder")
+        constructor_kwargs["key_file"] = str(tmp_key)
+    if "cert_file" in constructor_kwargs and constructor_kwargs["cert_file"].startswith("/tmp/"):
+        tmp_cert = tmp_path / "client.pem"
+        tmp_cert.write_text("placeholder")
+        constructor_kwargs["cert_file"] = str(tmp_cert)
+
+    with pytest.raises(ValueError, match=expected_error):
+        OpenAICompatibleEmbeddingModel(
+            model_id="secured-embedding-model",
+            base_url="https://example.test",
+            **constructor_kwargs,
+        )
+
+
+def test_openai_compatible_embedding_model_does_not_serialize_certificate_fields(tls_material):
+    model = OpenAICompatibleEmbeddingModel(
+        model_id="secured-embedding-model",
+        base_url="https://example.test",
+        key_file=tls_material.client_key_path,
+        cert_file=tls_material.client_cert_path,
+        ca_file=tls_material.ca_cert_path,
+    )
+
+    serialized_dict = serialize_to_dict(model)
+
+    assert "key_file" not in serialized_dict
+    assert "cert_file" not in serialized_dict
+    assert "ca_file" not in serialized_dict
+
+
+@pytest.mark.parametrize("model_cls", [VllmEmbeddingModel, OllamaEmbeddingModel])
+def test_vllm_and_ollama_embedding_models_accept_tls_configuration(model_cls, tls_material):
+    model = model_cls(
+        model_id="secured-embedding-model",
+        base_url="https://example.test",
+        key_file=tls_material.client_key_path,
+        cert_file=tls_material.client_cert_path,
+        ca_file=tls_material.ca_cert_path,
+    )
+
+    assert model.key_file == tls_material.client_key_path
+    assert model.cert_file == tls_material.client_cert_path
+    assert model.ca_file == tls_material.ca_cert_path
+    assert isinstance(model._ssl_verify, ssl.SSLContext)
 
 
 def test_openai_embedding_model_api_key_sets_auth_header(mock_openai_compatible_api):

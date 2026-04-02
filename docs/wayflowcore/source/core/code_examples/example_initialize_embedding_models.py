@@ -64,6 +64,22 @@ if __name__ == "__main__":
 # .. openai-embedding-end
 """
 """
+# .. openai-compatible-embedding-tls-start
+from wayflowcore.embeddingmodels import OpenAICompatibleEmbeddingModel
+
+if __name__ == "__main__":
+
+    model = OpenAICompatibleEmbeddingModel(
+        model_id="your-embedding-model",
+        base_url="https://internal-embeddings.example.com",
+        key_file="/etc/certs/client.key",
+        cert_file="/etc/certs/client.pem",
+        ca_file="/etc/certs/ca.pem",
+    )
+# .. openai-compatible-embedding-tls-end
+"""
+
+"""
 # .. vllm-embedding-start
 from wayflowcore.embeddingmodels import VllmEmbeddingModel
 

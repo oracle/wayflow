@@ -160,3 +160,32 @@ def test_import_component_with_incomplete_missing_sensitive_fields_fails(
             _ = AgentSpecLoader().load_json(
                 f.read(), components_registry=incomplete_components_registry
             )
+
+
+def test_exported_openaicompatible_llm_certificate_fields_are_sensitive(
+    with_mcp_enabled, tls_material_factory
+) -> None:
+    tls_material = tls_material_factory("sensitive-fields")
+    component = Agent(
+        name="name",
+        custom_instruction="Hi",
+        llm=OpenAICompatibleModel(
+            name="openai-compatible-config",
+            base_url="https://api.closedai.com/v2",
+            model_id="gpt-7",
+            api_key="abcdexyz",
+            key_file=tls_material.client_key_path,
+            cert_file=tls_material.client_cert_path,
+            ca_file=tls_material.ca_cert_path,
+        ),
+    )
+
+    serialized_component = AgentSpecExporter().to_json(component)
+
+    assert "abcdexyz" not in serialized_component
+    assert tls_material.client_key_path not in serialized_component
+    assert tls_material.client_cert_path not in serialized_component
+    assert tls_material.ca_cert_path not in serialized_component
+    assert f"{component.llm.id}.key_file" in serialized_component
+    assert f"{component.llm.id}.cert_file" in serialized_component
+    assert f"{component.llm.id}.ca_file" in serialized_component
