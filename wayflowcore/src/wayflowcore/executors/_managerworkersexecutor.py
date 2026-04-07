@@ -119,7 +119,9 @@ class ManagerWorkersRunner(ConversationExecutor):
                 # Manager agent should have tool to talk to user
                 mutated_agent_tools.append(_make_talk_to_user_tool())
 
-        mutated_agent_template = managerworkers_config.managerworkers_template.with_partial(
+        mutated_agent_template = managerworkers_config._compose_runtime_manager_agent_template(
+            current_agent
+        ).with_partial(
             {
                 "name": current_agent.name,
                 "description": current_agent.description,

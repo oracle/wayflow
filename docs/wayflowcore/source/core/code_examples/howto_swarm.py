@@ -212,6 +212,28 @@ assistant = Swarm(
 )
 # .. end-##_Creating_the_Swarm
 
+# .. start-##_Creating_the_Swarm_With_Transforms
+from wayflowcore.transforms import ConversationSummarizationTransform
+
+summarization_transform = ConversationSummarizationTransform(
+    llm=llm,
+    max_num_messages=30,
+    min_num_messages=10,
+    datastore=None,
+)
+
+assistant_with_summarization = Swarm(
+    name="SwarmWithSummarization",
+    first_agent=general_practitioner,
+    relationships=[
+        (general_practitioner, pharmacist),
+        (general_practitioner, dermatologist),
+        (dermatologist, pharmacist),
+    ],
+    transforms=[summarization_transform],
+)
+# .. end-##_Creating_the_Swarm_With_Transforms
+
 # .. start-##_Running_the_Swarm
 # With a linear conversation
 conversation = assistant.start_conversation()

@@ -38,6 +38,12 @@ filter_in_memory_datastore_warnings = pytest.mark.filterwarnings(
 )
 
 
+def _get_datastore_schema(datastore):
+    return (
+        datastore.datastore_schema if hasattr(datastore, "datastore_schema") else datastore.schema
+    )
+
+
 def _testing_message_summarization_transforms():
     """Create both wayflow and agent-spec transforms with non-default values."""
     # Non-default values for comprehensive testing
@@ -70,6 +76,7 @@ def _testing_message_summarization_transforms():
         name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
     )
     agent_spec_datastore = InMemoryCollectionDatastore(
+        id=datastore.id,
         name="custom-inmemory-datastore",
         datastore_schema={
             custom_cache_collection_name: AgentSpecMessageSummarizationTransform.get_entity_definition()
@@ -130,6 +137,7 @@ def _testing_conversation_summarization_transforms(
         name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
     )
     agent_spec_datastore = InMemoryCollectionDatastore(
+        id=datastore.id,
         name="custom-inmemory-datastore-conversations",
         datastore_schema={
             custom_cache_collection_name: AgentSpecConversationSummarizationTransform.get_entity_definition()
@@ -211,6 +219,16 @@ def test_agentspec_summarization_conversation_transform_can_be_converted_to_wayf
 
 
 def assert_message_summarization_transforms_are_equal(converted_transform, expected_transform):
+    converted_datastore = (
+        converted_transform.datastore
+        if hasattr(converted_transform, "datastore")
+        else converted_transform.cache.datastore if converted_transform.cache is not None else None
+    )
+    expected_datastore = (
+        expected_transform.datastore
+        if hasattr(expected_transform, "datastore")
+        else expected_transform.cache.datastore if expected_transform.cache is not None else None
+    )
     # Check that the parameters match the ground truth from agent-spec
     assert converted_transform.max_message_size == expected_transform.max_message_size
     assert (
@@ -224,6 +242,14 @@ def assert_message_summarization_transforms_are_equal(converted_transform, expec
     assert converted_transform.max_cache_size == expected_transform.max_cache_size
     assert converted_transform.max_cache_lifetime == expected_transform.max_cache_lifetime
     assert converted_transform.cache_collection_name == expected_transform.cache_collection_name
+    assert (converted_datastore is None) == (expected_datastore is None)
+    if expected_datastore is not None:
+        assert converted_datastore is not None
+        assert converted_datastore.id == expected_datastore.id
+        assert (
+            _get_datastore_schema(converted_datastore).keys()
+            == _get_datastore_schema(expected_datastore).keys()
+        )
     # For llm, check equivalent fields
     if isinstance(expected_transform, AgentSpecMessageSummarizationTransform):
         assert converted_transform.llm.url == expected_transform.llm.url
@@ -237,6 +263,16 @@ def assert_message_summarization_transforms_are_equal(converted_transform, expec
 
 
 def assert_conversation_summarization_transforms_are_equal(converted_transform, expected_transform):
+    converted_datastore = (
+        converted_transform.datastore
+        if hasattr(converted_transform, "datastore")
+        else converted_transform.cache.datastore if converted_transform.cache is not None else None
+    )
+    expected_datastore = (
+        expected_transform.datastore
+        if hasattr(expected_transform, "datastore")
+        else expected_transform.cache.datastore if expected_transform.cache is not None else None
+    )
     # Check that the parameters match the ground truth from agent-spec
     assert converted_transform.max_num_messages == expected_transform.max_num_messages
     assert converted_transform.max_num_characters == expected_transform.max_num_characters
@@ -252,6 +288,14 @@ def assert_conversation_summarization_transforms_are_equal(converted_transform, 
     assert converted_transform.max_cache_size == expected_transform.max_cache_size
     assert converted_transform.max_cache_lifetime == expected_transform.max_cache_lifetime
     assert converted_transform.cache_collection_name == expected_transform.cache_collection_name
+    assert (converted_datastore is None) == (expected_datastore is None)
+    if expected_datastore is not None:
+        assert converted_datastore is not None
+        assert converted_datastore.id == expected_datastore.id
+        assert (
+            _get_datastore_schema(converted_datastore).keys()
+            == _get_datastore_schema(expected_datastore).keys()
+        )
     # For llm, check equivalent fields
     if isinstance(expected_transform, AgentSpecConversationSummarizationTransform):
         assert converted_transform.llm.url == expected_transform.llm.url

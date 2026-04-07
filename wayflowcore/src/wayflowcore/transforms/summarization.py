@@ -20,6 +20,12 @@ from wayflowcore.messagelist import ImageContent, Message, MessageContent, TextC
 from wayflowcore.models.llmmodel import Prompt
 from wayflowcore.models.tokenusagehelpers import CountTokensHeuristics
 from wayflowcore.property import FloatProperty, IntegerProperty, StringProperty
+from wayflowcore.serialization.context import DeserializationContext, SerializationContext
+from wayflowcore.serialization.serializer import (
+    autodeserialize_from_dict,
+    deserialize_any_from_dict,
+    serialize_to_dict,
+)
 from wayflowcore.tools.tools import ToolResult
 from wayflowcore.transforms.transforms import MessageTransform
 
@@ -407,6 +413,63 @@ class MessageSummarizationTransform(MessageTransform):
     ) -> str:
         return conversation_id + "_" + str(message_idx) + "_" + _type
 
+    def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
+        return {
+            "llm": serialize_to_dict(self.llm, serialization_context),
+            "max_message_size": self.max_message_size,
+            "summarization_instructions": self.summarization_instructions,
+            "summarized_message_template": self.summarized_message_template,
+            "datastore": (
+                serialize_to_dict(self.cache.datastore, serialization_context)
+                if self.cache is not None
+                else None
+            ),
+            "cache_collection_name": self.cache_collection_name,
+            "max_cache_size": self.max_cache_size,
+            "max_cache_lifetime": self.max_cache_lifetime,
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+        }
+
+    @classmethod
+    def _deserialize_from_dict(
+        cls, input_dict: Dict[str, Any], deserialization_context: DeserializationContext
+    ) -> "MessageSummarizationTransform":
+        from wayflowcore.models import LlmModel
+
+        datastore = (
+            cast(
+                "Datastore",
+                autodeserialize_from_dict(input_dict["datastore"], deserialization_context),
+            )
+            if input_dict.get("datastore") is not None
+            else None
+        )
+
+        return cls(
+            llm=deserialize_any_from_dict(input_dict["llm"], LlmModel, deserialization_context),
+            max_message_size=input_dict.get("max_message_size", 20_000),
+            summarization_instructions=input_dict.get(
+                "summarization_instructions",
+                "Please make a summary of this message. Include relevant information and keep it short. "
+                "Your response will replace the message, so just output the summary directly, no introduction needed.",
+            ),
+            summarized_message_template=input_dict.get(
+                "summarized_message_template", "Summarized message: {{summary}}"
+            ),
+            datastore=datastore,
+            cache_collection_name=input_dict.get(
+                "cache_collection_name", cls.DEFAULT_CACHE_COLLECTION_NAME
+            ),
+            max_cache_size=input_dict.get("max_cache_size", 10_000),
+            max_cache_lifetime=input_dict.get("max_cache_lifetime", 4 * 3600),
+            id=input_dict.get("id"),
+            name=input_dict.get("name"),
+            description=input_dict.get("description"),
+            __metadata_info__=input_dict.get("__metadata_info__", {}),
+        )
+
 
 class ConversationSummarizationTransform(MessageTransform):
     """
@@ -663,4 +726,63 @@ class ConversationSummarizationTransform(MessageTransform):
                 "created_at": FloatProperty(),
                 "last_used_at": FloatProperty(),
             }
+        )
+
+    def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
+        return {
+            "llm": serialize_to_dict(self.llm, serialization_context),
+            "max_num_messages": self.max_num_messages,
+            "min_num_messages": self.min_num_messages,
+            "summarization_instructions": self.summarization_instructions,
+            "summarized_conversation_template": self.summarized_conversation_template,
+            "datastore": (
+                serialize_to_dict(self.cache.datastore, serialization_context)
+                if self.cache is not None
+                else None
+            ),
+            "max_cache_size": self.max_cache_size,
+            "max_cache_lifetime": self.max_cache_lifetime,
+            "cache_collection_name": self.cache_collection_name,
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+        }
+
+    @classmethod
+    def _deserialize_from_dict(
+        cls, input_dict: Dict[str, Any], deserialization_context: DeserializationContext
+    ) -> "ConversationSummarizationTransform":
+        from wayflowcore.models import LlmModel
+
+        datastore = (
+            cast(
+                "Datastore",
+                autodeserialize_from_dict(input_dict["datastore"], deserialization_context),
+            )
+            if input_dict.get("datastore") is not None
+            else None
+        )
+
+        return cls(
+            llm=deserialize_any_from_dict(input_dict["llm"], LlmModel, deserialization_context),
+            max_num_messages=input_dict.get("max_num_messages", 50),
+            min_num_messages=input_dict.get("min_num_messages", 10),
+            summarization_instructions=input_dict.get(
+                "summarization_instructions",
+                "Please make a summary of this conversation. Include relevant information and keep it short. "
+                "Your response will replace the messages, so just output the summary directly, no introduction needed.",
+            ),
+            summarized_conversation_template=input_dict.get(
+                "summarized_conversation_template", "Summarized conversation: {{summary}}"
+            ),
+            datastore=datastore,
+            max_cache_size=input_dict.get("max_cache_size", 10_000),
+            max_cache_lifetime=input_dict.get("max_cache_lifetime", 4 * 3600),
+            cache_collection_name=input_dict.get(
+                "cache_collection_name", cls.DEFAULT_CACHE_COLLECTION_NAME
+            ),
+            id=input_dict.get("id"),
+            name=input_dict.get("name"),
+            description=input_dict.get("description"),
+            __metadata_info__=input_dict.get("__metadata_info__", {}),
         )

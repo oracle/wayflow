@@ -193,6 +193,8 @@ Important considerations:
 - Flows can be serialized while waiting for user input
 - The loaded Flow conversation resumes exactly where it left off
 - User input can be provided to the loaded conversation to continue execution
+- If your component uses :ref:`MessageSummarizationTransform <messagesummarizationtransform>` or :ref:`ConversationSummarizationTransform <conversationsummarizationtransform>`, their configuration is serialized with the component and restored on deserialization
+- If those transforms use an :ref:`InMemoryDatastore <inmemorydatastore>` for caching, cached summary rows are not preserved across restarts; use a persistent datastore if cache continuity matters
 
 Building persistent applications
 ================================

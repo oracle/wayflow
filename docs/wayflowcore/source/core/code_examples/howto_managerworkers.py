@@ -284,6 +284,23 @@ group = ManagerWorkers(
 )
 # .. end-##_Managerworkers_pattern
 
+# .. start-##_Managerworkers_pattern_with_transforms
+from wayflowcore.transforms import ConversationSummarizationTransform
+
+summarization_transform = ConversationSummarizationTransform(
+    llm=llm,
+    max_num_messages=30,
+    min_num_messages=10,
+    datastore=None,
+)
+
+group_with_summarization = ManagerWorkers(
+    group_manager=customer_service_manager,
+    workers=[refund_specialist_agent, surveyor_agent],
+    transforms=[summarization_transform],
+)
+# .. end-##_Managerworkers_pattern_with_transforms
+
 # .. start-##_Managerworkers_answers_without_expert
 main_conversation = group.start_conversation(
     inputs={

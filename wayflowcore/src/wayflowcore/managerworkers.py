@@ -19,6 +19,7 @@ from wayflowcore.serialization.serializer import SerializableDataclassMixin, Ser
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.templates._managerworkerstemplate import _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
 from wayflowcore.tools import Tool
+from wayflowcore.transforms import MessageTransform
 
 if TYPE_CHECKING:
     from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
@@ -32,6 +33,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
     group_manager: Union[LlmModel, Agent]
     workers: List[Union[Agent, "ManagerWorkers"]]
     caller_input_mode: CallerInputMode
+    transforms: List[MessageTransform]
     managerworkers_template: "PromptTemplate"
     input_descriptors: List["Property"]
     output_descriptors: List["Property"]
@@ -45,6 +47,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         group_manager: Union[LlmModel, Agent],
         workers: List[Union[Agent, "ManagerWorkers"]],
         caller_input_mode: CallerInputMode = CallerInputMode.ALWAYS,
+        transforms: Optional[List[MessageTransform]] = None,
         managerworkers_template: Optional["PromptTemplate"] = None,
         input_descriptors: Optional[List["Property"]] = None,
         output_descriptors: Optional[List["Property"]] = None,
@@ -69,6 +72,11 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         caller_input_mode:
             Whether the manager can ask the user for additional information or needs to handle the task internally within the team.
             This overrides manager agent's ``caller_input_mode``.
+        transforms:
+            Message transforms configured on the manager-workers component. These transforms are prepended to
+            the manager-workers template pre-rendering transforms during execution, so user-provided transforms
+            run first. When ``group_manager`` is an ``Agent`` with ``Agent(..., transforms=[...])``,
+            those manager-level transforms are prepended before the manager-workers-level transforms.
         input_descriptors:
             Input descriptors of the ManagerWorkers. ``None`` means the ManagerWorks will resolve the input descriptors automatically in a best effort manner.
 
@@ -124,6 +132,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         self.manager_agent = _create_manager_agent(self.group_manager)
 
         self.workers = workers
+        self.transforms = transforms or []
 
         self._agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = _validate_agent_unicity(
             self.workers + [self.manager_agent]
@@ -134,6 +143,9 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
 
         self.managerworkers_template = (
             managerworkers_template or _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
+        )
+        self._runtime_managerworkers_template: PromptTemplate = (
+            self._compose_runtime_managerworkers_template()
         )
 
         self.caller_input_mode = caller_input_mode
@@ -148,6 +160,61 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             conversation_class=ManagerWorkersConversation,
             __metadata_info__=__metadata_info__,
         )
+
+    def _compose_runtime_managerworkers_template(self) -> PromptTemplate:
+        runtime_managerworkers_template = self.managerworkers_template
+        template_transform_names = [
+            t.__class__.__name__
+            for t in runtime_managerworkers_template.pre_rendering_transforms or []
+        ]
+        if template_transform_names:
+            managerworkers_transform_names = [t.__class__.__name__ for t in self.transforms]
+            logger.info(
+                "ManagerWorkers-level transforms %s will be prepended to template transforms %s.",
+                managerworkers_transform_names,
+                template_transform_names,
+            )
+
+        for transform in self.transforms[::-1]:
+            runtime_managerworkers_template = (
+                runtime_managerworkers_template.with_additional_pre_rendering_transform(
+                    transform, append_last=False
+                )
+            )
+        return runtime_managerworkers_template
+
+    def _compose_runtime_manager_agent_template(self, agent: Agent) -> PromptTemplate:
+        """
+        Compose the prompt template used when the manager agent executes inside the pattern.
+
+        ManagerWorkers execution always uses the manager-workers prompt surface, but if the group
+        manager is itself an Agent, that agent's own pre-rendering transforms still need to run.
+        We therefore prepend the manager agent's template transforms to the already composed
+        manager-workers runtime template.
+        """
+        runtime_manager_agent_template = self._runtime_managerworkers_template
+        agent_template_transforms = agent.agent_template.pre_rendering_transforms or []
+
+        if agent_template_transforms:
+            agent_transform_names = [t.__class__.__name__ for t in agent_template_transforms]
+            managerworkers_transform_names = [
+                t.__class__.__name__
+                for t in runtime_manager_agent_template.pre_rendering_transforms or []
+            ]
+            logger.info(
+                "Manager agent transforms %s will be prepended to manager-workers transforms %s for agent '%s'.",
+                agent_transform_names,
+                managerworkers_transform_names,
+                agent.name,
+            )
+
+        for transform in agent_template_transforms[::-1]:
+            runtime_manager_agent_template = (
+                runtime_manager_agent_template.with_additional_pre_rendering_transform(
+                    transform, append_last=False
+                )
+            )
+        return runtime_manager_agent_template
 
     def start_conversation(
         self,
@@ -238,5 +305,13 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         return all_tools
 
     def _update_internal_state(self) -> None:
-        # This method would need to be implemented if needed
-        pass
+        from wayflowcore.executors._agenticpattern_helpers import _create_communication_tools
+        from wayflowcore.executors._managerworkersexecutor import (
+            _create_manager_agent,
+            _validate_agent_unicity,
+        )
+
+        self.manager_agent = _create_manager_agent(self.group_manager)
+        self._agent_by_name = _validate_agent_unicity(self.workers + [self.manager_agent])
+        self._manager_communication_tools = _create_communication_tools()
+        self._runtime_managerworkers_template = self._compose_runtime_managerworkers_template()

@@ -17,6 +17,7 @@ from wayflowcore.executors._swarmconversation import (
 )
 from wayflowcore.serialization import deserialize, serialize, serialize_to_dict
 from wayflowcore.swarm import Swarm
+from wayflowcore.transforms import RemoveEmptyNonUserMessageTransform
 
 from ..conftest import _assert_config_are_equal
 from ..test_swarm import example_medical_agents  # noqa
@@ -111,6 +112,10 @@ def assert_swarms_are_equal(old_swarm: Swarm, new_swarm: Swarm):
         assert_swarm_agents_are_equal(old_caller_agent, new_caller_agent)
         assert_swarm_agents_are_equal(old_recipient_agent, new_recipient_agent)
 
+    assert len(old_swarm.transforms) == len(new_swarm.transforms)
+    for old_transform, new_transform in zip(old_swarm.transforms, new_swarm.transforms):
+        assert type(old_transform) is type(new_transform)
+
     assert old_swarm.__metadata_info__ == new_swarm.__metadata_info__
     assert old_swarm.id == new_swarm.id
 
@@ -192,6 +197,20 @@ def test_can_deserialize_a_serialized_swarm(simple_swarm: Swarm) -> None:
         serialize_to_dict(new_swarm),
     )
     assert_swarms_are_equal(simple_swarm, new_swarm)
+
+
+def test_swarm_transforms_are_serialized(example_medical_agents) -> None:
+    gp_doctor, neurologist_doctor, _ = example_medical_agents
+    swarm = Swarm(
+        first_agent=gp_doctor,
+        relationships=[(gp_doctor, neurologist_doctor)],
+        transforms=[RemoveEmptyNonUserMessageTransform()],
+    )
+
+    deserialized_swarm = deserialize(Swarm, serialize(swarm))
+
+    assert len(deserialized_swarm.transforms) == 1
+    assert isinstance(deserialized_swarm.transforms[0], RemoveEmptyNonUserMessageTransform)
 
 
 def test_can_serialize_simple_conversation(simple_conversation: SwarmConversation) -> None:

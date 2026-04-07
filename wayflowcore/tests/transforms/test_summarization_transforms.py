@@ -13,10 +13,18 @@ import pytest
 from tests.testhelpers.testhelpers import retry_test
 from wayflowcore.agent import Agent
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING, InMemoryDatastore
+from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.messagelist import ImageContent, Message, MessageType, TextContent
 from wayflowcore.models.llmmodel import LlmCompletion, LlmModel
+from wayflowcore.swarm import HandoffMode, Swarm
+from wayflowcore.templates._managerworkerstemplate import _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
+from wayflowcore.templates._swarmtemplate import _DEFAULT_SWARM_CHAT_TEMPLATE
 from wayflowcore.tools import ToolRequest, ToolResult, tool
-from wayflowcore.transforms import ConversationSummarizationTransform, MessageSummarizationTransform
+from wayflowcore.transforms import (
+    ConversationSummarizationTransform,
+    MessageSummarizationTransform,
+    MessageTransform,
+)
 from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
 
 from ..conftest import mock_llm, patch_streaming_llm
@@ -296,6 +304,28 @@ filter_in_memory_datastore_warnings = pytest.mark.filterwarnings(
 filter_summarization_transform_with_default_in_memory_datastore_warnings = (
     pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
 )
+
+
+class _RecordingConversationSummarizationTransform(ConversationSummarizationTransform):
+    def __init__(self, *, recorded_calls, label, **kwargs):
+        super().__init__(**kwargs)
+        self.recorded_calls = recorded_calls
+        self.label = label
+
+    async def call_async(self, messages):
+        self.recorded_calls.append(self.label)
+        return await super().call_async(messages)
+
+
+class _RecordingMessageTransform(MessageTransform):
+    def __init__(self, *, recorded_calls, label):
+        super().__init__()
+        self.recorded_calls = recorded_calls
+        self.label = label
+
+    def __call__(self, messages):
+        self.recorded_calls.append(self.label)
+        return messages
 
 
 def message_summarization_transform_setup(llm: LlmModel):
@@ -855,6 +885,487 @@ def test_summarization_transform_updates_tool_result_content(toolres_message_con
                 assert len(transformed_messages[2].content) < toolres_len
             else:
                 assert transformed_messages[2].contents == toolres_message_contents
+
+
+@pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
+def test_swarm_template_message_summarization_transform_summarizes_large_tool_results():
+    max_message_size = 200
+    large_tool_output = "Very long tool result. " * 100
+    summarized_tool_output = "Summarized swarm tool result"
+
+    summarization_llm = mock_llm()
+    router_llm = mock_llm()
+    specialist_llm = mock_llm()
+
+    transform = MessageSummarizationTransform(
+        llm=summarization_llm,
+        max_message_size=max_message_size,
+    )
+    swarm_template = _DEFAULT_SWARM_CHAT_TEMPLATE.with_additional_pre_rendering_transform(
+        transform,
+        append_last=False,
+    )
+
+    router = Agent(
+        name="Router",
+        description="Agent that uses tools.",
+        llm=router_llm,
+        custom_instruction="Use tools when needed and answer in one sentence.",
+    )
+    specialist = Agent(
+        name="Specialist",
+        description="Unused backup agent.",
+        llm=specialist_llm,
+        custom_instruction="Answer in one sentence.",
+    )
+    swarm = Swarm(
+        first_agent=router,
+        relationships=[(router, specialist)],
+        swarm_template=swarm_template,
+    )
+
+    conv = swarm.start_conversation(
+        messages=[
+            Message(message_type=MessageType.USER, content="Please use your tool."),
+            Message(
+                contents=[],
+                message_type=MessageType.TOOL_REQUEST,
+                tool_requests=[
+                    ToolRequest(
+                        name="retrieve_facts",
+                        args={"subject": "dolphins"},
+                        tool_request_id="tool_1",
+                    )
+                ],
+            ),
+            Message(
+                contents=[],
+                message_type=MessageType.TOOL_RESULT,
+                tool_result=ToolResult(content=large_tool_output, tool_request_id="tool_1"),
+            ),
+            Message(message_type=MessageType.USER, content="Now process that tool result."),
+        ]
+    )
+
+    mock_generate_summary = AsyncMock(
+        side_effect=lambda prompt: LlmCompletion(Message(summarized_tool_output), None)
+    )
+
+    with patch.object(summarization_llm, "generate_async", mock_generate_summary):
+        with patch_streaming_llm(router_llm, "Processed tool result") as patched_router_llm:
+            conv.execute()
+
+            transformed_messages = [
+                message
+                for prompts, _ in patched_router_llm.call_args_list
+                for prompt in prompts
+                for message in prompt.messages
+            ]
+
+    assert mock_generate_summary.call_count > 0
+    assert any(
+        summarized_tool_output in message.content and "--- TOOL RESULT:" in message.content
+        for message in transformed_messages
+    )
+    assert all(large_tool_output not in message.content for message in transformed_messages)
+
+
+@filter_in_memory_datastore_warnings
+@pytest.mark.parametrize(
+    ("scenario", "expected_transform_label"),
+    [
+        ("main_thread", "router"),
+        ("send_message", "specialist"),
+        ("handoff", "specialist"),
+    ],
+)
+def test_swarm_applies_agent_level_conversation_summarization_transforms(
+    scenario, expected_transform_label
+):
+    """
+    Agent-level conversation transforms should still run when an agent executes inside a Swarm.
+
+    Expected behavior by scenario:
+    - ``main_thread``: a transform attached to the router should summarize the main thread once
+      the router's own conversation exceeds the configured threshold.
+    - ``send_message``: a transform attached to the specialist should summarize the delegated
+      sub-conversation when repeated ``send_message`` calls grow that thread past the threshold.
+    - ``handoff``: a transform attached to the specialist should summarize the main thread after
+      ownership is transferred and subsequent turns continue under the specialist.
+
+    This regression test is intentionally written against the desired behavior. It fails when
+    Swarm execution rebuilds prompts exclusively from ``swarm_template`` and drops transforms that
+    were attached through ``Agent(transforms=[...])``.
+    """
+    recorded_calls = []
+    summary_llm = mock_llm()
+    router_llm = mock_llm()
+    specialist_llm = mock_llm()
+
+    def make_transform(label, max_num_messages):
+        cache_collection_name = f"test_swarm_agent_transform_{scenario}_{label}_cache"
+        summary_datastore = InMemoryDatastore(
+            {
+                cache_collection_name: ConversationSummarizationTransform.get_entity_definition(),
+            }
+        )
+        return _RecordingConversationSummarizationTransform(
+            recorded_calls=recorded_calls,
+            label=label,
+            llm=summary_llm,
+            max_num_messages=max_num_messages,
+            min_num_messages=1,
+            datastore=summary_datastore,
+            cache_collection_name=cache_collection_name,
+        )
+
+    router_transforms = []
+    specialist_transforms = []
+    handoff_mode = HandoffMode.NEVER
+    router_outputs = []
+    specialist_outputs = []
+    user_messages = []
+
+    if scenario == "main_thread":
+        router_transforms = [make_transform("router", max_num_messages=3)]
+        router_outputs = ["Reply 1", "Reply 2", "Reply 3"]
+        user_messages = ["Message 1", "Message 2", "Message 3"]
+    elif scenario == "send_message":
+        specialist_transforms = [make_transform("specialist", max_num_messages=2)]
+        router_outputs = [
+            [
+                ToolRequest(
+                    name="send_message",
+                    args={"recipient": "Specialist", "message": "Delegated task 1."},
+                    tool_request_id="send_1",
+                )
+            ],
+            "Router answer after delegated task 1.",
+            [
+                ToolRequest(
+                    name="send_message",
+                    args={"recipient": "Specialist", "message": "Delegated task 2."},
+                    tool_request_id="send_2",
+                )
+            ],
+            "Router answer after delegated task 2.",
+        ]
+        specialist_outputs = ["Specialist reply 1.", "Specialist reply 2."]
+        user_messages = ["Please delegate round 1.", "Please delegate round 2."]
+    elif scenario == "handoff":
+        specialist_transforms = [make_transform("specialist", max_num_messages=4)]
+        handoff_mode = HandoffMode.ALWAYS
+        router_outputs = [
+            [
+                ToolRequest(
+                    name="handoff_conversation",
+                    args={"recipient": "Specialist"},
+                    tool_request_id="handoff_1",
+                )
+            ],
+        ]
+        specialist_outputs = [
+            "Specialist answer after handoff turn 1.",
+            "Specialist answer after handoff turn 2.",
+        ]
+        user_messages = ["Take over this conversation.", "Now continue after the handoff."]
+    else:
+        raise AssertionError(f"Unsupported scenario: {scenario}")
+
+    router = Agent(
+        name="Router",
+        description="Router agent for swarm transform regression coverage.",
+        llm=router_llm,
+        custom_instruction=(
+            "Always use send_message to delegate work to Specialist, then answer the user."
+            if scenario == "send_message"
+            else (
+                "Always hand off the conversation to Specialist."
+                if scenario == "handoff"
+                else "Reply in one short sentence and do not delegate."
+            )
+        ),
+        transforms=router_transforms,
+    )
+    specialist = Agent(
+        name="Specialist",
+        description="Specialist agent for swarm transform regression coverage.",
+        llm=specialist_llm,
+        custom_instruction=(
+            "Continue the user conversation after the handoff."
+            if scenario == "handoff"
+            else "Answer the delegated request."
+        ),
+        transforms=specialist_transforms,
+    )
+    swarm = Swarm(
+        first_agent=router,
+        relationships=[(router, specialist)],
+        handoff=handoff_mode,
+    )
+    conversation = swarm.start_conversation()
+
+    summarize_completion = AsyncMock(
+        side_effect=lambda prompt: LlmCompletion(Message("Summarized conversation."), None)
+    )
+
+    with patch.object(summary_llm, "generate_async", summarize_completion):
+        with patch_llm(router_llm, outputs=router_outputs):
+            with patch_llm(specialist_llm, outputs=specialist_outputs):
+                for user_message in user_messages:
+                    conversation.append_user_message(user_message)
+                    conversation.execute()
+
+    assert summarize_completion.call_count > 0
+    assert expected_transform_label in recorded_calls
+
+
+@filter_in_memory_datastore_warnings
+def test_swarm_transforms_apply_conversation_summarization_during_execution():
+    cache_collection_name = "test_swarm_transforms_summary_cache"
+    summary_datastore = InMemoryDatastore(
+        {
+            cache_collection_name: ConversationSummarizationTransform.get_entity_definition(),
+        }
+    )
+    summary_llm = mock_llm()
+    router_llm = mock_llm()
+    specialist_llm = mock_llm()
+
+    transform = ConversationSummarizationTransform(
+        llm=summary_llm,
+        max_num_messages=3,
+        min_num_messages=1,
+        datastore=summary_datastore,
+        cache_collection_name=cache_collection_name,
+    )
+    router = Agent(
+        name="Router",
+        description="Front desk router.",
+        llm=router_llm,
+        custom_instruction="Reply in one short sentence and do not delegate.",
+    )
+    specialist = Agent(
+        name="Specialist",
+        description="Backup specialist.",
+        llm=specialist_llm,
+        custom_instruction="Reply in one short sentence.",
+    )
+    swarm = Swarm(
+        first_agent=router,
+        relationships=[(router, specialist)],
+        transforms=[transform],
+    )
+
+    conversation = swarm.start_conversation()
+    summary = "Summarized previous swarm conversation."
+    summarize_completion = AsyncMock(
+        side_effect=lambda prompt: LlmCompletion(Message(summary), None)
+    )
+
+    with patch.object(summary_llm, "generate_async", summarize_completion):
+        with patch_llm(router_llm, outputs=["Reply 1", "Reply 2", "Reply 3"]):
+            conversation.append_user_message("Message 1")
+            conversation.execute()
+            conversation.append_user_message("Message 2")
+            conversation.execute()
+            conversation.append_user_message("Message 3")
+            conversation.execute()
+
+    assert summarize_completion.call_count > 0
+    assert len(summary_datastore.list(cache_collection_name)) > 0
+
+
+def test_swarm_applies_agent_swarm_and_template_transforms_in_order():
+    recorded_calls = []
+    router_llm = mock_llm()
+    specialist_llm = mock_llm()
+
+    agent_transform = _RecordingMessageTransform(recorded_calls=recorded_calls, label="agent")
+    swarm_transform = _RecordingMessageTransform(recorded_calls=recorded_calls, label="swarm")
+    template_transform = _RecordingMessageTransform(recorded_calls=recorded_calls, label="template")
+
+    router = Agent(
+        name="Router",
+        description="Router agent for transform ordering coverage.",
+        llm=router_llm,
+        custom_instruction="Reply in one short sentence and do not delegate.",
+        transforms=[agent_transform],
+    )
+    specialist = Agent(
+        name="Specialist",
+        description="Backup specialist.",
+        llm=specialist_llm,
+        custom_instruction="Reply in one short sentence.",
+    )
+    swarm = Swarm(
+        first_agent=router,
+        relationships=[(router, specialist)],
+        transforms=[swarm_transform],
+        swarm_template=_DEFAULT_SWARM_CHAT_TEMPLATE.with_additional_pre_rendering_transform(
+            template_transform
+        ),
+    )
+
+    conversation = swarm.start_conversation()
+
+    with patch_llm(router_llm, outputs=["Reply 1"]):
+        conversation.append_user_message("Message 1")
+        conversation.execute()
+
+    assert recorded_calls == ["agent", "swarm", "template"]
+
+
+def test_managerworkers_applies_manager_group_and_template_transforms_in_order():
+    recorded_calls = []
+    manager_llm = mock_llm()
+    worker_llm = mock_llm()
+
+    manager_transform = _RecordingMessageTransform(recorded_calls=recorded_calls, label="manager")
+    managerworkers_transform = _RecordingMessageTransform(
+        recorded_calls=recorded_calls, label="managerworkers"
+    )
+    template_transform = _RecordingMessageTransform(recorded_calls=recorded_calls, label="template")
+
+    manager_agent = Agent(
+        name="Manager",
+        description="Manager agent for transform ordering coverage.",
+        llm=manager_llm,
+        custom_instruction="Reply in one short sentence and do not delegate.",
+        transforms=[manager_transform],
+    )
+    worker = Agent(
+        name="Worker",
+        description="Backup worker.",
+        llm=worker_llm,
+        custom_instruction="Reply in one short sentence.",
+    )
+    managerworkers = ManagerWorkers(
+        workers=[worker],
+        group_manager=manager_agent,
+        transforms=[managerworkers_transform],
+        managerworkers_template=_DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE.with_additional_pre_rendering_transform(
+            template_transform
+        ),
+    )
+
+    conversation = managerworkers.start_conversation()
+
+    with patch_llm(manager_llm, outputs=["Reply 1"]):
+        conversation.append_user_message("Message 1")
+        conversation.execute()
+
+    assert recorded_calls == ["manager", "managerworkers", "template"]
+
+
+@filter_in_memory_datastore_warnings
+def test_managerworkers_applies_manager_agent_conversation_summarization_transforms():
+    recorded_calls = []
+    cache_collection_name = "test_managerworkers_manager_agent_transform_summary_cache"
+    summary_datastore = InMemoryDatastore(
+        {
+            cache_collection_name: ConversationSummarizationTransform.get_entity_definition(),
+        }
+    )
+    summary_llm = mock_llm()
+    manager_llm = mock_llm()
+    worker_llm = mock_llm()
+
+    manager_transform = _RecordingConversationSummarizationTransform(
+        recorded_calls=recorded_calls,
+        label="manager",
+        llm=summary_llm,
+        max_num_messages=3,
+        min_num_messages=1,
+        datastore=summary_datastore,
+        cache_collection_name=cache_collection_name,
+    )
+    manager_agent = Agent(
+        name="Manager",
+        description="Manager agent for manager transform regression coverage.",
+        llm=manager_llm,
+        custom_instruction="Reply in one short sentence and do not delegate.",
+        transforms=[manager_transform],
+    )
+    worker = Agent(
+        name="Worker",
+        description="Backup worker.",
+        llm=worker_llm,
+        custom_instruction="Reply in one short sentence.",
+    )
+    managerworkers = ManagerWorkers(
+        workers=[worker],
+        group_manager=manager_agent,
+    )
+
+    conversation = managerworkers.start_conversation()
+    summary = "Summarized previous manager conversation."
+    summarize_completion = AsyncMock(
+        side_effect=lambda prompt: LlmCompletion(Message(summary), None)
+    )
+
+    with patch.object(summary_llm, "generate_async", summarize_completion):
+        with patch_llm(manager_llm, outputs=["Reply 1", "Reply 2", "Reply 3"]):
+            conversation.append_user_message("Message 1")
+            conversation.execute()
+            conversation.append_user_message("Message 2")
+            conversation.execute()
+            conversation.append_user_message("Message 3")
+            conversation.execute()
+
+    assert summarize_completion.call_count > 0
+    assert "manager" in recorded_calls
+    assert len(summary_datastore.list(cache_collection_name)) > 0
+
+
+@filter_in_memory_datastore_warnings
+def test_managerworkers_transforms_apply_conversation_summarization_during_execution():
+    cache_collection_name = "test_managerworkers_transforms_summary_cache"
+    summary_datastore = InMemoryDatastore(
+        {
+            cache_collection_name: ConversationSummarizationTransform.get_entity_definition(),
+        }
+    )
+    summary_llm = mock_llm()
+    manager_llm = mock_llm()
+    worker_llm = mock_llm()
+
+    transform = ConversationSummarizationTransform(
+        llm=summary_llm,
+        max_num_messages=3,
+        min_num_messages=1,
+        datastore=summary_datastore,
+        cache_collection_name=cache_collection_name,
+    )
+    worker = Agent(
+        name="Worker",
+        description="Backup worker.",
+        llm=worker_llm,
+        custom_instruction="Reply in one short sentence.",
+    )
+    managerworkers = ManagerWorkers(
+        workers=[worker],
+        group_manager=manager_llm,
+        transforms=[transform],
+    )
+
+    conversation = managerworkers.start_conversation()
+    summary = "Summarized previous manager-workers conversation."
+    summarize_completion = AsyncMock(
+        side_effect=lambda prompt: LlmCompletion(Message(summary), None)
+    )
+
+    with patch.object(summary_llm, "generate_async", summarize_completion):
+        with patch_llm(manager_llm, outputs=["Reply 1", "Reply 2", "Reply 3"]):
+            conversation.append_user_message("Message 1")
+            conversation.execute()
+            conversation.append_user_message("Message 2")
+            conversation.execute()
+            conversation.append_user_message("Message 3")
+            conversation.execute()
+
+    assert summarize_completion.call_count > 0
+    assert len(summary_datastore.list(cache_collection_name)) > 0
 
 
 @filter_summarization_transform_with_default_in_memory_datastore_warnings

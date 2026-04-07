@@ -218,6 +218,35 @@ The ManagerWorkers has two main parameters:
   - Worker agents cannot interact with the end user directly.
   - When invoked, each worker can leverage its equipped tools to complete the assigned task and report the result back to the group manager.
 
+``ManagerWorkers`` also accepts a ``transforms`` parameter. This is the recommended way to apply message transforms such as
+:ref:`MessageSummarizationTransform <messagesummarizationtransform>` or :ref:`ConversationSummarizationTransform <conversationsummarizationtransform>`
+to the manager's rendered prompt in a multi-agent setup.
+These component-level transforms are prepended to any transforms already present on the ``managerworkers_template``.
+If ``group_manager`` is itself an ``Agent`` with its own ``transforms``, those manager-agent transforms are also preserved during execution.
+
+.. literalinclude:: ../code_examples/howto_managerworkers.py
+    :language: python
+    :start-after: .. start-##_Managerworkers_pattern_with_transforms
+    :end-before: .. end-##_Managerworkers_pattern_with_transforms
+
+.. _managerworkers_transform_ordering:
+
+.. note::
+   **How ``transforms`` and ``managerworkers_template`` work together**
+
+   During execution, WayFlow builds the manager agent's effective runtime template from the configured ``managerworkers_template``.
+   If ``group_manager`` is an ``Agent`` with its own pre-rendering transforms, those run first, then ``managerworkers.transforms``, and finally any pre-rendering transforms already attached directly to ``managerworkers_template``.
+   The effective order is therefore:
+
+   1. ``group_manager.transforms`` for the group manager, when ``group_manager`` is an ``Agent``
+   2. ``managerworkers.transforms`` in the order you passed them
+   3. ``managerworkers_template.pre_rendering_transforms``
+
+   This means the most specific transforms run first: manager-agent before manager-workers, and manager-workers before template-level transforms.
+
+When a ``ManagerWorkers`` conversation is serialized and later deserialized, the summarization transform configuration is restored.
+Use a persistent datastore if you also need the summary cache contents to survive application restarts.
+
 Executing the ManagerWorkers
 ----------------------------
 

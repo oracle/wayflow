@@ -1764,7 +1764,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             )
         elif isinstance(runtime_messagetransform, RuntimeMessageSummarizationTransform):
             return AgentSpecMessageSummarizationTransform(
+                id=runtime_messagetransform.id,
                 name=runtime_messagetransform.name or "message-summarizer",
+                description=runtime_messagetransform.description,
                 llm=self._llm_convert_to_agentspec(
                     conversion_context, runtime_messagetransform.llm, referenced_objects
                 ),
@@ -1774,6 +1776,15 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 max_cache_size=runtime_messagetransform.max_cache_size,
                 max_cache_lifetime=runtime_messagetransform.max_cache_lifetime,
                 cache_collection_name=runtime_messagetransform.cache_collection_name,
+                datastore=(
+                    self._datastore_convert_to_agentspec(
+                        conversion_context,
+                        runtime_messagetransform.cache.datastore,
+                        referenced_objects,
+                    )
+                    if runtime_messagetransform.cache is not None
+                    else None
+                ),
                 metadata=_create_agentspec_metadata_from_runtime_component(
                     runtime_messagetransform
                 ),
@@ -1781,7 +1792,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
 
         elif isinstance(runtime_messagetransform, RuntimeConversationSummarizationTransform):
             return AgentSpecConversationSummarizationTransform(
+                id=runtime_messagetransform.id,
                 name=runtime_messagetransform.name or "conversation-summarizer",
+                description=runtime_messagetransform.description,
                 llm=self._llm_convert_to_agentspec(
                     conversion_context, runtime_messagetransform.llm, referenced_objects
                 ),
@@ -1793,6 +1806,15 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 max_cache_size=runtime_messagetransform.max_cache_size,
                 max_cache_lifetime=runtime_messagetransform.max_cache_lifetime,
                 cache_collection_name=runtime_messagetransform.cache_collection_name,
+                datastore=(
+                    self._datastore_convert_to_agentspec(
+                        conversion_context,
+                        runtime_messagetransform.cache.datastore,
+                        referenced_objects,
+                    )
+                    if runtime_messagetransform.cache is not None
+                    else None
+                ),
                 metadata=_create_agentspec_metadata_from_runtime_component(
                     runtime_messagetransform
                 ),

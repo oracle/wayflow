@@ -176,7 +176,9 @@ class SwarmRunner(ConversationExecutor):
                 ]
             mutated_agent_tools = list(current_agent.tools) + communication_tools
 
-            mutated_agent_template = swarm_config.swarm_template.with_partial(
+            mutated_agent_template = swarm_config._compose_runtime_agent_template(
+                current_agent
+            ).with_partial(
                 {
                     "name": current_agent.name,
                     "description": current_agent.description,

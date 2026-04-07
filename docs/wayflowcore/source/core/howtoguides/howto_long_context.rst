@@ -40,6 +40,8 @@ This guide demonstrates three methods for reducing context size using built-in t
 
 
 This guide shows how to use built-in :ref:`MessageTransform <messagetransform>` objects to reduce the context size in agents.
+The same transforms can also be attached directly to :ref:`Swarm <swarm>` and :ref:`ManagerWorkers <managerworkers>`
+through their ``transforms`` constructor argument when you need long-context handling in multi-agent patterns.
 
 Introduction
 ============
@@ -51,6 +53,10 @@ A :ref:`MessageTransform <MessageTransform>` is a transformation applied to a li
 more about them in the :doc:`Advanced Prompting Techniques <howto_prompttemplate>` guide.
 
 In this guide, we use built-in message transforms to adjust the agent's chat history by passing them directly to the :ref:`Agent <agent>` constructor.
+For :ref:`Swarm <swarm>` and :ref:`ManagerWorkers <managerworkers>`, the ``transforms`` constructor argument behaves the same way:
+component-level transforms are prepended to any transforms already defined on the prompt template, so user-provided transforms run first.
+For ``Swarm``, when the active agent also defines ``Agent(..., transforms=[...])``, those agent-level transforms run before
+the swarm-level transforms. See :ref:`Swarm transform ordering <swarm_transform_ordering>` for the full ordering.
 
 LLM Setup
 ~~~~~~~~~
@@ -82,6 +88,10 @@ We use the built-in :ref:`MessageSummarizationTransform <messagesummarizationtra
 .. note::
    When creating :ref:`MessageSummarizationTransform <messagesummarizationtransform>` without specifying a ``datastore``, it will initialize a default :ref:`InMemoryDatastore <inmemorydatastore>` for caching, which is only suitable for prototyping. This will raise a user warning indicating that in-memory datastores are not recommended for production systems.
    For production systems, you can use :ref:`OracleDatabaseDatastore <oracledatabasedatastore>` or :ref:`PostgresDatabaseDatastore <postgresdatabasedatastore>`.
+
+.. important::
+   If you serialize and later deserialize a conversation or prompt template that uses summarization transforms, the transform configuration is restored, including the summarization LLM settings and datastore configuration.
+   However, an :ref:`InMemoryDatastore <inmemorydatastore>` does not preserve cached summary rows across process restarts. If you need summary cache reuse after deserialization in a persistent application, use a database-backed datastore such as :ref:`OracleDatabaseDatastore <oracledatabasedatastore>` or :ref:`PostgresDatabaseDatastore <postgresdatabasedatastore>`.
 
 Let's integrate the :ref:`MessageSummarizationTransform <messagesummarizationtransform>` into the :ref:`Agent <agent>`:
 

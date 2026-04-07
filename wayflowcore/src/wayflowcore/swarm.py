@@ -20,6 +20,7 @@ from wayflowcore.serialization.serializer import SerializableDataclassMixin, Ser
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.templates._swarmtemplate import _DEFAULT_SWARM_CHAT_TEMPLATE
 from wayflowcore.tools import ClientTool, Tool
+from wayflowcore.transforms import MessageTransform
 
 if TYPE_CHECKING:
     from wayflowcore.conversation import Conversation
@@ -82,6 +83,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
     relationships: List[Tuple[Agent, Agent]]
     handoff: Union[HandoffMode, bool]
     caller_input_mode: CallerInputMode
+    transforms: List[MessageTransform]
     swarm_template: "PromptTemplate"
     input_descriptors: List["Property"]
     output_descriptors: List["Property"]
@@ -96,6 +98,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         relationships: List[Tuple[Agent, Agent]],
         handoff: Union[HandoffMode, bool] = HandoffMode.OPTIONAL,
         caller_input_mode: CallerInputMode = CallerInputMode.ALWAYS,
+        transforms: Optional[List[MessageTransform]] = None,
         swarm_template: Optional[PromptTemplate] = None,
         input_descriptors: Optional[List["Property"]] = None,
         output_descriptors: Optional[List["Property"]] = None,
@@ -150,6 +153,12 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             Output descriptors of the swarm. ``None`` means the swarm will resolve them automatically in a best effort manner.
         caller_input_mode:
             Whether the agent in swarm can ask the user for additional information or needs to handle the task internally within the swarm.
+        transforms:
+            Message transforms configured on the swarm. During execution, the active agent runs with an
+            effective runtime template derived from the swarm prompt surface, and these transforms are
+            prepended ahead of ``swarm_template.pre_rendering_transforms`` in that runtime template.
+            When the active agent also defines ``Agent(..., transforms=[...])``, those agent-level transforms
+            are prepended before the swarm-level transforms.
         name:
             name of the swarm, used for composition
         description:
@@ -217,13 +226,15 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 logger.debug("Agent '%s' does not have any recipient", agent_name)
                 continue
 
-            send_message_tools = _create_communication_tools(self.handoff)
+            send_message_tools = _create_communication_tools(self._get_handoff_mode())
             self._communication_tools[agent_name].extend(send_message_tools)
 
         self.first_agent = first_agent
         self.relationships = relationships or []
         self.swarm_template = swarm_template or _DEFAULT_SWARM_CHAT_TEMPLATE
         self.caller_input_mode = caller_input_mode
+        self.transforms = transforms or []
+        self._runtime_swarm_template: PromptTemplate = self._compose_runtime_swarm_template()
 
         super().__init__(
             name=IdGenerator.get_or_generate_name(name, prefix="swarm_", length=8),
@@ -235,6 +246,65 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             conversation_class=SwarmConversation,
             __metadata_info__=__metadata_info__,
         )
+
+    def _compose_runtime_swarm_template(self) -> PromptTemplate:
+        runtime_swarm_template = self.swarm_template
+        template_transform_names = [
+            t.__class__.__name__ for t in runtime_swarm_template.pre_rendering_transforms or []
+        ]
+        if template_transform_names:
+            swarm_transform_names = [t.__class__.__name__ for t in self.transforms]
+            logger.info(
+                "Swarm-level transforms %s will be prepended to template transforms %s.",
+                swarm_transform_names,
+                template_transform_names,
+            )
+
+        for transform in self.transforms[::-1]:
+            runtime_swarm_template = runtime_swarm_template.with_additional_pre_rendering_transform(
+                transform, append_last=False
+            )
+        return runtime_swarm_template
+
+    def _get_handoff_mode(self) -> HandoffMode:
+        """
+        Return the normalized runtime handoff mode.
+
+        ``self.handoff`` is normalized to ``HandoffMode`` in ``__init__``, but this helper keeps
+        the contract explicit for type checkers and refresh paths.
+        """
+        if isinstance(self.handoff, HandoffMode):
+            return self.handoff
+        return HandoffMode.OPTIONAL if self.handoff else HandoffMode.NEVER
+
+    def _compose_runtime_agent_template(self, agent: Agent) -> PromptTemplate:
+        """
+        Compose the prompt template used when a specific agent executes inside the swarm.
+
+        Swarm execution always uses the swarm prompt surface, but the active agent's own
+        pre-rendering transforms still need to run. We therefore prepend the agent template's
+        pre-rendering transforms to the already composed swarm runtime template.
+        """
+        runtime_agent_template = self._runtime_swarm_template
+        agent_template_transforms = agent.agent_template.pre_rendering_transforms or []
+
+        if agent_template_transforms:
+            agent_transform_names = [t.__class__.__name__ for t in agent_template_transforms]
+            swarm_transform_names = [
+                t.__class__.__name__ for t in runtime_agent_template.pre_rendering_transforms or []
+            ]
+            logger.info(
+                "Agent-level transforms %s will be prepended to swarm transforms %s for agent '%s'.",
+                agent_transform_names,
+                swarm_transform_names,
+                agent.name,
+            )
+
+        for transform in agent_template_transforms[::-1]:
+            runtime_agent_template = runtime_agent_template.with_additional_pre_rendering_transform(
+                transform, append_last=False
+            )
+        return runtime_agent_template
 
     def start_conversation(
         self,
@@ -305,5 +375,25 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         return all_tools
 
     def _update_internal_state(self) -> None:
-        # This method would need to be implemented if needed
-        pass
+        from wayflowcore.executors._agenticpattern_helpers import _create_communication_tools
+        from wayflowcore.executors._swarmexecutor import (
+            _get_all_recipients_for_agent,
+            _validate_agent_unicity,
+            _validate_relationships_unicity,
+        )
+
+        self._agent_by_name = _validate_agent_unicity(self.first_agent, self.relationships)
+        _validate_relationships_unicity(self.relationships)
+
+        self._communication_tools = {}
+        for agent_name, agent in self._agent_by_name.items():
+            self._communication_tools[agent_name] = []
+            agent_recipients = _get_all_recipients_for_agent(self.relationships, agent)
+            if not agent_recipients:
+                logger.debug("Agent '%s' does not have any recipient", agent_name)
+                continue
+
+            send_message_tools = _create_communication_tools(self._get_handoff_mode())
+            self._communication_tools[agent_name].extend(send_message_tools)
+
+        self._runtime_swarm_template = self._compose_runtime_swarm_template()
