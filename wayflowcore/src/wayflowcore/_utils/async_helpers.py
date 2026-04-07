@@ -28,7 +28,7 @@ from typing import (
 import anyio
 from anyio import from_thread
 from exceptiongroup import BaseExceptionGroup
-from sniffio import AsyncLibraryNotFoundError
+from sniffio import AsyncLibraryNotFoundError, current_async_library
 from typing_extensions import Self
 
 T = TypeVar("T")
@@ -44,11 +44,8 @@ class AsyncContext(Enum):
     SYNC_WORKER = "sync_worker"
 
 
-def _no_event_loop_exc_types() -> tuple[type[BaseException], ...]:
+def _task_lookup_exc_types() -> tuple[type[BaseException], ...]:
     exc_types: list[type[BaseException]] = []
-
-    # anyio < 4.12.0
-    exc_types.append(AsyncLibraryNotFoundError)
 
     # anyio == 4.12.0
     try:
@@ -66,23 +63,32 @@ def _no_event_loop_exc_types() -> tuple[type[BaseException], ...]:
     return tuple(exc_types)
 
 
-_NO_EVENT_LOOP_EXCS = _no_event_loop_exc_types()
+_TASK_LOOKUP_EXCS = _task_lookup_exc_types()
 
 
 def _is_no_running_event_loop_error(exc: BaseException) -> bool:
     return isinstance(exc, RuntimeError) and "no running event loop" in str(exc).lower()
 
 
+def _is_anyio_worker_thread() -> bool:
+    try:
+        # check_cancelled() is a lightweight public API that only succeeds
+        # inside AnyIO worker threads spawned through to_thread.run_sync().
+        from_thread.check_cancelled()
+    except RuntimeError:
+        return False
+    else:
+        return True
+
+
 def _get_sync_context_from_current_thread() -> AsyncContext:
-    current_thread = from_thread.current_thread()  # type: ignore
-    worker_name = current_thread.name.lower()
-    if "worker" in worker_name and "anyio" in worker_name:
-        # for anyio workers, we can use specific methods to
+    if _is_anyio_worker_thread():
+        # for AnyIO workers, we can use specific methods to
         # handle back asynchronous code to the main loop
         return AsyncContext.SYNC_WORKER
-    else:
-        # otherwise, consider it as a synchronous thread
-        return AsyncContext.SYNC
+
+    # otherwise, consider it as a synchronous thread
+    return AsyncContext.SYNC
 
 
 def get_execution_context() -> AsyncContext:
@@ -93,19 +99,22 @@ def get_execution_context() -> AsyncContext:
     - 'async'        → running inside the event loop
     """
     try:
+        current_async_library()
+    except AsyncLibraryNotFoundError:
+        return _get_sync_context_from_current_thread()
+
+    try:
         anyio.get_current_task()
-        return AsyncContext.ASYNC
-    except _NO_EVENT_LOOP_EXCS:
-        # 1. if no backend is installed
-        # 2. if no event loop is running
+    except _TASK_LOOKUP_EXCS:
+        # sniffio can still report a backend marker after the underlying
+        # event loop has already gone away.
         return _get_sync_context_from_current_thread()
     except RuntimeError as exc:
-        # Under some pytest/AnyIO combinations, sniffio still reports "asyncio"
-        # even though the loop has already been torn down. In that case
-        # anyio.get_current_task() bubbles up the raw asyncio RuntimeError.
         if not _is_no_running_event_loop_error(exc):
             raise
         return _get_sync_context_from_current_thread()
+    else:
+        return AsyncContext.ASYNC
 
 
 def run_async_in_sync(

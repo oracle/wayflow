@@ -25,7 +25,7 @@ from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import Prompt
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.serialization.serializer import serialize_to_dict
-from wayflowcore.tools import ToolResult, tool
+from wayflowcore.tools import ToolRequest, ToolResult, tool
 
 _ADC_CREDENTIALS_PATH = litellm_testhelpers.ADC_CREDENTIALS_PATH
 _VERTEX_CREDENTIALS_PROJECT_ID = litellm_testhelpers.VERTEX_CREDENTIALS_PROJECT_ID
@@ -281,6 +281,14 @@ def test_geminimodel_runtime_config_roundtrip_omits_secret_vertex_credentials() 
 
 def test_geminimodel_preserves_message_extra_content_without_wrapping() -> None:
     llm = GeminiModel(model_id="gemini-2.5-flash", auth=GeminiApiKeyAuth())
+    request = llm._build_litellm_request(
+        Prompt(
+            messages=[
+                Message(role="assistant", content="hello", _extra_content={"foo": "bar"}),
+            ]
+        ),
+        stream=False,
+    )
     response = ModelResponse(
         model="gemini/gemini-2.5-flash",
         choices=[
@@ -296,10 +304,65 @@ def test_geminimodel_preserves_message_extra_content_without_wrapping() -> None:
         ],
     )
 
+    assert request["messages"][0]["provider_specific_fields"] == {"foo": "bar"}
+    assert "extra_content" not in request["messages"][0]
+
     message = llm._litellm_adapter.litellm_response_to_wayflow_message(response)
 
     assert message.content == "hello"
     assert message._extra_content == {"foo": "bar"}
+
+
+def test_geminimodel_maps_tool_call_provider_fields_between_wayflow_and_litellm() -> None:
+    llm = GeminiModel(model_id="gemini-2.5-flash", auth=GeminiApiKeyAuth())
+    request = llm._build_litellm_request(
+        Prompt(
+            messages=[
+                Message(
+                    role="assistant",
+                    tool_requests=[
+                        ToolRequest(
+                            name="tool_greet",
+                            args={"echo_text": "hello"},
+                            tool_request_id="call_1",
+                            _extra_content={"thought_signature": "sig"},
+                        )
+                    ],
+                )
+            ]
+        ),
+        stream=False,
+    )
+    response = {
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "tool_calls": [
+                        {
+                            "id": "call_1",
+                            "type": "function",
+                            "function": {
+                                "name": "tool_greet",
+                                "arguments": json.dumps({"echo_text": "hello"}),
+                                "provider_specific_fields": {"thought_signature": "sig"},
+                            },
+                        }
+                    ],
+                }
+            }
+        ]
+    }
+
+    tool_call = request["messages"][0]["tool_calls"][0]
+    assert tool_call["provider_specific_fields"] == {"thought_signature": "sig"}
+    assert "extra_content" not in tool_call
+    assert json.loads(tool_call["function"]["arguments"]) == {"echo_text": "hello"}
+
+    message = llm._litellm_adapter.litellm_response_to_wayflow_message(response)
+
+    assert message.tool_requests is not None
+    assert message.tool_requests[0]._extra_content == {"thought_signature": "sig"}
 
 
 def test_geminimodel_streaming_reconstructs_partial_tool_call_deltas() -> None:

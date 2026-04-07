@@ -1,4 +1,4 @@
-# Copyright © 2025, 2026 Oracle and/or its affiliates.
+# Copyright © 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -92,41 +92,57 @@ class _GeminiLiteLLMAdapter:
             "Unexpected LiteLLM payload type. Expected a dict or LiteLLM object convertible to dict."
         )
 
-    @classmethod
-    def _rename_key_recursively(cls, value: Any, source_key: str, target_key: str) -> Any:
-        if isinstance(value, dict):
-            renamed: Dict[str, Any] = {}
-            for key, item in value.items():
-                renamed[target_key if key == source_key else key] = cls._rename_key_recursively(
-                    item,
-                    source_key,
-                    target_key,
-                )
-            return renamed
-        if isinstance(value, list):
-            return [cls._rename_key_recursively(item, source_key, target_key) for item in value]
-        return value
+    @staticmethod
+    def _move_field(mapping: Dict[str, Any], source_key: str, target_key: str) -> None:
+        if source_key not in mapping:
+            return
+        source_value = mapping.pop(source_key)
+        if target_key not in mapping:
+            mapping[target_key] = source_value
 
     @classmethod
-    def wayflow_payload_to_litellm(cls, value: Any) -> Any:
-        return cls._rename_key_recursively(value, "extra_content", "provider_specific_fields")
-
-    @classmethod
-    def litellm_payload_to_wayflow(cls, value: Any) -> Any:
-        normalized = cls._rename_key_recursively(
-            value,
-            "provider_specific_fields",
-            "extra_content",
+    def _normalize_message(
+        cls,
+        message_payload: Dict[str, Any],
+        *,
+        inbound: bool,
+        message_extra_content: Any = None,
+    ) -> Dict[str, Any]:
+        normalized = dict(message_payload)
+        source_key, target_key = (
+            ("provider_specific_fields", "extra_content")
+            if inbound
+            else ("extra_content", "provider_specific_fields")
         )
-        if isinstance(normalized, dict):
-            function_payload = normalized.get("function")
-            if (
-                isinstance(function_payload, dict)
-                and "extra_content" in function_payload
-                and "extra_content" not in normalized
-            ):
-                normalized["extra_content"] = function_payload.pop("extra_content")
+        cls._move_field(normalized, source_key, target_key)
+        for tool_call in normalized.get("tool_calls") or []:
+            if not isinstance(tool_call, dict):
+                continue
+            cls._move_field(tool_call, source_key, target_key)
+            if not inbound or not isinstance(function_payload := tool_call.get("function"), dict):
+                continue
+            cls._move_field(function_payload, source_key, target_key)
+            if target_key in function_payload and target_key not in tool_call:
+                tool_call[target_key] = function_payload.pop(target_key)
+
+        if (
+            not inbound
+            and isinstance(message_extra_content, dict)
+            and message_extra_content
+            and "tool_calls" not in normalized
+            and "tool_call_id" not in normalized
+            and "provider_specific_fields" not in normalized
+        ):
+            normalized["provider_specific_fields"] = dict(message_extra_content)
+
         return normalized
+
+    @classmethod
+    def _normalize_choice_payload(cls, payload: Dict[str, Any], choice_key: str) -> Dict[str, Any]:
+        for choice in payload.get("choices") or []:
+            if isinstance(choice, dict) and isinstance(choice.get(choice_key), dict):
+                choice[choice_key] = cls._normalize_message(choice[choice_key], inbound=True)
+        return payload
 
     def generation_config_to_litellm_kwargs(
         self, generation_config: Optional[LlmGenerationConfig]
@@ -137,27 +153,23 @@ class _GeminiLiteLLMAdapter:
         return generation_kwargs
 
     def wayflow_prompt_to_litellm_messages(self, prompt: Prompt) -> List[Dict[str, Any]]:
-        messages: List[Dict[str, Any]] = []
-        for message in prompt.messages:
-            converted_messages = self._processor._convert_message_into_openai_message_dict(
+        return [
+            self._normalize_message(
+                converted_message,
+                inbound=False,
+                message_extra_content=message._extra_content,
+            )
+            for message in prompt.messages
+            for converted_message in self._processor._convert_message_into_openai_message_dict(
                 message,
                 supports_tool_role=True,
             )
-            for converted_message in converted_messages:
-                normalized_message = self.wayflow_payload_to_litellm(converted_message)
-                if (
-                    isinstance(message._extra_content, dict)
-                    and message._extra_content
-                    and "tool_calls" not in normalized_message
-                    and "tool_call_id" not in normalized_message
-                ):
-                    normalized_message["provider_specific_fields"] = dict(message._extra_content)
-                messages.append(normalized_message)
-        return messages
+        ]
 
     def litellm_response_to_wayflow_message(self, response: Any) -> Message:
-        normalized_response = self.litellm_payload_to_wayflow(
-            self._litellm_object_to_dict(response)
+        normalized_response = self._normalize_choice_payload(
+            self._litellm_object_to_dict(response),
+            "message",
         )
         return self._processor._convert_openai_response_into_message(normalized_response)
 
@@ -202,7 +214,10 @@ class _GeminiLiteLLMAdapter:
         }
 
     def ingest_litellm_stream_chunk(self, stream_state: Dict[str, Any], chunk: Any) -> str:
-        normalized_chunk = self.litellm_payload_to_wayflow(self._litellm_object_to_dict(chunk))
+        normalized_chunk = self._normalize_choice_payload(
+            self._litellm_object_to_dict(chunk),
+            "delta",
+        )
 
         text_delta = ""
         for choice in normalized_chunk.get("choices") or []:
