@@ -351,6 +351,36 @@ def test_geminimodel_streaming_reconstructs_partial_tool_call_deltas() -> None:
     assert message.tool_requests[0].tool_request_id == "call_1"
 
 
+@pytest.mark.anyio
+async def test_geminimodel_sync_generate_uses_async_bridge_outside_plain_sync(monkeypatch) -> None:
+    llm = GeminiModel(model_id="gemini-2.5-flash", auth=GeminiApiKeyAuth(api_key="test-key"))
+    prompt = Prompt(messages=[Message(role="user", content="Hello")])
+    call_counts = {"async": 0, "sync": 0}
+
+    async def fake_acompletion(**_kwargs):
+        call_counts["async"] += 1
+        return {
+            "choices": [{"message": {"role": "assistant", "content": "hello"}}],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+        }
+
+    def fake_completion(**_kwargs):
+        call_counts["sync"] += 1
+        pytest.fail("Gemini sync generate should use litellm.acompletion outside plain sync")
+
+    monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.acompletion", fake_acompletion)
+    monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.completion", fake_completion)
+
+    with pytest.warns(
+        UserWarning,
+        match="Please use the asynchronous method equivalent: generate_async",
+    ):
+        completion = llm.generate(prompt)
+
+    assert completion.message.content == "hello"
+    assert call_counts == {"async": 1, "sync": 0}
+
+
 @pytest.mark.skipif(
     not os.getenv("VERTEX_CREDENTIALS") or not _VERTEX_CREDENTIALS_PROJECT_ID,
     reason="Gemini Vertex-auth test credentials not set up",

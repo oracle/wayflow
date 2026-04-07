@@ -4,7 +4,12 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import os
 from importlib.metadata import version
+
+# LiteLLM loads the model cost map during import time. Default to the bundled local
+# copy unless the embedding process explicitly opted into remote refreshes.
+os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
 
 from .agent import Agent
 from .conversation import Conversation

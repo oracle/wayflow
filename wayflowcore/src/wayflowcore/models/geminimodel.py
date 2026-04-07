@@ -9,12 +9,11 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any, AsyncIterable, Dict, Iterable, List, Optional
 
-os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
-
 import litellm
 from pydantic import BaseModel
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore._utils.async_helpers import AsyncContext, get_execution_context
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.tokenusage import TokenUsage
 
@@ -283,6 +282,9 @@ class GeminiModel(LlmModel):
     def generate(
         self, prompt: "Prompt | str", _conversation: Optional["Conversation"] = None
     ) -> LlmCompletion:
+        if get_execution_context() is not AsyncContext.SYNC:
+            return super().generate(prompt, _conversation)
+
         from wayflowcore.tracing.span import LlmGenerationSpan
 
         prompt = self._prepare_prompt_sync(prompt)
@@ -305,6 +307,10 @@ class GeminiModel(LlmModel):
         prompt: "Prompt | str",
         _conversation: Optional["Conversation"] = None,
     ) -> Iterable[TaggedMessageChunkType]:
+        if get_execution_context() is not AsyncContext.SYNC:
+            yield from super().stream_generate(prompt, _conversation)
+            return
+
         from wayflowcore.tracing.span import LlmGenerationSpan
 
         prompt = self._prepare_prompt_sync(prompt)

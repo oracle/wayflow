@@ -22,6 +22,7 @@ from typing import (
     List,
     Optional,
     TypeVar,
+    cast,
 )
 
 import anyio
@@ -137,8 +138,9 @@ def run_async_in_sync(
             def thread_target() -> T:
                 return anyio.run(async_function, *args)
 
-            future = ThreadPoolExecutor(max_workers=1).submit(thread_target)
-            return future.result()
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(thread_target)
+                return future.result()
         case unsupported_context:
             raise NotImplementedError(f"Unsupported async context: {unsupported_context}")
 
@@ -307,9 +309,9 @@ async def run_async_function_in_parallel(
     passed inputs, with a given max number of workers
     """
     max_workers_semaphore: AsyncContextManager[Any] = (
-        anyio.Semaphore(initial_value=max_workers)  # type: ignore
+        anyio.Semaphore(initial_value=max_workers)
         if max_workers is not None
-        else contextlib.nullcontext()
+        else cast(AsyncContextManager[Any], contextlib.nullcontext())
     )
 
     all_outputs: Dict[int, TResult] = {}
