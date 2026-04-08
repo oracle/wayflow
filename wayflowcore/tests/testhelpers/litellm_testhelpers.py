@@ -4,7 +4,6 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 """Shared LiteLLM test helpers for Gemini-related tests."""
-
 import configparser
 import gc
 import json
@@ -13,8 +12,6 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
-
-os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
 
 import litellm
 import pytest
@@ -29,6 +26,8 @@ VERTEX_ADC_LOCATION = "us-central1"
 """Vertex region used by ADC-backed Gemini tests in this workspace."""
 
 
+# Vertex credential discovery accepts either an inline JSON payload or a path to
+# a JSON file because tests in CI and local development use both forms.
 def _get_non_empty_env_var(*env_var_names: str) -> str | None:
     """Return the first non-empty environment variable from the provided names."""
     for env_var_name in env_var_names:
@@ -142,6 +141,8 @@ def _get_vertex_project_id_from_local_gcloud_json_files() -> str | None:
 
 def _get_vertex_project_id_from_adc() -> str | None:
     """Discover the project id associated with local ADC without depending on VERTEX_CREDENTIALS."""
+    # Prefer explicit environment configuration first, then fall back to local
+    # gcloud state, and only ask google.auth as a last resort.
     project_id = _get_non_empty_env_var(
         "GOOGLE_CLOUD_PROJECT",
         "GOOGLE_PROJECT_ID",
@@ -190,6 +191,9 @@ VERTEX_ADC_PROJECT_ID = _get_vertex_project_id_from_adc()
 
 def _cleanup_litellm_threads(*, threads_before: set[int]) -> None:
     """Shutdown lingering LiteLLM/httpx thread-pool workers created during tests."""
+    # LiteLLM/httpx can leave private ThreadPoolExecutor workers around after a
+    # request. We compare thread snapshots so we only tear down executors that
+    # were spawned during the current test run.
     threads_after = {
         thread.ident
         for thread in threading.enumerate()

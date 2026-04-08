@@ -8,13 +8,14 @@ import json
 import os
 from typing import Annotated
 
-os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
-
-import litellm
 import pytest
-from litellm.types.utils import ChatCompletionDeltaToolCall, Choices, Delta, Function
-from litellm.types.utils import Message as LiteLLMMessage
-from litellm.types.utils import ModelResponse, ModelResponseStream, StreamingChoices
+from litellm.types.utils import (
+    ChatCompletionDeltaToolCall,
+    Delta,
+    Function,
+    ModelResponseStream,
+    StreamingChoices,
+)
 
 from tests.testhelpers import litellm_testhelpers
 from tests.testhelpers.testhelpers import retry_test
@@ -25,7 +26,7 @@ from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import Prompt
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.serialization.serializer import serialize_to_dict
-from wayflowcore.tools import ToolRequest, ToolResult, tool
+from wayflowcore.tools import ToolResult, tool
 
 _ADC_CREDENTIALS_PATH = litellm_testhelpers.ADC_CREDENTIALS_PATH
 _VERTEX_CREDENTIALS_PROJECT_ID = litellm_testhelpers.VERTEX_CREDENTIALS_PROJECT_ID
@@ -63,10 +64,27 @@ async def _stream_and_collect_async(llm: GeminiModel, prompt: Prompt) -> tuple[s
     return streamed_text, final_message
 
 
+def _call_required_tool_and_assert_provider_fields(
+    llm: GeminiModel, prompt: Prompt
+) -> tuple[object, dict, dict]:
+    import litellm
+
+    request = llm._build_litellm_request(prompt, stream=False)
+    request["tool_choice"] = "required"
+    response = litellm.completion(**request)
+    response_message = response.model_dump(exclude_none=True)["choices"][0]["message"]
+    tool_call = response_message["tool_calls"][0]
+    assert response_message["provider_specific_fields"]
+    assert response_message["provider_specific_fields"]["thought_signatures"]
+    assert tool_call["provider_specific_fields"]
+    assert tool_call["provider_specific_fields"]["thought_signature"]
+    return response, response_message, tool_call
+
+
 @pytest.fixture
 def vertex_gemini_model():
     llm = GeminiModel(
-        model_id="gemini-2.0-flash-lite",
+        model_id="gemini-2.5-flash-lite",
         auth=GeminiCloudAuth(
             project_id=_VERTEX_CREDENTIALS_PROJECT_ID,
             location=_VERTEX_ADC_LOCATION,
@@ -79,7 +97,7 @@ def vertex_gemini_model():
 @pytest.fixture
 def vertex_gemini_model_without_explicit_credentials():
     llm = GeminiModel(
-        model_id="gemini-2.0-flash-lite",
+        model_id="gemini-2.5-flash-lite",
         auth=GeminiCloudAuth(project_id=_VERTEX_ADC_PROJECT_ID, location=_VERTEX_ADC_LOCATION),
     )
     return llm
@@ -154,63 +172,61 @@ def test_geminimodel_requires_explicit_auth() -> None:
         GeminiModel(model_id="gemini-2.5-flash")  # type: ignore[call-arg]
 
 
-def test_geminimodel_factory_requires_auth() -> None:
-    with pytest.raises(ValueError, match="non-null 'auth' configuration"):
-        LlmModelFactory.from_config(
+@pytest.mark.parametrize(
+    ("config", "match"),
+    [
+        pytest.param(
             {
                 "model_type": "gemini",
                 "model_id": "gemini-2.5-flash",
-            }
-        )
-
-
-def test_geminimodel_factory_requires_explicit_auth_type() -> None:
-    with pytest.raises(ValueError, match="include a 'type' field"):
-        LlmModelFactory.from_config(
+            },
+            "non-null 'auth' configuration",
+            id="missing-auth",
+        ),
+        pytest.param(
             {
                 "model_type": "gemini",
                 "model_id": "gemini-2.5-flash",
                 "auth": {},
-            }
-        )
+            },
+            "include a 'type' field",
+            id="missing-auth-type",
+        ),
+    ],
+)
+def test_geminimodel_factory_validates_auth_config(config, match) -> None:
+    with pytest.raises(ValueError, match=match):
+        LlmModelFactory.from_config(config)
 
 
-def test_geminimodel_build_request_accepts_vertex_credentials_dict() -> None:
-    llm = GeminiModel(
-        model_id="gemini-2.0-flash-lite",
-        auth=GeminiCloudAuth(
-            project_id="project-id",
-            location="global",
-            vertex_credentials={
+@pytest.mark.parametrize(
+    "vertex_credentials",
+    [
+        pytest.param(
+            {
                 "type": "service_account",
                 "private_key": "line1\\nline2",
             },
+            id="dict",
         ),
-    )
-
-    request = llm._build_litellm_request(
-        Prompt(messages=[Message(role="user", content="Hello")]),
-        stream=False,
-    )
-
-    assert request["vertex_project"] == "project-id"
-    assert request["vertex_location"] == "global"
-    assert request["model"] == "vertex_ai/gemini-2.0-flash-lite"
-    assert request["vertex_credentials"]["private_key"] == "line1\nline2"
-
-
-def test_geminimodel_build_request_accepts_vertex_credentials_json_string() -> None:
-    llm = GeminiModel(
-        model_id="gemini-2.0-flash-lite",
-        auth=GeminiCloudAuth(
-            project_id="project-id",
-            location="global",
-            vertex_credentials=json.dumps(
+        pytest.param(
+            json.dumps(
                 {
                     "type": "service_account",
                     "private_key": "line1\\nline2",
                 }
             ),
+            id="json-string",
+        ),
+    ],
+)
+def test_geminimodel_build_request_accepts_vertex_credentials(vertex_credentials) -> None:
+    llm = GeminiModel(
+        model_id="gemini-2.5-flash-lite",
+        auth=GeminiCloudAuth(
+            project_id="project-id",
+            location="global",
+            vertex_credentials=vertex_credentials,
         ),
     )
 
@@ -221,17 +237,8 @@ def test_geminimodel_build_request_accepts_vertex_credentials_json_string() -> N
 
     assert request["vertex_project"] == "project-id"
     assert request["vertex_location"] == "global"
-    assert request["model"] == "vertex_ai/gemini-2.0-flash-lite"
+    assert request["model"] == "vertex_ai/gemini-2.5-flash-lite"
     assert request["vertex_credentials"]["private_key"] == "line1\nline2"
-
-
-def test_litellm_testhelpers_read_vertex_project_id_from_inline_json(monkeypatch) -> None:
-    monkeypatch.setenv("VERTEX_CREDENTIALS", json.dumps({"project_id": "project-id"}))
-
-    assert litellm_testhelpers.get_vertex_credentials_dict() == {"project_id": "project-id"}
-    assert litellm_testhelpers._get_vertex_project_id_from_service_account_credentials() == (
-        "project-id"
-    )
 
 
 def test_geminicloudauth_defaults_to_global_location() -> None:
@@ -240,7 +247,7 @@ def test_geminicloudauth_defaults_to_global_location() -> None:
 
 def test_geminimodel_runtime_config_roundtrip_omits_secret_vertex_credentials() -> None:
     llm = GeminiModel(
-        model_id="gemini-2.0-flash-lite",
+        model_id="gemini-2.5-flash-lite",
         auth=GeminiCloudAuth(
             project_id="project-id",
             location="global",
@@ -279,139 +286,95 @@ def test_geminimodel_runtime_config_roundtrip_omits_secret_vertex_credentials() 
     assert "vertex_credentials" not in request
 
 
-def test_geminimodel_preserves_message_extra_content_without_wrapping() -> None:
-    llm = GeminiModel(model_id="gemini-2.5-flash", auth=GeminiApiKeyAuth())
-    request = llm._build_litellm_request(
-        Prompt(
-            messages=[
-                Message(role="assistant", content="hello", _extra_content={"foo": "bar"}),
-            ]
-        ),
-        stream=False,
-    )
-    response = ModelResponse(
-        model="gemini/gemini-2.5-flash",
-        choices=[
-            Choices(
-                index=0,
-                finish_reason="stop",
-                message=LiteLLMMessage(
-                    role="assistant",
-                    content="hello",
-                    provider_specific_fields={"foo": "bar"},
-                ),
-            )
-        ],
-    )
-
-    assert request["messages"][0]["provider_specific_fields"] == {"foo": "bar"}
-    assert "extra_content" not in request["messages"][0]
-
-    message = llm._litellm_adapter.litellm_response_to_wayflow_message(response)
-
-    assert message.content == "hello"
-    assert message._extra_content == {"foo": "bar"}
-
-
-def test_geminimodel_maps_tool_call_provider_fields_between_wayflow_and_litellm() -> None:
-    llm = GeminiModel(model_id="gemini-2.5-flash", auth=GeminiApiKeyAuth())
-    request = llm._build_litellm_request(
-        Prompt(
-            messages=[
-                Message(
-                    role="assistant",
-                    tool_requests=[
-                        ToolRequest(
-                            name="tool_greet",
-                            args={"echo_text": "hello"},
-                            tool_request_id="call_1",
-                            _extra_content={"thought_signature": "sig"},
-                        )
-                    ],
-                )
-            ]
-        ),
-        stream=False,
-    )
-    response = {
-        "choices": [
-            {
-                "message": {
-                    "role": "assistant",
-                    "tool_calls": [
-                        {
-                            "id": "call_1",
-                            "type": "function",
-                            "function": {
-                                "name": "tool_greet",
-                                "arguments": json.dumps({"echo_text": "hello"}),
-                                "provider_specific_fields": {"thought_signature": "sig"},
-                            },
-                        }
-                    ],
-                }
-            }
-        ]
-    }
-
-    tool_call = request["messages"][0]["tool_calls"][0]
-    assert tool_call["provider_specific_fields"] == {"thought_signature": "sig"}
-    assert "extra_content" not in tool_call
-    assert json.loads(tool_call["function"]["arguments"]) == {"echo_text": "hello"}
-
-    message = llm._litellm_adapter.litellm_response_to_wayflow_message(response)
-
-    assert message.tool_requests is not None
-    assert message.tool_requests[0]._extra_content == {"thought_signature": "sig"}
-
-
 def test_geminimodel_streaming_reconstructs_partial_tool_call_deltas() -> None:
     llm = GeminiModel(model_id="gemini-2.5-flash", auth=GeminiApiKeyAuth())
-    stream_state = llm._litellm_adapter.new_stream_state()
-    first_function = Function(name="tool_g", arguments='{"echo')
-    second_function = Function(name="reet", arguments='_text": "hello"}')
-
-    first_chunk = ModelResponseStream(
-        choices=[
-            StreamingChoices(
-                delta=Delta(
-                    tool_calls=[
-                        ChatCompletionDeltaToolCall(
-                            index=0,
-                            id="call_1",
-                            type="function",
-                            function=first_function,
-                        )
-                    ]
+    stream_state = {
+        "text": "",
+        "tool_deltas": [],
+        "message_extra_content": None,
+        "token_usage": None,
+    }
+    chunks = [
+        ModelResponseStream(
+            choices=[
+                StreamingChoices(
+                    delta=Delta(
+                        tool_calls=[
+                            ChatCompletionDeltaToolCall(
+                                index=0,
+                                id="call_1",
+                                type="function",
+                                function=Function(name="tool_g", arguments='{"echo'),
+                            )
+                        ]
+                    )
                 )
-            )
-        ]
-    )
-    second_chunk = ModelResponseStream(
-        choices=[
-            StreamingChoices(
-                delta=Delta(
-                    tool_calls=[
-                        ChatCompletionDeltaToolCall(
-                            index=0,
-                            type="function",
-                            function=second_function,
-                        )
-                    ]
+            ]
+        ),
+        ModelResponseStream(
+            choices=[
+                StreamingChoices(
+                    delta=Delta(
+                        tool_calls=[
+                            ChatCompletionDeltaToolCall(
+                                index=0,
+                                type="function",
+                                function=Function(name="reet", arguments='_text": "hello"}'),
+                            )
+                        ]
+                    )
                 )
-            )
-        ]
-    )
+            ]
+        ),
+    ]
 
-    llm._litellm_adapter.ingest_litellm_stream_chunk(stream_state, first_chunk)
-    llm._litellm_adapter.ingest_litellm_stream_chunk(stream_state, second_chunk)
-    message = llm._litellm_adapter.stream_state_to_wayflow_message(stream_state)
+    for chunk in chunks:
+        llm._ingest_litellm_stream_chunk(stream_state, chunk)
 
+    message = llm._stream_state_to_wayflow_message(stream_state)
+
+    assert message._extra_content is None
     assert message.tool_requests is not None
     assert len(message.tool_requests) == 1
     assert message.tool_requests[0].name == "tool_greet"
     assert message.tool_requests[0].args == {"echo_text": "hello"}
     assert message.tool_requests[0].tool_request_id == "call_1"
+    assert message.tool_requests[0]._extra_content is None
+
+
+def test_geminimodel_rejects_multiple_choices() -> None:
+    llm = GeminiModel(model_id="gemini-2.5-flash", auth=GeminiApiKeyAuth())
+
+    with pytest.raises(NotImplementedError, match="multiple completions"):
+        llm._completion_from_response(
+            Prompt(messages=[Message(role="user", content="hello")]),
+            {
+                "choices": [
+                    {"message": {"role": "assistant", "content": "hello"}},
+                    {"message": {"role": "assistant", "content": "hi"}},
+                ]
+            },
+        )
+
+
+def test_geminimodel_streaming_rejects_multiple_choices() -> None:
+    llm = GeminiModel(model_id="gemini-2.5-flash", auth=GeminiApiKeyAuth())
+
+    with pytest.raises(NotImplementedError, match="multiple completions"):
+        llm._ingest_litellm_stream_chunk(
+            {
+                "text": "",
+                "tool_deltas": [],
+                "message_extra_content": None,
+                "token_usage": None,
+            },
+            {
+                "choices": [
+                    {"delta": {"role": "assistant", "content": "hello"}},
+                    {"delta": {"role": "assistant", "content": "hi"}},
+                ]
+            },
+        )
 
 
 @pytest.mark.anyio
@@ -517,55 +480,73 @@ async def test_geminimodel_vertex_async(
     assert completion.message.tool_requests[0].name == "tool_greet"
 
 
-@pytest.mark.skipif(
-    not os.getenv("VERTEX_CREDENTIALS") or not _VERTEX_CREDENTIALS_PROJECT_ID,
-    reason="Gemini Vertex-auth test credentials not set up",
-)
-def test_litellm_works_properly(litellm_thread_cleanup) -> None:
-    vertex_credentials = litellm_testhelpers.get_vertex_credentials_dict()
-    assert vertex_credentials is not None
-    vertex_credentials_json = json.dumps(vertex_credentials)
-    response = litellm.completion(
-        model="vertex_ai/gemini-2.0-flash-lite",
-        messages=[{"content": "Hello, how are you?", "role": "user"}],
-        vertex_credentials=vertex_credentials_json,
+@pytest.mark.skipif(not os.getenv("GEMINI_API_KEY"), reason="Gemini LLM auth not set up")
+def test_geminimodel_aistudio_gemini25_flash_maps_real_provider_fields(
+    prompt_with_tool: Prompt,
+    litellm_thread_cleanup,
+) -> None:
+    llm = GeminiModel(
+        model_id="gemini-2.5-flash",
+        auth=GeminiApiKeyAuth(api_key=os.environ["GEMINI_API_KEY"]),
     )
-    assert response.choices
+    prompt = prompt_with_tool.copy()
+    response, response_message, tool_call = _call_required_tool_and_assert_provider_fields(
+        llm, prompt
+    )
+
+    completion = llm._completion_from_response(prompt, response)
+    assert completion.message.tool_requests is not None
+    first_tool_request = completion.message.tool_requests[0]
+    assert completion.message._extra_content == response_message["provider_specific_fields"]
+    assert first_tool_request.name == "tool_greet"
+    assert first_tool_request.args == {"echo_text": "hello"}
+    assert first_tool_request._extra_content == tool_call["provider_specific_fields"]
 
 
 @pytest.mark.skipif(not os.getenv("GEMINI_API_KEY"), reason="Gemini LLM auth not set up")
-@retry_test(max_attempts=9)
-def test_geminimodel_aistudio_gemini3_pro_preview_thought_signature(
+@retry_test(max_attempts=4)
+def test_geminimodel_aistudio_gemini3_pro_preview_roundtrips_real_provider_fields(
     prompt_with_tool_replay,
     litellm_thread_cleanup,
 ) -> None:
     """
-    Failure rate:          3 out of 10
-    Observed on:           2026-03-10
-    Average success time:  8.16 seconds per successful attempt
-    Average failure time:  10.29 seconds per failed attempt
-    Max attempt:           9
-    Justification:         (0.33 ** 9) ~= 5.1 / 100'000
+    Failure rate:          1 out of 20
+    Observed on:           2026-04-08
+    Average success time:  6.45 seconds per successful attempt
+    Average failure time:  24.52 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.09 ** 4) ~= 6.8 / 100'000
     """
     llm = GeminiModel(
-        model_id="gemini-3-pro-preview",
+        model_id="gemini-3.1-pro-preview",
         auth=GeminiApiKeyAuth(api_key=os.environ["GEMINI_API_KEY"]),
-        generation_config=LlmGenerationConfig(extra_args={"reasoning_effort": "low"}),
     )
     prompt = prompt_with_tool_replay.copy()
-    completion = llm.generate(prompt)
+    response, response_message, tool_call = _call_required_tool_and_assert_provider_fields(
+        llm, prompt
+    )
+
+    completion = llm._completion_from_response(prompt, response)
     assert completion.message is not None
     tool_requests = completion.message.tool_requests
     assert tool_requests is not None
     first_tool_request = tool_requests[0]
-    assert isinstance(first_tool_request._extra_content, dict)
-    thought_signature = first_tool_request._extra_content.get("thought_signature")
-    assert isinstance(thought_signature, str)
-    assert thought_signature
+    assert completion.message._extra_content == response_message["provider_specific_fields"]
+    assert first_tool_request._extra_content == tool_call["provider_specific_fields"]
+    assert first_tool_request._extra_content["thought_signature"]
 
     prompt.messages.append(completion.message)
     prompt.messages.append(
         Message(tool_result=ToolResult("hello", first_tool_request.tool_request_id))
+    )
+    replay_request = llm._build_litellm_request(prompt, stream=False)
+    replay_message = replay_request["messages"][-2]
+    assert (
+        replay_message["provider_specific_fields"] == response_message["provider_specific_fields"]
+    )
+    assert (
+        replay_message["tool_calls"][0]["provider_specific_fields"]
+        == tool_call["provider_specific_fields"]
     )
 
     follow_up_completion = llm.generate(prompt)

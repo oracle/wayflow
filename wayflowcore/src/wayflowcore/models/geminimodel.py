@@ -7,13 +7,13 @@
 import json
 import logging
 import os
-from typing import TYPE_CHECKING, Any, AsyncIterable, Dict, Iterable, List, Optional
+from typing import TYPE_CHECKING, Any, AsyncIterable, Dict, Iterable, List, Optional, cast
 
-import litellm
 from pydantic import BaseModel
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import AsyncContext, get_execution_context
+from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.tokenusage import TokenUsage
 
@@ -29,21 +29,18 @@ from .llmmodel import LlmCompletion, LlmModel, Prompt
 from .openaiapitype import OpenAIAPIType
 
 if TYPE_CHECKING:
+    # Important: do not move this import out of the TYPE_CHECKING block. The
+    # runtime path intentionally keeps litellm behind LazyLoader so that
+    # importing wayflowcore.models does not import litellm eagerly.
+    import litellm
+
     from wayflowcore.conversation import Conversation
     from wayflowcore.tools import ToolRequest
+else:
+    litellm = LazyLoader("litellm")
 
 
 logger = logging.getLogger(__name__)
-
-GEMINI_API_KEY_ENV_VAR = "GEMINI_API_KEY"
-GEMINI_AI_STUDIO_MODEL_PREFIX = "gemini/"
-GEMINI_VERTEX_AI_MODEL_PREFIX = "vertex_ai/"
-
-_STREAM_PROCESSOR = _ChatCompletionsAPIProcessor(
-    model_id="gemini",
-    base_url="",
-    api_type=OpenAIAPIType.CHAT_COMPLETIONS,
-)
 
 
 class GeminiApiKeyAuth(BaseModel):
@@ -56,125 +53,371 @@ class GeminiCloudAuth(BaseModel):
     vertex_credentials: str | Dict[str, Any] | None = None
 
 
-def get_litellm_gemini_model_id(model_id: str, auth: GeminiApiKeyAuth | GeminiCloudAuth) -> str:
-    if model_id.startswith((GEMINI_AI_STUDIO_MODEL_PREFIX, GEMINI_VERTEX_AI_MODEL_PREFIX)):
-        return model_id
-    if isinstance(auth, GeminiCloudAuth):
-        return f"{GEMINI_VERTEX_AI_MODEL_PREFIX}{model_id}"
-    return f"{GEMINI_AI_STUDIO_MODEL_PREFIX}{model_id}"
+def _litellm_object_to_dict(value: Any) -> Dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if hasattr(value, "model_dump"):
+        try:
+            dumped_value = value.model_dump(exclude_none=True)
+        except TypeError:
+            dumped_value = value.model_dump()
+        if isinstance(dumped_value, dict):
+            return dumped_value
+    if hasattr(value, "dict"):
+        try:
+            dumped_value = value.dict(exclude_none=True)
+        except TypeError:
+            dumped_value = value.dict()
+        if isinstance(dumped_value, dict):
+            return dumped_value
+    raise TypeError(
+        "Unexpected LiteLLM payload type. Expected a dict or LiteLLM object convertible to dict."
+    )
 
 
-class _GeminiLiteLLMAdapter:
-    """Translate between WayFlow's internal message shape and LiteLLM Gemini payloads."""
+def _rename_message_and_tool_call_field(
+    *, message_payload: Dict[str, Any], source_key: str, target_key: str
+) -> Dict[str, Any]:
+    for mapping in [message_payload, *(message_payload.get("tool_calls") or [])]:
+        if source_key in mapping:
+            source_value = mapping.pop(source_key)
+            if target_key not in mapping:
+                mapping[target_key] = source_value
+    return message_payload
 
-    def __init__(self, processor: _ChatCompletionsAPIProcessor) -> None:
-        self._processor = processor
 
-    @staticmethod
-    def _litellm_object_to_dict(value: Any) -> Dict[str, Any]:
-        if isinstance(value, dict):
-            return value
-        if hasattr(value, "model_dump"):
-            try:
-                dumped_value = value.model_dump(exclude_none=True)
-            except TypeError:
-                dumped_value = value.model_dump()
-            if isinstance(dumped_value, dict):
-                return dumped_value
-        if hasattr(value, "dict"):
-            try:
-                dumped_value = value.dict(exclude_none=True)
-            except TypeError:
-                dumped_value = value.dict()
-            if isinstance(dumped_value, dict):
-                return dumped_value
-        raise TypeError(
-            "Unexpected LiteLLM payload type. Expected a dict or LiteLLM object convertible to dict."
+class GeminiModel(LlmModel):
+    """Run Gemini models through LiteLLM using Google AI Studio or Vertex AI auth."""
+
+    def __init__(
+        self,
+        model_id: str,
+        auth: GeminiApiKeyAuth | GeminiCloudAuth,
+        proxy: Optional[str] = None,
+        generation_config: Optional[LlmGenerationConfig] = None,
+        supports_structured_generation: Optional[bool] = True,
+        supports_tool_calling: Optional[bool] = True,
+        __metadata_info__: Optional[MetadataType] = None,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+    ) -> None:
+        self.auth = auth
+        self.proxy = proxy
+        self._processor = _ChatCompletionsAPIProcessor(
+            model_id=model_id,
+            base_url="",
+            api_type=OpenAIAPIType.CHAT_COMPLETIONS,
+        )
+        super().__init__(
+            model_id=model_id,
+            generation_config=generation_config,
+            supports_structured_generation=supports_structured_generation,
+            supports_tool_calling=supports_tool_calling,
+            __metadata_info__=__metadata_info__,
+            id=id,
+            name=name,
+            description=description,
         )
 
-    @staticmethod
-    def _move_field(mapping: Dict[str, Any], source_key: str, target_key: str) -> None:
-        if source_key not in mapping:
+    def generate(
+        self, prompt: "Prompt | str", _conversation: Optional["Conversation"] = None
+    ) -> LlmCompletion:
+        # Outside a plain sync context, defer to the base class so it can bridge
+        # through generate_async instead of forcing a nested sync LiteLLM call.
+        # That still comes back into GeminiModel._generate_impl(), so Gemini is
+        # still executed through LiteLLM, just via litellm.acompletion.
+        if get_execution_context() is not AsyncContext.SYNC:
+            return super().generate(prompt, _conversation)
+
+        from wayflowcore.tracing.span import LlmGenerationSpan
+
+        prompt = self._prepare_prompt_sync(prompt)
+        self._check_supports_prompt(prompt)
+
+        with LlmGenerationSpan(
+            llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
+        ) as span:
+            logger.debug("LLM generating: %s", prompt)
+            response = litellm.completion(**self._build_litellm_request(prompt, stream=False))
+            completion = self._completion_from_response(prompt, response)
+            self._update_token_usage(
+                conversation=_conversation, prompt=prompt, completion=completion
+            )
+            span.record_end_span_event(completion=completion)
+            return completion
+
+    def stream_generate(
+        self,
+        prompt: "Prompt | str",
+        _conversation: Optional["Conversation"] = None,
+    ) -> Iterable[TaggedMessageChunkType]:
+        # Outside a plain sync context, let the base class bridge from the async
+        # streaming implementation instead of consuming LiteLLM's sync stream.
+        # That bridge still ends up in GeminiModel._stream_generate_impl(), so
+        # Gemini is still streamed through LiteLLM via litellm.acompletion.
+        if get_execution_context() is not AsyncContext.SYNC:
+            yield from super().stream_generate(prompt, _conversation)
             return
-        source_value = mapping.pop(source_key)
-        if target_key not in mapping:
-            mapping[target_key] = source_value
 
-    @classmethod
-    def _normalize_message(
-        cls,
-        message_payload: Dict[str, Any],
-        *,
-        inbound: bool,
-        message_extra_content: Any = None,
-    ) -> Dict[str, Any]:
-        normalized = dict(message_payload)
-        source_key, target_key = (
-            ("provider_specific_fields", "extra_content")
-            if inbound
-            else ("extra_content", "provider_specific_fields")
+        from wayflowcore.tracing.span import LlmGenerationSpan
+
+        prompt = self._prepare_prompt_sync(prompt)
+        self._check_supports_prompt(prompt)
+
+        with LlmGenerationSpan(
+            llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
+        ) as span:
+            logger.debug("LLM generating (stream): %s", prompt)
+            stream = litellm.completion(**self._build_litellm_request(prompt, stream=True))
+
+            yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT)
+
+            # Wayflow streams text chunks incrementally, but still needs one final
+            # Message on END_CHUNK. Gemini/LiteLLM can surface text, tool calls,
+            # provider fields, and usage on different chunks, so we accumulate
+            # them here and assemble the final Message at the end.
+            stream_state = {
+                "text": "",
+                "tool_deltas": [],
+                "message_extra_content": None,
+                "token_usage": None,
+            }
+            try:
+                for chunk in stream:
+                    text_delta = self._ingest_litellm_stream_chunk(stream_state, chunk)
+                    if text_delta:
+                        yield StreamChunkType.TEXT_CHUNK, Message(
+                            content=text_delta, message_type=MessageType.AGENT
+                        )
+
+                final_message = prompt.parse_output(
+                    self._stream_state_to_wayflow_message(stream_state)
+                )
+                completion = LlmCompletion(
+                    message=final_message,
+                    token_usage=cast(Optional[TokenUsage], stream_state["token_usage"]),
+                )
+                self._update_token_usage(
+                    conversation=_conversation, prompt=prompt, completion=completion
+                )
+                span.record_end_span_event(completion=completion)
+
+                yield StreamChunkType.END_CHUNK, final_message
+            finally:
+                completion_stream = stream.completion_stream
+                if completion_stream is not None:
+                    completion_stream.response_iterator.close()
+                    completion_stream.streaming_response.close()
+
+    async def _generate_impl(self, prompt: Prompt) -> LlmCompletion:
+        response = await litellm.acompletion(**self._build_litellm_request(prompt, stream=False))
+        return self._completion_from_response(prompt, response)
+
+    async def _stream_generate_impl(
+        self, prompt: Prompt
+    ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
+        stream = await litellm.acompletion(**self._build_litellm_request(prompt, stream=True))
+
+        yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT), None
+
+        # Async streaming uses the same accumulation strategy as the sync path:
+        # collect partial LiteLLM chunks until we can emit the final Message.
+        stream_state = {
+            "text": "",
+            "tool_deltas": [],
+            "message_extra_content": None,
+            "token_usage": None,
+        }
+        try:
+            async for chunk in stream:
+                text_delta = self._ingest_litellm_stream_chunk(stream_state, chunk)
+                if text_delta:
+                    yield (
+                        StreamChunkType.TEXT_CHUNK,
+                        Message(content=text_delta, message_type=MessageType.AGENT),
+                        None,
+                    )
+
+            final_message = prompt.parse_output(self._stream_state_to_wayflow_message(stream_state))
+            yield (
+                StreamChunkType.END_CHUNK,
+                final_message,
+                cast(Optional[TokenUsage], stream_state["token_usage"]),
+            )
+        finally:
+            completion_stream = stream.completion_stream
+            if completion_stream is not None:
+                await completion_stream.async_response_iterator.aclose()
+                await completion_stream.streaming_response.aclose()
+
+    @property
+    def config(self) -> Dict[str, Any]:
+        return {
+            "model_type": "gemini",
+            "model_id": self.model_id,
+            "proxy": self.proxy,
+            "supports_structured_generation": self.supports_structured_generation,
+            "supports_tool_calling": self.supports_tool_calling,
+            "auth": self._serialize_auth_config(self.auth),
+            "generation_config": (
+                self.generation_config.to_dict() if self.generation_config is not None else None
+            ),
+        }
+
+    def _prepare_prompt_sync(self, prompt: "Prompt | str") -> Prompt:
+        if not isinstance(prompt, Prompt):
+            from wayflowcore.templates import PromptTemplate
+
+            prompt = PromptTemplate.from_string(prompt).format()
+        if prompt.generation_config is None:
+            prompt = prompt.copy(generation_config=self.generation_config)
+        return prompt
+
+    def _completion_from_response(self, prompt: Prompt, response: Any) -> LlmCompletion:
+        response_dict = _litellm_object_to_dict(response)
+        choices = response_dict.get("choices") or []
+        if len(choices) > 1:
+            raise NotImplementedError("Provider does not support multiple completions")
+        choices[0]["message"] = _rename_message_and_tool_call_field(
+            message_payload=choices[0]["message"],
+            source_key="provider_specific_fields",
+            target_key="extra_content",
         )
-        cls._move_field(normalized, source_key, target_key)
-        for tool_call in normalized.get("tool_calls") or []:
-            if not isinstance(tool_call, dict):
-                continue
-            cls._move_field(tool_call, source_key, target_key)
-            if not inbound or not isinstance(function_payload := tool_call.get("function"), dict):
-                continue
-            cls._move_field(function_payload, source_key, target_key)
-            if target_key in function_payload and target_key not in tool_call:
-                tool_call[target_key] = function_payload.pop(target_key)
+        message = prompt.parse_output(
+            self._processor._convert_openai_response_into_message(response_dict)
+        )
+        return LlmCompletion(
+            message=message,
+            token_usage=self._litellm_usage_to_wayflow_token_usage(response),
+        )
 
-        if (
-            not inbound
-            and isinstance(message_extra_content, dict)
-            and message_extra_content
-            and "tool_calls" not in normalized
-            and "tool_call_id" not in normalized
-            and "provider_specific_fields" not in normalized
-        ):
-            normalized["provider_specific_fields"] = dict(message_extra_content)
+    def _serialize_auth_config(self, auth: GeminiApiKeyAuth | GeminiCloudAuth) -> Dict[str, Any]:
+        if isinstance(auth, GeminiApiKeyAuth):
+            if auth.api_key is not None:
+                logger.warning(
+                    "API key was configured on %s but it will not be serialized in the config",
+                    self,
+                )
+            return {"type": "api_key"}
 
-        return normalized
+        auth_config = {
+            "type": "cloud",
+            "project_id": auth.project_id,
+            "location": auth.location,
+        }
+        if auth.vertex_credentials is not None:
+            logger.warning(
+                "Vertex credentials were configured on %s but they will not be serialized in the config",
+                self,
+            )
+        return auth_config
 
-    @classmethod
-    def _normalize_choice_payload(cls, payload: Dict[str, Any], choice_key: str) -> Dict[str, Any]:
-        for choice in payload.get("choices") or []:
-            if isinstance(choice, dict) and isinstance(choice.get(choice_key), dict):
-                choice[choice_key] = cls._normalize_message(choice[choice_key], inbound=True)
-        return payload
-
-    def generation_config_to_litellm_kwargs(
-        self, generation_config: Optional[LlmGenerationConfig]
-    ) -> Dict[str, Any]:
-        generation_kwargs = self._processor._convert_generation_params(generation_config)
+    def _build_litellm_request(self, prompt: Prompt, stream: bool) -> Dict[str, Any]:
+        generation_kwargs = self._processor._convert_generation_params(prompt.generation_config)
         if "max_completion_tokens" in generation_kwargs:
             generation_kwargs["max_tokens"] = generation_kwargs.pop("max_completion_tokens")
-        return generation_kwargs
 
-    def wayflow_prompt_to_litellm_messages(self, prompt: Prompt) -> List[Dict[str, Any]]:
-        return [
-            self._normalize_message(
-                converted_message,
-                inbound=False,
-                message_extra_content=message._extra_content,
+        model_id = self.model_id
+        if not model_id.startswith(("gemini/", "vertex_ai/")):
+            model_id = (
+                f"vertex_ai/{model_id}"
+                if isinstance(self.auth, GeminiCloudAuth)
+                else f"gemini/{model_id}"
             )
-            for message in prompt.messages
-            for converted_message in self._processor._convert_message_into_openai_message_dict(
-                message,
-                supports_tool_role=True,
-            )
-        ]
 
-    def litellm_response_to_wayflow_message(self, response: Any) -> Message:
-        normalized_response = self._normalize_choice_payload(
-            self._litellm_object_to_dict(response),
-            "message",
+        request: Dict[str, Any] = {
+            "model": model_id,
+            "messages": [
+                _rename_message_and_tool_call_field(
+                    message_payload=converted_message,
+                    source_key="extra_content",
+                    target_key="provider_specific_fields",
+                )
+                for message in prompt.messages
+                for converted_message in self._processor._convert_message_into_openai_message_dict(
+                    message,
+                    supports_tool_role=True,
+                )
+            ],
+            "stream": stream,
+            **generation_kwargs,
+        }
+
+        if prompt.tools is not None:
+            request["tools"] = [tool.to_openai_format() for tool in prompt.tools]
+        if prompt.response_format is not None:
+            request["response_format"] = {
+                "type": "json_schema",
+                "json_schema": _prepare_openai_compatible_json_schema(prompt.response_format),
+            }
+        if self.proxy is not None:
+            request["proxy"] = self.proxy
+
+        if isinstance(self.auth, GeminiApiKeyAuth):
+            api_key = self.auth.api_key or os.getenv("GEMINI_API_KEY")
+            if api_key is not None:
+                request["api_key"] = api_key
+        else:
+            if self.auth.project_id is not None:
+                request["vertex_project"] = self.auth.project_id
+            request["vertex_location"] = self.auth.location
+            if self.auth.vertex_credentials is not None:
+                request["vertex_credentials"] = self._load_vertex_credentials(
+                    self.auth.vertex_credentials
+                )
+
+        return request
+
+    @staticmethod
+    def _ingest_litellm_stream_chunk(stream_state: Dict[str, Any], chunk: Any) -> str:
+        # Fold one LiteLLM chunk into the running Wayflow stream state.
+        # Gemini may emit text, tool calls, thought-signature metadata, and usage
+        # on different chunks, while Wayflow expects a single final Message.
+        normalized_chunk = _litellm_object_to_dict(chunk)
+        choices = normalized_chunk.get("choices") or []
+        if len(choices) > 1:
+            raise NotImplementedError("Provider does not support multiple completions")
+        choice = choices[0] if choices else {}
+        delta = _rename_message_and_tool_call_field(
+            message_payload=choice.get("delta") or {},
+            source_key="provider_specific_fields",
+            target_key="extra_content",
         )
-        return self._processor._convert_openai_response_into_message(normalized_response)
+        stream_state["tool_deltas"].extend(delta.get("tool_calls") or [])
 
-    def litellm_usage_to_wayflow_token_usage(self, value: Any) -> Optional[TokenUsage]:
-        usage = self._litellm_object_to_dict(value)
+        # Thought signatures can arrive on a later chunk, sometimes without text,
+        # so keep the latest non-empty provider fields we see.
+        message_extra_content = delta.get("extra_content")
+        if message_extra_content:
+            stream_state["message_extra_content"] = message_extra_content
+
+        content = delta.get("content")
+        text_delta = content if isinstance(content, str) else ""
+        stream_state["text"] += text_delta
+
+        token_usage = GeminiModel._litellm_usage_to_wayflow_token_usage(normalized_chunk)
+        if token_usage is not None:
+            stream_state["token_usage"] = token_usage
+
+        return text_delta
+
+    def _stream_state_to_wayflow_message(self, stream_state: Dict[str, Any]) -> Message:
+        tool_requests: Optional[List["ToolRequest"]] = None
+        if stream_state["tool_deltas"]:
+            tool_requests = self._processor._convert_tool_deltas_into_tool_requests(
+                stream_state["tool_deltas"]
+            )
+        return Message(
+            content=stream_state["text"],
+            tool_requests=tool_requests,
+            message_type=MessageType.AGENT if tool_requests is None else MessageType.TOOL_REQUEST,
+            _extra_content=stream_state["message_extra_content"],
+        )
+
+    @staticmethod
+    def _litellm_usage_to_wayflow_token_usage(value: Any) -> Optional[TokenUsage]:
+        usage = _litellm_object_to_dict(value)
         if isinstance(usage, dict) and "usage" in usage:
             usage = usage["usage"]
         if not isinstance(usage, dict):
@@ -204,274 +447,6 @@ class _GeminiLiteLLMAdapter:
             total_tokens=total_tokens,
             exact_count=True,
         )
-
-    @staticmethod
-    def new_stream_state() -> Dict[str, Any]:
-        return {
-            "text": "",
-            "tool_deltas": [],
-            "token_usage": None,
-        }
-
-    def ingest_litellm_stream_chunk(self, stream_state: Dict[str, Any], chunk: Any) -> str:
-        normalized_chunk = self._normalize_choice_payload(
-            self._litellm_object_to_dict(chunk),
-            "delta",
-        )
-
-        text_delta = ""
-        for choice in normalized_chunk.get("choices") or []:
-            if not isinstance(choice, dict):
-                continue
-
-            delta = choice.get("delta") or {}
-            if not isinstance(delta, dict):
-                continue
-
-            tool_calls = delta.get("tool_calls") or []
-            if isinstance(tool_calls, list):
-                stream_state["tool_deltas"].extend(
-                    tool_call for tool_call in tool_calls if isinstance(tool_call, dict)
-                )
-
-            content = delta.get("content")
-            if isinstance(content, str):
-                text_delta += content
-
-        stream_state["text"] += text_delta
-
-        token_usage = self.litellm_usage_to_wayflow_token_usage(normalized_chunk)
-        if token_usage is not None:
-            stream_state["token_usage"] = token_usage
-
-        return text_delta
-
-    def stream_state_to_wayflow_message(self, stream_state: Dict[str, Any]) -> Message:
-        tool_requests: Optional[List["ToolRequest"]] = None
-        if stream_state["tool_deltas"]:
-            tool_requests = _STREAM_PROCESSOR._convert_tool_deltas_into_tool_requests(
-                stream_state["tool_deltas"]
-            )
-        return Message(
-            content=stream_state["text"],
-            tool_requests=tool_requests,
-            message_type=MessageType.AGENT if tool_requests is None else MessageType.TOOL_REQUEST,
-        )
-
-
-class GeminiModel(LlmModel):
-    """Run Gemini models through LiteLLM using Google AI Studio or Vertex AI auth."""
-
-    def __init__(
-        self,
-        model_id: str,
-        auth: GeminiApiKeyAuth | GeminiCloudAuth,
-        proxy: Optional[str] = None,
-        generation_config: Optional[LlmGenerationConfig] = None,
-        supports_structured_generation: Optional[bool] = True,
-        supports_tool_calling: Optional[bool] = True,
-        __metadata_info__: Optional[MetadataType] = None,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-    ) -> None:
-        self.auth = auth
-        self.proxy = proxy
-        self._processor = _ChatCompletionsAPIProcessor(
-            model_id=model_id,
-            base_url="",
-            api_type=OpenAIAPIType.CHAT_COMPLETIONS,
-        )
-        self._litellm_adapter = _GeminiLiteLLMAdapter(self._processor)
-        super().__init__(
-            model_id=model_id,
-            generation_config=generation_config,
-            supports_structured_generation=supports_structured_generation,
-            supports_tool_calling=supports_tool_calling,
-            __metadata_info__=__metadata_info__,
-            id=id,
-            name=name,
-            description=description,
-        )
-
-    def generate(
-        self, prompt: "Prompt | str", _conversation: Optional["Conversation"] = None
-    ) -> LlmCompletion:
-        if get_execution_context() is not AsyncContext.SYNC:
-            return super().generate(prompt, _conversation)
-
-        from wayflowcore.tracing.span import LlmGenerationSpan
-
-        prompt = self._prepare_prompt_sync(prompt)
-        self._check_supports_prompt(prompt)
-
-        with LlmGenerationSpan(
-            llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
-        ) as span:
-            logger.debug("LLM generating: %s", prompt)
-            response = litellm.completion(**self._build_litellm_request(prompt, stream=False))
-            completion = self._completion_from_response(prompt, response)
-            self._update_token_usage(
-                conversation=_conversation, prompt=prompt, completion=completion
-            )
-            span.record_end_span_event(completion=completion)
-            return completion
-
-    def stream_generate(
-        self,
-        prompt: "Prompt | str",
-        _conversation: Optional["Conversation"] = None,
-    ) -> Iterable[TaggedMessageChunkType]:
-        if get_execution_context() is not AsyncContext.SYNC:
-            yield from super().stream_generate(prompt, _conversation)
-            return
-
-        from wayflowcore.tracing.span import LlmGenerationSpan
-
-        prompt = self._prepare_prompt_sync(prompt)
-        self._check_supports_prompt(prompt)
-
-        with LlmGenerationSpan(
-            llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
-        ) as span:
-            logger.debug("LLM generating (stream): %s", prompt)
-            stream = litellm.completion(**self._build_litellm_request(prompt, stream=True))
-
-            yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT)
-
-            stream_state = self._litellm_adapter.new_stream_state()
-            for chunk in stream:
-                text_delta = self._litellm_adapter.ingest_litellm_stream_chunk(stream_state, chunk)
-                if text_delta:
-                    yield StreamChunkType.TEXT_CHUNK, Message(
-                        content=text_delta, message_type=MessageType.AGENT
-                    )
-
-            final_message = prompt.parse_output(
-                self._litellm_adapter.stream_state_to_wayflow_message(stream_state)
-            )
-            completion = LlmCompletion(
-                message=final_message,
-                token_usage=stream_state["token_usage"],
-            )
-            self._update_token_usage(
-                conversation=_conversation, prompt=prompt, completion=completion
-            )
-            span.record_end_span_event(completion=completion)
-
-            yield StreamChunkType.END_CHUNK, final_message
-
-    async def _generate_impl(self, prompt: Prompt) -> LlmCompletion:
-        response = await litellm.acompletion(**self._build_litellm_request(prompt, stream=False))
-        return self._completion_from_response(prompt, response)
-
-    async def _stream_generate_impl(
-        self, prompt: Prompt
-    ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
-        stream = await litellm.acompletion(**self._build_litellm_request(prompt, stream=True))
-
-        yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT), None
-
-        stream_state = self._litellm_adapter.new_stream_state()
-        async for chunk in stream:
-            text_delta = self._litellm_adapter.ingest_litellm_stream_chunk(stream_state, chunk)
-            if text_delta:
-                yield (
-                    StreamChunkType.TEXT_CHUNK,
-                    Message(content=text_delta, message_type=MessageType.AGENT),
-                    None,
-                )
-
-        final_message = prompt.parse_output(
-            self._litellm_adapter.stream_state_to_wayflow_message(stream_state)
-        )
-        yield StreamChunkType.END_CHUNK, final_message, stream_state["token_usage"]
-
-    @property
-    def config(self) -> Dict[str, Any]:
-        return {
-            "model_type": "gemini",
-            "model_id": self.model_id,
-            "proxy": self.proxy,
-            "supports_structured_generation": self.supports_structured_generation,
-            "supports_tool_calling": self.supports_tool_calling,
-            "auth": self._serialize_auth_config(self.auth),
-            "generation_config": (
-                self.generation_config.to_dict() if self.generation_config is not None else None
-            ),
-        }
-
-    def _prepare_prompt_sync(self, prompt: "Prompt | str") -> Prompt:
-        if not isinstance(prompt, Prompt):
-            from wayflowcore.templates import PromptTemplate
-
-            prompt = PromptTemplate.from_string(prompt).format()
-        if prompt.generation_config is None:
-            prompt = prompt.copy(generation_config=self.generation_config)
-        return prompt
-
-    def _completion_from_response(self, prompt: Prompt, response: Any) -> LlmCompletion:
-        message = prompt.parse_output(
-            self._litellm_adapter.litellm_response_to_wayflow_message(response)
-        )
-        return LlmCompletion(
-            message=message,
-            token_usage=self._litellm_adapter.litellm_usage_to_wayflow_token_usage(response),
-        )
-
-    def _serialize_auth_config(self, auth: GeminiApiKeyAuth | GeminiCloudAuth) -> Dict[str, Any]:
-        if isinstance(auth, GeminiApiKeyAuth):
-            if auth.api_key is not None:
-                logger.warning(
-                    "API key was configured on %s but it will not be serialized in the config",
-                    self,
-                )
-            return {"type": "api_key"}
-
-        auth_config = {
-            "type": "cloud",
-            "project_id": auth.project_id,
-            "location": auth.location,
-        }
-        if auth.vertex_credentials is not None:
-            logger.warning(
-                "Vertex credentials were configured on %s but they will not be serialized in the config",
-                self,
-            )
-        return auth_config
-
-    def _build_litellm_request(self, prompt: Prompt, stream: bool) -> Dict[str, Any]:
-        request: Dict[str, Any] = {
-            "model": get_litellm_gemini_model_id(self.model_id, self.auth),
-            "messages": self._litellm_adapter.wayflow_prompt_to_litellm_messages(prompt),
-            "stream": stream,
-            **self._litellm_adapter.generation_config_to_litellm_kwargs(prompt.generation_config),
-        }
-
-        if prompt.tools is not None:
-            request["tools"] = [tool.to_openai_format() for tool in prompt.tools]
-        if prompt.response_format is not None:
-            request["response_format"] = {
-                "type": "json_schema",
-                "json_schema": _prepare_openai_compatible_json_schema(prompt.response_format),
-            }
-        if self.proxy is not None:
-            request["proxy"] = self.proxy
-
-        if isinstance(self.auth, GeminiApiKeyAuth):
-            api_key = self.auth.api_key or os.getenv(GEMINI_API_KEY_ENV_VAR)
-            if api_key is not None:
-                request["api_key"] = api_key
-        else:
-            if self.auth.project_id is not None:
-                request["vertex_project"] = self.auth.project_id
-            request["vertex_location"] = self.auth.location
-            if self.auth.vertex_credentials is not None:
-                request["vertex_credentials"] = self._load_vertex_credentials(
-                    self.auth.vertex_credentials
-                )
-
-        return request
 
     @staticmethod
     def _load_vertex_credentials(vertex_credentials: str | Dict[str, Any]) -> Dict[str, Any]:

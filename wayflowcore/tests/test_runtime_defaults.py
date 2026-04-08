@@ -40,3 +40,30 @@ def test_wayflowcore_import_respects_explicit_litellm_cost_map_override() -> Non
     env["LITELLM_LOCAL_MODEL_COST_MAP"] = "False"
 
     assert _run_python_and_get_cost_map_env(env) == "False"
+
+
+def test_wayflowcore_models_import_does_not_eagerly_import_litellm() -> None:
+    env = os.environ.copy()
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            (
+                "import sys; "
+                "from wayflowcore.models import GeminiApiKeyAuth, GeminiModel, Prompt; "
+                "from wayflowcore.messagelist import Message; "
+                "print('litellm' in sys.modules); "
+                "GeminiModel(model_id='gemini-2.5-flash', auth=GeminiApiKeyAuth())."
+                "_build_litellm_request("
+                "Prompt(messages=[Message(role='user', content='Hello')]), stream=False"
+                "); "
+                "print('litellm' in sys.modules)"
+            ),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+
+    assert completed.stdout.strip().splitlines() == ["False", "False"]

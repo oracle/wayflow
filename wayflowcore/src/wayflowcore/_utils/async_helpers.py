@@ -99,6 +99,9 @@ def get_execution_context() -> AsyncContext:
     - 'async'        → running inside the event loop
     """
     try:
+        # sniffio keeps the selected async library in thread-local state. That
+        # marker can outlive the actual event loop during teardown, so we use it
+        # as a fast pre-check and still confirm with anyio.get_current_task().
         current_async_library()
     except AsyncLibraryNotFoundError:
         return _get_sync_context_from_current_thread()
