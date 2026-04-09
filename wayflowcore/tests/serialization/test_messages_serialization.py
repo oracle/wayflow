@@ -107,3 +107,21 @@ def test_message_list_copy_with_non_copyable_tool_result_output() -> None:
     assert copied is not message_list
     assert copied.messages[0] is not message_list.messages[0]
     assert copied.messages[0].tool_result is message_list.messages[0].tool_result
+
+
+def test_tool_result_raw_dict_stringifies_non_serializable_content() -> None:
+    tool_result = ToolResult(
+        tool_request_id="tc1",
+        content=ConnectionError("Could not connect to the remote MCP server."),
+    )
+
+    raw_dict = tool_result.to_raw_dict()
+
+    assert raw_dict == {
+        "content": "Could not connect to the remote MCP server.",
+        "tool_request_id": "tc1",
+    }
+    assert ToolResult.from_raw_dict(raw_dict) == ToolResult(
+        tool_request_id="tc1",
+        content="Could not connect to the remote MCP server.",
+    )

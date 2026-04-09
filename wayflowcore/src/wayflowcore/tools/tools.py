@@ -213,10 +213,10 @@ class ToolResult(SerializableDataclassMixin, SerializableObject):
         )
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
-        from wayflowcore.serialization.serializer import serialize_any_to_dict
+        from wayflowcore.serialization.serializer import serialize_any_to_dict_or_stringify
 
         return {
-            "content": serialize_any_to_dict(self.content, serialization_context),
+            "content": serialize_any_to_dict_or_stringify(self.content, serialization_context),
             "tool_request_id": self.tool_request_id,
         }
 

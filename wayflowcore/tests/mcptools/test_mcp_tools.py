@@ -8,7 +8,7 @@ import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Generator, List, Tuple, cast
+from typing import Any, AsyncGenerator, Generator, List, Tuple, cast
 from unittest.mock import patch
 
 import anyio
@@ -1226,6 +1226,45 @@ def test_mcp_streaming_artifacts_reject_named_mapping_shape() -> None:
                 }
             }
         )
+
+
+def test_mcp_streaming_tool_with_artifacts_uses_base_mcp_call_tool_result_for_official_sdk() -> (
+    None
+):
+    from mcp import types as mcp_types
+    from mcp.server.fastmcp import Context as OfficialContext
+    from mcp.server.fastmcp import FastMCP as OfficialFastMCP
+
+    server = OfficialFastMCP(name="Example MCP Server")
+
+    async def official_artifact_tool() -> AsyncGenerator[tuple[str, dict[str, str]], None]:
+        yield "final payload", {"name": "full.txt", "data": "payload"}
+
+    server.tool(description="Streaming tool with artifacts")(
+        mcp_streaming_tool(
+            official_artifact_tool,
+            context_cls=OfficialContext,
+            output_type=ToolOutputType.CONTENT_AND_ARTIFACT,
+        )
+    )
+
+    result = anyio.run(server.call_tool, "official_artifact_tool", {})
+
+    assert isinstance(result, mcp_types.CallToolResult)
+    assert result.structuredContent == {
+        "result": "final payload",
+        "__wayflowcore_tool_artifacts__": {
+            "content": "final payload",
+            "artifacts": [
+                {
+                    "name": "full.txt",
+                    "mime_type": "text/plain",
+                    "data": "payload",
+                    "data_encoding": "text",
+                }
+            ],
+        },
+    }
 
 
 def test_agent_with_streaming_artifact_mcp_tool_keeps_artifacts_in_tool_result_message(

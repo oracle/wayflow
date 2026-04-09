@@ -13,6 +13,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import replace
 from functools import wraps
+from importlib import import_module
 from typing import (
     Any,
     AsyncGenerator,
@@ -25,7 +26,6 @@ from typing import (
     Tuple,
     Type,
     TypeAlias,
-    TypedDict,
     TypeVar,
     Union,
     cast,
@@ -39,7 +39,7 @@ from mcp import types as types
 from mcp.server.fastmcp import Context
 from mcp.server.session import ServerSessionT
 from mcp.shared.context import LifespanContextT, RequestT
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, TypedDict
 
 from wayflowcore.events.event import ToolExecutionStreamingChunkReceivedEvent
 from wayflowcore.events.eventlistener import record_event
@@ -208,6 +208,34 @@ def _serialize_normalized_tool_output_artifacts_for_mcp(
     return serialized_artifacts
 
 
+def _convert_to_mcp_content_blocks(result: Any) -> list[types.ContentBlock]:
+    if result is None:
+        return []
+
+    if isinstance(
+        result,
+        (
+            types.TextContent,
+            types.ImageContent,
+            types.AudioContent,
+            types.ResourceLink,
+            types.EmbeddedResource,
+        ),
+    ):
+        return [result]
+
+    if isinstance(result, (list, tuple)):
+        content_blocks: list[types.ContentBlock] = []
+        for item in result:
+            content_blocks.extend(_convert_to_mcp_content_blocks(item))
+        return content_blocks
+
+    if not isinstance(result, str):
+        result = json.dumps(result, default=str, indent=2)
+
+    return [types.TextContent(type="text", text=result)]
+
+
 def _normalize_mcp_tool_output_artifact(
     artifact: str | bytes | MCPToolOutputArtifactT,
     *,
@@ -306,6 +334,17 @@ def _deserialize_tool_output_artifacts_from_mcp(
         else:
             raise ValueError(f"Unsupported MCP artifact payload encoding '{data_encoding}'")
 
+        mime_type = artifact_payload.get(
+            "mime_type",
+            (
+                _MCP_DEFAULT_TEXT_ARTIFACT_MIME_TYPE
+                if isinstance(artifact_data, str)
+                else _MCP_DEFAULT_BINARY_ARTIFACT_MIME_TYPE
+            ),
+        )
+        if not isinstance(mime_type, str) or not mime_type:
+            raise TypeError("MCP artifact payload field `mime_type` should be a non-empty string")
+
         deserialized_artifacts.append(
             ToolOutputArtifact(name=name, mime_type=mime_type, data=artifact_data)
         )
@@ -347,9 +386,8 @@ def _extract_mcp_tool_output_and_artifacts(
 def _build_mcp_tool_artifact_result(
     content: Any,
     artifacts: tuple[ToolOutputArtifact, ...],
+    context_cls: type[Any],
 ) -> Any:
-    from fastmcp.tools.tool import ToolResult as FastMCPToolResult
-
     structured_content: dict[str, Any]
     if isinstance(content, dict):
         structured_content = dict(content)
@@ -363,15 +401,23 @@ def _build_mcp_tool_artifact_result(
         ),
     }
 
-    return FastMCPToolResult(
-        content=content,
-        structured_content=structured_content,
+    if _is_third_party_fastmcp_context_cls(context_cls):
+        tool_result_cls = getattr(import_module("fastmcp.tools.tool"), "ToolResult")
+        return tool_result_cls(
+            content=content,
+            structured_content=structured_content,
+        )
+
+    return types.CallToolResult(
+        content=_convert_to_mcp_content_blocks(content),
+        structuredContent=structured_content,
     )
 
 
 def _build_mcp_tool_artifact_result_or_fallback(
     final_output: Any,
     tool_name: str,
+    context_cls: type[Any],
 ) -> Any:
     content, artifacts = _extract_mcp_tool_output_and_artifacts(
         final_output,
@@ -380,7 +426,18 @@ def _build_mcp_tool_artifact_result_or_fallback(
     )
     if not isinstance(final_output, tuple) or len(final_output) != 2:
         return content
-    return _build_mcp_tool_artifact_result(content, artifacts)
+    return _build_mcp_tool_artifact_result(content, artifacts, context_cls)
+
+
+def _unwrap_nested_mcp_structured_content_payload(structured_output: Any) -> Any:
+    if (
+        isinstance(structured_output, dict)
+        and "structuredContent" in structured_output
+        and "content" in structured_output
+        and "isError" in structured_output
+    ):
+        return structured_output["structuredContent"]
+    return structured_output
 
 
 def _try_extract_artifact_output_from_mcp_result(
@@ -388,7 +445,7 @@ def _try_extract_artifact_output_from_mcp_result(
     tool_name: str,
     output_type: ToolOutputType,
 ) -> Optional[Any]:
-    structured_output = result.structuredContent
+    structured_output = _unwrap_nested_mcp_structured_content_payload(result.structuredContent)
     if not isinstance(structured_output, dict):
         return None
 
@@ -438,7 +495,7 @@ def _try_extract_artifact_output_from_mcp_result(
 def _try_handle_structured_content_from_tool_result(
     result: types.CallToolResult, output_descriptors: List[Property]
 ) -> Optional[Any]:
-    structured_output = result.structuredContent
+    structured_output = _unwrap_nested_mcp_structured_content_payload(result.structuredContent)
     if structured_output is None:
         return None
 
@@ -841,32 +898,39 @@ def _extract_async_generator_inner_return_type(
     return Any
 
 
+def _is_third_party_fastmcp_context_cls(context_cls: type[Any]) -> bool:
+    return getattr(context_cls, "__module__", "").startswith("fastmcp.")
+
+
 def _attach_output_type_metadata_to_fastmcp_callable(
     func: Callable[..., Any],
     output_type: ToolOutputType,
+    context_cls: type[Any],
 ) -> None:
-    if output_type == ToolOutputType.CONTENT_ONLY:
+    if output_type == ToolOutputType.CONTENT_ONLY or not _is_third_party_fastmcp_context_cls(
+        context_cls
+    ):
         return
 
-    from fastmcp.decorators import get_fastmcp_meta
-    from fastmcp.tools.function_tool import ToolMeta
+    get_fastmcp_meta = getattr(import_module("fastmcp.decorators"), "get_fastmcp_meta")
+    tool_meta_cls = getattr(import_module("fastmcp.tools.function_tool"), "ToolMeta")
 
     existing_metadata = get_fastmcp_meta(func)
     merged_meta = (
         dict(existing_metadata.meta)
-        if isinstance(existing_metadata, ToolMeta) and existing_metadata.meta
+        if isinstance(existing_metadata, tool_meta_cls) and existing_metadata.meta
         else {}
     )
     merged_meta[TOOL_OUTPUT_TYPE_METADATA_KEY] = output_type.value
 
     metadata = (
         replace(existing_metadata, meta=merged_meta)
-        if isinstance(existing_metadata, ToolMeta)
-        else ToolMeta(meta=merged_meta)
+        if isinstance(existing_metadata, tool_meta_cls)
+        else tool_meta_cls(meta=merged_meta)
     )
 
     target = func.__func__ if hasattr(func, "__func__") else func
-    target.__fastmcp__ = metadata  # type: ignore[attr-defined]
+    target.__fastmcp__ = metadata
 
 
 async def _stream_tool_output_chunk(
@@ -1020,6 +1084,7 @@ def mcp_streaming_tool(
                         return _build_mcp_tool_artifact_result_or_fallback(
                             first,
                             tool_name,
+                            context_cls_,
                         )
                     return first
 
@@ -1050,6 +1115,7 @@ def mcp_streaming_tool(
                             return _build_mcp_tool_artifact_result_or_fallback(
                                 prev,
                                 tool_name,
+                                context_cls_,
                             )
                         return prev
 
@@ -1097,7 +1163,7 @@ def mcp_streaming_tool(
         if not has_ctx_parameter:
             wrapped.__annotations__.setdefault("ctx", context_cls_)
 
-        _attach_output_type_metadata_to_fastmcp_callable(wrapped, output_type)
+        _attach_output_type_metadata_to_fastmcp_callable(wrapped, output_type, context_cls_)
         return wrapped
 
     if func is None:

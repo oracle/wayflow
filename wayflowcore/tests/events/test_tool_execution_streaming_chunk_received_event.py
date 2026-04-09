@@ -8,10 +8,7 @@ from typing import Any, Dict
 
 import pytest
 
-from wayflowcore.events.event import (
-    _PII_TEXT_MASK,
-    ToolExecutionStreamingChunkReceivedEvent,
-)
+from wayflowcore.events.event import _PII_TEXT_MASK, ToolExecutionStreamingChunkReceivedEvent
 from wayflowcore.tools.tools import ToolOutputArtifact, ToolRequest
 
 from .conftest import GET_LOCATION_CLIENT_TOOL
