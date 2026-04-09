@@ -7,6 +7,15 @@ WayFlow |current_version|
 New features
 ^^^^^^^^^^^^
 
+* **Tool artifacts for server tools:**
+
+  ``ServerTool`` and the ``@tool`` helper now support tool output artifacts, so tools can return
+  LLM-friendly content together with one or more runtime-only ``ToolOutputArtifact`` payloads for
+  applications and UIs.
+
+  For more information, read the :doc:`API Reference <api/tools>` and the guide on
+  :doc:`how to use tool artifacts <howtoguides/howto_tool_artifacts>`.
+
 * **Custom TLS certificates for OpenAI-compatible models:**
 
   :ref:`OpenAICompatibleModel <openaicompatiblemodel>` and :ref:`OpenAICompatibleEmbeddingModel <openaicompatibleembeddingmodel>`
@@ -36,6 +45,11 @@ Improvements
 
 Documentation
 ^^^^^^^^^^^^^
+
+* **Added a how-to guide for tool artifacts:**
+
+  Added documentation and API reference entries for returning tool artifacts, consuming them from
+  events or conversation messages, and exporting/loading the corresponding Agent Spec configuration.
 
 * **Added a new MCP server to browse the WayFlow documentation:**
 

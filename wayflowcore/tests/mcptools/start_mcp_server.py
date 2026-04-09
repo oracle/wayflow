@@ -18,10 +18,12 @@ from fastmcp.server.middleware import Middleware, MiddlewareContext
 from mcp.types import EmbeddedResource, TextResourceContents
 from pydantic import AnyUrl, BaseModel, Field
 
-from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
+from wayflowcore.mcp.mcphelpers import ReturnArtifact, mcp_streaming_tool
+from wayflowcore.tools.tools import TOOL_OUTPUT_TYPE_METADATA_KEY, ToolOutputType
 
 BASE_SCOPE_NAME = "base_tools"
 PROTECTED_SCOPE_NAME = "protected_tools"
+STREAMING_ARTIFACT_CONTENT = "This is the complete streamed artifact payload."
 
 
 class JWTTestMiddleware(Middleware):
@@ -290,6 +292,28 @@ def create_server(
             await anyio.sleep(0.2)
 
         yield {"result": (5, ". ".join(contents))}  # final result
+
+    async def streaming_tool_with_artifacts() -> AsyncGenerator[ReturnArtifact[str], None]:
+        contents = [f"This is the sentence N°{i}" for i in range(5)]
+        for chunk in contents:
+            yield chunk, (
+                {"name": "chunk_text.txt", "data": f"{chunk} artifact"},
+                {"name": "chunk_bytes.bin", "data": b"\x00\x01"},
+            )
+            await anyio.sleep(0.2)
+
+        yield ". ".join(contents), {"name": "full_artifact.txt", "data": STREAMING_ARTIFACT_CONTENT}
+
+    server.tool(
+        description="Streaming tool with artifacts",
+        meta={TOOL_OUTPUT_TYPE_METADATA_KEY: ToolOutputType.CONTENT_AND_ARTIFACT.value},
+    )(
+        mcp_streaming_tool(
+            streaming_tool_with_artifacts,
+            context_cls=Context,
+            output_type=ToolOutputType.CONTENT_AND_ARTIFACT,
+        )
+    )
 
     return server
 

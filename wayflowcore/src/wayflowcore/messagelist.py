@@ -405,12 +405,7 @@ class Message(SerializableDataclass):
                 else None
             ),
             "tool_result": (
-                {
-                    "tool_request_id": self.tool_result.tool_request_id,
-                    "content": self.tool_result.content,
-                }
-                if self.tool_result is not None
-                else None
+                self.tool_result.to_raw_dict() if self.tool_result is not None else None
             ),
             "_extra_content": self._extra_content,
         }
@@ -473,10 +468,7 @@ class Message(SerializableDataclass):
                 else None
             ),
             tool_result=(
-                ToolResult(
-                    content=input_dict["tool_result"]["content"],
-                    tool_request_id=input_dict["tool_result"]["tool_request_id"],
-                )
+                ToolResult.from_raw_dict(input_dict["tool_result"])
                 if input_dict.get("tool_result", None) is not None
                 else None
             ),

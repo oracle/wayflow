@@ -448,9 +448,11 @@ from wayflowcore.tools import ClientTool as RuntimeClientTool
 from wayflowcore.tools import RemoteTool as RuntimeRemoteTool
 from wayflowcore.tools import ServerTool as RuntimeServerTool
 from wayflowcore.tools import Tool as RuntimeTool
+from wayflowcore.tools import ToolOutputType as RuntimeToolOutputType
 from wayflowcore.tools import ToolRequest as RuntimeToolRequest
 from wayflowcore.tools import ToolResult as RuntimeToolResult
 from wayflowcore.tools.toolfromtoolbox import ToolFromToolBox as RuntimeToolFromToolBox
+from wayflowcore.tools.tools import TOOL_OUTPUT_TYPE_METADATA_KEY
 from wayflowcore.transforms import (
     AppendTrailingSystemMessageToUserMessageTransform as RuntimeAppendTrailingSystemMessageToUserMessageTransform,
 )
@@ -900,6 +902,21 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     f" this tool does not appear in the tool registry"
                 )
             tool = tool_registry[agentspec_component.name]
+            metadata_info = (agentspec_component.metadata or {}).get("__metadata_info__", {})
+            try:
+                output_type = RuntimeToolOutputType(
+                    metadata_info.get(
+                        TOOL_OUTPUT_TYPE_METADATA_KEY,
+                        RuntimeToolOutputType.CONTENT_ONLY.value,
+                    )
+                )
+            except ValueError:
+                warnings.warn(
+                    f"Unsupported tool output type metadata for tool '{agentspec_component.name}'. "
+                    "Falling back to ToolOutputType.CONTENT_ONLY.",
+                    UserWarning,
+                )
+                output_type = RuntimeToolOutputType.CONTENT_ONLY
             if isinstance(tool, RuntimeServerTool):
                 return tool
             elif callable(tool):
@@ -917,6 +934,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     func=tool,
                     requires_confirmation=agentspec_component.requires_confirmation,
                     id=agentspec_component.id,
+                    output_type=output_type,
                 )
             raise ValueError(f"Unexpected tool type provided in the tool_registry: {type(tool)}")
         elif isinstance(agentspec_component, AgentSpecManagerWorkers):

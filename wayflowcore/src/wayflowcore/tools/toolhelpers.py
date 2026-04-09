@@ -27,7 +27,7 @@ from typing import (
 from wayflowcore.property import JsonSchemaParam, Property
 
 from .servertools import ServerTool
-from .tools import Tool
+from .tools import Tool, ToolOutputType
 
 
 class DescriptionMode(str, Enum):
@@ -133,10 +133,51 @@ def _unpack_annotated_types(arg_type: Type[Any]) -> Tuple[Type[Any], str]:
     raise ValueError(f"Unable to find a string annotation in type {arg_type}")
 
 
+def _unwrap_artifact_output_annotation(
+    output_annotation: Any,
+    output_type: Optional[ToolOutputType],
+    tool_name: str,
+) -> Any:
+    resolved_output_type = output_type or ToolOutputType.CONTENT_ONLY
+    if resolved_output_type != ToolOutputType.CONTENT_AND_ARTIFACT:
+        return output_annotation
+
+    origin = get_origin(output_annotation)
+    args = get_args(output_annotation)
+    if origin in (cAsyncGenerator, AsyncGenerator):
+        if not args:
+            raise TypeError(
+                "AsyncGenerator must specify a yield type, e.g., AsyncGenerator[str, None]"
+            )
+        return _unwrap_artifact_output_annotation(args[0], output_type, tool_name)
+
+    if origin in (UnionType, Union):
+        unwrapped_args = tuple(
+            _unwrap_artifact_output_annotation(arg, output_type, tool_name) for arg in args
+        )
+        unique_args = tuple(dict.fromkeys(unwrapped_args))
+        if len(unique_args) == 1:
+            return unique_args[0]
+        return Union[unique_args]
+
+    if origin not in (tuple, Tuple):
+        return output_annotation
+
+    if len(args) != 2:
+        raise TypeError(
+            f"Return annotation of tool {tool_name} should be either the content type alone or "
+            "a 2-tuple of (content, artifacts) when using output_type="
+            "ToolOutputType.CONTENT_AND_ARTIFACT."
+        )
+
+    return args[0]
+
+
 def _get_tool_schema_no_parsing(
     tool_signature: inspect.Signature,
     tool_description: str,
     tool_name: str,
+    output_type: Optional[ToolOutputType] = None,
 ) -> Tuple[Dict[str, JsonSchemaParam], JsonSchemaParam]:
 
     if "self" in tool_signature.parameters.keys():
@@ -175,6 +216,9 @@ def _get_tool_schema_no_parsing(
             f"Annotated types are not permitted when using the description mode `only_docstring`. "
             f"Return annotation of tool {tool_name} has type `{output_annotation}`"
         )
+    output_annotation = _unwrap_artifact_output_annotation(
+        output_annotation, output_type, tool_name
+    )
     output_schema = _get_partial_schema_from_annotation(output_annotation)
     return args_schema, output_schema
 
@@ -183,6 +227,7 @@ def _get_tool_schema_from_parsed_signature(
     tool_signature: inspect.Signature,
     tool_description: str,
     tool_name: str,
+    output_type: Optional[ToolOutputType] = None,
 ) -> Tuple[Dict[str, JsonSchemaParam], JsonSchemaParam]:
 
     if "self" in tool_signature.parameters.keys():
@@ -224,6 +269,9 @@ def _get_tool_schema_from_parsed_signature(
     else:
         output_annotation, output_description = annotated_output_type, ""
 
+    output_annotation = _unwrap_artifact_output_annotation(
+        output_annotation, output_type, tool_name
+    )
     output_schema = _get_partial_schema_from_annotation(output_annotation)
     if output_description:
         output_schema["description"] = output_description
@@ -240,6 +288,7 @@ def tool(
     ] = DescriptionMode.INFER_FROM_SIGNATURE,
     output_descriptors: Optional[List[Property]] = None,
     requires_confirmation: bool = False,
+    output_type: ToolOutputType = ToolOutputType.CONTENT_ONLY,
 ) -> Union[ServerTool, Callable[[Callable[..., Any]], ServerTool]]:
     '''
     Make tools out of callables, can be used as a decorator or as a wrapper.
@@ -261,6 +310,10 @@ def tool(
         list of properties to describe the tool outputs. Needed in case of tools with several outputs.
     requires_confirmation: bool
         Flag to make tool require confirmation before execution. Yields a ToolExecutionConfirmationStatus before its execution.
+    output_type:
+        Controls whether the callable returns only content or a ``(content, artifacts)`` tuple.
+        When using ``ToolOutputType.CONTENT_AND_ARTIFACT``, you may annotate the return type as
+        ``ReturnArtifact[T]`` for a type-checker-friendly signature.
     Returns:
         The decorated/wrapper callable as a ``ServerTool``.
 
@@ -351,6 +404,7 @@ def tool(
         ] = DescriptionMode.INFER_FROM_SIGNATURE,
         output_descriptors: Optional[List[Property]] = None,
         requires_confirmation: bool = False,
+        output_type: ToolOutputType = ToolOutputType.CONTENT_ONLY,
     ) -> ServerTool:
         if inspect.isclass(func) or not hasattr(func, "__name__"):
             raise TypeError(
@@ -367,11 +421,11 @@ def tool(
 
         if description_mode == DescriptionMode.ONLY_DOCSTRING:
             args_schema, output_schema = _get_tool_schema_no_parsing(
-                tool_signature, tool_description, tool_name
+                tool_signature, tool_description, tool_name, output_type
             )
         elif description_mode == DescriptionMode.INFER_FROM_SIGNATURE:
             args_schema, output_schema = _get_tool_schema_from_parsed_signature(
-                tool_signature, tool_description, tool_name
+                tool_signature, tool_description, tool_name, output_type
             )
         elif description_mode == DescriptionMode.EXTRACT_FROM_DOCSTRING:
             raise NotImplementedError(
@@ -388,6 +442,7 @@ def tool(
             output=output_schema if output_descriptors is None else None,
             func=func,
             requires_confirmation=requires_confirmation,
+            output_type=output_type,
         )
 
     # When used as a wrapper, `args` can be [tool_name, callable] or [callable]
@@ -401,7 +456,12 @@ def tool(
         # we simply return the newly created ServerTool
         tool_name = args[0]
         return _make_tool(
-            args[1], tool_name, description_mode, output_descriptors, requires_confirmation
+            args[1],
+            tool_name,
+            description_mode,
+            output_descriptors,
+            requires_confirmation,
+            output_type,
         )
     elif len(args) == 1 and isinstance(args[0], str):
         # Example case: decorator with custom tool name
@@ -416,7 +476,12 @@ def tool(
 
         def _partial_with_name(func: Callable[..., Any]) -> ServerTool:
             return _make_tool(
-                func, tool_name, description_mode, output_descriptors, requires_confirmation
+                func,
+                tool_name,
+                description_mode,
+                output_descriptors,
+                requires_confirmation,
+                output_type,
             )
 
         return _partial_with_name
@@ -428,7 +493,12 @@ def tool(
         # here args[0] is the callable
         # we simply return the newly created ServerTool
         return _make_tool(
-            args[0], None, description_mode, output_descriptors, requires_confirmation
+            args[0],
+            None,
+            description_mode,
+            output_descriptors,
+            requires_confirmation,
+            output_type,
         )
     elif len(args) == 0:
         # Example case: decorator with user-specified description_mode
@@ -441,7 +511,12 @@ def tool(
         # callable to a ServerTool
         def _partial_no_name(func: Callable[..., Any]) -> ServerTool:
             return _make_tool(
-                func, None, description_mode, output_descriptors, requires_confirmation
+                func,
+                None,
+                description_mode,
+                output_descriptors,
+                requires_confirmation,
+                output_type,
             )
 
         return _partial_no_name

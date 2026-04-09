@@ -170,6 +170,57 @@ Execute the flow as follows:
 
 
 
+Advanced use: Streaming MCP tools and artifacts
+===============================================
+
+MCP servers can expose streaming tools by wrapping server-side async generators with
+:ref:`@mcp_streaming_tool <mcpstreamingtool>`.
+
+If the final MCP tool result should also include runtime-only artifacts, use
+``output_type=ToolOutputType.CONTENT_AND_ARTIFACT``.
+In that mode, each yielded value may be either ``content`` or ``(content, artifacts)``.
+Earlier yielded artifacts are exposed as
+:ref:`ToolExecutionStreamingChunkReceivedEvent <toolexecutionstreamingchunkreceivedevent>`
+events through ``event.artifacts``, while only artifacts returned by the final yielded
+item populate the final tool result.
+
+.. code-block:: python
+
+    import anyio
+    from typing import AsyncGenerator
+    from mcp.server.fastmcp import FastMCP
+
+    from wayflowcore.mcp.mcphelpers import ReturnArtifact, mcp_streaming_tool
+    from wayflowcore.tools import ToolOutputType
+
+    server = FastMCP(
+        name="Example MCP Server",
+        instructions="A MCP Server.",
+    )
+
+    @server.tool(description="Stream progress and attach the full log at the end.")
+    @mcp_streaming_tool(output_type=ToolOutputType.CONTENT_AND_ARTIFACT)
+    async def analyze_logs() -> AsyncGenerator[ReturnArtifact[str], None]:
+        yield "Downloading logs...", {"name": "download.txt", "data": "Downloading logs..."}
+        await anyio.sleep(0.2)
+        yield "Parsing logs...", {"name": "parse.txt", "data": "Parsing logs..."}
+        await anyio.sleep(0.2)
+        yield "Found 2 errors", {"name": "full_log.txt", "data": "full log contents"}
+
+On the client side, streamed chunks remain available through
+:ref:`ToolExecutionStreamingChunkReceivedEvent <toolexecutionstreamingchunkreceivedevent>`.
+Final artifacts are exposed on
+:ref:`ToolExecutionResultEvent <toolexecutionresultevent>` through
+``event.tool_result.artifacts`` and on in-memory tool result messages.
+To consume MCP artifacts on the client side, the local :ref:`MCPTool <mcptool>` must also
+explicitly set ``output_type=ToolOutputType.CONTENT_AND_ARTIFACT``.
+
+.. seealso::
+
+   For end-to-end examples, read :doc:`howto_tooloutputstreaming` and
+   :doc:`howto_tool_artifacts`.
+
+
 Advanced use: Use OAuth in MCP Tools
 ====================================
 

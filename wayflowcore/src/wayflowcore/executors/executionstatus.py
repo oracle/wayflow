@@ -224,7 +224,9 @@ class ToolRequestStatus(ExecutionStatus):
             "tool_requests": [asdict(tool) for tool in self.tool_requests],
             "_conversation_id": self._conversation_id,
             "_tool_results": (
-                [asdict(t) for t in self._tool_results] if self._tool_results is not None else None
+                [t.to_raw_dict() for t in self._tool_results]
+                if self._tool_results is not None
+                else None
             ),
             "id": self.id,
         }
@@ -238,7 +240,7 @@ class ToolRequestStatus(ExecutionStatus):
         return ToolRequestStatus(
             tool_requests=[ToolRequest(**tool_dict) for tool_dict in input_dict["tool_requests"]],
             _tool_results=(
-                [ToolResult(**tool_dict) for tool_dict in input_dict["_tool_results"]]
+                [ToolResult.from_raw_dict(tool_dict) for tool_dict in input_dict["_tool_results"]]
                 if input_dict.get("_tool_results", None) is not None
                 else None
             ),

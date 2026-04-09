@@ -6,10 +6,13 @@
 
 import logging
 import re
+import uuid
 import warnings
 from abc import ABC
+from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass, field
+from enum import Enum
 from functools import cache
 from typing import (
     TYPE_CHECKING,
@@ -19,11 +22,15 @@ from typing import (
     List,
     Literal,
     Optional,
+    Tuple,
     TypeAlias,
     TypedDict,
+    TypeVar,
     Union,
     cast,
 )
+
+from typing_extensions import NotRequired
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
@@ -39,11 +46,99 @@ if TYPE_CHECKING:
     from wayflowcore.models.openaiapitype import OpenAIAPIType
     from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 
+# Supported JSON schema types for tool inputs and outputs.
 VALID_JSON_TYPES = {"boolean", "number", "integer", "string", "bool", "object", "array", "null"}
 
+# Canonical JSON schema representation used for Python ``None``.
 JSON_SCHEMA_NONE_TYPE = "null"
 
+# Internal discriminator used when serializing different runtime tool variants.
 SupportedToolTypesT = Literal["client", "server", "remote", "tool", "toolfromtoolbox"]
+
+# Default output descriptor name used when a tool exposes a single unnamed output.
+TOOL_OUTPUT_NAME = "tool_output"
+
+# Metadata key used to preserve ``ToolOutputType`` in Agent Spec exports.
+TOOL_OUTPUT_TYPE_METADATA_KEY = "wayflowcore_tool_output_type"
+
+# Default soft cap, in bytes, applied to each artifact payload kept in memory.
+_DEFAULT_MAX_TOOL_ARTIFACT_SIZE_BYTES = 1024 * 1024
+_DEFAULT_TEXT_TOOL_ARTIFACT_MIME_TYPE = "text/plain"
+_DEFAULT_BINARY_TOOL_ARTIFACT_MIME_TYPE = "application/octet-stream"
+_GLOBAL_MAX_TOOL_ARTIFACT_SIZE_BYTES: ContextVar[int] = ContextVar(
+    "_GLOBAL_MAX_TOOL_ARTIFACT_SIZE_BYTES", default=_DEFAULT_MAX_TOOL_ARTIFACT_SIZE_BYTES
+)
+# Context-local override for the soft artifact size cap.
+
+
+def set_max_tool_artifact_size_bytes(value: int) -> None:
+    """
+    Set the soft size limit, in bytes, applied to tool artifacts.
+
+    Pass -1 to disable truncation.
+    """
+    _GLOBAL_MAX_TOOL_ARTIFACT_SIZE_BYTES.set(value)
+
+
+def reset_max_tool_artifact_size_bytes() -> None:
+    """Reset the soft tool artifact size limit to the default value."""
+    _GLOBAL_MAX_TOOL_ARTIFACT_SIZE_BYTES.set(_DEFAULT_MAX_TOOL_ARTIFACT_SIZE_BYTES)
+
+
+def _get_max_tool_artifact_size_bytes() -> int:
+    return _GLOBAL_MAX_TOOL_ARTIFACT_SIZE_BYTES.get()
+
+
+class ToolOutputType(str, Enum):
+    """Controls how a tool callable returns its outputs."""
+
+    CONTENT_ONLY = "content_only"
+    CONTENT_AND_ARTIFACT = "content_and_artifact"
+
+
+@dataclass(frozen=True)
+class ToolOutputArtifact:
+    """
+    User-visible tool payload excluded from model context and serialization.
+    """
+
+    name: Optional[str] = None
+    mime_type: str = _DEFAULT_TEXT_TOOL_ARTIFACT_MIME_TYPE
+    data: Union[str, bytes] = ""
+
+    def __post_init__(self) -> None:
+        if self.name is not None and not isinstance(self.name, str):
+            raise TypeError("ToolOutputArtifact.name should be `str | None`")
+        if not isinstance(self.mime_type, str) or not self.mime_type:
+            raise TypeError("ToolOutputArtifact.mime_type should be a non-empty string")
+        if not isinstance(self.data, (str, bytes)):
+            raise TypeError("ToolOutputArtifact.data should be `str | bytes`")
+
+    def __deepcopy__(self, memo: Dict[int, Any]) -> "ToolOutputArtifact":
+        # Artifact payloads may be large; keep the same immutable object.
+        return self
+
+
+class ToolOutputArtifactT(TypedDict):
+    """Typed-dict form accepted when returning artifacts from a tool."""
+
+    mime_type: str
+    data: Union[str, bytes]
+    name: NotRequired[str]
+
+
+ToolOutputT = TypeVar("ToolOutputT")
+ToolOutputArtifactValueT: TypeAlias = Union[str, bytes, ToolOutputArtifact, ToolOutputArtifactT]
+"""Accepted single-artifact payloads for WayFlow server-tool return values."""
+
+ToolOutputArtifactMapT: TypeAlias = Dict[str, ToolOutputArtifactValueT]
+"""Accepted multi-artifact mapping for WayFlow server-tool return values."""
+
+ToolOutputArtifactTypeT: TypeAlias = Union[ToolOutputArtifactValueT, ToolOutputArtifactMapT]
+"""Accepted server-tool artifact payload shape."""
+
+ReturnArtifact: TypeAlias = Tuple[ToolOutputT, ToolOutputArtifactTypeT]
+"""Convenience alias for WayFlow server-tool return annotations."""
 
 # We use any here for loose typechecking, which works so long as we don't
 # expect to process the _extra_content (which is the case with the
@@ -64,6 +159,7 @@ ToolConfigT = TypedDict(
         "_component_type": Literal["Tool"],
         "__metadata_info__": MetadataType,
         "requires_confirmation": bool,
+        "output_type": str,
     },
     total=False,
 )
@@ -83,12 +179,199 @@ class ToolRequest(SerializableDataclassMixin, SerializableObject):
 
 @dataclass(frozen=True)
 class ToolResult(SerializableDataclassMixin, SerializableObject):
+    """
+    Result of a tool execution.
+
+    ``content`` is the only value that may flow into model-visible chat history.
+    ``artifacts`` are kept in memory only for UI and application consumers.
+    """
+
     _can_be_referenced: ClassVar[bool] = False
     content: Any
     tool_request_id: str
+    artifacts: Tuple[ToolOutputArtifact, ...] = field(default_factory=tuple)
+
+    def to_raw_dict(self) -> Dict[str, Any]:
+        from wayflowcore.serialization.context import SerializationContext
+
+        return self._serialize_to_dict(SerializationContext(root=self))
+
+    @classmethod
+    def from_raw_dict(cls, input_dict: Dict[str, Any]) -> "ToolResult":
+        from wayflowcore.serialization.context import DeserializationContext
+
+        return cast(
+            ToolResult,
+            cls._deserialize_from_dict(input_dict, DeserializationContext()),
+        )
+
+    def __deepcopy__(self, memo: Dict[int, Any]) -> "ToolResult":
+        return ToolResult(
+            content=deepcopy(self.content, memo),
+            tool_request_id=self.tool_request_id,
+            artifacts=self.artifacts,
+        )
+
+    def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
+        from wayflowcore.serialization.serializer import serialize_any_to_dict_or_stringify
+
+        return {
+            "content": serialize_any_to_dict_or_stringify(self.content, serialization_context),
+            "tool_request_id": self.tool_request_id,
+        }
+
+    @classmethod
+    def _deserialize_from_dict(
+        cls,
+        input_dict: Dict[str, Any],
+        deserialization_context: "DeserializationContext",
+    ) -> "SerializableObject":
+        from wayflowcore.serialization.serializer import autodeserialize_any_from_dict
+
+        return cls(
+            content=autodeserialize_any_from_dict(input_dict["content"], deserialization_context),
+            tool_request_id=input_dict["tool_request_id"],
+        )
 
 
-TOOL_OUTPUT_NAME = "tool_output"
+def _generate_tool_artifact_name() -> str:
+    return f"artifact_{uuid.uuid4()}"
+
+
+def _truncate_tool_artifact_data(
+    data: Union[str, bytes],
+    size_limit_bytes: int,
+) -> Union[str, bytes]:
+    if isinstance(data, bytes):
+        return data[:size_limit_bytes]
+
+    encoded_data = data.encode("utf-8")
+    if len(encoded_data) <= size_limit_bytes:
+        return data
+
+    return encoded_data[:size_limit_bytes].decode("utf-8", errors="ignore")
+
+
+def _is_tool_output_artifact_dict(value: Any) -> bool:
+    return isinstance(value, dict) and any(key in value for key in ("data", "mime_type", "name"))
+
+
+def _is_tool_output_artifact_item(value: Any) -> bool:
+    return isinstance(value, (str, bytes, ToolOutputArtifact)) or _is_tool_output_artifact_dict(
+        value
+    )
+
+
+def _is_named_tool_output_artifact_mapping(value: Any) -> bool:
+    return (
+        isinstance(value, dict)
+        and not _is_tool_output_artifact_dict(value)
+        and all(
+            isinstance(name, str) and _is_tool_output_artifact_item(item)
+            for name, item in value.items()
+        )
+    )
+
+
+def _normalize_tool_output_artifact(
+    artifact: ToolOutputArtifactValueT,
+) -> ToolOutputArtifact:
+    normalized: ToolOutputArtifact
+    if isinstance(artifact, str):
+        normalized = ToolOutputArtifact(data=artifact)
+    elif isinstance(artifact, bytes):
+        normalized = ToolOutputArtifact(
+            mime_type=_DEFAULT_BINARY_TOOL_ARTIFACT_MIME_TYPE,
+            data=artifact,
+        )
+    elif isinstance(artifact, ToolOutputArtifact):
+        normalized = artifact
+    elif isinstance(artifact, dict):
+        if "mime_type" not in artifact or "data" not in artifact:
+            raise ValueError("Artifact dictionaries must contain `mime_type` and `data`")
+
+        name = artifact.get("name")
+        mime_type = artifact["mime_type"]
+        data = artifact["data"]
+        if name is not None and not isinstance(name, str):
+            raise TypeError("Artifact dictionary field `name` should be a string if specified")
+        if not isinstance(mime_type, str) or not mime_type:
+            raise TypeError("Artifact dictionary field `mime_type` should be a non-empty string")
+        if not isinstance(data, (str, bytes)):
+            raise TypeError("Artifact dictionary field `data` should be `str | bytes`")
+
+        normalized = ToolOutputArtifact(name=name, mime_type=mime_type, data=data)
+    else:
+        raise TypeError(
+            "Artifacts should be of type `str | bytes | ToolOutputArtifact | "
+            "ToolOutputArtifactT`"
+        )
+
+    artifact_name = normalized.name or _generate_tool_artifact_name()
+    artifact_data = normalized.data
+    max_artifact_size = _get_max_tool_artifact_size_bytes()
+    if max_artifact_size >= 0:
+        current_size = (
+            len(artifact_data)
+            if isinstance(artifact_data, bytes)
+            else len(artifact_data.encode("utf-8"))
+        )
+        if current_size > max_artifact_size:
+            logger.warning(
+                "Tool artifact '%s' exceeded the soft size limit of %s bytes and was truncated.",
+                artifact_name,
+                max_artifact_size,
+            )
+            artifact_data = _truncate_tool_artifact_data(artifact_data, max_artifact_size)
+
+    return ToolOutputArtifact(
+        name=artifact_name,
+        mime_type=normalized.mime_type,
+        data=artifact_data,
+    )
+
+
+def _normalize_named_tool_output_artifact(
+    artifact_name: str,
+    artifact: ToolOutputArtifactValueT,
+) -> ToolOutputArtifact:
+    if not artifact_name:
+        raise ValueError("Artifact mapping keys should be non-empty strings")
+
+    nested_artifact_name: Optional[str] = None
+    if isinstance(artifact, ToolOutputArtifact):
+        nested_artifact_name = artifact.name
+    elif isinstance(artifact, dict) and _is_tool_output_artifact_dict(artifact):
+        nested_artifact_name = artifact.get("name")
+
+    normalized = _normalize_tool_output_artifact(artifact)
+    if nested_artifact_name is not None and nested_artifact_name != artifact_name:
+        logger.warning(
+            "Artifact mapping key '%s' overrides nested artifact name '%s'.",
+            artifact_name,
+            nested_artifact_name,
+        )
+
+    return ToolOutputArtifact(
+        name=artifact_name,
+        mime_type=normalized.mime_type,
+        data=normalized.data,
+    )
+
+
+def _normalize_tool_output_artifacts(
+    artifacts: ToolOutputArtifactTypeT,
+) -> Tuple[ToolOutputArtifact, ...]:
+    """Normalize supported artifact return shapes into immutable artifact objects."""
+    if _is_named_tool_output_artifact_mapping(artifacts):
+        artifact_mapping = cast(ToolOutputArtifactMapT, artifacts)
+        return tuple(
+            _normalize_named_tool_output_artifact(artifact_name, artifact_value)
+            for artifact_name, artifact_value in artifact_mapping.items()
+        )
+
+    single_artifact = cast(ToolOutputArtifactValueT, artifacts)
+    return (_normalize_tool_output_artifact(single_artifact),)
 
 
 def _parameters_to_input_descriptors(parameters: Dict[str, JsonSchemaParam]) -> List[Property]:
@@ -132,6 +415,7 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
 
     # Ask for user confirmation, yields ToolExecutionConfirmationStatus if True
     requires_confirmation: bool
+    output_type: ToolOutputType
 
     def __init__(
         self,
@@ -144,6 +428,7 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
         id: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
         requires_confirmation: bool = False,
+        output_type: ToolOutputType = ToolOutputType.CONTENT_ONLY,
     ):
         _validate_name(name, raise_on_invalid=False)  # next release cycle would raise an error
 
@@ -174,6 +459,7 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
             self.output = _output_descriptors_to_output(self.output_descriptors)
 
         self.requires_confirmation = requires_confirmation
+        self.output_type = output_type
         super().__init__(
             input_descriptors=self.input_descriptors,
             output_descriptors=self.output_descriptors,
@@ -311,6 +597,8 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
             __metadata_info__=self.__metadata_info__,
             requires_confirmation=self.requires_confirmation,
         )
+        if self._tool_type == "server":
+            config["output_type"] = self.output_type.value
         return cast(Dict[str, Any], config)
 
     @classmethod
@@ -418,6 +706,15 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
                 raise ValueError(
                     f"Information of the registered tool does not match the serialization. For"
                     f"requires_confirmation flag of serialized tool {deserialized_tool.requires_confirmation} does not match those of the registered tool ({requires_confirmation})"
+                )
+            serialized_output_type = ToolOutputType(
+                input_dict.get("output_type", ToolOutputType.CONTENT_ONLY.value)
+            )
+            deserialized_output_type = deserialized_tool.output_type
+            if serialized_output_type != deserialized_output_type:
+                raise ValueError(
+                    f"Information of the registered tool does not match the serialization. For "
+                    f"output_type '{serialized_output_type.value}' != '{deserialized_output_type.value}'"
                 )
         return deserialized_tool
 

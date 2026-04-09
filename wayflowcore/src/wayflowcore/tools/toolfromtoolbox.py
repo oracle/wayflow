@@ -39,6 +39,7 @@ class ToolFromToolBox(Tool, SerializableObject):
             output_descriptors=_concrete_tool.output_descriptors,
             output=_concrete_tool.output,
             requires_confirmation=_concrete_tool.requires_confirmation,
+            output_type=_concrete_tool.output_type,
             __metadata_info__=_concrete_tool.__metadata_info__,
             parameters=_concrete_tool.parameters,
         )

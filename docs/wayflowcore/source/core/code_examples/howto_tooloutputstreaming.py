@@ -24,11 +24,16 @@ import anyio
 from typing import AsyncGenerator
 
 from wayflowcore.agent import Agent
-from wayflowcore.events.event import Event, ToolExecutionStreamingChunkReceivedEvent
+from wayflowcore.events.event import (
+    Event,
+    ToolExecutionResultEvent,
+    ToolExecutionStreamingChunkReceivedEvent,
+)
 from wayflowcore.events.eventlistener import EventListener, register_event_listeners
-from wayflowcore.tools import tool
+from wayflowcore.tools import ReturnArtifact, ToolOutputType, tool
 # .. end-##_Imports_for_this_guide
-# .. start-##_Define_streaming_tool
+
+# .. start-##_Define_simple_streaming_tool
 @tool(description_mode="only_docstring")
 async def my_streaming_tool(topic: str) -> AsyncGenerator[str, None]:
     """Stream intermediate outputs, then yield the final result."""
@@ -37,13 +42,47 @@ async def my_streaming_tool(topic: str) -> AsyncGenerator[str, None]:
         await anyio.sleep(0.2)  # simulate work
         yield all_sentences[i]
     yield ". ".join(all_sentences)
-# .. end-##_Define_streaming_tool
-# .. start-##_Define_event_listener
+# .. end-##_Define_simple_streaming_tool
+
+# .. start-##_Define_simple_stream_listener
 class ToolStreamingListener(EventListener):
     def __call__(self, event: Event) -> None:
         if isinstance(event, ToolExecutionStreamingChunkReceivedEvent):
             print("[tool-chunk]", event.content)
-# .. end-##_Define_event_listener
+# .. end-##_Define_simple_stream_listener
+
+# .. start-##_Define_streaming_tool_with_artifacts
+@tool(description_mode="only_docstring", output_type=ToolOutputType.CONTENT_AND_ARTIFACT)
+async def my_streaming_tool_with_artifacts(topic: str) -> AsyncGenerator[ReturnArtifact[str], None]:
+    """Stream intermediate outputs and attach artifacts to streamed chunks and the final result."""
+    all_sentences = [f"{topic} part {i}" for i in range(2)]
+    for i, sentence in enumerate(all_sentences):
+        await anyio.sleep(0.2)  # simulate work
+        yield sentence, {
+            "name": f"{topic}_chunk_{i}.txt",
+            "mime_type": "text/plain",
+            "data": sentence,
+        }
+
+    full_story = ". ".join(all_sentences)
+    yield full_story, {
+        "name": f"{topic}_full.txt",
+        "mime_type": "text/plain",
+        "data": full_story,
+    }
+# .. end-##_Define_streaming_tool_with_artifacts
+
+# .. start-##_Define_artifact_stream_listener
+class ArtifactStreamingListener(EventListener):
+    def __call__(self, event: Event) -> None:
+        if isinstance(event, ToolExecutionStreamingChunkReceivedEvent):
+            print("[tool-chunk]", event.content)
+            if event.artifacts:
+                print("[chunk-artifacts]", [artifact.name for artifact in event.artifacts])
+        elif isinstance(event, ToolExecutionResultEvent) and event.tool_result.artifacts:
+            print("[final-artifacts]", [artifact.name for artifact in event.tool_result.artifacts])
+# .. end-##_Define_artifact_stream_listener
+
 # .. start-##_Build_the_agent
 assistant = Agent(
     llm=llm,
@@ -65,8 +104,6 @@ loader = AgentSpecLoader(tool_registry=tool_registry)
 reloaded_assistant = loader.load_json(serialized_assistant)
 # .. end-##_Load_Agent_Spec_config
 # .. start-##_Run_agent_with_stream_listener
-from wayflowcore.events.eventlistener import register_event_listeners
-
 with register_event_listeners([ToolStreamingListener()]):
     conv = assistant.start_conversation()
     conv.append_user_message("tell a story")
@@ -84,6 +121,8 @@ mcp_tool = MCPTool(
     name="my_streaming_tool",
     client_transport=mcp_client,
 )
+# If the server-side MCP tool returns artifacts, also pass:
+# output_type=ToolOutputType.CONTENT_AND_ARTIFACT
 
 # Option A: Use the tool in an Agent
 assistant = Agent(llm=llm, tools=[mcp_tool])

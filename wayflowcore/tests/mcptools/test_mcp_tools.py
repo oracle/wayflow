@@ -8,7 +8,7 @@ import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Generator, List, Tuple, cast
+from typing import Any, AsyncGenerator, Generator, List, Tuple, cast
 from unittest.mock import patch
 
 import anyio
@@ -20,7 +20,11 @@ from wayflowcore import Agent, Flow
 from wayflowcore.auth import AuthChallengeResult
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.conversation import _register_conversation
-from wayflowcore.events.event import Event, ToolExecutionStreamingChunkReceivedEvent
+from wayflowcore.events.event import (
+    Event,
+    ToolExecutionResultEvent,
+    ToolExecutionStreamingChunkReceivedEvent,
+)
 from wayflowcore.events.eventlistener import EventListener, register_event_listeners
 from wayflowcore.executors._agentexecutor import AgentConversationExecutor
 from wayflowcore.executors.executionstatus import (
@@ -43,7 +47,7 @@ from wayflowcore.mcp import (
 )
 from wayflowcore.mcp._auth import headless_auth_flow_handler
 from wayflowcore.mcp._session_persistence import get_mcp_async_runtime
-from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
+from wayflowcore.mcp.mcphelpers import _normalize_mcp_tool_output_artifacts, mcp_streaming_tool
 from wayflowcore.property import (
     AnyProperty,
     BooleanProperty,
@@ -59,7 +63,7 @@ from wayflowcore.steps import MapStep, OutputMessageStep, ToolExecutionStep
 from wayflowcore.steps.flowexecutionstep import FlowExecutionStep
 from wayflowcore.swarm import Swarm
 from wayflowcore.tools import Tool
-from wayflowcore.tools.tools import ToolRequest
+from wayflowcore.tools.tools import ToolOutputType, ToolRequest
 
 from ..testhelpers.patching import patch_llm
 from ..testhelpers.testhelpers import retry_test
@@ -144,7 +148,7 @@ def streamablehttp_client_transport_mtls(
 def run_toolbox_test(transport: ClientTransport) -> None:
     toolbox = MCPToolBox(client_transport=transport)
     tools = toolbox.get_tools()  # need
-    assert len(tools) == 18
+    assert len(tools) == 19
     mcp_tool = next(t for t in tools if t.name == "fooza_tool")
     assert mcp_tool.run(a=1, b=2) == "7"
     assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
@@ -372,9 +376,7 @@ async def test_async_session_creation_does_not_block_event_loop(
 
 
 @pytest.mark.anyio
-async def test_async_mcp_tool_run_does_not_block_event_loop(
-    sse_client_transport, with_mcp_enabled
-):
+async def test_async_mcp_tool_run_does_not_block_event_loop(sse_client_transport, with_mcp_enabled):
     """MCPTool.run_async() also offloads session creation to a worker thread.
     Verify the event loop stays responsive during the call.
     """
@@ -422,8 +424,8 @@ async def test_mcp_toolboxes_from_different_servers_do_not_conflict_in_same_agen
     with _register_conversation(conversation):
         # We call this method to actively retrieve tools from the lazy toolboxes
         all_agent_tools = await AgentConversationExecutor._collect_tools(config=agent, curr_iter=0)
-    # 17 from toolbox 1, 2 from toolbox 2
-    assert len(all_agent_tools) == 18 + 2
+    # 19 from toolbox 1, 2 from toolbox 2
+    assert len(all_agent_tools) == 19 + 2
     # Ensure that one tool from the first toolbox and one from the second are in the list
     tool_names = set(tool.name for tool in all_agent_tools)
     assert all(tool_name in tool_names for tool_name in ["fooza_tool", "alt_mul_tool"])
@@ -1055,13 +1057,17 @@ class MCPToolStreamingListener(EventListener):
     """Custom event listener to track progress notifications from Tool Execution."""
 
     def __init__(self):
-        self.chunks: list[tuple[str, float]] = []
+        self.chunks: list[tuple[Any, float]] = []
         self.events: list[ToolExecutionStreamingChunkReceivedEvent] = []
+        self.result_events: list[ToolExecutionResultEvent] = []
 
     def __call__(self, event: Event):
         if isinstance(event, ToolExecutionStreamingChunkReceivedEvent):
             content = event.content
             self.chunks.append((content, time.time()))
+            self.events.append(event)
+        elif isinstance(event, ToolExecutionResultEvent):
+            self.result_events.append(event)
 
 
 @pytest.fixture
@@ -1091,6 +1097,16 @@ def streaming_mcp_tool_tuple(sse_client_transport, with_mcp_enabled) -> MCPTool:
     )
 
 
+@pytest.fixture
+def streaming_mcp_tool_with_artifacts(sse_client_transport, with_mcp_enabled) -> MCPTool:
+    return MCPTool(
+        name="streaming_tool_with_artifacts",
+        description="description",
+        client_transport=sse_client_transport,
+        output_type=ToolOutputType.CONTENT_AND_ARTIFACT,
+    )
+
+
 SENTENCE_TOOL_CHUNKS = [
     "This is the sentence N°0",
     "This is the sentence N°1",
@@ -1101,6 +1117,8 @@ SENTENCE_TOOL_CHUNKS = [
 SENTENCE_TOOL_RESULT = {ToolExecutionStep.TOOL_OUTPUT: ". ".join(SENTENCE_TOOL_CHUNKS)}
 TUPLE_TOOL_CHUNKS = [[i, chunk] for i, chunk in enumerate(SENTENCE_TOOL_CHUNKS)]
 TUPLE_TOOL_RESULT = {"int_output": 5, "str_output": ". ".join(SENTENCE_TOOL_CHUNKS)}
+STREAMING_ARTIFACT_RESULT = "This is the complete streamed artifact payload."
+STREAMING_CHUNK_ARTIFACT_NAMES = ["chunk_text.txt", "chunk_bytes.bin"]
 
 
 @pytest.mark.parametrize(
@@ -1171,6 +1189,147 @@ def test_agent_with_streaming_tool_emits_tool_chunks(
         "This is the sentence N°3",
         "This is the sentence N°4",
     ]
+
+
+def test_streaming_mcp_tool_with_artifacts_streams_and_returns_artifacts(
+    streaming_mcp_tool_with_artifacts: MCPTool,
+) -> None:
+    listener = MCPToolStreamingListener()
+    step = ToolExecutionStep(tool=streaming_mcp_tool_with_artifacts)
+
+    with register_event_listeners([listener]):
+        outputs = run_step_and_return_outputs(step, inputs={})
+
+    assert streaming_mcp_tool_with_artifacts.output_type == ToolOutputType.CONTENT_AND_ARTIFACT
+    assert outputs == SENTENCE_TOOL_RESULT
+    assert [c for (c, _) in listener.chunks] == SENTENCE_TOOL_CHUNKS
+    assert all(
+        [artifact.name for artifact in event.artifacts] == STREAMING_CHUNK_ARTIFACT_NAMES
+        for event in listener.events
+    )
+    assert all(event.artifacts[0].data == f"{event.content} artifact" for event in listener.events)
+    assert all(event.artifacts[1].data == b"\x00\x01" for event in listener.events)
+    assert len(listener.result_events) == 1
+    assert listener.result_events[0].tool_result.content == ". ".join(SENTENCE_TOOL_CHUNKS)
+    assert len(listener.result_events[0].tool_result.artifacts) == 1
+    assert listener.result_events[0].tool_result.artifacts[0].name == "full_artifact.txt"
+    assert listener.result_events[0].tool_result.artifacts[0].data == STREAMING_ARTIFACT_RESULT
+
+
+def test_mcp_streaming_artifacts_reject_named_mapping_shape() -> None:
+    with pytest.raises(TypeError, match="MCP artifacts should be returned as"):
+        _normalize_mcp_tool_output_artifacts(
+            {
+                "chunk_text.txt": {
+                    "name": "chunk_text.txt",
+                    "data": "payload",
+                }
+            }
+        )
+
+
+def test_mcp_streaming_tool_with_artifacts_uses_base_mcp_call_tool_result_for_official_sdk() -> (
+    None
+):
+    from mcp import types as mcp_types
+    from mcp.server.fastmcp import Context as OfficialContext
+    from mcp.server.fastmcp import FastMCP as OfficialFastMCP
+
+    server = OfficialFastMCP(name="Example MCP Server")
+
+    async def official_artifact_tool() -> AsyncGenerator[tuple[str, dict[str, str]], None]:
+        yield "final payload", {"name": "full.txt", "data": "payload"}
+
+    server.tool(description="Streaming tool with artifacts")(
+        mcp_streaming_tool(
+            official_artifact_tool,
+            context_cls=OfficialContext,
+            output_type=ToolOutputType.CONTENT_AND_ARTIFACT,
+        )
+    )
+
+    result = anyio.run(server.call_tool, "official_artifact_tool", {})
+
+    assert isinstance(result, mcp_types.CallToolResult)
+    assert result.structuredContent == {
+        "result": "final payload",
+        "__wayflowcore_tool_artifacts__": {
+            "content": "final payload",
+            "artifacts": [
+                {
+                    "name": "full.txt",
+                    "mime_type": "text/plain",
+                    "data": "payload",
+                    "data_encoding": "text",
+                }
+            ],
+        },
+    }
+
+
+def test_agent_with_streaming_artifact_mcp_tool_keeps_artifacts_in_tool_result_message(
+    streaming_mcp_tool_with_artifacts: MCPTool,
+    big_llama,
+) -> None:
+    llm = big_llama
+    agent = Agent(
+        llm=llm,
+        name="agent",
+        description="agent",
+        tools=[streaming_mcp_tool_with_artifacts],
+    )
+
+    tool_request = ToolRequest("streaming_tool_with_artifacts", {}, "req_456")
+    with patch_llm(llm, outputs=[[tool_request], "done"]):
+        listener = MCPToolStreamingListener()
+        with register_event_listeners([listener]):
+            conv = agent.start_conversation()
+            conv.append_user_message("go")
+            _ = conv.execute()
+
+    tool_result_message = next(
+        message
+        for message in conv.get_messages()
+        if message.tool_result is not None
+        and message.tool_result.tool_request_id == tool_request.tool_request_id
+    )
+    assert tool_result_message.tool_result is not None
+    assert tool_result_message.tool_result.content == ". ".join(SENTENCE_TOOL_CHUNKS)
+    assert len(tool_result_message.tool_result.artifacts) == 1
+    assert tool_result_message.tool_result.artifacts[0].name == "full_artifact.txt"
+    assert tool_result_message.tool_result.artifacts[0].data == STREAMING_ARTIFACT_RESULT
+    assert [c for (c, _) in listener.chunks] == SENTENCE_TOOL_CHUNKS
+    assert all(
+        [artifact.name for artifact in event.artifacts] == STREAMING_CHUNK_ARTIFACT_NAMES
+        for event in listener.events
+    )
+
+
+def test_mcp_tool_defaults_to_content_only_when_remote_tool_exposes_artifacts(
+    sse_client_transport,
+    with_mcp_enabled,
+    caplog,
+) -> None:
+    with caplog.at_level(logging.WARNING):
+        mcp_tool = MCPTool(
+            name="streaming_tool_with_artifacts",
+            description="description",
+            client_transport=sse_client_transport,
+        )
+
+    assert mcp_tool.output_type == ToolOutputType.CONTENT_ONLY
+    assert "defaults to output_type=content_only" in caplog.text
+
+    listener = MCPToolStreamingListener()
+    step = ToolExecutionStep(tool=mcp_tool)
+    with register_event_listeners([listener]):
+        outputs = run_step_and_return_outputs(step, inputs={})
+
+    assert outputs == SENTENCE_TOOL_RESULT
+    assert [c for (c, _) in listener.chunks] == SENTENCE_TOOL_CHUNKS
+    assert all(event.artifacts == () for event in listener.events)
+    assert len(listener.result_events) == 1
+    assert listener.result_events[0].tool_result.artifacts == ()
 
 
 def create_sync_function():

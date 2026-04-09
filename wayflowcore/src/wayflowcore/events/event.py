@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import base64
 import time
 import uuid
 from abc import ABC
@@ -19,7 +20,7 @@ from wayflowcore.serialization.serializer import (
     serialize_to_dict,
 )
 from wayflowcore.steps.step import Step, StepResult
-from wayflowcore.tools.tools import Tool, ToolRequest, ToolResult
+from wayflowcore.tools.tools import Tool, ToolOutputArtifact, ToolRequest, ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore.contextproviders import ContextProvider
@@ -42,6 +43,8 @@ if TYPE_CHECKING:
     )
 
 _PII_TEXT_MASK = "** MASKED **"
+_TOOL_ARTIFACT_TEXT_ENCODING = "text"
+_TOOL_ARTIFACT_BASE64_ENCODING = "base64"
 SpanType = TypeVar("SpanType", bound="Span")
 
 
@@ -72,6 +75,35 @@ def _convert_dict_to_dict_with_stringified_values(
     dict_to_stringify: Optional[Dict[str, Any]],
 ) -> Dict[str, str]:
     return {key: stringify(value) for key, value in (dict_to_stringify or {}).items()}
+
+
+def _serialize_tool_output_artifacts(
+    artifacts: tuple[ToolOutputArtifact, ...],
+    mask_sensitive_information: bool,
+) -> Union[str, List[Dict[str, Any]]]:
+    if mask_sensitive_information:
+        return _PII_TEXT_MASK
+
+    serialized_artifacts: list[dict[str, Any]] = []
+    for artifact in artifacts:
+        data_encoding = _TOOL_ARTIFACT_TEXT_ENCODING
+        artifact_data: str
+        if isinstance(artifact.data, bytes):
+            artifact_data = base64.b64encode(artifact.data).decode("ascii")
+            data_encoding = _TOOL_ARTIFACT_BASE64_ENCODING
+        else:
+            artifact_data = artifact.data
+
+        serialized_artifacts.append(
+            {
+                "name": artifact.name,
+                "mime_type": artifact.mime_type,
+                "data": artifact_data,
+                "data_encoding": data_encoding,
+            }
+        )
+
+    return serialized_artifacts
 
 
 def _flow_conversation_execution_state_to_tracing_info(
@@ -484,6 +516,10 @@ class ToolExecutionResultEvent(EndSpanEvent["ToolExecutionSpan"]):
                 else _PII_TEXT_MASK
             ),
             "tool_result.tool_request_id": self.tool_result.tool_request_id,
+            "artifacts": _serialize_tool_output_artifacts(
+                self.tool_result.artifacts,
+                mask_sensitive_information=mask_sensitive_information,
+            ),
         }
 
 
@@ -501,6 +537,8 @@ class ToolExecutionStreamingChunkReceivedEvent(EndSpanEvent["ToolExecutionSpan"]
     """ToolRequest object containing the id of the tool request made as well as the tool call's inputs"""
     content: Any = field(default_factory=_required_attribute("content", Any))
     """The content of the chunk received from the tool execution"""
+    artifacts: tuple[ToolOutputArtifact, ...] = field(default_factory=tuple)
+    """Runtime-only artifacts emitted together with this streamed chunk."""
 
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
@@ -513,6 +551,10 @@ class ToolExecutionStreamingChunkReceivedEvent(EndSpanEvent["ToolExecutionSpan"]
             "tool_request.tool_request_id": self.tool_request.tool_request_id,
             "content": (
                 stringify(self.content) if not mask_sensitive_information else _PII_TEXT_MASK
+            ),
+            "artifacts": _serialize_tool_output_artifacts(
+                self.artifacts,
+                mask_sensitive_information=mask_sensitive_information,
             ),
         }
 

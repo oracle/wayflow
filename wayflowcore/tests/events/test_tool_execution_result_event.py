@@ -3,6 +3,7 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+import json
 from typing import Any, Dict, List
 
 import pytest
@@ -19,7 +20,7 @@ from wayflowcore.flowhelpers import (
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.steps.toolexecutionstep import ToolExecutionStep
 from wayflowcore.tools import DescribedFlow
-from wayflowcore.tools.tools import ToolRequest, ToolResult
+from wayflowcore.tools.tools import ToolOutputArtifact, ToolRequest, ToolResult
 
 from ..testhelpers.dummy import DummyModel
 from .conftest import GET_LOCATION_CLIENT_TOOL, create_dummy_llm_with_next_output
@@ -52,6 +53,14 @@ def test_event_creation_with_missing_arguments_fails(missing_attribute: str) -> 
             "tool_result": ToolResult(
                 content="example tool call output",
                 tool_request_id="abc123",
+                artifacts=(
+                    ToolOutputArtifact(name="artifact.txt", mime_type="text/plain", data="payload"),
+                    ToolOutputArtifact(
+                        name="artifact.bin",
+                        mime_type="application/octet-stream",
+                        data=b"\x00\x01",
+                    ),
+                ),
             ),
         },
     ],
@@ -70,10 +79,46 @@ def test_correct_event_serialization_to_tracing_format(
             )
             if mask_sensitive_information:
                 assert _PII_TEXT_MASK == serialized_event["tool_result.output"]
+                assert _PII_TEXT_MASK == serialized_event["artifacts"]
             else:
                 assert event.tool_result.content == serialized_event["tool_result.output"]
+                assert serialized_event["artifacts"] == [
+                    {
+                        "name": "artifact.txt",
+                        "mime_type": "text/plain",
+                        "data": "payload",
+                        "data_encoding": "text",
+                    },
+                    {
+                        "name": "artifact.bin",
+                        "mime_type": "application/octet-stream",
+                        "data": "AAE=",
+                        "data_encoding": "base64",
+                    },
+                ]
         else:
             assert getattr(event, attribute_name) == serialized_event[attribute_name]
+
+
+def test_result_event_tracing_info_is_json_serializable_when_artifacts_include_bytes() -> None:
+    event = ToolExecutionResultEvent(
+        tool=GET_LOCATION_CLIENT_TOOL,
+        tool_result=ToolResult(
+            content="example tool call output",
+            tool_request_id="abc123",
+            artifacts=(
+                ToolOutputArtifact(
+                    name="artifact.bin",
+                    mime_type="application/octet-stream",
+                    data=b"\x00",
+                ),
+            ),
+        ),
+    )
+
+    serialized_event = event.to_tracing_info(mask_sensitive_information=False)
+
+    assert json.loads(json.dumps(serialized_event))["artifacts"][0]["data"] == "AA=="
 
 
 def test_event_is_not_triggered_after_client_tool_call_with_tool_execution_step():
