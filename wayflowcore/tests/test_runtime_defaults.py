@@ -4,12 +4,16 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+"""Regression tests for Gemini's import-time LiteLLM defaults and lazy loading."""
+
 import os
 import subprocess
 import sys
 
 
 def _run_python_and_get_cost_map_env(env: dict[str, str]) -> str:
+    # These defaults are applied at import time and mutate process-global state,
+    # so each assertion must run in a fresh interpreter.
     completed = subprocess.run(
         [
             sys.executable,
@@ -43,6 +47,8 @@ def test_wayflowcore_import_respects_explicit_litellm_cost_map_override() -> Non
 
 
 def test_wayflowcore_models_import_does_not_eagerly_import_litellm() -> None:
+    """GeminiModel is exported from wayflowcore.models, but that import should stay lazy."""
+
     env = os.environ.copy()
     completed = subprocess.run(
         [

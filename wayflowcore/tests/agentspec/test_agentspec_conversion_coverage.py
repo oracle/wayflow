@@ -342,6 +342,8 @@ with warnings.catch_warnings():
                 }
             )
         },
+        # Coverage tests instantiate each component with minimal required args;
+        # GeminiModel is the only LLM model here that now requires explicit auth.
         GeminiModel: {"auth": GeminiApiKeyAuth(api_key="")},
     }
 

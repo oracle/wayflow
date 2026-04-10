@@ -29,9 +29,9 @@ from .llmmodel import LlmCompletion, LlmModel, Prompt
 from .openaiapitype import OpenAIAPIType
 
 if TYPE_CHECKING:
-    # Important: do not move this import out of the TYPE_CHECKING block. The
-    # runtime path intentionally keeps litellm behind LazyLoader so that
-    # importing wayflowcore.models does not import litellm eagerly.
+    # Mirror the OCI model import pattern: GeminiModel is re-exported from
+    # wayflowcore.models, but importing that package should not eagerly import
+    # LiteLLM. Keep the runtime path behind LazyLoader.
     import litellm
 
     from wayflowcore.conversation import Conversation

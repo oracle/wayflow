@@ -29,6 +29,8 @@ New features
 * **Gemini models (Vertex AI + AI Studio):**
 
   Added ``GeminiModel``, powered by LiteLLM, to run Gemini models via Google Vertex AI and Google AI Studio.
+  For more information read the :doc:`API Reference on LLM models <api/llmmodels>` and the guide on
+  :doc:`how to use LLMs from different providers <howtoguides/llm_from_different_providers>`.
 
 
 Improvements

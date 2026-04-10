@@ -144,9 +144,10 @@ def run_async_in_sync(
                 UserWarning,
             )
 
-            # workaround: anyio does not have any API run asynchronous code in a
-            # synchronous method that was not started with anyio.to_thread
-            # instead, we spawn a thread to execute it in a completely new event loop
+            # Work around the fact that AnyIO has no API to run async code from a
+            # plain synchronous call site that was not started with anyio.to_thread.
+            # Scope the executor to this call so its worker thread is always joined
+            # before returning, which avoids leaking executor resources in tests.
             def thread_target() -> T:
                 return anyio.run(async_function, *args)
 
