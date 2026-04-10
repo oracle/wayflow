@@ -737,6 +737,7 @@ class FlowConversationExecutor(ConversationExecutor):
         logger.debug("Interrupts received: %s", execution_interrupts)
         flow_state = conversation.state
         last_complete_step_name_executed = None
+        last_step_name_executed = None
 
         try:
 
@@ -756,6 +757,7 @@ class FlowConversationExecutor(ConversationExecutor):
                     )
 
                 current_step = flow_state.flow.steps[flow_state.current_step_name]
+                last_step_name_executed = flow_state.current_step_name
                 if isinstance(current_step, CompleteStep):
                     last_complete_step_name_executed = flow_state.current_step_name
 
@@ -918,6 +920,7 @@ class FlowConversationExecutor(ConversationExecutor):
         return FinishedStatus(
             output_values=outputs,
             complete_step_name=last_complete_step_name_executed,
+            _final_step_name=last_step_name_executed,
             _conversation_id=conversation.id,
         )
 

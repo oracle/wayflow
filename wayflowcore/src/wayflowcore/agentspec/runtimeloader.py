@@ -20,6 +20,7 @@ from pyagentspec.serialization.componentpolicy import (
 from pyagentspec.serialization.types import ComponentsRegistryT as AgentSpecComponentsRegistryT
 from typing_extensions import TypeAlias
 
+from wayflowcore.agentspec._legacy import _resolve_legacy_configurations
 from wayflowcore.agentspec.components.mcp import PluginStdioTransport
 from wayflowcore.component import Component as RuntimeComponent
 from wayflowcore.serialization.plugins import WayflowDeserializationPlugin
@@ -280,6 +281,7 @@ class AgentSpecLoader:
         ... )
 
         """
+        serialized_assistant = _resolve_legacy_configurations(serialized_assistant)
         deserializer = AgentSpecDeserializer(
             plugins=self._get_all_agentspec_plugins(),
             allowed_components=self.allowed_components,
@@ -459,6 +461,7 @@ class AgentSpecLoader:
         ... )
 
         """
+        serialized_assistant = _resolve_legacy_configurations(serialized_assistant)
         deserializer = AgentSpecDeserializer(
             plugins=self._get_all_agentspec_plugins(),
             allowed_components=self.allowed_components,

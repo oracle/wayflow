@@ -198,6 +198,15 @@ def _resolve_legacy_field_name(cls: type, field_name: str) -> str:
     return field_name
 
 
+def _resolve_legacy_configurations(serialized_config: str) -> str:
+    """
+    Normalize legacy WayFlow component names before native deserialization.
+    """
+    return serialized_config.replace(
+        "_ToolRequestAndCallsTransform", "ToolRequestAndCallsTransform"
+    )
+
+
 class SerializableDataclassMixin:
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
         return {
@@ -681,6 +690,7 @@ def deserialize(
             UserWarning,
         )
 
+    obj = _resolve_legacy_configurations(obj)
     obj_as_dict: Dict[str, Any] = yaml.safe_load(obj)
 
     component_type: str = obj_as_dict["_component_type"]
@@ -733,6 +743,7 @@ def autodeserialize(
             UserWarning,
         )
 
+    obj = _resolve_legacy_configurations(obj)
     obj_as_dict: Dict[str, Any] = yaml.safe_load(obj)
     return autodeserialize_from_dict(obj_as_dict, deserialization_context)
 

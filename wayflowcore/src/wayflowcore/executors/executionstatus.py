@@ -45,8 +45,10 @@ class FinishedStatus(ExecutionStatus):
     output_values: Dict[str, Any]
     """The outputs produced by the agent or flow returning this execution status."""
     complete_step_name: Optional[str] = None
-    """The name of the last step reached if the flow returning this execution status transitioned \
+    """The name of the last step reached if the flow returning this execution status transitioned
     to a ``CompleteStep``, otherwise ``None``."""
+    _final_step_name: Optional[str] = None
+    """The name of the last executed step, including flows that end via a transition to ``None``."""
 
     @property
     def _requires_yielding(self) -> bool:
@@ -56,6 +58,7 @@ class FinishedStatus(ExecutionStatus):
         return {
             "output_values": self.output_values,
             "complete_step_name": self.complete_step_name,
+            "_final_step_name": self._final_step_name,
             "_conversation_id": self._conversation_id,
             "id": self.id,
         }
@@ -67,6 +70,7 @@ class FinishedStatus(ExecutionStatus):
         return FinishedStatus(
             output_values=input_dict["output_values"],
             complete_step_name=input_dict["complete_step_name"],
+            _final_step_name=input_dict.get("_final_step_name"),
             _conversation_id=input_dict.get("_conversation_id", None),
             id=input_dict.get("id") or IdGenerator.get_or_generate_id(),
         )

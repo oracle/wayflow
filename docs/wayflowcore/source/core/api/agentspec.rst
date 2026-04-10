@@ -40,6 +40,8 @@ This event listener makes WayFlow components emit traces according to the Agent 
 .. _agentspeceventlistener:
 .. autoclass:: wayflowcore.agentspec.tracing.AgentSpecEventListener
 
+.. autofunction:: wayflowcore.agentspec.tracing.dump_tracing_model
+
 
 Custom Components
 =================
@@ -218,6 +220,10 @@ Messages
 
 .. _agentspecreactmergetoolrequestsandcallstransform:
 .. autoclass:: wayflowcore.agentspec.components.transforms.PluginReactMergeToolRequestAndCallsTransform
+    :exclude-members: model_post_init, model_config
+
+.. _agentspecplugintoolrequestandcallstransform:
+.. autoclass:: wayflowcore.agentspec.components.transforms.PluginToolRequestAndCallsTransform
     :exclude-members: model_post_init, model_config
 
 .. _agentspeccanonicalizationmessagetransform:
