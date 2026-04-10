@@ -152,6 +152,15 @@ Here's an example of how to use it in your code.
     :start-after: .. start-##_Enable_Agent_Spec_Tracing
     :end-before: .. end-##_Enable_Agent_Spec_Tracing
 
+If you implement a custom Agent Spec span processor or exporter and need to serialize Agent Spec
+tracing events/spans emitted by WayFlow, use ``dump_tracing_model`` so WayFlow's Agent Spec plugin
+components are dumped with the correct serialization context.
+
+.. literalinclude:: ../code_examples/howto_tracing.py
+    :language: python
+    :start-after: .. start-##_Dump_Agent_Spec_Tracing
+    :end-before: .. end-##_Dump_Agent_Spec_Tracing
+
 
 Agent Spec Exporting/Loading
 ============================

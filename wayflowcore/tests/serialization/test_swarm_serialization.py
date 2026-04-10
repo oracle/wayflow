@@ -17,6 +17,8 @@ from wayflowcore.executors._swarmconversation import (
 )
 from wayflowcore.serialization import deserialize, serialize, serialize_to_dict
 from wayflowcore.swarm import Swarm
+from wayflowcore.templates._swarmtemplate import _DEFAULT_SWARM_CHAT_TEMPLATE
+from wayflowcore.templates.agenticpatterntemplate import ToolRequestAndCallsTransform
 
 from ..conftest import _assert_config_are_equal
 from ..test_swarm import example_medical_agents  # noqa
@@ -226,3 +228,13 @@ def test_can_continue_a_deserialized_swarm_conversation(simple_swarm: Swarm) -> 
     assert len(deser_conv.get_messages()) == conv_length_before_serialization
     deser_conv.append_user_message("Actually it's better now")
     deser_conv.execute()
+
+
+def test_legacy_swarm_transform_keeps_swarm_deserialization_behavior():
+    deserialized_template = deserialize(
+        type(_DEFAULT_SWARM_CHAT_TEMPLATE), serialize(_DEFAULT_SWARM_CHAT_TEMPLATE)
+    )
+
+    assert isinstance(
+        deserialized_template.post_rendering_transforms[0], ToolRequestAndCallsTransform
+    )

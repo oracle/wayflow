@@ -186,6 +186,7 @@ ALL_SERIALIZABLE_CLASSES = {
     "Tool",
     "ToolBox",
     "ToolContextProvider",
+    "ToolRequestAndCallsTransform",
     "ToolExecutionConfirmationStatus",
     "ToolExecutionStep",
     "ToolOutputParser",
@@ -208,15 +209,13 @@ ALL_SERIALIZABLE_CLASSES = {
     "_TokenConsumptionEvent",
     "VectorConfig",
     "VectorRetrieverConfig",
-    "_ToolRequestAndCallsTransform",
 }
 
 
 def test_componentregistry_is_complete(tmp_path):
     # We need to run this in a separate script to avoid that creating classes in tests poison the registry of components
     all_classes_str = "{" + ", ".join(f'"{c}"' for c in ALL_SERIALIZABLE_CLASSES) + "}"
-    script = dedent(
-        f"""
+    script = dedent(f"""
         from wayflowcore.serialization.serializer import SerializableObject, _import_all_submodules
 
         _import_all_submodules("wayflowcore")
@@ -237,8 +236,7 @@ def test_componentregistry_is_complete(tmp_path):
                 lines.append(f"  Extra ({{len(extra)}}):")
                 lines.extend(f"    + {{name}}" for name in extra)
             raise AssertionError("\\n".join(lines))
-        """
-    )
+        """)
     testfile = tmp_path / "_temp_test_componentregistry_is_complete.py"
     with open(testfile, "w") as f:
         f.write(script)
@@ -250,8 +248,7 @@ def test_componentregistry_is_complete(tmp_path):
 
 def test_all_components_are_builtin_components(tmp_path):
     # We need to run this in a separate script to avoid that creating classes in tests poison the registry of components
-    script = dedent(
-        """
+    script = dedent("""
         from wayflowcore.serialization._builtins_components import _BUILTIN_COMPONENTS
         from wayflowcore.serialization.serializer import SerializableObject, _import_all_submodules
 
@@ -259,8 +256,7 @@ def test_all_components_are_builtin_components(tmp_path):
 
         component_registry = SerializableObject._COMPONENT_REGISTRY
         assert set(_BUILTIN_COMPONENTS) == set(component_registry)
-        """
-    )
+        """)
     testfile = tmp_path / "_temp_test_all_components_are_builtin_components.py"
     with open(testfile, "w") as f:
         f.write(script)

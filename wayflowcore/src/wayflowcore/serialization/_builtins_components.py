@@ -199,5 +199,5 @@ _BUILTIN_COMPONENTS = {
     "_PythonMergeToolRequestAndCallsTransform",
     "_ReactMergeToolRequestAndCallsTransform",
     "_TokenConsumptionEvent",
-    "_ToolRequestAndCallsTransform",
+    "ToolRequestAndCallsTransform",
 }

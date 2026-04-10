@@ -102,6 +102,10 @@ class AgentSpecExporter:
             all_plugins_by_name[agentspec_plugin.plugin_name] = agentspec_plugin
         return list(all_plugins_by_name.values())
 
+    def get_agentspec_serialization_plugins(self) -> List[ComponentSerializationPlugin]:
+        """Return the Agent Spec serialization plugins required to dump converted components."""
+        return self._get_all_agentspec_plugins()
+
     @overload
     def to_json(
         self,
