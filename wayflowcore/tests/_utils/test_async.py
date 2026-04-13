@@ -9,7 +9,6 @@ import anyio
 import pytest
 from anyio import to_thread
 
-import wayflowcore._utils.async_helpers as async_helpers
 from wayflowcore._utils.async_helpers import (
     AsyncContext,
     async_to_sync_iterator,
@@ -22,25 +21,6 @@ from wayflowcore._utils.async_helpers import (
 
 
 def test_can_detect_non_async_context():
-    assert get_execution_context() == AsyncContext.SYNC
-
-
-def test_can_detect_non_async_context_when_anyio_leaks_async_backend_marker(monkeypatch):
-    """Treat stale AnyIO backend markers as sync when no event loop is running.
-
-    Newer AnyIO/sniffio combinations can leave the current async backend marker
-    set in thread-local state even after the loop is gone. In that situation
-    `current_async_library()` reports "asyncio", but `anyio.get_current_task()`
-    still raises "no running event loop". `get_execution_context()` should use
-    the latter signal and keep reporting a plain synchronous context.
-    """
-
-    def _raise_no_event_loop() -> None:
-        raise RuntimeError("no running event loop")
-
-    monkeypatch.setattr(async_helpers, "current_async_library", lambda: "asyncio")
-    monkeypatch.setattr(anyio, "get_current_task", _raise_no_event_loop)
-
     assert get_execution_context() == AsyncContext.SYNC
 
 

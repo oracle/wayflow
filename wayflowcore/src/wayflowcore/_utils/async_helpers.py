@@ -22,13 +22,12 @@ from typing import (
     List,
     Optional,
     TypeVar,
-    cast,
 )
 
 import anyio
 from anyio import from_thread
 from exceptiongroup import BaseExceptionGroup
-from sniffio import AsyncLibraryNotFoundError, current_async_library
+from sniffio import AsyncLibraryNotFoundError
 from typing_extensions import Self
 
 T = TypeVar("T")
@@ -44,8 +43,11 @@ class AsyncContext(Enum):
     SYNC_WORKER = "sync_worker"
 
 
-def _task_lookup_exc_types() -> tuple[type[BaseException], ...]:
+def _no_event_loop_exc_types() -> tuple[type[BaseException], ...]:
     exc_types: list[type[BaseException]] = []
+
+    # anyio < 4.12.0
+    exc_types.append(AsyncLibraryNotFoundError)
 
     # anyio == 4.12.0
     try:
@@ -63,32 +65,7 @@ def _task_lookup_exc_types() -> tuple[type[BaseException], ...]:
     return tuple(exc_types)
 
 
-_TASK_LOOKUP_EXCS = _task_lookup_exc_types()
-
-
-def _is_no_running_event_loop_error(exc: BaseException) -> bool:
-    return isinstance(exc, RuntimeError) and "no running event loop" in str(exc).lower()
-
-
-def _is_anyio_worker_thread() -> bool:
-    try:
-        # check_cancelled() is a lightweight public API that only succeeds
-        # inside AnyIO worker threads spawned through to_thread.run_sync().
-        from_thread.check_cancelled()
-    except RuntimeError:
-        return False
-    else:
-        return True
-
-
-def _get_sync_context_from_current_thread() -> AsyncContext:
-    if _is_anyio_worker_thread():
-        # for AnyIO workers, we can use specific methods to
-        # handle back asynchronous code to the main loop
-        return AsyncContext.SYNC_WORKER
-
-    # otherwise, consider it as a synchronous thread
-    return AsyncContext.SYNC
+_NO_EVENT_LOOP_EXCS = _no_event_loop_exc_types()
 
 
 def get_execution_context() -> AsyncContext:
@@ -99,25 +76,20 @@ def get_execution_context() -> AsyncContext:
     - 'async'        → running inside the event loop
     """
     try:
-        # sniffio keeps the selected async library in thread-local state. That
-        # marker can outlive the actual event loop during teardown, so we use it
-        # as a fast pre-check and still confirm with anyio.get_current_task().
-        current_async_library()
-    except AsyncLibraryNotFoundError:
-        return _get_sync_context_from_current_thread()
-
-    try:
         anyio.get_current_task()
-    except _TASK_LOOKUP_EXCS:
-        # sniffio can still report a backend marker after the underlying
-        # event loop has already gone away.
-        return _get_sync_context_from_current_thread()
-    except RuntimeError as exc:
-        if not _is_no_running_event_loop_error(exc):
-            raise
-        return _get_sync_context_from_current_thread()
-    else:
         return AsyncContext.ASYNC
+    except _NO_EVENT_LOOP_EXCS:
+        # 1. if no backend is installed
+        # 2. if no event loop is running
+        current_thread = from_thread.current_thread()  # type: ignore
+        worker_name = current_thread.name.lower()
+        if "worker" in worker_name and "anyio" in worker_name:
+            # for anyio workers, we can use specific methods to
+            # handle back asynchronous code to the main loop
+            return AsyncContext.SYNC_WORKER
+        else:
+            # otherwise, consider it as a synchronous thread
+            return AsyncContext.SYNC
 
 
 def run_async_in_sync(
@@ -144,16 +116,14 @@ def run_async_in_sync(
                 UserWarning,
             )
 
-            # Work around the fact that AnyIO has no API to run async code from a
-            # plain synchronous call site that was not started with anyio.to_thread.
-            # Scope the executor to this call so its worker thread is always joined
-            # before returning, which avoids leaking executor resources in tests.
+            # workaround: anyio does not have any API run asynchronous code in a
+            # synchronous method that was not started with anyio.to_thread
+            # instead, we spawn a thread to execute it in a completely new event loop
             def thread_target() -> T:
                 return anyio.run(async_function, *args)
 
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(thread_target)
-                return future.result()
+            future = ThreadPoolExecutor(max_workers=1).submit(thread_target)
+            return future.result()
         case unsupported_context:
             raise NotImplementedError(f"Unsupported async context: {unsupported_context}")
 
@@ -322,9 +292,9 @@ async def run_async_function_in_parallel(
     passed inputs, with a given max number of workers
     """
     max_workers_semaphore: AsyncContextManager[Any] = (
-        anyio.Semaphore(initial_value=max_workers)
+        anyio.Semaphore(initial_value=max_workers)  # type: ignore
         if max_workers is not None
-        else cast(AsyncContextManager[Any], contextlib.nullcontext())
+        else contextlib.nullcontext()
     )
 
     all_outputs: Dict[int, TResult] = {}
