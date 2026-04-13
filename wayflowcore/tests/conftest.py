@@ -19,9 +19,6 @@ import pytest
 from _pytest.fixtures import FixtureRequest
 from dotenv import load_dotenv
 
-# Prevent LiteLLM from fetching the remote model-cost map during test imports.
-os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
-
 from wayflowcore import Message, MessageType
 from wayflowcore._threading import shutdown_threadpool
 from wayflowcore.datastore import MTlsOracleDatabaseConnectionConfig
@@ -103,6 +100,17 @@ if not compartment_id:
     raise Exception("compartment_id is not set in the environment")
 
 oracle_http_proxy = os.environ.get("ORACLE_HTTP_PROXY")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def default_litellm_to_local_cost_map() -> Iterator[None]:
+    previous_value = os.environ.get("LITELLM_LOCAL_MODEL_COST_MAP")
+    os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+    yield
+    if previous_value is None:
+        os.environ.pop("LITELLM_LOCAL_MODEL_COST_MAP", None)
+    else:
+        os.environ["LITELLM_LOCAL_MODEL_COST_MAP"] = previous_value
 
 
 @pytest.fixture(scope="session")
