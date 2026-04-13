@@ -342,8 +342,11 @@ with warnings.catch_warnings():
                 }
             )
         },
-        # Coverage tests instantiate each component with minimal required args;
-        # GeminiModel is the only LLM model here that now requires explicit auth.
+        # Coverage tests instantiate each component from generic constructor defaults
+        # plus any per-class extras defined here. Other LLMs already get their
+        # required args from INIT_PARAMETER_DEFAULT_VALUES (for example model_id,
+        # base_url, api_key, client_config, host_port), but GeminiModel adds a
+        # required auth parameter that the generic defaults do not provide.
         GeminiModel: {"auth": GeminiApiKeyAuth(api_key="")},
     }
 
