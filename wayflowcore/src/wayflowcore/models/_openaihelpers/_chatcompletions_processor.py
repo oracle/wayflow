@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -66,7 +66,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 raise ValueError(
                     "Invalid tool request. A tool request message should only contain text contents"
                 )
-            converted_message = {
+            converted_message: Dict[str, Any] = {
                 "role": "assistant",
                 "tool_calls": [
                     {
@@ -84,6 +84,8 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
             }
             if m.content:
                 converted_message["content"] = m.content
+            if m._extra_content is not None:
+                converted_message["extra_content"] = m._extra_content
             return [converted_message]
         elif m.tool_result:
             if len(m.contents):
@@ -112,7 +114,13 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 else:
                     raise RuntimeError(f"Unsupported content type: {content.__class__.__name__}")
 
-            return [{"role": role, "content": all_contents if len(all_contents) else ""}]
+            assistant_message: Dict[str, Any] = {
+                "role": role,
+                "content": all_contents if len(all_contents) else "",
+            }
+            if role == "assistant" and m._extra_content is not None:
+                assistant_message["extra_content"] = m._extra_content
+            return [assistant_message]
 
     def _convert_prompt(self, prompt: "Prompt", supports_tool_role: bool) -> Dict[str, Any]:
         payload_arguments: Dict[str, Any] = {
@@ -169,6 +177,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                     for tc in extracted_message["tool_calls"]
                 ],
                 role="assistant",
+                _extra_content=extracted_message.get("extra_content"),
             )
         else:
             # content might be empty when certain models (like gemini) decide

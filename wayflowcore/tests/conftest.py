@@ -102,6 +102,14 @@ if not compartment_id:
 oracle_http_proxy = os.environ.get("ORACLE_HTTP_PROXY")
 
 
+@pytest.fixture(scope="session", autouse=True)
+def default_litellm_to_local_cost_map() -> Iterator[None]:
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        if "LITELLM_LOCAL_MODEL_COST_MAP" not in os.environ:
+            monkeypatch.setenv("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+        yield
+
+
 @pytest.fixture(scope="session")
 def session_tmp_path(tmp_path_factory):
     """Session-scoped temp path"""
@@ -883,8 +891,9 @@ def anyio_backend():
 def pytest_sessionfinish(session, exitstatus):
     threads = [t for t in threading.enumerate() if t is not threading.main_thread()]
     if threads:
-        text = "Non-main threads still running at end of tests\n" + "\n".join(
-            f"{t.name}: {t.daemon}, {t.is_alive()}" for t in threads
+        text = (
+            "[WayFlow test suite] conftest.py pytest_sessionfinish hook: detected non-main threads still running at end of tests\n"
+            + "\n".join(f"{t.name}: {t.daemon}, {t.is_alive()}" for t in threads)
         )
         raise ValueError(text)
 

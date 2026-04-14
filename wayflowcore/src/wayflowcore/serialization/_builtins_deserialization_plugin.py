@@ -55,8 +55,15 @@ from pyagentspec.flows.nodes.parallelflownode import ParallelFlowNode as AgentSp
 from pyagentspec.flows.nodes.parallelmapnode import ParallelMapNode as AgentSpecParallelMapNode
 from pyagentspec.flows.nodes.startnode import StartNode as AgentSpecStartNode
 from pyagentspec.flows.nodes.toolnode import ToolNode as AgentSpecToolNode
+from pyagentspec.llms import GeminiConfig as AgentSpecGeminiConfig
 from pyagentspec.llms import LlmConfig as AgentSpecLlmConfig
 from pyagentspec.llms import OciGenAiConfig as AgentSpecOciGenAiModel
+from pyagentspec.llms.geminiauthconfig import (
+    GeminiAIStudioAuthConfig as AgentSpecGeminiAIStudioAuthConfig,
+)
+from pyagentspec.llms.geminiauthconfig import (
+    GeminiVertexAIAuthConfig as AgentSpecGeminiVertexAIAuthConfig,
+)
 from pyagentspec.llms.llmgenerationconfig import LlmGenerationConfig as AgentSpecLlmGenerationConfig
 from pyagentspec.llms.ociclientconfig import OciClientConfig as AgentSpecOciClientConfig
 from pyagentspec.llms.ociclientconfig import (
@@ -350,6 +357,9 @@ from wayflowcore.messagelist import Message as RuntimeMessage
 from wayflowcore.messagelist import MessageContent as RuntimeMessageContent
 from wayflowcore.messagelist import MessageType
 from wayflowcore.messagelist import TextContent as RuntimeTextContent
+from wayflowcore.models import GeminiApiKeyAuth as RuntimeGeminiApiKeyAuth
+from wayflowcore.models import GeminiCloudAuth as RuntimeGeminiCloudAuth
+from wayflowcore.models import GeminiModel as RuntimeGeminiModel
 from wayflowcore.models import OCIGenAIModel as RuntimeOCIGenAIModel
 from wayflowcore.models import OllamaModel as RuntimeOllamaModel
 from wayflowcore.models import OpenAIModel as RuntimeOpenAIModel
@@ -2141,6 +2151,18 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
         parameters["extra_args"] = agentspec_generationconfig_dict
         return RuntimeLlmGenerationConfig(**parameters)
 
+    def _convert_gemini_auth_to_runtime(self, agentspec_auth: Any) -> Any:
+        """Convert an Agent Spec Gemini auth object into its WayFlow equivalent."""
+        if isinstance(agentspec_auth, AgentSpecGeminiAIStudioAuthConfig):
+            return RuntimeGeminiApiKeyAuth(api_key=agentspec_auth.api_key)
+        if isinstance(agentspec_auth, AgentSpecGeminiVertexAIAuthConfig):
+            return RuntimeGeminiCloudAuth(
+                project_id=agentspec_auth.project_id,
+                location=agentspec_auth.location,
+                vertex_credentials=agentspec_auth.credentials,
+            )
+        raise ValueError(f"Unsupported Gemini auth configuration: {type(agentspec_auth)}")
+
     def _convert_messagecontent_to_runtime(
         self, message_content: AgentSpecPluginMessageContent
     ) -> RuntimeMessageContent:
@@ -2418,6 +2440,13 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 key_file=agentspec_component.key_file,
                 cert_file=agentspec_component.cert_file,
                 ca_file=agentspec_component.ca_file,
+                **self._get_component_arguments(agentspec_component),
+            )
+        elif isinstance(agentspec_component, AgentSpecGeminiConfig):
+            return RuntimeGeminiModel(
+                model_id=agentspec_component.model_id,
+                generation_config=generation_config,
+                auth=self._convert_gemini_auth_to_runtime(agentspec_component.auth),
                 **self._get_component_arguments(agentspec_component),
             )
         else:

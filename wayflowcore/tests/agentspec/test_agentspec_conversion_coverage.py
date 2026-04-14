@@ -28,7 +28,7 @@ from wayflowcore.datastore._relational import RelationalDatastore
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.embeddingmodels import EmbeddingModel
 from wayflowcore.mcp import SSETransport
-from wayflowcore.models import LlmModel, VllmModel
+from wayflowcore.models import GeminiApiKeyAuth, GeminiModel, LlmModel, VllmModel
 from wayflowcore.models.ociclientconfig import OCIClientConfigWithApiKey
 from wayflowcore.outputparser import RegexPattern
 from wayflowcore.property import FloatProperty, IntegerProperty, ListProperty, StringProperty
@@ -342,6 +342,12 @@ with warnings.catch_warnings():
                 }
             )
         },
+        # Coverage tests instantiate each component from generic constructor defaults
+        # plus any per-class extras defined here. Other LLMs already get their
+        # required args from INIT_PARAMETER_DEFAULT_VALUES (for example model_id,
+        # base_url, api_key, client_config, host_port), but GeminiModel adds a
+        # required auth parameter that the generic defaults do not provide.
+        GeminiModel: {"auth": GeminiApiKeyAuth(api_key="")},
     }
 
 

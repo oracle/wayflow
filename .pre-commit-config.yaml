@@ -55,7 +55,7 @@ repos:
             verbose: true
         -   id: type-checking-hook
             name: Run type checking (mypy)
-            entry: bash -xc './.venv-wayflowcore/bin/mypy -- "$@"' --
+            entry: bash -xc 'mypy --config ./pyproject.toml -- "$@"' --
             language: system
             types_or: [python]
             # We exclude the fuzz tests from this check
