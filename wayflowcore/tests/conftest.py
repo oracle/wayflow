@@ -104,13 +104,10 @@ oracle_http_proxy = os.environ.get("ORACLE_HTTP_PROXY")
 
 @pytest.fixture(scope="session", autouse=True)
 def default_litellm_to_local_cost_map() -> Iterator[None]:
-    previous_value = os.environ.get("LITELLM_LOCAL_MODEL_COST_MAP")
-    os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
-    yield
-    if previous_value is None:
-        os.environ.pop("LITELLM_LOCAL_MODEL_COST_MAP", None)
-    else:
-        os.environ["LITELLM_LOCAL_MODEL_COST_MAP"] = previous_value
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        if "LITELLM_LOCAL_MODEL_COST_MAP" not in os.environ:
+            monkeypatch.setenv("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+        yield
 
 
 @pytest.fixture(scope="session")

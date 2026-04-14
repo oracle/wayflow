@@ -4,9 +4,9 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 """Shared LiteLLM test helpers for Gemini-related tests."""
+
 import configparser
 import gc
-import importlib
 import json
 import os
 import threading
@@ -189,10 +189,6 @@ VERTEX_ADC_PROJECT_ID = _get_vertex_project_id_from_adc()
 """Project id paired with the local ADC-backed Vertex tests, when discoverable."""
 
 
-def _get_litellm() -> Any:
-    return importlib.import_module("litellm")
-
-
 def _cleanup_litellm_threads(*, threads_before: set[int]) -> None:
     """Shutdown lingering LiteLLM/httpx thread-pool workers created during tests."""
     # LiteLLM/httpx can leave private ThreadPoolExecutor workers around after a
@@ -220,7 +216,8 @@ def _cleanup_litellm_threads(*, threads_before: set[int]) -> None:
 @pytest.fixture(scope="session")
 def litellm_thread_cleanup():
     """Disable LiteLLM background logging and cleanup spawned thread-pool workers."""
-    litellm = _get_litellm()
+    import litellm
+
     threads_before = {thread.ident for thread in threading.enumerate() if thread.ident is not None}
     litellm.disable_streaming_logging = True
     litellm.turn_off_message_logging = True
@@ -231,6 +228,7 @@ def litellm_thread_cleanup():
 @pytest.fixture(autouse=True, scope="session")
 def litellm_anyio_cleanup() -> None:
     """Keep LiteLLM logging disabled without bootstrapping an async session fixture."""
-    litellm = _get_litellm()
+    import litellm
+
     litellm.disable_streaming_logging = True
     litellm.turn_off_message_logging = True

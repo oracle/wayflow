@@ -53,11 +53,12 @@ class GeminiCloudAuth(BaseModel):
     vertex_credentials: str | Dict[str, Any] | None = None
 
 
-def _default_litellm_to_local_cost_map() -> None:
+def _get_litellm() -> Any:
     # LiteLLM can fetch the model-cost map during import. Default Gemini usage
     # to the bundled local map, while still allowing callers to opt into remote
     # refreshes by explicitly setting the env var to "False".
     os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+    return litellm
 
 
 def _litellm_object_to_dict(value: Any) -> Dict[str, Any]:
@@ -146,8 +147,9 @@ class GeminiModel(LlmModel):
             llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
         ) as span:
             logger.debug("LLM generating: %s", prompt)
-            _default_litellm_to_local_cost_map()
-            response = litellm.completion(**self._build_litellm_request(prompt, stream=False))
+            response = _get_litellm().completion(
+                **self._build_litellm_request(prompt, stream=False)
+            )
             completion = self._completion_from_response(prompt, response)
             logger.debug("LLM output: %s", completion.message)
             self._update_token_usage(
@@ -178,8 +180,7 @@ class GeminiModel(LlmModel):
             llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
         ) as span:
             logger.debug("LLM generating: %s", prompt)
-            _default_litellm_to_local_cost_map()
-            stream = litellm.completion(**self._build_litellm_request(prompt, stream=True))
+            stream = _get_litellm().completion(**self._build_litellm_request(prompt, stream=True))
 
             yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT)
 
@@ -218,15 +219,17 @@ class GeminiModel(LlmModel):
                     completion_stream.streaming_response.close()
 
     async def _generate_impl(self, prompt: Prompt) -> LlmCompletion:
-        _default_litellm_to_local_cost_map()
-        response = await litellm.acompletion(**self._build_litellm_request(prompt, stream=False))
+        response = await _get_litellm().acompletion(
+            **self._build_litellm_request(prompt, stream=False)
+        )
         return self._completion_from_response(prompt, response)
 
     async def _stream_generate_impl(
         self, prompt: Prompt
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
-        _default_litellm_to_local_cost_map()
-        stream = await litellm.acompletion(**self._build_litellm_request(prompt, stream=True))
+        stream = await _get_litellm().acompletion(
+            **self._build_litellm_request(prompt, stream=True)
+        )
 
         yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT), None
 
