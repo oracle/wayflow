@@ -9,7 +9,9 @@ import os
 from typing import Annotated, Any
 from unittest.mock import patch
 
+import httpx
 import pytest
+from openai import APIConnectionError, APIStatusError
 
 from tests.testhelpers import litellm_testhelpers
 from tests.testhelpers.testhelpers import retry_test
@@ -19,6 +21,7 @@ from wayflowcore.models.geminimodel import GeminiApiKeyAuth, GeminiCloudAuth, Ge
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import LlmCompletion, Prompt
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import serialize_to_dict
 from wayflowcore.tools import ToolResult, tool
 
@@ -78,6 +81,13 @@ def _capture_generate_request(
         llm.generate(prompt)
 
     return captured_request
+
+
+def _make_status_error(status_code: int, *, retry_after: str | None = None) -> APIStatusError:
+    request = httpx.Request("POST", "https://example.test")
+    headers = {"retry-after": retry_after} if retry_after is not None else {}
+    response = httpx.Response(status_code, request=request, headers=headers)
+    return APIStatusError("retryable status error", response=response, body={"error": "retry"})
 
 
 def _generate_with_required_tool_and_capture_provider_fields(
@@ -358,6 +368,98 @@ def test_geminimodel_streaming_rejects_multiple_choices() -> None:
     ):
         with pytest.raises(NotImplementedError, match="multiple completions"):
             list(llm.stream_generate(prompt))
+
+
+def test_geminimodel_sync_generate_retries_connection_errors(monkeypatch) -> None:
+    retry_policy = RetryPolicy(
+        max_attempts=2,
+        request_timeout=12.5,
+        initial_retry_delay=0.001,
+        max_retry_delay=0.001,
+    )
+    llm = GeminiModel(
+        model_id="gemini-2.5-flash",
+        auth=GeminiApiKeyAuth(api_key="test-key"),
+        retry_policy=retry_policy,
+    )
+    prompt = Prompt(messages=[Message(role="user", content="Hello")])
+    request = httpx.Request("POST", "https://example.test")
+    call_count = 0
+    timeouts: list[float] = []
+
+    def fake_completion(**kwargs: Any) -> Any:
+        nonlocal call_count
+        call_count += 1
+        timeouts.append(kwargs["timeout"])
+        if call_count < 3:
+            raise APIConnectionError(message="Connection error.", request=request)
+        return {
+            "choices": [{"message": {"role": "assistant", "content": "hello"}}],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+        }
+
+    monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.completion", fake_completion)
+
+    completion = llm.generate(prompt)
+
+    assert completion.message.content == "hello"
+    assert call_count == 3
+    assert timeouts == [retry_policy.request_timeout] * 3
+
+
+@pytest.mark.anyio
+async def test_geminimodel_async_stream_retries_status_errors(monkeypatch) -> None:
+    retry_policy = RetryPolicy(
+        max_attempts=1,
+        request_timeout=9.0,
+        initial_retry_delay=0.001,
+        max_retry_delay=0.001,
+    )
+    llm = GeminiModel(
+        model_id="gemini-2.5-flash",
+        auth=GeminiApiKeyAuth(api_key="test-key"),
+        retry_policy=retry_policy,
+    )
+    prompt = Prompt(messages=[Message(role="user", content="Hello")])
+    call_count = 0
+    timeouts: list[float] = []
+
+    class _AsyncStream:
+        completion_stream = None
+
+        def __init__(self) -> None:
+            self._chunks = iter(
+                [
+                    {"choices": [{"delta": {"role": "assistant", "content": "hello"}}]},
+                    {"usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2}},
+                ]
+            )
+
+        def __aiter__(self):
+            return self
+
+        async def __anext__(self):
+            try:
+                return next(self._chunks)
+            except StopIteration:
+                raise StopAsyncIteration
+
+    async def fake_acompletion(**kwargs: Any) -> Any:
+        nonlocal call_count
+        call_count += 1
+        timeouts.append(kwargs["timeout"])
+        if call_count == 1:
+            raise _make_status_error(429, retry_after="0")
+        return _AsyncStream()
+
+    monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.acompletion", fake_acompletion)
+
+    streamed_text, final_message = await _stream_and_collect_async(llm, prompt)
+
+    assert streamed_text == "hello"
+    assert final_message.content == "hello"
+    assert call_count == 2
+    assert timeouts == [retry_policy.request_timeout] * 2
 
 
 @pytest.mark.anyio

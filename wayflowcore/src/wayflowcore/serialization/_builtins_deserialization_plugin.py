@@ -2494,6 +2494,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 model_id=agentspec_component.model_id,
                 generation_config=generation_config,
                 auth=self._convert_gemini_auth_to_runtime(agentspec_component.auth),
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    agentspec_component.retry_policy
+                ),
                 **self._get_component_arguments(agentspec_component),
             )
         else:

@@ -22,11 +22,16 @@ from wayflowcore.messagelist import MessageType
 from wayflowcore.models import (
     LlmCompletion,
     OllamaModel,
+    OpenAIAPIType,
     OpenAICompatibleModel,
     Prompt,
     StreamChunkType,
     VllmModel,
 )
+from wayflowcore.models._openaihelpers._chatcompletions_processor import (
+    _ChatCompletionsAPIProcessor,
+)
+from wayflowcore.models._openaihelpers._responses_processor import _ResponsesAPIProcessor
 from wayflowcore.models.llmmodel import LlmGenerationConfig
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
@@ -45,6 +50,11 @@ from ..conftest import (
 )
 from ..testhelpers.testhelpers import retry_test
 from .test_models import REQUIRES_REASONING_PROMPT
+
+
+async def _yield_json_objects(*json_objects):
+    for json_object in json_objects:
+        yield json_object
 
 
 @pytest.fixture
@@ -349,6 +359,90 @@ def test_model_streaming_can_recover_from_recoverable_status(remotely_hosted_llm
         iterator = remotely_hosted_llm.stream_generate("hello")
         for x in iterator:
             pass
+
+
+@pytest.mark.anyio
+async def test_chat_completions_streaming_preserves_terminal_usage():
+    processor = _ChatCompletionsAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.CHAT_COMPLETIONS,
+    )
+
+    chunks = []
+    async for (
+        tagged_chunk
+    ) in processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
+        _yield_json_objects(
+            {"choices": [{"delta": {"content": "hi"}}]},
+            {
+                "choices": [],
+                "usage": {
+                    "prompt_tokens": 10,
+                    "completion_tokens": 2,
+                    "total_tokens": 12,
+                    "prompt_tokens_details": {"cached_tokens": 6},
+                },
+            },
+        )
+    ):
+        chunks.append(tagged_chunk)
+
+    assert chunks[-1][1] is not None
+    assert chunks[-1][1].content == "hi"
+    assert chunks[-1][2] is not None
+    assert chunks[-1][2].exact_count is True
+    assert chunks[-1][2].input_tokens == 10
+    assert chunks[-1][2].output_tokens == 2
+    assert chunks[-1][2].cached_tokens == 6
+    assert chunks[-1][2].total_tokens == 12
+
+
+@pytest.mark.anyio
+async def test_responses_streaming_preserves_terminal_usage():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+
+    chunks = []
+    async for (
+        tagged_chunk
+    ) in processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
+        _yield_json_objects(
+            {"type": "response.output_text.delta", "delta": "hi"},
+            {
+                "type": "response.completed",
+                "response": {
+                    "output": [
+                        {
+                            "type": "message",
+                            "content": [{"type": "output_text", "text": "hi"}],
+                        }
+                    ],
+                    "usage": {
+                        "input_tokens": 10,
+                        "output_tokens": 4,
+                        "total_tokens": 14,
+                        "input_tokens_details": {"cached_tokens": 6},
+                        "output_tokens_details": {"reasoning_tokens": 3},
+                    },
+                },
+            },
+        )
+    ):
+        chunks.append(tagged_chunk)
+
+    assert chunks[-1][1] is not None
+    assert chunks[-1][1].content == "hi"
+    assert chunks[-1][2] is not None
+    assert chunks[-1][2].exact_count is True
+    assert chunks[-1][2].input_tokens == 10
+    assert chunks[-1][2].output_tokens == 4
+    assert chunks[-1][2].cached_tokens == 6
+    assert chunks[-1][2].reasoning_tokens == 3
+    assert chunks[-1][2].total_tokens == 14
 
 
 def test_model_without_tool_support_raises_when_prompted_with_tools():

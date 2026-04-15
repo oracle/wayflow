@@ -1437,6 +1437,11 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 id=runtime_llm.id,
                 description=runtime_llm.description,
                 default_generation_parameters=generation_config,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_llm.retry_policy)
+                    if runtime_llm.retry_policy is not None
+                    else None
+                ),
             )
         elif isinstance(runtime_llm, RuntimeOpenAICompatibleModel):
             return AgentSpecOpenAiCompatibleConfig(
