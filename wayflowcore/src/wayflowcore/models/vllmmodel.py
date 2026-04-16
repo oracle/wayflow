@@ -7,6 +7,8 @@ import logging
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.retrypolicy import RetryPolicy
+from wayflowcore.serialization.serializer import serialize_to_dict
 
 from ._modelhelpers import _is_gemma_model, _is_llama_legacy_model
 from .llmgenerationconfig import LlmGenerationConfig
@@ -33,6 +35,7 @@ class VllmModel(OpenAICompatibleModel):
         supports_tool_calling: Optional[bool] = True,
         api_type: OpenAIAPIType = OpenAIAPIType.CHAT_COMPLETIONS,
         api_key: Optional[str] = EMPTY_API_KEY,
+        retry_policy: Optional[RetryPolicy] = None,
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
@@ -121,6 +124,7 @@ class VllmModel(OpenAICompatibleModel):
             supports_structured_generation=supports_structured_generation,
             supports_tool_calling=supports_tool_calling,
             api_type=api_type,
+            retry_policy=retry_policy,
             __metadata_info__=__metadata_info__,
             id=id,
             name=name,
@@ -134,6 +138,9 @@ class VllmModel(OpenAICompatibleModel):
             "model_type": "vllm",
             "model_id": self.model_id,
             "host_port": self.host_port,
+            "retry_policy": (
+                serialize_to_dict(self.retry_policy) if self.retry_policy is not None else None
+            ),
             "generation_config": (
                 self.generation_config.to_dict() if self.generation_config is not None else None
             ),

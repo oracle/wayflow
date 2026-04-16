@@ -14,6 +14,7 @@ from wayflowcore.component import DataclassComponent
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import Message, MessageList
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.tools import Tool
 
@@ -87,6 +88,8 @@ class A2AConnectionConfig(DataclassComponent):
     ssl_ca_cert:
         Path to the trusted CA certificate file in PEM format, used to verify the server's identity.
         If None, the system's certificate store is used. Defaults to None.
+    retry_policy:
+        Optional retry policy configuration applied to HTTP calls made to the remote A2A agent.
     """
 
     timeout: float = 600.0
@@ -95,12 +98,15 @@ class A2AConnectionConfig(DataclassComponent):
     key_file: Optional[str] = None
     cert_file: Optional[str] = None
     ssl_ca_cert: Optional[str] = None
+    retry_policy: Optional[RetryPolicy] = None
 
     def __post_init__(self) -> None:
         import os
 
         if self.timeout <= 0:
             raise ValueError(f"timeout must be positive, got {self.timeout}")
+        if self.retry_policy is not None and not isinstance(self.retry_policy, RetryPolicy):
+            raise TypeError("retry_policy must be a wayflowcore.retrypolicy.RetryPolicy instance")
         if self.verify:
             if self.key_file and not os.path.isfile(self.key_file):
                 raise ValueError(f"key_file path does not exist: {self.key_file}")
@@ -223,6 +229,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             key_file=connection_config.key_file,
             cert_file=connection_config.cert_file,
             ssl_ca_cert=connection_config.ssl_ca_cert,
+            retry_policy=connection_config.retry_policy,
         )
 
         # Initialize base class with provided or generated values

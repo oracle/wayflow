@@ -32,6 +32,7 @@ These how-to guides demonstrate how to use the main features to create and custo
 
    Install and Use Ollama <installing_ollama>
    Specify the Generation Configuration when Using LLMs <generation_config>
+   Configure Retries on LLMs and Remote Components <howto_retry_configuration>
    Use LLM from Different LLM Sources and Providers <llm_from_different_providers>
    Handle long context with agents <howto_long_context>
 

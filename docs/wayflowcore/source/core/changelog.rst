@@ -7,6 +7,13 @@ WayFlow |current_version|
 New features
 ^^^^^^^^^^^^
 
+* **Configurable retry policies for remote components**
+
+  Added the ``RetryPolicy`` object to configure retries, backoff,
+  and request timeouts for components doing remote calls.
+
+  For usage details, see :doc:`the new retry configuration guide <howtoguides/howto_retry_configuration>`.
+
 * **Custom TLS certificates for OpenAI-compatible models:**
 
   :ref:`OpenAICompatibleModel <openaicompatiblemodel>` and :ref:`OpenAICompatibleEmbeddingModel <openaicompatibleembeddingmodel>`

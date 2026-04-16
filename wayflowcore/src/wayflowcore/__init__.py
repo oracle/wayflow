@@ -10,6 +10,7 @@ from .agent import Agent
 from .conversation import Conversation
 from .flow import Flow
 from .messagelist import Message, MessageList, MessageType
+from .retrypolicy import RetryPolicy
 from .steps.step import Step
 from .swarm import Swarm
 from .tools import Tool, tool
@@ -21,6 +22,7 @@ __all__ = [
     "Message",
     "MessageList",
     "MessageType",
+    "RetryPolicy",
     "Step",
     "Swarm",
     "tool",

@@ -6,6 +6,9 @@
 from copy import deepcopy
 from typing import Any, Dict, Type
 
+from wayflowcore.retrypolicy import RetryPolicy
+from wayflowcore.serialization.serializer import deserialize_from_dict
+
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import LlmModel
 from .ocigenaimodel import ModelProvider, OciAPIType
@@ -39,6 +42,17 @@ class LlmModelFactory:
             config_copy["generation_config"] = LlmGenerationConfig.from_dict(
                 config_copy["generation_config"]
             )
+        if "retry_policy" in config_copy and config_copy["retry_policy"] is not None:
+            retry_policy = config_copy["retry_policy"]
+            if isinstance(retry_policy, dict):
+                config_copy["retry_policy"] = deserialize_from_dict(RetryPolicy, retry_policy)
+            elif isinstance(retry_policy, RetryPolicy):
+                config_copy["retry_policy"] = retry_policy
+            else:
+                raise TypeError(
+                    f"'retry_policy' should be either a dictionary or a RetryPolicy object. "
+                    f"Got type {type(retry_policy)} instead."
+                )
 
         if model_type == "ocigenai":
             if "client_config" in config_copy:

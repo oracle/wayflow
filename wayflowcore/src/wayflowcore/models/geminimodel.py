@@ -7,14 +7,29 @@
 import json
 import logging
 import os
-from typing import TYPE_CHECKING, Any, AsyncIterable, Dict, Iterable, List, Optional, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncIterable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Union,
+    cast,
+)
 
+import httpx
+from openai import APIConnectionError, APIStatusError, APITimeoutError
 from pydantic import BaseModel
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import AsyncContext, get_execution_context
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.messagelist import Message, MessageType
+from wayflowcore.retrypolicy import RetryPolicy
+from wayflowcore.serialization.serializer import serialize_to_dict
 from wayflowcore.tokenusage import TokenUsage
 
 from ._openaihelpers import _ChatCompletionsAPIProcessor
@@ -23,6 +38,12 @@ from ._requesthelpers import (
     StreamChunkType,
     TaggedMessageChunkType,
     TaggedMessageChunkTypeWithTokenUsage,
+    _get_retry_after_value_from_headers,
+    _is_retryable_http_error,
+    _is_tls_or_cert_error,
+    _stringify_response_error,
+    execute_async_with_retry,
+    execute_sync_with_retry,
 )
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import LlmCompletion, LlmModel, Prompt
@@ -94,6 +115,63 @@ def _rename_message_and_tool_call_field(
     return message_payload
 
 
+# LiteLLM/OpenAI errors may wrap the retryable transport or status exception
+# one or more levels deep, so walk the causal chain before classifying.
+def _iter_exception_chain(exc: BaseException) -> Iterator[BaseException]:
+    current: Optional[BaseException] = exc
+    seen: set[int] = set()
+    while current is not None and id(current) not in seen:
+        yield current
+        seen.add(id(current))
+        current = current.__cause__ or current.__context__
+
+
+def _classify_gemini_retry_exception(
+    exc: Exception, policy: RetryPolicy
+) -> Optional[tuple[Optional[int], Optional[str]]]:
+    for current in _iter_exception_chain(exc):
+        if isinstance(current, APIStatusError):
+            if current.status_code is None:
+                return None
+            error_message = _stringify_response_error(current.body)
+            if not _is_retryable_http_error(policy, current.status_code, error_message):
+                return None
+            retry_after = (
+                _get_retry_after_value_from_headers(current.response.headers)
+                if current.response is not None
+                else None
+            )
+            return current.status_code, retry_after
+
+        if isinstance(current, (APITimeoutError, APIConnectionError, httpx.TransportError)):
+            if _is_tls_or_cert_error(current):
+                return None
+            return None, None
+
+        status_code = getattr(current, "status_code", getattr(current, "status", None))
+        try:
+            normalized_status_code = int(status_code) if status_code is not None else None
+        except (TypeError, ValueError):
+            normalized_status_code = None
+
+        if normalized_status_code is None:
+            continue
+
+        error_message = _stringify_response_error(
+            getattr(current, "body", getattr(current, "message", str(current)))
+        )
+        if not _is_retryable_http_error(policy, normalized_status_code, error_message):
+            return None
+
+        headers = getattr(current, "headers", None)
+        response = getattr(current, "response", None)
+        if headers is None and response is not None:
+            headers = getattr(response, "headers", None)
+        return normalized_status_code, _get_retry_after_value_from_headers(headers)
+
+    return None
+
+
 class GeminiModel(LlmModel):
     """Run Gemini models through LiteLLM using Google AI Studio or Vertex AI auth."""
 
@@ -109,9 +187,11 @@ class GeminiModel(LlmModel):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        retry_policy: Optional[RetryPolicy] = None,
     ) -> None:
         self.auth = auth
         self.proxy = proxy
+        self.retry_policy = retry_policy
         self._processor = _ChatCompletionsAPIProcessor(
             model_id=model_id,
             base_url="",
@@ -147,9 +227,7 @@ class GeminiModel(LlmModel):
             llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
         ) as span:
             logger.debug("LLM generating: %s", prompt)
-            response = _get_litellm().completion(
-                **self._build_litellm_request(prompt, stream=False)
-            )
+            response = self._completion_with_retry(prompt, stream=False)
             completion = self._completion_from_response(prompt, response)
             logger.debug("LLM output: %s", completion.message)
             self._update_token_usage(
@@ -180,7 +258,7 @@ class GeminiModel(LlmModel):
             llm=self, prompt=prompt, name=f"LlmGeneration[{self._get_display_name()}]"
         ) as span:
             logger.debug("LLM generating: %s", prompt)
-            stream = _get_litellm().completion(**self._build_litellm_request(prompt, stream=True))
+            stream = self._completion_with_retry(prompt, stream=True)
 
             yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT)
 
@@ -219,17 +297,13 @@ class GeminiModel(LlmModel):
                     completion_stream.streaming_response.close()
 
     async def _generate_impl(self, prompt: Prompt) -> LlmCompletion:
-        response = await _get_litellm().acompletion(
-            **self._build_litellm_request(prompt, stream=False)
-        )
+        response = await self._acompletion_with_retry(prompt, stream=False)
         return self._completion_from_response(prompt, response)
 
     async def _stream_generate_impl(
         self, prompt: Prompt
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
-        stream = await _get_litellm().acompletion(
-            **self._build_litellm_request(prompt, stream=True)
-        )
+        stream = await self._acompletion_with_retry(prompt, stream=True)
 
         yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT), None
 
@@ -269,6 +343,9 @@ class GeminiModel(LlmModel):
             "model_type": "gemini",
             "model_id": self.model_id,
             "proxy": self.proxy,
+            "retry_policy": (
+                serialize_to_dict(self.retry_policy) if self.retry_policy is not None else None
+            ),
             "supports_structured_generation": self.supports_structured_generation,
             "supports_tool_calling": self.supports_tool_calling,
             "auth": self._serialize_auth_config(self.auth),
@@ -364,6 +441,8 @@ class GeminiModel(LlmModel):
             }
         if self.proxy is not None:
             request["proxy"] = self.proxy
+        if self.retry_policy is not None:
+            request["timeout"] = self.retry_policy.request_timeout
 
         if isinstance(self.auth, GeminiApiKeyAuth):
             api_key = self.auth.api_key or os.getenv("GEMINI_API_KEY")
@@ -379,6 +458,32 @@ class GeminiModel(LlmModel):
                 )
 
         return request
+
+    def _completion_with_retry(self, prompt: Prompt, *, stream: bool) -> Any:
+        request = self._build_litellm_request(prompt, stream=stream)
+        return execute_sync_with_retry(
+            lambda: _get_litellm().completion(**request),
+            retry_policy=self.retry_policy,
+            classify_exception=_classify_gemini_retry_exception,
+            retry_budget_exhausted_message=(
+                "Gemini streaming request retry budget exhausted"
+                if stream
+                else "Gemini request retry budget exhausted"
+            ),
+        )
+
+    async def _acompletion_with_retry(self, prompt: Prompt, *, stream: bool) -> Any:
+        request = self._build_litellm_request(prompt, stream=stream)
+        return await execute_async_with_retry(
+            lambda: _get_litellm().acompletion(**request),
+            retry_policy=self.retry_policy,
+            classify_exception=_classify_gemini_retry_exception,
+            retry_budget_exhausted_message=(
+                "Gemini streaming request retry budget exhausted"
+                if stream
+                else "Gemini request retry budget exhausted"
+            ),
+        )
 
     @staticmethod
     def _ingest_litellm_stream_chunk(stream_state: Dict[str, Any], chunk: Any) -> str:

@@ -5,10 +5,22 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import os
+from collections.abc import Callable
 from unittest.mock import MagicMock, patch
 
 import pytest
+from pyagentspec.llms.ociclientconfig import (
+    OciClientConfigWithApiKey as AgentSpecOciClientConfigWithApiKey,
+)
+from pyagentspec.llms.ocigenaiconfig import OciGenAiConfig as AgentSpecOciGenAiConfig
+from pyagentspec.llms.ollamaconfig import OllamaConfig as AgentSpecOllamaConfig
+from pyagentspec.llms.openaiconfig import OpenAiConfig as AgentSpecOpenAiConfig
+from pyagentspec.llms.vllmconfig import VllmConfig as AgentSpecVllmConfig
+from pyagentspec.retrypolicy import RetryPolicy
 
+from wayflowcore.agentspec._agentspecconverter import WayflowToAgentSpecConversionContext
+from wayflowcore.agentspec._runtimeconverter import AgentSpecToWayflowConversionContext
+from wayflowcore.embeddingmodels.openaicompatiblemodel import OpenAICompatibleEmbeddingModel
 from wayflowcore.models import OpenAICompatibleModel
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import LlmModel
@@ -20,6 +32,7 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ocigenaimodel import ModelProvider, OCIGenAIModel, ServingMode
 from wayflowcore.models.openaimodel import OpenAIModel
 from wayflowcore.models.vllmmodel import VllmModel
+from wayflowcore.retrypolicy import RetryPolicy as RuntimeRetryPolicy
 from wayflowcore.serialization import autodeserialize, deserialize, serialize, serialize_to_dict
 from wayflowcore.warnings import SecurityWarning
 
@@ -204,6 +217,83 @@ def test_oci_user_authentication_does_not_deserialize():
     )
     with pytest.raises(ValueError, match=error_string):
         llm = LlmModelFactory.from_config(ocigenai_model_config_using_user_auth)
+
+
+@pytest.mark.parametrize(
+    ("llm_factory", "expected_max_attempts"),
+    [
+        pytest.param(
+            lambda: AgentSpecOciGenAiConfig(
+                name="oci",
+                model_id="meta.llama-3.3-70b-instruct",
+                compartment_id="ocid1.compartment.oc1..exampleuniqueID",
+                client_config=AgentSpecOciClientConfigWithApiKey(
+                    name="oci_client",
+                    service_endpoint="https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
+                    auth_profile="DEFAULT",
+                    auth_file_location="~/.oci/config",
+                ),
+                retry_policy=RetryPolicy(max_attempts=3),
+            ),
+            3,
+            id="ocigenai",
+        ),
+        pytest.param(
+            lambda: AgentSpecOllamaConfig(
+                name="ollama",
+                model_id="llama3",
+                url="localhost:11434",
+                retry_policy=RetryPolicy(max_attempts=4),
+            ),
+            4,
+            id="ollama",
+        ),
+        pytest.param(
+            lambda: AgentSpecVllmConfig(
+                name="vllm",
+                model_id="meta-llama",
+                url="localhost:8000",
+                retry_policy=RetryPolicy(max_attempts=2),
+            ),
+            2,
+            id="vllm",
+        ),
+        pytest.param(
+            lambda: AgentSpecOpenAiConfig(
+                name="openai",
+                model_id="gpt-4o-mini",
+                api_key="dummy",
+                retry_policy=RetryPolicy(max_attempts=1),
+            ),
+            1,
+            id="openai",
+        ),
+    ],
+)
+def test_llm_retry_policy_round_trip_conversion(
+    llm_factory: Callable[[], object], expected_max_attempts: int
+) -> None:
+    rt_llm = AgentSpecToWayflowConversionContext().convert(
+        llm_factory(),
+        tool_registry={},
+        converted_components={},
+    )
+
+    round_tripped = WayflowToAgentSpecConversionContext().convert(rt_llm, referenced_objects={})
+    assert round_tripped.retry_policy is not None
+    assert round_tripped.retry_policy.max_attempts == expected_max_attempts
+
+
+def test_openai_compatible_embedding_retry_policy_round_trips() -> None:
+    model = OpenAICompatibleEmbeddingModel(
+        model_id="embed-model",
+        base_url="https://example.com",
+        retry_policy=RuntimeRetryPolicy(max_attempts=2),
+    )
+
+    deserialized_model = deserialize(OpenAICompatibleEmbeddingModel, serialize(model))
+    assert deserialized_model.retry_policy is not None
+    assert deserialized_model.retry_policy.max_attempts == 2
 
 
 @patch("wayflowcore.models.ocigenaimodel.OCIGenAIModel._init_client")

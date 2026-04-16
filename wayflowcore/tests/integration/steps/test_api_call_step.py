@@ -7,6 +7,7 @@
 import json
 import re
 import time
+import warnings
 from dataclasses import dataclass, field
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -762,3 +763,29 @@ def test_api_call_step_raises_deprecation_warning_json_body() -> None:
             params={"param": "{{ p1 }}"},
             headers={"header1": "{{ h1 }}"},
         )
+
+
+def test_api_call_step_omitting_legacy_retry_argument_does_not_warn() -> None:
+    with warnings.catch_warnings(record=True) as recorded_warnings:
+        warnings.simplefilter("always")
+        step = ApiCallStep(
+            url="https://example.com/endpoint",
+            method="GET",
+        )
+
+    assert step.num_retry_on_bad_http_request is None
+    assert len(recorded_warnings) == 0
+
+
+def test_api_call_step_explicit_legacy_retry_argument_warns() -> None:
+    with pytest.warns(
+        DeprecationWarning,
+        match="The `num_retry_on_bad_http_request` parameter is deprecated",
+    ):
+        step = ApiCallStep(
+            url="https://example.com/endpoint",
+            method="GET",
+            num_retry_on_bad_http_request=3,
+        )
+
+    assert step.num_retry_on_bad_http_request == 3

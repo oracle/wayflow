@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.property import Property
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 
 from .servertools import ServerTool
@@ -92,7 +93,13 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     ignore_bad_http_requests
         If ``True``, don't throw an exception when query results in a bad status code (e.g. 4xx, 5xx); if ``False`` throws an exception.
     num_retry_on_bad_http_request
-        Number of times to retry a failed http request before continuing (depending on the ``ignore_bad_http_requests`` setting above).
+        Deprecated in version 26.4.0 and will be removed in version 27.2.0.
+        Use ``retry_policy`` instead.
+        This legacy fixed-count retry loop only retries unsuccessful HTTP responses and does not apply backoff.
+    retry_policy
+        Provider-agnostic retry configuration for the remote request.
+        When set, this supersedes ``num_retry_on_bad_http_request`` and enables
+        timeout-aware retries with backoff for retryable transport and HTTP failures.
     allow_insecure_http:
         If ``True``, allows url to have a unsecured non-ssl http scheme. Default is ``False`` and throws a ValueError if url is unsecure.
     url_allow_list
@@ -200,7 +207,8 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     cookies: Optional[Dict[str, str]]
     output_jq_query: Optional[str]
     ignore_bad_http_requests: bool
-    num_retry_on_bad_http_request: int
+    num_retry_on_bad_http_request: Optional[int]
+    retry_policy: Optional[RetryPolicy]
     input_descriptors: List[Property]
     output_descriptors: List[Property]
     allow_insecure_http: bool
@@ -225,7 +233,8 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         cookies: Optional[Dict[str, str]] = None,
         output_jq_query: Optional[str] = None,
         ignore_bad_http_requests: bool = False,
-        num_retry_on_bad_http_request: int = 3,
+        num_retry_on_bad_http_request: Optional[int] = None,
+        retry_policy: Optional[RetryPolicy] = None,
         input_descriptors: Optional[List[Property]] = None,
         output_descriptors: Optional[List[Property]] = None,
         allow_insecure_http: bool = False,
@@ -261,6 +270,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
             cookies=cookies,
             ignore_bad_http_requests=ignore_bad_http_requests,
             num_retry_on_bad_http_request=num_retry_on_bad_http_request,
+            retry_policy=retry_policy,
             allow_insecure_http=allow_insecure_http,
             url_allow_list=url_allow_list,
             allow_credentials=allow_credentials,
@@ -300,6 +310,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         self.output_jq_query = output_jq_query
         self.ignore_bad_http_requests = ignore_bad_http_requests
         self.num_retry_on_bad_http_request = num_retry_on_bad_http_request
+        self.retry_policy = retry_policy
         self.allow_insecure_http = allow_insecure_http
         self.url_allow_list = url_allow_list
         self.allow_credentials = allow_credentials

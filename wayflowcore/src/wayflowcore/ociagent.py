@@ -14,6 +14,7 @@ from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import Message, MessageList
 from wayflowcore.models.ociclientconfig import OCIClientConfig
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.tools import Tool
 
@@ -44,6 +45,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
     agent_endpoint_id: str
     client_config: OCIClientConfig
     initial_message: str
+    retry_policy: Optional[RetryPolicy]
     name: str
     description: str
     id: str
@@ -54,6 +56,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         agent_endpoint_id: str,
         client_config: OCIClientConfig,
         initial_message: str = DEFAULT_INITIAL_MESSAGE,
+        retry_policy: Optional[RetryPolicy] = None,
         name: Optional[str] = None,
         description: str = "",
         agent_id: Optional[str] = None,
@@ -86,6 +89,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         self.agent_endpoint_id = agent_endpoint_id
         self.client_config = client_config
         self.initial_message = initial_message
+        self.retry_policy = retry_policy
 
         super().__init__(
             name=IdGenerator.get_or_generate_name(name, length=8, prefix="oci_agent_"),

@@ -5,13 +5,26 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
 import logging
+import time
 import uuid
 import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from enum import Enum
-from typing import TYPE_CHECKING, Any, AsyncIterable, Callable, Dict, Iterator, List, Optional, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncIterable,
+    Callable,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    cast,
+)
 
+from openai import APIConnectionError, APIStatusError, APITimeoutError
 from pydantic import BaseModel
 
 from wayflowcore._metadata import MetadataType
@@ -21,6 +34,8 @@ from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import ImageContent, TextContent
 from wayflowcore.models.openaiapitype import OpenAIAPIType
+from wayflowcore.retrypolicy import RetryPolicy
+from wayflowcore.serialization.serializer import serialize_to_dict
 from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
 from wayflowcore.transforms import CanonicalizationMessageTransform
@@ -28,7 +43,19 @@ from wayflowcore.transforms import CanonicalizationMessageTransform
 from ._modelhelpers import _is_gemma_model, _is_llama_legacy_model
 from ._openaihelpers import _ChatCompletionsAPIProcessor, _ResponsesAPIProcessor
 from ._openaihelpers._utils import _safe_json_loads
-from ._requesthelpers import StreamChunkType, TaggedMessageChunkTypeWithTokenUsage
+from ._requesthelpers import (
+    _DEFAULT_RNG,
+    StreamChunkType,
+    TaggedMessageChunkTypeWithTokenUsage,
+    _classify_oci_service_error_for_retry,
+    _compute_wait_before_next_attempt,
+    _get_retry_after_value_from_headers,
+    _is_retryable_http_error,
+    _is_tls_or_cert_error,
+    _stringify_response_error,
+    execute_async_with_retry,
+    execute_sync_with_retry,
+)
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import LlmCompletion, LlmModel, Prompt
 from .ociclientconfig import (
@@ -66,6 +93,40 @@ def _detect_serving_mode_from_model_id(model_id: str) -> ServingMode:
     if "generativeaimodel" in model_id:
         return ServingMode.DEDICATED
     return ServingMode.ON_DEMAND
+
+
+def _classify_openai_retry_exception(
+    exc: Exception, policy: RetryPolicy
+) -> Optional[Tuple[Optional[int], Optional[str]]]:
+    """Classify OpenAI-compatible client exceptions into retry metadata."""
+    if isinstance(exc, APIStatusError):
+        if exc.status_code is None:
+            return None
+        error_message = _stringify_response_error(exc.body)
+        if not _is_retryable_http_error(policy, exc.status_code, error_message):
+            return None
+        retry_after = (
+            _get_retry_after_value_from_headers(exc.response.headers)
+            if exc.response is not None
+            else None
+        )
+        return exc.status_code, retry_after
+
+    if isinstance(exc, (APITimeoutError, APIConnectionError)):
+        if _is_tls_or_cert_error(exc):
+            return None
+        return None, None
+
+    return None
+
+
+def _classify_oci_retry_exception(
+    exc: Exception, policy: RetryPolicy
+) -> Optional[Tuple[Optional[int], Optional[str]]]:
+    """Classify OCI SDK exceptions into retry metadata."""
+    if isinstance(exc, oci.exceptions.ServiceError):
+        return _classify_oci_service_error_for_retry(exc, policy)
+    return None
 
 
 class ModelProvider(str, Enum):
@@ -112,9 +173,6 @@ class OciAPIType(str, Enum):
     """Use the original oci SDK endpoint"""
 
 
-_DEFAULT_MAX_RETRIES = 2
-
-
 class OCIGenAIModel(LlmModel):
     def __init__(
         self,
@@ -129,6 +187,7 @@ class OCIGenAIModel(LlmModel):
         name: Optional[str] = None,
         description: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
+        retry_policy: Optional[RetryPolicy] = None,
         # deprecated
         service_endpoint: Optional[str] = None,
         auth_type: Optional[str] = None,
@@ -200,6 +259,8 @@ class OCIGenAIModel(LlmModel):
         If when using ``INSTANCE_PRINCIPAL`` authentication, the response of the model returns a ``404`` error, please check if the machine is listed in the dynamic group and has the right privileges. Otherwise, please ask someone with administrative privileges.
         To grant an OCI Compute instance the ability to authenticate as an Instance Principal, one needs to define a Dynamic Group that includes the instance and create a policy that allows this dynamic group to manage OCI GenAI services.
         """
+        self.retry_policy = retry_policy
+
         if client_config is None:
             warnings.warn(
                 "Passing authentication config parameters individually (e.g. service_endpoint, "
@@ -252,8 +313,6 @@ class OCIGenAIModel(LlmModel):
         self.api_type = api_type
         self.conversation_store_id = conversation_store_id
 
-        self.max_retries = _DEFAULT_MAX_RETRIES
-
         if (
             provider == ModelProvider.COHERE
             and generation_config is not None
@@ -292,7 +351,12 @@ class OCIGenAIModel(LlmModel):
 
         elif self.api_type == OciAPIType.OCI:
             self._client = oci.generative_ai_inference.GenerativeAiInferenceClient(
-                **_client_config_to_oci_client_kwargs(self.client_config)
+                **_client_config_to_oci_client_kwargs(
+                    self.client_config,
+                    request_timeout=(
+                        self.retry_policy.request_timeout if self.retry_policy else None
+                    ),
+                )
             )
 
             if self.serving_mode == ServingMode.ON_DEMAND:
@@ -332,12 +396,23 @@ class OCIGenAIModel(LlmModel):
     def _create_openai_client(self) -> Any:
         from oci_openai import AsyncOciOpenAI  # type: ignore
 
+        request_timeout = self.retry_policy.request_timeout if self.retry_policy else None
         return AsyncOciOpenAI(
             auth=_client_config_to_oci_openai_client_auth(self.client_config),
             service_endpoint=self.client_config.service_endpoint,
             compartment_id=self.compartment_id,
             conversation_store_id=self.conversation_store_id,
-            max_retries=self.max_retries,
+            timeout=request_timeout,
+            # Retries are handled by Wayflow's retry helpers, so the client layer stays disabled.
+            max_retries=0,
+        )
+
+    async def _execute_openai_request_with_retry(self, operation: Callable[[], Any]) -> Any:
+        return await execute_async_with_retry(
+            operation,
+            retry_policy=self.retry_policy,
+            classify_exception=_classify_openai_retry_exception,
+            retry_budget_exhausted_message="OCI OpenAI-compatible request retry budget exhausted",
         )
 
     async def _generate_impl_openai_sdk(self, prompt: Prompt) -> LlmCompletion:
@@ -357,17 +432,19 @@ class OCIGenAIModel(LlmModel):
         logger.debug(f"LLm Request: {json.dumps(openai_parameters, indent=4)}")
 
         async with self._create_openai_client() as openai_client:
-            # depending on the api_type, we need to call a specific endpoint
-            if self.api_type == OciAPIType.OPENAI_RESPONSES:
-                response = await openai_client.responses.create(
-                    model=self.model_id, store=False, **openai_parameters
-                )
-            elif self.api_type == OciAPIType.OPENAI_CHAT_COMPLETIONS:
-                response = await openai_client.chat.completions.create(
-                    model=self.model_id, store=False, **openai_parameters
-                )
-            else:
+
+            async def _call_openai() -> Any:
+                if self.api_type == OciAPIType.OPENAI_RESPONSES:
+                    return await openai_client.responses.create(
+                        model=self.model_id, store=False, **openai_parameters
+                    )
+                elif self.api_type == OciAPIType.OPENAI_CHAT_COMPLETIONS:
+                    return await openai_client.chat.completions.create(
+                        model=self.model_id, store=False, **openai_parameters
+                    )
                 raise ValueError("Internal error: unsupported API type")
+
+            response = await self._execute_openai_request_with_retry(_call_openai)
 
         # convert the openai models into dict
         response_data = response.model_dump()
@@ -389,23 +466,56 @@ class OCIGenAIModel(LlmModel):
         return LlmCompletion(message=response_message, token_usage=provider.extract_usage(response))
 
     def _post_with_retry(self, provider: "_OciApiFormatter", prompt: Prompt) -> Any:
-        for i in range(self.max_retries + 1):
+        policy = self.retry_policy or RetryPolicy()
+        previous_wait_seconds: Optional[float] = None
+        # Use a monotonic clock because the retry budget depends on elapsed time, not wall time.
+        time_started = time.monotonic()
+
+        for attempt in range(policy.total_attempts):
             try:
                 return self._post(provider=provider, prompt=prompt)
             except oci.exceptions.ServiceError as e:
+                # If OCI rejects specific generation params, we try adapting the prompt config.
                 error_message = e.message
                 if any(pattern in error_message for pattern in _UNSUPPORTED_ARGUMENT_PATTERNS):
                     old_generation_config = prompt.generation_config
-                    if old_generation_config is None or i == self.max_retries:
-                        # either no parameter config to change or it last the last try
+                    if old_generation_config is None or attempt == policy.total_attempts - 1:
                         raise e
-
                     new_config = _adapt_generation_config_with_error_message(
                         generation_config=old_generation_config, error_message=error_message
                     )
                     prompt = prompt.copy(generation_config=new_config)
-                else:
-                    raise e
+                    continue
+
+                retry_classification = _classify_oci_service_error_for_retry(
+                    e,
+                    policy,
+                    retry_without_status=True,
+                )
+                if retry_classification is None:
+                    raise
+                if attempt == policy.total_attempts - 1:
+                    raise
+
+                status_code, retry_after_value = retry_classification
+                wait_seconds = _compute_wait_before_next_attempt(
+                    policy=policy,
+                    attempt_num=attempt,
+                    status_code=status_code,
+                    retry_after_value=retry_after_value,
+                    previous_wait_seconds=previous_wait_seconds,
+                    time_started=time_started,
+                    elapsed_time_seconds_fn=time.monotonic,
+                    total_elapsed_time_seconds=600.0,
+                    rng=_DEFAULT_RNG,
+                )
+                if wait_seconds is None:
+                    raise RuntimeError("OCI request retry budget exhausted")
+
+                previous_wait_seconds = wait_seconds
+                time.sleep(wait_seconds)
+
+        raise RuntimeError("OCI request failed after maximum attempts")
 
     def _post(self, provider: "_OciApiFormatter", prompt: Prompt) -> Any:
         self._init_client_if_needed()
@@ -422,6 +532,28 @@ class OCIGenAIModel(LlmModel):
         )
 
         return self._client.chat(chat_details=chat_details)
+
+    def _post_stream_with_retry(self, provider: "_OciApiFormatter", prompt: Prompt) -> Any:
+        self._init_client_if_needed()
+        if self._client is None or self._oci_serving_mode is None:
+            raise ValueError("Could not initialize the OCI client")
+
+        request = provider.convert_prompt_into_request(prompt, self.model_id)
+        logger.debug(f"Streaming request to remote oci genai endpoint: {json.loads(str(request))}")
+        request.is_stream = True
+
+        return execute_sync_with_retry(
+            lambda: self._client.chat(
+                chat_details=oci.generative_ai_inference.models.ChatDetails(
+                    compartment_id=self.compartment_id,
+                    serving_mode=self._oci_serving_mode,
+                    chat_request=request,
+                ),
+            ),
+            retry_policy=self.retry_policy,
+            classify_exception=_classify_oci_retry_exception,
+            retry_budget_exhausted_message="OCI streaming request retry budget exhausted",
+        )
 
     async def _stream_generate_impl(
         self,
@@ -446,16 +578,7 @@ class OCIGenAIModel(LlmModel):
 
         provider = _MODEL_PROVIDER_TO_FORMATTER.get(self.provider, _GenericOciApiFormatter)
 
-        request = provider.convert_prompt_into_request(prompt, self.model_id)
-        logger.debug(f"Streaming request to remote oci genai endpoint: {json.loads(str(request))}")
-        request.is_stream = True
-        response = self._client.chat(
-            chat_details=oci.generative_ai_inference.models.ChatDetails(
-                compartment_id=self.compartment_id,
-                serving_mode=self._oci_serving_mode,
-                chat_request=request,
-            ),
-        )
+        response = await run_sync_in_thread(self._post_stream_with_retry, provider, prompt)
         async for chunk in sync_to_async_iterator(
             provider.convert_oci_chunk_iterator_into_tagged_chunk_iterator(
                 iterator=response.data.events(), post_processing=prompt.parse_output
@@ -484,13 +607,15 @@ class OCIGenAIModel(LlmModel):
         client_args = dict(model=self.model_id, store=False, stream=True, **openai_parameters)
 
         async with self._create_openai_client() as openai_client:
-            # depending on the api_type, we need to call a specific endpoint
-            if self.api_type == OciAPIType.OPENAI_RESPONSES:
-                stream = await openai_client.responses.create(**client_args)
-            elif self.api_type == OciAPIType.OPENAI_CHAT_COMPLETIONS:
-                stream = await openai_client.chat.completions.create(**client_args)
-            else:
+
+            async def _create_stream() -> Any:
+                if self.api_type == OciAPIType.OPENAI_RESPONSES:
+                    return await openai_client.responses.create(**client_args)
+                if self.api_type == OciAPIType.OPENAI_CHAT_COMPLETIONS:
+                    return await openai_client.chat.completions.create(**client_args)
                 raise ValueError("Internal error: unsupported API type")
+
+            stream = await self._execute_openai_request_with_retry(_create_stream)
 
             async def obj_to_json(
                 stream_: AsyncIterable[BaseModel],
@@ -515,6 +640,9 @@ class OCIGenAIModel(LlmModel):
             "model_id": self.model_id,
             "generation_config": (
                 self.generation_config.to_dict() if self.generation_config is not None else None
+            ),
+            "retry_policy": (
+                serialize_to_dict(self.retry_policy) if self.retry_policy is not None else None
             ),
             "client_config": self.client_config.to_dict(),
             "serving_mode": self.serving_mode.value,

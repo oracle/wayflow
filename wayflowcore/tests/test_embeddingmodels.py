@@ -20,7 +20,6 @@ from wayflowcore.embeddingmodels.openaicompatiblemodel import (
 )
 from wayflowcore.embeddingmodels.openaimodel import OpenAIEmbeddingModel
 from wayflowcore.embeddingmodels.vllmmodel import VllmEmbeddingModel
-from wayflowcore.models._requesthelpers import _RetryStrategy
 from wayflowcore.serialization.serializer import autodeserialize, serialize, serialize_to_dict
 
 from .conftest import e5large_api_url, ollama_embedding_api_url
@@ -393,7 +392,6 @@ def test_openai_compatible_embedding_model_supports_custom_ca_file(tls_material,
             base_url=base_url,
             ca_file=tls_material.ca_cert_path,
         )
-        model._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
 
         embeddings = model.embed(["hello world"])
 
@@ -416,7 +414,6 @@ def test_openai_compatible_embedding_model_supports_mtls(tls_material, https_jso
             cert_file=tls_material.client_cert_path,
             ca_file=tls_material.ca_cert_path,
         )
-        model._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
 
         embeddings = model.embed(["hello world"])
 
@@ -444,7 +441,6 @@ def test_openai_compatible_embedding_model_ignores_proxy_environment_for_local_t
             base_url=base_url,
             ca_file=tls_material.ca_cert_path,
         )
-        model._retry_strategy = _RetryStrategy(max_retries=0, min_wait=0.01, max_wait=0.01)
 
         embeddings = model.embed(["hello world"])
 

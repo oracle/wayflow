@@ -9,10 +9,15 @@ from typing import Any, Dict, List, Optional
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.embeddingmodels.embeddingmodel import EmbeddingModel
-from wayflowcore.models._requesthelpers import _RetryStrategy, request_post_with_retries
+from wayflowcore.models._requesthelpers import request_post_with_retries
 from wayflowcore.models.openaicompatiblemodel import _build_ssl_verification, _resolve_api_key
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
-from wayflowcore.serialization.serializer import SerializableObject
+from wayflowcore.serialization.serializer import (
+    SerializableObject,
+    deserialize_from_dict,
+    serialize_to_dict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +56,7 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        retry_policy: Optional[RetryPolicy] = None,
     ):
         super().__init__(
             __metadata_info__=__metadata_info__,
@@ -60,7 +66,7 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         )
         self._model_id = model_id
         self._base_url = _add_leading_http_if_needed(base_url).rstrip("/")
-        self._retry_strategy = _RetryStrategy()
+        self.retry_policy = retry_policy
         self._api_key = _resolve_api_key(api_key)
         self.key_file = key_file
         self.cert_file = cert_file
@@ -93,8 +99,8 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         headers = self._get_headers()
         response_data = await request_post_with_retries(
             request_params=dict(url=url, headers=headers, json=payload),
-            retry_strategy=self._retry_strategy,
             verify=self._ssl_verify,
+            retry_policy=self.retry_policy,
         )
 
         return [item["embedding"] for item in response_data["data"]]
@@ -103,6 +109,11 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         return {
             "model_id": self._model_id,
             "base_url": self._base_url,
+            "retry_policy": (
+                serialize_to_dict(self.retry_policy, serialization_context)
+                if self.retry_policy is not None
+                else None
+            ),
             "name": self.name,
             "id": self.id,
             "description": self.description,
@@ -123,8 +134,20 @@ class OpenAICompatibleEmbeddingModel(EmbeddingModel, SerializableObject):
         id = input_dict.get("id")
         name = input_dict.get("name")
         description = input_dict.get("description")
+        retry_policy = input_dict.get("retry_policy")
 
-        return cls(model_id=model_id, base_url=base_url, name=name, description=description, id=id)
+        return cls(
+            model_id=model_id,
+            base_url=base_url,
+            name=name,
+            description=description,
+            id=id,
+            retry_policy=(
+                deserialize_from_dict(RetryPolicy, retry_policy, deserialization_context)
+                if retry_policy is not None
+                else None
+            ),
+        )
 
 
 def _add_leading_http_if_needed(url: str) -> str:
