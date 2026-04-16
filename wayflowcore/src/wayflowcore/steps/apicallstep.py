@@ -721,8 +721,6 @@ class ApiCallStep(Step):
         return request
 
     async def _execute_request(self, request: Dict[str, Any]) -> httpx.Response:
-        from wayflowcore.models._requesthelpers import _is_tls_or_cert_error
-
         if not self.allow_insecure_http and urlparse(request["url"]).scheme == "http":
             raise ValueError("usage of unsecure http URL is not allowed")
         # If URL is not valid a ValidationError will be thrown
@@ -767,10 +765,7 @@ class ApiCallStep(Step):
             for attempt in range(max_attempts):
                 try:
                     response = await client.request(**request)
-                except httpx.TransportError as exc:
-                    if _is_tls_or_cert_error(exc):
-                        # TLS and certificate failures are security-sensitive and must fail fast.
-                        raise
+                except httpx.TransportError:
                     # Legacy retry mode only retries HTTP responses, not transport failures.
                     raise
 

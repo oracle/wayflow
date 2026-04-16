@@ -6,7 +6,6 @@
 import logging
 import os
 import ssl
-import time
 from contextlib import contextmanager, nullcontext
 from copy import deepcopy
 from json import JSONDecodeError
@@ -238,29 +237,25 @@ def test_model_cannot_recover_from_non_recoverable_error(
 
 
 @pytest.mark.parametrize(
-    "retry_policy,expected_number_calls,expected_min_time",
+    "retry_policy,expected_number_calls",
     [
-        (RetryPolicy(max_attempts=2), 3, 0.5 + 1 + 2),
-        (RetryPolicy(max_attempts=11, initial_retry_delay=0.1, max_retry_delay=0.1), 6, 0.5),
+        (RetryPolicy(max_attempts=2), 3),
+        (RetryPolicy(max_attempts=11, initial_retry_delay=0.1, max_retry_delay=0.1), 6),
         (
             RetryPolicy(
                 max_attempts=6, initial_retry_delay=0.1, max_retry_delay=10.0, backoff_factor=1.0
             ),
             6,
-            0.5,
         ),
         (
             RetryPolicy(
                 max_attempts=3, initial_retry_delay=0.05, max_retry_delay=0.2, backoff_factor=10.0
             ),
             4,
-            0.6,
         ),
     ],
 )
-def test_model_can_recover_from_status(
-    retry_policy, expected_number_calls, expected_min_time, remotely_hosted_llm
-):
+def test_model_can_recover_from_status(retry_policy, expected_number_calls, remotely_hosted_llm):
     remotely_hosted_llm.retry_policy = retry_policy
 
     succeeds_after_x_failures = 5
@@ -269,19 +264,13 @@ def test_model_can_recover_from_status(
         "httpx.AsyncClient.post",
         side_effect=_get_fake_request_that_succeeds_after_x_trials(succeeds_after_x_failures),
     ) as mock:
-        start = time.time()
         with (
             pytest.raises(Exception, match="API request failed after maximum retries")
             if retry_policy.max_attempts < succeeds_after_x_failures
             else nullcontext()
         ):
             remotely_hosted_llm.generate("Hello")
-        duration = time.time() - start
         assert mock.call_count == expected_number_calls
-        # Jitter may reduce observed sleep time below the configured max_wait.
-        # This test asserts that retries happened; it doesn't require a strict
-        # wall-clock minimum.
-        assert duration >= 0
 
 
 def test_model_network_error_retries_and_fails(remotely_hosted_llm):
