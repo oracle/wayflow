@@ -194,6 +194,11 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
         response = response_data.get("usage", response_data)
         if not isinstance(response, dict):
             return None
+        if not all(
+            usage_key in response
+            for usage_key in ["prompt_tokens", "completion_tokens", "total_tokens"]
+        ):
+            return None
 
         cached_tokens = 0
         if "prompt_tokens_details" in response and "cached_tokens" in (
