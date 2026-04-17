@@ -184,14 +184,14 @@ def test_managerworkers_can_execute_with_initial_params_passed_in_start_conversa
     conversation = group.start_conversation(
         messages=[Message(content="Please compute 3*4 + 2", message_type=MessageType.USER)],
         inputs={"USER": "Iris"},
-        conversation_id="12345",
+        root_conversation_id="12345",
     )
 
     conversation.execute()
 
     # The first message must be not the default message as the init messages are passed.
     assert conversation.get_last_message().content != DEFAULT_INITIAL_MESSAGE
-    assert conversation.conversation_id == "12345"
+    assert conversation.root_conversation_id == "12345"
 
 
 @retry_test(max_attempts=2)

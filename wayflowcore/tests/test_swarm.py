@@ -226,14 +226,14 @@ def test_can_execute_swarm_with_initial_params_passed_in_start_conversation(
             )
         ],
         inputs={"USER": "Iris"},
-        conversation_id="12345",
+        root_conversation_id="12345",
     )
 
     conversation.execute()
 
     # The first message must be not the default message as the init messages are passed.
     assert conversation.get_last_message().content != "Hi! How can I help you?"
-    assert conversation.conversation_id == "12345"
+    assert conversation.root_conversation_id == "12345"
 
 
 def test_can_create_swarm(example_medical_agents):

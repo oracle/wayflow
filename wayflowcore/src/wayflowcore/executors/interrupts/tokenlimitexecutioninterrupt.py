@@ -126,7 +126,7 @@ class SoftTokenLimitExecutionInterrupt(
         self, state: ConversationExecutionState, conversation: "Conversation"
     ) -> Optional[InterruptedExecutionStatus]:
 
-        conversation_id = conversation.conversation_id
+        conversation_id = conversation.root_conversation_id
 
         # We first check the global token limit, then we go over the llm-wise limits
         # Note that we must do the checks separately, because the list of all models
