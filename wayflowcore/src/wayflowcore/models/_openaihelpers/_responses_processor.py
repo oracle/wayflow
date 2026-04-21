@@ -259,6 +259,11 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 if "summary" not in generation_config.extra_args["reasoning"]:
                     generation_config.extra_args["reasoning"]["summary"] = "auto"
 
+            if "include" in kwargs and "include" in generation_config.extra_args:
+                # prevent overriding any include
+                kwargs["include"].update(generation_config.extra_args["update"])
+                generation_config.extra_args.pop("include")
+
             kwargs.update(generation_config.extra_args)
 
         return kwargs

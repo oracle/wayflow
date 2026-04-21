@@ -817,14 +817,28 @@ class _GenericOciApiFormatter(_OciApiFormatter):
         ):
             logprobs = []
 
-            for raw_token_log_prob in choice_dict.logprobs.top_logprobs:
+            num_tokens = len(choice_dict.logprobs.top_logprobs)
+
+            chosen_tokens = (
+                choice_dict.logprobs.tokens if choice_dict.logprobs.tokens else [None] * num_tokens
+            )
+            chosen_tokens_logprob = (
+                choice_dict.logprobs.token_logprobs
+                if choice_dict.logprobs.token_logprobs
+                else [None] * num_tokens
+            )
+
+            for raw_token_log_prob, log_prob_token, log_prob in zip(
+                choice_dict.logprobs.top_logprobs, chosen_tokens, chosen_tokens_logprob
+            ):
 
                 top_log_probs = []
-                max_log_prob: Optional[float] = None
-                max_log_prob_token: Optional[str] = None
+                max_log_prob = log_prob
+                max_log_prob_token = log_prob_token
+
                 for token, raw_log_prob in raw_token_log_prob.items():
                     top_log_probs.append(TextTokenTopLogProb(token=token, logprob=raw_log_prob))
-                    if max_log_prob is None or raw_log_prob > max_log_prob:
+                    if log_prob is None and raw_log_prob > max_log_prob:
                         max_log_prob = raw_log_prob
                         max_log_prob_token = token
 
@@ -832,7 +846,9 @@ class _GenericOciApiFormatter(_OciApiFormatter):
                     continue
 
                 new_logprob = TextTokenLogProb(
-                    token=max_log_prob_token, logprob=max_log_prob, top_logprobs=top_log_probs
+                    token=log_prob_token or max_log_prob_token,
+                    logprob=max_log_prob or max_log_prob,
+                    top_logprobs=top_log_probs,
                 )
                 logprobs.append(new_logprob)
 

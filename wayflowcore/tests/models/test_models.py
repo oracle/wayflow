@@ -2100,19 +2100,25 @@ def test_structured_generation_with_enum(request, llm_fixture_name):
     assert json_content.pop("life") in life_enum
 
 
+from contextlib import nullcontext
+
+
 @with_all_llm_configs
 def test_hosted_llm_can_return_logprobs_if_supported(llm_config):
 
     if llm_config == OLLAMA_MODEL_CONFIG:
-        pytest.skip("Ollama hosted models sometimes does not return logprobs")
-    if llm_config == VLLM_OSS_CONFIG:
-        pytest.skip("Gtp-OSS does not support returning logprobs")
-    if llm_config == GROK_OCI_API_KEY_CONFIG:
-        pytest.skip("OCI grok returns empty logprobs")
-    if llm_config == COHERE_OCI_API_KEY_CONFIG:
-        pytest.skip("Gtp-OSS does not support returning logprobs")
-    if llm_config == COHERE_OCI_API_KEY_CONFIG:
-        pytest.skip("Gtp-OSS does not support returning logprobs")
+        # pytest.skip("Ollama hosted models sometimes does not return logprobs")
+        context = pytest.raises(AssertionError)
+    elif llm_config == VLLM_OSS_CONFIG:
+        context = pytest.raises(Exception, match="logprobs are not supported with gpt-oss models")
+    elif llm_config in [GROK_OCI_RESPONSE_API_KEY_CONFIG, GROK_OCI_CHAT_COMPLETIONS_API_KEY_CONFIG]:
+        # grok returns empty logprobs
+        context = pytest.raises(AssertionError)
+    elif llm_config == COHERE_OCI_API_KEY_CONFIG:
+        # cohere returns empty logprobs
+        context = pytest.raises(ValueError, match="Logprobs are not supported for cohere models")
+    else:
+        context = nullcontext()
 
     llm = LlmModelFactory.from_config(llm_config)
 
@@ -2121,13 +2127,14 @@ def test_hosted_llm_can_return_logprobs_if_supported(llm_config):
         generation_config=LlmGenerationConfig(top_logprobs=2, max_tokens=16),
     )
 
-    res = llm.generate(prompt)
+    with context:
+        res = llm.generate(prompt)
 
-    text_chunk = next((c for c in res.message.contents if isinstance(c, TextContent)), None)
-    assert text_chunk is not None
-    assert text_chunk.logprobs is not None
-    assert len(text_chunk.logprobs) > 0
-    assert isinstance(text_chunk.logprobs[0], TextTokenLogProb)
+        text_chunk = next((c for c in res.message.contents if isinstance(c, TextContent)), None)
+        assert text_chunk is not None
+        assert text_chunk.logprobs is not None
+        assert len(text_chunk.logprobs) > 0
+        assert isinstance(text_chunk.logprobs[0], TextTokenLogProb)
 
 
 def test_unsupported_oci_top_logprobs_raise_instead_of_retrying(caplog) -> None:

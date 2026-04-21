@@ -69,7 +69,7 @@ class TextTokenLogProb(FrozenSerializableDataclass):
     token: str
     """The literal text of the generated token."""
     logprob: float
-    """The log probability assigned to the generated token."""
+    """The log probability assigned to the generated token. Range from -inf to 0."""
     top_logprobs: Optional[List[TextTokenTopLogProb]] = None
     """Optional ranked list of alternate tokens with probabilities."""
 

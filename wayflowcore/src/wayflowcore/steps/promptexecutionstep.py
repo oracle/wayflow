@@ -382,6 +382,11 @@ class PromptExecutionStep(Step):
 
         # case 2: string prompt template, but output_descriptors are set
         if output_descriptors is not None and len(output_descriptors) > 0:
+            if any(prop_.name == PromptExecutionStep.LOGPROBS for prop_ in output_descriptors):
+                raise ValueError(
+                    f"Top_logprobs cannot be used with an output named {PromptExecutionStep.LOGPROBS}. Please use a different output name."
+                )
+
             if requested_top_logprobs is not None and _uses_structured_generation_output(
                 output_descriptors
             ):

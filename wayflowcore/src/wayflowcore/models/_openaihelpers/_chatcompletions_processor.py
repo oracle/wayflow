@@ -191,6 +191,10 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
             kwargs["logprobs"] = True
             kwargs["top_logprobs"] = generation_config.top_logprobs
         if generation_config.extra_args:
+            if "include" in kwargs and "include" in generation_config.extra_args:
+                # prevent overriding any include
+                kwargs["include"].update(generation_config.extra_args["update"])
+                generation_config.extra_args.pop("include")
             kwargs.update(generation_config.extra_args)
         return kwargs
 

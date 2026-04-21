@@ -15,7 +15,7 @@ from openai import APIConnectionError, APIStatusError
 
 from tests.testhelpers import litellm_testhelpers
 from tests.testhelpers.testhelpers import retry_test
-from wayflowcore.messagelist import Message
+from wayflowcore.messagelist import Message, TextContent, TextTokenLogProb
 from wayflowcore.models._requesthelpers import StreamChunkType
 from wayflowcore.models.geminimodel import GeminiApiKeyAuth, GeminiCloudAuth, GeminiModel
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
@@ -763,3 +763,18 @@ def test_geminimodel_vertex_counts_tokens_sync(
     assert completion.token_usage.total_tokens == (
         completion.token_usage.input_tokens + completion.token_usage.output_tokens
     )
+
+
+def test_hosted_llm_can_return_logprobs_if_supported(vertex_gemini_model):
+    prompt = Prompt(
+        messages=[Message(content="Say 'Bern'", role="user")],
+        generation_config=LlmGenerationConfig(top_logprobs=2, max_tokens=16),
+    )
+
+    res = vertex_gemini_model.generate(prompt)
+
+    text_chunk = next((c for c in res.message.contents if isinstance(c, TextContent)), None)
+    assert text_chunk is not None
+    assert text_chunk.logprobs is not None
+    assert len(text_chunk.logprobs) > 0
+    assert isinstance(text_chunk.logprobs[0], TextTokenLogProb)
