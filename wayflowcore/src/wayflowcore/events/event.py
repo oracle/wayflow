@@ -767,7 +767,7 @@ class ConversationExecutionStartedEvent(StartSpanEvent["ConversationSpan"]):
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
-            "conversation.id": self.conversation.conversation_id,
+            "conversation.id": self.conversation.id,
             "conversation.name": self.conversation.name,
         }
 
@@ -788,7 +788,7 @@ class ConversationExecutionFinishedEvent(EndSpanEvent["ConversationSpan"]):
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
-            "conversation.id": self.conversation.conversation_id,
+            "conversation.id": self.conversation.id,
             "conversation.name": self.conversation.name,
             "execution_status": self.execution_status.__class__.__name__,
         }

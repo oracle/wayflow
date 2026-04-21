@@ -550,7 +550,7 @@ class ConversationSpan(Span):
     def to_tracing_info(self, mask_sensitive_information: bool = True) -> Dict[str, Any]:
         return {
             **super().to_tracing_info(mask_sensitive_information=mask_sensitive_information),
-            "conversation.id": self.conversation.conversation_id,
+            "conversation.id": self.conversation.id,
             "conversation.name": self.conversation.name,
             "conversational_component.type": self.conversation.component.__class__.__name__,
             "conversational_component.id": self.conversation.component.id,

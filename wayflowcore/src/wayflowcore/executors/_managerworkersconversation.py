@@ -31,7 +31,7 @@ class ManagerWorkersConversationExecutionState(ConversationExecutionState):
     def _create_subconversation_for_agent(
         self, agent: Union[Agent, ManagerWorkers]
     ) -> Union["AgentConversation", "ManagerWorkersConversation"]:
-        subconv = agent.start_conversation(root_conversation_id=self.root_conversation_id or None)
+        subconv = agent.start_conversation(_root_conversation_id=self.root_conversation_id or None)
         self.subconversations[agent.name] = subconv
 
         return subconv
