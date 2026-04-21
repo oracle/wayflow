@@ -639,7 +639,7 @@ class _FlowAsToolCallable:
             conversation = self.flow.start_conversation(
                 inputs=inputs,
                 messages=self._parent_conversation.message_list,
-                root_conversation_id=self._parent_conversation.root_conversation_id,
+                _root_conversation_id=self._parent_conversation.root_conversation_id,
             )
             interrupts = self._parent_conversation._get_interrupts()
 

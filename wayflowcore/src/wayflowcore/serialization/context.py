@@ -47,6 +47,7 @@ class SerializationContext:
         """
         self.root = root
         self._serialized_objects: Dict[str, Any] = {}
+        self._external_references: set[str] = set()
         self._started_serialization: Dict[str, bool] = {}
         self.plugins = plugins or []
 
@@ -113,6 +114,16 @@ class SerializationContext:
         """
         self._serialized_objects[self.get_reference(obj)] = obj_as_dict
 
+    def register_external_reference(self, obj: Any) -> None:
+        """
+        Registers an object as provided externally to the serialized payload.
+
+        The serializer will emit a ``$ref`` for this object, but it will not add the object to
+        the root ``_referenced_objects`` section because the deserialization context is expected
+        to already contain it.
+        """
+        self._external_references.add(self.get_reference(obj))
+
     def check_obj_is_already_serialized(self, obj: Any) -> bool:
         """
         Returns True if the object has already been serialized
@@ -122,7 +133,11 @@ class SerializationContext:
         obj:
           The original, non-serialized object
         """
-        return self._serialized_objects.get(self.get_reference(obj)) is not None
+        obj_ref = self.get_reference(obj)
+        return (
+            obj_ref in self._external_references
+            or self._serialized_objects.get(obj_ref) is not None
+        )
 
     def get_reference_dict(self, obj: Any) -> Dict[str, str]:
         """

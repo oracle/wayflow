@@ -26,6 +26,7 @@ from wayflowcore.tools.servertools import _convert_previously_supported_tools_if
 from wayflowcore.transforms import MessageTransform
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.contextproviders import ContextProvider
     from wayflowcore.executors._agentconversation import AgentConversation
     from wayflowcore.flow import Flow
@@ -386,28 +387,53 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
+        *,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        _root_conversation_id: Optional[str] = None,
+        _attach_checkpointer: bool = True,
     ) -> "AgentConversation":
         """
-        Initializes a conversation with the agent.
+        Start a conversation with the agent.
 
         Parameters
         ----------
         inputs:
-            This argument is not used.
-            It is included for compatibility with the Flow class.
+            Optional input values for the agent's declared input descriptors.
         messages:
-            Message list to which the agent will participate
+            Optional message history for the conversation.
         conversation_id:
-            Conversation id of the parent conversation.
+            Optional identifier for this agent conversation.
+        checkpointer:
+            Optional checkpoint backend used to restore and persist this conversation.
+        checkpoint_id:
+            Optional checkpoint identifier to restore. Requires ``checkpointer``.
+        _root_conversation_id:
+            Internal lineage identifier shared with nested or parent conversations.
 
         Returns
         -------
-        Conversation:
-            The conversation object of the agent.
+        AgentConversation
+            A new or restored agent conversation.
         """
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.executors._agentconversation import AgentConversation
+
+        restored_conversation, conversation_runtime_id, conversation_root_id = (
+            self._prepare_conversation_start(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+                _root_conversation_id=_root_conversation_id,
+                expected_conversation_type=AgentConversation,
+                attach_checkpointer=_attach_checkpointer,
+            )
+        )
+        if restored_conversation is not None:
+            return restored_conversation
 
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
@@ -451,23 +477,26 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 conversational_component=self,
                 inputs=inputs,
                 messages=messages,
-                conversation_id=conversation_id,
+                conversation_id=conversation_runtime_id,
                 nesting_level=None,
             )
         )
 
         from wayflowcore.executors._agentexecutor import AgentConversationExecutionState
 
-        return AgentConversation(
+        conversation = AgentConversation(
             component=self,
             message_list=messages,
-            conversation_id=IdGenerator.get_or_generate_id(conversation_id),
+            id=conversation_runtime_id,
+            checkpointer=checkpointer,
             inputs=inputs or {},
             name="agent_conversation",
             state=AgentConversationExecutionState(),
             status=None,
+            root_conversation_id=conversation_root_id,
             __metadata_info__={},
         )
+        return conversation
 
     @property
     def llms(self) -> List["LlmModel"]:
