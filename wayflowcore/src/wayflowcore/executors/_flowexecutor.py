@@ -288,7 +288,7 @@ class FlowConversationExecutor(ConversationExecutor):
 
         sub_conversation = flow.start_conversation(
             inputs_not_from_context_providers,
-            root_conversation_id=conversation.root_conversation_id,
+            _root_conversation_id=conversation.root_conversation_id,
             messages=conversation.message_list,
             nesting_level=conversation.state.nesting_level + 1,
             context_providers_from_parent_flow=all_context_provider_keys,

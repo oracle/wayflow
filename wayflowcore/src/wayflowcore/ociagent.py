@@ -18,6 +18,7 @@ from wayflowcore.serialization.serializer import SerializableDataclassMixin, Ser
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.conversation import Conversation
 
 
@@ -102,22 +103,37 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, Message, List[Message], MessageList] = None,
+        conversation_id: Optional[str] = None,
+        *,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        _root_conversation_id: Optional[str] = None,
+        _attach_checkpointer: bool = True,
     ) -> "Conversation":
         """
-        Initializes a conversation with the agent.
+        Start a conversation with the OCI agent.
 
         Parameters
         ----------
         inputs:
-            This argument is not used.
-            It is included for compatibility with the Flow class.
+            Optional structured inputs stored on the conversation for interface compatibility.
         messages:
-            Message list to which the agent will participate
+            Optional initial message history for the OCI agent session.
+        conversation_id:
+            Optional identifier for this OCI agent conversation.
+        checkpointer:
+            Optional checkpoint backend. ``OciAgent`` does not support checkpoint restore yet, so
+            passing this raises ``NotImplementedError``.
+        checkpoint_id:
+            Optional checkpoint identifier. ``OciAgent`` does not support checkpoint restore yet,
+            so passing this raises ``NotImplementedError``.
+        _root_conversation_id:
+            Internal lineage identifier shared with nested or parent conversations.
 
         Returns
         -------
-        Conversation:
-            The conversation object of the agent.
+        Conversation
+            A new OCI agent conversation.
         """
         from wayflowcore.executors._ociagentconversation import OciAgentConversation
         from wayflowcore.executors._ociagentexecutor import (
@@ -126,8 +142,24 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             _init_oci_agent_session,
         )
 
+        if any(value is not None for value in (checkpointer, checkpoint_id)):
+            raise NotImplementedError("`OciAgent` checkpoint restore is not supported yet.")
+
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
+
+        _restored_conversation, conversation_runtime_id, conversation_root_id = (
+            self._prepare_conversation_start(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                checkpointer=None,
+                checkpoint_id=None,
+                _root_conversation_id=_root_conversation_id,
+                expected_conversation_type=OciAgentConversation,
+                attach_checkpointer=_attach_checkpointer,
+            )
+        )
 
         _client = _init_oci_agent_client(self)
 
@@ -141,8 +173,9 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             inputs=inputs or {},
             message_list=messages,
             status=None,
-            conversation_id=IdGenerator.get_or_generate_id(None),
+            id=conversation_runtime_id,
             name="oci_conversation",
+            root_conversation_id=conversation_root_id,
             __metadata_info__={},
         )
 

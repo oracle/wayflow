@@ -22,6 +22,7 @@ from wayflowcore.templates._swarmtemplate import _DEFAULT_SWARM_CHAT_TEMPLATE
 from wayflowcore.tools import ClientTool, Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.conversation import Conversation
     from wayflowcore.messagelist import Message
 
@@ -242,7 +243,37 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         messages: Union[None, str, "Message", List["Message"], MessageList] = None,
         conversation_id: Optional[str] = None,
         conversation_name: Optional[str] = None,
+        *,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        _root_conversation_id: Optional[str] = None,
+        _attach_checkpointer: bool = True,
     ) -> "Conversation":
+        """
+        Start a conversation for the swarm.
+
+        Parameters
+        ----------
+        inputs:
+            Optional input values available to the swarm execution state.
+        messages:
+            Optional shared message history for the swarm conversation.
+        conversation_id:
+            Optional identifier for this swarm conversation.
+        conversation_name:
+            Optional display name used for the created conversation object.
+        checkpointer:
+            Optional checkpoint backend used to restore and persist this conversation.
+        checkpoint_id:
+            Optional checkpoint identifier to restore. Requires ``checkpointer``.
+        _root_conversation_id:
+            Internal lineage identifier shared with nested or parent conversations.
+
+        Returns
+        -------
+        Conversation
+            A new or restored swarm conversation.
+        """
         from wayflowcore.executors._swarmconversation import (
             SwarmConversation,
             SwarmConversationExecutionState,
@@ -250,11 +281,23 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             SwarmUser,
         )
 
+        restored_conversation, conversation_runtime_id, conversation_root_id = (
+            self._prepare_conversation_start(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+                _root_conversation_id=_root_conversation_id,
+                expected_conversation_type=SwarmConversation,
+                attach_checkpointer=_attach_checkpointer,
+            )
+        )
+        if restored_conversation is not None:
+            return restored_conversation
+
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
-
-        if conversation_id is None:
-            conversation_id = IdGenerator.get_or_generate_id(conversation_id)
 
         main_thread = SwarmThread(
             caller=SwarmUser(), recipient_agent=self.first_agent, is_main_thread=True
@@ -274,17 +317,21 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             context_providers=[],
             inputs=inputs,
             messages=messages,
+            root_conversation_id=conversation_root_id,
         )
-        return SwarmConversation(
+        conversation = SwarmConversation(
             component=self,
             inputs=inputs or {},
             message_list=messages,
+            id=conversation_runtime_id,
             name=conversation_name or "swarm_conversation",
             state=state,
             status=None,
-            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            root_conversation_id=conversation_root_id,
             __metadata_info__={},
         )
+        return conversation
 
     def _referenced_tools_dict_inner(
         self, recursive: bool, visited_set: Set[str]

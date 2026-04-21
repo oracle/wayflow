@@ -15,10 +15,6 @@ from fastapi import status as http_status_code
 
 from wayflowcore.agentserver.serverstorageconfig import ServerStorageConfig
 from wayflowcore.checkpointing import ConversationCheckpoint, DatastoreCheckpointer
-from wayflowcore.checkpointing.runtime import (
-    _detach_checkpointer_from_conversation,
-    _set_conversation_final_checkpoint_overrides,
-)
 from wayflowcore.conversation import Conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.datastore import Datastore, InMemoryDatastore
@@ -192,10 +188,13 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         if conversation_id is not None and not isinstance(conversation_id, str):
             conversation_id = conversation_id.id
 
+        should_store_response = body.store is None or body.store is True
+
         state = self._load_state(
             previous_response_id=previous_response_id,
             conversation_id=conversation_id,
             agent_id=model,
+            attach_checkpointer=should_store_response,
         )
 
         response_id = IdGenerator.get_or_generate_id()
@@ -204,10 +203,6 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             state=state,
             request=body,
         )
-        if body.store is None or body.store is True:
-            _set_conversation_final_checkpoint_overrides(state, checkpoint_id=response_id)
-        else:
-            _detach_checkpointer_from_conversation(state)
 
         current_response = Response(
             id=response_id,
@@ -261,7 +256,9 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             nonlocal status
             try:
                 with register_event_listeners([token_usage_listener, yielding_listener]):
-                    status = await conversation.execute_async()
+                    status = await conversation.execute_async(
+                        _final_checkpoint_id=response_id if should_store_response else None,
+                    )
             except Exception as e:
                 nonlocal raised_exception
                 raised_exception = e
@@ -305,7 +302,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             token_usage_listener.usage
         )
 
-        if (body.store is None or body.store is True) and state.checkpointer is not None:
+        if should_store_response and state.checkpointer is not None:
             self.checkpointer.save_conversation(
                 state,
                 checkpoint_id=current_response.id,
@@ -365,6 +362,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         previous_response_id: Optional[str],
         conversation_id: Optional[str],
         agent_id: str,
+        attach_checkpointer: bool = True,
     ) -> Optional[Conversation]:
         if previous_response_id:
             checkpoint = self._lookup_checkpoint_by_response_id(previous_response_id)
@@ -379,6 +377,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
                     conversation_id=checkpoint.conversation_id,
                     checkpoint_id=checkpoint.checkpoint_id,
                     checkpointer=self.checkpointer,
+                    _attach_checkpointer=attach_checkpointer,
                 )
             except (TypeError, ValueError) as e:
                 raise HTTPException(
@@ -397,6 +396,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
                 return self.agents[agent_id].start_conversation(
                     conversation_id=conversation_id,
                     checkpointer=self.checkpointer,
+                    _attach_checkpointer=attach_checkpointer,
                 )
             except (TypeError, ValueError) as e:
                 raise HTTPException(
@@ -459,8 +459,6 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
                 raise NotImplementedError(
                     "Instructions are only supported when creating a conversation"
                 )
-            if request.store is False:
-                _detach_checkpointer_from_conversation(state)
             # Add the new messages to the conversation
             for message in new_messages:
                 state.append_message(message)

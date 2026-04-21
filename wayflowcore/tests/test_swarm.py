@@ -226,7 +226,7 @@ def test_can_execute_swarm_with_initial_params_passed_in_start_conversation(
             )
         ],
         inputs={"USER": "Iris"},
-        root_conversation_id="12345",
+        _root_conversation_id="12345",
     )
 
     conversation.execute()

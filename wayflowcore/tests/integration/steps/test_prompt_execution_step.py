@@ -432,7 +432,7 @@ def test_check_token_consumption(remotely_hosted_llm):
     assert isinstance(status, FinishedStatus)
     assert PromptExecutionStep.OUTPUT in status.output_values
     assert isinstance(status.output_values[PromptExecutionStep.OUTPUT], str)
-    token_consumption = remotely_hosted_llm.get_total_token_consumption(conv.conversation_id)
+    token_consumption = remotely_hosted_llm.get_total_token_consumption(conv.root_conversation_id)
     assert token_consumption.input_tokens == 39
     assert token_consumption.output_tokens == 10
 

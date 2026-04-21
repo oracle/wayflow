@@ -24,7 +24,6 @@ from typing import (
 
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.component import DataclassComponent
-from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.executors._events.event import Event
 from wayflowcore.executors.executionstatus import (
     ExecutionStatus,
@@ -37,7 +36,9 @@ from wayflowcore.planning import ExecutionPlan
 from wayflowcore.tokenusage import TokenUsage
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.contextproviders import ContextProvider
+    from wayflowcore.conversationalcomponent import ConversationalComponent
     from wayflowcore.executors._executionstate import ConversationExecutionState
     from wayflowcore.executors.interrupts.executioninterrupt import ExecutionInterrupt
     from wayflowcore.models._requesthelpers import TaggedMessageChunkType
@@ -60,6 +61,10 @@ def _get_active_conversations(return_copy: bool = True) -> List["Conversation"]:
 
     active_conversations = _ACTIVE_CONVERSATION_STACK.get()
     return copy(active_conversations) if return_copy else active_conversations
+
+
+def is_outermost_execution() -> bool:
+    return len(_get_active_conversations(return_copy=False)) == 0
 
 
 def _get_current_conversation_id() -> Optional[str]:
@@ -85,13 +90,20 @@ def _register_conversation(conversation: "Conversation") -> Generator[None, Any,
 @dataclass
 class Conversation(DataclassComponent):
 
-    component: ConversationalComponent
+    component: "ConversationalComponent"
     state: "ConversationExecutionState"
     inputs: Dict[str, Any]
     message_list: MessageList
     status: Optional[ExecutionStatus]
     token_usage: TokenUsage = field(default_factory=TokenUsage, init=False)
-    conversation_id: str = ""  # deprecated
+    root_conversation_id: str = ""
+    checkpointer: Optional["Checkpointer"] = field(
+        default=None,
+        repr=False,
+        compare=False,
+        metadata={"serialize": False},
+    )
+    checkpoint_id: Optional[str] = field(default=None, init=False, repr=False, compare=False)
 
     status_handled: bool = False
     """Whether the current status associated to this conversation was already handled or not
@@ -100,6 +112,8 @@ class Conversation(DataclassComponent):
     def __post_init__(self) -> None:
         if self.inputs is None:
             self.inputs = {}
+        if not self.root_conversation_id:
+            self.root_conversation_id = self.id
 
     @property
     def plan(self) -> Optional[ExecutionPlan]:
@@ -114,6 +128,9 @@ class Conversation(DataclassComponent):
     def execute(
         self,
         execution_interrupts: Optional[Sequence["ExecutionInterrupt"]] = None,
+        *,
+        _final_checkpoint_id: Optional[str] = None,
+        _final_checkpoint_metadata: Optional[Dict[str, Any]] = None,
     ) -> "ExecutionStatus":
         """
         Execute the conversation and get its ``ExecutionStatus`` based on the outcome.
@@ -121,13 +138,22 @@ class Conversation(DataclassComponent):
         The ``Execution`` status is returned by the Assistant and indicates if the assistant yielded,
         finished the conversation.
         """
-        return run_async_in_sync(
-            self.execute_async, execution_interrupts, method_name="execute_async"
-        )
+
+        async def _execute_async_wrapper() -> "ExecutionStatus":
+            return await self.execute_async(
+                execution_interrupts,
+                _final_checkpoint_id=_final_checkpoint_id,
+                _final_checkpoint_metadata=_final_checkpoint_metadata,
+            )
+
+        return run_async_in_sync(_execute_async_wrapper, method_name="execute_async")
 
     async def execute_async(
         self,
         execution_interrupts: Optional[Sequence["ExecutionInterrupt"]] = None,
+        *,
+        _final_checkpoint_id: Optional[str] = None,
+        _final_checkpoint_metadata: Optional[Dict[str, Any]] = None,
     ) -> "ExecutionStatus":
         """
         Execute the conversation and get its ``ExecutionStatus`` based on the outcome.
@@ -138,11 +164,20 @@ class Conversation(DataclassComponent):
         if self.status_handled is False:
             self._update_conversation_with_status()
 
-        with _register_conversation(self):
-            new_status = await self.component.runner.execute_async(self, execution_interrupts)
+        from wayflowcore.checkpointing.checkpointeventlistener import (
+            get_conversation_checkpoint_execution_context,
+        )
 
-        self.status = new_status
-        self.status_handled = False
+        with get_conversation_checkpoint_execution_context(
+            self,
+            is_outermost_execution=is_outermost_execution(),
+            final_checkpoint_id=_final_checkpoint_id,
+            final_checkpoint_metadata=_final_checkpoint_metadata,
+        ):
+            with _register_conversation(self):
+                new_status = await self.component.runner.execute_async(self, execution_interrupts)
+            self.status = new_status
+            self.status_handled = False
         return self.status
 
     @property

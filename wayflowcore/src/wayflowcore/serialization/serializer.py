@@ -139,12 +139,19 @@ def get_field_type_mapping(cls: Any) -> Dict[str, type]:
         type_2: MyCustomAttr
         type_3: "MySecondCustomAttr"  <--- resolves the actual type of this kind of attribute
     """
-    dataclass_fields = {param.name: param.type for param in fields(cls) if param.init}
+    dataclass_fields = {
+        param.name: param.type for param in fields(cls) if _should_serialize_dataclass_field(param)
+    }
 
     # we resolve the forwards references (e.g. dataclasses with type annotations specified "between quotes")
     if any(isinstance(t, str) for t in dataclass_fields.values()):
         try:
-            dataclass_fields = get_type_hints(cls)
+            resolved_type_hints = get_type_hints(cls)
+            dataclass_fields = {
+                field_name: resolved_type_hints[field_name]
+                for field_name in dataclass_fields
+                if field_name in resolved_type_hints
+            }
         except NameError as e:
             pass
 
@@ -183,9 +190,24 @@ def _resolve_legacy_field_name(cls: type, field_name: str) -> str:
     }
 
     if cls in _CLS_TO_ATTRIBUTE_MAPPING:
-        return _CLS_TO_ATTRIBUTE_MAPPING[cls].get(field_name, field_name)
+        resolved_field_name = _CLS_TO_ATTRIBUTE_MAPPING[cls].get(field_name)
+        if resolved_field_name is not None:
+            return resolved_field_name
+
+    if field_name == "root_conversation_id" and any(
+        base.__name__ == "Conversation" for base in cls.__mro__
+    ):
+        return "conversation_id"
 
     return field_name
+
+
+def _should_serialize_dataclass_field(dataclass_field: Any) -> bool:
+    return bool(
+        (not dataclass_field.name.startswith("_") or dataclass_field.name == "__metadata_info__")
+        and dataclass_field.init
+        and dataclass_field.metadata.get("serialize", True)
+    )
 
 
 class SerializableDataclassMixin:
@@ -193,13 +215,7 @@ class SerializableDataclassMixin:
         return {
             k.name: serialize_any_to_dict(getattr(self, k.name), serialization_context)
             for k in fields(self)  # type: ignore
-            if (
-                (
-                    not k.name.startswith("_")  # we don't serialize private fields
-                    or k.name == "__metadata_info__"  # except the metadata
-                )
-                and k.init  # not part of the dataclass __init__ -> would fail at deserialization
-            )
+            if _should_serialize_dataclass_field(k)
         }
 
     @classmethod

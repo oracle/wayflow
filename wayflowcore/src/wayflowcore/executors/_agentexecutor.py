@@ -431,7 +431,7 @@ class AgentConversationExecutor(ConversationExecutor):
         sub_agent_conversation = expert_agent.start_conversation(
             messages=init_messages,
             inputs=inputs,
-            root_conversation_id=caller_conv.root_conversation_id,
+            _root_conversation_id=caller_conv.root_conversation_id,
         )
         return sub_agent_conversation
 
@@ -501,7 +501,7 @@ class AgentConversationExecutor(ConversationExecutor):
                 state.current_flow_conversation = flow.start_conversation(
                     inputs=inputs,
                     messages=messages,
-                    root_conversation_id=root_conversation_id,
+                    _root_conversation_id=root_conversation_id,
                 )
                 messages.append_message(
                     Message(

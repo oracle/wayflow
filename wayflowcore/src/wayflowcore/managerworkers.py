@@ -21,6 +21,7 @@ from wayflowcore.templates._managerworkerstemplate import _DEFAULT_MANAGERWORKER
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
     from wayflowcore.messagelist import Message
 
@@ -155,24 +156,36 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
         conversation_name: Optional[str] = None,
+        *,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        _root_conversation_id: Optional[str] = None,
+        _attach_checkpointer: bool = True,
     ) -> "ManagerWorkersConversation":
         """
-        Initializes a conversation with the managerworkers.
+        Start a conversation for the manager-workers group.
 
         Parameters
         ----------
         inputs:
-            Dictionary of inputs. Keys are the variable identifiers and
-            values are the actual inputs to start the main conversation.
+            Optional input values passed to the manager's main conversation.
         messages:
-            Message list of the manager agent and the end-user.
+            Optional shared message history between the user and the manager.
         conversation_id:
-            Conversation id of the main conversation.
+            Optional identifier for this manager-workers conversation.
+        conversation_name:
+            Optional display name used for the created conversation object.
+        checkpointer:
+            Optional checkpoint backend used to restore and persist this conversation.
+        checkpoint_id:
+            Optional checkpoint identifier to restore. Requires ``checkpointer``.
+        _root_conversation_id:
+            Internal lineage identifier shared with nested or parent conversations.
 
         Returns
         -------
-        Conversation:
-            The conversation object of the managerworkers.
+        ManagerWorkersConversation
+            A new or restored manager-workers conversation.
         """
         from wayflowcore.agentconversation import AgentConversation
         from wayflowcore.events.event import ConversationCreatedEvent
@@ -182,18 +195,30 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             ManagerWorkersConversationExecutionState,
         )
 
+        restored_conversation, conversation_runtime_id, conversation_root_id = (
+            self._prepare_conversation_start(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+                _root_conversation_id=_root_conversation_id,
+                expected_conversation_type=ManagerWorkersConversation,
+                attach_checkpointer=_attach_checkpointer,
+            )
+        )
+        if restored_conversation is not None:
+            return restored_conversation
+
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
-
-        if conversation_id is None:
-            conversation_id = IdGenerator.get_or_generate_id(conversation_id)
 
         record_event(
             ConversationCreatedEvent(
                 conversational_component=self,
                 inputs=inputs or {},
                 messages=messages,
-                conversation_id=conversation_id,
+                conversation_id=conversation_runtime_id,
                 nesting_level=None,
             )
         )
@@ -202,23 +227,28 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         subconversations[self.manager_agent.name] = self.manager_agent.start_conversation(
             inputs=inputs,
             messages=messages,
+            _root_conversation_id=conversation_root_id,
         )
 
         state = ManagerWorkersConversationExecutionState(
             current_agent_name=self.manager_agent.name,
             subconversations=subconversations,
+            root_conversation_id=conversation_root_id,
         )
 
-        return ManagerWorkersConversation(
+        conversation = ManagerWorkersConversation(
             component=self,
             inputs={},
             message_list=messages,
+            id=conversation_runtime_id,
             name=conversation_name or "managerworkers_conversation",
             state=state,
             status=None,
-            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            root_conversation_id=conversation_root_id,
             __metadata_info__={},
         )
+        return conversation
 
     def _referenced_tools_dict_inner(
         self, recursive: bool, visited_set: Set[str]
