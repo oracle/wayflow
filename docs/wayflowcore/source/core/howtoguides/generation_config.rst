@@ -17,7 +17,7 @@ How to Specify the Generation Configuration when Using LLMs
 
         Python script/notebook for this guide.
 
-Generation parameters, such as temperature, top-p, the maximum number of output tokens, and token log probabilities, are important for achieving the desired performance with Large Language Models (LLMs).
+Generation parameters, such as temperature, top-p, the maximum number of output tokens, and per-token log-probabilities, are important for achieving the desired performance with Large Language Models (LLMs).
 In WayFlow, these parameters can be configured with the :ref:`LlmGenerationConfig <llmgenerationconfig>` class.
 
 This guide will show you how to:
@@ -112,6 +112,9 @@ Advanced usage
 ==============
 
 The :ref:`LlmGenerationConfig <llmgenerationconfig>` class is a serializable object. It can be instantiated from a dictionary or saved to one, as you will see below.
+
+
+.. _request_logprobs:
 
 Request token log probabilities
 -------------------------------
