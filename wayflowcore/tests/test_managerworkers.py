@@ -184,7 +184,7 @@ def test_managerworkers_can_execute_with_initial_params_passed_in_start_conversa
     conversation = group.start_conversation(
         messages=[Message(content="Please compute 3*4 + 2", message_type=MessageType.USER)],
         inputs={"USER": "Iris"},
-        root_conversation_id="12345",
+        _root_conversation_id="12345",
     )
 
     conversation.execute()

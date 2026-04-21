@@ -296,7 +296,7 @@ class AgentExecutionStep(Step):
         agent_sub_conversation = self.agent.start_conversation(
             inputs=inputs,
             messages=init_messages,
-            root_conversation_id=caller_conv.root_conversation_id,
+            _root_conversation_id=caller_conv.root_conversation_id,
         )
 
         return agent_sub_conversation
