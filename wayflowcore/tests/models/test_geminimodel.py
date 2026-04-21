@@ -765,7 +765,14 @@ def test_geminimodel_vertex_counts_tokens_sync(
     )
 
 
-def test_hosted_llm_can_return_logprobs_if_supported(vertex_gemini_model):
+@pytest.mark.skipif(
+    not os.getenv("VERTEX_CREDENTIALS") or not _VERTEX_CREDENTIALS_PROJECT_ID,
+    reason="Gemini Vertex-auth test credentials not set up",
+)
+def test_hosted_llm_can_return_logprobs_if_supported(
+    vertex_gemini_model: GeminiModel,
+    litellm_thread_cleanup,
+):
     prompt = Prompt(
         messages=[Message(content="Say 'Bern'", role="user")],
         generation_config=LlmGenerationConfig(top_logprobs=2, max_tokens=16),
