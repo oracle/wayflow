@@ -973,6 +973,103 @@ def test_conversation_summarization_transformer_summarizes_long_conversations_fr
     check_conversation_summarization_transformer_summarizes_long_conversations(agent, messages)
 
 
+@pytest.mark.parametrize(
+    "params,error_message",
+    [
+        (
+            {"max_num_messages": None, "max_num_characters": None},
+            "One of max_num_messages or max_num_characters must be provided.",
+        ),
+        (
+            {"max_num_messages": 10, "max_num_characters": 100},
+            "max_num_messages and max_num_characters are mutually exclusive.",
+        ),
+        (
+            {"max_num_messages": None, "max_num_characters": 0},
+            "max_num_characters must be a positive integer or None.",
+        ),
+        (
+            {"max_num_messages": 0},
+            "max_num_messages must be a positive integer or None.",
+        ),
+    ],
+)
+def test_conversation_summarization_transform_validates_threshold_configuration(
+    params, error_message
+):
+    with pytest.raises(ValueError, match=error_message):
+        ConversationSummarizationTransform(
+            llm=mock_llm(),
+            datastore=None,
+            min_num_messages=1,
+            **params,
+        )
+
+
+def test_conversation_summarization_transform_summarizes_based_on_character_threshold():
+    summarization_llm = mock_llm()
+    agent_llm = mock_llm()
+    transform = ConversationSummarizationTransform(
+        llm=summarization_llm,
+        datastore=None,
+        max_num_messages=None,
+        max_num_characters=120,
+        min_num_messages=1,
+    )
+    agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
+    conversation = agent.start_conversation()
+
+    for content in [
+        "Tell me about dolphins.",
+        "Dolphins are smart marine mammals with complex social behavior.",
+        "Can they use tools in the wild?",
+    ]:
+        conversation.append_message(Message(content=content, message_type=MessageType.USER))
+
+    summary = "Dolphins are intelligent, social, and known to use tools."
+    mock_generate_summary = AsyncMock(
+        side_effect=lambda prompt: LlmCompletion(Message(summary), None)
+    )
+    with patch.object(summarization_llm, "generate_async", mock_generate_summary):
+        with patch_streaming_llm(agent_llm, "This is a mock llm generation.") as patched_agent_llm:
+            conversation.execute()
+
+    assert mock_generate_summary.call_count > 0
+    transformed_messages = [
+        message.content
+        for prompts, _ in patched_agent_llm.call_args_list
+        for prompt in prompts
+        for message in prompt.messages
+    ]
+    assert transformed_messages == [
+        "Summarized conversation: " + summary,
+        "Can they use tools in the wild?",
+    ]
+
+
+def test_conversation_summarization_transform_does_not_summarize_below_character_threshold():
+    summarization_llm = mock_llm()
+    agent_llm = mock_llm()
+    transform = ConversationSummarizationTransform(
+        llm=summarization_llm,
+        datastore=None,
+        max_num_messages=None,
+        max_num_characters=300,
+        min_num_messages=1,
+    )
+    agent = Agent(llm=agent_llm, tools=[], transforms=[transform])
+    conversation = agent.start_conversation()
+
+    for content in [
+        "Hi",
+        "Tell me more",
+        "Okay",
+    ]:
+        conversation.append_message(Message(content=content, message_type=MessageType.USER))
+
+    assert not execute_conversation_check_summarizer_ran(conversation, summarization_llm, agent_llm)
+
+
 def conversation_summarization_transforms_setup(llm):
     datastore = InMemoryDatastore(
         {"test_conversation_cache": ConversationSummarizationTransform.get_entity_definition()}

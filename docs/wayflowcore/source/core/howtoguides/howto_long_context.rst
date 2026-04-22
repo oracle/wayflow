@@ -149,6 +149,13 @@ This method uses the built-in :ref:`ConversationSummarizationTransform <conversa
    :start-after: .. start-##_Create_ConversationSummarizationTransform
    :end-before: .. end-##_Create_ConversationSummarizationTransform
 
+If you prefer a best-effort size threshold instead of a message-count threshold, set ``max_num_messages=None`` and use ``max_num_characters``:
+
+.. literalinclude:: ../code_examples/howto_long_context.py
+   :language: python
+   :start-after: .. start-##_Create_ConversationSummarizationTransform_With_Character_Threshold
+   :end-before: .. end-##_Create_ConversationSummarizationTransform_With_Character_Threshold
+
 Let's integrate the :ref:`MessageTransform <messagetransform>` into the :ref:`Agent <agent>`:
 
 .. literalinclude:: ../code_examples/howto_long_context.py

@@ -150,6 +150,15 @@ transform = ConversationSummarizationTransform(
 )
 # .. end-##_Create_ConversationSummarizationTransform
 
+# .. start-##_Create_ConversationSummarizationTransform_With_Character_Threshold
+transform = ConversationSummarizationTransform(
+    llm=summarization_llm,
+    max_num_messages=None,
+    max_num_characters=4000,
+    min_num_messages=2,
+)
+# .. end-##_Create_ConversationSummarizationTransform_With_Character_Threshold
+
 # .. start-##_Run_Agent_With_ConversationSummarizationTransform
 
 agent = Agent(

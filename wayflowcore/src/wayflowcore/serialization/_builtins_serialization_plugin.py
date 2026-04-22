@@ -1786,6 +1786,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     conversion_context, runtime_messagetransform.llm, referenced_objects
                 ),
                 max_num_messages=runtime_messagetransform.max_num_messages,
+                max_num_characters=runtime_messagetransform.max_num_characters,
                 min_num_messages=runtime_messagetransform.min_num_messages,
                 summarization_instructions=runtime_messagetransform.summarization_instructions,
                 summarized_conversation_template=runtime_messagetransform.summarized_conversation_template,
