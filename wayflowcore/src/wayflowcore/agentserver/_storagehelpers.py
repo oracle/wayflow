@@ -7,7 +7,7 @@ import logging
 from typing import Dict, Optional
 
 from wayflowcore.agentserver.serverstorageconfig import ServerStorageConfig
-from wayflowcore.checkpointing.datastore import (
+from wayflowcore.checkpointing.datastorecheckpointer import (
     _prepare_oracle_checkpoint_datastore,
     _prepare_postgres_checkpoint_datastore,
 )
