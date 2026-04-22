@@ -17,13 +17,14 @@ How to Specify the Generation Configuration when Using LLMs
 
         Python script/notebook for this guide.
 
-Generation parameters, such as temperature, top-p, and the maximum number of output tokens, are important for achieving the desired performance with Large Language Models (LLMs).
+Generation parameters, such as temperature, top-p, the maximum number of output tokens, and per-token log-probabilities, are important for achieving the desired performance with Large Language Models (LLMs).
 In WayFlow, these parameters can be configured with the :ref:`LlmGenerationConfig <llmgenerationconfig>` class.
 
 This guide will show you how to:
 
 - Configure the generation parameters for an agent.
 - Configure the generation parameters for a flow.
+- Request token log probabilities.
 - Apply the generation configuration from a dictionary.
 - Save a custom generation configuration.
 
@@ -54,6 +55,7 @@ The generation configuration dictionary can have the following arguments:
 - ``top_p``: controls the randomness of the output;
 - ``stop``: defines a list of stop words to indicate the LLM to stop generating;
 - ``frequency_penalty``: controls the frequency of tokens generated.
+- ``top_logprobs``: requests token-level log probabilities, including alternate candidates when the provider supports them.
 
 Additionally, the :ref:`LlmGenerationConfig <llmgenerationconfig>` offers the possibility to set a dictionary
 of arbitrary parameters, called ``extra_args``, that will be sent as part of the llm generation call.
@@ -110,6 +112,37 @@ Advanced usage
 ==============
 
 The :ref:`LlmGenerationConfig <llmgenerationconfig>` class is a serializable object. It can be instantiated from a dictionary or saved to one, as you will see below.
+
+
+.. _request_logprobs:
+
+Request token log probabilities
+-------------------------------
+
+Use ``top_logprobs`` when you want the model to return token-level probabilities for generated text.
+WayFlow stores those values on ``TextContent.logprobs`` for direct LLM calls, and the
+:ref:`PromptExecutionStep <promptexecutionstep>` also exposes them as an additional ``logprobs`` output.
+
+.. note::
+
+    ``top_logprobs`` is only available for raw text generation.
+    It is not supported with structured generation in :ref:`PromptExecutionStep <promptexecutionstep>`,
+    and support depends on the selected provider and model.
+
+For direct ``LlmModel`` calls, configure ``top_logprobs`` on the prompt and inspect the ``TextContent`` chunk:
+
+.. literalinclude:: ../code_examples/example_generationconfig.py
+    :language: python
+    :start-after: .. start-##_Request_logprobs_from_a_direct_llm_call
+    :end-before: .. end-##_Request_logprobs_from_a_direct_llm_call
+
+For flows, you can request logprobs directly on :ref:`PromptExecutionStep <promptexecutionstep>`.
+When enabled, the step appends a ``logprobs`` output alongside the normal text output:
+
+.. literalinclude:: ../code_examples/example_generationconfig.py
+    :language: python
+    :start-after: .. start-##_Request_logprobs_from_a_flow_step
+    :end-before: .. end-##_Request_logprobs_from_a_flow_step
 
 Apply the generation configuration from a dictionary
 ----------------------------------------------------

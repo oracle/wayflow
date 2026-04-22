@@ -61,7 +61,7 @@ Class that is used to gather all token usage information.
 LLM Generation Config
 ---------------------
 
-Parameters for LLM generation (``max_tokens``, ``temperature``, ``top_p``).
+Parameters for LLM generation (``max_tokens``, ``temperature``, ``top_p``, ``top_logprobs``).
 
 .. _llmgenerationconfig:
 .. autoclass:: wayflowcore.models.llmgenerationconfig.LlmGenerationConfig

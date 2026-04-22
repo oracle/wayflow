@@ -47,6 +47,21 @@ conversation.execute()
 print(conversation.get_last_message())
 # .. end-##_Build_the_agent_and_run_it
 
+# .. start-##_Request_logprobs_from_a_direct_llm_call
+from wayflowcore.messagelist import Message, TextContent
+from wayflowcore.models import Prompt
+
+prompt = Prompt(
+    messages=[Message(content="Say 'Bern' and nothing else.")],
+    generation_config=LlmGenerationConfig(top_logprobs=2, max_tokens=16),
+)
+completion = llm.generate(prompt)
+text_chunk = next(chunk for chunk in completion.message.contents if isinstance(chunk, TextContent))
+
+print(text_chunk.content)
+print(text_chunk.logprobs)
+# .. end-##_Request_logprobs_from_a_direct_llm_call
+
 
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
@@ -79,6 +94,38 @@ conversation = flow.start_conversation(
 )
 conversation.execute()
 # .. end-##_Build_the_flow_using_custom_generation_parameters
+
+# .. start-##_Request_logprobs_from_a_flow_step
+from wayflowcore.executors.executionstatus import FinishedStatus
+
+logprob_start_step = StartStep(
+    name="logprob_start_step",
+    input_descriptors=[StringProperty("user_question")],
+)
+logprob_step = PromptExecutionStep(
+    name="PromptExecutionWithLogprobs",
+    prompt_template="{{user_question}}",
+    llm=llm,
+    top_logprobs=2,
+)
+logprob_flow = Flow(
+    begin_step=logprob_start_step,
+    control_flow_edges=[
+        ControlFlowEdge(source_step=logprob_start_step, destination_step=logprob_step),
+        ControlFlowEdge(source_step=logprob_step, destination_step=None),
+    ],
+    data_flow_edges=[
+        DataFlowEdge(logprob_start_step, "user_question", logprob_step, "user_question")
+    ],
+)
+conversation = logprob_flow.start_conversation(
+    inputs={"user_question": "What is the capital of Switzerland?"}
+)
+status = conversation.execute()
+if isinstance(status, FinishedStatus):
+    print(status.output_values[PromptExecutionStep.OUTPUT])
+    print(status.output_values[PromptExecutionStep.LOGPROBS])
+# .. end-##_Request_logprobs_from_a_flow_step
 
 # .. start-##_Export_config_to_Agent_Spec
 from wayflowcore.agentspec import AgentSpecExporter

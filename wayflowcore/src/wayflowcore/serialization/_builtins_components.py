@@ -173,6 +173,8 @@ _BUILTIN_COMPONENTS = {
     "ToolFromToolBox",
     "TemplateRenderingStep",
     "TextContent",
+    "TextTokenLogProb",
+    "TextTokenTopLogProb",
     "TlsOracleDatabaseConnectionConfig",
     "TlsPostgresDatabaseConnectionConfig",
     "TokenUsage",

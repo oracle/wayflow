@@ -19,12 +19,19 @@ import pytest
 
 from wayflowcore.embeddingmodels.openaicompatiblemodel import OpenAICompatibleEmbeddingModel
 from wayflowcore.executors._agentexecutor import _get_end_conversation_tool
-from wayflowcore.messagelist import ImageContent, Message, MessageType, TextContent
+from wayflowcore.messagelist import (
+    ImageContent,
+    Message,
+    MessageType,
+    TextContent,
+    TextTokenLogProb,
+)
 from wayflowcore.models import StreamChunkType
 from wayflowcore.models._requesthelpers import RetryingAsyncClient, request_post_with_retries
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import LlmModel, Prompt
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
+from wayflowcore.models.ocigenaimodel import _adapt_generation_config_with_error_message
 from wayflowcore.models.openaicompatiblemodel import OpenAICompatibleModel
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.property import (
@@ -2091,3 +2098,53 @@ def test_structured_generation_with_enum(request, llm_fixture_name):
     assert json_content.pop("habitat") in habitat_enum
     assert json_content.pop("state") in state_enum
     assert json_content.pop("life") in life_enum
+
+
+from contextlib import nullcontext
+
+
+@with_all_llm_configs
+def test_hosted_llm_can_return_logprobs_if_supported(llm_config):
+
+    if llm_config == OLLAMA_MODEL_CONFIG:
+        # pytest.skip("Ollama hosted models sometimes does not return logprobs")
+        context = pytest.raises(AssertionError)
+    elif llm_config == VLLM_OSS_CONFIG:
+        context = pytest.raises(Exception, match="logprobs are not supported with gpt-oss models")
+    elif llm_config in [GROK_OCI_RESPONSE_API_KEY_CONFIG, GROK_OCI_CHAT_COMPLETIONS_API_KEY_CONFIG]:
+        # grok returns empty logprobs
+        context = pytest.raises(AssertionError)
+    elif llm_config == COHERE_OCI_API_KEY_CONFIG:
+        # cohere returns empty logprobs
+        context = pytest.raises(ValueError, match="Logprobs are not supported for cohere models")
+    else:
+        context = nullcontext()
+
+    llm = LlmModelFactory.from_config(llm_config)
+
+    prompt = Prompt(
+        messages=[Message(content="Say 'Bern'", message_type=MessageType.USER)],
+        generation_config=LlmGenerationConfig(top_logprobs=2, max_tokens=16),
+    )
+
+    with context:
+        res = llm.generate(prompt)
+
+        text_chunk = next((c for c in res.message.contents if isinstance(c, TextContent)), None)
+        assert text_chunk is not None
+        assert text_chunk.logprobs is not None
+        assert len(text_chunk.logprobs) > 0
+        assert isinstance(text_chunk.logprobs[0], TextTokenLogProb)
+
+
+def test_unsupported_oci_top_logprobs_raise_instead_of_retrying(caplog) -> None:
+    generation_config = LlmGenerationConfig(top_logprobs=2, max_tokens=16)
+
+    with caplog.at_level(logging.WARNING):
+        with pytest.raises(ValueError, match="does not support returning logprobs"):
+            _adapt_generation_config_with_error_message(
+                generation_config=generation_config,
+                error_message="Unsupported parameter: 'log_probs'",
+            )
+
+    assert any("does not support returning logprobs" in record.message for record in caplog.records)

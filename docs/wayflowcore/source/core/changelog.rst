@@ -40,6 +40,14 @@ New features
   :doc:`how to use LLMs from different providers <howtoguides/llm_from_different_providers>`.
 
 
+* **Logprob support in `LlmGenerationConfig` and `PromptExecutionStep`**
+
+  Add per-token log-probabilities support with the ``top_logprobs`` generation config parameter and support returning
+  per-token log-probabilities in the ``PromptExecutionStep``.
+  For more information please read the guide on :ref:`How to request per-token log-probabilities <request_logprobs>`
+
+
+
 Improvements
 ^^^^^^^^^^^^
 
