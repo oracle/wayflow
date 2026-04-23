@@ -225,6 +225,39 @@ The Dermatologist can also delegate with the Pharmacist.
 When invoked, each agent can either respond to its caller (a human user or another agent) or choose to initiate a discussion with
 another agent if they are given the capability to do so.
 
+You can also attach message transforms directly on the ``Swarm`` with the ``transforms`` parameter. This is useful for patterns such as
+:ref:`MessageSummarizationTransform <messagesummarizationtransform>` and :ref:`ConversationSummarizationTransform <conversationsummarizationtransform>`,
+where you want long-context handling to apply to the active agent's effective runtime prompt inside the swarm.
+These swarm-level transforms are prepended ahead of any transforms already configured on the ``swarm_template``.
+
+.. literalinclude:: ../code_examples/howto_swarm.py
+    :language: python
+    :start-after: .. start-##_Creating_the_Swarm_With_Transforms
+    :end-before: .. end-##_Creating_the_Swarm_With_Transforms
+
+.. _swarm_transform_ordering:
+
+.. note::
+   **How ``transforms`` and ``swarm_template`` work together**
+
+   During execution, WayFlow always renders prompts from the configured ``swarm_template``, and applies that prompt surface to the active agent.
+   The active agent's own pre-rendering transforms are prepended first, then ``swarm.transforms``,
+   and finally any pre-rendering transforms already configured directly on ``swarm_template``.
+   The effective pre-rendering order is therefore:
+
+   1. ``active_agent.transforms``
+   2. ``swarm.transforms``
+   3. ``swarm_template.pre_rendering_transforms``
+
+   This means the most specific transforms run first: agent-level before swarm-level, and swarm-level before
+   template-level transforms.
+
+   If you use ``_DEFAULT_SWARM_CHAT_TEMPLATE``, note that its built-in formatting transforms are
+   ``post_rendering_transforms``. They run after the pre-rendering order above and after the template has been rendered.
+
+If you serialize and later deserialize a swarm conversation, the summarization transform configuration is restored as part of the prompt template and component configuration.
+For persistent deployments, prefer a database-backed datastore for the summary cache so previously computed summaries remain available after restarts.
+
 Executing the Swarm
 -------------------
 

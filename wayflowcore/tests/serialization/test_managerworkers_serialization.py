@@ -22,6 +22,7 @@ from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.serialization import deserialize, serialize, serialize_to_dict
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep
 from wayflowcore.tools import ToolRequest
+from wayflowcore.transforms import RemoveEmptyNonUserMessageTransform
 
 from ..conftest import GEMMA_CONFIG, VLLM_MODEL_CONFIG, _assert_config_are_equal
 from ..test_managerworkers import simple_math_agents_example  # noqa
@@ -97,6 +98,10 @@ def assert_managerworkers_are_equal(old_instance: ManagerWorkers, new_instance: 
         assert_llms_are_equal(old_instance.group_manager, new_instance.group_manager)
     assert_managerworkers_agents_are_equal(old_instance.manager_agent, new_instance.manager_agent)
 
+    assert len(old_instance.transforms) == len(new_instance.transforms)
+    for old_transform, new_transform in zip(old_instance.transforms, new_instance.transforms):
+        assert type(old_transform) is type(new_transform)
+
     assert len(old_instance.workers) == len(new_instance.workers)
     for old_worker, new_worker in zip(old_instance.workers, new_instance.workers):
         if isinstance(old_worker, ManagerWorkers) and isinstance(new_worker, ManagerWorkers):
@@ -155,6 +160,23 @@ def test_can_deserialize_simple_managerworkers(simple_managerworkers: ManagerWor
     )
 
     assert_managerworkers_are_equal(simple_managerworkers, new_managerworkers)
+
+
+def test_managerworkers_transforms_are_serialized(simple_math_agents_example) -> None:
+    addition_agent, multiplication_agent = simple_math_agents_example
+    group = ManagerWorkers(
+        workers=[addition_agent, multiplication_agent],
+        group_manager=addition_agent.llm,
+        transforms=[RemoveEmptyNonUserMessageTransform()],
+    )
+
+    deserialized_group = deserialize(ManagerWorkers, serialize(group))
+
+    assert len(deserialized_group.transforms) == 1
+    assert isinstance(
+        deserialized_group.transforms[0],
+        RemoveEmptyNonUserMessageTransform,
+    )
 
 
 def test_can_serialize_simple_state(simple_state: ManagerWorkersConversationExecutionState):
