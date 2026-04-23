@@ -4,7 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
-from typing import Dict, Optional, Union, cast
+from typing import Dict, List, Optional, Union, cast
 
 from pyagentspec import Component as AgentSpecComponent
 from pyagentspec.agent import Agent as AgentSpecAgent
@@ -12,9 +12,12 @@ from pyagentspec.flows.flow import Flow as AgentSpecFlow
 from pyagentspec.flows.node import Node as AgentSpecNode
 from pyagentspec.llms import LlmConfig as AgentSpecLlmConfig
 from pyagentspec.llms import LlmGenerationConfig
+from pyagentspec.serialization import ComponentSerializationPlugin
 from pyagentspec.tools import Tool as AgentSpecTool
+from pyagentspec.tracing._basemodel import _TracingSerializationContextImpl
 from pyagentspec.tracing.events import AgentExecutionEnd as AgentSpecAgentExecutionEnd
 from pyagentspec.tracing.events import AgentExecutionStart as AgentSpecAgentExecutionStart
+from pyagentspec.tracing.events import Event as AgentSpecEvent
 from pyagentspec.tracing.events import ExceptionRaised as AgentSpecExceptionRaised
 from pyagentspec.tracing.events import FlowExecutionEnd as AgentSpecFlowExecutionEnd
 from pyagentspec.tracing.events import FlowExecutionStart as AgentSpecFlowExecutionStart
@@ -56,18 +59,51 @@ from wayflowcore.events.event import (
 )
 from wayflowcore.events.eventlistener import EventListener
 from wayflowcore.executors.executionstatus import FinishedStatus
+from wayflowcore.serialization.plugins import WayflowSerializationPlugin
 from wayflowcore.tracing.span import LlmGenerationSpan, get_active_span_stack, get_current_span
+
+
+def _create_tracing_serialization_context(
+    plugins: Optional[List[Union[ComponentSerializationPlugin, WayflowSerializationPlugin]]] = None,
+) -> _TracingSerializationContextImpl:
+    """
+    Build a tracing serialization context that knows how to dump WayFlow Agent Spec extension components.
+    """
+    exporter = AgentSpecExporter(plugins=plugins)
+    return _TracingSerializationContextImpl(plugins=exporter.get_agentspec_serialization_plugins())
+
+
+def dump_tracing_model(
+    model: Union[AgentSpecEvent, AgentSpecSpan],
+    mask_sensitive_information: bool = True,
+    plugins: Optional[List[Union[ComponentSerializationPlugin, WayflowSerializationPlugin]]] = None,
+) -> Dict[str, object]:
+    """
+    Serialize an Agent Spec tracing span/event using the WayFlow Agent Spec serialization plugins.
+    """
+    if not isinstance(model, (AgentSpecEvent, AgentSpecSpan)):
+        raise TypeError("dump_tracing_model only supports Agent Spec tracing events and spans.")
+    return model.model_dump(
+        mask_sensitive_information=mask_sensitive_information,
+        context=_create_tracing_serialization_context(plugins=plugins),
+    )
 
 
 class AgentSpecEventListener(EventListener):
     """Event listener that emits traces according to the Open Agent Spec Tracing standard"""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        plugins: Optional[
+            List[Union[ComponentSerializationPlugin, WayflowSerializationPlugin]]
+        ] = None,
+    ) -> None:
         super().__init__()
+        self.plugins = plugins
         # We keep track of the mapping between the wayflow span (id) and the corresponding agent spec span
         self.agentspec_spans_registry: Dict[str, AgentSpecSpan] = {}
         # As we need to store agent spec objects in the agent spec spans and events, we need to perform conversions
-        self.agentspec_exporter: AgentSpecExporter = AgentSpecExporter()
+        self.agentspec_exporter: AgentSpecExporter = AgentSpecExporter(plugins=plugins)
         # We keep a registry of conversions, so that we do not repeat the conversion for the same object twice
         self.agentspec_components_registry: Dict[str, AgentSpecComponent] = {}
         # Track last assistant message id and a robust mapping tool_request_id -> assistant message id.
@@ -75,6 +111,16 @@ class AgentSpecEventListener(EventListener):
         # temporarily missing ids and backfill on LLM response.
         self._last_assistant_message_id: Union[str, None] = None
         self._tool_to_message: Dict[str, Optional[str]] = {}
+
+    def dump_tracing_model(
+        self, model: Union[AgentSpecEvent, AgentSpecSpan], mask_sensitive_information: bool = True
+    ) -> Dict[str, object]:
+        """Serialize an Agent Spec tracing span/event with the listener's plugin set."""
+        return dump_tracing_model(
+            model=model,
+            mask_sensitive_information=mask_sensitive_information,
+            plugins=self.plugins,
+        )
 
     def _convert_to_agentspec(self, component: Component) -> AgentSpecComponent:
         if component.id not in self.agentspec_components_registry:
@@ -340,7 +386,11 @@ class AgentSpecEventListener(EventListener):
                     AgentSpecFlow, self._convert_to_agentspec(event.conversational_component)
                 )
                 if isinstance(event.execution_status, FinishedStatus):
-                    branch_selected = event.execution_status.complete_step_name
+                    branch_selected = (
+                        event.execution_status.complete_step_name
+                        or event.execution_status.final_step_name
+                        or ""
+                    )
                     outputs = event.execution_status.output_values
                 else:
                     branch_selected = ""

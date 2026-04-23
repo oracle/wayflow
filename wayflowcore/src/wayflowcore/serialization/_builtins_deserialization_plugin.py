@@ -143,7 +143,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_deserialization_plugin
+from wayflowcore.agentspec.components import (
+    all_deserialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -305,7 +307,7 @@ from wayflowcore.agentspec.components.transforms import (
     PluginSplitPromptOnMarkerMessageTransform as AgentSpecPluginSplitPromptOnMarkerMessageTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
-    PluginSwarmToolRequestAndCallsTransform as AgentSpecPluginSwarmToolRequestAndCallsTransform,
+    PluginToolRequestAndCallsTransform as AgentSpecPluginToolRequestAndCallsTransform,
 )
 from wayflowcore.contextproviders.constantcontextprovider import (
     ConstantContextProvider as RuntimeConstantContextProvider,
@@ -445,8 +447,8 @@ from wayflowcore.steps.variablesteps.variablewritestep import (
 from wayflowcore.swarm import HandoffMode as RuntimeHandoffMode
 from wayflowcore.swarm import Swarm as RuntimeSwarm
 from wayflowcore.templates import PromptTemplate as RuntimePromptTemplate
-from wayflowcore.templates._swarmtemplate import (
-    _ToolRequestAndCallsTransform as RuntimeSwarmToolRequestAndCallsTransform,
+from wayflowcore.templates.agenticpatterntemplate import (
+    ToolRequestAndCallsTransform as RuntimeToolRequestAndCallsTransform,
 )
 from wayflowcore.templates.llamatemplates import (
     _LlamaMergeToolRequestAndCallsTransform as RuntimeLlamaMergeToolRequestAndCallsTransform,
@@ -1920,8 +1922,8 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 return RuntimeReactMergeToolRequestAndCallsTransform(
                     **self._get_component_arguments(agentspec_component)
                 )
-            elif isinstance(agentspec_component, AgentSpecPluginSwarmToolRequestAndCallsTransform):
-                return RuntimeSwarmToolRequestAndCallsTransform(
+            elif isinstance(agentspec_component, AgentSpecPluginToolRequestAndCallsTransform):
+                return RuntimeToolRequestAndCallsTransform(
                     **self._get_component_arguments(agentspec_component)
                 )
             elif isinstance(agentspec_component, AgentSpecPluginCanonicalizationMessageTransform):

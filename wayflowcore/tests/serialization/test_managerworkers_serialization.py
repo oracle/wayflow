@@ -7,6 +7,7 @@ from collections import Counter
 from copy import deepcopy
 
 import pytest
+import yaml
 
 from wayflowcore.agent import Agent
 from wayflowcore.executors._flowconversation import FlowConversation
@@ -21,6 +22,7 @@ from wayflowcore.models import LlmModel
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.serialization import deserialize, serialize, serialize_to_dict
 from wayflowcore.steps.agentexecutionstep import AgentExecutionStep
+from wayflowcore.templates.agenticpatterntemplate import ToolRequestAndCallsTransform
 from wayflowcore.tools import ToolRequest
 
 from ..conftest import GEMMA_CONFIG, VLLM_MODEL_CONFIG, _assert_config_are_equal
@@ -200,6 +202,28 @@ def test_can_continue_a_deserialized_conversation(simple_managerworkers: Manager
     assert len(deser_conv.get_messages()) == conv_length_before
     deser_conv.append_user_message("Hello")
     deser_conv.execute()
+
+
+def test_legacy_managerworkers_transform_is_upgraded_on_deserialization(
+    simple_managerworkers: ManagerWorkers,
+):
+    serialized_managerworkers = serialize_to_dict(simple_managerworkers)
+    managerworkers_template_ref = serialized_managerworkers["managerworkers_template"]["$ref"]
+    serialized_managerworkers["_referenced_objects"][managerworkers_template_ref][
+        "post_rendering_transforms"
+    ][0]["_component_type"] = "_ToolRequestAndCallsTransform"
+
+    deserialized_managerworkers = deserialize(
+        ManagerWorkers, yaml.safe_dump(serialized_managerworkers, sort_keys=False)
+    )
+
+    assert isinstance(
+        deserialized_managerworkers.managerworkers_template.post_rendering_transforms[0],
+        ToolRequestAndCallsTransform,
+    )
+    reserialized_managerworkers = serialize(deserialized_managerworkers)
+    assert "_component_type: ToolRequestAndCallsTransform" in reserialized_managerworkers
+    assert "_component_type: _ToolRequestAndCallsTransform" not in reserialized_managerworkers
 
 
 def test_deserialized_conversation_does_not_duplicate_internal_tool_results() -> None:

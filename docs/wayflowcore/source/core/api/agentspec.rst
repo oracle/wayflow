@@ -40,6 +40,8 @@ This event listener makes WayFlow components emit traces according to the Agent 
 .. _agentspeceventlistener:
 .. autoclass:: wayflowcore.agentspec.tracing.AgentSpecEventListener
 
+.. autofunction:: wayflowcore.agentspec.tracing.dump_tracing_model
+
 
 Custom Components
 =================

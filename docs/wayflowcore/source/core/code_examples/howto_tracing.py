@@ -144,3 +144,15 @@ with AgentSpecTrace() as trace:
         conversation.append_user_message("Compute 2+3")
         status = conversation.execute()
 # .. end-##_Enable_Agent_Spec_Tracing
+
+# .. start-##_Dump_Agent_Spec_Tracing
+from pyagentspec.tracing.events import AgentExecutionStart as AgentSpecAgentExecutionStart
+from wayflowcore.agentspec.tracing import dump_tracing_model
+
+# Use this helper when a custom Agent Spec span processor/exporter needs to serialize
+# Agent Spec tracing events or spans that may contain WayFlow extension/plugin components.
+agentspec_agent = AgentSpecExporter().to_component(agent)
+serialized_event = dump_tracing_model(
+    AgentSpecAgentExecutionStart(agent=agentspec_agent, inputs={})
+)
+# .. end-##_Dump_Agent_Spec_Tracing

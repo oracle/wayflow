@@ -4,7 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import asyncio
-from typing import List, Tuple, cast
+from typing import Annotated, List, Tuple, cast
 
 import pytest
 from pyagentspec.agent import Agent as AgentSpecAgent
@@ -38,15 +38,22 @@ from pyagentspec.tracing.spans import ToolExecutionSpan as AgentSpecToolExecutio
 from pyagentspec.tracing.trace import Trace as AgentSpecTrace
 
 from wayflowcore import Agent, Flow
-from wayflowcore.agentspec import AgentSpecLoader
-from wayflowcore.agentspec.tracing import AgentSpecEventListener
+from wayflowcore._utils._templating_helpers import render_template
+from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
+from wayflowcore.agentspec.tracing import AgentSpecEventListener, dump_tracing_model
 from wayflowcore.events.eventlistener import register_event_listeners
 from wayflowcore.executors.executionstatus import (
     ExecutionStatus,
     FinishedStatus,
     UserMessageRequestStatus,
 )
+from wayflowcore.managerworkers import ManagerWorkers
+from wayflowcore.messagelist import Message, MessageType
+from wayflowcore.serialization import deserialize, serialize
+from wayflowcore.steps import CompleteStep, ConstantValuesStep, InputMessageStep, StartStep
+from wayflowcore.tools import tool
 
+from ..conftest import mock_llm
 from ..testhelpers.patching import patch_llm
 
 
@@ -281,6 +288,131 @@ def test_agentspec_flow_raises_correct_events(wayflow_flow: Flow):
     response_event = next(e for e in llm_events if isinstance(e, AgentSpecLlmGenerationResponse))
     assert response_event.content == "Ferrari"
     assert all(e.request_id == response_event.request_id for e in llm_events)
+
+
+def test_agentspec_flow_end_uses_last_executed_step_when_flow_ends_on_none_transition():
+    flow = Flow.from_steps(
+        [
+            StartStep(name="start"),
+            ConstantValuesStep(name="finish", constant_values={}),
+        ]
+    )
+
+    listener = AgentSpecEventListener()
+    span_processor = DummyAgentSpecSpanProcessor()
+
+    with AgentSpecTrace(span_processors=[span_processor]):
+        with register_event_listeners([listener]):
+            status = flow.start_conversation().execute()
+
+    assert isinstance(status, FinishedStatus)
+    assert status.complete_step_name is None
+    assert status.final_step_name == "finish"
+
+    flow_span = next(s for s in span_processor.starts if isinstance(s, AgentSpecFlowExecutionSpan))
+    end_event = next(e for e in flow_span.events if isinstance(e, AgentSpecFlowExecutionEnd))
+    assert end_event.branch_selected == "finish"
+
+
+def test_finished_status_serialization_round_trip_keeps_final_step_name():
+    status = FinishedStatus(
+        output_values={"value": "ok"},
+        complete_step_name=None,
+        _final_step_name="finish",
+        _conversation_id="conv-id",
+    )
+
+    round_tripped_status = deserialize(FinishedStatus, serialize(status))
+
+    assert isinstance(round_tripped_status, FinishedStatus)
+    assert round_tripped_status.complete_step_name is None
+    assert round_tripped_status.final_step_name == "finish"
+    assert round_tripped_status.output_values == {"value": "ok"}
+
+
+def test_finished_status_deserialization_supports_legacy_final_step_name():
+    status = FinishedStatus(
+        output_values={"value": "ok"},
+        complete_step_name=None,
+        _final_step_name="finish",
+        _conversation_id="conv-id",
+    )
+
+    legacy_serialized_status = serialize(status).replace("_final_step_name", "final_step_name")
+
+    round_tripped_status = deserialize(FinishedStatus, legacy_serialized_status)
+
+    assert isinstance(round_tripped_status, FinishedStatus)
+    assert round_tripped_status.final_step_name == "finish"
+
+
+def test_dump_tracing_model_supports_plugin_components():
+    flow = Flow.from_steps(
+        [
+            StartStep(name="start"),
+            InputMessageStep(name="ask_name", message_template="What is your name?"),
+            CompleteStep(name="end"),
+        ]
+    )
+
+    event = AgentSpecFlowExecutionStart(flow=AgentSpecExporter().to_component(flow), inputs={})
+
+    with pytest.raises(Exception, match="PluginInputMessageNode"):
+        event.model_dump()
+
+    dumped_event = dump_tracing_model(event)
+    assert dumped_event["flow"]["nodes"][1]["component_type"] == "PluginInputMessageNode"
+
+    listener = AgentSpecEventListener()
+    dumped_with_listener = listener.dump_tracing_model(event)
+    assert dumped_with_listener["flow"]["nodes"][1]["component_type"] == "PluginInputMessageNode"
+
+
+def test_agentspec_tracing_supports_managerworkers_template_transform():
+    llm = mock_llm()
+
+    @tool
+    def say_hello(user_name: Annotated[str, "Name of the user"]) -> str:
+        """Return a greeting."""
+        return f"Hello {user_name}!"
+
+    manager_agent = Agent(name="manager", description="manager agent", tools=[say_hello], llm=llm)
+    worker = Agent(name="worker", description="worker", llm=llm)
+    group = ManagerWorkers(workers=[worker], group_manager=manager_agent)
+
+    listener = AgentSpecEventListener()
+    span_processor = DummyAgentSpecSpanProcessor()
+    conversation = group.start_conversation()
+    conversation.append_user_message("Dummy")
+
+    with patch_llm(
+        llm,
+        outputs=[
+            Message(
+                render_template(
+                    """
+{{thoughts}}
+
+{"name": {{tool_name}}, "parameters": {{tool_params}}}
+""".strip(),
+                    inputs=dict(
+                        thoughts="",
+                        tool_name="say_hello",
+                        tool_params={"user_name": "Iris"},
+                    ),
+                ),
+                message_type=MessageType.AGENT,
+            ),
+            "Dummy",
+        ],
+        patch_internal=True,
+    ):
+        with AgentSpecTrace(span_processors=[span_processor]):
+            with register_event_listeners([listener]):
+                status = conversation.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert any(isinstance(span, AgentSpecAgentExecutionSpan) for span in span_processor.starts)
 
 
 def test_agentspec_flow_async_raises_correct_events(wayflow_flow: Flow):

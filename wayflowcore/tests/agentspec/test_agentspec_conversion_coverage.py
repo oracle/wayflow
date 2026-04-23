@@ -119,7 +119,6 @@ EXCLUDED_COMPONENTS = {
     "DoNothingStep",
     # internal transforms not supported in AgentSpec
     "_PythonMergeToolRequestAndCallsTransform",
-    "_ToolRequestAndCallsTransform",
     # TODO: Support these in the future
     "ToolFromToolBox",  # Requires search config to be set up along with an embedding model
     "DatastoreQueryStep",  # requires a relational datastore, we only have oracledb and it requires a connection to create the object

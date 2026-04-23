@@ -53,9 +53,8 @@ class PluginReactMergeToolRequestAndCallsTransform(MessageTransform):
     """Simple message processor that joins tool requests and calls into a python-like message"""
 
 
-class PluginSwarmToolRequestAndCallsTransform(MessageTransform):
-    """Format Tool requests as Agent messages and Tool results as User messages to have a simple User/Agent
-    sequence of messages."""
+class PluginToolRequestAndCallsTransform(MessageTransform):
+    """Format tool requests as agent messages and tool results as user messages."""
 
 
 class PluginCanonicalizationMessageTransform(MessageTransform):
@@ -98,7 +97,7 @@ messagetransform_serialization_plugin = PydanticComponentSerializationPlugin(
         PluginAppendTrailingSystemMessageToUserMessageTransform.__name__: PluginAppendTrailingSystemMessageToUserMessageTransform,
         PluginLlamaMergeToolRequestAndCallsTransform.__name__: PluginLlamaMergeToolRequestAndCallsTransform,
         PluginReactMergeToolRequestAndCallsTransform.__name__: PluginReactMergeToolRequestAndCallsTransform,
-        PluginSwarmToolRequestAndCallsTransform.__name__: PluginSwarmToolRequestAndCallsTransform,
+        PluginToolRequestAndCallsTransform.__name__: PluginToolRequestAndCallsTransform,
         PluginCanonicalizationMessageTransform.__name__: PluginCanonicalizationMessageTransform,
         PluginSplitPromptOnMarkerMessageTransform.__name__: PluginSplitPromptOnMarkerMessageTransform,
     },
@@ -111,7 +110,7 @@ messagetransform_deserialization_plugin = PydanticComponentDeserializationPlugin
         PluginAppendTrailingSystemMessageToUserMessageTransform.__name__: PluginAppendTrailingSystemMessageToUserMessageTransform,
         PluginLlamaMergeToolRequestAndCallsTransform.__name__: PluginLlamaMergeToolRequestAndCallsTransform,
         PluginReactMergeToolRequestAndCallsTransform.__name__: PluginReactMergeToolRequestAndCallsTransform,
-        PluginSwarmToolRequestAndCallsTransform.__name__: PluginSwarmToolRequestAndCallsTransform,
+        PluginToolRequestAndCallsTransform.__name__: PluginToolRequestAndCallsTransform,
         PluginCanonicalizationMessageTransform.__name__: PluginCanonicalizationMessageTransform,
         PluginSplitPromptOnMarkerMessageTransform.__name__: PluginSplitPromptOnMarkerMessageTransform,
     },

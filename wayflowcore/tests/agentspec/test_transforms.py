@@ -13,6 +13,7 @@
 import pytest
 from pyagentspec.datastores.datastore import InMemoryCollectionDatastore
 from pyagentspec.llms import VllmConfig
+from pyagentspec.serialization import AgentSpecSerializer
 from pyagentspec.transforms import (
     ConversationSummarizationTransform as AgentSpecConversationSummarizationTransform,
 )
@@ -21,9 +22,18 @@ from pyagentspec.transforms import (
 )
 
 from wayflowcore.agentspec.agentspecexporter import AgentSpecExporter
+from wayflowcore.agentspec.components.transforms import (
+    PluginToolRequestAndCallsTransform as AgentSpecToolRequestAndCallsTransform,
+)
+from wayflowcore.agentspec.components.transforms import (
+    messagetransform_serialization_plugin,
+)
 from wayflowcore.agentspec.runtimeloader import AgentSpecLoader
 from wayflowcore.datastore import InMemoryDatastore
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
+from wayflowcore.templates.agenticpatterntemplate import (
+    ToolRequestAndCallsTransform as WayflowToolRequestAndCallsTransform,
+)
 from wayflowcore.transforms import (
     ConversationSummarizationTransform as WayflowConversationSummarizationTransform,
 )
@@ -208,6 +218,51 @@ def test_agentspec_summarization_conversation_transform_can_be_converted_to_wayf
     assert_conversation_summarization_transforms_are_equal(
         converted_transform, expected_wayflow_transform
     )
+
+
+def test_wayflow_tool_request_and_calls_transform_can_be_converted_to_agentspec():
+    converted_transform = AgentSpecExporter().to_component(WayflowToolRequestAndCallsTransform())
+
+    assert type(converted_transform) is AgentSpecToolRequestAndCallsTransform
+    assert converted_transform.name == "toolrequestandcalls_messagetransform"
+
+
+def test_agentspec_tool_request_and_calls_transform_can_be_converted_to_wayflow():
+    converted_transform = AgentSpecLoader().load_component(
+        AgentSpecToolRequestAndCallsTransform(name="toolrequestandcalls_messagetransform")
+    )
+
+    assert type(converted_transform) is WayflowToolRequestAndCallsTransform
+
+
+def test_legacy_agentspec_swarm_tool_request_and_calls_transform_is_upgraded():
+    serialized_transform = AgentSpecSerializer(
+        plugins=[messagetransform_serialization_plugin]
+    ).to_json(AgentSpecToolRequestAndCallsTransform(name="toolrequestandcalls_messagetransform"))
+    serialized_transform = serialized_transform.replace(
+        "PluginToolRequestAndCallsTransform",
+        "PluginSwarmToolRequestAndCallsTransform",
+        1,
+    )
+
+    converted_transform = AgentSpecLoader().load_json(serialized_transform)
+
+    assert type(converted_transform) is WayflowToolRequestAndCallsTransform
+
+
+def test_legacy_agentspec_swarm_tool_request_and_calls_transform_is_upgraded_from_yaml():
+    serialized_transform = AgentSpecSerializer(
+        plugins=[messagetransform_serialization_plugin]
+    ).to_yaml(AgentSpecToolRequestAndCallsTransform(name="toolrequestandcalls_messagetransform"))
+    serialized_transform = serialized_transform.replace(
+        "PluginToolRequestAndCallsTransform",
+        "PluginSwarmToolRequestAndCallsTransform",
+        1,
+    )
+
+    converted_transform = AgentSpecLoader().load_yaml(serialized_transform)
+
+    assert type(converted_transform) is WayflowToolRequestAndCallsTransform
 
 
 def assert_message_summarization_transforms_are_equal(converted_transform, expected_transform):
