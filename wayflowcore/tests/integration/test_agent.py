@@ -2238,20 +2238,16 @@ def test_exception_during_parallel_tool_calls(remotely_hosted_llm):
 
 
 def test_agent_handles_parallel_tool_calls_with_canonicalized_native_template():
-    class CanonicalizedDummyModel(DummyModel):
-        @property
-        def default_agent_template(self) -> PromptTemplate:
-            return NATIVE_AGENT_TEMPLATE.with_additional_post_rendering_transform(
-                CanonicalizationMessageTransform()
-            )
-
-    llm = CanonicalizedDummyModel()
+    llm = DummyModel()
     agent = Agent(
         tools=[success_tool],
         llm=llm,
         custom_instruction="some instructions",
         can_finish_conversation=False,
         max_iterations=40,
+        agent_template=NATIVE_AGENT_TEMPLATE.with_additional_post_rendering_transform(
+            CanonicalizationMessageTransform()
+        ),
     )
 
     conversation = agent.start_conversation(messages="do something")
