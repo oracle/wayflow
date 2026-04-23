@@ -8,7 +8,7 @@ import logging
 import time
 import warnings
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union, cast
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils._templating_helpers import render_template
@@ -16,7 +16,7 @@ from wayflowcore._utils.formatting import stringify
 from wayflowcore.conversation import _get_current_conversation_id
 from wayflowcore.datastore.entity import Entity
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING, InMemoryDatastore
-from wayflowcore.messagelist import Message, MessageContent, TextContent
+from wayflowcore.messagelist import ImageContent, Message, MessageContent, TextContent
 from wayflowcore.models.llmmodel import Prompt
 from wayflowcore.models.tokenusagehelpers import CountTokensHeuristics
 from wayflowcore.property import FloatProperty, IntegerProperty, StringProperty
@@ -419,9 +419,12 @@ class ConversationSummarizationTransform(MessageTransform):
     llm:
         LLM to use for the summarization.
     max_num_messages:
-        Number of message after which we trigger summarization. Tune this parameter depending on the
+        Number of messages after which we trigger summarization. Tune this parameter depending on the
         context length of your model and the price you are willing to pay (higher means longer conversation
-        prompts and more tokens).
+        prompts and more tokens). Mutually exclusive with ``max_num_characters``.
+    max_num_characters:
+        Best-effort character threshold after which we trigger summarization. This counts text content
+        exactly and non-text content approximately. To use this mode, pass ``max_num_messages=None``.
     min_num_messages:
         Number of recent messages to keep from summarizing. Tune this parameter to prevent from summarizing
         very recent messages and keep a very responsive and relevant agent.
@@ -459,7 +462,8 @@ class ConversationSummarizationTransform(MessageTransform):
     def __init__(
         self,
         llm: "LlmModel",
-        max_num_messages: int = 50,
+        max_num_messages: Optional[int] = 50,
+        max_num_characters: Optional[int] = None,
         min_num_messages: int = 10,
         summarization_instructions: str = "Please make a summary of this conversation. Include relevant information and keep it short. "
         "Your response will replace the messages, so just output the summary directly, no introduction needed.",
@@ -484,17 +488,27 @@ class ConversationSummarizationTransform(MessageTransform):
             llm, summarization_instructions, summarized_conversation_template
         )
         self.max_num_messages = max_num_messages
+        self.max_num_characters = max_num_characters
         self.min_num_messages = min_num_messages
         self.summarized_conversation_template = summarized_conversation_template
         self.max_cache_size = max_cache_size
         self.max_cache_lifetime = max_cache_lifetime
         self.cache_collection_name = cache_collection_name
 
-        if self.max_num_messages <= 0:
-            raise ValueError("max_num_messages must be a positive integer.")
+        if self.max_num_messages is not None and self.max_num_characters is not None:
+            raise ValueError(
+                "max_num_messages and max_num_characters are mutually exclusive. "
+                "Set max_num_messages=None to use max_num_characters."
+            )
+        if self.max_num_messages is None and self.max_num_characters is None:
+            raise ValueError("One of max_num_messages or max_num_characters must be provided.")
+        if self.max_num_messages is not None and self.max_num_messages <= 0:
+            raise ValueError("max_num_messages must be a positive integer or None.")
+        if self.max_num_characters is not None and self.max_num_characters <= 0:
+            raise ValueError("max_num_characters must be a positive integer or None.")
         if self.min_num_messages < 0:
             raise ValueError("min_num_messages must be a non-negative integer.")
-        if self.min_num_messages > self.max_num_messages:
+        if self.max_num_messages is not None and self.min_num_messages > self.max_num_messages:
             raise ValueError("min_num_messages must not exceed max_num_messages.")
 
         self.cache: Optional[_MessageCache] = None
@@ -513,6 +527,31 @@ class ConversationSummarizationTransform(MessageTransform):
                 collection_name=cache_collection_name,
                 entity_def=self.get_entity_definition(),
             )
+
+    @staticmethod
+    def _estimate_characters_in_messages(messages: List["Message"]) -> int:
+        nchars = 0
+        for message in messages:
+            nchars += len(message.role)
+            for content in message.contents:
+                if isinstance(content, TextContent):
+                    nchars += len(content.content)
+                elif isinstance(content, ImageContent):
+                    # _tokens_in_image() returns a token estimate; convert it back to our rough
+                    # character scale so image and text thresholds stay comparable.
+                    nchars += 4 * CountTokensHeuristics._tokens_in_image(content)
+            if message.tool_requests is not None:
+                for tool_request in message.tool_requests:
+                    nchars += len(tool_request.name)
+                    nchars += len(stringify(tool_request.args))
+            if message.tool_result is not None:
+                nchars += len(stringify(message.tool_result.content))
+        return nchars
+
+    def _should_summarize_messages(self, messages: List["Message"]) -> bool:
+        if self.max_num_messages is not None:
+            return len(messages) > self.max_num_messages
+        return self._estimate_characters_in_messages(messages) > cast(int, self.max_num_characters)
 
     def _split_messages_and_guarantee_tool_calling_consistency(
         self, messages: List["Message"], keep_x_most_recent_messages: int
@@ -568,7 +607,7 @@ class ConversationSummarizationTransform(MessageTransform):
             return messages
 
         # If the initial message list is not too long. We don't need to summarize it
-        if len(messages) <= self.max_num_messages:
+        if not self._should_summarize_messages(messages):
             return messages
 
         # The current message list is : previously summarized part + non summarized part + new messages.
@@ -581,7 +620,7 @@ class ConversationSummarizationTransform(MessageTransform):
             current_messages = [previous_summarized_message] + non_summarized_messages
 
         # If the current message list is not too long. We don't need to summarize it
-        if len(current_messages) <= self.max_num_messages:
+        if not self._should_summarize_messages(current_messages):
             return current_messages
 
         messages_to_summarize, messages_to_keep = (

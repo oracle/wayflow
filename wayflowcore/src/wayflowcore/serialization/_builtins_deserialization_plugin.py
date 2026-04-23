@@ -1962,6 +1962,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                         agentspec_component.llm, tool_registry, converted_components
                     ),
                     max_num_messages=agentspec_component.max_num_messages,
+                    max_num_characters=agentspec_component.max_num_characters,
                     min_num_messages=agentspec_component.min_num_messages,
                     summarization_instructions=agentspec_component.summarization_instructions,
                     summarized_conversation_template=agentspec_component.summarized_conversation_template,

@@ -90,10 +90,13 @@ def _testing_message_summarization_transforms():
     return wayflow_transform, agent_spec_transform
 
 
-def _testing_conversation_summarization_transforms():
+def _testing_conversation_summarization_transforms(
+    threshold_type: str = "message_count",
+):
     """Create both wayflow and agent-spec conversation transforms with non-default values."""
     # Non-default values for comprehensive testing
-    custom_max_num_messages = 60
+    custom_max_num_messages = None if threshold_type == "character_count" else 60
+    custom_max_num_characters = 600 if threshold_type == "character_count" else None
     custom_min_num_messages = 15
     custom_summarization_instructions = "Custom conversation summarization instructions for testing"
     custom_summarized_conversation_template = "Custom conversation summary: {{summary}}"
@@ -113,6 +116,7 @@ def _testing_conversation_summarization_transforms():
         llm=mock_llm(),
         datastore=datastore,
         max_num_messages=custom_max_num_messages,
+        max_num_characters=custom_max_num_characters,
         min_num_messages=custom_min_num_messages,
         summarization_instructions=custom_summarization_instructions,
         summarized_conversation_template=custom_summarized_conversation_template,
@@ -136,6 +140,7 @@ def _testing_conversation_summarization_transforms():
         llm=llm_config,
         datastore=agent_spec_datastore,
         max_num_messages=custom_max_num_messages,
+        max_num_characters=custom_max_num_characters,
         min_num_messages=custom_min_num_messages,
         summarization_instructions=custom_summarization_instructions,
         summarized_conversation_template=custom_summarized_conversation_template,
@@ -172,10 +177,13 @@ def test_agentspec_summarization_message_transform_can_be_converted_to_wayflow()
 
 
 @filter_in_memory_datastore_warnings
-def test_wayflow_summarization_conversation_transform_can_be_converted_to_agentspec():
+@pytest.mark.parametrize("threshold_type", ["message_count", "character_count"])
+def test_wayflow_summarization_conversation_transform_can_be_converted_to_agentspec(
+    threshold_type: str,
+):
     # Create both transforms with matching custom values
     wayflow_transform, expected_agent_spec_transform = (
-        _testing_conversation_summarization_transforms()
+        _testing_conversation_summarization_transforms(threshold_type=threshold_type)
     )
 
     # Export to agent spec.
@@ -187,10 +195,13 @@ def test_wayflow_summarization_conversation_transform_can_be_converted_to_agents
 
 
 @filter_in_memory_datastore_warnings
-def test_agentspec_summarization_conversation_transform_can_be_converted_to_wayflow():
+@pytest.mark.parametrize("threshold_type", ["message_count", "character_count"])
+def test_agentspec_summarization_conversation_transform_can_be_converted_to_wayflow(
+    threshold_type: str,
+):
     # Create both transforms with matching custom values
     expected_wayflow_transform, agent_spec_transform = (
-        _testing_conversation_summarization_transforms()
+        _testing_conversation_summarization_transforms(threshold_type=threshold_type)
     )
 
     converted_transform = AgentSpecLoader().load_component(agent_spec_transform)
@@ -228,6 +239,7 @@ def assert_message_summarization_transforms_are_equal(converted_transform, expec
 def assert_conversation_summarization_transforms_are_equal(converted_transform, expected_transform):
     # Check that the parameters match the ground truth from agent-spec
     assert converted_transform.max_num_messages == expected_transform.max_num_messages
+    assert converted_transform.max_num_characters == expected_transform.max_num_characters
     assert converted_transform.min_num_messages == expected_transform.min_num_messages
     assert (
         converted_transform.summarization_instructions
