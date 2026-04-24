@@ -45,8 +45,9 @@ from wayflowcore.steps import (
     ToolExecutionStep,
 )
 from wayflowcore.steps.step import Step
-from wayflowcore.templates import PromptTemplate
+from wayflowcore.templates import NATIVE_AGENT_TEMPLATE, PromptTemplate
 from wayflowcore.tools import ClientTool, DescribedFlow, ServerTool, ToolRequest, ToolResult, tool
+from wayflowcore.transforms import CanonicalizationMessageTransform
 
 from ..conftest import VLLM_MODEL_CONFIG, with_all_llm_configs
 from ..testhelpers.dummy import DummyModel
@@ -2233,6 +2234,40 @@ def test_exception_during_parallel_tool_calls(remotely_hosted_llm):
     ):
         status = conversation.execute()
 
+    _check_each_tool_request_is_followed_by_single_matching_tool_result(conversation.get_messages())
+
+
+def test_agent_handles_parallel_tool_calls_with_canonicalized_native_template():
+    llm = DummyModel()
+    agent = Agent(
+        tools=[success_tool],
+        llm=llm,
+        custom_instruction="some instructions",
+        can_finish_conversation=False,
+        max_iterations=40,
+        agent_template=NATIVE_AGENT_TEMPLATE.with_additional_post_rendering_transform(
+            CanonicalizationMessageTransform()
+        ),
+    )
+
+    conversation = agent.start_conversation(messages="do something")
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(name="success_tool", args={}, tool_request_id="id1"),
+                ToolRequest(name="success_tool", args={}, tool_request_id="id2"),
+                ToolRequest(name="success_tool", args={}, tool_request_id="id3"),
+            ],
+            "done",
+        ],
+        patch_internal=True,
+    ) as (_, stream_generate):
+        conversation.execute()
+        assert stream_generate.call_count == 2
+
+    assert conversation.get_last_message().content == "done"
     _check_each_tool_request_is_followed_by_single_matching_tool_result(conversation.get_messages())
 
 

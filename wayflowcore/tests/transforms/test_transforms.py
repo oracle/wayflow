@@ -26,6 +26,16 @@ def assert_messages_are_correct(messages: List[Message], expected_messages: List
         assert message.content == expected_message.content
 
 
+def assert_messages_have_same_semantics(messages: List[Message], expected_messages: List[Message]):
+    assert len(messages) == len(expected_messages), messages
+    for message, expected_message in zip(messages, expected_messages):
+        assert message.role == expected_message.role
+        assert message.message_type == expected_message.message_type
+        assert message.content == expected_message.content
+        assert message.tool_requests == expected_message.tool_requests
+        assert message.tool_result == expected_message.tool_result
+
+
 SYSTEM_MESSAGE = Message(message_type=MessageType.SYSTEM, content="You are a helpful assistant")
 USER_MESSAGE = Message(message_type=MessageType.USER, content="What is the capital of Switzerland?")
 TOOL_REQUEST_MESSAGE = Message(
@@ -213,11 +223,20 @@ T_REQ_1_MSG = Message(
     tool_requests=[ToolRequest(name="get_weather", args={"city": "zurich"}, tool_request_id="id1")],
 )
 T_RES_1_MSG = Message(tool_result=ToolResult(content="sunny", tool_request_id="id1"))
+T_RES_1_ASSISTANT_MSG = Message(
+    role="assistant", tool_result=ToolResult(content="sunny", tool_request_id="id1")
+)
 T_REQ_2_MSG = Message(
     content="robot",
     tool_requests=[ToolRequest(name="get_weather", args={"city": "basel"}, tool_request_id="id2")],
 )
+T_REQ_2_ONLY_MSG = Message(
+    tool_requests=[ToolRequest(name="get_weather", args={"city": "basel"}, tool_request_id="id2")]
+)
 T_RES_2_MSG = Message(tool_result=ToolResult(content="rainy", tool_request_id="id2"))
+T_RES_2_ASSISTANT_MSG = Message(
+    role="assistant", tool_result=ToolResult(content="rainy", tool_request_id="id2")
+)
 T_REQ_3_MSG = Message(
     content="robot",
     tool_requests=[
@@ -294,3 +313,33 @@ def test_alternating_message_transform(messages, expected_length):
             tool_ids.remove(msg.tool_result.tool_request_id)
 
     assert len(tool_ids) == 0
+
+
+def test_alternating_message_transform_handles_assistant_role_tool_result():
+    transform = CanonicalizationMessageTransform()
+
+    transformed_messages = transform([SYSTEM_MSG, USER_MSG, T_REQ_1_MSG, T_RES_1_ASSISTANT_MSG])
+
+    assert_messages_have_same_semantics(
+        transformed_messages, [SYSTEM_MSG, USER_MSG, T_REQ_1_MSG, T_RES_1_MSG]
+    )
+
+
+def test_alternating_message_transform_handles_parallel_assistant_role_tool_results():
+    transform = CanonicalizationMessageTransform()
+
+    transformed_messages = transform(
+        [SYSTEM_MSG, USER_MSG, T_REQ_3_MSG, T_RES_1_ASSISTANT_MSG, T_RES_2_ASSISTANT_MSG]
+    )
+
+    assert_messages_have_same_semantics(
+        transformed_messages,
+        [
+            SYSTEM_MSG,
+            USER_MSG,
+            T_REQ_1_MSG,
+            T_RES_1_MSG,
+            T_REQ_2_ONLY_MSG,
+            T_RES_2_MSG,
+        ],
+    )

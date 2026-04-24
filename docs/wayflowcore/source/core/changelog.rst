@@ -98,6 +98,8 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+* Fix: `CanonicalizationMessageTransform` now correctly handles assistant-role tool-result messages from runtime conversation history, which fixes parallel tool-calling turns for native tool-calling prompts such as OCI Google models.
+
 * **Fix summarization transform persistence and multi-agent integration**
 
   ``MessageSummarizationTransform`` and ``ConversationSummarizationTransform`` now serialize the configuration required to deserialize
@@ -106,7 +108,6 @@ Bug fixes
 
   See the guide on :ref:`using Swarm <swarm_transform_ordering>` and :ref:`ManagerWorkers <managerworkers_transform_ordering>` to learn
   more about how component-level transforms are combined with prompt template transforms during execution.
-
 
 * Fix: conversations no longer replay already-materialized tool results when resuming manager-worker executions,
   which could previously duplicate internal `send_message` results and break continued execution after serialization.

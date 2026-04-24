@@ -119,7 +119,15 @@ class CanonicalizationMessageTransform(MessageTransform, SerializableObject):
         for msg in messages:
             role = msg.role
 
-            if role == "system":
+            # Tool results can be persisted as assistant-role messages in the runtime conversation
+            # history, but canonicalization must treat them as user-side responses so they can be
+            # interleaved with queued tool requests.
+            if msg.tool_result is not None:
+                if role != "user":
+                    msg = msg.copy(role="user")
+                    modified = True
+                append_user_or_merge(msg)
+            elif role == "system":
                 if system_msg is None:
                     system_msg = msg
                 else:
