@@ -420,15 +420,7 @@ class OCIGenAIModel(LlmModel):
         if self._api_processor is None:
             raise ValueError("Could not initialize the OCI client")
 
-        supports_tool_role = not _is_gemma_model(self.model_id)
-        openai_parameters = self._api_processor._convert_prompt(
-            prompt, supports_tool_role=supports_tool_role
-        )
-        # oci doesn't support this parameter
-        # `prompt_cache_key` is only added for certain endpoints (e.g. OpenAI), and is not supported
-        # by OCI. It might be absent (e.g., Chat Completions on non-OpenAI endpoints), so guard it.
-        if "prompt_cache_key" in openai_parameters:
-            openai_parameters.pop("prompt_cache_key")
+        openai_parameters = self._generate_openai_sdk_parameters(prompt)
         logger.debug(f"LLm Request: {json.dumps(openai_parameters, indent=4)}")
 
         async with self._create_openai_client() as openai_client:
@@ -454,6 +446,23 @@ class OCIGenAIModel(LlmModel):
         message = prompt.parse_output(message)
         token_usage = self._api_processor._extract_usage(response_data)
         return LlmCompletion(message=message, token_usage=token_usage)
+
+    def _generate_openai_sdk_parameters(self, prompt: Prompt) -> Dict[str, Any]:
+        if self._api_processor is None:
+            raise ValueError("Could not initialize the OCI client")
+
+        supports_tool_role = not _is_gemma_model(self.model_id)
+        openai_parameters = {
+            **self._api_processor._convert_prompt(prompt, supports_tool_role=supports_tool_role),
+            **self._api_processor._convert_generation_params(prompt.generation_config),
+        }
+
+        # oci doesn't support this parameter
+        # `prompt_cache_key` is only added for certain endpoints (e.g. OpenAI), and is not supported
+        # by OCI. It might be absent (e.g., Chat Completions on non-OpenAI endpoints), so guard it.
+        openai_parameters.pop("prompt_cache_key", None)
+
+        return openai_parameters
 
     async def _generate_impl_oci_sdk(self, prompt: Prompt) -> "LlmCompletion":
         provider = _MODEL_PROVIDER_TO_FORMATTER.get(self.provider, _GenericOciApiFormatter)
@@ -594,15 +603,7 @@ class OCIGenAIModel(LlmModel):
         if self._api_processor is None:
             raise ValueError("Could not initialize the OCI client")
 
-        supports_tool_role = not _is_gemma_model(self.model_id)
-        openai_parameters = self._api_processor._convert_prompt(
-            prompt, supports_tool_role=supports_tool_role
-        )
-        # oci doesn't support this parameter
-        # `prompt_cache_key` is only added for certain endpoints (e.g. OpenAI), and is not supported
-        # by OCI. It might be absent (e.g., Chat Completions on non-OpenAI endpoints), so guard it.
-        if "prompt_cache_key" in openai_parameters:
-            openai_parameters.pop("prompt_cache_key")
+        openai_parameters = self._generate_openai_sdk_parameters(prompt)
 
         client_args = dict(model=self.model_id, store=False, stream=True, **openai_parameters)
 
