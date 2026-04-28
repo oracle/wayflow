@@ -18,7 +18,7 @@ from wayflowcore import Flow
 from wayflowcore.messagelist import ImageContent, Message, MessageContent, TextContent
 from wayflowcore.models import LlmGenerationConfig, LlmModelFactory, OCIGenAIModel, Prompt
 from wayflowcore.models.ociclientconfig import OCIClientConfig, _OCIAuthType
-from wayflowcore.models.ocigenaimodel import ModelProvider, ServingMode
+from wayflowcore.models.ocigenaimodel import ModelProvider, OciAPIType, ServingMode
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.tools.tools import ToolRequest
 
@@ -188,6 +188,91 @@ def test_oci_responses_e2e_can_continue_after_tool_call_with_replayed_history() 
     llm = LlmModelFactory.from_config(oci_responses_config)
     assert isinstance(llm, OCIGenAIModel)
     run_responses_tool_call_replay_e2e(llm)
+
+
+@pytest.mark.parametrize(
+    "api_type,max_tokens_key",
+    [
+        (OciAPIType.OPENAI_CHAT_COMPLETIONS, "max_completion_tokens"),
+        (OciAPIType.OPENAI_RESPONSES, "max_output_tokens"),
+    ],
+)
+def test_oci_openai_api_generation_config_reaches_sdk_create(api_type, max_tokens_key):
+    captured_create_kwargs = {}
+
+    class FakeResponse:
+        def __init__(self, payload):
+            self.payload = payload
+
+        def model_dump(self):
+            return self.payload
+
+    class FakeResponses:
+        async def create(self, **kwargs):
+            captured_create_kwargs.update(kwargs)
+            return FakeResponse(
+                {
+                    "output": [
+                        {
+                            "type": "message",
+                            "content": [{"type": "output_text", "text": "ok"}],
+                        }
+                    ]
+                }
+            )
+
+    class FakeChatCompletions:
+        async def create(self, **kwargs):
+            captured_create_kwargs.update(kwargs)
+            return FakeResponse({"choices": [{"message": {"role": "assistant", "content": "ok"}}]})
+
+    class FakeChat:
+        completions = FakeChatCompletions()
+
+    class FakeOciOpenAIClient:
+        responses = FakeResponses()
+        chat = FakeChat()
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc_value, traceback):
+            pass
+
+    llm = OCIGenAIModel(
+        model_id="openai.gpt-oss-120b",
+        compartment_id="compartment-id",
+        client_config=OCIClientConfig.from_dict(
+            {
+                "service_endpoint": "https://example.com",
+                "auth_type": "API_KEY",
+            }
+        ),
+        api_type=api_type,
+        generation_config=LlmGenerationConfig(
+            max_tokens=13,
+            temperature=0.2,
+            top_p=0.9,
+            extra_args={"reasoning": {"effort": "low"}},
+        ),
+    )
+
+    with patch.object(llm, "_init_client_if_needed", side_effect=llm._init_client), patch.object(
+        llm, "_create_openai_client", return_value=FakeOciOpenAIClient()
+    ):
+        llm.generate(Prompt(messages=[Message(role="user", content="hello")]))
+
+    assert captured_create_kwargs["model"] == "openai.gpt-oss-120b"
+    assert captured_create_kwargs["store"] is False
+    assert captured_create_kwargs["temperature"] == 0.2
+    assert captured_create_kwargs["top_p"] == 0.9
+    assert captured_create_kwargs[max_tokens_key] == 13
+    assert captured_create_kwargs["reasoning"]["effort"] == "low"
+    assert "prompt_cache_key" not in captured_create_kwargs
+
+    if api_type == OciAPIType.OPENAI_RESPONSES:
+        assert captured_create_kwargs["reasoning"]["summary"] == "auto"
+        assert "reasoning.encrypted_content" in captured_create_kwargs["include"]
 
 
 def test_ocigenai_model_throws_exception_when_wrongly_configured(
@@ -452,3 +537,33 @@ def test_oci_model_has_exact_count_and_reasoning_tokens():
     token_usage = llm.generate(prompt=REQUIRES_REASONING_PROMPT).token_usage
     assert token_usage.exact_count
     assert token_usage.reasoning_tokens > 0
+
+
+def test_oci_openai_responses_generation_config_reaches_service(oci_reasoning_model):
+    pytest.importorskip("oci_openai")
+
+    assert isinstance(oci_reasoning_model, OCIGenAIModel)
+    oci_reasoning_model.api_type = OciAPIType.OPENAI_RESPONSES
+    oci_reasoning_model.generation_config = LlmGenerationConfig(
+        max_tokens=32,
+        extra_args={"reasoning": {"effort": "invalid-effort"}},
+    )
+
+    with pytest.raises(Exception, match="invalid-effort|Invalid value|reasoning.effort"):
+        oci_reasoning_model.generate("How do you optimize the TSP problem?")
+
+
+def test_oci_openai_responses_generation_config_supports_reasoning(oci_reasoning_model):
+    pytest.importorskip("oci_openai")
+
+    assert isinstance(oci_reasoning_model, OCIGenAIModel)
+    oci_reasoning_model.api_type = OciAPIType.OPENAI_RESPONSES
+    oci_reasoning_model.generation_config = LlmGenerationConfig(
+        max_tokens=64,
+        extra_args={"reasoning": {"effort": "low"}},
+    )
+
+    completion = oci_reasoning_model.generate("Reply with a short greeting.")
+
+    assert len(completion.message.contents) > 0
+    assert completion.token_usage is None or completion.token_usage.exact_count

@@ -98,6 +98,9 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+* Fix: ``OCIGenAIModel`` now forwards ``LlmGenerationConfig`` parameters when using
+  ``OciAPIType.OPENAI_CHAT_COMPLETIONS`` and ``OciAPIType.OPENAI_RESPONSES``.
+
 * Fix: `CanonicalizationMessageTransform` now correctly handles assistant-role tool-result messages from runtime conversation history, which fixes parallel tool-calling turns for native tool-calling prompts such as OCI Google models.
 
 * **Fix summarization transform persistence and multi-agent integration**
