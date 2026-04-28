@@ -36,7 +36,7 @@ openai # testing the openai responses server
 google-adk[a2a] # testing the a2a server
 # As of 2026-03-24, public PyPI quarantined LiteLLM after a package compromise incident.
 # Keep dev installs on the 1.81.x line until a newer series is vetted.
-litellm>=1.80.7,<1.82.0 # testing the a2a agent
+litellm>=1.83.7,<1.84.0 # testing the a2a agent
 
 # This is used to load database connection arguments in the unit tests
 python-dotenv

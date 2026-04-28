@@ -11,4 +11,4 @@ mcp==1.24.0
 pyagentspec==26.2.0.dev4 # Main branch of pyagentspec
 opentelemetry-api==1.36.0
 opentelemetry-sdk==1.36.0
-litellm==1.81.13
+litellm==1.83.7
