@@ -9,6 +9,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Union
 
 from wayflowcore import Conversation
+from wayflowcore.a2a.a2aagent import A2AAgent
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.executors._agenticpattern_helpers import (
     _SEND_MESSAGE_TOOL_NAME,
@@ -31,6 +32,7 @@ from wayflowcore.tools import ClientTool, ToolResult
 
 if TYPE_CHECKING:
     from wayflowcore.agentconversation import AgentConversation
+    from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
     from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
 
 logger = logging.getLogger(__name__)
@@ -55,15 +57,21 @@ def _create_manager_agent(group_manager: Union[Agent, LlmModel]) -> Agent:
 
 
 def _validate_agent_unicity(
-    agents: List[Union[Agent, ManagerWorkers]],
-) -> Dict[str, Union[Agent, ManagerWorkers]]:
-    agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = {}
-
-    for agent in agents:
-        if not isinstance(agent, (Agent, ManagerWorkers)):
-            raise TypeError(
-                f"Only Agent and ManagerWorker type are supported in ManagerWorkers, got component of type '{agent.__class__.__name__}'"
-            )
+    worker_agents: List[Union[Agent, ManagerWorkers, A2AAgent]], manager_agent: Agent
+) -> Dict[str, Union[Agent, ManagerWorkers, A2AAgent]]:
+    agent_by_name: Dict[str, Union["Agent", "ManagerWorkers", "A2AAgent"]] = {}
+    all_agents = worker_agents + [manager_agent]
+    for agent in all_agents:
+        if agent.name != manager_agent.name:
+            if not isinstance(agent, (Agent, ManagerWorkers, A2AAgent)):
+                raise TypeError(
+                    f"Only Agent, ManagerWorker and A2AAgent types are supported as workers for ManagerWorkers, got component of type '{agent.__class__.__name__}'"
+                )
+        else:
+            if not isinstance(agent, Agent):
+                raise TypeError(
+                    f"Only Agents are supported as managers for ManagerWorkers, got component of type '{agent.__class__.__name__}'"
+                )
 
         # Checking for missing name
         if not agent.name:
@@ -149,7 +157,9 @@ class ManagerWorkersRunner(ConversationExecutor):
 
     @staticmethod
     async def _run_worker_round(
-        current_conversation: Union["AgentConversation", "ManagerWorkersConversation"],
+        current_conversation: Union[
+            "AgentConversation", "ManagerWorkersConversation", "A2AAgentConversation"
+        ],
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
         return await current_conversation.execute_async(
@@ -161,6 +171,7 @@ class ManagerWorkersRunner(ConversationExecutor):
         conversation: Conversation,
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
+        from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
         from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
 
         if not isinstance(conversation, ManagerWorkersConversation):
@@ -186,9 +197,11 @@ class ManagerWorkersRunner(ConversationExecutor):
             if current_agent_name == managerworkers_config.manager_agent.name:
                 current_agent = managerworkers_config.manager_agent
 
-                if isinstance(current_conversation, ManagerWorkersConversation):
+                if isinstance(
+                    current_conversation, (ManagerWorkersConversation, A2AAgentConversation)
+                ):
                     raise ValueError(
-                        "Manager Conversation cannot be of type `ManagerWorkersConversation`."
+                        "Manager Conversation cannot be of type `ManagerWorkersConversation` or `A2AAgentConversation`."
                     )
 
                 # Handle pending tool requests of manager
