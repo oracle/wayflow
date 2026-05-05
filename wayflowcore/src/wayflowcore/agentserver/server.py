@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -7,7 +7,8 @@ import secrets
 import warnings
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Any, Dict, Optional
+from ipaddress import ip_address
+from typing import Any, Dict, Optional, Sequence
 from urllib.parse import urlparse
 
 from fasta2a.broker import InMemoryBroker
@@ -137,9 +138,13 @@ class A2AServer:
         import uvicorn
 
         # we log a warning since this server has no security implemented
-        warn_server_is_not_secured()
+        _validate_server_auth_configuration(host=host, api_key=api_key)
+        if api_key is None:
+            warn_server_is_not_secured()
 
         app = self.get_app(host, port)
+        if api_key is not None:
+            _add_token_authentication_auth(app=app, api_key=api_key)
         uvicorn.run(
             app=app,
             host=host,
@@ -156,6 +161,10 @@ class OpenAIResponsesServer:
         agents: Optional[Dict[str, ConversationalComponent]] = None,
         storage: Optional[Datastore] = None,
         storage_config: Optional[ServerStorageConfig] = None,
+        allowed_origins: Optional[Sequence[str]] = None,
+        allow_credentials: bool = True,
+        allowed_methods: Optional[Sequence[str]] = None,
+        allowed_headers: Optional[Sequence[str]] = None,
     ):
         """
         Public-facing server for exposing an Agent or Flow via the OpenAI Responses protocol.
@@ -171,6 +180,15 @@ class OpenAIResponsesServer:
             in the `storage_config`.
         storage_config:
             Cch will not guarantee persistence of data across runs.
+        allowed_origins:
+            Origins allowed to make browser requests to the server. If not provided,
+            CORS middleware is not enabled.
+        allow_credentials:
+            Whether CORS requests may include credentials.
+        allowed_methods:
+            HTTP methods accepted by CORS preflight requests.
+        allowed_headers:
+            HTTP headers accepted by CORS preflight requests.
         """
         self.app = FastAPI(
             title="WayFlow Responses API",
@@ -185,7 +203,12 @@ class OpenAIResponsesServer:
             storage=storage,
             storage_config=storage_config,
         )
-        self._setup_middleware()
+        self._setup_middleware(
+            allowed_origins=allowed_origins,
+            allow_credentials=allow_credentials,
+            allowed_methods=allowed_methods,
+            allowed_headers=allowed_headers,
+        )
         self._setup_routes()
 
     def serve_agent(self, agent_id: str, agent: ConversationalComponent) -> None:
@@ -201,14 +224,24 @@ class OpenAIResponsesServer:
         """
         self.agent_service._add_agent(agent_id, agent)
 
-    def _setup_middleware(self) -> None:
+    def _setup_middleware(
+        self,
+        allowed_origins: Optional[Sequence[str]],
+        allow_credentials: bool,
+        allowed_methods: Optional[Sequence[str]],
+        allowed_headers: Optional[Sequence[str]],
+    ) -> None:
         """Set up CORS and other middleware."""
+        if not allowed_origins:
+            return
+        if allow_credentials and "*" in allowed_origins:
+            raise ValueError("Wildcard CORS origins cannot be used with credentials enabled.")
         self.app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],  # Configure as needed for production
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
+            allow_origins=list(allowed_origins),
+            allow_credentials=allow_credentials,
+            allow_methods=list(allowed_methods or ["*"]),
+            allow_headers=list(allowed_headers or ["*"]),
         )
 
     def _setup_routes(self) -> None:
@@ -282,8 +315,9 @@ class OpenAIResponsesServer:
         """
         import uvicorn
 
-        # we log a warning since this server has no security implemented
-        warn_server_is_not_secured()
+        _validate_server_auth_configuration(host=host, api_key=api_key)
+        if api_key is None:
+            warn_server_is_not_secured()
 
         app = self.get_app()
         if api_key is not None:
@@ -308,6 +342,24 @@ def _add_token_authentication_auth(app: FastAPI, api_key: str) -> None:
                 content={"detail": "Missing or invalid bearer token"},
             )
         return await call_next(request)
+
+
+def _validate_server_auth_configuration(host: str, api_key: Optional[str]) -> None:
+    if api_key is None and not _is_loopback_host(host):
+        raise ValueError(
+            "An api_key is required when binding the server to a non-loopback host. "
+            "Use host='127.0.0.1' for local unauthenticated development."
+        )
+
+
+def _is_loopback_host(host: str) -> bool:
+    normalized_host = host.strip("[]").lower()
+    if normalized_host == "localhost":
+        return True
+    try:
+        return ip_address(normalized_host).is_loopback
+    except ValueError:
+        return False
 
 
 _WARNING_MESSAGE = r"""
