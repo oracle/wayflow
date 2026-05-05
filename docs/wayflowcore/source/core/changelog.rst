@@ -81,6 +81,14 @@ Documentation
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* **Authless MCP usage now requires explicit scoped opt-in**
+
+  Unauthenticated MCP tools and toolboxes must now be constructed or loaded from
+  Agent Spec inside ``authless_mcp_enabled()`` unless the transport provides
+  authentication. The legacy ``enable_mcp_without_auth()`` helper remains
+  available, but emits a ``SecurityWarning``. Code that treats warnings as errors
+  may need to catch or filter this warning for local tests.
+
 * **Summarization Transforms now do not do caching if the datastore is None**
 
   Previously when the `datastore` arguments of `MessageSummarizationTransform` and `ConversationSummarizationTransform` were set to `None`, an in-memory datastore was automatically created. Now, the in-memory datastore is created
