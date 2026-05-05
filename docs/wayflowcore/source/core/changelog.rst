@@ -82,6 +82,13 @@ Documentation
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* **Agent servers require API keys on non-loopback hosts**
+
+  ``A2AServer`` and ``OpenAIResponsesServer`` now require an ``api_key`` when
+  binding to non-loopback hosts such as ``0.0.0.0`` or a public interface.
+  Unauthenticated local development on loopback hosts remains available with a
+  warning.
+
 * **Summarization Transforms now do not do caching if the datastore is None**
 
   Previously when the `datastore` arguments of `MessageSummarizationTransform` and `ConversationSummarizationTransform` were set to `None`, an in-memory datastore was automatically created. Now, the in-memory datastore is created
