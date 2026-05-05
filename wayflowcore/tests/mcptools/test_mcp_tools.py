@@ -375,6 +375,10 @@ def test_concurrent_cold_session_creation_returns_same_session(
     produce exactly one session and return it to all callers.
     """
     runtime = get_mcp_async_runtime()
+    # authless_mcp_enabled() uses a ContextVar, which ThreadPoolExecutor workers
+    # do not inherit. Constructing the toolbox approves this transport object
+    # before it crosses into worker threads, without creating the session yet.
+    _ = MCPToolBox(client_transport=sse_client_transport)
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         futures = [

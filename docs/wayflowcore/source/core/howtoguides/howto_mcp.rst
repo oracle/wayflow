@@ -423,6 +423,8 @@ Here is what the **Agent Spec representation will look like ↓**
 
 
 You can then load the configuration back to an assistant using the ``AgentSpecLoader``.
+Because this example uses an unauthenticated local MCP server, the load step is wrapped
+in ``authless_mcp_enabled()`` too.
 
 
 .. literalinclude:: ../code_examples/howto_mcp.py

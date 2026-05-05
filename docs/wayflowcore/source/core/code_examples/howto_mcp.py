@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -116,7 +116,8 @@ from wayflowcore.agentspec import AgentSpecExporter # docs-skiprow
 serialized_assistant = AgentSpecExporter().to_json(assistant) # docs-skiprow
 
 from wayflowcore.agentspec import AgentSpecLoader # docs-skiprow
-assistant: Agent = AgentSpecLoader().load_json(serialized_assistant) # docs-skiprow
+with authless_mcp_enabled(): # docs-skiprow
+    assistant: Agent = AgentSpecLoader().load_json(serialized_assistant) # docs-skiprow
 # .. start-##_Running_the_agent
 # With a linear conversation
 conversation = assistant.start_conversation()
@@ -163,7 +164,8 @@ assistant = Flow.from_steps([
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader # docs-skiprow
 from wayflowcore.serialization import serialize # docs-skiprow
 serialized_assistant = AgentSpecExporter().to_json(assistant) # docs-skiprow
-new_assistant: Flow = AgentSpecLoader().load_json(serialized_assistant) # docs-skiprow
+with authless_mcp_enabled(): # docs-skiprow
+    new_assistant: Flow = AgentSpecLoader().load_json(serialized_assistant) # docs-skiprow
 s1 = serialize(assistant) # docs-skiprow
 s2 = serialize(new_assistant) # docs-skiprow
 # assert s1==s2 # Manually verified # docs-skiprow
@@ -188,5 +190,6 @@ serialized_assistant = AgentSpecExporter().to_json(assistant)
 # .. start-##_Load_Agent_Spec_config
 from wayflowcore.agentspec import AgentSpecLoader
 
-assistant: Flow = AgentSpecLoader().load_json(serialized_assistant)
+with authless_mcp_enabled():
+    assistant: Flow = AgentSpecLoader().load_json(serialized_assistant)
 # .. end-##_Load_Agent_Spec_config

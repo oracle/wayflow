@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -18,8 +18,11 @@ from wayflowcore.mcp import (
     StdioTransport,
     StreamableHTTPmTLSTransport,
     StreamableHTTPTransport,
+    authless_mcp_enabled,
 )
+from wayflowcore.mcp._session_persistence import AsyncRuntime
 from wayflowcore.property import StringProperty
+from wayflowcore.warnings import SecurityWarning
 
 
 @pytest.mark.parametrize(
@@ -114,3 +117,38 @@ def test_mcp_tool_with_requires_confirmation(
     assert reloaded_agent.llm.id == agent.llm.id
     assert len(reloaded_agent._toolboxes) == 1
     assert reloaded_agent._toolboxes[0].requires_confirmation == requires_confirmation
+
+
+def test_agentspec_loader_authless_context_approves_reloaded_toolbox_transport(
+    monkeypatch: pytest.MonkeyPatch, remotely_hosted_llm
+) -> None:
+    client_transport = SSETransport(url="http://url-to/server")
+    with pytest.warns(SecurityWarning, match="without authentication"):
+        with authless_mcp_enabled():
+            mcp_toolbox = MCPToolBox(client_transport=client_transport)
+
+    agent = Agent(llm=remotely_hosted_llm, tools=[mcp_toolbox])
+    agentspec_agent = AgentSpecExporter().to_json(
+        agent, agentspec_version=AgentSpecVersionEnum.current_version
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Using MCP servers without proper authentication is highly discouraged",
+    ):
+        _ = AgentSpecLoader().load_json(agentspec_agent)
+
+    with pytest.warns(SecurityWarning, match="without authentication"):
+        with authless_mcp_enabled():
+            reloaded_agent = AgentSpecLoader().load_json(agentspec_agent)
+
+    runtime = AsyncRuntime()
+    session = object()
+    monkeypatch.setattr(runtime, "_create_long_lived_session", lambda *args: session)
+
+    # AgentSpec loading creates a new transport, so the opt-in must approve that
+    # deserialized object for later lazy session creation.
+    with pytest.warns(SecurityWarning, match="without authentication"):
+        assert (
+            runtime.get_or_create_session(reloaded_agent._toolboxes[0].client_transport) is session
+        )

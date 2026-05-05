@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -139,6 +139,9 @@ def make_update_globals(test_globs: Dict[str, Any], pytest_request):
 @retry_test(max_attempts=2)
 @pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
 @pytest.mark.filterwarnings(f"ignore:{_INMEMORY_USER_WARNING}:UserWarning")
+@pytest.mark.filterwarnings(
+    "ignore:Allowing MCP use without authentication.*:wayflowcore.warnings.SecurityWarning"
+)
 @pytest.mark.filterwarnings("ignore:websockets.legacy is deprecated:DeprecationWarning")
 @pytest.mark.filterwarnings("ignore:websockets.server.WebSocketServerProtocol:DeprecationWarning")
 @pytest.mark.parametrize(
