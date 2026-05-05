@@ -51,6 +51,14 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **Improved agent server access defaults**
+
+  ``A2AServer.run(api_key=...)`` now enforces bearer-token authentication when an API key is
+  provided. ``A2AServer`` and ``OpenAIResponsesServer`` now require an API key when binding to
+  non-loopback hosts, while unauthenticated loopback development remains available with a warning.
+  ``OpenAIResponsesServer`` no longer enables CORS by default and supports explicit allowed
+  origins configuration.
+
 * **Removed ``starlette`` from third party dependencies**
 
   Direct ``starlette`` imports were removed in favor of FastAPI equivalent alternatives, so ``wayflowcore`` no longer

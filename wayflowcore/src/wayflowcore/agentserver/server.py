@@ -233,6 +233,9 @@ class OpenAIResponsesServer:
     ) -> None:
         """Set up CORS and other middleware."""
         if not allowed_origins:
+            # allowed_methods and allowed_headers are only meaningful once CORS is enabled
+            # with an origin allow-list. Without allowed_origins, keep CORS disabled so
+            # browser cross-origin access is denied by default.
             return
         if allow_credentials and "*" in allowed_origins:
             raise ValueError("Wildcard CORS origins cannot be used with credentials enabled.")
