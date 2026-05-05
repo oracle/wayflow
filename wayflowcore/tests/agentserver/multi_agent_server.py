@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -6,22 +6,25 @@
 
 import argparse
 import os
+import warnings
 
 from wayflowcore import Agent, tool
 from wayflowcore.agentserver.server import OpenAIResponsesServer
-from wayflowcore.mcp import MCPTool, SSETransport, enable_mcp_without_auth
+from wayflowcore.mcp import MCPTool, SSETransport, authless_mcp_enabled
 from wayflowcore.models import VllmModel
 from wayflowcore.property import StringProperty
+from wayflowcore.warnings import SecurityWarning
 
-enable_mcp_without_auth()
-
-mcp_tool = MCPTool(
-    name="find_bug",
-    description="find a bug in a DB",
-    input_descriptors=[StringProperty(name="query")],
-    client_transport=SSETransport(url="http://fake"),
-    _validate_server_exists=False,
-)
+with authless_mcp_enabled():
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=SecurityWarning)
+        mcp_tool = MCPTool(
+            name="find_bug",
+            description="find a bug in a DB",
+            input_descriptors=[StringProperty(name="query")],
+            client_transport=SSETransport(url="http://fake"),
+            _validate_server_exists=False,
+        )
 
 llm = VllmModel(
     model_id="meta-llama/Meta-Llama-3.1-8B-Instruct", host_port=os.environ.get("LLAMA_API_URL")

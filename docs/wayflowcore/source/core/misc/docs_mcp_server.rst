@@ -108,7 +108,7 @@ docs before answering.
 
    from wayflowcore.agent import Agent
    from wayflowcore.executors.executionstatus import UserMessageRequestStatus
-   from wayflowcore.mcp import MCPTool, StdioTransport, enable_mcp_without_auth
+   from wayflowcore.mcp import MCPTool, StdioTransport, authless_mcp_enabled
    from wayflowcore.models import VllmModel
 
    llm = VllmModel(
@@ -116,7 +116,6 @@ docs before answering.
        host_port="LLAMA_API_URL",
    )
 
-   enable_mcp_without_auth()
    docs_transport = StdioTransport(
        command="python",
        args=[
@@ -127,10 +126,11 @@ docs before answering.
        cwd="/path/to/wayflow",
    )
 
-   docs_tool = MCPTool(
-       name="get_docs",
-       client_transport=docs_transport,
-   )
+   with authless_mcp_enabled():
+       docs_tool = MCPTool(
+           name="get_docs",
+           client_transport=docs_transport,
+       )
 
    assistant = Agent(
        llm=llm,
@@ -154,7 +154,7 @@ docs before answering.
 .. note::
 
    As with the rest of the :doc:`MCP guide <../howtoguides/howto_mcp>`,
-   ``enable_mcp_without_auth()`` is for local and test usage only.
+   ``authless_mcp_enabled()`` is for local and test usage only.
 
 
 Example assistant queries
@@ -274,7 +274,7 @@ Here is a minimal example based on the MCP how-to and the ``StdioTransport`` API
 
    from wayflowcore.agent import Agent
    from wayflowcore.executors.executionstatus import UserMessageRequestStatus
-   from wayflowcore.mcp import MCPTool, StdioTransport, enable_mcp_without_auth
+   from wayflowcore.mcp import MCPTool, StdioTransport, authless_mcp_enabled
    from wayflowcore.models import VllmModel
 
    llm = VllmModel(
@@ -282,7 +282,6 @@ Here is a minimal example based on the MCP how-to and the ``StdioTransport`` API
        host_port="LLAMA_API_URL",
    )
 
-   enable_mcp_without_auth()
    docs_transport = StdioTransport(
        command="python",
        args=[
@@ -293,10 +292,11 @@ Here is a minimal example based on the MCP how-to and the ``StdioTransport`` API
        cwd="/path/to/wayflow",
    )
 
-   docs_tool = MCPTool(
-       name="get_docs",
-       client_transport=docs_transport,
-   )
+   with authless_mcp_enabled():
+       docs_tool = MCPTool(
+           name="get_docs",
+           client_transport=docs_transport,
+       )
 
    assistant = Agent(
        llm=llm,

@@ -40,10 +40,12 @@ from wayflowcore.mcp import (
     SSETransport,
     StreamableHTTPmTLSTransport,
     StreamableHTTPTransport,
+    authless_mcp_enabled,
+    enable_mcp_without_auth,
 )
 from wayflowcore.mcp._auth import headless_auth_flow_handler
-from wayflowcore.mcp._session_persistence import get_mcp_async_runtime
-from wayflowcore.mcp.mcphelpers import mcp_streaming_tool
+from wayflowcore.mcp._session_persistence import AsyncRuntime, get_mcp_async_runtime
+from wayflowcore.mcp.mcphelpers import _reset_mcp_contextvar, mcp_streaming_tool
 from wayflowcore.property import (
     AnyProperty,
     BooleanProperty,
@@ -60,6 +62,7 @@ from wayflowcore.steps.flowexecutionstep import FlowExecutionStep
 from wayflowcore.swarm import Swarm
 from wayflowcore.tools import Tool
 from wayflowcore.tools.tools import ToolRequest
+from wayflowcore.warnings import SecurityWarning
 
 from ..testhelpers.patching import patch_llm
 from ..testhelpers.testhelpers import retry_test
@@ -71,6 +74,61 @@ def test_mcp_without_auth_raises_without_explicit_user_confirmation() -> None:
         match="Using MCP servers without proper authentication is highly discouraged",
     ):
         _ = MCPToolBox(client_transport=SSETransport(url="anything"))
+
+
+def test_authless_mcp_enabled_scopes_unauthenticated_mcp_opt_in() -> None:
+    # Unapproved unauthenticated transports are rejected by default.
+    with pytest.raises(
+        ValueError,
+        match="Using MCP servers without proper authentication is highly discouraged",
+    ):
+        _ = MCPToolBox(client_transport=SSETransport(url="anything"))
+
+    transport = SSETransport(url="anything")
+    # The context manager allows and approves the transport used inside it.
+    with pytest.warns(SecurityWarning, match="without authentication"):
+        with authless_mcp_enabled():
+            _ = MCPToolBox(client_transport=transport)
+
+    # Approval is attached to that transport, so it remains usable after the context exits.
+    with pytest.warns(SecurityWarning, match="without authentication"):
+        _ = MCPToolBox(client_transport=transport)
+
+    # A different unauthenticated transport is not implicitly approved.
+    unapproved_transport = SSETransport(url="anything-else")
+    with pytest.raises(
+        ValueError,
+        match="Using MCP servers without proper authentication is highly discouraged",
+    ):
+        _ = MCPToolBox(client_transport=unapproved_transport)
+
+
+def test_authless_mcp_enabled_marks_transport_for_session_creation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The scoped opt-in should approve the transport for later lazy session creation.
+    with pytest.warns(SecurityWarning, match="without authentication"):
+        with authless_mcp_enabled():
+            toolbox = MCPToolBox(client_transport=SSETransport(url="anything"))
+
+    runtime = AsyncRuntime()
+    session = object()
+    monkeypatch.setattr(runtime, "_create_long_lived_session", lambda *args: session)
+
+    with pytest.warns(SecurityWarning, match="without authentication"):
+        assert runtime.get_or_create_session(toolbox.client_transport) is session
+
+
+def test_enable_mcp_without_auth_warns_for_unscoped_opt_in() -> None:
+    # The legacy unscoped helper still works, but warns when enabled and when used.
+    try:
+        with pytest.warns(SecurityWarning, match="authentication validation has been disabled"):
+            enable_mcp_without_auth()
+
+        with pytest.warns(SecurityWarning, match="without authentication"):
+            _ = MCPToolBox(client_transport=SSETransport(url="anything"))
+    finally:
+        _reset_mcp_contextvar()
 
 
 def test_mcp_client_transport_headers_and_sensitive_headers_cannot_overlap(sse_mcp_server_http):
@@ -372,9 +430,7 @@ async def test_async_session_creation_does_not_block_event_loop(
 
 
 @pytest.mark.anyio
-async def test_async_mcp_tool_run_does_not_block_event_loop(
-    sse_client_transport, with_mcp_enabled
-):
+async def test_async_mcp_tool_run_does_not_block_event_loop(sse_client_transport, with_mcp_enabled):
     """MCPTool.run_async() also offloads session creation to a worker thread.
     Verify the event loop stays responsive during the call.
     """

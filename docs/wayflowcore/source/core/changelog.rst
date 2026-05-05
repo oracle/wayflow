@@ -51,6 +51,13 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **Scoped opt-in for authless MCP clients**
+
+  Added ``authless_mcp_enabled()`` as a scoped context manager for local or test MCP clients
+  that intentionally do not use authentication. The existing ``enable_mcp_without_auth()``
+  helper remains available, but now emits a ``SecurityWarning``. Authless MCP use also emits
+  a ``SecurityWarning`` when validation is bypassed.
+
 * **Removed ``starlette`` from third party dependencies**
 
   Direct ``starlette`` imports were removed in favor of FastAPI equivalent alternatives, so ``wayflowcore`` no longer

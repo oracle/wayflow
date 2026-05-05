@@ -80,7 +80,7 @@ def start_mcp_server() -> str:
 # .. start-##_Imports_for_this_guide
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.agent import Agent
-from wayflowcore.mcp import MCPTool, MCPToolBox, SSETransport, enable_mcp_without_auth
+from wayflowcore.mcp import MCPTool, MCPToolBox, SSETransport, authless_mcp_enabled
 from wayflowcore.flow import Flow
 from wayflowcore.steps import ToolExecutionStep
 
@@ -103,9 +103,9 @@ USER_QUERY: str # docs-skiprow
 (llm, mcp_server_url, USER_QUERY, MCP_TOOL_NAME) = _update_globals(["llm_small", "sse_mcp_server", "mcp_user_query", "mcp_example_tool_name"]) # docs-skiprow # type: ignore
 
 # .. start-##_Connecting_an_agent_to_the_MCP_server
-enable_mcp_without_auth() # <--- See https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization#security-considerations
 mcp_client = SSETransport(url=mcp_server_url)
-mcp_toolbox = MCPToolBox(client_transport=mcp_client)
+with authless_mcp_enabled(): # <--- See https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization#security-considerations
+    mcp_toolbox = MCPToolBox(client_transport=mcp_client)
 
 assistant = Agent(
     llm=llm,
@@ -150,10 +150,11 @@ def run_agent_in_command_line(assistant: Agent):
 # ^ uncomment and execute
 # .. end-##_Running_with_an_execution_loop
 # .. start-##_Connecting_a_flow_to_the_MCP_server
-mcp_tool = MCPTool(
-    name=MCP_TOOL_NAME,
-    client_transport=mcp_client
-)
+with authless_mcp_enabled():
+    mcp_tool = MCPTool(
+        name=MCP_TOOL_NAME,
+        client_transport=mcp_client
+    )
 
 assistant = Flow.from_steps([
     ToolExecutionStep(name="mcp_tool_step", tool=mcp_tool)
