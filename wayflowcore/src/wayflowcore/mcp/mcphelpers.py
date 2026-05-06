@@ -65,25 +65,10 @@ _GLOBAL_ENABLED_MCP_WITHOUT_AUTH: ContextVar[bool] = ContextVar(
     "_GLOBAL_ENABLED_MCP_WITHOUT_AUTH", default=False
 )
 
-_AUTHLESS_MCP_ENABLED_WARNING = (
-    "MCP authentication validation has been disabled for this context. "
-    "Only use authless MCP connections for local prototyping or tests."
-)
-
 _AUTHLESS_MCP_VALIDATION_WARNING = (
     "Allowing MCP use without authentication because authless MCP is enabled. "
     "Only use authless MCP connections for local prototyping or tests."
 )
-
-_AUTHLESS_MCP_APPROVED_ATTR = "_wayflow_authless_mcp_approved"
-
-
-def _is_authless_mcp_approved(client_transport: ClientTransport) -> bool:
-    return bool(getattr(client_transport, _AUTHLESS_MCP_APPROVED_ATTR, False))
-
-
-def _approve_authless_mcp(client_transport: ClientTransport) -> None:
-    setattr(client_transport, _AUTHLESS_MCP_APPROVED_ATTR, True)
 
 
 @contextmanager
@@ -128,7 +113,7 @@ def enable_mcp_without_auth() -> None:
     >>> with authless_mcp_enabled():
     ...     mcp_toolbox = MCPToolBox(client_transport=transport)
 
-    Deprecated unscoped usage:
+    Legacy unscoped usage:
 
     >>> from wayflowcore.mcp import enable_mcp_without_auth, MCPToolBox, SSETransport
     >>> transport = SSETransport(
@@ -138,7 +123,12 @@ def enable_mcp_without_auth() -> None:
     >>> mcp_toolbox = MCPToolBox(client_transport=transport)
 
     """
-    warnings.warn(_AUTHLESS_MCP_ENABLED_WARNING, SecurityWarning, stacklevel=2)
+    warnings.warn(
+        "MCP authentication validation has been disabled for this context. "
+        "Only use authless MCP connections for local prototyping or tests.",
+        SecurityWarning,
+        stacklevel=2,
+    )
     _GLOBAL_ENABLED_MCP_WITHOUT_AUTH.set(True)
 
 
@@ -155,12 +145,12 @@ def _validate_auth(client_transport: ClientTransport) -> None:
     if has_auth:
         return
 
-    if _is_authless_mcp_approved(client_transport):
+    if client_transport._is_authless_mcp_approved():
         warnings.warn(_AUTHLESS_MCP_VALIDATION_WARNING, SecurityWarning, stacklevel=2)
         return
 
     if _is_mcp_without_auth_enabled():
-        _approve_authless_mcp(client_transport)
+        client_transport._approve_authless_mcp()
         warnings.warn(_AUTHLESS_MCP_VALIDATION_WARNING, SecurityWarning, stacklevel=2)
         return
 
