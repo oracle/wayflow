@@ -27,6 +27,7 @@ from wayflowcore.property import ListProperty, StringProperty
 from wayflowcore.serialization.serializer import deserialize
 from wayflowcore.steps.apicallstep import ApiCallStep
 from wayflowcore.steps.step import Step
+from wayflowcore.warnings import SecurityWarning
 
 from ...utils import get_available_port
 
@@ -602,7 +603,8 @@ def test_api_call_step_warns_for_non_public_ip_targets(faked_request, url):
     step = ApiCallStep(url=url, method="GET")
 
     with pytest.warns(
-        UserWarning, match="Requested URL targets a loopback, link-local, or private IP address"
+        SecurityWarning,
+        match="Requested URL targets a loopback, link-local, or private IP address",
     ):
         run_single_step(step)
 

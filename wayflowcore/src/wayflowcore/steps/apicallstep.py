@@ -27,6 +27,7 @@ from wayflowcore.models._requesthelpers import RetryingAsyncClient
 from wayflowcore.property import IntegerProperty, Property, StringProperty, string_to_property
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.steps.step import Step, StepResult
+from wayflowcore.warnings import SecurityWarning
 
 if TYPE_CHECKING:
     from wayflowcore.executors._flowconversation import FlowConversation
@@ -308,7 +309,7 @@ def _warn_if_non_public_ip_target(url: str) -> None:
         warnings.warn(
             "Requested URL targets a loopback, link-local, or private IP address. "
             "Please ensure this destination is expected and appropriately controlled.",
-            UserWarning,
+            SecurityWarning,
         )
 
 
