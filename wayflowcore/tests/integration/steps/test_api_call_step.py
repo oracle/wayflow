@@ -546,12 +546,21 @@ def test_api_call_step_disallow_http_by_default_runstep(faked_request):
         step = ApiCallStep(
             url="{{scheme}}://example.com/endpoint",
             method="GET",
+            url_allow_list=["http://example.com/endpoint"],
         )
 
         inputs_dict = {
             "scheme": "http",
         }
         run_single_step(step, inputs_dict)
+
+
+def test_api_call_step_requires_allow_list_for_templated_host():
+    with pytest.raises(ValueError, match="Templated URL destinations require `url_allow_list`"):
+        ApiCallStep(
+            url="https://{{service_host}}/endpoint",
+            method="GET",
+        )
 
 
 def test_api_call_step_disallow_http_by_default_allowed(faked_request):
@@ -579,6 +588,23 @@ def test_api_call_step_does_not_throw_if_allow_list_none(faked_request):
     )
 
     run_single_step(step)
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://127.0.0.1/metadata",
+        "https://10.0.0.7/metadata",
+        "https://169.254.1.1/metadata",
+    ],
+)
+def test_api_call_step_warns_for_non_public_ip_targets(faked_request, url):
+    step = ApiCallStep(url=url, method="GET")
+
+    with pytest.warns(
+        UserWarning, match="Requested URL targets a loopback, link-local, or private IP address"
+    ):
+        run_single_step(step)
 
 
 def test_api_call_step_throws_if_disallowed_credentials(faked_request):

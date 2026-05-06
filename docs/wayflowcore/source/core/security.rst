@@ -45,11 +45,12 @@ Tool Security Specifics
 
 **`RemoteTool` Considerations:**
 
-*   **Templated Request Arguments**: :ref:`RemoteTool <remotetool>` allows various parts of the HTTP request (URL, method, body, headers, etc.) to be templated using Jinja. This is powerful but introduces risks if the inputs to these templates are not strictly controlled. Maliciously crafted inputs could lead to information leakage (e.g., exposing sensitive data in URLs or headers) or enable attacks like SSRF (Server-Side Request Forgery) or automated DDoS.
-*   **URL Allow List (`url_allow_list`)**: This is a critical security feature. Always define a ``url_allow_list`` to restrict the tool to a predefined set of allowed URLs or URL patterns. This significantly mitigates the risk of the tool being used to make requests to unintended or malicious endpoints. Refer to the API documentation for detailed matching rules.
+*   **Templated Request Arguments**: :ref:`RemoteTool <remotetool>` allows various parts of the HTTP request (URL, method, body, headers, etc.) to be templated using Jinja. This is powerful but introduces risks if the inputs to these templates are not strictly controlled. Maliciously crafted inputs could lead to information leakage (e.g., exposing sensitive data in URLs or headers) or enable attacks like SSRF (Server-Side Request Forgery) or automated DDoS. Prefer a fixed developer-controlled base URL and template only path, query, or body values.
+*   **URL Allow List (`url_allow_list`)**: This is a critical security feature. We strongly recommend defining a ``url_allow_list`` to restrict the tool to a predefined set of allowed URLs or URL patterns. This significantly mitigates the risk of the tool being used to make requests to unintended or malicious endpoints. In code, ``url_allow_list`` is required only when placeholders appear in the destination part of the URL (scheme, host, or port). Placeholders limited to the path or query do not trigger this requirement. Refer to the API documentation for detailed matching rules.
 *   **Secure Connections (`allow_insecure_http`)**: By default, :ref:`RemoteTool <remotetool>` disallows non-HTTPS URLs (``allow_insecure_http=False``). Maintain this default unless there's an explicit, well-justified reason to allow insecure HTTP, and ensure the risks are understood.
 *   **Credential Handling (`allow_credentials`)**: By default (``allow_credentials=True``), URLs can contain credentials (e.g., ``https://user:pass@example.com``). If your use case does not require this, set ``allow_credentials=False`` to prevent accidental leakage or misuse of credentials in URLs.
 *   **URL Fragments (`allow_fragments`)**: Control whether URL fragments (e.g., ``#section``) are permitted in requested URLs and allow list entries. Default is ``True``. Set to ``False`` if fragments are not needed and could introduce ambiguity or bypass attempts.
+*   **Non-Public IP Targets**: Requests to loopback, link-local, or private IP literal targets emit a runtime warning. Treat this as a sign to double-check that the destination is expected and properly restricted.
 *   **Output Parsing (`output_jq_query`)**: If using ``output_jq_query`` to parse JSON responses, be aware that complex queries on very large or maliciously structured JSON could consume significant resources. While primarily a performance concern, extreme cases might have denial-of-service implications.
 
 .. caution::
@@ -60,7 +61,9 @@ Tool Security Specifics
    vectors like automated DDOS attacks. Please use :ref:`RemoteTool <remotetool>` responsibly and ensure
    that only valid URLs can be given as arguments or that no sensitive information is used for any of these
    arguments by the agent. Utilize ``url_allow_list``, ``allow_credentials``, and ``allow_fragments``
-   to control URL validity.
+   to control URL validity. ``url_allow_list`` is required only when placeholders appear in the
+   destination part of the URL (scheme, host, or port), not when placeholders are limited to the
+   path or query.
 
 Harden All Tools (ServerTool, ClientTool and RemoteTool)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,7 +81,9 @@ Harden All Tools (ServerTool, ClientTool and RemoteTool)
        *  For :ref:`RemoteTool <remotetool>`:
 
           *  Rigorously validate and sanitize any inputs used in templated arguments (``url``, ``method``, ``data``, ``params``, ``headers``, ``cookies``).
-          *  **Crucially, always configure `url_allow_list`** to restrict outbound requests to known, trusted endpoints.
+          *  Keep the base URL developer-controlled and template only path, query, or body values whenever possible.
+          *  Strongly prefer configuring ``url_allow_list`` to restrict outbound requests to known, trusted endpoints.
+          *  ``url_allow_list`` is required only when placeholders appear in the destination part of the URL (scheme, host, or port). Placeholders limited to the path or query do not trigger this requirement.
           *  Leverage ``allow_insecure_http=False`` (default), and consider setting ``allow_credentials=False`` if not needed.
    * - Excessive privileges (for :ref:`ServerTool <servertool>`)
      - Run in least-privilege containers/pods.
@@ -164,8 +169,9 @@ Network Connection Requirements
      - • Container network policies (iptables, Calico, Cilium) allowing only approved LLM endpoints, Tool API destinations, telemetry sinks, and DNS.
    * - External API Call Security (e.g., :ref:`ApiCallStep <apicallstep>`, :ref:`RemoteTool <remotetool>`)
      - • Enforce HTTPS: Use ``allow_insecure_http=False`` (default for both).
-       • **URL Allow Lists**: For :ref:`RemoteTool <remotetool>`, always configure its ``url_allow_list`` parameter. For :ref:`ApiCallStep <apicallstep>`, ensure broader network-level allow-lists are in place.
-       • Validate/sanitize templated URLs and other request parameters (headers, body) derived from potentially untrusted inputs.
+      • **URL Allow Lists**: Strongly prefer configuring ``url_allow_list`` for :ref:`RemoteTool <remotetool>` and other outbound request components. In code, ``url_allow_list`` is required only when an :ref:`ApiCallStep <apicallstep>` or :ref:`RemoteTool <remotetool>` URL template contains placeholders in the destination part of the URL (scheme, host, or port). Placeholders limited to the path or query do not trigger this requirement.
+      • Validate/sanitize templated URLs and other request parameters (headers, body) derived from potentially untrusted inputs, and prefer fixed developer-controlled base URLs with templated path/query/body values only.
+      • Treat warnings for loopback, link-local, or private IP literal targets as a security review signal, not as something to ignore.
        • Consider ``allow_credentials=False`` and ``allow_fragments=False`` for :ref:`RemoteTool <remotetool>` if those features are not strictly necessary.
        • Use connection timeouts/rate limiting (tool-specific or via infrastructure).
        • Log outbound requests (destination URLs, sanitized headers/bodies) for audit.

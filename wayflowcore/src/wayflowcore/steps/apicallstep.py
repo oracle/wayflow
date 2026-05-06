@@ -266,6 +266,52 @@ def _normalize_allow_list(
     return allow_list
 
 
+def _get_url_destination_placeholder_names(url: str) -> List[str]:
+    """Return placeholder names that appear in the destination part of a URL.
+
+    The destination is limited to the URL scheme and authority (host and port).
+    Placeholders appearing only in the path, query string, or fragment are
+    intentionally ignored so that ``url_allow_list`` is required only when
+    templating can redirect the request to a different destination.
+    """
+    scheme_separator = url.find("://")
+    if scheme_separator != -1:
+        scheme_part = url[:scheme_separator]
+        remainder = url[scheme_separator + 3 :]
+    else:
+        scheme_part = ""
+        remainder = url
+
+    authority_end_candidates = [
+        idx for idx in (remainder.find("/"), remainder.find("?"), remainder.find("#")) if idx != -1
+    ]
+    authority_end = min(authority_end_candidates) if authority_end_candidates else len(remainder)
+    authority = remainder[:authority_end]
+    hostport = authority.rsplit("@", 1)[1] if "@" in authority else authority
+
+    destination_variables = set(get_variable_names_from_object(scheme_part))
+    destination_variables.update(get_variable_names_from_object(hostport))
+    return list(sorted(destination_variables))
+
+
+def _warn_if_non_public_ip_target(url: str) -> None:
+    hostname = urlparse(url).hostname
+    if hostname is None:
+        return
+
+    try:
+        ip_target = ipaddress.ip_address(hostname)
+    except ValueError:
+        return
+
+    if ip_target.is_loopback or ip_target.is_link_local or ip_target.is_private:
+        warnings.warn(
+            "Requested URL targets a loopback, link-local, or private IP address. "
+            "Please ensure this destination is expected and appropriately controlled.",
+            UserWarning,
+        )
+
+
 class ApiCallStep(Step):
     """A step for calling remote APIs.
     It can do GET/POST/PUT/DELETE/etc. requests to endpoints.
@@ -277,7 +323,11 @@ class ApiCallStep(Step):
         Since the Agent can generate arguments (url, method, data, params, headers, cookies) or parts of these arguments in the respective Jinja
         templates, this can impose a security risk of information leakage and enable specific attack vectors like automated DDOS attacks. Please use
         ``ApiCallStep`` responsibly and ensure that only valid URLs can be given as arguments or that no sensitive information is used for any of these arguments by the agent.
-        Please use the url_allow_list, allow_credentials and allow_fragments parameters to control which URLs are treated as valid.
+        Please use the url_allow_list, allow_credentials and allow_fragments parameters to control which URLs are treated as valid. If the ``url``
+        template contains placeholders in the destination part of the request (scheme, host, or port), ``url_allow_list`` must be configured.
+        Placeholders limited to the path or query do not trigger this requirement. The recommended pattern is to keep the base URL
+        developer-controlled and template only path, query, or body values. Requests to loopback, link-local, and private IP literal targets emit
+        a runtime warning.
     """
 
     HTTP_RESPONSE = "http_response"
@@ -340,6 +390,11 @@ class ApiCallStep(Step):
         url
             Url to call.
             Can be templated using jinja templates.
+
+            If placeholders appear in the destination part of the URL (scheme, host, or port), ``url_allow_list`` must be configured.
+            Placeholders limited to the path or query do not trigger this requirement. The recommended pattern is a fixed developer-controlled
+            base URL with templated path, query, or body values only. Requests to loopback, link-local, and private IP literal targets emit a
+            runtime warning.
         method
             HTTP method to call.
             Common methods are: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE.
@@ -414,6 +469,10 @@ class ApiCallStep(Step):
             A list of URLs that any request URL is matched against.
             If there is at least one entry in the allow list that the requested URL matches,
             the request is considered allowed.
+
+            This parameter is required only when placeholders appear in the destination part
+            of the ``url`` template (scheme, host, or port). Placeholders limited to the path
+            or query do not trigger this requirement.
 
             We consider URLs following the generic-URL syntax as defined in `RFC 1808`_:
             ``<scheme>://<net_loc>/<path>;<params>?<query>#<fragment>``
@@ -492,9 +551,9 @@ class ApiCallStep(Step):
         ... )
         >>>
         >>> create_order_step = ApiCallStep(
-        ...     url = "https://example.com/orders/{{ order_id }}",         # call the URL https://example.com/orders/{{ order_id }}
+        ...     url = "https://example.com/orders/{{ order_id }}",         # keep the base URL fixed and template only the path parameter
         ...     method = "POST",                            # using the POST method
-        ...     data = {                               # sending an object which will automatically be transformed into JSON
+        ...     data = {                                    # sending an object which will automatically be transformed into JSON
         ...         "topic_id": 12345,                      # define a static body parameter
         ...         "item_id": "{{ item_id }}",             # define a templated body parameter. the value for {{ item_id }} will be taken from the IO system at runtime
         ...     },
@@ -548,6 +607,18 @@ class ApiCallStep(Step):
             raise ValueError(
                 f"Some headers have been specified in both `headers` and "
                 f"`sensitive_headers`: {repeated_headers}. This is not allowed."
+            )
+
+        templated_destination_variables = _get_url_destination_placeholder_names(url)
+        if templated_destination_variables and url_allow_list is None:
+            variable_list = ", ".join(
+                f"`{variable}`" for variable in templated_destination_variables
+            )
+            raise ValueError(
+                "Templated URL destinations require `url_allow_list`. "
+                f"The `url` template changes the scheme, host, or port via {variable_list}."
+                "Use a developer-controlled base URL and template only path, query, or body values, "
+                "or configure `url_allow_list` explicitly."
             )
 
         if num_retry_on_bad_http_request is not None and retry_policy is None:
@@ -742,9 +813,11 @@ class ApiCallStep(Step):
 
             if not any(match_results):
                 raise ValueError(
-                    f"Requested URL is not in allowed list.\
-                                   Please contact the application administrator to help adding your URL to the list."
+                    "Requested URL is not in allowed list. "
+                    "Please contact the application administrator to help adding your URL to the list."
                 )
+
+        _warn_if_non_public_ip_target(request["url"])
 
         # Default behavior: keep legacy retry loop unless a RetryPolicy is provided.
         policy = self.retry_policy
