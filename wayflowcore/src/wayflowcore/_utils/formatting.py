@@ -201,6 +201,32 @@ def stringify_if_not_jsonable(x: Any) -> Any:
         return str(x)
 
 
+def build_tool_output_payload(content: Any) -> Dict[str, Any]:
+    """
+    Normalize tool output into a small structured payload for prompt rendering.
+
+    Keeping a consistent JSON-shaped envelope makes tool-returned content easier
+    to consume across prompt templates and model adapters. This helper stays in
+    ``_utils`` because both layers use the same representation.
+    """
+
+    return {"content": stringify_if_not_jsonable(content)}
+
+
+def format_tool_output_for_llm(content: Any) -> str:
+    """
+    Return a prompt-safe JSON string for tool output.
+
+    The content is first wrapped in a structured payload and then escaped so it
+    can be safely embedded inside prompt markup such as
+    ``<tool_response>...</tool_response>``. It is shared by prompt templates
+    and model adapters so tool result rendering stays consistent.
+    """
+
+    rendered = json.dumps(build_tool_output_payload(content), sort_keys=False)
+    return rendered.replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e")
+
+
 def _format_chat_history_with_tool_results(
     messages: List["Message"],
     tool_request_renderer: Callable[[str, List["ToolRequest"]], str],
@@ -224,6 +250,8 @@ def _format_chat_history_with_tool_results(
     tool_role_allowed:
         whether the LLM accepts the "tool" role: system, user, assistant, tool
         If False, will use the "user" role to store tool outputs
+        and the renderer should clearly label those messages as tool data rather
+        than human user input.
     """
     from wayflowcore import Message, MessageType
 

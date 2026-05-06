@@ -7,10 +7,13 @@
 from typing import TYPE_CHECKING, Any, List, Tuple
 
 from wayflowcore._utils._templating_helpers import render_template
-from wayflowcore._utils.formatting import _format_chat_history_with_tool_results, stringify
+from wayflowcore._utils.formatting import (
+    _format_chat_history_with_tool_results,
+    format_tool_output_for_llm,
+)
 from wayflowcore.outputparser import PythonToolOutputParser
 from wayflowcore.serialization.serializer import SerializableObject
-from wayflowcore.templates.template import PromptTemplate
+from wayflowcore.templates.template import _TOOL_OUTPUT_SYSTEM_RULE, PromptTemplate
 from wayflowcore.tools import ToolRequest, ToolResult
 from wayflowcore.transforms import (
     CanonicalizationMessageTransform,
@@ -67,16 +70,14 @@ class _PythonMergeToolRequestAndCallsTransform(MessageTransform, SerializableObj
         return [
             render_template(
                 "<tool_response>{{tool_result}}</tool_response>",
-                inputs=dict(
-                    tool_result=f'"{content}"' if isinstance(content, str) else content,
-                ),
+                inputs=dict(tool_result=format_tool_output_for_llm(tool_result.content)),
             )
             for tool_request, tool_result in tool_request_and_results
-            if (content := stringify(tool_result.content)) is not None
         ]
 
 
-PYTHON_CALL_CHAT_SYSTEM_TEMPLATE = """\
+PYTHON_CALL_CHAT_SYSTEM_TEMPLATE = (
+    """\
 You are an expert in composing functions. You are given a question and a set of possible functions.
 Based on the question, you will need to make one or more function/tool calls to achieve the purpose.
 If none of the functions can be used, point it out. If the given question lacks the parameters required by the function, also point it out.
@@ -92,6 +93,10 @@ Here is a list of functions in JSON format that you can invoke.
 {% for tool in __TOOLS__%}- {{tool.function | tojson}}{{ ",
 " }}{% endfor %}]
 """
+    + _TOOL_OUTPUT_SYSTEM_RULE
+    + """
+"""
+)
 
 PYTHON_CALL_CHAT_TEMPLATE = PromptTemplate(
     messages=[

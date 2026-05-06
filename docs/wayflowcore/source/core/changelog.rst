@@ -71,6 +71,12 @@ Improvements
   Direct ``starlette`` imports were removed in favor of FastAPI equivalent alternatives, so ``wayflowcore`` no longer
   relies on ``starlette`` as a direct, third party dependency.
 
+* **Improved tool-result formatting across templates and model adapters**
+
+  Built-in non-native prompt templates and model adapters now render tool results
+  through a shared JSON-based formatter, which keeps tool-returned data more
+  consistent across providers.
+
 Documentation
 ^^^^^^^^^^^^^
 
