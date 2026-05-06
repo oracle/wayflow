@@ -203,11 +203,10 @@ def stringify_if_not_jsonable(x: Any) -> Any:
 
 def build_tool_output_payload(content: Any) -> Dict[str, Any]:
     """
-    Normalize tool output into a small structured payload for prompt rendering.
+    Normalize tool output into a minimal payload for adapter-specific tool APIs.
 
-    Keeping a consistent JSON-shaped envelope makes tool-returned content easier
-    to consume across prompt templates and model adapters. This helper stays in
-    ``_utils`` because both layers use the same representation.
+    Some providers expect tool results to be passed as JSON objects rather than raw values.
+    This helper keeps that adapter-facing payload small and predictable.
     """
 
     return {"content": stringify_if_not_jsonable(content)}
@@ -217,13 +216,12 @@ def format_tool_output_for_llm(content: Any) -> str:
     """
     Return a prompt-safe JSON string for tool output.
 
-    The content is first wrapped in a structured payload and then escaped so it
-    can be safely embedded inside prompt markup such as
-    ``<tool_response>...</tool_response>``. It is shared by prompt templates
-    and model adapters so tool result rendering stays consistent.
+    The tool output is serialized directly to JSON and then escaped so it can
+    be safely embedded inside prompt markup such as
+    ``<tool_response>...</tool_response>`` while preserving the original value.
     """
 
-    rendered = json.dumps(build_tool_output_payload(content), sort_keys=False)
+    rendered = json.dumps(stringify_if_not_jsonable(content), sort_keys=False)
     return rendered.replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e")
 
 

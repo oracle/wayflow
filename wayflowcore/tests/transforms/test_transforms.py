@@ -125,7 +125,7 @@ def test_remove_empty_non_user_message_transform(messages, expected_messages):
                 ),
                 Message(
                     message_type=MessageType.USER,
-                    content=f"<tool_response>{format_tool_output_for_llm('some_output')}</tool_response>",
+                    content='<tool_response>"some_output"</tool_response>',
                 ),
                 AGENT_MESSAGE,
             ],
@@ -204,7 +204,7 @@ COMPLEX_TOOL_REQUEST = Message(
                 ),
                 Message(
                     message_type=MessageType.USER,
-                    content=f"<tool_response>{format_tool_output_for_llm('some_output')}</tool_response>",
+                    content='<tool_response>"some_output"</tool_response>',
                 ),
                 AGENT_MESSAGE,
             ],
@@ -220,7 +220,7 @@ COMPLEX_TOOL_REQUEST = Message(
                 ),
                 Message(
                     message_type=MessageType.USER,
-                    content=f"<tool_response>{format_tool_output_for_llm('some_output')}</tool_response>",
+                    content='<tool_response>"some_output"</tool_response>',
                 ),
                 AGENT_MESSAGE,
             ],
@@ -246,7 +246,7 @@ def test_tool_output_formatter_escapes_prompt_markup_sequences():
     assert "\\u003c/tool_response\\u003e" in rendered
     assert "\\u003ctool_response\\u003e" in rendered
     assert "\\u0026value" in rendered
-    assert json.loads(rendered)["content"] == tool_content
+    assert json.loads(rendered) == tool_content
 
 
 @pytest.mark.parametrize(

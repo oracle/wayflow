@@ -10,7 +10,7 @@ from typing import List
 import pytest
 
 from wayflowcore import Agent
-from wayflowcore._utils.formatting import format_tool_output_for_llm, parse_tool_call_using_json
+from wayflowcore._utils.formatting import parse_tool_call_using_json
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.outputparser import JsonToolOutputParser, PythonToolOutputParser, RegexOutputParser
 from wayflowcore.property import IntegerProperty, ListProperty, Property, StringProperty
@@ -536,8 +536,8 @@ def test_llama_chat_template():
             ),
             Message(
                 content=(
-                    f"<tool_response>{format_tool_output_for_llm('some_output')}</tool_response>\n"
-                    f"<tool_response>{format_tool_output_for_llm('some_other_output')}</tool_response>"
+                    '<tool_response>"some_output"</tool_response>\n'
+                    '<tool_response>"some_other_output"</tool_response>'
                 ),
                 message_type=MessageType.USER,
             ),
@@ -582,7 +582,7 @@ def test_bfcl_chat_template():
                 message_type=MessageType.AGENT,
             ),
             Message(
-                content=f"<tool_response>{format_tool_output_for_llm('some_output')}</tool_response>",
+                content='<tool_response>"some_output"</tool_response>',
                 message_type=MessageType.USER,
             ),
             Message(content="The capital of Switzerland is Bern", message_type=MessageType.AGENT),
@@ -650,7 +650,7 @@ def test_react_chat_template():
                 message_type=MessageType.AGENT,
             ),
             Message(
-                content="## Observation: " f"{format_tool_output_for_llm('some_output')}",
+                content='## Observation: "some_output"',
                 message_type=MessageType.USER,
             ),
             Message(content="The capital of Switzerland is Bern", message_type=MessageType.AGENT),
