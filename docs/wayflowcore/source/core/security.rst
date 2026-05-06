@@ -169,9 +169,9 @@ Network Connection Requirements
      - • Container network policies (iptables, Calico, Cilium) allowing only approved LLM endpoints, Tool API destinations, telemetry sinks, and DNS.
    * - External API Call Security (e.g., :ref:`ApiCallStep <apicallstep>`, :ref:`RemoteTool <remotetool>`)
      - • Enforce HTTPS: Use ``allow_insecure_http=False`` (default for both).
-      • **URL Allow Lists**: Strongly prefer configuring ``url_allow_list`` for :ref:`RemoteTool <remotetool>` and other outbound request components. In code, ``url_allow_list`` is required only when an :ref:`ApiCallStep <apicallstep>` or :ref:`RemoteTool <remotetool>` URL template contains placeholders in the destination part of the URL (scheme, host, or port). Placeholders limited to the path or query do not trigger this requirement.
-      • Validate/sanitize templated URLs and other request parameters (headers, body) derived from potentially untrusted inputs, and prefer fixed developer-controlled base URLs with templated path/query/body values only.
-      • Treat warnings for loopback, link-local, or private IP literal targets as a security review signal, not as something to ignore.
+       • **URL Allow Lists**: Strongly prefer configuring ``url_allow_list`` for :ref:`RemoteTool <remotetool>` and other outbound request components. In code, ``url_allow_list`` is required only when an :ref:`ApiCallStep <apicallstep>` or :ref:`RemoteTool <remotetool>` URL template contains placeholders in the destination part of the URL (scheme, host, or port). Placeholders limited to the path or query do not trigger this requirement.
+       • Validate/sanitize templated URLs and other request parameters (headers, body) derived from potentially untrusted inputs, and prefer fixed developer-controlled base URLs with templated path/query/body values only.
+       • Treat warnings for loopback, link-local, or private IP literal targets as a security review signal, not as something to ignore.
        • Consider ``allow_credentials=False`` and ``allow_fragments=False`` for :ref:`RemoteTool <remotetool>` if those features are not strictly necessary.
        • Use connection timeouts/rate limiting (tool-specific or via infrastructure).
        • Log outbound requests (destination URLs, sanitized headers/bodies) for audit.
