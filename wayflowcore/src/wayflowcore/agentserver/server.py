@@ -181,8 +181,19 @@ class OpenAIResponsesServer:
         storage_config:
             Cch will not guarantee persistence of data across runs.
         allowed_origins:
-            Origins allowed to make browser requests to the server. If not provided,
-            CORS middleware is not enabled.
+            Origins allowed to make browser cross-origin requests to the server through
+            CORS (Cross-Origin Resource Sharing). CORS is a browser access-control
+            mechanism that decides whether JavaScript loaded from one origin, such as
+            ``https://app.example.com``, may call this server on another origin.
+            An origin is the scheme, host, and port, for example
+            ``https://app.example.com`` or ``http://localhost:3000``.
+            If not provided, CORS middleware is not enabled and browsers deny
+            cross-origin requests by default.
+            Examples:
+            ``["https://app.example.com"]`` allows one browser application origin.
+            ``["*"]`` allows any origin, but only when ``allow_credentials`` is false.
+            Wildcard subdomain patterns such as ``["*.example.com"]`` are not
+            supported here; list each allowed origin explicitly.
         allow_credentials:
             Whether CORS requests may include credentials.
         allowed_methods:
@@ -351,6 +362,8 @@ def _validate_server_auth_configuration(host: str, api_key: Optional[str]) -> No
     if api_key is None and not _is_loopback_host(host):
         raise ValueError(
             "An api_key is required when binding the server to a non-loopback host. "
+            "A loopback host only accepts connections from the same machine, for "
+            "example host='127.0.0.1' or host='localhost'. "
             "Use host='127.0.0.1' for local unauthenticated development."
         )
 

@@ -86,8 +86,9 @@ Possibly Breaking Changes
 
   ``A2AServer`` and ``OpenAIResponsesServer`` now require an ``api_key`` when
   binding to non-loopback hosts such as ``0.0.0.0`` or a public interface.
-  Unauthenticated local development on loopback hosts remains available with a
-  warning.
+  A loopback host only accepts connections from the same machine, for example
+  ``127.0.0.1`` or ``localhost``. Unauthenticated local development on loopback
+  hosts remains available with a warning.
 
 * **Summarization Transforms now do not do caching if the datastore is None**
 
