@@ -142,7 +142,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_serialization_plugin
+from wayflowcore.agentspec.components import (
+    all_serialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -388,7 +390,9 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
-from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
+from wayflowcore.models.openaicompatiblemodel import (
+    EMPTY_API_KEY,
+)
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -1514,6 +1518,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     if isinstance(inner_api_step.sensitive_headers, dict)
                     else dict()
                 ),
+                url_allow_list=inner_api_step.url_allow_list,
                 requires_confirmation=runtime_tool.requires_confirmation,
                 retry_policy=(
                     self._retrypolicy_convert_to_agentspec(inner_api_step.retry_policy)
@@ -3150,6 +3155,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     if isinstance(runtime_step.sensitive_headers, dict)
                     else dict()
                 ),
+                url_allow_list=runtime_step.url_allow_list,
                 retry_policy=(
                     self._retrypolicy_convert_to_agentspec(runtime_step.retry_policy)
                     if runtime_step.retry_policy is not None

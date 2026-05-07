@@ -143,7 +143,9 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import all_deserialization_plugin
+from wayflowcore.agentspec.components import (
+    all_deserialization_plugin,
+)
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -1403,6 +1405,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 retry_policy=self._convert_retry_policy_to_runtime(
                     agentspec_component.retry_policy
                 ),
+                url_allow_list=agentspec_component.url_allow_list,
                 store_response=store_response,
                 output_values_json={
                     output_.title: f".{output_.title}"
@@ -1597,6 +1600,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 retry_policy=self._convert_retry_policy_to_runtime(
                     agentspec_component.retry_policy
                 ),
+                url_allow_list=agentspec_component.url_allow_list,
                 requires_confirmation=agentspec_component.requires_confirmation,
                 **self._get_component_arguments(agentspec_component),
             )

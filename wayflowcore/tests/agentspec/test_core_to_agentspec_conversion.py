@@ -37,6 +37,7 @@ def runtime_remote_tool_with_specified_io() -> RuntimeRemoteTool:
         url="https://example.com",
         method="POST",
         data={"payload": {"query": "{{query}}"}},
+        url_allow_list=["https://example.com/search/"],
         input_descriptors=[RuntimeStringProperty(name="query")],
         output_descriptors=[RuntimeStringProperty(name="search_results")],
     )
@@ -145,6 +146,7 @@ def test_runtime_remote_tool_preserves_custom_io_descriptors_when_exported(
     assert exported_remote_tool.outputs is not None and [
         descriptor.title for descriptor in exported_remote_tool.outputs
     ] == ["search_results"]
+    assert exported_remote_tool.url_allow_list == ["https://example.com/search/"]
 
 
 @pytest.mark.parametrize(
