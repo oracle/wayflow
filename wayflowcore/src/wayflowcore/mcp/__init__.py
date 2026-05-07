@@ -14,7 +14,7 @@ from .clienttransport import (
     StreamableHTTPmTLSTransport,
     StreamableHTTPTransport,
 )
-from .mcphelpers import enable_mcp_without_auth
+from .mcphelpers import authless_mcp_enabled, enable_mcp_without_auth
 from .tools import MCPTool, MCPToolBox
 
 __all__ = [
@@ -28,5 +28,6 @@ __all__ = [
     "StdioTransport",
     "StreamableHTTPmTLSTransport",
     "StreamableHTTPTransport",
+    "authless_mcp_enabled",
     "enable_mcp_without_auth",
 ]

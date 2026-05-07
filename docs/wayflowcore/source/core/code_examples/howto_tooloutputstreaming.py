@@ -74,16 +74,16 @@ with register_event_listeners([ToolStreamingListener()]):
 # .. end-##_Run_agent_with_stream_listener
 # .. start-##_Run_mcp_streaming_tool
 exit()  # docs-skiprow # type: ignore
-from wayflowcore.mcp import MCPTool, SSETransport, enable_mcp_without_auth
+from wayflowcore.mcp import MCPTool, SSETransport, authless_mcp_enabled
 from wayflowcore.flow import Flow
 from wayflowcore.steps import ToolExecutionStep
 
-enable_mcp_without_auth()
 mcp_client = SSETransport(url="http://localhost:8080/sse")
-mcp_tool = MCPTool(
-    name="my_streaming_tool",
-    client_transport=mcp_client,
-)
+with authless_mcp_enabled():
+    mcp_tool = MCPTool(
+        name="my_streaming_tool",
+        client_transport=mcp_client,
+    )
 
 # Option A: Use the tool in an Agent
 assistant = Agent(llm=llm, tools=[mcp_tool])

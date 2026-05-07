@@ -65,6 +65,15 @@ class ClientTransport(SerializableObject, ABC):
     session_parameters: SessionParameters = field(default_factory=SessionParameters)
     """Arguments for the MCP session."""
 
+    _authless_mcp_approved: bool = False
+    """Internal runtime-only flag used to allow authless MCP after scoped opt-in."""
+
+    def _approve_authless_mcp(self) -> None:
+        self._authless_mcp_approved = True
+
+    def _is_authless_mcp_approved(self) -> bool:
+        return self._authless_mcp_approved
+
     @abstractmethod
     def _get_client_transport_cm(self) -> ClientTransportContextManagerType:
         """Return the client transport context manager"""

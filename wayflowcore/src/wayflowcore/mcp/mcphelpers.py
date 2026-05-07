@@ -7,6 +7,7 @@
 import inspect
 import json
 import logging
+import warnings
 from collections.abc import AsyncGenerator as cAsyncGenerator
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -16,6 +17,7 @@ from typing import (
     AsyncGenerator,
     Callable,
     Dict,
+    Iterator,
     List,
     Literal,
     Optional,
@@ -54,6 +56,7 @@ from wayflowcore.property import (
 from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.tools import Tool
 from wayflowcore.tracing.span import ToolExecutionSpan, get_current_span
+from wayflowcore.warnings import SecurityWarning
 
 logger = logging.getLogger(__name__)
 
@@ -62,23 +65,70 @@ _GLOBAL_ENABLED_MCP_WITHOUT_AUTH: ContextVar[bool] = ContextVar(
     "_GLOBAL_ENABLED_MCP_WITHOUT_AUTH", default=False
 )
 
+_AUTHLESS_MCP_VALIDATION_WARNING = (
+    "Allowing MCP use without authentication because authless MCP is enabled. "
+    "Only use authless MCP connections for local prototyping or tests."
+)
+
+
+@contextmanager
+def authless_mcp_enabled() -> Iterator[None]:
+    """Temporarily allow MCP client transports without authentication.
+
+    .. warning::
+        This context manager should only be used in local prototyping and tests.
+        MCP tools and toolboxes created inside this context approve their
+        client transport for later use without authentication.
+
+    Example
+    -------
+    >>> from wayflowcore.mcp import authless_mcp_enabled, MCPToolBox, SSETransport
+    >>> transport = SSETransport(
+    ...     url="https://localhost:8443/sse",
+    ... )
+    >>> with authless_mcp_enabled():
+    ...     mcp_toolbox = MCPToolBox(client_transport=transport)
+
+    """
+    token = _GLOBAL_ENABLED_MCP_WITHOUT_AUTH.set(True)
+    try:
+        yield
+    finally:
+        _GLOBAL_ENABLED_MCP_WITHOUT_AUTH.reset(token)
+
 
 def enable_mcp_without_auth() -> None:
     """Helper function to enable the use of client transport without authentication.
 
     .. warning::
-        This method should only be used in prototyping.
+        This method should only be used in prototyping. Prefer
+        :func:`authless_mcp_enabled` to scope the opt-in to the code that needs it.
 
     Example
     -------
-    >>> from wayflowcore.mcp import enable_mcp_without_auth, MCPToolBox, SSETransport
-    >>> enable_mcp_without_auth()
+    >>> from wayflowcore.mcp import authless_mcp_enabled, MCPToolBox, SSETransport
     >>> transport = SSETransport(
     ...     url="https://localhost:8443/sse",
     ... )
+    >>> with authless_mcp_enabled():
+    ...     mcp_toolbox = MCPToolBox(client_transport=transport)
+
+    Legacy unscoped usage:
+
+    >>> from wayflowcore.mcp import enable_mcp_without_auth, MCPToolBox, SSETransport
+    >>> transport = SSETransport(
+    ...     url="https://localhost:8443/sse",
+    ... )
+    >>> enable_mcp_without_auth()
     >>> mcp_toolbox = MCPToolBox(client_transport=transport)
 
     """
+    warnings.warn(
+        "MCP authentication validation has been disabled for this context. "
+        "Only use authless MCP connections for local prototyping or tests.",
+        SecurityWarning,
+        stacklevel=2,
+    )
     _GLOBAL_ENABLED_MCP_WITHOUT_AUTH.set(True)
 
 
@@ -91,15 +141,24 @@ def _is_mcp_without_auth_enabled() -> bool:
 
 
 def _validate_auth(client_transport: ClientTransport) -> None:
-    if (
-        not (isinstance(client_transport, ClientTransportWithAuth) and client_transport.auth)
-        and not _is_mcp_without_auth_enabled()
-    ):
-        raise ValueError(
-            "Using MCP servers without proper authentication is highly discouraged. "
-            "If you still want to use it, please call `enable_mcp_without_auth` before "
-            "instantiating the MCPToolBox."
-        )
+    has_auth = bool(isinstance(client_transport, ClientTransportWithAuth) and client_transport.auth)
+    if has_auth:
+        return
+
+    if client_transport._is_authless_mcp_approved():
+        warnings.warn(_AUTHLESS_MCP_VALIDATION_WARNING, SecurityWarning, stacklevel=2)
+        return
+
+    if _is_mcp_without_auth_enabled():
+        client_transport._approve_authless_mcp()
+        warnings.warn(_AUTHLESS_MCP_VALIDATION_WARNING, SecurityWarning, stacklevel=2)
+        return
+
+    raise ValueError(
+        "Using MCP servers without proper authentication is highly discouraged. "
+        "If you still want to use it for local prototyping or tests, wrap the "
+        "MCPTool or MCPToolBox construction in `with authless_mcp_enabled():`."
+    )
 
 
 @contextmanager

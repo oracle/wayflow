@@ -246,13 +246,16 @@ class AsyncRuntime(metaclass=Singleton):
         # transports can proceed in parallel, while concurrent creation for
         # the same transport is serialized to prevent duplicate sessions.
         with self._lock:
-            transport_lock = self._transport_locks.setdefault(
-                client_transport.id, threading.Lock()
-            )
+            transport_lock = self._transport_locks.setdefault(client_transport.id, threading.Lock())
         with transport_lock:
             sessions_by_transport = self._client_sessions.setdefault(client_transport.id, {})
             if conversation_id in sessions_by_transport:
                 return sessions_by_transport[conversation_id]
+            from wayflowcore.mcp.mcphelpers import _validate_auth
+
+            # Recheck here because deserialized MCP objects can skip constructor validation
+            # and open their first connection lazily.
+            _validate_auth(client_transport)
             return self._create_long_lived_session(client_transport, conversation_id)
 
     def get_parent_span_stack(self) -> List[Span]:

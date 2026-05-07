@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -80,7 +80,7 @@ def start_mcp_server() -> str:
 # .. start-##_Imports_for_this_guide
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.agent import Agent
-from wayflowcore.mcp import MCPTool, MCPToolBox, SSETransport, enable_mcp_without_auth
+from wayflowcore.mcp import MCPTool, MCPToolBox, SSETransport, authless_mcp_enabled
 from wayflowcore.flow import Flow
 from wayflowcore.steps import ToolExecutionStep
 
@@ -103,9 +103,9 @@ USER_QUERY: str # docs-skiprow
 (llm, mcp_server_url, USER_QUERY, MCP_TOOL_NAME) = _update_globals(["llm_small", "sse_mcp_server", "mcp_user_query", "mcp_example_tool_name"]) # docs-skiprow # type: ignore
 
 # .. start-##_Connecting_an_agent_to_the_MCP_server
-enable_mcp_without_auth() # <--- See https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization#security-considerations
 mcp_client = SSETransport(url=mcp_server_url)
-mcp_toolbox = MCPToolBox(client_transport=mcp_client)
+with authless_mcp_enabled(): # <--- See https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization#security-considerations
+    mcp_toolbox = MCPToolBox(client_transport=mcp_client)
 
 assistant = Agent(
     llm=llm,
@@ -116,7 +116,8 @@ from wayflowcore.agentspec import AgentSpecExporter # docs-skiprow
 serialized_assistant = AgentSpecExporter().to_json(assistant) # docs-skiprow
 
 from wayflowcore.agentspec import AgentSpecLoader # docs-skiprow
-assistant: Agent = AgentSpecLoader().load_json(serialized_assistant) # docs-skiprow
+with authless_mcp_enabled(): # docs-skiprow
+    assistant: Agent = AgentSpecLoader().load_json(serialized_assistant) # docs-skiprow
 # .. start-##_Running_the_agent
 # With a linear conversation
 conversation = assistant.start_conversation()
@@ -150,10 +151,11 @@ def run_agent_in_command_line(assistant: Agent):
 # ^ uncomment and execute
 # .. end-##_Running_with_an_execution_loop
 # .. start-##_Connecting_a_flow_to_the_MCP_server
-mcp_tool = MCPTool(
-    name=MCP_TOOL_NAME,
-    client_transport=mcp_client
-)
+with authless_mcp_enabled():
+    mcp_tool = MCPTool(
+        name=MCP_TOOL_NAME,
+        client_transport=mcp_client
+    )
 
 assistant = Flow.from_steps([
     ToolExecutionStep(name="mcp_tool_step", tool=mcp_tool)
@@ -162,7 +164,8 @@ assistant = Flow.from_steps([
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader # docs-skiprow
 from wayflowcore.serialization import serialize # docs-skiprow
 serialized_assistant = AgentSpecExporter().to_json(assistant) # docs-skiprow
-new_assistant: Flow = AgentSpecLoader().load_json(serialized_assistant) # docs-skiprow
+with authless_mcp_enabled(): # docs-skiprow
+    new_assistant: Flow = AgentSpecLoader().load_json(serialized_assistant) # docs-skiprow
 s1 = serialize(assistant) # docs-skiprow
 s2 = serialize(new_assistant) # docs-skiprow
 # assert s1==s2 # Manually verified # docs-skiprow
@@ -187,5 +190,6 @@ serialized_assistant = AgentSpecExporter().to_json(assistant)
 # .. start-##_Load_Agent_Spec_config
 from wayflowcore.agentspec import AgentSpecLoader
 
-assistant: Flow = AgentSpecLoader().load_json(serialized_assistant)
+with authless_mcp_enabled():
+    assistant: Flow = AgentSpecLoader().load_json(serialized_assistant)
 # .. end-##_Load_Agent_Spec_config

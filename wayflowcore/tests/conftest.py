@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -10,6 +10,7 @@ import re
 import stat
 import sysconfig
 import threading
+import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, TypedDict, Union
@@ -25,8 +26,7 @@ from wayflowcore.datastore import MTlsOracleDatabaseConnectionConfig
 from wayflowcore.datastore.oracle import TlsOracleDatabaseConnectionConfig
 from wayflowcore.embeddingmodels import VllmEmbeddingModel
 from wayflowcore.flowhelpers import create_single_step_flow
-from wayflowcore.mcp import enable_mcp_without_auth
-from wayflowcore.mcp.mcphelpers import _reset_mcp_contextvar
+from wayflowcore.mcp import authless_mcp_enabled
 from wayflowcore.models import LlmModel, StreamChunkType
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.ociclientconfig import (
@@ -37,6 +37,7 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.openaiapitype import OpenAIAPIType
 from wayflowcore.steps import OutputMessageStep
 from wayflowcore.tools import ToolRequest
+from wayflowcore.warnings import SecurityWarning
 
 # Import shared HTTPS fixtures here so pytest registers them globally, even for
 # test modules that use them without importing the helper module directly.
@@ -872,11 +873,10 @@ def guard_all_filewrites(monkeypatch: Any, tmp_path: str, session_tmp_path: str)
 
 @pytest.fixture
 def with_mcp_enabled():
-    try:
-        enable_mcp_without_auth()
-        yield
-    finally:
-        _reset_mcp_contextvar()
+    with authless_mcp_enabled():
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=SecurityWarning)
+            yield
 
 
 @pytest.fixture(scope="session")

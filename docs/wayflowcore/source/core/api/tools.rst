@@ -72,6 +72,9 @@ MCP Tool
 .. autoclass:: wayflowcore.mcp.SessionParameters
     :exclude-members: to_dict
 
+.. _authlessmcpenabled:
+.. autofunction:: wayflowcore.mcp.authless_mcp_enabled
+
 .. _enablemcpwithoutauth:
 .. autofunction:: wayflowcore.mcp.enable_mcp_without_auth
 

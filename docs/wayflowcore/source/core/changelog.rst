@@ -51,6 +51,13 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **Scoped opt-in for authless MCP clients**
+
+  Added ``authless_mcp_enabled()`` as a scoped context manager for local or test MCP clients
+  that intentionally do not use authentication. The existing ``enable_mcp_without_auth()``
+  helper remains available, but now emits a ``SecurityWarning``. Authless MCP use also emits
+  a ``SecurityWarning`` when validation is bypassed.
+
 * **Improved agent server access defaults**
 
   ``A2AServer.run(api_key=...)`` now enforces bearer-token authentication when an API key is
@@ -81,6 +88,14 @@ Documentation
 
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **Authless MCP usage now requires explicit scoped opt-in**
+
+  Unauthenticated MCP tools and toolboxes must now be constructed or loaded from
+  Agent Spec inside ``authless_mcp_enabled()`` unless the transport provides
+  authentication. The legacy ``enable_mcp_without_auth()`` helper remains
+  available, but emits a ``SecurityWarning``. Code that treats warnings as errors
+  may need to catch or filter this warning for local tests.
 
 * **Agent servers require API keys on non-loopback hosts**
 

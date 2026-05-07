@@ -1737,7 +1737,6 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 ),
                 tool_filter=tool_filter,
                 **self._get_component_arguments(agentspec_component),
-                _validate_mcp_client_transport=False,
                 requires_confirmation=agentspec_component.requires_confirmation,
             )
         elif isinstance(agentspec_component, AgentSpecAgentNode):

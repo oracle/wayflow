@@ -107,7 +107,8 @@ Specify the :ref:`transport <clienttransport>` to use to handle the connection t
 You can then equip an agent with the toolbox similarly to tools.
 
 .. note::
-   ``enable_mcp_without_auth()`` disables authorization for local/testing only—do not use in production.
+   ``authless_mcp_enabled()`` disables authorization for local/testing only—do not use in production.
+   Keep it scoped around the code that creates MCP tools or toolboxes.
 
 
 Running the Agent
@@ -422,6 +423,8 @@ Here is what the **Agent Spec representation will look like ↓**
 
 
 You can then load the configuration back to an assistant using the ``AgentSpecLoader``.
+Because this example uses an unauthenticated local MCP server, the load step is wrapped
+in ``authless_mcp_enabled()`` too.
 
 
 .. literalinclude:: ../code_examples/howto_mcp.py
