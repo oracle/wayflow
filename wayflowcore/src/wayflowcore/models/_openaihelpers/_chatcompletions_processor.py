@@ -351,13 +351,13 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                     "tool_request_id": "",
                     "_extra_content": None,
                 }
-            if "id" in delta:
+            if "id" in delta and delta["id"] is not None:
                 tool_requests_dict[index]["tool_request_id"] = delta["id"]
-            if "function" in delta:
+            if "function" in delta and delta["function"] is not None:
                 func = delta["function"]
-                if "name" in func:
+                if "name" in func and func["name"] is not None:
                     tool_requests_dict[index]["name"] += func["name"]
-                if "arguments" in func:
+                if "arguments" in func and func["arguments"] is not None:
                     tool_requests_dict[index]["args"] += func["arguments"]
             if "extra_content" in delta:
                 tool_requests_dict[index]["_extra_content"] = delta["extra_content"]

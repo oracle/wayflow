@@ -52,7 +52,11 @@ class _LlamaMergeToolRequestAndCallsTransform(MessageTransform):
             render_template(
                 "<tool_response>{{tool_result}}</tool_response>",
                 inputs=dict(
-                    tool_result=f'"{content}"' if isinstance(content, str) else content,
+                    tool_result=(
+                        json.dumps(tool_result.content)
+                        if isinstance(tool_result.content, str)
+                        else content
+                    ),
                 ),
             )
             for tool_request, tool_result in tool_request_and_results

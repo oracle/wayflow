@@ -140,6 +140,42 @@ def test_basic_agent_execution_step_with_step_inputs(remotely_hosted_llm):
     assert outputs["zinimo_result"] == -2
 
 
+def test_basic_agent_execution_step_can_coerce_submit_result_arguments_from_model_output(
+    remotely_hosted_llm,
+) -> None:
+    llm = remotely_hosted_llm
+    agent = Agent(
+        llm=llm,
+        custom_instruction="Submit the outputs using the submit_result tool.",
+        initial_message=None,
+    )
+    step = AgentExecutionStep(
+        agent=agent,
+        output_descriptors=[zinimo_result_description],
+        caller_input_mode=CallerInputMode.NEVER,
+    )
+
+    flow = create_single_step_flow(step)
+    conversation = flow.start_conversation()
+    conversation.append_user_message("Compute the zinimo result.")
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(
+                    name="submit_result",
+                    args={"zinimo_result": "-2", "wrong_arg_name": ""},
+                    tool_request_id="request_id",
+                )
+            ]
+        ],
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values == {"zinimo_result": -2}
+
+
 @retry_test(max_attempts=3)
 def test_basic_agent_execution_step_with_user_input(zinimo_agent):
     """

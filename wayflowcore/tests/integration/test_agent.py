@@ -32,6 +32,7 @@ from wayflowcore.executors.executionstatus import (
     UserMessageRequestStatus,
 )
 from wayflowcore.flow import Flow
+from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.messagelist import ImageContent, Message, MessageType
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import LlmModel
@@ -117,6 +118,31 @@ def create_basic_agent(llm: LlmModel, **kwargs) -> Agent:
         custom_instruction="You are a helpful dashboard developer agent. Your goal is to help the user design data analysis dashboards",
         **kwargs,
     )
+
+
+def _make_tool_request_message(
+    name: str, args: dict, tool_request_id: str = "request_id"
+) -> Message:
+    return Message(
+        message_type=MessageType.TOOL_REQUEST,
+        tool_requests=[
+            ToolRequest(
+                name=name,
+                args=args,
+                tool_request_id=tool_request_id,
+            )
+        ],
+    )
+
+
+def _get_single_tool_request(conversation: Conversation) -> ToolRequest:
+    tool_requests = [
+        tool_request
+        for message in conversation.get_messages()
+        for tool_request in (message.tool_requests or [])
+    ]
+    assert len(tool_requests) == 1
+    return tool_requests[0]
 
 
 @pytest.fixture
@@ -1058,6 +1084,168 @@ def test_agent_dummy_model(test_with_llm_fixture):
     assert messages[-3].message_type == MessageType.TOOL_REQUEST
     assert messages[-2].tool_result == ToolResult(content=tool_result, tool_request_id="id1")
     assert messages[-1].content == rephrased_tool_output
+
+
+def test_agent_can_normalize_zero_arg_client_tool_request_from_model_output(
+    remotely_hosted_llm,
+) -> None:
+    llm = remotely_hosted_llm
+    agent = Agent(
+        llm=llm,
+        tools=[
+            ClientTool(
+                name="measure_room_temp",
+                description="Return the value of the temperature in the room",
+                parameters={},
+            )
+        ],
+        custom_instruction="You are a helpful assistant.",
+    )
+
+    conversation = agent.start_conversation()
+    conversation.append_user_message("What is the temperature in the room?")
+    with patch_llm(
+        llm,
+        outputs=[_make_tool_request_message("measure_room_temp", {"wrong_arg_name": ""})],
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, ToolRequestStatus)
+    assert len(status.tool_requests) == 1
+    assert status.tool_requests[0].name == "measure_room_temp"
+    assert status.tool_requests[0].args == {}
+    assert _get_single_tool_request(conversation).args == {}
+
+
+def test_agent_can_coerce_numeric_server_tool_args_from_model_output(
+    remotely_hosted_llm,
+) -> None:
+    llm = remotely_hosted_llm
+    captured_args = {}
+
+    @tool
+    def multiply(
+        a: Annotated[int, "first required integer"],
+        b: Annotated[int, "second required integer"],
+    ) -> int:
+        """Return the result of multiplication between number a and b."""
+        captured_args["value"] = (a, b)
+        return a * b
+
+    agent = Agent(
+        llm=llm,
+        tools=[multiply],
+        custom_instruction="You are a helpful assistant.",
+    )
+
+    conversation = agent.start_conversation()
+    conversation.append_user_message("Multiply 2145 and 123.")
+    with patch_llm(
+        llm,
+        outputs=[
+            _make_tool_request_message("multiply", {"a": "2145", "b": "123"}),
+            "The result is 263835.",
+        ],
+    ):
+        conversation.execute()
+
+    assert captured_args["value"] == (2145, 123)
+    assert _get_single_tool_request(conversation).args == {"a": 2145, "b": 123}
+    assert "263835" in conversation.get_last_message().content
+
+
+def test_agent_can_coerce_stringified_array_server_tool_args_from_model_output(
+    remotely_hosted_llm,
+) -> None:
+    llm = remotely_hosted_llm
+    captured_args = {}
+
+    @tool
+    def create_dashboard(
+        name: Annotated[str, "name of the dashboard"],
+        forecasted_data: Annotated[List[int], "forecasted data. Cannot be an empty list"],
+    ) -> str:
+        """Create a dashboard."""
+        captured_args["value"] = {
+            "name": name,
+            "forecasted_data": forecasted_data,
+        }
+        return "Dashboard successfully created!"
+
+    agent = Agent(
+        llm=llm,
+        tools=[create_dashboard],
+        custom_instruction="You are a helpful assistant.",
+    )
+
+    conversation = agent.start_conversation()
+    conversation.append_user_message("Create a dashboard named my_dash.")
+    with patch_llm(
+        llm,
+        outputs=[
+            _make_tool_request_message(
+                "create_dashboard",
+                {"name": "my_dash", "forecasted_data": "[27, 28, 24, 21, 25]"},
+            ),
+            "Dashboard created.",
+        ],
+    ):
+        conversation.execute()
+
+    assert captured_args["value"] == {
+        "name": "my_dash",
+        "forecasted_data": [27, 28, 24, 21, 25],
+    }
+    assert _get_single_tool_request(conversation).args == {
+        "name": "my_dash",
+        "forecasted_data": [27, 28, 24, 21, 25],
+    }
+    assert "Dashboard created" in conversation.get_last_message().content
+
+
+def test_agent_can_normalize_zero_arg_flow_request_from_model_output(
+    remotely_hosted_llm,
+) -> None:
+    llm = remotely_hosted_llm
+    calls = {"count": 0}
+
+    def measure_room_temp() -> str:
+        calls["count"] += 1
+        return "22C"
+
+    flow = create_single_step_flow(
+        ToolExecutionStep(
+            tool=ServerTool(
+                name="_inner_measure_room_temp",
+                description="Return the value of the temperature in the room",
+                parameters={},
+                func=measure_room_temp,
+            )
+        ),
+        flow_name="measure_room_temp",
+        flow_description="Return the value of the temperature in the room",
+    )
+
+    agent = Agent(
+        llm=llm,
+        flows=[flow],
+        custom_instruction="You are a helpful assistant.",
+    )
+
+    conversation = agent.start_conversation()
+    conversation.append_user_message("What is the temperature in the room?")
+    with patch_llm(
+        llm,
+        outputs=[
+            _make_tool_request_message("measure_room_temp", {"wrong_arg_name": ""}),
+            "The temperature is 22C.",
+        ],
+    ):
+        conversation.execute()
+
+    assert calls["count"] == 1
+    assert _get_single_tool_request(conversation).args == {}
+    assert "22C" in conversation.get_last_message().content
 
 
 @retry_test(max_attempts=3, wait_between_tries=1)

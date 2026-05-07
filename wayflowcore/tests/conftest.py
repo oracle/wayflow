@@ -365,7 +365,7 @@ OCI_REASONING_MODEL_API_KEY_CONFIG = {
 OLLAMA_MODEL_CONFIG = {
     "model_type": "ollama",
     "host_port": ollama8bv31_api_url,  # example: 8.8.8.8:8000
-    "model_id": "llama3.1",
+    "model_id": "meta-llama/Meta-Llama-3.1-8B-Instruct",
     "generation_config": {"max_tokens": 512},
 }
 

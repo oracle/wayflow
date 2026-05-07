@@ -15,6 +15,7 @@ from wayflowcore._utils._templating_helpers import (
     _DEFAULT_VARIABLE_DESCRIPTION_TEMPLATE,
     render_template,
 )
+from wayflowcore._utils.formatting import correct_arguments
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.conversation import Conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
@@ -51,7 +52,7 @@ from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
 from wayflowcore.property import JsonSchemaParam, Property, StringProperty
 from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
-from wayflowcore.tools.tools import _sanitize_tool_name
+from wayflowcore.tools.tools import _descriptors_to_json_schema_map, _sanitize_tool_name
 from wayflowcore.tracing.span import AgentExecutionSpan
 
 if TYPE_CHECKING:
@@ -100,6 +101,22 @@ def _can_use_streaming() -> bool:
 def _log_messages_for_debug(messages: List[Message]) -> None:
     txt = "\n---\n".join([str(msg) for msg in messages])
     logger.debug("Current conversation messages:\n%s\n\n%s", txt, "-" * 20)
+
+
+def _normalize_tool_request_args(
+    tool_request: ToolRequest, expected_types: Dict[str, JsonSchemaParam]
+) -> None:
+    # Drop hallucinated keys and coerce model-produced values to the tool schema.
+    normalized_args = correct_arguments(tool_request.args or {}, expected_types)
+    if normalized_args != tool_request.args:
+        logger.debug(
+            'Normalized arguments for "%s" (id=%s) from %s to %s',
+            tool_request.name,
+            tool_request.tool_request_id,
+            tool_request.args,
+            normalized_args,
+        )
+        tool_request.args = normalized_args
 
 
 @dataclass
@@ -571,6 +588,10 @@ class AgentConversationExecutor(ConversationExecutor):
                 )
         for flow in config.flows:
             if tool_request.name == _sanitize_tool_name(flow.name):
+                _normalize_tool_request_args(
+                    tool_request,
+                    _descriptors_to_json_schema_map(flow.input_descriptors_dict.values()),
+                )
                 return await AgentConversationExecutor._handle_flow_call(
                     config, state, flow, tool_request, messages
                 )
@@ -587,6 +608,7 @@ class AgentConversationExecutor(ConversationExecutor):
             state.current_retrieved_tools = retrieved_tools
         for tool in state.current_retrieved_tools or []:
             if tool_request.name == tool.name:
+                _normalize_tool_request_args(tool_request, tool.parameters)
                 return await AgentConversationExecutor._handle_tool_call(
                     config, tool, conversation, tool_request, messages
                 )
@@ -986,6 +1008,10 @@ class AgentConversationExecutor(ConversationExecutor):
     ) -> Tuple[Optional[ExecutionStatus], bool]:
         should_yield = False
         if tool_request.name == _SUBMIT_TOOL_NAME:
+            _normalize_tool_request_args(
+                tool_request,
+                _descriptors_to_json_schema_map(agent_config.output_descriptors),
+            )
             outputs = AgentConversationExecutor._collect_submit_tool_outputs(
                 config=agent_config,
                 submit_tool_call=tool_request,
@@ -1197,7 +1223,7 @@ class AgentConversationExecutor(ConversationExecutor):
             tool_inputs = {}
             successful_submission = True
         else:
-            tool_inputs = submit_tool_call.args
+            tool_inputs = submit_tool_call.args or {}
             missing_inputs = [
                 o.name
                 for o in config.output_descriptors
