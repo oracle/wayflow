@@ -1086,10 +1086,10 @@ def test_agent_dummy_model(test_with_llm_fixture):
     assert messages[-1].content == rephrased_tool_output
 
 
-def test_agent_can_normalize_zero_arg_client_tool_request_from_model_output() -> None:
-    llm = DummyModel()
-    llm.set_next_output(_make_tool_request_message("measure_room_temp", {"wrong_arg_name": ""}))
-
+def test_agent_can_normalize_zero_arg_client_tool_request_from_model_output(
+    remotely_hosted_llm,
+) -> None:
+    llm = remotely_hosted_llm
     agent = Agent(
         llm=llm,
         tools=[
@@ -1104,7 +1104,11 @@ def test_agent_can_normalize_zero_arg_client_tool_request_from_model_output() ->
 
     conversation = agent.start_conversation()
     conversation.append_user_message("What is the temperature in the room?")
-    status = conversation.execute()
+    with patch_llm(
+        llm,
+        outputs=[_make_tool_request_message("measure_room_temp", {"wrong_arg_name": ""})],
+    ):
+        status = conversation.execute()
 
     assert isinstance(status, ToolRequestStatus)
     assert len(status.tool_requests) == 1
@@ -1113,15 +1117,10 @@ def test_agent_can_normalize_zero_arg_client_tool_request_from_model_output() ->
     assert _get_single_tool_request(conversation).args == {}
 
 
-def test_agent_can_coerce_numeric_server_tool_args_from_model_output() -> None:
-    llm = DummyModel()
-    llm.set_next_output(
-        [
-            _make_tool_request_message("multiply", {"a": "2145", "b": "123"}),
-            "The result is 263835.",
-        ]
-    )
-
+def test_agent_can_coerce_numeric_server_tool_args_from_model_output(
+    remotely_hosted_llm,
+) -> None:
+    llm = remotely_hosted_llm
     captured_args = {}
 
     @tool
@@ -1141,25 +1140,24 @@ def test_agent_can_coerce_numeric_server_tool_args_from_model_output() -> None:
 
     conversation = agent.start_conversation()
     conversation.append_user_message("Multiply 2145 and 123.")
-    conversation.execute()
+    with patch_llm(
+        llm,
+        outputs=[
+            _make_tool_request_message("multiply", {"a": "2145", "b": "123"}),
+            "The result is 263835.",
+        ],
+    ):
+        conversation.execute()
 
     assert captured_args["value"] == (2145, 123)
     assert _get_single_tool_request(conversation).args == {"a": 2145, "b": 123}
     assert "263835" in conversation.get_last_message().content
 
 
-def test_agent_can_coerce_stringified_array_server_tool_args_from_model_output() -> None:
-    llm = DummyModel()
-    llm.set_next_output(
-        [
-            _make_tool_request_message(
-                "create_dashboard",
-                {"name": "my_dash", "forecasted_data": "[27, 28, 24, 21, 25]"},
-            ),
-            "Dashboard created.",
-        ]
-    )
-
+def test_agent_can_coerce_stringified_array_server_tool_args_from_model_output(
+    remotely_hosted_llm,
+) -> None:
+    llm = remotely_hosted_llm
     captured_args = {}
 
     @tool
@@ -1182,7 +1180,17 @@ def test_agent_can_coerce_stringified_array_server_tool_args_from_model_output()
 
     conversation = agent.start_conversation()
     conversation.append_user_message("Create a dashboard named my_dash.")
-    conversation.execute()
+    with patch_llm(
+        llm,
+        outputs=[
+            _make_tool_request_message(
+                "create_dashboard",
+                {"name": "my_dash", "forecasted_data": "[27, 28, 24, 21, 25]"},
+            ),
+            "Dashboard created.",
+        ],
+    ):
+        conversation.execute()
 
     assert captured_args["value"] == {
         "name": "my_dash",
@@ -1195,15 +1203,10 @@ def test_agent_can_coerce_stringified_array_server_tool_args_from_model_output()
     assert "Dashboard created" in conversation.get_last_message().content
 
 
-def test_agent_can_normalize_zero_arg_flow_request_from_model_output() -> None:
-    llm = DummyModel()
-    llm.set_next_output(
-        [
-            _make_tool_request_message("measure_room_temp", {"wrong_arg_name": ""}),
-            "The temperature is 22C.",
-        ]
-    )
-
+def test_agent_can_normalize_zero_arg_flow_request_from_model_output(
+    remotely_hosted_llm,
+) -> None:
+    llm = remotely_hosted_llm
     calls = {"count": 0}
 
     def measure_room_temp() -> str:
@@ -1231,7 +1234,14 @@ def test_agent_can_normalize_zero_arg_flow_request_from_model_output() -> None:
 
     conversation = agent.start_conversation()
     conversation.append_user_message("What is the temperature in the room?")
-    conversation.execute()
+    with patch_llm(
+        llm,
+        outputs=[
+            _make_tool_request_message("measure_room_temp", {"wrong_arg_name": ""}),
+            "The temperature is 22C.",
+        ],
+    ):
+        conversation.execute()
 
     assert calls["count"] == 1
     assert _get_single_tool_request(conversation).args == {}

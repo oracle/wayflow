@@ -52,7 +52,7 @@ from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
 from wayflowcore.property import JsonSchemaParam, Property, StringProperty
 from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
-from wayflowcore.tools.tools import _sanitize_tool_name
+from wayflowcore.tools.tools import _descriptors_to_json_schema_map, _sanitize_tool_name
 from wayflowcore.tracing.span import AgentExecutionSpan
 
 if TYPE_CHECKING:
@@ -106,6 +106,7 @@ def _log_messages_for_debug(messages: List[Message]) -> None:
 def _normalize_tool_request_args(
     tool_request: ToolRequest, expected_types: Dict[str, JsonSchemaParam]
 ) -> None:
+    # Drop hallucinated keys and coerce model-produced values to the tool schema.
     normalized_args = correct_arguments(tool_request.args or {}, expected_types)
     if normalized_args != tool_request.args:
         logger.debug(
@@ -116,15 +117,6 @@ def _normalize_tool_request_args(
             normalized_args,
         )
         tool_request.args = normalized_args
-
-
-def _output_descriptors_to_json_schema(
-    output_descriptors: Sequence[Property],
-) -> Dict[str, JsonSchemaParam]:
-    return {
-        output_descriptor.name: output_descriptor.to_json_schema()
-        for output_descriptor in output_descriptors
-    }
 
 
 @dataclass
@@ -598,10 +590,7 @@ class AgentConversationExecutor(ConversationExecutor):
             if tool_request.name == _sanitize_tool_name(flow.name):
                 _normalize_tool_request_args(
                     tool_request,
-                    {
-                        input_name: input_descriptor.to_json_schema()
-                        for input_name, input_descriptor in flow.input_descriptors_dict.items()
-                    },
+                    _descriptors_to_json_schema_map(flow.input_descriptors_dict.values()),
                 )
                 return await AgentConversationExecutor._handle_flow_call(
                     config, state, flow, tool_request, messages
@@ -1021,7 +1010,7 @@ class AgentConversationExecutor(ConversationExecutor):
         if tool_request.name == _SUBMIT_TOOL_NAME:
             _normalize_tool_request_args(
                 tool_request,
-                _output_descriptors_to_json_schema(agent_config.output_descriptors),
+                _descriptors_to_json_schema_map(agent_config.output_descriptors),
             )
             outputs = AgentConversationExecutor._collect_submit_tool_outputs(
                 config=agent_config,
