@@ -98,6 +98,10 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+* Fix: agents now handle tool calls more robustly with OpenAI-compatible and Llama models,
+  ignoring ``null`` streamed tool-call delta fields, normalizing model-produced arguments
+  against declared tool schemas, and preserving non-string Llama tool-result values.
+
 * Fix: ``OCIGenAIModel`` now forwards ``LlmGenerationConfig`` parameters when using
   ``OciAPIType.OPENAI_CHAT_COMPLETIONS`` and ``OciAPIType.OPENAI_RESPONSES``.
 
