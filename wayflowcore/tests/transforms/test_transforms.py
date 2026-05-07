@@ -136,6 +136,48 @@ def test_llama_merge_tool_request(messages, expected_messages):
     assert_messages_are_correct(transformed_messages, expected_messages)
 
 
+@pytest.mark.parametrize(
+    "tool_result_content,expected_tool_response",
+    [
+        (-2, "<tool_response>-2</tool_response>"),
+        ([1, 2, 3], "<tool_response>[1, 2, 3]</tool_response>"),
+        ({"answer": 42}, '<tool_response>{"answer": 42}</tool_response>'),
+    ],
+)
+def test_llama_merge_tool_request_preserves_non_string_tool_result_types(
+    tool_result_content, expected_tool_response
+):
+    transform = _LlamaMergeToolRequestAndCallsTransform()
+    transformed_messages = transform(
+        [
+            SYSTEM_MESSAGE,
+            USER_MESSAGE,
+            TOOL_REQUEST_MESSAGE,
+            Message(
+                message_type=MessageType.TOOL_RESULT,
+                tool_result=ToolResult(tool_request_id="id1", content=tool_result_content),
+            ),
+            AGENT_MESSAGE,
+        ]
+    )
+    assert_messages_are_correct(
+        transformed_messages,
+        [
+            Message(message_type=MessageType.SYSTEM, content="You are a helpful assistant"),
+            USER_MESSAGE,
+            Message(
+                message_type=MessageType.AGENT,
+                content='{"name": "some_tool", "parameters": {}}',
+            ),
+            Message(
+                message_type=MessageType.USER,
+                content=expected_tool_response,
+            ),
+            AGENT_MESSAGE,
+        ],
+    )
+
+
 COMPLEX_TOOL_REQUEST = Message(
     message_type=MessageType.TOOL_REQUEST,
     tool_requests=[

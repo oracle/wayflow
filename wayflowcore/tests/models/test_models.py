@@ -2107,7 +2107,7 @@ from contextlib import nullcontext
 def test_hosted_llm_can_return_logprobs_if_supported(llm_config):
 
     if llm_config == OLLAMA_MODEL_CONFIG:
-        # pytest.skip("Ollama hosted models sometimes does not return logprobs")
+        pytest.skip("Ollama hosted models sometimes does not return logprobs")
         context = pytest.raises(AssertionError)
     elif llm_config == VLLM_OSS_CONFIG:
         context = pytest.raises(Exception, match="logprobs are not supported with gpt-oss models")

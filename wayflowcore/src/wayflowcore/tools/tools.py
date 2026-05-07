@@ -16,6 +16,7 @@ from typing import (
     Any,
     ClassVar,
     Dict,
+    Iterable,
     List,
     Literal,
     Optional,
@@ -98,16 +99,16 @@ def _parameters_to_input_descriptors(parameters: Dict[str, JsonSchemaParam]) -> 
     ]
 
 
-def _input_descriptors_to_parameters(
-    input_descriptors: List[Property],
+def _descriptors_to_json_schema_map(
+    descriptors: Iterable[Property],
 ) -> Dict[str, JsonSchemaParam]:
-    return {property_.name: property_.to_json_schema() for property_ in input_descriptors}
+    return {property_.name: property_.to_json_schema() for property_ in descriptors}
 
 
 def _output_descriptors_to_output(output_descriptors: List[Property]) -> JsonSchemaParam:
     if len(output_descriptors) == 1:
         return output_descriptors[0].to_json_schema()
-    return {"type": "object", "properties": _input_descriptors_to_parameters(output_descriptors)}
+    return {"type": "object", "properties": _descriptors_to_json_schema_map(output_descriptors)}
 
 
 def _output_to_output_descriptors(output: JsonSchemaParam) -> List[Property]:
@@ -149,7 +150,7 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
 
         if input_descriptors is not None:
             self.input_descriptors = input_descriptors
-            self.parameters = _input_descriptors_to_parameters(input_descriptors)
+            self.parameters = _descriptors_to_json_schema_map(input_descriptors)
         elif parameters is not None:
             self.input_descriptors = _parameters_to_input_descriptors(parameters)
             self.parameters = parameters
