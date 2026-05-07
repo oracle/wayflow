@@ -58,6 +58,13 @@ Improvements
   helper remains available, but now emits a ``SecurityWarning``. Authless MCP use also emits
   a ``SecurityWarning`` when validation is bypassed.
 
+* **Improved TLS defaults for MCP HTTP transports**
+
+  ``SSETransport`` and ``StreamableHTTPTransport`` now use standard HTTPS certificate
+  verification by default. ``SSEmTLSTransport`` and ``StreamableHTTPmTLSTransport``
+  now also verify that the server certificate matches the requested hostname unless
+  this check is explicitly disabled.
+
 * **Improved agent server access defaults**
 
   ``A2AServer.run(api_key=...)`` now enforces bearer-token authentication when an API key is
@@ -102,6 +109,14 @@ Possibly Breaking Changes
   authentication. The legacy ``enable_mcp_without_auth()`` helper remains
   available, but emits a ``SecurityWarning``. Code that treats warnings as errors
   may need to catch or filter this warning for local tests.
+
+* **MCP HTTPS transports now expect valid certificate configuration**
+
+  ``SSETransport`` and ``StreamableHTTPTransport`` now use standard HTTPS certificate
+  verification by default, and ``SSEmTLSTransport`` and ``StreamableHTTPmTLSTransport``
+  now verify the requested hostname by default. Deployments using self-signed certificates,
+  custom certificate authorities, or certificates whose hostname does not match the MCP
+  server URL may require certificate updates or transport configuration changes.
 
 * **Agent servers require API keys on non-loopback hosts**
 

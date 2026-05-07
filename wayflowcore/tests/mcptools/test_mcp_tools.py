@@ -158,7 +158,8 @@ def sse_client_transport_with_headers(sse_mcp_server_http):
 
 
 @pytest.fixture
-def sse_client_transport_https(sse_mcp_server_https):
+def sse_client_transport_https(sse_mcp_server_https, ca_cert_path, monkeypatch):
+    monkeypatch.setenv("SSL_CERT_FILE", ca_cert_path)
     return SSETransport(url=sse_mcp_server_https)
 
 
@@ -183,7 +184,10 @@ def alt_sse_client_transport(alt_sse_mcp_server_http):
 
 
 @pytest.fixture
-def streamablehttp_client_transport_https(streamablehttp_mcp_server_https):
+def streamablehttp_client_transport_https(
+    streamablehttp_mcp_server_https, ca_cert_path, monkeypatch
+):
+    monkeypatch.setenv("SSL_CERT_FILE", ca_cert_path)
     return StreamableHTTPTransport(url=streamablehttp_mcp_server_https)
 
 
@@ -296,6 +300,39 @@ def run_tool_can_be_executed_from_thread(transport: ClientTransport) -> None:
 def test_mcp_tool_can_be_executed_from_thread(client_transport_name, with_mcp_enabled, request):
     client_transport = request.getfixturevalue(client_transport_name)
     run_tool_can_be_executed_from_thread(client_transport)
+
+
+def test_sse_transport_uses_tls_verification_by_default(monkeypatch):
+    captured_factory = {}
+
+    def fake_sse_client(*args, **kwargs):
+        captured_factory["value"] = kwargs["httpx_client_factory"]
+        return object()
+
+    monkeypatch.setattr("wayflowcore.mcp.clienttransport.sse_client", fake_sse_client)
+
+    transport = SSETransport(url="https://server/sse")
+    transport._get_client_transport_cm()
+
+    assert captured_factory["value"].verify is True
+
+
+def test_streamablehttp_transport_uses_tls_verification_by_default(monkeypatch):
+    captured_factory = {}
+
+    def fake_streamablehttp_client(*args, **kwargs):
+        captured_factory["value"] = kwargs["httpx_client_factory"]
+        return object()
+
+    monkeypatch.setattr(
+        "wayflowcore.mcp.clienttransport.streamablehttp_client",
+        fake_streamablehttp_client,
+    )
+
+    transport = StreamableHTTPTransport(url="https://server/mcp")
+    transport._get_client_transport_cm()
+
+    assert captured_factory["value"].verify is True
 
 
 def test_mcp_toolbox_properly_filters_tools(sse_client_transport, with_mcp_enabled):

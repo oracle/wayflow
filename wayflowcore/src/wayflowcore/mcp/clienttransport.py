@@ -248,18 +248,7 @@ class _HttpxClientFactory:
         retry_policy: Optional[RetryPolicy] = None,
     ):
         self.verify: bool | ssl.SSLContext
-        if verify:
-            # Default behaviour: Client verification
-            if not (key_file and cert_file and ssl_ca_cert):
-                raise ValueError(
-                    "When verify=True, all `key_file`, `cert_file` and `ssl_ca_cert` "
-                    "must be defined."
-                )
-            ssl_ctx = ssl.create_default_context(cafile=ssl_ca_cert)
-            ssl_ctx.load_cert_chain(certfile=cert_file, keyfile=key_file)
-            ssl_ctx.check_hostname = check_hostname
-            self.verify = ssl_ctx
-        else:
+        if not verify:
             # If verify=False the cert/key files should not be specified
             if key_file or cert_file or ssl_ca_cert:
                 raise ValueError(
@@ -267,6 +256,16 @@ class _HttpxClientFactory:
                     "or `verify=False`, not both."
                 )
             self.verify = verify
+        elif bool(key_file) != bool(cert_file):
+            raise ValueError("Both `key_file` and `cert_file` must be provided together.")
+        elif not any(file_path is not None for file_path in (key_file, cert_file, ssl_ca_cert)):
+            self.verify = True
+        else:
+            ssl_ctx = ssl.create_default_context(cafile=ssl_ca_cert)
+            if cert_file is not None and key_file is not None:
+                ssl_ctx.load_cert_chain(certfile=cert_file, keyfile=key_file)
+            ssl_ctx.check_hostname = check_hostname
+            self.verify = ssl_ctx
 
         self.follow_redirects = follow_redirects
         self.retry_policy = retry_policy
@@ -324,7 +323,6 @@ class SSETransport(RemoteBaseTransport, ClientTransportWithAuth, SerializableObj
             sse_read_timeout=self.sse_read_timeout,
             auth=self._get_auth_provider(),
             httpx_client_factory=_HttpxClientFactory(
-                verify=False,
                 follow_redirects=self.follow_redirects,
                 retry_policy=self.retry_policy,
             ),
@@ -346,10 +344,10 @@ class HTTPmTLSBaseTransport(RemoteBaseTransport):
     ssl_ca_cert: str = field(default_factory=_raise_if_missing("ssl_ca_cert"))
     """The path to the trusted CA certificate file (PEM format) to verify the server. If None, system cert store is used."""
 
-    check_hostname: bool = False
+    check_hostname: bool = True
     """Whether to verify that the server's hostname matches the certificate.
     If True, the client will reject connections where the server's certificate hostname does not match the expected hostname.
-    Defaults to False."""
+    Defaults to True."""
 
 
 @dataclass
@@ -432,7 +430,6 @@ class StreamableHTTPTransport(RemoteBaseTransport, ClientTransportWithAuth, Seri
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
             auth=self._get_auth_provider(),
             httpx_client_factory=_HttpxClientFactory(
-                verify=False,
                 follow_redirects=self.follow_redirects,
                 retry_policy=self.retry_policy,
             ),
