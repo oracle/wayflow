@@ -620,6 +620,27 @@ Deserializing data from untrusted sources is inherently risky. Always treat seri
 Remember that :ref:`autodeserialize <autodeserialize>` expects parsed YAML (a Python dictionary), not the raw YAML string, if using ``safe_load``. Passing a string directly to ``autodeserialize`` makes it use ``yaml.safe_load`` internally. Explicit ``safe_load`` first allows pre-validation of the YAML structure.
 
 
+Considerations regarding Agent Spec loading
+-------------------------------------------
+
+WayFlow can load Agent Spec configurations through :ref:`AgentSpecLoader <agentspecloader>`.
+Treat configurations from external or unverified origins as runtime definitions
+that can instantiate tools, transports, and WayFlow plugin components.
+
+Use ``allowed_components`` and ``blocked_components`` on ``AgentSpecLoader`` to
+control which component types may be loaded. For stricter environments, prefer
+an explicit ``allowed_components`` list that contains only the Agent Spec and
+WayFlow plugin component types required by the application.
+
+WayFlow blocks Agent Spec ``StdioTransport`` and WayFlow ``PluginStdioTransport``
+by default because these transports can start local MCP server subprocesses on the
+machine loading the configuration. WayFlow inherits PyAgentSpec's default blocked
+components and adds WayFlow-specific runtime-sensitive components. If a trusted
+configuration intentionally uses stdio transports, pass ``blocked_components=[]`` to
+``AgentSpecLoader``, or provide a custom ``blocked_components`` value that does not
+include those transport component types.
+
+
 Other Security Concerns
 -----------------------
 

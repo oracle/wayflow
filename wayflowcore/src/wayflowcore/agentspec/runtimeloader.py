@@ -7,17 +7,30 @@
 import warnings
 from typing import Any, Callable, Dict, List, Literal, Mapping, Optional, Union, overload
 
+from pyagentspec.adapters._agentspecloader import (
+    _DEFAULT_BLOCKED_COMPONENTS as _AGENTSPEC_DEFAULT_BLOCKED_COMPONENTS,
+)
 from pyagentspec.component import Component as AgentSpecComponent
 from pyagentspec.serialization import AgentSpecDeserializer, ComponentDeserializationPlugin
+from pyagentspec.serialization.componentpolicy import (
+    ComponentLoadPolicy,
+    ComponentPolicyEntry,
+    ComponentPolicyInput,
+)
 from pyagentspec.serialization.types import ComponentsRegistryT as AgentSpecComponentsRegistryT
 from typing_extensions import TypeAlias
 
+from wayflowcore.agentspec.components.mcp import PluginStdioTransport
 from wayflowcore.component import Component as RuntimeComponent
 from wayflowcore.serialization.plugins import WayflowDeserializationPlugin
 from wayflowcore.tools import ServerTool as RuntimeServerTool
 
 FieldName: TypeAlias = str
 RuntimeComponentsRegistryT: TypeAlias = Mapping[str, Union[RuntimeComponent, Any]]
+_DEFAULT_BLOCKED_COMPONENTS: tuple[ComponentPolicyEntry, ...] = (
+    *_AGENTSPEC_DEFAULT_BLOCKED_COMPONENTS,
+    PluginStdioTransport,
+)
 
 
 class AgentSpecLoader:
@@ -29,6 +42,9 @@ class AgentSpecLoader:
         plugins: Optional[
             List[Union[WayflowDeserializationPlugin, ComponentDeserializationPlugin]]
         ] = None,
+        *,
+        allowed_components: Optional[ComponentPolicyInput] = None,
+        blocked_components: Optional[ComponentPolicyInput] = None,
     ):
         """
         Parameters
@@ -45,9 +61,29 @@ class AgentSpecLoader:
 
               Passing a list of ``ComponentDeserializationPlugin`` from ``pyagentspec`` is deprecated
               since wayflowcore==26.1.0.
+        allowed_components:
+            Optional iterable of Agent Spec component type names or Component classes allowed
+            to be loaded.
+            If omitted, all component types are allowed unless blocked.
+        blocked_components:
+            Optional iterable of Agent Spec component type names or Component classes blocked
+            from loading.
+            If omitted, WayFlow extends the Agent Spec loader defaults and also blocks
+            WayFlow's ``PluginStdioTransport``. Resolvable type names and Component
+            classes also match subclasses; unresolved type names match only the exact
+            serialized component type.
 
         """
         self.tool_registry = tool_registry or {}
+        blocked_components = (
+            _DEFAULT_BLOCKED_COMPONENTS if blocked_components is None else blocked_components
+        )
+        self.component_load_policy = ComponentLoadPolicy(
+            allowed_components=allowed_components,
+            blocked_components=blocked_components,
+        )
+        self.allowed_components = self.component_load_policy.allowed_components
+        self.blocked_components = self.component_load_policy.blocked_components
         self.plugins: List[WayflowDeserializationPlugin] = (
             [plugin for plugin in plugins if isinstance(plugin, WayflowDeserializationPlugin)]
             if plugins
@@ -244,7 +280,11 @@ class AgentSpecLoader:
         ... )
 
         """
-        deserializer = AgentSpecDeserializer(plugins=self._get_all_agentspec_plugins())
+        deserializer = AgentSpecDeserializer(
+            plugins=self._get_all_agentspec_plugins(),
+            allowed_components=self.allowed_components,
+            blocked_components=self.blocked_components,
+        )
         converted_registry = (
             self._convert_component_registry(components_registry)
             if components_registry is not None
@@ -419,7 +459,11 @@ class AgentSpecLoader:
         ... )
 
         """
-        deserializer = AgentSpecDeserializer(plugins=self._get_all_agentspec_plugins())
+        deserializer = AgentSpecDeserializer(
+            plugins=self._get_all_agentspec_plugins(),
+            allowed_components=self.allowed_components,
+            blocked_components=self.blocked_components,
+        )
         converted_registry = (
             self._convert_component_registry(components_registry)
             if components_registry is not None
@@ -481,6 +525,7 @@ class AgentSpecLoader:
         """
         from wayflowcore.agentspec._runtimeconverter import AgentSpecToWayflowConversionContext
 
+        self.component_load_policy.validate_component_tree(agentspec_component)
         runtime_assistant = AgentSpecToWayflowConversionContext(plugins=self.plugins).convert(
             agentspec_component, self.tool_registry
         )

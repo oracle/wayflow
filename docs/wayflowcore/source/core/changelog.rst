@@ -51,6 +51,15 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **Agent Spec component loading policies can be customized**
+
+  ``AgentSpecLoader`` now accepts ``allowed_components`` and ``blocked_components``
+  so applications can control which Agent Spec and WayFlow plugin component types
+  are allowed to load. This is useful for trusted deployments that need to opt in
+  to runtime-sensitive components, and for stricter deployments that want to
+  explicitly allow only a known component set. WayFlow extends PyAgentSpec's default
+  blocked components with WayFlow-specific runtime-sensitive components.
+
 * **Removed ``starlette`` from third party dependencies**
 
   Direct ``starlette`` imports were removed in favor of FastAPI equivalent alternatives, so ``wayflowcore`` no longer
@@ -73,6 +82,15 @@ Documentation
 
 Possibly Breaking Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **MCP stdio transports are blocked by default in Agent Spec loaders**
+
+  Configurations containing Agent Spec ``StdioTransport`` or WayFlow ``PluginStdioTransport``
+  will no longer load by default through ``AgentSpecLoader``. WayFlow inherits the
+  PyAgentSpec default blocked components and adds ``PluginStdioTransport``. If a trusted
+  configuration intentionally uses stdio transports, pass ``blocked_components=[]`` to the
+  loader, or provide a custom ``blocked_components`` value that does not include those
+  transport component types.
 
 * **Summarization Transforms now do not do caching if the datastore is None**
 
