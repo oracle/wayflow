@@ -156,7 +156,7 @@ class Property(SerializableObject, ABC):
                         UserWarning,
                         stacklevel=2,
                     )
-                    object.__setattr__(self, 'default_value', ev)
+                    object.__setattr__(self, "default_value", ev)
                     break
 
         if (
@@ -1442,7 +1442,7 @@ class VectorProperty(Property):
             try:
                 value = list(value)
             except:
-                pass
+                logger.debug("Vector value validation failed, falling back to default value")
 
         return super()._validate_or_return_default_value(value)
 

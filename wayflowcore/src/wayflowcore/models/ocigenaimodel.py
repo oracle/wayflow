@@ -29,10 +29,7 @@ from pydantic import BaseModel
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_sync_in_thread, sync_to_async_iterator
-from wayflowcore._utils.formatting import (
-    build_tool_output_payload,
-    format_tool_output_for_llm,
-)
+from wayflowcore._utils.formatting import build_tool_output_payload, format_tool_output_for_llm
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import ImageContent, TextContent, TextTokenLogProb, TextTokenTopLogProb

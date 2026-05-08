@@ -15,8 +15,7 @@ from wayflowcore.models.llmmodel import LlmModel
 
 logger = logging.getLogger(__name__)
 
-JSON_CORRECTION_PROMPT = dedent(
-    """
+JSON_CORRECTION_PROMPT = dedent("""
     You receive a json string, and an error that is produced, when trying to parse that text.
     You should edit that json blob so that the error is resolved.
     The keys in the json string must match the ones provided here.
@@ -38,8 +37,7 @@ JSON_CORRECTION_PROMPT = dedent(
     ----------------
     (reminder to respond in a JSON blob no matter what)
     Assistant:
-    """
-)
+    """)
 
 
 def get_parsed_json_blobs(text: str) -> List[str]:

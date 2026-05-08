@@ -8,10 +8,7 @@ import re
 from typing import TYPE_CHECKING, List, Tuple
 
 from wayflowcore._utils._templating_helpers import render_template
-from wayflowcore._utils.formatting import (
-    format_tool_output_for_llm,
-    parse_tool_call_using_json,
-)
+from wayflowcore._utils.formatting import format_tool_output_for_llm, parse_tool_call_using_json
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.outputparser import ToolOutputParser
 from wayflowcore.serialization.serializer import SerializableObject

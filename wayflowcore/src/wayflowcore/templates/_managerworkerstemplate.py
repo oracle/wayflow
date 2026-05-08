@@ -85,8 +85,7 @@ Here are the instructions specific to your role.:
 """
 ).strip()
 
-_DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER = (
-    """
+_DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER = ("""
 --- SYSTEM REMINDER ---
 You are an helpful AI Agent, your name: {{name}}. Your user/caller is: {{caller_name}}.
 
@@ -99,9 +98,7 @@ YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT 
 
 {"name": function name, "parameters": dictionary of argument name and its value}
 
-"""
-    + _TOOL_OUTPUT_SYSTEM_RULE
-).strip()
+""" + _TOOL_OUTPUT_SYSTEM_RULE).strip()
 
 _MAX_CHAR_TOOL_RESULT_HEADER = 140
 """Max number of characters in the message header when formatting a Tool Result"""
