@@ -7,6 +7,7 @@
 import datetime
 import logging
 import ssl
+import warnings
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Literal, Optional
@@ -26,6 +27,7 @@ from wayflowcore.serialization.serializer import (
     SerializableDataclassMixin,
     SerializableObject,
 )
+from wayflowcore.warnings import SecurityWarning
 
 if TYPE_CHECKING:
     from wayflowcore.serialization.context import SerializationContext
@@ -261,9 +263,18 @@ class _HttpxClientFactory:
         elif not any(file_path is not None for file_path in (key_file, cert_file, ssl_ca_cert)):
             self.verify = True
         else:
-            ssl_ctx = ssl.create_default_context(cafile=ssl_ca_cert)
+            ssl_ctx = ssl.create_default_context()
+            if ssl_ca_cert is not None:
+                ssl_ctx.load_verify_locations(cafile=ssl_ca_cert)
             if cert_file is not None and key_file is not None:
                 ssl_ctx.load_cert_chain(certfile=cert_file, keyfile=key_file)
+            if not check_hostname:
+                warnings.warn(
+                    "Hostname verification is disabled for this TLS connection. "
+                    "This is not recommended for production environments.",
+                    SecurityWarning,
+                    stacklevel=2,
+                )
             ssl_ctx.check_hostname = check_hostname
             self.verify = ssl_ctx
 
