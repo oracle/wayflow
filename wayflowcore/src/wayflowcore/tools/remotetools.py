@@ -41,7 +41,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         ``url_allow_list`` must be configured. Placeholders limited to the path or query do not
         trigger this requirement. The recommended pattern is a developer-controlled base URL with
         templated path, query, or body values only. Requests to loopback, link-local, and private
-        IP literal targets emit a runtime warning.
+        IP literal targets that are not explicitly allow-listed emit a runtime warning.
 
     Parameters
     ----------
@@ -57,7 +57,7 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         ``url_allow_list`` must be configured. Placeholders limited to the path or query do not
         trigger this requirement. The recommended pattern is a fixed developer-controlled base URL
         with templated path, query, or body values only. Requests to loopback, link-local, and
-        private IP literal targets emit a runtime warning.
+        private IP literal targets that are not explicitly allow-listed emit a runtime warning.
     method
         HTTP method to call.
         Common methods are: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE.

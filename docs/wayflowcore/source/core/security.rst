@@ -50,7 +50,7 @@ Tool Security Specifics
 *   **Secure Connections (`allow_insecure_http`)**: By default, :ref:`RemoteTool <remotetool>` disallows non-HTTPS URLs (``allow_insecure_http=False``). Maintain this default unless there's an explicit, well-justified reason to allow insecure HTTP, and ensure the risks are understood.
 *   **Credential Handling (`allow_credentials`)**: By default (``allow_credentials=True``), URLs can contain credentials (e.g., ``https://user:pass@example.com``). If your use case does not require this, set ``allow_credentials=False`` to prevent accidental leakage or misuse of credentials in URLs.
 *   **URL Fragments (`allow_fragments`)**: Control whether URL fragments (e.g., ``#section``) are permitted in requested URLs and allow list entries. Default is ``True``. Set to ``False`` if fragments are not needed and could introduce ambiguity or bypass attempts.
-*   **Non-Public IP Targets**: Requests to loopback, link-local, or private IP literal targets emit a runtime warning. Treat this as a sign to double-check that the destination is expected and properly restricted.
+*   **Non-Public IP Targets**: Requests to loopback, link-local, or private IP literal targets that are not explicitly allow-listed emit a runtime warning. Treat this as a sign to double-check that the destination is expected and properly restricted.
 *   **Output Parsing (`output_jq_query`)**: If using ``output_jq_query`` to parse JSON responses, be aware that complex queries on very large or maliciously structured JSON could consume significant resources. While primarily a performance concern, extreme cases might have denial-of-service implications.
 
 .. caution::

@@ -327,8 +327,8 @@ class ApiCallStep(Step):
         Please use the url_allow_list, allow_credentials and allow_fragments parameters to control which URLs are treated as valid. If the ``url``
         template contains placeholders in the destination part of the request (scheme, host, or port), ``url_allow_list`` must be configured.
         Placeholders limited to the path or query do not trigger this requirement. The recommended pattern is to keep the base URL
-        developer-controlled and template only path, query, or body values. Requests to loopback, link-local, and private IP literal targets emit
-        a runtime warning.
+        developer-controlled and template only path, query, or body values. Requests to loopback, link-local, and private IP literal targets that
+        are not explicitly allow-listed emit a runtime warning.
     """
 
     HTTP_RESPONSE = "http_response"
@@ -394,8 +394,8 @@ class ApiCallStep(Step):
 
             If placeholders appear in the destination part of the URL (scheme, host, or port), ``url_allow_list`` must be configured.
             Placeholders limited to the path or query do not trigger this requirement. The recommended pattern is a fixed developer-controlled
-            base URL with templated path, query, or body values only. Requests to loopback, link-local, and private IP literal targets emit a
-            runtime warning.
+            base URL with templated path, query, or body values only. Requests to loopback, link-local, and private IP literal targets that are
+            not explicitly allow-listed emit a runtime warning.
         method
             HTTP method to call.
             Common methods are: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE.
@@ -807,18 +807,21 @@ class ApiCallStep(Step):
         if not parsed_url:
             raise ValueError("An error occurred when normalizing the URL.")
 
+        is_explicitly_allow_listed = False
         if self.url_allow_list is not None:
             match_results = [
                 _is_allowed_url(parsed_url, pattern) for pattern in self.url_allow_list
             ]
+            is_explicitly_allow_listed = any(match_results)
 
-            if not any(match_results):
+            if not is_explicitly_allow_listed:
                 raise ValueError(
                     "Requested URL is not in allowed list. "
                     "Please contact the application administrator to help adding your URL to the list."
                 )
 
-        _warn_if_non_public_ip_target(request["url"])
+        if not is_explicitly_allow_listed:
+            _warn_if_non_public_ip_target(request["url"])
 
         # Default behavior: keep legacy retry loop unless a RetryPolicy is provided.
         policy = self.retry_policy

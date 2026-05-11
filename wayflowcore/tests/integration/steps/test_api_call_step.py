@@ -609,6 +609,27 @@ def test_api_call_step_warns_for_non_public_ip_targets(faked_request, url):
         run_single_step(step)
 
 
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://127.0.0.1/metadata",
+        "https://10.0.0.7/metadata",
+        "https://169.254.1.1/metadata",
+    ],
+)
+def test_api_call_step_does_not_warn_for_allow_listed_non_public_ip_targets(faked_request, url):
+    step = ApiCallStep(url=url, method="GET", url_allow_list=[url])
+
+    with warnings.catch_warnings(record=True) as recorded_warnings:
+        warnings.simplefilter("always")
+        run_single_step(step)
+
+    security_warnings = [
+        warning for warning in recorded_warnings if issubclass(warning.category, SecurityWarning)
+    ]
+    assert security_warnings == []
+
+
 def test_api_call_step_throws_if_disallowed_credentials(faked_request):
     with pytest.raises(ValueError):
         step = ApiCallStep(
