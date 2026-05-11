@@ -27,11 +27,17 @@ from wayflowcore.property import ListProperty, StringProperty
 from wayflowcore.serialization.serializer import deserialize
 from wayflowcore.steps.apicallstep import ApiCallStep
 from wayflowcore.steps.step import Step
+from wayflowcore.warnings import SecurityWarning
 
 from ...utils import get_available_port
 
 URL_TEMPLATE_VALUE = "a/b/c?param=baram&rama=bu77er"
 ENCODED_URL_TEMPLATE_VALUE = "a%2Fb%2Fc%3Fparam%3Dbaram%26rama%3Dbu77er"
+LOOPBACK_ADDRESSES = [
+    "https://127.0.0.1/metadata",
+    "https://10.0.0.7/metadata",
+    "https://169.254.1.1/metadata",
+]
 
 
 @dataclass
@@ -546,12 +552,21 @@ def test_api_call_step_disallow_http_by_default_runstep(faked_request):
         step = ApiCallStep(
             url="{{scheme}}://example.com/endpoint",
             method="GET",
+            url_allow_list=["http://example.com/endpoint"],
         )
 
         inputs_dict = {
             "scheme": "http",
         }
         run_single_step(step, inputs_dict)
+
+
+def test_api_call_step_requires_allow_list_for_templated_host():
+    with pytest.raises(ValueError, match="Templated URL destinations require `url_allow_list`"):
+        ApiCallStep(
+            url="https://{{service_host}}/endpoint",
+            method="GET",
+        )
 
 
 def test_api_call_step_disallow_http_by_default_allowed(faked_request):
@@ -579,6 +594,31 @@ def test_api_call_step_does_not_throw_if_allow_list_none(faked_request):
     )
 
     run_single_step(step)
+
+
+@pytest.mark.parametrize("url", LOOPBACK_ADDRESSES)
+def test_api_call_step_warns_for_non_public_ip_targets(faked_request, url):
+    step = ApiCallStep(url=url, method="GET")
+
+    with pytest.warns(
+        SecurityWarning,
+        match="Requested URL targets a loopback, link-local, or private IP address",
+    ):
+        run_single_step(step)
+
+
+@pytest.mark.parametrize("url", LOOPBACK_ADDRESSES)
+def test_api_call_step_does_not_warn_for_allow_listed_non_public_ip_targets(faked_request, url):
+    step = ApiCallStep(url=url, method="GET", url_allow_list=[url])
+
+    with warnings.catch_warnings(record=True) as recorded_warnings:
+        warnings.simplefilter("always")
+        run_single_step(step)
+
+    security_warnings = [
+        warning for warning in recorded_warnings if issubclass(warning.category, SecurityWarning)
+    ]
+    assert security_warnings == []
 
 
 def test_api_call_step_throws_if_disallowed_credentials(faked_request):

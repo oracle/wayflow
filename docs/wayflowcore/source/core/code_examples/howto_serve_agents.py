@@ -87,7 +87,7 @@ storage_config = ServerStorageConfig(table_name="assistant_conversations")
 
 connection_config = WithoutTlsPostgresDatabaseConnectionConfig(
     user=os.environ.get("PG_USER", "postgres"),
-    password=os.environ.get("PG_PASSWORD", "password"),
+    password=os.environ["PG_PASSWORD"],
     url=os.environ.get("PG_HOST", "localhost:5432"),
 )
 
@@ -109,7 +109,7 @@ import secrets
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
-API_TOKEN = os.environ.get("WAYFLOW_SERVER_TOKEN", "change-me")
+API_TOKEN = os.environ["WAYFLOW_SERVER_TOKEN"]
 
 secured_app = server.get_app()
 

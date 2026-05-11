@@ -46,6 +46,7 @@ def agentspec_remote_tool_with_specified_io() -> AgentSpecRemoteTool:
         url="https://example.com",
         http_method="POST",
         data={"payload": {"query": "{{query}}"}},
+        url_allow_list=["https://example.com/search/"],
         inputs=[AgentSpecStringProperty(title="query", type="string")],
         outputs=[AgentSpecStringProperty(title="search_results", type="string")],
     )
@@ -231,6 +232,7 @@ def test_agentspec_remote_tool_preserves_custom_io_descriptors_when_loaded(
     assert [descriptor.name for descriptor in loaded_remote_tool.output_descriptors] == [
         "search_results"
     ]
+    assert loaded_remote_tool.url_allow_list == ["https://example.com/search/"]
 
 
 def test_toolnode_with_remote_tool_custom_output_can_be_loaded(

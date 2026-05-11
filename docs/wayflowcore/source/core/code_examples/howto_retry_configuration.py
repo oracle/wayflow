@@ -36,9 +36,11 @@ llm = OpenAICompatibleModel(
 from wayflowcore.steps import ApiCallStep
 from wayflowcore.tools import RemoteTool
 
+ORDER_API_BASE_URL = "https://example.com/orders"
+
 api_step = ApiCallStep(
     name="fetch_order_step",
-    url="https://example.com/orders",
+    url=ORDER_API_BASE_URL,
     method="POST",
     retry_policy=retry_policy,
 )
@@ -46,9 +48,10 @@ api_step = ApiCallStep(
 remote_tool = RemoteTool(
     name="fetch_order",
     description="Fetch an order from a remote API.",
-    url="https://example.com/orders/{{ order_id }}",
+    url=ORDER_API_BASE_URL + "/{{ order_id }}",  # keep the base URL fixed and template only the path parameter
     method="GET",
     retry_policy=retry_policy,
+    url_allow_list=[ORDER_API_BASE_URL],
 )
 # .. end-##_Configure_remote_steps_and_tools
 

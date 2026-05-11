@@ -6,10 +6,15 @@
 import json
 
 import pytest
+from pyagentspec.adapters._agentspecloader import (
+    _DEFAULT_BLOCKED_COMPONENTS as _AGENTSPEC_DEFAULT_BLOCKED_COMPONENTS,
+)
 from pyagentspec.versioning import AgentSpecVersionEnum
 
 from wayflowcore import Agent
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
+from wayflowcore.agentspec.components.mcp import PluginMCPTool, PluginStdioTransport
+from wayflowcore.agentspec.runtimeloader import _DEFAULT_BLOCKED_COMPONENTS
 from wayflowcore.mcp import (
     MCPTool,
     MCPToolBox,
@@ -58,7 +63,6 @@ from wayflowcore.warnings import SecurityWarning
             key_file="key_fil",
             timeout=100,
         ),
-        StdioTransport(command="command", cwd=".."),
     ],
 )
 def test_mcp_tool_can_be_converted_to_agentspec_and_back(
@@ -94,6 +98,73 @@ def test_mcp_tool_can_be_converted_to_agentspec_and_back(
     assert len(all_agent_tools) == len(all_reloaded_agent_tools)
     for key, value in all_agent_tools.items():
         assert value == all_reloaded_agent_tools[key]
+
+
+def _make_agent_with_mcp_stdio_transport(remotely_hosted_llm):
+    client_transport = StdioTransport(command="command", cwd="..")
+    mcp_tool = MCPTool(
+        name="fooza_tool",
+        client_transport=client_transport,
+        _validate_server_exists=False,
+        description="some description",
+        input_descriptors=[StringProperty(name="a"), StringProperty(name="b")],
+    )
+    mcp_toolbox = MCPToolBox(client_transport=client_transport, requires_confirmation=False)
+    return Agent(llm=remotely_hosted_llm, tools=[mcp_tool, mcp_toolbox])
+
+
+def test_default_blocked_components_extend_agentspec_defaults() -> None:
+    assert all(
+        blocked_component in _DEFAULT_BLOCKED_COMPONENTS
+        for blocked_component in _AGENTSPEC_DEFAULT_BLOCKED_COMPONENTS
+    )
+    assert PluginStdioTransport in _DEFAULT_BLOCKED_COMPONENTS
+
+
+def test_mcp_tool_with_stdio_transport_is_blocked_by_default(remotely_hosted_llm, with_mcp_enabled):
+    agent = _make_agent_with_mcp_stdio_transport(remotely_hosted_llm)
+    agentspec_agent = AgentSpecExporter().to_json(
+        agent, agentspec_version=AgentSpecVersionEnum.current_version
+    )
+
+    with pytest.raises(ValueError, match="StdioTransport.*in the block list"):
+        AgentSpecLoader().load_json(agentspec_agent)
+
+
+def test_mcp_tool_with_stdio_transport_can_be_loaded_when_unblocked(
+    remotely_hosted_llm, with_mcp_enabled
+):
+    agent = _make_agent_with_mcp_stdio_transport(remotely_hosted_llm)
+    agentspec_agent = AgentSpecExporter().to_json(
+        agent, agentspec_version=AgentSpecVersionEnum.current_version
+    )
+
+    reloaded_agent = AgentSpecLoader(blocked_components=[]).load_json(agentspec_agent)
+
+    assert isinstance(reloaded_agent, Agent)
+    assert any(isinstance(tool.client_transport, StdioTransport) for tool in reloaded_agent.tools)
+
+
+def test_plugin_stdio_transport_is_blocked_by_default() -> None:
+    plugin_tool = PluginMCPTool(
+        name="plugin_stdio_tool",
+        client_transport=PluginStdioTransport(name="plugin_stdio", command="command"),
+    )
+
+    with pytest.raises(ValueError, match="PluginStdioTransport.*in the block list"):
+        AgentSpecLoader().load_component(plugin_tool)
+
+
+def test_plugin_stdio_transport_remains_blocked_when_allowed_with_defaults() -> None:
+    plugin_tool = PluginMCPTool(
+        name="plugin_stdio_tool",
+        client_transport=PluginStdioTransport(name="plugin_stdio", command="command"),
+    )
+
+    with pytest.raises(ValueError, match="PluginStdioTransport.*in the block list"):
+        AgentSpecLoader(
+            allowed_components=[PluginMCPTool, PluginStdioTransport],
+        ).load_component(plugin_tool)
 
 
 @pytest.mark.parametrize("requires_confirmation", [True, False])

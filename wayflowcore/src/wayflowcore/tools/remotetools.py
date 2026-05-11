@@ -36,7 +36,12 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
         attacks. Please use ``RemoteTool`` responsibly and ensure that only valid URLs can be given
         as arguments or that no sensitive information is used for any of these arguments by the
         agent. Please use the ``url_allow_list``, ``allow_credentials`` and ``allow_fragments``
-        parameters to control which URLs are treated as valid.
+        parameters to control which URLs are treated as valid. If the ``url`` template contains
+        placeholders in the destination part of the request (scheme, host, or port),
+        ``url_allow_list`` must be configured. Placeholders limited to the path or query do not
+        trigger this requirement. The recommended pattern is a developer-controlled base URL with
+        templated path, query, or body values only. Requests to loopback, link-local, and private
+        IP literal targets that are not explicitly allow-listed emit a runtime warning.
 
     Parameters
     ----------
@@ -47,6 +52,12 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     url
         Url to call.
         Can be templated using jinja templates.
+
+        If placeholders appear in the destination part of the URL (scheme, host, or port),
+        ``url_allow_list`` must be configured. Placeholders limited to the path or query do not
+        trigger this requirement. The recommended pattern is a fixed developer-controlled base URL
+        with templated path, query, or body values only. Requests to loopback, link-local, and
+        private IP literal targets that are not explicitly allow-listed emit a runtime warning.
     method
         HTTP method to call.
         Common methods are: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE.
@@ -106,6 +117,10 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
        A list of URLs that any request URL is matched against.
         If there is at least one entry in the allow list that the requested URL matches,
         the request is considered allowed.
+
+        This parameter is required only when placeholders appear in the destination part of the
+        ``url`` template (scheme, host, or port). Placeholders limited to the path or query do not
+        trigger this requirement.
 
         We consider URLs following the generic-URL syntax as defined in `RFC 1808`_:
         ``<scheme>://<net_loc>/<path>;<params>?<query>#<fragment>``

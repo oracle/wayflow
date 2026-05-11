@@ -25,6 +25,7 @@ def test_api_call_step_retry_policy_converts_to_agentspec_and_back() -> None:
     runtime_step = ApiCallStep(
         url="https://example.com",
         method="POST",
+        url_allow_list=["https://example.com/orders/"],
         retry_policy=RetryPolicy(max_attempts=3),
     )
 
@@ -32,6 +33,7 @@ def test_api_call_step_retry_policy_converts_to_agentspec_and_back() -> None:
         runtime_step,
         referenced_objects={},
     )
+    assert agentspec_node.url_allow_list == ["https://example.com/orders/"]
     assert agentspec_node.retry_policy is not None
     assert agentspec_node.retry_policy.max_attempts == 3
 
@@ -40,6 +42,7 @@ def test_api_call_step_retry_policy_converts_to_agentspec_and_back() -> None:
         tool_registry={},
         converted_components={},
     )
+    assert round_tripped.url_allow_list == ["https://example.com/orders/"]
     assert round_tripped.retry_policy is not None
     assert round_tripped.retry_policy.max_attempts == 3
 

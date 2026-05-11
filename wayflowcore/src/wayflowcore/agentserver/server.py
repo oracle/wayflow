@@ -290,7 +290,7 @@ class OpenAIResponsesServer:
         >>> import secrets
         >>> from fastapi import Request, status
         >>> from fastapi.responses import JSONResponse
-        >>> API_TOKEN = os.environ.get("WAYFLOW_SERVER_TOKEN", "change-me")
+        >>> API_TOKEN = os.environ["WAYFLOW_SERVER_TOKEN"]  # doctest: +SKIP
         >>>
         >>> app = server.get_app()  # doctest: +SKIP
         >>>

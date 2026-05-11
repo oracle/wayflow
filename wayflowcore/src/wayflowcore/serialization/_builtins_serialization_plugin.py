@@ -1514,6 +1514,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     if isinstance(inner_api_step.sensitive_headers, dict)
                     else dict()
                 ),
+                url_allow_list=inner_api_step.url_allow_list,
                 requires_confirmation=runtime_tool.requires_confirmation,
                 retry_policy=(
                     self._retrypolicy_convert_to_agentspec(inner_api_step.retry_policy)
@@ -3150,6 +3151,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     if isinstance(runtime_step.sensitive_headers, dict)
                     else dict()
                 ),
+                url_allow_list=runtime_step.url_allow_list,
                 retry_policy=(
                     self._retrypolicy_convert_to_agentspec(runtime_step.retry_policy)
                     if runtime_step.retry_policy is not None
