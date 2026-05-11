@@ -7,7 +7,7 @@ import json
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, List, Optional
 
-from wayflowcore._utils.formatting import stringify
+from wayflowcore._utils.formatting import format_tool_output_for_llm
 from wayflowcore.messagelist import (
     ImageContent,
     Message,
@@ -113,7 +113,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
             {
                 "type": "function_call_output",
                 "call_id": m.tool_result.tool_request_id,
-                "output": stringify(m.tool_result.content),
+                "output": format_tool_output_for_llm(m.tool_result.content),
             }
         ]
 

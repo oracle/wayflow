@@ -51,7 +51,7 @@ class Task:
         match = _plan_line_pattern.match(line)
         if match is None:
             return None
-        (id, status, tool, description) = match.group(1, 2, 3, 4)
+        id, status, tool, description = match.group(1, 2, 3, 4)
         return Task(
             id=id,
             status=TaskStatus(status),

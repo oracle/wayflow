@@ -7,9 +7,12 @@ import json
 from typing import TYPE_CHECKING, List, Tuple
 
 from wayflowcore._utils._templating_helpers import render_template
-from wayflowcore._utils.formatting import _format_chat_history_with_tool_results, stringify
+from wayflowcore._utils.formatting import (
+    _format_chat_history_with_tool_results,
+    format_tool_output_for_llm,
+)
 from wayflowcore.outputparser import JsonToolOutputParser
-from wayflowcore.templates.template import PromptTemplate
+from wayflowcore.templates.template import _TOOL_OUTPUT_SYSTEM_RULE, PromptTemplate
 from wayflowcore.tools import ToolRequest, ToolResult
 from wayflowcore.transforms import (
     CoalesceSystemMessagesTransform,
@@ -51,20 +54,14 @@ class _LlamaMergeToolRequestAndCallsTransform(MessageTransform):
         return [
             render_template(
                 "<tool_response>{{tool_result}}</tool_response>",
-                inputs=dict(
-                    tool_result=(
-                        json.dumps(tool_result.content)
-                        if isinstance(tool_result.content, str)
-                        else content
-                    ),
-                ),
+                inputs=dict(tool_result=format_tool_output_for_llm(tool_result.content)),
             )
             for tool_request, tool_result in tool_request_and_results
-            if (content := stringify(tool_result.content)) is not None
         ]
 
 
-LLAMA_SYSTEM_TEMPLATE = """\
+LLAMA_SYSTEM_TEMPLATE = (
+    """\
 {%- if __TOOLS__ -%}
 Environment: ipython
 Cutting Knowledge Date: December 2023
@@ -77,8 +74,12 @@ Do not use variables.
 
 {% for tool in __TOOLS__%}- {{tool["function"] | tojson}}{{ "
 " }}{% endfor %}
+"""
+    + _TOOL_OUTPUT_SYSTEM_RULE
+    + """
 {%- endif -%}
 """
+)
 
 
 LLAMA_CHAT_TEMPLATE = PromptTemplate(

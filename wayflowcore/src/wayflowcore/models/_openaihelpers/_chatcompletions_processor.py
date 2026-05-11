@@ -7,7 +7,7 @@ import json
 import logging
 from typing import Any, AsyncIterable, Callable, Dict, List, Optional, TypedDict
 
-from wayflowcore._utils.formatting import stringify
+from wayflowcore._utils.formatting import format_tool_output_for_llm
 from wayflowcore.messagelist import (
     ImageContent,
     Message,
@@ -125,7 +125,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
                 {
                     "role": "tool" if supports_tool_role else "user",
                     "tool_call_id": m.tool_result.tool_request_id,
-                    "content": stringify(m.tool_result.content),
+                    "content": format_tool_output_for_llm(m.tool_result.content),
                 }
             ]
         else:

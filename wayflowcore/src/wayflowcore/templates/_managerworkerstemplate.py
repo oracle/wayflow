@@ -8,17 +8,20 @@ import json
 from textwrap import shorten
 from typing import List, Tuple
 
+from wayflowcore._utils.formatting import format_tool_output_for_llm
 from wayflowcore.messagelist import Message, TextContent
 from wayflowcore.outputparser import JsonToolOutputParser
 from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.templates import PromptTemplate
+from wayflowcore.templates.template import _TOOL_OUTPUT_SYSTEM_RULE
 from wayflowcore.transforms import (
     AppendTrailingSystemMessageToUserMessageTransform,
     CoalesceSystemMessagesTransform,
     MessageTransform,
 )
 
-_DEFAULT_MANAGERWORKERS_SYSTEM_PROMPT = """
+_DEFAULT_MANAGERWORKERS_SYSTEM_PROMPT = (
+    """
 You are an helpful AI Agent.
 - name: {{name}}
 - description: {{description}}
@@ -68,14 +71,21 @@ Here is a list of functions that you can invoke.
 {% endfor %}
 </tools>
 
+<tool_output_rules>
+"""
+    + _TOOL_OUTPUT_SYSTEM_RULE
+    + """
+</tool_output_rules>
+
 {%- if custom_instruction -%}
 <system_instructions>
 Here are the instructions specific to your role.:
 {{custom_instruction}}
 </system_instructions>{%- endif -%}
-""".strip()
+"""
+).strip()
 
-_DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER = """
+_DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER = ("""
 --- SYSTEM REMINDER ---
 You are an helpful AI Agent, your name: {{name}}. Your user/caller is: {{caller_name}}.
 
@@ -87,7 +97,8 @@ Do not use variables in the function call. Here's the structure:
 YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT SEE THOSE!)
 
 {"name": function name, "parameters": dictionary of argument name and its value}
-""".strip()
+
+""" + _TOOL_OUTPUT_SYSTEM_RULE).strip()
 
 _MAX_CHAR_TOOL_RESULT_HEADER = 140
 """Max number of characters in the message header when formatting a Tool Result"""
@@ -96,8 +107,9 @@ _MAX_CHAR_TOOL_RESULT_HEADER = 140
 class _ToolRequestAndCallsTransform(MessageTransform):
     def __call__(self, messages: List["Message"]) -> List["Message"]:
         """
-        Format Tool requests as Agent messages and Tool results as User messages to have a simple User/Agent
-        sequence of messages.
+        Format Tool requests as Agent messages and Tool results as clearly-labelled
+        tool-result User messages to have a simple User/Agent sequence of
+        messages.
         """
         from wayflowcore import Message, MessageType
 
@@ -130,7 +142,7 @@ class _ToolRequestAndCallsTransform(MessageTransform):
                     Message(
                         content=(
                             f"--- TOOL RESULT: {message_header_tool_info} ---\n"
-                            f"{message.tool_result.content!r}"
+                            f"{format_tool_output_for_llm(message.tool_result.content)}"
                         ),
                         message_type=MessageType.USER,
                     )

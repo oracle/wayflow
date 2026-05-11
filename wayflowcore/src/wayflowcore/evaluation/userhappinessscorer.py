@@ -13,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 HAPPINESS_CRITERIA = {
-    "Query Repetition Frequency": dedent(
-        """
+    "Query Repetition Frequency": dedent("""
         - Query Repetition Frequency
         Explanation: [Technical explanation here]
         Score: [Strongly Disagree | Disagree | Neither Agree nor Disagree | Agree | Strongly Agree | N/A]
@@ -24,10 +23,8 @@ HAPPINESS_CRITERIA = {
         Neither Agree nor Disagree: The user occasionally needs to repeat queries, but it doesn't significantly impact the conversation flow.
         Agree: The user rarely needs to repeat queries; the AI generally understands and addresses requests effectively.
         Strongly Agree: The user never needs to repeat queries; the AI understands and addresses all requests on the first attempt.
-        """
-    ),
-    "Misinterpretation of User Intent": dedent(
-        """
+        """),
+    "Misinterpretation of User Intent": dedent("""
         - Misinterpretation of User Intent
         Explanation: [Technical explanation here]
         Score: [Strongly Disagree | Disagree | Neither Agree nor Disagree | Agree | Strongly Agree | N/A]
@@ -37,10 +34,8 @@ HAPPINESS_CRITERIA = {
         Neither Agree nor Disagree: The AI occasionally misinterprets user intent, but usually corrects itself or seeks clarification.
         Agree: The AI rarely misinterprets user intent, generally providing responses aligned with the user's goals.
         Strongly Agree: The AI never misinterprets user intent, consistently understanding and addressing the user's actual needs.
-        """
-    ),
-    "Conversation Flow Disruption": dedent(
-        """
+        """),
+    "Conversation Flow Disruption": dedent("""
         - Conversation Flow Disruption
         Explanation: [Technical explanation here]
         Score: [Strongly Disagree | Disagree | Neither Agree nor Disagree | Agree | Strongly Agree | N/A]
@@ -50,8 +45,7 @@ HAPPINESS_CRITERIA = {
         Neither Agree nor Disagree: The conversation has occasional disruptions, but the AI usually recovers and maintains adequate flow.
         Agree: The conversation generally flows well with minimal disruptions; the AI maintains good continuity and context.
         Strongly Agree: The conversation flows seamlessly with no disruptions; the AI maintains perfect continuity and context.
-        """
-    ),
+        """),
 }
 HAPPINESS_CRITERIA_NAMES = list(HAPPINESS_CRITERIA.keys())
 HAPPINESS_CRITERIA_DESCRIPTIONS = list(HAPPINESS_CRITERIA.values())

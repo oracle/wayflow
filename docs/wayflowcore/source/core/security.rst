@@ -16,7 +16,10 @@ WayFlow allows LLMs to interact with applications via **Tools** (:ref:`ClientToo
 
     *   For :ref:`ClientTool <clienttool>` and :ref:`ServerTool <servertool>`, use ``input_descriptors`` to define/enforce schemas (types and descriptions) as a primary defense. Note that ``input_descriptors`` do not support constraints like ranges or max lengths, so you must implement additional validation in your tool's code.
     *   For :ref:`RemoteTool <remotetool>`, which constructs HTTP requests, validation is critical for all parameters that can be templated (e.g., ``url``, ``method``, ``data``, ``params``, ``headers``, ``cookies``). While ``input_descriptors`` can define the schema for arguments *passed to* the :ref:`RemoteTool <remotetool>`, the core security lies in controlling how these arguments are used to form the request and in features like ``url_allow_list``.
-*   **Output Scrutiny**: Define expected outputs with ``output_descriptors``. For :ref:`ClientTool <clienttool>`, clients post results; for :ref:`ServerTool <servertool>`, the server ``func`` generates them. Calling Flows/Agents must treat incoming :ref:`ToolResult <toolresult>` content as untrusted until validated/sanitized.
+*   **Output Scrutiny**: Define expected outputs with ``output_descriptors``. For :ref:`ClientTool <clienttool>`, clients post results; for :ref:`ServerTool <servertool>`, the server ``func`` generates them. Calling Flows/Agents must validate and sanitize incoming :ref:`ToolResult <toolresult>` content before relying on it.
+
+    *   When prompt templates or model adapters pass :ref:`ToolResult <toolresult>` data back to an LLM, prefer a structured encoding instead of raw free text whenever possible.
+    *   Keep tool-returned data clearly separated from system, developer, or user instructions.
 *   **Least Privilege**: Grant tools only permissions essential for their function.
 
 Tool Security Specifics
@@ -99,6 +102,8 @@ Harden All Tools (ServerTool, ClientTool and RemoteTool)
        Ensure :ref:`ServerTool <servertool>` ``func`` and :ref:`ClientTool <clienttool>` client code return only necessary data.
 
        Consuming Agent/Flow must validate/sanitize :ref:`ToolResult <toolresult>` `content`.
+
+       When sending tool output back to an LLM, prefer a structured encoding and keep it visibly labelled as tool data.
 
 
 Considerations regarding network communication

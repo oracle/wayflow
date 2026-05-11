@@ -29,7 +29,7 @@ from pydantic import BaseModel
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_sync_in_thread, sync_to_async_iterator
-from wayflowcore._utils.formatting import stringify
+from wayflowcore._utils.formatting import build_tool_output_payload, format_tool_output_for_llm
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import ImageContent, TextContent, TextTokenLogProb, TextTokenTopLogProb
@@ -993,7 +993,7 @@ def _message_to_generic_oci_message(m: "Message") -> Any:
         return oci.generative_ai_inference.models.ToolMessage(
             content=[
                 oci.generative_ai_inference.models.TextContent(
-                    text=stringify(m.tool_result.content)
+                    text=format_tool_output_for_llm(m.tool_result.content)
                 )
             ],
             tool_call_id=m.tool_result.tool_request_id,
@@ -1112,13 +1112,7 @@ class _CohereOciApiFormatter(_OciApiFormatter):
                             name=tool_request.name,
                             parameters=tool_request.args,
                         ),
-                        outputs=[
-                            (
-                                {"result": msg.tool_result.content}
-                                if not isinstance(msg.tool_result.content, dict)
-                                else msg.tool_result.content
-                            )
-                        ],
+                        outputs=[build_tool_output_payload(msg.tool_result.content)],
                     )
                 )
             elif (msg.role == "user") and (len(chat_history) == 0):
@@ -1250,7 +1244,7 @@ def _convert_message_into_cohere_oci_message(
                         name=tool_request.name,
                         parameters=tool_request.args,
                     ),
-                    outputs=[{"result": stringify(m.tool_result.content)}],
+                    outputs=[build_tool_output_payload(m.tool_result.content)],
                 )
             ]
         )
