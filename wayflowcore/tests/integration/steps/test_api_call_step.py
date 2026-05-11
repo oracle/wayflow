@@ -33,6 +33,11 @@ from ...utils import get_available_port
 
 URL_TEMPLATE_VALUE = "a/b/c?param=baram&rama=bu77er"
 ENCODED_URL_TEMPLATE_VALUE = "a%2Fb%2Fc%3Fparam%3Dbaram%26rama%3Dbu77er"
+LOOPBACK_ADDRESSES = [
+    "https://127.0.0.1/metadata",
+    "https://10.0.0.7/metadata",
+    "https://169.254.1.1/metadata",
+]
 
 
 @dataclass
@@ -591,14 +596,7 @@ def test_api_call_step_does_not_throw_if_allow_list_none(faked_request):
     run_single_step(step)
 
 
-@pytest.mark.parametrize(
-    "url",
-    [
-        "https://127.0.0.1/metadata",
-        "https://10.0.0.7/metadata",
-        "https://169.254.1.1/metadata",
-    ],
-)
+@pytest.mark.parametrize("url", LOOPBACK_ADDRESSES)
 def test_api_call_step_warns_for_non_public_ip_targets(faked_request, url):
     step = ApiCallStep(url=url, method="GET")
 
@@ -609,14 +607,7 @@ def test_api_call_step_warns_for_non_public_ip_targets(faked_request, url):
         run_single_step(step)
 
 
-@pytest.mark.parametrize(
-    "url",
-    [
-        "https://127.0.0.1/metadata",
-        "https://10.0.0.7/metadata",
-        "https://169.254.1.1/metadata",
-    ],
-)
+@pytest.mark.parametrize("url", LOOPBACK_ADDRESSES)
 def test_api_call_step_does_not_warn_for_allow_listed_non_public_ip_targets(faked_request, url):
     step = ApiCallStep(url=url, method="GET", url_allow_list=[url])
 
