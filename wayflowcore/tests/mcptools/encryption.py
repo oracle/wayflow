@@ -119,9 +119,11 @@ def issue_server_cert(
     csr: x509.CertificateSigningRequest,
     days: int = 365,
     tmpdir: str = "",
+    subject_alt_names: list[x509.GeneralName] | None = None,
 ):
     san = x509.SubjectAlternativeName(
-        [
+        subject_alt_names
+        or [
             x509.DNSName("localhost"),
             x509.IPAddress(ipaddress.IPv4Address("127.0.0.1")),
         ]
