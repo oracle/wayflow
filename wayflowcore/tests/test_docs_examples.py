@@ -156,6 +156,7 @@ def test_code_examples_in_docs_can_be_successfully_run(
     embedding_model,
     test_with_llm_fixture,
     request,
+    monkeypatch,
 ) -> None:
     """
     Failure rate:          0 out of 20
@@ -182,6 +183,12 @@ def test_code_examples_in_docs_can_be_successfully_run(
 
     if "expired_token" in file_path:
         globs["mock_server_url"] = request.getfixturevalue("mock_server")
+
+    if file_path.endswith("howto_serve_agents.py"):
+        if "WAYFLOW_SERVER_TOKEN" not in os.environ:
+            monkeypatch.setenv("WAYFLOW_SERVER_TOKEN", "test-wayflow-server-token")
+        if "PG_PASSWORD" not in os.environ:
+            monkeypatch.setenv("PG_PASSWORD", "test-postgres-password")
 
     try:
         runpy.run_path(file_path, init_globals=globs)
