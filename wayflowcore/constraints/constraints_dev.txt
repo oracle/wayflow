@@ -13,4 +13,4 @@ opentelemetry-api==1.36.0
 opentelemetry-sdk==1.36.0
 litellm==1.83.14
 fastapi==0.131.0
-anyio==4.12.1
+anyio==4.11.0
