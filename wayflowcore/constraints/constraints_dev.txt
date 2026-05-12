@@ -12,5 +12,5 @@ pyagentspec==26.2.0.dev5 # Main branch of pyagentspec
 opentelemetry-api==1.36.0
 opentelemetry-sdk==1.36.0
 litellm==1.83.14
-fastapi==1.131.0
-anyio==4.11.0
+fastapi==0.131.0
+anyio==4.12.1
