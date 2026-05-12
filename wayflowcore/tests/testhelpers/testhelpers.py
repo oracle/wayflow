@@ -15,6 +15,8 @@ from datetime import date, datetime
 from functools import wraps
 from typing import Any, Callable, Dict, List, Mapping, Optional
 
+from _pytest.outcomes import Failed as PytestFailed
+
 from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore.agent import Agent
 from wayflowcore.controlconnection import ControlFlowEdge
@@ -69,6 +71,7 @@ these logs using the option `--show-capture=log --disable-warnings`.
 """
 
 FLAKY_TEST_DOCSTRING_REGEX_PATTERN = r"[\s\S]*Failure rate:.*\n\s*Observed on:.*\n\s*Average success time:.*\n\s*Average failure time:.*\n\s*Max attempt:.*\n\s*Justification:.*"
+RETRYABLE_TEST_FAILURES = (Exception, PytestFailed)
 
 
 def _validate_retry_decorator_docstring_format(test_func: Callable[..., Any]) -> None:
@@ -276,7 +279,7 @@ def retry_test(
                         )
                         signal.alarm(0)
                         break
-                    except Exception as exception_error:
+                    except RETRYABLE_TEST_FAILURES as exception_error:
                         failed_count += 1
                         total_time_of_failed_runs += time.perf_counter() - start_time
                         signal.alarm(0)
@@ -320,7 +323,7 @@ def retry_test(
             while attempt_count < max_attempts:
                 try:
                     return test_func(*args, **kwargs)
-                except Exception as exception_error:
+                except RETRYABLE_TEST_FAILURES as exception_error:
                     exception_message = exception_error.__str__().split("\n", maxsplit=1)[0]
                     attempt_count += 1
                     logger.warning(

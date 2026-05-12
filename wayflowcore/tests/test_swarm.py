@@ -1355,17 +1355,17 @@ def _setup_swarm_for_multiple_tool_calling(vllm_responses_llm, raise_exceptions)
     return conv
 
 
-@retry_test(max_attempts=3)
+@retry_test(max_attempts=7)
 def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_raises_error(
     vllm_responses_llm,
 ):
     """
-    Failure rate:          0 out of 20
-    Observed on:           2026-01-28
-    Average success time:  5.19 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    Failure rate:          4 out of 20
+    Observed on:           2026-05-12
+    Average success time:  5.68 seconds per successful attempt
+    Average failure time:  3.38 seconds per failed attempt
+    Max attempt:           7
+    Justification:         (0.23 ** 7) ~= 3.1 / 100'000
     """
     conv = _setup_swarm_for_multiple_tool_calling(vllm_responses_llm, raise_exceptions=True)
     with pytest.raises(ValueError, match="Cannot compute result using fooza tool."):
