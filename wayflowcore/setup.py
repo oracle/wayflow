@@ -78,7 +78,8 @@ setup(
         "opentelemetry-api>=1.33.0,<2.0.0",
         "opentelemetry-sdk>=1.33.0,<2.0.0",
         "pydantic_core>=2.33.0",  # warning but no vulnerabilities
-        "python-multipart>=0.0.18",
+        "PyJWT>=2.12.0",
+        "python-multipart>=0.0.27",
         "sniffio>=1.1",
     ],
     test_suite="tests",

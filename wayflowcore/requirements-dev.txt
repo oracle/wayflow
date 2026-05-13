@@ -16,6 +16,7 @@ sphinx-markdown-builder==0.6.9
 
 # To detect available memory when running tests and skip if not enough
 psutil
+setuptools==81.0.0
 
 # install package
 -c constraints/constraints_dev.txt
