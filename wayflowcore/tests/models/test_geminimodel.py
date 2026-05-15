@@ -449,6 +449,59 @@ def test_geminimodel_sync_generate_retries_litellm_timeout_errors(monkeypatch) -
     assert call_count == 2
 
 
+@pytest.mark.parametrize(
+    "retry_policy",
+    [
+        RetryPolicy(
+            max_attempts=2,
+            request_timeout=12.5,
+            initial_retry_delay=0.001,
+            max_retry_delay=0.001,
+            service_error_retry_on_any_5xx=False,
+        ),
+        RetryPolicy(
+            max_attempts=2,
+            request_timeout=12.5,
+            initial_retry_delay=0.001,
+            max_retry_delay=0.001,
+            recoverable_statuses={"500": ["quotaExceeded"]},
+        ),
+    ],
+    ids=["no-broad-5xx", "textual-status-mismatch"],
+)
+def test_geminimodel_sync_generate_respects_retry_policy_for_litellm_api_errors_without_response(
+    monkeypatch, retry_policy: RetryPolicy
+) -> None:
+    from litellm.exceptions import APIError
+
+    llm = GeminiModel(
+        model_id="gemini-2.5-flash",
+        auth=GeminiApiKeyAuth(api_key="test-key"),
+        retry_policy=retry_policy,
+    )
+    prompt = Prompt(messages=[Message(role="user", content="Hello")])
+    request = httpx.Request("POST", "https://example.test")
+    call_count = 0
+
+    def fake_completion(**_kwargs: Any) -> Any:
+        nonlocal call_count
+        call_count += 1
+        raise APIError(
+            status_code=500,
+            message="backend unavailable",
+            llm_provider="gemini",
+            model=llm.model_id,
+            request=request,
+        )
+
+    monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.completion", fake_completion)
+
+    with pytest.raises(APIError, match="backend unavailable"):
+        llm.generate(prompt)
+
+    assert call_count == 1
+
+
 def test_geminimodel_sync_generate_does_not_retry_openai_tls_errors_in_context(
     monkeypatch,
 ) -> None:

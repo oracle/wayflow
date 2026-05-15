@@ -325,7 +325,7 @@ def _is_transport_exception_without_response(exc: BaseException) -> bool:
         return False
 
     status_code = _get_http_status_code_from_exception(exc)
-    return status_code is None or status_code <= 0 or status_code == 408 or status_code >= 500
+    return status_code is None or status_code <= 0 or status_code == 408
 
 
 def _classify_http_exception_for_retry(
