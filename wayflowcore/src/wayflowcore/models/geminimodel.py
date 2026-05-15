@@ -7,21 +7,8 @@
 import json
 import logging
 import os
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    AsyncIterable,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, AsyncIterable, Dict, Iterable, List, Optional, Union, cast
 
-import httpx
-from openai import APIConnectionError, APIStatusError, APITimeoutError
 from pydantic import BaseModel
 
 from wayflowcore._metadata import MetadataType
@@ -38,10 +25,7 @@ from ._requesthelpers import (
     StreamChunkType,
     TaggedMessageChunkType,
     TaggedMessageChunkTypeWithTokenUsage,
-    _get_retry_after_value_from_headers,
-    _is_retryable_http_error,
-    _is_tls_or_cert_error,
-    _stringify_response_error,
+    _classify_http_exception_for_retry,
     execute_async_with_retry,
     execute_sync_with_retry,
 )
@@ -113,63 +97,6 @@ def _rename_message_and_tool_call_field(
             if target_key not in mapping:
                 mapping[target_key] = source_value
     return message_payload
-
-
-# LiteLLM/OpenAI errors may wrap the retryable transport or status exception
-# one or more levels deep, so walk the causal chain before classifying.
-def _iter_exception_chain(exc: BaseException) -> Iterator[BaseException]:
-    current: Optional[BaseException] = exc
-    seen: set[int] = set()
-    while current is not None and id(current) not in seen:
-        yield current
-        seen.add(id(current))
-        current = current.__cause__ or current.__context__
-
-
-def _classify_gemini_retry_exception(
-    exc: Exception, policy: RetryPolicy
-) -> Optional[tuple[Optional[int], Optional[str]]]:
-    for current in _iter_exception_chain(exc):
-        if isinstance(current, APIStatusError):
-            if current.status_code is None:
-                return None
-            error_message = _stringify_response_error(current.body)
-            if not _is_retryable_http_error(policy, current.status_code, error_message):
-                return None
-            retry_after = (
-                _get_retry_after_value_from_headers(current.response.headers)
-                if current.response is not None
-                else None
-            )
-            return current.status_code, retry_after
-
-        if isinstance(current, (APITimeoutError, APIConnectionError, httpx.TransportError)):
-            if _is_tls_or_cert_error(current):
-                return None
-            return None, None
-
-        status_code = getattr(current, "status_code", getattr(current, "status", None))
-        try:
-            normalized_status_code = int(status_code) if status_code is not None else None
-        except (TypeError, ValueError):
-            normalized_status_code = None
-
-        if normalized_status_code is None:
-            continue
-
-        error_message = _stringify_response_error(
-            getattr(current, "body", getattr(current, "message", str(current)))
-        )
-        if not _is_retryable_http_error(policy, normalized_status_code, error_message):
-            return None
-
-        headers = getattr(current, "headers", None)
-        response = getattr(current, "response", None)
-        if headers is None and response is not None:
-            headers = getattr(response, "headers", None)
-        return normalized_status_code, _get_retry_after_value_from_headers(headers)
-
-    return None
 
 
 class GeminiModel(LlmModel):
@@ -464,7 +391,7 @@ class GeminiModel(LlmModel):
         return execute_sync_with_retry(
             lambda: _get_litellm().completion(**request),
             retry_policy=self.retry_policy,
-            classify_exception=_classify_gemini_retry_exception,
+            classify_exception=_classify_http_exception_for_retry,
             retry_budget_exhausted_message=(
                 "Gemini streaming request retry budget exhausted"
                 if stream
@@ -477,7 +404,7 @@ class GeminiModel(LlmModel):
         return await execute_async_with_retry(
             lambda: _get_litellm().acompletion(**request),
             retry_policy=self.retry_policy,
-            classify_exception=_classify_gemini_retry_exception,
+            classify_exception=_classify_http_exception_for_retry,
             retry_budget_exhausted_message=(
                 "Gemini streaming request retry budget exhausted"
                 if stream

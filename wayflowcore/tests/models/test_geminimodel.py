@@ -6,6 +6,7 @@
 
 import json
 import os
+import ssl
 from typing import Annotated, Any
 from unittest.mock import patch
 
@@ -392,7 +393,12 @@ def test_geminimodel_sync_generate_retries_connection_errors(monkeypatch) -> Non
         call_count += 1
         timeouts.append(kwargs["timeout"])
         if call_count < 3:
-            raise APIConnectionError(message="Connection error.", request=request)
+            # The OpenAI SDK wraps transport failures this way, so exercise the
+            # retry classifier through the realistic __cause__ chain.
+            transport_error = httpx.ConnectError("Connection error.", request=request)
+            raise APIConnectionError(
+                message="Connection error.", request=request
+            ) from transport_error
         return {
             "choices": [{"message": {"role": "assistant", "content": "hello"}}],
             "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
@@ -405,6 +411,110 @@ def test_geminimodel_sync_generate_retries_connection_errors(monkeypatch) -> Non
     assert completion.message.content == "hello"
     assert call_count == 3
     assert timeouts == [retry_policy.request_timeout] * 3
+
+
+def test_geminimodel_sync_generate_retries_litellm_timeout_errors(monkeypatch) -> None:
+    from litellm.exceptions import Timeout
+
+    retry_policy = RetryPolicy(
+        max_attempts=1,
+        request_timeout=12.5,
+        initial_retry_delay=0.001,
+        max_retry_delay=0.001,
+        service_error_retry_on_any_5xx=False,
+    )
+    llm = GeminiModel(
+        model_id="gemini-2.5-flash",
+        auth=GeminiApiKeyAuth(api_key="test-key"),
+        retry_policy=retry_policy,
+    )
+    prompt = Prompt(messages=[Message(role="user", content="Hello")])
+    call_count = 0
+
+    def fake_completion(**_kwargs: Any) -> Any:
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            raise Timeout("timed out", model=llm.model_id, llm_provider="gemini")
+        return {
+            "choices": [{"message": {"role": "assistant", "content": "hello"}}],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+        }
+
+    monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.completion", fake_completion)
+
+    completion = llm.generate(prompt)
+
+    assert completion.message.content == "hello"
+    assert call_count == 2
+
+
+def test_geminimodel_sync_generate_does_not_retry_openai_tls_errors_in_context(
+    monkeypatch,
+) -> None:
+    retry_policy = RetryPolicy(
+        max_attempts=2,
+        request_timeout=12.5,
+        initial_retry_delay=0.001,
+        max_retry_delay=0.001,
+    )
+    llm = GeminiModel(
+        model_id="gemini-2.5-flash",
+        auth=GeminiApiKeyAuth(api_key="test-key"),
+        retry_policy=retry_policy,
+    )
+    prompt = Prompt(messages=[Message(role="user", content="Hello")])
+    request = httpx.Request("POST", "https://example.test")
+    call_count = 0
+
+    def fake_completion(**_kwargs: Any) -> Any:
+        nonlocal call_count
+        call_count += 1
+        try:
+            raise ssl.SSLCertVerificationError("certificate verify failed")
+        except ssl.SSLCertVerificationError:
+            # Raising without "from" mirrors wrapper code that preserves the
+            # TLS failure in __context__ instead of __cause__.
+            raise APIConnectionError(message="Connection error.", request=request)
+
+    monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.completion", fake_completion)
+
+    with pytest.raises(APIConnectionError, match="Connection error"):
+        llm.generate(prompt)
+
+    assert call_count == 1
+
+
+def test_geminimodel_sync_generate_does_not_retry_litellm_bad_request_errors(
+    monkeypatch,
+) -> None:
+    from litellm.exceptions import BadRequestError
+
+    retry_policy = RetryPolicy(
+        max_attempts=2,
+        request_timeout=12.5,
+        initial_retry_delay=0.001,
+        max_retry_delay=0.001,
+    )
+    llm = GeminiModel(
+        model_id="gemini-2.5-flash",
+        auth=GeminiApiKeyAuth(api_key="test-key"),
+        retry_policy=retry_policy,
+    )
+    prompt = Prompt(messages=[Message(role="user", content="Hello")])
+    call_count = 0
+
+    def fake_completion(**_kwargs: Any) -> Any:
+        nonlocal call_count
+        call_count += 1
+        raise BadRequestError("bad request", model=llm.model_id, llm_provider="gemini")
+
+    monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.completion", fake_completion)
+
+    with pytest.raises(BadRequestError, match="bad request"):
+        llm.generate(prompt)
+
+    assert call_count == 1
 
 
 @pytest.mark.anyio
@@ -649,6 +759,12 @@ def test_geminimodel_aistudio_gemini3_pro_preview_roundtrips_real_provider_field
     llm = GeminiModel(
         model_id="gemini-3.1-pro-preview",
         auth=GeminiApiKeyAuth(api_key=os.environ["GEMINI_API_KEY"]),
+        retry_policy=RetryPolicy(
+            max_attempts=1,
+            request_timeout=60.0,
+            initial_retry_delay=1.0,
+            max_retry_delay=1.0,
+        ),
     )
     prompt = prompt_with_tool_replay.copy()
     completion, _request, response_message, tool_call = (
