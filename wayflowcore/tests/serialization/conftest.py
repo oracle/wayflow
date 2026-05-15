@@ -6,6 +6,7 @@
 
 import os
 import subprocess
+import sys
 import time
 
 import pytest
@@ -21,7 +22,7 @@ def _start_a2a_server(
     host: str, port: int, ready_timeout_s: float = 20.0
 ) -> tuple[subprocess.Popen, str]:
     process_args = [
-        "python",
+        sys.executable,
         "-u",  # unbuffered output
         _START_SERVER_FILE_PATH,
         "--host",
