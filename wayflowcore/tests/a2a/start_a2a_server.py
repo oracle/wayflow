@@ -253,9 +253,8 @@ def create_server(agent_type: AgentType, host: str, port: int):
 
 def main(host: str, port: int, agent_type: AgentType):
     if agent_type == AgentType.ADK_AGENT:
-        from google.adk.a2a.utils.agent_to_a2a import to_a2a
-
-        from a2a.types import AgentCard
+        from google.adk.a2a.utils.agent_to_a2a import to_a2a  # isort: skip
+        from a2a.types import AgentCard  # isort: skip
 
         my_agent_card = AgentCard(
             **{
