@@ -51,14 +51,22 @@ def oracle_database_connection():
 
 def create_entities_inside_oracle_database(oracle_database_connection, schema):
     ddl = _get_dll_for_creation_of_one_entity_schema(schema)
-    for stmt in ddl:
-        oracle_database_connection.cursor().execute(stmt)
+    cursor = oracle_database_connection.cursor()
+    try:
+        for stmt in ddl:
+            cursor.execute(stmt)
+    finally:
+        cursor.close()
 
 
 def delete_entities_inside_oracle_database(oracle_database_connection, schema):
     ddl = _get_dll_for_deletion_of_one_entity_schema(schema)
-    for stmt in ddl:
-        oracle_database_connection.cursor().execute(stmt)
+    cursor = oracle_database_connection.cursor()
+    try:
+        for stmt in ddl:
+            cursor.execute(stmt)
+    finally:
+        cursor.close()
 
 
 def find_datastore_by_schema(pool, schema):
@@ -74,6 +82,7 @@ CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME = "conversations_cache"
 
 @pytest.fixture(scope="session")
 def oracle_database_datastores_pool():
+    testing_schemas = []
     pool = []
     try:
         testing_schemas = get_testing_schemas()
@@ -84,6 +93,8 @@ def oracle_database_datastores_pool():
             pool.append((schema, datastore))
         yield pool
     finally:
+        for _, datastore in pool:
+            datastore.close()
         for schema in testing_schemas:
             cleanup_oracle_datastore(_get_dll_for_deletion_of_one_entity_schema(schema))
 

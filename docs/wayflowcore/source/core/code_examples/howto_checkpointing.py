@@ -25,7 +25,7 @@ llm: VllmModel  # docs-skiprow
 from wayflowcore import Agent
 from wayflowcore.checkpointing import InMemoryCheckpointer
 
-agent = Agent(llm=llm)
+agent = Agent(llm=llm, agent_id="support-agent")
 checkpointer = InMemoryCheckpointer()
 
 conversation = agent.start_conversation(

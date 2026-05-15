@@ -1480,15 +1480,15 @@ def test_multi_managers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
-@retry_test(max_attempts=5)
+@retry_test(max_attempts=14)
 def test_multi_managers_with_llms(vllm_responses_llm):
     """
-    Failure rate:          2 out of 20
-    Observed on:           2026-01-28
-    Average success time:  14.97 seconds per successful attempt
-    Average failure time:  20.80 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    Failure rate:          25 out of 50
+    Observed on:           2026-05-13
+    Average success time:  20.35 seconds per successful attempt
+    Average failure time:  11.01 seconds per failed attempt
+    Max attempt:           14
+    Justification:         (0.50 ** 14) ~= 6.1 / 100'000
     """
     llm = vllm_responses_llm
 

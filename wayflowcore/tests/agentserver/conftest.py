@@ -9,7 +9,7 @@ import tempfile
 import time
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import httpx
 import pytest
@@ -29,6 +29,15 @@ from ..datastores.conftest import (
 )
 from ..utils import LogTee, _terminate_process_tree, get_available_port
 from .datastore_agent_server import ORACLE_DB_CREATE_DDL, ORACLE_DB_DELETE_DDL
+
+_SERVER_LOG_TEES: Dict[str, LogTee] = {}
+
+
+def get_recent_server_logs(base_url: str) -> str:
+    tee = _SERVER_LOG_TEES.get(base_url.rstrip("/"))
+    if tee is None:
+        return ""
+    return tee.dump()
 
 
 def _wait_for_http_ready(url: str, timeout: float) -> None:
@@ -106,6 +115,7 @@ def _run_server(
             raise RuntimeError("Failed to capture server stdout")
         tee = LogTee(process.stdout, prefix="[uvicorn] ")
         tee.start()
+        _SERVER_LOG_TEES[url] = tee
 
         # Poll for readiness or early exit
         start = time.time()

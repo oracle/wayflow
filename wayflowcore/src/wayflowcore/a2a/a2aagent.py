@@ -277,7 +277,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
 
         Returns
         -------
-        A2AAgentConversation
+        Conversation
             A new or restored A2A agent conversation.
         """
         from wayflowcore.executors._a2aagentconversation import A2AAgentConversation

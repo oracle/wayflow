@@ -153,15 +153,19 @@ class PostgresDatabaseDatastore(RelationalDatastore, SerializableObject):
         """
         self.connection_config = connection_config
         engine = connection_config.get_connection()
-        super().__init__(
-            schema,
-            engine,
-            name=name,
-            description=description,
-            id=id,
-            __metadata_info__=__metadata_info__,
-        )
-        SerializableObject.__init__(self)
+        try:
+            super().__init__(
+                schema,
+                engine,
+                name=name,
+                description=description,
+                id=id,
+                __metadata_info__=__metadata_info__,
+            )
+            SerializableObject.__init__(self)
+        except Exception:
+            engine.dispose()
+            raise
 
     def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
         return {

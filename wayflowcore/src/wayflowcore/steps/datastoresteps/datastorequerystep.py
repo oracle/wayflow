@@ -177,6 +177,8 @@ class DatastoreQueryStep(Step):
             ...
         TypeError: The input passed: `{'salary': '1', 'depname': 'sales'}` of type `dict` is not of the expected type ...
 
+        >>> datastore.close()
+
         """
         super().__init__(
             step_static_configuration=dict(datastore=datastore, query=query),

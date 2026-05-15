@@ -109,7 +109,8 @@ class Checkpointer(ABC):
             return
         if not isinstance(checkpoint, ConversationCheckpoint):
             raise TypeError(
-                f"Expected a Conversation or ConversationCheckpoint, got {type(checkpoint).__name__}."
+                "Expected a Conversation or ConversationCheckpoint, got "
+                f"{type(checkpoint).__name__}."
             )
         self._save_checkpoint(checkpoint)
 
@@ -121,19 +122,24 @@ class Checkpointer(ABC):
         conversation: "Conversation",
         *,
         checkpoint_id: Optional[str] = None,
+        component_id: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> ConversationCheckpoint:
         next_save_sequence = self._save_sequence_by_conversation.get(conversation.id, 0) + 1
         self._save_sequence_by_conversation[conversation.id] = next_save_sequence
+        checkpoint_component_id = component_id or conversation.component.id
         checkpoint_metadata = {"save_sequence": next_save_sequence}
         if metadata:
             checkpoint_metadata.update(metadata)
         checkpoint = ConversationCheckpoint(
             checkpoint_id=checkpoint_id or IdGenerator.get_or_generate_id(),
             conversation_id=conversation.id,
-            component_id=conversation.component.id,
+            component_id=checkpoint_component_id,
             created_at=int(time.time()),
-            state=_serialize_conversation_checkpoint_state(conversation),
+            state=_serialize_conversation_checkpoint_state(
+                conversation,
+                root_component_id=checkpoint_component_id,
+            ),
             metadata=checkpoint_metadata,
         )
         self._save_checkpoint(checkpoint)

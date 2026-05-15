@@ -4,13 +4,22 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, cast
+from typing import TYPE_CHECKING, Any, Dict, Optional, Sequence, cast
 
 import yaml
 
 from wayflowcore.serialization import autodeserialize, serialize_to_dict
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import autodeserialize_from_dict
+
+from ._componentidentity import (
+    CHECKPOINT_COMPONENT_REFERENCES_KEY,
+    build_checkpoint_component_references,
+    iter_checkpoint_component_tree,
+    iter_checkpoint_conversation_graph,
+    normalize_restored_component_keyed_state,
+    register_checkpoint_component_references,
+)
 
 if TYPE_CHECKING:
     from wayflowcore.component import Component
@@ -22,19 +31,7 @@ _CHECKPOINT_ENVELOPE_VERSION = 1
 
 
 def _iter_conversation_graph(root_conversation: "Conversation") -> Sequence["Conversation"]:
-    visited_conversation_ids: set[str] = set()
-    queue: List["Conversation"] = [root_conversation]
-    ordered_conversations: List["Conversation"] = []
-
-    while queue:
-        conversation = queue.pop()
-        if conversation.id in visited_conversation_ids:
-            continue
-        visited_conversation_ids.add(conversation.id)
-        ordered_conversations.append(conversation)
-        queue.extend(conversation._get_all_sub_conversations())
-
-    return ordered_conversations
+    return iter_checkpoint_conversation_graph(root_conversation)
 
 
 def _ensure_checkpointing_supported(conversation: "Conversation") -> None:
@@ -48,44 +45,7 @@ def _ensure_checkpointing_supported(conversation: "Conversation") -> None:
 
 
 def _iter_component_tree(component: "Component") -> Sequence["Component"]:
-    from wayflowcore.component import Component
-
-    def _iter_nested_components(value: Any) -> List["Component"]:
-        if isinstance(value, Component):
-            return [value]
-        if isinstance(value, dict):
-            nested_components: List["Component"] = []
-            for nested_value in value.values():
-                nested_components.extend(_iter_nested_components(nested_value))
-            return nested_components
-        if isinstance(value, (list, tuple, set)):
-            nested_components = []
-            for nested_value in value:
-                nested_components.extend(_iter_nested_components(nested_value))
-            return nested_components
-        return []
-
-    visited_component_ids: set[str] = set()
-    ordered_components: List["Component"] = []
-    queue: List["Component"] = [component]
-
-    while queue:
-        current_component = queue.pop()
-        current_component_ref = SerializationContext.get_reference(current_component)
-        if current_component_ref in visited_component_ids:
-            continue
-        visited_component_ids.add(current_component_ref)
-        ordered_components.append(current_component)
-
-        all_public_attrs = {
-            name: value
-            for name, value in vars(current_component).items()
-            if not name.startswith("_")
-        }
-        for attr in all_public_attrs.values():
-            queue.extend(_iter_nested_components(attr))
-
-    return ordered_components
+    return iter_checkpoint_component_tree(component)
 
 
 def _build_checkpoint_serialization_context(conversation: "Conversation") -> SerializationContext:
@@ -95,7 +55,11 @@ def _build_checkpoint_serialization_context(conversation: "Conversation") -> Ser
     return serialization_context
 
 
-def _serialize_conversation_checkpoint_state(conversation: "Conversation") -> str:
+def _serialize_conversation_checkpoint_state(
+    conversation: "Conversation",
+    *,
+    root_component_id: Optional[str] = None,
+) -> str:
     _ensure_checkpointing_supported(conversation)
 
     serialized_conversation = serialize_to_dict(
@@ -107,6 +71,10 @@ def _serialize_conversation_checkpoint_state(conversation: "Conversation") -> st
         "checkpoint_format": _CHECKPOINT_ENVELOPE_FORMAT,
         "version": _CHECKPOINT_ENVELOPE_VERSION,
         "conversation": serialized_conversation,
+        CHECKPOINT_COMPONENT_REFERENCES_KEY: build_checkpoint_component_references(
+            conversation.component,
+            root_component_id=root_component_id,
+        ),
     }
     return yaml.safe_dump(envelope)
 
@@ -116,14 +84,23 @@ def _deserialize_conversation_checkpoint_state(
     *,
     tool_registry: Optional[Dict[str, Any]] = None,
     component: Optional["Component"] = None,
+    root_component_id_aliases: Optional[Sequence[str]] = None,
 ) -> "Conversation":
     deserialization_context = DeserializationContext()
     deserialization_context.registered_tools = tool_registry.copy() if tool_registry else {}
 
-    if component is not None:
-        deserialization_context._add_component_to_context(component)
-
     state_payload = yaml.safe_load(serialized_state)
+    component_references = (
+        state_payload.get(CHECKPOINT_COMPONENT_REFERENCES_KEY)
+        if isinstance(state_payload, dict)
+        else None
+    )
+    register_checkpoint_component_references(
+        deserialization_context=deserialization_context,
+        root_component=component,
+        component_references=component_references,
+        root_component_id_aliases=root_component_id_aliases,
+    )
     if (
         isinstance(state_payload, dict)
         and state_payload.get("checkpoint_format") == _CHECKPOINT_ENVELOPE_FORMAT
@@ -140,4 +117,6 @@ def _deserialize_conversation_checkpoint_state(
             deserialization_context=deserialization_context,
         )
 
-    return cast("Conversation", conversation)
+    restored_conversation = cast("Conversation", conversation)
+    normalize_restored_component_keyed_state(restored_conversation)
+    return restored_conversation

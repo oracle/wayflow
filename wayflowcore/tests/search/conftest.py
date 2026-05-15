@@ -206,10 +206,7 @@ CREATE TABLE cars (
 
 def get_oracle_datastore_with_schema(ddl: List[str], entities: Dict[str, Entity], embedding_model):
     connection_config = get_oracle_connection_config()
-    conn = connection_config.get_connection()
-    for stmt in ddl:
-        conn.cursor().execute(stmt)
-    conn.close()
+    _execute_oracle_ddl(ddl)
     if "motorcycles" in entities:
         search_config = SearchConfig(
             name="search_motorcycles",
@@ -237,10 +234,7 @@ def get_oracle_datastore_with_multiple_search_configs_and_schema(
     ddl: List[str], entities: Dict[str, Entity], embedding_model
 ):
     connection_config = get_oracle_connection_config()
-    conn = connection_config.get_connection()
-    for stmt in ddl:
-        conn.cursor().execute(stmt)
-    conn.close()
+    _execute_oracle_ddl(ddl)
 
     return OracleDatabaseDatastore(
         entities,
@@ -253,10 +247,7 @@ def get_oracle_datastore_with_multiple_search_and_vector_configs(
     ddl: List[str], entities: Dict[str, Entity], embedding_model
 ):
     connection_config = get_oracle_connection_config()
-    conn = connection_config.get_connection()
-    for stmt in ddl:
-        conn.cursor().execute(stmt)
-    conn.close()
+    _execute_oracle_ddl(ddl)
 
     search_configs = get_search_configs(embedding_model)
     vector_config1 = VectorConfig(model=embedding_model, collection_name="motorcycles")
@@ -308,10 +299,7 @@ def create_oracle_datastore_with_vector_config(
     ddl: List[str], entities: Dict[str, Entity], embedding_model
 ):
     connection_config = get_oracle_connection_config()
-    conn = connection_config.get_connection()
-    for stmt in ddl:
-        conn.cursor().execute(stmt)
-    conn.close()
+    _execute_oracle_ddl(ddl)
 
     vector_config = VectorConfig(
         name="vector_config1", collection_name="motorcycles", vector_property="embeddings"
@@ -336,11 +324,21 @@ def create_oracle_datastore_with_vector_config(
 
 def cleanup_oracle_datastore(ddl: Optional[List[str]] = None):
     stmts = ddl if ddl is not None else ORACLE_DB_DDL[:3]
+    _execute_oracle_ddl(stmts)
+
+
+def _execute_oracle_ddl(ddl: List[str]) -> None:
     connection_config = get_oracle_connection_config()
     conn = connection_config.get_connection()
-    for stmt in stmts:
-        conn.cursor().execute(stmt)
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        try:
+            for stmt in ddl:
+                cursor.execute(stmt)
+        finally:
+            cursor.close()
+    finally:
+        conn.close()
 
 
 def cleanup_datastore_content(oracle_datastore: OracleDatabaseDatastore):
@@ -351,28 +349,40 @@ def cleanup_datastore_content(oracle_datastore: OracleDatabaseDatastore):
 @pytest.fixture(scope="function")
 def oracle_vehicle_datastore(embedding_model):
     cleanup_oracle_datastore()
-    yield get_oracle_datastore_with_schema(
+    datastore = get_oracle_datastore_with_schema(
         ORACLE_DB_DDL, get_basic_vehicle_entities(), embedding_model
     )
-    cleanup_oracle_datastore()
+    try:
+        yield datastore
+    finally:
+        datastore.close()
+        cleanup_oracle_datastore()
 
 
 @pytest.fixture(scope="function")
 def oracle_empty_table_datastore(embedding_model):
     cleanup_oracle_datastore()
-    yield get_oracle_datastore_with_schema(
+    datastore = get_oracle_datastore_with_schema(
         ORACLE_DB_DDL, get_empty_table_entities(), embedding_model
     )
-    cleanup_oracle_datastore()
+    try:
+        yield datastore
+    finally:
+        datastore.close()
+        cleanup_oracle_datastore()
 
 
 @pytest.fixture(scope="function")
 def oracle_vehicle_multi_search_config_datastore(embedding_model):
     cleanup_oracle_datastore()
-    yield get_oracle_datastore_with_multiple_search_configs_and_schema(
+    datastore = get_oracle_datastore_with_multiple_search_configs_and_schema(
         ORACLE_DB_DDL, get_basic_vehicle_entities(), embedding_model
     )
-    cleanup_oracle_datastore()
+    try:
+        yield datastore
+    finally:
+        datastore.close()
+        cleanup_oracle_datastore()
 
 
 @pytest.fixture(scope="function")
@@ -395,19 +405,27 @@ def oracle_vehicle_multi_search_and_vector_config_datastore(embedding_model):
         )
         new_entities[collection_name] = new_entity
 
-    yield get_oracle_datastore_with_multiple_search_and_vector_configs(
+    datastore = get_oracle_datastore_with_multiple_search_and_vector_configs(
         ORACLE_DB_DDL_2, new_entities, embedding_model
     )
-    cleanup_oracle_datastore()
+    try:
+        yield datastore
+    finally:
+        datastore.close()
+        cleanup_oracle_datastore()
 
 
 @pytest.fixture(scope="function")
 def oracle_vehicle_vector_config_datastore(embedding_model):
     cleanup_oracle_datastore()
-    yield create_oracle_datastore_with_vector_config(
+    datastore = create_oracle_datastore_with_vector_config(
         ORACLE_DB_DDL, get_basic_vehicle_entities(), embedding_model
     )
-    cleanup_oracle_datastore()
+    try:
+        yield datastore
+    finally:
+        datastore.close()
+        cleanup_oracle_datastore()
 
 
 @pytest.fixture(scope="function")

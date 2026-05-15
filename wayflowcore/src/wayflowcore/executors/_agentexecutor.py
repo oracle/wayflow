@@ -648,6 +648,8 @@ class AgentConversationExecutor(ConversationExecutor):
 
     @staticmethod
     def _get_tool_response_message(content: Any, tool_request_id: str, agent_id: str) -> Message:
+        if isinstance(content, Exception):
+            content = str(content)
         return Message(
             tool_result=ToolResult(
                 content=content,

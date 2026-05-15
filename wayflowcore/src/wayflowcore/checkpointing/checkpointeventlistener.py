@@ -154,6 +154,7 @@ def get_conversation_checkpoint_execution_context(
     is_outermost_execution: bool,
     final_checkpoint_id: Optional[str] = None,
     final_checkpoint_metadata: Optional[Dict[str, Any]] = None,
+    save_final_checkpoint: bool = True,
 ) -> Iterator[None]:
     if conversation.checkpointer is None or not is_outermost_execution:
         with nullcontext():
@@ -170,9 +171,10 @@ def get_conversation_checkpoint_execution_context(
             raise
         else:
             listener.flush_pending_checkpoint()
-            _save_conversation_checkpoint(
-                conversation,
-                save_reason="conversation_turn",
-                checkpoint_id=final_checkpoint_id,
-                metadata=final_checkpoint_metadata,
-            )
+            if save_final_checkpoint:
+                _save_conversation_checkpoint(
+                    conversation,
+                    save_reason="conversation_turn",
+                    checkpoint_id=final_checkpoint_id,
+                    metadata=final_checkpoint_metadata,
+                )

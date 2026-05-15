@@ -1,8 +1,8 @@
 .. _top-howtocheckpointing:
 
-=========================================
+==========================================
 How to Checkpoint and Resume Conversations
-=========================================
+==========================================
 
 .. admonition:: Prerequisites
 
@@ -38,7 +38,10 @@ Start a checkpointed conversation
 =================================
 
 Attach a checkpointer when you start the conversation. ``conversation_id`` becomes the durable key
-used to look up the conversation later.
+used to look up the conversation later. For persistent checkpointers such as PostgreSQL or Oracle
+Database, construct the agent, flow, or other top-level component with a stable ``id`` or
+component-specific id alias, such as ``agent_id`` for ``Agent``. The same component id must be used
+after a process restart to restore the checkpoint safely.
 
 .. literalinclude:: ../code_examples/howto_checkpointing.py
    :language: python
@@ -46,8 +49,7 @@ used to look up the conversation later.
    :end-before: .. end-##_Start_a_checkpointed_conversation
 
 Once checkpointing is enabled, WayFlow saves the root conversation automatically at the configured
-checkpoint boundaries. For nested execution lineage without checkpoint restore, pass
-``root_conversation_id`` explicitly.
+checkpoint boundaries.
 
 
 Resume the latest checkpoint

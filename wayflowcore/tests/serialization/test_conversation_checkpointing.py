@@ -11,23 +11,31 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+import wayflowcore.checkpointing.datastorecheckpointer as checkpoint_datastore
 import wayflowcore.checkpointing.serialization as checkpoint_serialization
 from wayflowcore.a2a.a2aagent import A2AAgent, A2AConnectionConfig
 from wayflowcore.agent import Agent
 from wayflowcore.checkpointing import (
     CheckpointingInterval,
     ConversationCheckpoint,
+    DatastoreCheckpointer,
     InMemoryCheckpointer,
+    StorageConfig,
 )
 from wayflowcore.checkpointing.checkpointeventlistener import _save_conversation_checkpoint
+from wayflowcore.datastore._relational import RelationalDatastore
+from wayflowcore.exceptions import DatastoreEntityError
+from wayflowcore.executors._agentexecutor import AgentConversationExecutor
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
 from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.managerworkers import ManagerWorkers
+from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models.ociclientconfig import OCIClientConfigWithApiKey
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.serialization.serializer import _resolve_legacy_field_name
 from wayflowcore.steps import OutputMessageStep, PromptExecutionStep
 from wayflowcore.swarm import Swarm
+from wayflowcore.tools import ToolResult
 
 from ..testhelpers.dummy import DummyModel
 from ..testhelpers.testhelpers import retry_test
@@ -45,6 +53,7 @@ class RecordingCheckpointer:
         conversation,
         *,
         checkpoint_id: Optional[str] = None,
+        component_id: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ):
         if self.should_fail_next_save:
@@ -77,6 +86,36 @@ class StaticLoadCheckpointer:
         if conversation_id != self.checkpoint.conversation_id:
             return None
         return self.checkpoint
+
+
+class FakeRelationalDatastore(RelationalDatastore):
+    def __init__(self) -> None:
+        pass
+
+    def _serialize_to_dict(self, serialization_context: Any) -> Dict[str, Any]:
+        raise NotImplementedError()
+
+    @classmethod
+    def _deserialize_from_dict(
+        cls, input_dict: Dict[str, Any], deserialization_context: Any
+    ) -> Any:
+        raise NotImplementedError()
+
+
+class IntegrityRetryCheckpointer(DatastoreCheckpointer):
+    def __init__(self) -> None:
+        super().__init__(
+            datastore=FakeRelationalDatastore(),
+            storage_config=StorageConfig(),
+        )
+        self.relational_save_attempts = 0
+
+    def _save_checkpoint_relational_once(self, checkpoint: ConversationCheckpoint) -> None:
+        from sqlalchemy.exc import IntegrityError
+
+        self.relational_save_attempts += 1
+        if self.relational_save_attempts == 1:
+            raise IntegrityError("statement", {}, Exception("duplicate latest row"))
 
 
 def _build_checkpointable_agent(
@@ -149,6 +188,113 @@ def a2a_agent(a2a_server, connection_config_no_verify):
     )
 
 
+def test_postgres_checkpoint_setup_creates_latest_turn_unique_index(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    queries: list[str] = []
+
+    def record_query(connection_config: Any, query: str) -> None:
+        queries.append(query)
+
+    monkeypatch.setattr(
+        checkpoint_datastore,
+        "_execute_query_on_postgres_db",
+        record_query,
+    )
+
+    connection_config: Any = object()
+    checkpoint_datastore._prepare_postgres_checkpoint_datastore(connection_config, StorageConfig())
+
+    assert len(queries) == 2
+    assert "CREATE TABLE conversations" in queries[0]
+    assert "CREATE UNIQUE INDEX conversations_last_turn_idx" in queries[1]
+    assert "ON conversations (conversation_id)" in queries[1]
+    assert "WHERE is_last_turn = 1" in queries[1]
+
+
+def test_oracle_checkpoint_setup_creates_latest_turn_unique_index(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    queries: list[str] = []
+
+    def record_query(connection_config: Any, query: str) -> None:
+        queries.append(query)
+
+    monkeypatch.setattr(
+        checkpoint_datastore,
+        "_execute_query_on_oracle_db",
+        record_query,
+    )
+
+    connection_config: Any = object()
+    checkpoint_datastore._prepare_oracle_checkpoint_datastore(connection_config, StorageConfig())
+
+    assert len(queries) == 2
+    assert "CREATE TABLE conversations" in queries[0]
+    assert "CREATE UNIQUE INDEX conversations_last_turn_idx" in queries[1]
+    assert "CASE WHEN is_last_turn = 1" in queries[1]
+    assert "THEN conversation_id END" in queries[1]
+
+
+def test_relational_checkpoint_save_retries_integrity_errors() -> None:
+    checkpointer = IntegrityRetryCheckpointer()
+
+    checkpointer.save(
+        ConversationCheckpoint(
+            checkpoint_id="checkpoint-1",
+            conversation_id="conversation-1",
+            component_id="component-1",
+            created_at=0,
+            state="state",
+            metadata={},
+        )
+    )
+
+    assert checkpointer.relational_save_attempts == 2
+
+
+def test_checkpoint_serializes_exception_tool_result_content_as_text() -> None:
+    agent = Agent(
+        llm=DummyModel(),
+        agent_id="checkpoint-exception-agent",
+        name="checkpoint_exception_agent",
+        description="Checkpoint exception agent.",
+    )
+    conversation = agent.start_conversation(conversation_id="checkpoint-exception-tool-result")
+    conversation.message_list.append_message(
+        Message(
+            tool_result=ToolResult(
+                content=DatastoreEntityError("datastore create failed"),
+                tool_request_id="tool-call-1",
+            ),
+            message_type=MessageType.TOOL_RESULT,
+        )
+    )
+
+    serialized_state = checkpoint_serialization._serialize_conversation_checkpoint_state(
+        conversation
+    )
+    restored_conversation = checkpoint_serialization._deserialize_conversation_checkpoint_state(
+        serialized_state,
+        component=agent,
+    )
+
+    restored_tool_result = restored_conversation.get_last_message().tool_result
+    assert restored_tool_result is not None
+    assert restored_tool_result.content == "datastore create failed"
+
+
+def test_agent_tool_response_messages_stringify_exception_content() -> None:
+    message = AgentConversationExecutor._get_tool_response_message(
+        content=DatastoreEntityError("datastore create failed"),
+        tool_request_id="tool-call-1",
+        agent_id="agent-1",
+    )
+
+    assert message.tool_result is not None
+    assert message.tool_result.content == "datastore create failed"
+
+
 def test_inmemory_checkpointer_can_save_load_list_and_delete_checkpoints() -> None:
     checkpointer = InMemoryCheckpointer()
     flow = create_single_step_flow(OutputMessageStep(message_template="Hello from checkpointing."))
@@ -199,6 +345,34 @@ def test_inmemory_checkpointer_can_save_load_list_and_delete_checkpoints() -> No
     ] == [first_checkpoint_id]
 
 
+def test_checkpoint_restore_handles_messages_validation_without_runtime_name_error() -> None:
+    checkpointer = InMemoryCheckpointer()
+    flow = create_single_step_flow(OutputMessageStep(message_template="Hello from checkpointing."))
+
+    conversation = flow.start_conversation(
+        conversation_id="checkpoint-messages-validation",
+        checkpointer=checkpointer,
+    )
+    status = conversation.execute()
+    assert isinstance(status, FinishedStatus)
+    checkpoint_id = conversation.checkpoint_id
+    assert checkpoint_id is not None
+
+    restored_conversation = flow.start_conversation(
+        conversation_id="checkpoint-messages-validation",
+        checkpointer=checkpointer,
+        messages=[],
+    )
+    assert restored_conversation.checkpoint_id == checkpoint_id
+
+    with pytest.raises(ValueError, match="Cannot restore a checkpoint"):
+        flow.start_conversation(
+            conversation_id="checkpoint-messages-validation",
+            checkpointer=checkpointer,
+            messages=Message("new input"),
+        )
+
+
 def test_conversation_turns_checkpoint_interval_saves_once_after_outer_execute() -> None:
     checkpointer = InMemoryCheckpointer(
         checkpointing_interval=CheckpointingInterval.CONVERSATION_TURNS
@@ -239,6 +413,26 @@ def test_all_internal_turns_checkpoint_interval_saves_before_each_flow_turn() ->
         "FlowExecutionIterationStartedEvent",
     ]
     assert checkpoints[-1].metadata["status_type"] == "FinishedStatus"
+
+
+def test_execute_can_skip_final_checkpoint_while_preserving_internal_checkpoints() -> None:
+    checkpointer = InMemoryCheckpointer(
+        checkpointing_interval=CheckpointingInterval.ALL_INTERNAL_TURNS
+    )
+    flow = create_single_step_flow(OutputMessageStep(message_template="Hello internal only."))
+
+    status = flow.start_conversation(
+        conversation_id="skip-final-checkpoint",
+        checkpointer=checkpointer,
+    ).execute(_save_final_checkpoint=False)
+
+    assert isinstance(status, FinishedStatus)
+    checkpoints = checkpointer.list_checkpoints("skip-final-checkpoint")
+    assert len(checkpoints) == 2
+    assert [checkpoint.metadata["save_reason"] for checkpoint in checkpoints] == [
+        "internal_turn_boundary",
+        "internal_turn_boundary",
+    ]
 
 
 def test_llm_turns_checkpoint_interval_saves_only_after_llm_backed_turns() -> None:
@@ -396,6 +590,194 @@ def test_checkpoint_restore_rejects_conversations_from_other_components() -> Non
             conversation_id="checkpoint-other-component",
             checkpointer=checkpointer,
         )
+
+
+def test_checkpoint_restore_supports_fresh_component_with_same_stable_id() -> None:
+    checkpointer = InMemoryCheckpointer()
+    original_agent = Agent(
+        llm=DummyModel(),
+        agent_id="stable-checkpoint-agent",
+        name="stable_checkpoint_agent",
+        description="Stable checkpoint agent.",
+        initial_message="Hello from the original agent.",
+    )
+
+    conversation = original_agent.start_conversation(
+        conversation_id="checkpoint-stable-component",
+        checkpointer=checkpointer,
+    )
+    first_status = conversation.execute()
+
+    assert isinstance(first_status, UserMessageRequestStatus)
+    first_checkpoint_id = conversation.checkpoint_id
+    assert first_checkpoint_id is not None
+
+    restarted_agent = Agent(
+        llm=DummyModel(),
+        agent_id="stable-checkpoint-agent",
+        name="stable_checkpoint_agent",
+        description="Stable checkpoint agent.",
+        initial_message="Hello from the restarted agent.",
+    )
+    restored_conversation = restarted_agent.start_conversation(
+        conversation_id="checkpoint-stable-component",
+        checkpointer=checkpointer,
+    )
+
+    assert restored_conversation.component is restarted_agent
+    assert restored_conversation.checkpoint_id == first_checkpoint_id
+    assert isinstance(restored_conversation.status, UserMessageRequestStatus)
+
+
+def test_checkpoint_restore_remaps_nested_agent_refs_after_restart() -> None:
+    def build_parent_agent() -> tuple[Agent, Agent]:
+        sub_agent = Agent(
+            llm=DummyModel(fails_if_not_set=False),
+            name="checkpoint_sub_agent",
+            description="Checkpoint sub-agent.",
+            initial_message="Hello from sub-agent.",
+        )
+        parent_agent = Agent(
+            llm=DummyModel(fails_if_not_set=False),
+            agent_id="stable-parent-agent",
+            name="checkpoint_parent_agent",
+            description="Checkpoint parent agent.",
+            agents=[sub_agent],
+            initial_message="Hello from parent.",
+        )
+        return parent_agent, sub_agent
+
+    checkpointer = InMemoryCheckpointer()
+    original_parent, original_sub_agent = build_parent_agent()
+    original_conversation = original_parent.start_conversation(
+        conversation_id="agent-nested-restart",
+        checkpointer=checkpointer,
+    )
+    original_sub_conversation = original_sub_agent.start_conversation(
+        conversation_id="agent-nested-restart-sub",
+        _root_conversation_id=original_conversation.root_conversation_id,
+    )
+    original_conversation.state.current_sub_component_conversations[original_sub_agent.id] = (
+        original_sub_conversation
+    )
+    checkpointer.save_conversation(original_conversation)
+
+    restarted_parent, restarted_sub_agent = build_parent_agent()
+    restored_conversation = restarted_parent.start_conversation(
+        conversation_id="agent-nested-restart",
+        checkpointer=checkpointer,
+    )
+
+    restored_sub_conversation = restored_conversation._get_sub_component_conversation(
+        restarted_sub_agent
+    )
+    assert restored_sub_conversation is not None
+    assert restored_sub_conversation.component is restarted_sub_agent
+    assert list(restored_conversation.state.current_sub_component_conversations) == [
+        restarted_sub_agent.id
+    ]
+
+
+def test_checkpoint_restore_remaps_managerworkers_nested_refs_after_restart() -> None:
+    def build_managerworkers() -> tuple[ManagerWorkers, DummyModel]:
+        manager_llm = DummyModel()
+        manager_agent = Agent(
+            llm=manager_llm,
+            name="checkpoint_restart_manager_agent",
+            description="Checkpoint restart manager.",
+            initial_message="Hello from the manager.",
+        )
+        worker_agent = Agent(
+            llm=DummyModel(fails_if_not_set=False),
+            name="checkpoint_restart_worker_agent",
+            description="Checkpoint restart worker.",
+            custom_instruction="Help the manager.",
+        )
+        managerworkers = ManagerWorkers(
+            group_manager=manager_agent,
+            workers=[worker_agent],
+            name="checkpoint_restart_managerworkers",
+            id="stable-managerworkers",
+        )
+        return managerworkers, manager_llm
+
+    checkpointer = InMemoryCheckpointer()
+    original_managerworkers, _ = build_managerworkers()
+    original_conversation = original_managerworkers.start_conversation(
+        conversation_id="managerworkers-nested-restart",
+        checkpointer=checkpointer,
+    )
+    first_status = original_conversation.execute()
+    assert isinstance(first_status, UserMessageRequestStatus)
+
+    restarted_managerworkers, restarted_manager_llm = build_managerworkers()
+    restored_conversation = restarted_managerworkers.start_conversation(
+        conversation_id="managerworkers-nested-restart",
+        checkpointer=checkpointer,
+    )
+
+    main_subconversation = restored_conversation._get_main_subconversation()
+    assert restored_conversation.component is restarted_managerworkers
+    assert main_subconversation.component is restarted_managerworkers.manager_agent
+
+    restarted_manager_llm.set_next_output("ManagerWorkers resumed successfully.")
+    restored_conversation.append_user_message("Please continue.")
+    restored_status = restored_conversation.execute()
+
+    assert isinstance(restored_status, UserMessageRequestStatus)
+    assert restored_conversation.get_last_message().content == (
+        "ManagerWorkers resumed successfully."
+    )
+
+
+def test_checkpoint_restore_remaps_swarm_nested_refs_after_restart() -> None:
+    def build_swarm() -> tuple[Swarm, DummyModel]:
+        first_llm = DummyModel()
+        first_agent = Agent(
+            llm=first_llm,
+            name="checkpoint_restart_swarm_first_agent",
+            description="Checkpoint restart first swarm agent.",
+            initial_message="Hello from the swarm.",
+        )
+        second_agent = Agent(
+            llm=DummyModel(fails_if_not_set=False),
+            name="checkpoint_restart_swarm_second_agent",
+            description="Checkpoint restart second swarm agent.",
+            custom_instruction="Help with delegated tasks.",
+        )
+        swarm = Swarm(
+            first_agent=first_agent,
+            relationships=[(first_agent, second_agent)],
+            name="checkpoint_restart_swarm",
+            id="stable-swarm",
+        )
+        return swarm, first_llm
+
+    checkpointer = InMemoryCheckpointer()
+    original_swarm, _ = build_swarm()
+    original_conversation = original_swarm.start_conversation(
+        conversation_id="swarm-nested-restart",
+        checkpointer=checkpointer,
+    )
+    first_status = original_conversation.execute()
+    assert isinstance(first_status, UserMessageRequestStatus)
+
+    restarted_swarm, restarted_first_llm = build_swarm()
+    restored_conversation = restarted_swarm.start_conversation(
+        conversation_id="swarm-nested-restart",
+        checkpointer=checkpointer,
+    )
+
+    main_thread_conversation = restored_conversation._get_main_thread_conversation()
+    assert restored_conversation.component is restarted_swarm
+    assert main_thread_conversation.component is restarted_swarm.first_agent
+
+    restarted_first_llm.set_next_output("Swarm resumed successfully.")
+    restored_conversation.append_user_message("Please continue.")
+    restored_status = restored_conversation.execute()
+
+    assert isinstance(restored_status, UserMessageRequestStatus)
+    assert restored_conversation.get_last_message().content == "Swarm resumed successfully."
 
 
 def test_restore_can_skip_attaching_live_checkpointer(

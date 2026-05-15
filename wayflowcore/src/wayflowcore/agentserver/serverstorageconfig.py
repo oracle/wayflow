@@ -5,10 +5,14 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 from dataclasses import dataclass
+from typing import Optional
 
 from wayflowcore.checkpointing import StorageConfig
+from wayflowcore.datastore.datastore import Datastore
 
 
 @dataclass
 class ServerStorageConfig(StorageConfig):
     """Configuration for agent-server conversation storage."""
+
+    datastore: Optional[Datastore] = None

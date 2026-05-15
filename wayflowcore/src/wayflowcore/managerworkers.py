@@ -251,7 +251,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
 
         Returns
         -------
-        ManagerWorkersConversation
+        Conversation
             A new or restored manager-workers conversation.
         """
         from wayflowcore.agentconversation import AgentConversation

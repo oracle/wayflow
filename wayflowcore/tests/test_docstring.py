@@ -21,6 +21,7 @@ from wayflowcore.transforms.summarization import _SUMMARIZATION_WARNING_MESSAGE
 
 from .datastores.conftest import (  # noqa
     ORACLE_DB_DDL,
+    cleanup_oracle_datastore,
     get_basic_office_entities,
     get_oracle_datastore_with_schema,
     populate_with_basic_entities,
@@ -72,26 +73,31 @@ def test_examples_in_docstrings_can_be_successfully_ran(
     # Check the docs at https://docs.python.org/3/library/doctest.html#doctest.testfile
     # if you want to understand how this test works.
     assistant = create_assistant()
-    doctest.testfile(
-        filename=file_path,
-        module_relative=False,
-        globs={
-            "llm": remotely_hosted_llm,
-            "assistant": assistant,
-            "config_file_path": CONFIGS_DIR / "tests/configs/docstring_assistant.yaml",
-            "serialized_assistant_as_str": serialize(assistant),
-            "LLAMA70B_API_ENDPOINT": LLAMA70BV33_API_URL,
-            # Note: the docstring of the datastore query step instantiates a new datastore,
-            # but we use this so that we create a new datastore in the test that connects to the
-            # existing database with the data already there
-            "testing_oracle_data_store_with_data": testing_oracle_data_store_with_data,
-            "database_connection_config": (
-                testing_oracle_data_store_with_data.connection_config
-                if testing_oracle_data_store_with_data
-                else None
-            ),
-            "multimodal_llm": remote_gemma_llm,
-        },
-        raise_on_error=True,
-        verbose=True,
-    )
+    try:
+        doctest.testfile(
+            filename=file_path,
+            module_relative=False,
+            globs={
+                "llm": remotely_hosted_llm,
+                "assistant": assistant,
+                "config_file_path": CONFIGS_DIR / "tests/configs/docstring_assistant.yaml",
+                "serialized_assistant_as_str": serialize(assistant),
+                "LLAMA70B_API_ENDPOINT": LLAMA70BV33_API_URL,
+                # Note: the docstring of the datastore query step instantiates a new datastore,
+                # but we use this so that we create a new datastore in the test that connects to the
+                # existing database with the data already there
+                "testing_oracle_data_store_with_data": testing_oracle_data_store_with_data,
+                "database_connection_config": (
+                    testing_oracle_data_store_with_data.connection_config
+                    if testing_oracle_data_store_with_data
+                    else None
+                ),
+                "multimodal_llm": remote_gemma_llm,
+            },
+            raise_on_error=True,
+            verbose=True,
+        )
+    finally:
+        if testing_oracle_data_store_with_data is not None:
+            testing_oracle_data_store_with_data.close()
+            cleanup_oracle_datastore()

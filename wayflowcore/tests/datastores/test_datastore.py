@@ -404,10 +404,13 @@ def test_oracle_column_type_mapping():
             "category": nullable(StringProperty()),
         },
     )
+    datastore = None
     try:
         datastore = get_oracle_datastore_with_schema(ddl, {"products": product})
         assert datastore.list("products") == []
     finally:
+        if datastore is not None:
+            datastore.close()
         cleanup_oracle_datastore(ddl=["DROP TABLE IF EXISTS PRODUCTS cascade constraints"])
 
 
@@ -453,6 +456,7 @@ def test_oracle_json_columns(caplog):
             "details": StringProperty(description="A JSON with all the product details"),
         },
     )
+    datastore = None
     try:
         with pytest.raises(
             DatastoreTypeError,
@@ -474,12 +478,14 @@ def test_oracle_json_columns(caplog):
             )
         caplog.clear()
         # If the datastore schema doesn't reference any JSON column, then this should work without warnings
-        _ = get_oracle_datastore_with_schema(ddl, {"products": product_slim})
+        datastore = get_oracle_datastore_with_schema(ddl, {"products": product_slim})
         assert (
             "Suppressed warning during database inspection: Did not recognize type 'JSON' of column 'details'"
             in caplog.text
         )
     finally:
+        if datastore is not None:
+            datastore.close()
         cleanup_oracle_datastore(ddl=["DROP TABLE IF EXISTS PRODUCTS cascade constraints"])
 
 
@@ -509,8 +515,12 @@ def test_schema_inspection_on_dropped_tables():
 
     connection_config = get_oracle_connection_config()
     with connection_config.get_connection() as conn:
-        for stmt in ddl:
-            conn.cursor().execute(stmt)
+        cursor = conn.cursor()
+        try:
+            for stmt in ddl:
+                cursor.execute(stmt)
+        finally:
+            cursor.close()
 
     product = Entity(
         properties={
@@ -556,6 +566,8 @@ def test_schema_inspection_on_dropped_tables():
         assert datastore is not None
         assert datastore.list("products") == []
     finally:
+        if datastore is not None:
+            datastore.close()
         cleanup_oracle_datastore(
             ddl=["DROP TABLE IF EXISTS PRODUCTS cascade constraints"] + drop_ddl
         )

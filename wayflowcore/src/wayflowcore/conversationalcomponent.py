@@ -14,6 +14,7 @@ from typing import (
     Generic,
     List,
     Optional,
+    Sequence,
     Set,
     Type,
     TypeVar,
@@ -23,6 +24,7 @@ from typing import (
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
 from wayflowcore.idgeneration import IdGenerator
+from wayflowcore.messagelist import Message
 from wayflowcore.property import Property
 
 logger = logging.getLogger(__name__)
@@ -33,7 +35,7 @@ if TYPE_CHECKING:
     from wayflowcore.checkpointing.checkpointer import ConversationCheckpoint
     from wayflowcore.conversation import Conversation
     from wayflowcore.executors._executor import ConversationExecutor
-    from wayflowcore.messagelist import Message, MessageList
+    from wayflowcore.messagelist import MessageList
     from wayflowcore.models.llmmodel import LlmModel
     from wayflowcore.tools import Tool
 
@@ -238,21 +240,32 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         checkpointer: "Checkpointer",
         expected_conversation_type: Type[ConversationTypeT],
         attach_checkpointer: bool,
+        accepted_checkpoint_component_ids: Optional[Sequence[str]] = None,
     ) -> ConversationTypeT:
         from wayflowcore.checkpointing.serialization import (
             _deserialize_conversation_checkpoint_state,
         )
 
-        if checkpoint.component_id != self.id:
+        accepted_checkpoint_component_ids = accepted_checkpoint_component_ids or []
+        if (
+            checkpoint.component_id != self.id
+            and checkpoint.component_id not in accepted_checkpoint_component_ids
+        ):
             raise ValueError(
                 "Cannot restore this checkpoint because this conversation was started with another "
-                f"component. Checkpoint component id: `{checkpoint.component_id}`. Current component id: `{self.id}`."
+                f"component. Checkpoint component id: `{checkpoint.component_id}`. Current component id: `{self.id}`. "
+                "For persistent restore across process restarts, construct the component with a stable `id` "
+                "or component-specific id alias, such as `agent_id` for `Agent`."
             )
 
+        root_component_id_aliases = (
+            [checkpoint.component_id] if checkpoint.component_id != self.id else []
+        )
         conversation = _deserialize_conversation_checkpoint_state(
             checkpoint.state,
             tool_registry={tool.name: tool for tool in self._referenced_tools()},
             component=self,
+            root_component_id_aliases=root_component_id_aliases,
         )
         if not isinstance(conversation, expected_conversation_type):
             raise ValueError(

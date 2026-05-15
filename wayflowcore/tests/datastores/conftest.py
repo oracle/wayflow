@@ -174,10 +174,7 @@ def get_tls_postgres_connection_config():
 
 def get_oracle_datastore_with_schema(ddl: List[str], entities: Dict[str, Entity]):
     connection_config = get_oracle_connection_config()
-    conn = connection_config.get_connection()
-    for stmt in ddl:
-        conn.cursor().execute(stmt)
-    conn.close()
+    _execute_oracle_ddl(ddl)
     return OracleDatabaseDatastore(entities, connection_config=connection_config)
 
 
@@ -207,11 +204,21 @@ def get_tls_postgres_datastore_with_schema(ddl: List[str], entities: Dict[str, E
 
 def cleanup_oracle_datastore(ddl: Optional[List[str]] = None):
     stmts = ddl if ddl is not None else ORACLE_DB_DDL[:2]
+    _execute_oracle_ddl(stmts)
+
+
+def _execute_oracle_ddl(ddl: List[str]) -> None:
     connection_config = get_oracle_connection_config()
     conn = connection_config.get_connection()
-    for stmt in stmts:
-        conn.cursor().execute(stmt)
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        try:
+            for stmt in ddl:
+                cursor.execute(stmt)
+        finally:
+            cursor.close()
+    finally:
+        conn.close()
 
 
 def cleanup_postgres_datastore(ddl: Optional[List[str]] = None):
@@ -233,20 +240,32 @@ def cleanup_datastore_content(datastore: Datastore):
 
 @pytest.fixture(scope="session")
 def oracle_datastore():
-    yield get_oracle_datastore_with_schema(ORACLE_DB_DDL, get_basic_office_entities())
-    cleanup_oracle_datastore()
+    datastore = get_oracle_datastore_with_schema(ORACLE_DB_DDL, get_basic_office_entities())
+    try:
+        yield datastore
+    finally:
+        datastore.close()
+        cleanup_oracle_datastore()
 
 
 @pytest.fixture(scope="session")
 def postgres_datastore():
-    yield get_postgres_datastore_with_schema(POSTGRES_DDL, get_basic_office_entities())
-    cleanup_postgres_datastore()
+    datastore = get_postgres_datastore_with_schema(POSTGRES_DDL, get_basic_office_entities())
+    try:
+        yield datastore
+    finally:
+        datastore.close()
+        cleanup_postgres_datastore()
 
 
 @pytest.fixture(scope="session")
 def tls_postgres_datastore():
-    yield get_postgres_datastore_with_schema(POSTGRES_DDL, get_basic_office_entities())
-    cleanup_postgres_datastore()
+    datastore = get_postgres_datastore_with_schema(POSTGRES_DDL, get_basic_office_entities())
+    try:
+        yield datastore
+    finally:
+        datastore.close()
+        cleanup_postgres_datastore()
 
 
 @pytest.fixture(scope="function")

@@ -15,6 +15,7 @@ from fastapi import status as http_status_code
 
 from wayflowcore.agentserver.serverstorageconfig import ServerStorageConfig
 from wayflowcore.checkpointing import ConversationCheckpoint, DatastoreCheckpointer
+from wayflowcore.checkpointing.checkpointeventlistener import _build_checkpoint_metadata
 from wayflowcore.conversation import Conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.datastore import Datastore, InMemoryDatastore
@@ -50,6 +51,10 @@ from ._wayflowconversion import (
 from .service import OpenAIResponsesService
 
 logger = logging.getLogger(__name__)
+
+_OPENAI_RESPONSES_CHECKPOINT_FORMAT_VERSION = 2
+_OPENAI_RESPONSES_CHECKPOINT_FORMAT_VERSION_KEY = "wayflow_openai_responses_format_version"
+_OPENAI_RESPONSES_SERVER_MODEL_ID_KEY = "server_model_id"
 
 
 class WayFlowOpenAIResponsesService(OpenAIResponsesService):
@@ -127,12 +132,53 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             raise HTTPException(
                 status_code=http_status_code.HTTP_404_NOT_FOUND, detail="Response not found"
             )
-        response_as_txt = checkpoint.metadata.get("response")
-        if not isinstance(response_as_txt, str):
+        response_as_txt = self._get_checkpoint_response_text(checkpoint)
+        if response_as_txt is None:
             raise HTTPException(
                 status_code=http_status_code.HTTP_404_NOT_FOUND, detail="Response not found"
             )
         return Response.model_validate_json(response_as_txt)
+
+    def _get_checkpoint_response_text(self, checkpoint: ConversationCheckpoint) -> Optional[str]:
+        response_as_txt = checkpoint.metadata.get("response")
+        return response_as_txt if isinstance(response_as_txt, str) else None
+
+    def _get_checkpoint_response_model(self, checkpoint: ConversationCheckpoint) -> Optional[str]:
+        response_as_txt = self._get_checkpoint_response_text(checkpoint)
+        if response_as_txt is None:
+            return None
+        try:
+            return Response.model_validate_json(response_as_txt).model
+        except ValueError:
+            return None
+
+    def _get_checkpoint_model_identity(self, checkpoint: ConversationCheckpoint) -> Optional[str]:
+        checkpoint_model = self._get_checkpoint_response_model(checkpoint)
+        if checkpoint_model is not None:
+            return checkpoint_model
+        metadata_model = checkpoint.metadata.get(_OPENAI_RESPONSES_SERVER_MODEL_ID_KEY)
+        return metadata_model if isinstance(metadata_model, str) else None
+
+    def _validate_checkpoint_response_model(
+        self,
+        *,
+        checkpoint: ConversationCheckpoint,
+        agent_id: str,
+        resume_parameter_name: str,
+        resume_parameter_value: str,
+        checkpoint_description: str,
+    ) -> None:
+        checkpoint_model = self._get_checkpoint_model_identity(checkpoint)
+        if checkpoint_model is not None and checkpoint_model != agent_id:
+            raise HTTPException(
+                status_code=http_status_code.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Cannot use {resume_parameter_name} `{resume_parameter_value}` with "
+                    f"model `{agent_id}` because the {checkpoint_description} was created "
+                    f"with model `{checkpoint_model}`. Use the same model as the "
+                    f"{checkpoint_description}."
+                ),
+            )
 
     async def delete_response(self, response_id: str) -> Optional[ResponseError]:
         checkpoint = self._lookup_checkpoint_by_response_id(response_id)
@@ -257,7 +303,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             try:
                 with register_event_listeners([token_usage_listener, yielding_listener]):
                     status = await conversation.execute_async(
-                        _final_checkpoint_id=response_id if should_store_response else None,
+                        _save_final_checkpoint=not should_store_response,
                     )
             except Exception as e:
                 nonlocal raised_exception
@@ -266,12 +312,13 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
                 # close the send side so the receiver side's async for terminates
                 await send_stream.aclose()
 
-        async with anyio.create_task_group() as tg:
-            tg.start_soon(runner, state)
+        async with receive_stream:
+            async with anyio.create_task_group() as tg:
+                tg.start_soon(runner, state)
 
-            async for ev in receive_stream:
-                # These events come from the synchronous callback
-                yield ev
+                async for ev in receive_stream:
+                    # These events come from the synchronous callback
+                    yield ev
 
         if raised_exception:
             if "not a multimodal model" in str(raised_exception):
@@ -306,7 +353,18 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             self.checkpointer.save_conversation(
                 state,
                 checkpoint_id=current_response.id,
-                metadata={"response": current_response.model_dump_json()},
+                component_id=current_response.model,
+                metadata=_build_checkpoint_metadata(
+                    state,
+                    save_reason="conversation_turn",
+                    metadata={
+                        _OPENAI_RESPONSES_CHECKPOINT_FORMAT_VERSION_KEY: (
+                            _OPENAI_RESPONSES_CHECKPOINT_FORMAT_VERSION
+                        ),
+                        _OPENAI_RESPONSES_SERVER_MODEL_ID_KEY: current_response.model,
+                        "response": current_response.model_dump_json(),
+                    },
+                ),
             )
             self._response_conversation_ids[current_response.id] = state.id
 
@@ -371,40 +429,70 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
                     status_code=http_status_code.HTTP_404_NOT_FOUND,
                     detail=f"No previous response with id `{previous_response_id}` was found",
                 )
+            self._validate_checkpoint_response_model(
+                checkpoint=checkpoint,
+                agent_id=agent_id,
+                resume_parameter_name="previous_response_id",
+                resume_parameter_value=previous_response_id,
+                checkpoint_description="previous response",
+            )
             self._response_conversation_ids[checkpoint.checkpoint_id] = checkpoint.conversation_id
-            try:
-                return self.agents[agent_id].start_conversation(
-                    conversation_id=checkpoint.conversation_id,
-                    checkpoint_id=checkpoint.checkpoint_id,
-                    checkpointer=self.checkpointer,
-                    _attach_checkpointer=attach_checkpointer,
-                )
-            except (TypeError, ValueError) as e:
-                raise HTTPException(
-                    status_code=http_status_code.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Conversation state is corrupted, it cannot be de-serialized: {e}",
-                ) from e
+            return self._restore_checkpoint_state(
+                checkpoint=checkpoint,
+                agent_id=agent_id,
+                attach_checkpointer=attach_checkpointer,
+            )
         elif conversation_id:
-            checkpoint = self.checkpointer.load_latest(conversation_id)
+            checkpoint = self._lookup_latest_response_checkpoint_by_conversation_id(conversation_id)
             if checkpoint is None:
                 raise HTTPException(
                     status_code=http_status_code.HTTP_404_NOT_FOUND,
                     detail=f"No conversation with id `{conversation_id}` was found",
                 )
+            self._validate_checkpoint_response_model(
+                checkpoint=checkpoint,
+                agent_id=agent_id,
+                resume_parameter_name="conversation",
+                resume_parameter_value=conversation_id,
+                checkpoint_description="latest response in that conversation",
+            )
             self._response_conversation_ids[checkpoint.checkpoint_id] = checkpoint.conversation_id
-            try:
-                return self.agents[agent_id].start_conversation(
-                    conversation_id=conversation_id,
-                    checkpointer=self.checkpointer,
-                    _attach_checkpointer=attach_checkpointer,
-                )
-            except (TypeError, ValueError) as e:
-                raise HTTPException(
-                    status_code=http_status_code.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Conversation state is corrupted, it cannot be de-serialized: {e}",
-                ) from e
+            return self._restore_checkpoint_state(
+                checkpoint=checkpoint,
+                agent_id=agent_id,
+                attach_checkpointer=attach_checkpointer,
+            )
         else:
             return None
+
+    def _restore_checkpoint_state(
+        self,
+        *,
+        checkpoint: ConversationCheckpoint,
+        agent_id: str,
+        attach_checkpointer: bool,
+    ) -> Conversation:
+        agent = self.agents[agent_id]
+        accepted_checkpoint_component_ids = []
+        if self._get_checkpoint_model_identity(checkpoint) == agent_id:
+            accepted_checkpoint_component_ids.append(checkpoint.component_id)
+
+        try:
+            return cast(
+                Conversation,
+                agent._restore_checkpointed_conversation(
+                    checkpoint=checkpoint,
+                    checkpointer=self.checkpointer,
+                    expected_conversation_type=agent.conversation_class,
+                    attach_checkpointer=attach_checkpointer,
+                    accepted_checkpoint_component_ids=accepted_checkpoint_component_ids,
+                ),
+            )
+        except (TypeError, ValueError) as e:
+            raise HTTPException(
+                status_code=http_status_code.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Conversation state is corrupted, it cannot be de-serialized: {e}",
+            ) from e
 
     def _lookup_checkpoint_by_response_id(
         self, response_id: str
@@ -412,12 +500,32 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         conversation_id = self._response_conversation_ids.get(response_id)
         if conversation_id is not None:
             try:
-                return self.checkpointer.load(conversation_id, response_id)
+                checkpoint = self.checkpointer.load(conversation_id, response_id)
             except ValueError:
                 self._response_conversation_ids.pop(response_id, None)
-        checkpoint = self.checkpointer._find_checkpoint_by_id(response_id)
-        if checkpoint is not None:
-            self._response_conversation_ids[response_id] = checkpoint.conversation_id
+                return None
+            if self._get_checkpoint_response_text(checkpoint) is not None:
+                return checkpoint
+            self._response_conversation_ids.pop(response_id, None)
+            return None
+        checkpoint_by_id = self.checkpointer._find_checkpoint_by_id(response_id)
+        if checkpoint_by_id is None or self._get_checkpoint_response_text(checkpoint_by_id) is None:
+            return None
+        self._response_conversation_ids[response_id] = checkpoint_by_id.conversation_id
+        return checkpoint_by_id
+
+    def _lookup_latest_response_checkpoint_by_conversation_id(
+        self, conversation_id: str
+    ) -> Optional[ConversationCheckpoint]:
+        response_checkpoints = [
+            checkpoint
+            for checkpoint in self.checkpointer.list_checkpoints(conversation_id, limit=None)
+            if self._get_checkpoint_response_text(checkpoint) is not None
+        ]
+        if not response_checkpoints:
+            return None
+        checkpoint = response_checkpoints[-1]
+        self._response_conversation_ids[checkpoint.checkpoint_id] = checkpoint.conversation_id
         return checkpoint
 
     async def _create_state(

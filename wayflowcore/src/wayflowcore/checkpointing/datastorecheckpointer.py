@@ -6,7 +6,6 @@
 
 import json
 import warnings
-from textwrap import dedent
 from typing import Any, Dict, List, Optional, Sequence
 
 from wayflowcore.datastore import (
@@ -47,26 +46,61 @@ def _build_checkpoint_create_table_columns(
     return columns
 
 
+def _latest_checkpoint_index_name(storage_config: StorageConfig) -> str:
+    return f"{storage_config.table_name}_last_turn_idx"
+
+
+def _build_postgres_latest_checkpoint_index_query(storage_config: StorageConfig) -> str:
+    return "\n".join(
+        [
+            f"CREATE UNIQUE INDEX {_latest_checkpoint_index_name(storage_config)}",
+            f"ON {storage_config.table_name} ({storage_config.conversation_id_column_name})",
+            f"WHERE {storage_config.is_last_turn_column_name} = 1",
+        ]
+    )
+
+
+def _build_oracle_latest_checkpoint_index_query(storage_config: StorageConfig) -> str:
+    case_expression = (
+        f"CASE WHEN {storage_config.is_last_turn_column_name} = 1 "
+        f"THEN {storage_config.conversation_id_column_name} END"
+    )
+    return "\n".join(
+        [
+            f"CREATE UNIQUE INDEX {_latest_checkpoint_index_name(storage_config)}",
+            f"ON {storage_config.table_name} ({case_expression})",
+        ]
+    )
+
+
+def _datastore_already_setup_error(storage_config: StorageConfig) -> ValueError:
+    return ValueError(
+        "The datastore is already setup. Either delete the existing "
+        f'"{storage_config.table_name}" table or start the server with '
+        "'--setup-datastore=no'."
+    )
+
+
 def _prepare_postgres_checkpoint_datastore(
     connection_config: PostgresDatabaseConnectionConfig,
     storage_config: StorageConfig,
 ) -> None:
     from sqlalchemy.exc import ProgrammingError
 
-    create_table_query = dedent(
-        f"""
-        CREATE TABLE {storage_config.table_name} (
-            {", ".join(_build_checkpoint_create_table_columns(storage_config, is_oracle=False))}
-        );
-        """
-    )
+    columns = ", ".join(_build_checkpoint_create_table_columns(storage_config, is_oracle=False))
+    create_table_query = f"CREATE TABLE {storage_config.table_name} ({columns})"
     try:
         _execute_query_on_postgres_db(connection_config, create_table_query)
+        _execute_query_on_postgres_db(
+            connection_config,
+            _build_postgres_latest_checkpoint_index_query(storage_config),
+        )
     except ProgrammingError as e:
-        if f'relation "{storage_config.table_name}" already exists' in str(e):
-            raise ValueError(
-                f'The datastore is already setup. Either delete the existing "{storage_config.table_name}" table or start the server with `--setup-datastore=no`.'
-            ) from e
+        latest_index_name = _latest_checkpoint_index_name(storage_config)
+        if f'relation "{storage_config.table_name}" already exists' in str(
+            e
+        ) or f'relation "{latest_index_name}" already exists' in str(e):
+            raise _datastore_already_setup_error(storage_config) from e
         raise
 
 
@@ -74,20 +108,17 @@ def _prepare_oracle_checkpoint_datastore(
     connection_config: OracleDatabaseConnectionConfig,
     storage_config: StorageConfig,
 ) -> None:
-    create_table_query = dedent(
-        f"""
-        CREATE TABLE {storage_config.table_name} (
-            {", ".join(_build_checkpoint_create_table_columns(storage_config, is_oracle=True))}
-        );
-        """
-    )
+    columns = ", ".join(_build_checkpoint_create_table_columns(storage_config, is_oracle=True))
+    create_table_query = f"CREATE TABLE {storage_config.table_name} ({columns})"
     try:
         _execute_query_on_oracle_db(connection_config, query=create_table_query)
+        _execute_query_on_oracle_db(
+            connection_config,
+            query=_build_oracle_latest_checkpoint_index_query(storage_config),
+        )
     except Exception as e:
         if "already exists" in str(e):
-            raise ValueError(
-                f'The datastore is already setup. Either delete the existing "{storage_config.table_name}" table or start the server with `--setup-datastore=no`.'
-            ) from e
+            raise _datastore_already_setup_error(storage_config) from e
         raise
 
 
@@ -194,11 +225,31 @@ class DatastoreCheckpointer(Checkpointer):
         )
         if checkpoint is None:
             raise ValueError(
-                f"Checkpoint `{checkpoint_id}` was not found for conversation `{conversation_id}`."
+                f"Checkpoint '{checkpoint_id}' was not found for conversation "
+                f"'{conversation_id}'."
             )
         return checkpoint
 
     def _save_checkpoint(self, checkpoint: ConversationCheckpoint) -> None:
+        if isinstance(self.datastore, RelationalDatastore):
+            self._save_checkpoint_relational(checkpoint)
+            return
+
+        self._save_checkpoint_non_relational(checkpoint)
+
+    def _save_checkpoint_relational(self, checkpoint: ConversationCheckpoint) -> None:
+        from sqlalchemy.exc import IntegrityError
+
+        max_attempts = 3
+        for attempt in range(max_attempts):
+            try:
+                self._save_checkpoint_relational_once(checkpoint)
+                return
+            except IntegrityError:
+                if attempt == max_attempts - 1:
+                    raise
+
+    def _save_checkpoint_relational_once(self, checkpoint: ConversationCheckpoint) -> None:
         existing_checkpoint = self._find_checkpoint(
             conversation_id=checkpoint.conversation_id,
             checkpoint_id=checkpoint.checkpoint_id,
@@ -220,55 +271,26 @@ class DatastoreCheckpointer(Checkpointer):
         update_latest_values = {self.storage_config.is_last_turn_column_name: 0}
         entity = self._checkpoint_to_entity(checkpoint)
 
-        if isinstance(self.datastore, RelationalDatastore):
-            data_table = self.datastore.data_tables[self.storage_config.table_name]
-            with data_table.engine.connect() as connection:
-                connection.execute(
-                    data_table._update_query(
-                        where=update_latest_where,
-                        update=update_latest_values,
-                    )
+        datastore = self.datastore
+        if not isinstance(datastore, RelationalDatastore):
+            raise TypeError("Relational checkpoint save requires a relational datastore.")
+
+        data_table = datastore.data_tables[self.storage_config.table_name]
+        with data_table.engine.begin() as connection:
+            connection.execute(
+                data_table._update_query(
+                    where=update_latest_where,
+                    update=update_latest_values,
                 )
-                if existing_checkpoint is None:
-                    sql_create_stmt, new_entities = data_table._create_query([entity])
-                    connection.execute(sql_create_stmt, new_entities)
-                else:
-                    update_checkpoint_where = {
-                        self.storage_config.conversation_id_column_name: checkpoint.conversation_id,
-                        self.storage_config.turn_id_column_name: checkpoint.checkpoint_id,
-                    }
-                    update_checkpoint_values = {
-                        self.storage_config.agent_id_column_name: checkpoint.component_id,
-                        self.storage_config.created_at_column_name: checkpoint.created_at,
-                        self.storage_config.conversation_turn_state_column_name: checkpoint.state,
-                        self.storage_config.is_last_turn_column_name: 1,
-                        self.storage_config.extra_metadata_column_name: json.dumps(
-                            checkpoint.metadata
-                        ),
-                    }
-                    if self.storage_config.max_retention is not None:
-                        update_checkpoint_values[self.storage_config.remove_by_column_name] = (
-                            checkpoint.created_at + self.storage_config.max_retention
-                        )
-                    connection.execute(
-                        data_table._update_query(
-                            where=update_checkpoint_where,
-                            update=update_checkpoint_values,
-                        )
-                    )
-                connection.commit()
-        else:
-            self.datastore.update(
-                collection_name=self.storage_config.table_name,
-                where=update_latest_where,
-                update=update_latest_values,
             )
             if existing_checkpoint is None:
-                self.datastore.create(
-                    collection_name=self.storage_config.table_name,
-                    entities=[entity],
-                )
+                sql_create_stmt, new_entities = data_table._create_query([entity])
+                connection.execute(sql_create_stmt, new_entities)
             else:
+                update_checkpoint_where = {
+                    self.storage_config.conversation_id_column_name: checkpoint.conversation_id,
+                    self.storage_config.turn_id_column_name: checkpoint.checkpoint_id,
+                }
                 update_checkpoint_values = {
                     self.storage_config.agent_id_column_name: checkpoint.component_id,
                     self.storage_config.created_at_column_name: checkpoint.created_at,
@@ -280,14 +302,65 @@ class DatastoreCheckpointer(Checkpointer):
                     update_checkpoint_values[self.storage_config.remove_by_column_name] = (
                         checkpoint.created_at + self.storage_config.max_retention
                     )
-                self.datastore.update(
-                    collection_name=self.storage_config.table_name,
-                    where={
-                        self.storage_config.conversation_id_column_name: checkpoint.conversation_id,
-                        self.storage_config.turn_id_column_name: checkpoint.checkpoint_id,
-                    },
-                    update=update_checkpoint_values,
+                connection.execute(
+                    data_table._update_query(
+                        where=update_checkpoint_where,
+                        update=update_checkpoint_values,
+                    )
                 )
+
+    def _save_checkpoint_non_relational(self, checkpoint: ConversationCheckpoint) -> None:
+        existing_checkpoint = self._find_checkpoint(
+            conversation_id=checkpoint.conversation_id,
+            checkpoint_id=checkpoint.checkpoint_id,
+        )
+        if existing_checkpoint is not None:
+            checkpoint = ConversationCheckpoint(
+                checkpoint_id=checkpoint.checkpoint_id,
+                conversation_id=checkpoint.conversation_id,
+                component_id=checkpoint.component_id,
+                created_at=checkpoint.created_at,
+                state=checkpoint.state,
+                metadata=existing_checkpoint.metadata | checkpoint.metadata,
+            )
+
+        update_latest_where = {
+            self.storage_config.conversation_id_column_name: checkpoint.conversation_id,
+            self.storage_config.is_last_turn_column_name: 1,
+        }
+        update_latest_values = {self.storage_config.is_last_turn_column_name: 0}
+        entity = self._checkpoint_to_entity(checkpoint)
+
+        self.datastore.update(
+            collection_name=self.storage_config.table_name,
+            where=update_latest_where,
+            update=update_latest_values,
+        )
+        if existing_checkpoint is None:
+            self.datastore.create(
+                collection_name=self.storage_config.table_name,
+                entities=[entity],
+            )
+        else:
+            update_checkpoint_values = {
+                self.storage_config.agent_id_column_name: checkpoint.component_id,
+                self.storage_config.created_at_column_name: checkpoint.created_at,
+                self.storage_config.conversation_turn_state_column_name: checkpoint.state,
+                self.storage_config.is_last_turn_column_name: 1,
+                self.storage_config.extra_metadata_column_name: json.dumps(checkpoint.metadata),
+            }
+            if self.storage_config.max_retention is not None:
+                update_checkpoint_values[self.storage_config.remove_by_column_name] = (
+                    checkpoint.created_at + self.storage_config.max_retention
+                )
+            self.datastore.update(
+                collection_name=self.storage_config.table_name,
+                where={
+                    self.storage_config.conversation_id_column_name: checkpoint.conversation_id,
+                    self.storage_config.turn_id_column_name: checkpoint.checkpoint_id,
+                },
+                update=update_checkpoint_values,
+            )
 
     def list_checkpoints(
         self, conversation_id: str, limit: Optional[int] = 50

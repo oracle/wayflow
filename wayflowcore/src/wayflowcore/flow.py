@@ -1198,7 +1198,7 @@ class Flow(ConversationalComponent, SerializableObject):
 
         Returns
         -------
-        FlowConversation
+        Conversation
             A new or restored flow conversation.
         """
         from wayflowcore.events.event import ConversationCreatedEvent

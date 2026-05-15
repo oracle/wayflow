@@ -205,18 +205,22 @@ class OracleDatabaseDatastore(RelationalDatastore, SerializableObject):
                 )
 
         self.engine = engine
-        super().__init__(
-            schema=schema,
-            engine=engine,
-            search_configs=search_configs,
-            vector_configs=vector_configs,
-            id=id,
-            name=IdGenerator.get_or_generate_name(name, prefix="oracle_datastore", length=8),
-            description=description,
-            __metadata_info__=__metadata_info__,
-        )
+        try:
+            super().__init__(
+                schema=schema,
+                engine=engine,
+                search_configs=search_configs,
+                vector_configs=vector_configs,
+                id=id,
+                name=IdGenerator.get_or_generate_name(name, prefix="oracle_datastore", length=8),
+                description=description,
+                __metadata_info__=__metadata_info__,
+            )
 
-        SerializableObject.__init__(self, None)
+            SerializableObject.__init__(self, None)
+        except Exception:
+            engine.dispose()
+            raise
 
     def _serialize_to_dict(self, serialization_context: SerializationContext) -> Dict[str, Any]:
         result: Dict[str, Any] = {
@@ -344,4 +348,8 @@ def _execute_query_on_oracle_db(
     connection_config: OracleDatabaseConnectionConfig, query: str
 ) -> None:
     with connection_config.get_connection() as conn:
-        conn.cursor().execute(query)
+        cursor = conn.cursor()
+        try:
+            cursor.execute(query)
+        finally:
+            cursor.close()

@@ -413,7 +413,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
 
         Returns
         -------
-        AgentConversation
+        Conversation
             A new or restored agent conversation.
         """
         from wayflowcore.events.event import ConversationCreatedEvent

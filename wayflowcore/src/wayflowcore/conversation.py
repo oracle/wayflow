@@ -131,6 +131,7 @@ class Conversation(DataclassComponent):
         *,
         _final_checkpoint_id: Optional[str] = None,
         _final_checkpoint_metadata: Optional[Dict[str, Any]] = None,
+        _save_final_checkpoint: bool = True,
     ) -> "ExecutionStatus":
         """
         Execute the conversation and get its ``ExecutionStatus`` based on the outcome.
@@ -144,6 +145,7 @@ class Conversation(DataclassComponent):
                 execution_interrupts,
                 _final_checkpoint_id=_final_checkpoint_id,
                 _final_checkpoint_metadata=_final_checkpoint_metadata,
+                _save_final_checkpoint=_save_final_checkpoint,
             )
 
         return run_async_in_sync(_execute_async_wrapper, method_name="execute_async")
@@ -154,6 +156,7 @@ class Conversation(DataclassComponent):
         *,
         _final_checkpoint_id: Optional[str] = None,
         _final_checkpoint_metadata: Optional[Dict[str, Any]] = None,
+        _save_final_checkpoint: bool = True,
     ) -> "ExecutionStatus":
         """
         Execute the conversation and get its ``ExecutionStatus`` based on the outcome.
@@ -173,6 +176,7 @@ class Conversation(DataclassComponent):
             is_outermost_execution=is_outermost_execution(),
             final_checkpoint_id=_final_checkpoint_id,
             final_checkpoint_metadata=_final_checkpoint_metadata,
+            save_final_checkpoint=_save_final_checkpoint,
         ):
             with _register_conversation(self):
                 new_status = await self.component.runner.execute_async(self, execution_interrupts)
