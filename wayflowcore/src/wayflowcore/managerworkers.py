@@ -17,7 +17,10 @@ from wayflowcore.models import LlmModel
 from wayflowcore.property import Property
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.templates import PromptTemplate
-from wayflowcore.templates._managerworkerstemplate import _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
+from wayflowcore.templates._managerworkerstemplate import (
+    _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE,
+    _DEFAULT_MANAGERWORKERS_NATIVE_CHAT_TEMPLATE,
+)
 from wayflowcore.tools import Tool
 from wayflowcore.transforms import MessageTransform
 
@@ -28,6 +31,12 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def _get_default_managerworkers_template(manager_agent: Agent) -> PromptTemplate:
+    if manager_agent.llm.supports_tool_calling:
+        return _DEFAULT_MANAGERWORKERS_NATIVE_CHAT_TEMPLATE
+    return _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
+
+
 @dataclass(init=False)
 class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, SerializableObject):
     group_manager: Union[LlmModel, Agent]
@@ -35,6 +44,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
     caller_input_mode: CallerInputMode
     transforms: List[MessageTransform]
     managerworkers_template: "PromptTemplate"
+    _add_talk_to_user_tool: bool
     input_descriptors: List["Property"]
     output_descriptors: List["Property"]
 
@@ -55,6 +65,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         description: str = "",
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
+        _add_talk_to_user_tool: bool = True,
     ) -> None:
         """
         Defines a ``ManagerWorkers`` conversational component.
@@ -133,6 +144,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
 
         self.workers = workers
         self.transforms = transforms or []
+        self._add_talk_to_user_tool = _add_talk_to_user_tool
 
         self._agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = _validate_agent_unicity(
             self.workers + [self.manager_agent]
@@ -141,9 +153,11 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         # Create send message tools for the group manager
         self._manager_communication_tools = _create_communication_tools()
 
-        self.managerworkers_template = (
-            managerworkers_template or _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
-        )
+        self._managerworkers_template_was_provided = managerworkers_template is not None
+        if managerworkers_template is not None:
+            self.managerworkers_template = managerworkers_template
+        else:
+            self.managerworkers_template = _get_default_managerworkers_template(self.manager_agent)
         self._runtime_managerworkers_template: PromptTemplate = (
             self._compose_runtime_managerworkers_template()
         )
@@ -314,4 +328,6 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         self.manager_agent = _create_manager_agent(self.group_manager)
         self._agent_by_name = _validate_agent_unicity(self.workers + [self.manager_agent])
         self._manager_communication_tools = _create_communication_tools()
+        if not self._managerworkers_template_was_provided:
+            self.managerworkers_template = _get_default_managerworkers_template(self.manager_agent)
         self._runtime_managerworkers_template = self._compose_runtime_managerworkers_template()

@@ -18,7 +18,10 @@ from wayflowcore.messagelist import MessageList
 from wayflowcore.property import Property
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.templates import PromptTemplate
-from wayflowcore.templates._swarmtemplate import _DEFAULT_SWARM_CHAT_TEMPLATE
+from wayflowcore.templates._swarmtemplate import (
+    _DEFAULT_SWARM_CHAT_TEMPLATE,
+    _DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE,
+)
 from wayflowcore.tools import ClientTool, Tool
 from wayflowcore.transforms import MessageTransform
 
@@ -27,6 +30,66 @@ if TYPE_CHECKING:
     from wayflowcore.messagelist import Message
 
 logger = logging.getLogger(__name__)
+
+
+def _validate_agent_unicity(
+    first_agent: Agent,
+    relationships: List[Tuple[Agent, Agent]],
+) -> Dict[str, "Agent"]:
+    all_agents: List["Agent"] = [first_agent]
+    for sender_agent, recipient_agent in relationships:
+        all_agents.extend([sender_agent, recipient_agent])
+
+    agent_by_name: Dict[str, "Agent"] = {}
+    for agent in all_agents:
+        if not isinstance(agent, Agent):
+            raise TypeError(
+                f"Only Agents are supported in Swarm, got component of type '{agent.__class__.__name__}'"
+            )
+        if not agent.name:
+            raise ValueError(f"Agent {agent} has no name.")
+
+        if agent.name in agent_by_name:
+            if agent_by_name[agent.name] is not agent:
+                raise ValueError(
+                    f"Found agents with duplicated names: {agent} != {agent_by_name[agent.name]}. "
+                )
+        else:
+            agent_by_name[agent.name] = agent
+
+    return agent_by_name
+
+
+def _validate_relationships_unicity(
+    relationships: List[Tuple[Agent, Agent]],
+) -> None:
+    relationship_name_set: Set[Tuple[str, str]] = set()
+    for sender_agent, recipient_agent in relationships:
+        name_pair = (sender_agent.name, recipient_agent.name)
+        if name_pair in relationship_name_set:
+            raise ValueError(
+                f"Found duplicated relationship involving agents '{name_pair[0]}' and '{name_pair[1]}'. "
+                "Make sure all relationships are unique."
+            )
+        relationship_name_set.add(name_pair)
+
+
+def _get_recipient_agents_for_agent(
+    relationships: List[Tuple[Agent, Agent]], agent: Agent
+) -> List[Agent]:
+    recipients = []
+    for sender_agent, recipient_agent in relationships:
+        if sender_agent == agent:
+            if not recipient_agent.description:
+                raise ValueError(f"Agent '{recipient_agent.name}' is missing a description")
+            recipients.append(recipient_agent)
+    return recipients
+
+
+def _get_default_swarm_template(agent_by_name: Dict[str, Agent]) -> PromptTemplate:
+    if all(agent.llm.supports_tool_calling for agent in agent_by_name.values()):
+        return _DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE
+    return _DEFAULT_SWARM_CHAT_TEMPLATE
 
 
 class HandoffMode(Enum):
@@ -85,6 +148,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
     caller_input_mode: CallerInputMode
     transforms: List[MessageTransform]
     swarm_template: "PromptTemplate"
+    _add_talk_to_user_tool: bool
     input_descriptors: List["Property"]
     output_descriptors: List["Property"]
 
@@ -106,6 +170,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         description: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
+        _add_talk_to_user_tool: bool = True,
     ) -> None:
         """
         Defines a ``Swarm`` conversational component.
@@ -191,12 +256,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
 
         from wayflowcore.executors._agenticpattern_helpers import _create_communication_tools
         from wayflowcore.executors._swarmconversation import SwarmConversation
-        from wayflowcore.executors._swarmexecutor import (
-            SwarmRunner,
-            _get_all_recipients_for_agent,
-            _validate_agent_unicity,
-            _validate_relationships_unicity,
-        )
+        from wayflowcore.executors._swarmexecutor import SwarmRunner
 
         if not relationships:
             raise ValueError(
@@ -221,7 +281,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self._communication_tools: Dict[str, List[ClientTool]] = {}
         for agent_name, agent in self._agent_by_name.items():
             self._communication_tools[agent_name] = []
-            agent_recipients = _get_all_recipients_for_agent(relationships, agent)
+            agent_recipients = _get_recipient_agents_for_agent(relationships, agent)
             if not agent_recipients:
                 logger.debug("Agent '%s' does not have any recipient", agent_name)
                 continue
@@ -231,9 +291,14 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
 
         self.first_agent = first_agent
         self.relationships = relationships or []
-        self.swarm_template = swarm_template or _DEFAULT_SWARM_CHAT_TEMPLATE
+        self._swarm_template_was_provided = swarm_template is not None
+        if swarm_template is not None:
+            self.swarm_template = swarm_template
+        else:
+            self.swarm_template = _get_default_swarm_template(self._agent_by_name)
         self.caller_input_mode = caller_input_mode
         self.transforms = transforms or []
+        self._add_talk_to_user_tool = _add_talk_to_user_tool
         self._runtime_swarm_template: PromptTemplate = self._compose_runtime_swarm_template()
 
         super().__init__(
@@ -376,11 +441,6 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
 
     def _update_internal_state(self) -> None:
         from wayflowcore.executors._agenticpattern_helpers import _create_communication_tools
-        from wayflowcore.executors._swarmexecutor import (
-            _get_all_recipients_for_agent,
-            _validate_agent_unicity,
-            _validate_relationships_unicity,
-        )
 
         self._agent_by_name = _validate_agent_unicity(self.first_agent, self.relationships)
         _validate_relationships_unicity(self.relationships)
@@ -388,7 +448,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self._communication_tools = {}
         for agent_name, agent in self._agent_by_name.items():
             self._communication_tools[agent_name] = []
-            agent_recipients = _get_all_recipients_for_agent(self.relationships, agent)
+            agent_recipients = _get_recipient_agents_for_agent(self.relationships, agent)
             if not agent_recipients:
                 logger.debug("Agent '%s' does not have any recipient", agent_name)
                 continue
@@ -396,4 +456,6 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             send_message_tools = _create_communication_tools(self._get_handoff_mode())
             self._communication_tools[agent_name].extend(send_message_tools)
 
+        if not self._swarm_template_was_provided:
+            self.swarm_template = _get_default_swarm_template(self._agent_by_name)
         self._runtime_swarm_template = self._compose_runtime_swarm_template()

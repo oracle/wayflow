@@ -252,6 +252,25 @@ def test_responses_generation_params_merge_reasoning_and_include():
     }
 
 
+def test_responses_processor_formats_assistant_text_as_output_text():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+    message = Message(role="assistant", content="Already computed.")
+
+    assert processor._convert_message_into_openai_message_dict(
+        message, supports_tool_role=True
+    ) == [
+        {
+            "role": "assistant",
+            "type": "message",
+            "content": [{"type": "output_text", "text": "Already computed."}],
+        }
+    ]
+
+
 def _get_fake_request_that_succeeds_after_x_trials(x: int, status_code: int = 429):
     counter = 0
 

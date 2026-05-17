@@ -32,14 +32,14 @@ def create_dummy_server_tool() -> ServerTool:
 
 class DummyModel(LlmModel):
 
-    def __init__(self, fails_if_not_set: bool = True):
+    def __init__(self, fails_if_not_set: bool = True, supports_tool_calling: bool = True):
         model_id = "dummy"
         super().__init__(
             model_id=model_id,
             generation_config=None,
             __metadata_info__=None,
             supports_structured_generation=True,
-            supports_tool_calling=True,
+            supports_tool_calling=supports_tool_calling,
         )
         self.output: Optional[
             Union[

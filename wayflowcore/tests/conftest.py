@@ -201,7 +201,7 @@ VLLM_OSS_CONFIG = {
     "model_type": "vllm",
     "host_port": oss_api_url,
     "model_id": "openai/gpt-oss-120b",
-    "generation_config": {"max_tokens": 512},
+    "generation_config": {"max_tokens": 4096},
     "api_type": OpenAIAPIType.RESPONSES,
 }
 

@@ -379,18 +379,18 @@ def test_can_resume_flowconversation_execution_with_conversation_execute_method(
     assert output_message.content == OUTPUT_MSG
 
 
-@retry_test(max_attempts=4)
+@retry_test(max_attempts=3)
 def test_can_resume_swarmconversation_execution_with_conversation_execute_method():
     """
-    Failure rate:          2 out of 30
-    Observed on:           2025-05-20
-    Average success time:  1.54 seconds per successful attempt
-    Average failure time:  1.89 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.09 ** 4) ~= 7.7 / 100'000
+    Failure rate:          0 out of 30
+    Observed on:           2026-05-15
+    Average success time:  4.36 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.03 ** 3) ~= 3.1 / 100'000
 
     Note:
-    The flakiness comes from the following scenario:
+    Previously observed flakiness came from the following scenario:
     * An agent in the Swarm calls another agent with "send_message"
     * The recipient agent uses the `talk_to_user` tool with incorrect input param (supposed to be "text")
     * A user message "Something went wrong. Please retry your request" is generated (from `_convert_talk_to_user_tool_call_into_agent_message`)

@@ -6,7 +6,7 @@
 
 import logging
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Set, Tuple
+from typing import TYPE_CHECKING, Optional, Sequence
 
 from wayflowcore import Conversation
 from wayflowcore._utils._templating_helpers import render_template
@@ -29,7 +29,7 @@ from wayflowcore.executors.executionstatus import (
 )
 from wayflowcore.executors.interrupts.executioninterrupt import ExecutionInterrupt
 from wayflowcore.messagelist import Message, MessageType
-from wayflowcore.swarm import HandoffMode, Swarm
+from wayflowcore.swarm import HandoffMode, Swarm, _get_recipient_agents_for_agent
 from wayflowcore.templates._swarmtemplate import _HANDOFF_CONFIRMATION_MESSAGE_TEMPLATE
 from wayflowcore.tools import ClientTool, ToolRequest, ToolResult
 
@@ -41,64 +41,36 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _validate_agent_unicity(
-    first_agent: Agent,
-    relationships: List[Tuple[Agent, Agent]],
-) -> Dict[str, "Agent"]:
-    from wayflowcore.agent import Agent
-
-    all_agents: List["Agent"] = [first_agent]
-    for sender_agent, recipient_agent in relationships:
-        all_agents.extend([sender_agent, recipient_agent])
-
-    agent_by_name: Dict[str, "Agent"] = {}
-    for agent in all_agents:
-        if not isinstance(agent, Agent):
-            raise TypeError(
-                f"Only Agents are supported in Swarm, got component of type '{agent.__class__.__name__}'"
-            )
-        # Checking for missing name
-        if not agent.name:
-            raise ValueError(f"Agent {agent} has no name.")
-        agent_name = agent.name
-
-        # Checking for name uniqueness (compulsory since routing depends on the name)
-        if agent_name in agent_by_name:
-            if agent_by_name[agent_name] is not agent:
-                raise ValueError(
-                    f"Found agents with duplicated names: {agent} != {agent_by_name[agent_name]}. "
-                )
-        else:
-            agent_by_name[agent_name] = agent
-
-    return agent_by_name
+def _effective_caller_input_mode(
+    swarm_config: Swarm,
+    current_agent: Agent,
+    current_thread: "SwarmThread",
+) -> CallerInputMode:
+    if swarm_config.caller_input_mode == CallerInputMode.NEVER and current_thread.is_main_thread:
+        return CallerInputMode.NEVER
+    return current_agent.caller_input_mode
 
 
-def _validate_relationships_unicity(
-    relationships: List[Tuple[Agent, Agent]],
-) -> None:
-    relationship_name_set: Set[Tuple[str, str]] = set()
-    for sender_agent, recipient_agent in relationships:
-        name_pair = (sender_agent.name, recipient_agent.name)
-        if name_pair in relationship_name_set:
-            raise ValueError(
-                f"Found duplicated relationship involving agents '{name_pair[0]}' and '{name_pair[1]}'. "
-                "Make sure all relationships are unique."
-            )
-        relationship_name_set.add(name_pair)
+def _should_add_talk_to_user_tool(
+    swarm_config: Swarm,
+    current_agent: Agent,
+    current_thread: "SwarmThread",
+) -> bool:
+    return (
+        swarm_config._add_talk_to_user_tool
+        and current_agent._add_talk_to_user_tool
+        and _effective_caller_input_mode(swarm_config, current_agent, current_thread)
+        != CallerInputMode.NEVER
+    )
 
 
-def _get_all_recipients_for_agent(
-    relationships: List[Tuple[Agent, Agent]], agent: Agent
-) -> List[Agent]:
-    """Get all recipients for agent and make sure that they all have descriptions"""
-    recipients = []
-    for sender_agent, recipient_agent in relationships:
-        if sender_agent == agent:
-            if not recipient_agent.description:
-                raise ValueError(f"Agent '{recipient_agent.name}' is missing a description")
-            recipients.append(recipient_agent)
-    return recipients
+def _caller_rejection_message(add_talk_to_user_tool: bool) -> str:
+    message = f"Cannot use {_SEND_MESSAGE_TOOL_NAME} to answer your caller."
+    if add_talk_to_user_tool:
+        from wayflowcore.executors._agentexecutor import _TALK_TO_USER_TOOL_NAME
+
+        return f"{message} Please use {_TALK_TO_USER_TOOL_NAME} instead."
+    return f"{message} Answer your caller directly with non-empty visible text instead."
 
 
 class _ToolProcessSignal(Enum):
@@ -165,6 +137,7 @@ class SwarmRunner(ConversationExecutor):
                 "-" * 30,
             )
             communication_tools = swarm_config._communication_tools[current_agent.name]
+            handoff_for_prompt = swarm_config.handoff.value  # type: ignore
             if (
                 conversation.component.handoff == HandoffMode.OPTIONAL
                 and current_agent != conversation.state.main_thread.recipient_agent
@@ -174,7 +147,21 @@ class SwarmRunner(ConversationExecutor):
                 communication_tools = [
                     t for t in communication_tools if t.name != _HANDOFF_TOOL_NAME
                 ]
-            mutated_agent_tools = list(current_agent.tools) + communication_tools
+                handoff_for_prompt = HandoffMode.NEVER.value
+            effective_caller_input_mode = _effective_caller_input_mode(
+                swarm_config=swarm_config,
+                current_agent=current_agent,
+                current_thread=current_thread,
+            )
+            add_talk_to_user_tool = _should_add_talk_to_user_tool(
+                swarm_config=swarm_config,
+                current_agent=current_agent,
+                current_thread=current_thread,
+            )
+            from wayflowcore.executors._agentexecutor import _remove_talk_to_user_tool
+
+            mutated_agent_tools = _remove_talk_to_user_tool(current_agent.tools)
+            mutated_agent_tools.extend(communication_tools)
 
             mutated_agent_template = swarm_config._compose_runtime_agent_template(
                 current_agent
@@ -185,11 +172,12 @@ class SwarmRunner(ConversationExecutor):
                     "caller_name": current_thread.caller.name,
                     "other_agents": [
                         {"name": agent.name, "description": agent.description}
-                        for agent in _get_all_recipients_for_agent(
+                        for agent in _get_recipient_agents_for_agent(
                             swarm_config.relationships, current_agent
                         )
                     ],
-                    "handoff": swarm_config.handoff.value,  # type: ignore
+                    "handoff": handoff_for_prompt,
+                    "_add_talk_to_user_tool": add_talk_to_user_tool,
                 }
             )
             with _MutatedConversationalComponent(
@@ -197,12 +185,9 @@ class SwarmRunner(ConversationExecutor):
                 {
                     "tools": mutated_agent_tools,
                     "agent_template": mutated_agent_template,
-                    "caller_input_mode": (
-                        CallerInputMode.NEVER
-                        if swarm_config.caller_input_mode == CallerInputMode.NEVER
-                        and current_thread.is_main_thread
-                        else current_agent.caller_input_mode
-                    ),  # If caller_input_mode == NEVER, set the caller input mode to NEVER of the agent that is currently interacting with the user
+                    "_add_talk_to_user_tool": add_talk_to_user_tool,
+                    "caller_input_mode": effective_caller_input_mode,
+                    # If caller_input_mode == NEVER, set the caller input mode to NEVER of the agent that is currently interacting with the user
                     "output_descriptors": (
                         swarm_config.output_descriptors if current_thread.is_main_thread else []
                     ),
@@ -380,8 +365,6 @@ class SwarmRunner(ConversationExecutor):
         #   -> current_thread pushed to the stack
         #   -> current_thread = thread between caller and recipient
         #   -> add message as user message in the current thread
-        from wayflowcore.executors._agentexecutor import _TALK_TO_USER_TOOL_NAME
-
         current_thread = swarm_conversation.state.current_thread
 
         if not current_thread:
@@ -407,17 +390,21 @@ class SwarmRunner(ConversationExecutor):
             )
             logger.debug("Failure when trying to call new agent: `%s`", error_message)
         elif recipient_agent_name == current_thread.caller.name:
+            add_talk_to_user_tool = _should_add_talk_to_user_tool(
+                swarm_config=swarm_conversation.component,
+                current_agent=current_agent,
+                current_thread=current_thread,
+            )
             current_thread.message_list.append_tool_result(
                 ToolResult(
-                    f"Circular calling warning: Cannot use {_SEND_MESSAGE_TOOL_NAME} on a caller/user. Please use {_TALK_TO_USER_TOOL_NAME} instead",
+                    _caller_rejection_message(add_talk_to_user_tool),
                     tool_request_id=tool_request.tool_request_id,
                 )
             )
             logger.debug(
-                "Agent '%s' attempted to send a message to its caller '%s' (should use `%s` instead)",
+                "Agent '%s' attempted to send a message to its caller '%s'.",
                 current_agent.name,
                 recipient_agent_name,
-                _TALK_TO_USER_TOOL_NAME,
             )
         else:
             swarm_conversation.state.thread_stack.append(current_thread)
@@ -491,15 +478,20 @@ class SwarmRunner(ConversationExecutor):
             logger.info("Failure when trying to call new agent: `%s`", error_message)
         else:
             previous_thread = current_thread
+            handoff_tool_result_content = (
+                ""
+                if swarm_config.swarm_template.native_tool_calling
+                else render_template(
+                    _HANDOFF_CONFIRMATION_MESSAGE_TEMPLATE,
+                    {
+                        "sender_agent_name": current_agent.name,
+                        "new_agent_name": recipient_agent_name,
+                    },
+                )
+            )
             previous_thread.message_list.append_tool_result(
                 ToolResult(
-                    render_template(
-                        _HANDOFF_CONFIRMATION_MESSAGE_TEMPLATE,
-                        {
-                            "sender_agent_name": current_agent.name,
-                            "new_agent_name": recipient_agent_name,
-                        },
-                    ),
+                    handoff_tool_result_content,
                     tool_request_id=tool_request.tool_request_id,
                 )
             )  # Was not added to the previous thread

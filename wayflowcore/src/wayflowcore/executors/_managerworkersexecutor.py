@@ -5,8 +5,9 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import logging
+from contextlib import contextmanager
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Sequence, Union
 
 from wayflowcore import Conversation
 from wayflowcore.agent import Agent, CallerInputMode
@@ -81,6 +82,19 @@ def _validate_agent_unicity(
     return agent_by_name
 
 
+@contextmanager
+def _disabled_managerworkers_talk_to_user_tool(
+    managerworkers: ManagerWorkers,
+) -> Iterator[None]:
+    """Disable final-answer tool injection without rebuilding existing subconversations."""
+    previous_value = managerworkers._add_talk_to_user_tool
+    managerworkers._add_talk_to_user_tool = False
+    try:
+        yield
+    finally:
+        managerworkers._add_talk_to_user_tool = previous_value
+
+
 class _ToolProcessSignal(Enum):
     RETURN = auto()  # Break the while loop and return the status to user
     START_NEW_LOOP = auto()  # Equivalent to `continue` in the while loop
@@ -96,28 +110,18 @@ class ManagerWorkersRunner(ConversationExecutor):
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
         from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
-        from wayflowcore.executors._agentexecutor import (
-            _TALK_TO_USER_TOOL_NAME,
-            _make_talk_to_user_tool,
-        )
+        from wayflowcore.executors._agentexecutor import _remove_talk_to_user_tool
 
         mutated_agent_tools = (
-            list(current_agent.tools) + managerworkers_config._manager_communication_tools
+            _remove_talk_to_user_tool(current_agent.tools)
+            + managerworkers_config._manager_communication_tools
         )
 
-        has_talk_to_user_tool = any(
-            tool_.name == _TALK_TO_USER_TOOL_NAME for tool_ in mutated_agent_tools
+        add_talk_to_user_tool = (
+            managerworkers_config._add_talk_to_user_tool
+            and current_agent._add_talk_to_user_tool
+            and managerworkers_config.caller_input_mode != CallerInputMode.NEVER
         )
-        if managerworkers_config.caller_input_mode == CallerInputMode.NEVER:
-            if has_talk_to_user_tool:
-                # Manager agent should not have tool to talk to user
-                mutated_agent_tools = [
-                    t for t in mutated_agent_tools if t.name != _TALK_TO_USER_TOOL_NAME
-                ]
-        else:
-            if not has_talk_to_user_tool:
-                # Manager agent should have tool to talk to user
-                mutated_agent_tools.append(_make_talk_to_user_tool())
 
         mutated_agent_template = managerworkers_config._compose_runtime_manager_agent_template(
             current_agent
@@ -130,6 +134,7 @@ class ManagerWorkersRunner(ConversationExecutor):
                     for worker in managerworkers_config.workers
                 ],
                 "caller_name": "HUMAN USER",
+                "_add_talk_to_user_tool": add_talk_to_user_tool,
             }
         )
 
@@ -140,7 +145,7 @@ class ManagerWorkersRunner(ConversationExecutor):
                 "agent_template": mutated_agent_template,
                 "output_descriptors": managerworkers_config.output_descriptors,
                 "caller_input_mode": managerworkers_config.caller_input_mode,
-                "_add_talk_to_user_tool": has_talk_to_user_tool,
+                "_add_talk_to_user_tool": add_talk_to_user_tool,
             },
         ):
             return await current_conversation.execute_async(
@@ -150,11 +155,40 @@ class ManagerWorkersRunner(ConversationExecutor):
     @staticmethod
     async def _run_worker_round(
         current_conversation: Union["AgentConversation", "ManagerWorkersConversation"],
+        managerworkers_config: "ManagerWorkers",
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
-        return await current_conversation.execute_async(
-            execution_interrupts=execution_interrupts,
-        )
+        if managerworkers_config._add_talk_to_user_tool:
+            return await current_conversation.execute_async(
+                execution_interrupts=execution_interrupts,
+            )
+
+        from wayflowcore.agentconversation import AgentConversation
+        from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
+        from wayflowcore.executors._agentexecutor import _remove_talk_to_user_tool
+
+        if isinstance(current_conversation, AgentConversation):
+            agent_component = current_conversation.component
+            if not isinstance(agent_component, Agent):
+                raise ValueError("AgentConversation should have an Agent component.")
+            attributes: Dict[str, Any] = {
+                "_add_talk_to_user_tool": False,
+                "tools": _remove_talk_to_user_tool(agent_component.tools),
+            }
+
+            with _MutatedConversationalComponent(agent_component, attributes):
+                return await current_conversation.execute_async(
+                    execution_interrupts=execution_interrupts,
+                )
+
+        component = current_conversation.component
+        if not isinstance(component, ManagerWorkers):
+            raise ValueError("ManagerWorkersConversation should have a ManagerWorkers component.")
+
+        with _disabled_managerworkers_talk_to_user_tool(component):
+            return await current_conversation.execute_async(
+                execution_interrupts=execution_interrupts,
+            )
 
     @staticmethod
     async def execute_async(
@@ -216,6 +250,7 @@ class ManagerWorkersRunner(ConversationExecutor):
             else:
                 status = await ManagerWorkersRunner._run_worker_round(
                     current_conversation=current_conversation,
+                    managerworkers_config=managerworkers_config,
                     execution_interrupts=execution_interrupts,
                 )
 

@@ -11,6 +11,7 @@ import pytest
 
 from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore.agent import DEFAULT_INITIAL_MESSAGE, Agent, CallerInputMode
+from wayflowcore.executors._agentexecutor import _TALK_TO_USER_TOOL_NAME
 from wayflowcore.executors._agenticpattern_helpers import _SEND_MESSAGE_TOOL_NAME
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
@@ -21,6 +22,12 @@ from wayflowcore.executors.executionstatus import (
 from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.property import IntegerProperty, StringProperty
+from wayflowcore.templates import LLAMA_AGENT_TEMPLATE, PromptTemplate
+from wayflowcore.templates._managerworkerstemplate import (
+    _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE,
+    _DEFAULT_MANAGERWORKERS_NATIVE_CHAT_TEMPLATE,
+    ManagerWorkersJsonToolOutputParser,
+)
 from wayflowcore.tools import ClientTool, ToolRequest, ToolResult, tool
 
 from .test_swarm import (
@@ -61,6 +68,100 @@ def _send_message(
     )
 
 
+def _send_message_with_native_tool_call(
+    recipient_agent: Agent, message: Optional[str] = None
+) -> Message:
+    return _native_tool_call_message(
+        _SEND_MESSAGE_TOOL_NAME,
+        dict(message=message or "MESSAGE", recipient=recipient_agent.name),
+        tool_request_id="send_message_1",
+    )
+
+
+def _native_tool_call_message(
+    tool_name: str, args: dict[str, Any], tool_request_id: str = "tool_request_1"
+) -> Message:
+    return Message(
+        tool_requests=[
+            ToolRequest(
+                name=tool_name,
+                args=args,
+                tool_request_id=tool_request_id,
+            )
+        ],
+        message_type=MessageType.AGENT,
+    )
+
+
+def _get_multiplication_agent_with_client_tool(
+    llm: DummyModel, requires_confirmation: bool = False
+) -> Agent:
+    multiply_tool = ClientTool(
+        name="multiply",
+        description="Return the result of multiplication between number a and b.",
+        input_descriptors=[
+            IntegerProperty("a", description="first required integer"),
+            IntegerProperty("b", description="second required integer"),
+        ],
+        requires_confirmation=requires_confirmation,
+    )
+    return Agent(
+        name="multiplication_agent",
+        description="Agent that can do multiplication",
+        llm=llm,
+        tools=[multiply_tool],
+        custom_instruction="You can do multiplication.",
+    )
+
+
+def _set_multiplication_agent_client_tool_outputs(llm: DummyModel) -> None:
+    llm.set_next_output(
+        [
+            Message(
+                tool_requests=[
+                    ToolRequest(
+                        name="multiply",
+                        args={"a": 2145, "b": 123},
+                        tool_request_id="multiply_1",
+                    )
+                ],
+                message_type=MessageType.AGENT,
+            ),
+            "worker answer",
+        ]
+    )
+
+
+def _execute_multiply_tool_from_tool_request(tool_request: ToolRequest) -> int:
+    if tool_request.name != "multiply":
+        raise ValueError(f"Tool name {tool_request.name} is not recognized")
+    return tool_request.args["a"] * tool_request.args["b"]
+
+
+def _get_managerworkers_group_and_message(
+    manager_llm: DummyModel, worker: Agent, message: str, use_native_managerworkers_template: bool
+) -> tuple[ManagerWorkers, Message]:
+    if use_native_managerworkers_template:
+        managerworkers = (
+            ManagerWorkers(
+                group_manager=manager_llm,
+                workers=[worker],
+                managerworkers_template=_DEFAULT_MANAGERWORKERS_NATIVE_CHAT_TEMPLATE,
+            ),
+            _send_message_with_native_tool_call(worker, message),
+        )
+    else:
+        managerworkers = (
+            ManagerWorkers(
+                group_manager=manager_llm,
+                workers=[worker],
+                managerworkers_template=_DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE,
+            ),
+            _send_message(worker, message=message),
+        )
+    return managerworkers
+
+
 def test_managerworkers_raises_on_same_name_for_manager_and_worker(simple_math_agents_example):
     addition_agent, _ = simple_math_agents_example
 
@@ -98,6 +199,226 @@ def test_manager_can_be_initialized_with_an_agent():
     ManagerWorkers(workers=[worker1, worker2], group_manager=manager)
 
 
+def test_managerworkers_uses_native_tool_calling_template_by_default_when_manager_llm_supports_it():
+    llm = DummyModel()
+    worker = Agent(llm, name="worker", description="worker")
+
+    group = ManagerWorkers(workers=[worker], group_manager=llm)
+
+    assert group.managerworkers_template.native_tool_calling is True
+    assert group.managerworkers_template.output_parser is None
+
+
+def test_managerworkers_uses_non_native_tool_calling_template_when_manager_llm_does_not_support_it():
+    llm = DummyModel(supports_tool_calling=False)
+    worker = Agent(llm, name="worker", description="worker")
+
+    group = ManagerWorkers(workers=[worker], group_manager=llm)
+
+    assert group.managerworkers_template.native_tool_calling is False
+    assert isinstance(
+        group.managerworkers_template.output_parser, ManagerWorkersJsonToolOutputParser
+    )
+
+
+def test_managerworkers_can_use_non_native_tool_calling_template_when_explicitly_requested():
+    llm = DummyModel()
+    worker = Agent(llm, name="worker", description="worker")
+
+    group = ManagerWorkers(
+        workers=[worker],
+        group_manager=llm,
+        managerworkers_template=_DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE,
+    )
+
+    assert group.managerworkers_template.native_tool_calling is False
+    assert isinstance(
+        group.managerworkers_template.output_parser, ManagerWorkersJsonToolOutputParser
+    )
+
+
+def test_managerworkers_can_use_native_tool_calling_template_when_explicitly_requested():
+    llm = DummyModel(supports_tool_calling=False)
+    worker = Agent(llm, name="worker", description="worker")
+
+    group = ManagerWorkers(
+        workers=[worker],
+        group_manager=llm,
+        managerworkers_template=_DEFAULT_MANAGERWORKERS_NATIVE_CHAT_TEMPLATE,
+    )
+
+    assert group.managerworkers_template.native_tool_calling is True
+    assert group.managerworkers_template.output_parser is None
+
+
+def test_managerworkers_default_depends_on_manager_llm_not_manager_agent_template():
+    llm = DummyModel()
+    worker = Agent(llm, name="worker", description="worker")
+    manager = Agent(
+        llm,
+        name="manager",
+        description="manager",
+        agent_template=LLAMA_AGENT_TEMPLATE,
+    )
+
+    group = ManagerWorkers(workers=[worker], group_manager=manager)
+
+    assert group.managerworkers_template.native_tool_calling is True
+    assert group.managerworkers_template.output_parser is None
+
+
+def test_native_managerworkers_template_omits_talk_to_user_when_disabled():
+    prompt = _DEFAULT_MANAGERWORKERS_NATIVE_CHAT_TEMPLATE.format(
+        inputs={
+            "name": "manager",
+            "description": "manager",
+            "caller_name": "HUMAN USER",
+            "other_agents": [{"name": "worker", "description": "worker"}],
+            "_add_talk_to_user_tool": False,
+            "custom_instruction": "",
+            PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME: [],
+        },
+    )
+    rendered_prompt = "\n".join(message.content for message in prompt.messages)
+
+    assert "talk_to_user" not in rendered_prompt
+    assert "Answer your caller directly" in rendered_prompt
+
+
+def test_non_native_managerworkers_template_allows_direct_answer_when_talk_to_user_disabled():
+    prompt = _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE.format(
+        inputs={
+            "name": "manager",
+            "description": "manager",
+            "caller_name": "HUMAN USER",
+            "other_agents": [{"name": "worker", "description": "worker"}],
+            "_add_talk_to_user_tool": False,
+            "custom_instruction": "",
+            PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME: [],
+        },
+    )
+    rendered_prompt = "\n".join(message.content for message in prompt.messages)
+
+    assert "talk_to_user" not in rendered_prompt
+    assert "When no tool call is needed, return only the visible answer text." in rendered_prompt
+    assert "Always structure your response as a thought" not in rendered_prompt
+
+
+def test_managerworkers_private_add_talk_to_user_tool_false_removes_tool_schema():
+    class CapturingDummyModel(DummyModel):
+        def __init__(self):
+            super().__init__()
+            self.captured_tool_names: list[str] = []
+
+        async def _generate_impl(self, prompt):
+            self.captured_tool_names = [tool.name for tool in prompt.tools or []]
+            return await super()._generate_impl(prompt)
+
+    llm = CapturingDummyModel()
+    llm.set_next_output("done")
+    worker = Agent(llm, name="worker", description="worker")
+
+    group = ManagerWorkers(
+        workers=[worker],
+        group_manager=llm,
+        _add_talk_to_user_tool=False,
+    )
+    status = group.start_conversation(messages="hello").execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert _SEND_MESSAGE_TOOL_NAME in llm.captured_tool_names
+    assert _TALK_TO_USER_TOOL_NAME not in llm.captured_tool_names
+
+
+def test_managerworkers_private_add_talk_to_user_tool_false_applies_to_workers():
+    class CapturingDummyModel(DummyModel):
+        def __init__(self):
+            super().__init__()
+            self.captured_tool_names: list[str] = []
+
+        async def _generate_impl(self, prompt):
+            self.captured_tool_names = [tool.name for tool in prompt.tools or []]
+            return await super()._generate_impl(prompt)
+
+    manager_llm = DummyModel()
+    worker_llm = CapturingDummyModel()
+    worker = Agent(
+        worker_llm,
+        name="worker",
+        description="worker",
+        tools=[fooza_tool],
+    )
+    manager_llm.set_next_output(
+        [
+            _send_message_with_native_tool_call(worker, message="do work"),
+            "manager done",
+        ]
+    )
+    worker_llm.set_next_output("worker done")
+
+    group = ManagerWorkers(
+        workers=[worker],
+        group_manager=manager_llm,
+        _add_talk_to_user_tool=False,
+    )
+    status = group.start_conversation(messages="hello").execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert "fooza_tool" in worker_llm.captured_tool_names
+    assert _TALK_TO_USER_TOOL_NAME not in worker_llm.captured_tool_names
+
+
+def test_managerworkers_private_add_talk_to_user_tool_false_keeps_nested_llm_manager_synced():
+    llm = DummyModel()
+    fooza_agent = _get_fooza_agent(llm)
+    nested_group = ManagerWorkers(
+        group_manager=llm,
+        workers=[fooza_agent],
+        name="nested_group",
+        description="Nested group",
+    )
+    outer_manager = Agent(
+        llm=llm,
+        name="outer_manager",
+        description="Outer manager",
+        custom_instruction="Delegate fooza work to nested_group.",
+    )
+    outer_group = ManagerWorkers(
+        group_manager=outer_manager,
+        workers=[nested_group],
+        _add_talk_to_user_tool=False,
+    )
+    conv = outer_group.start_conversation(messages="Compute fooza(4, 2).")
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(
+                    name="send_message",
+                    args={"recipient": "nested_group", "message": "calculate fooza(4,2)"},
+                )
+            ],
+            [
+                ToolRequest(
+                    name="send_message",
+                    args={"recipient": "fooza_agent", "message": "calculate fooza(4,2)"},
+                )
+            ],
+            [ToolRequest(name="fooza_tool", args={"a": 4, "b": 2})],
+            "fooza agent answers nested manager",
+            "nested manager answers outer manager",
+            "outer manager answers user",
+        ],
+    ):
+        status = conv.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert conv.get_last_message().content == "outer manager answers user"
+    nested_conv = conv.state.subconversations["nested_group"]
+    assert nested_conv._get_main_subconversation().component is nested_group.manager_agent
+
+
 def test_manager_can_send_message_to_worker_and_worker_can_reply():
     llm = DummyModel()
 
@@ -108,7 +429,7 @@ def test_manager_can_send_message_to_worker_and_worker_can_reply():
 
     llm.set_next_output(
         [
-            _send_message(worker1, message="Hey worker 1", thoughts="sending message to worker 1"),
+            _send_message_with_native_tool_call(worker1, message="Hey worker 1"),
             "Hello manager!",
         ]
     )
@@ -194,50 +515,30 @@ def test_managerworkers_can_execute_with_initial_params_passed_in_start_conversa
     assert conversation.conversation_id == "12345"
 
 
-@retry_test(max_attempts=2)
-def test_worker_with_client_tool_works_as_expected(remotely_hosted_llm) -> None:
-    """
-    Failure rate:          0 out of 100
-    Observed on:           2025-12-11
-    Average success time:  1.07 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           2
-    Justification:         (0.01 ** 2) ~= 9.6 / 100'000
-    """
-    llm = remotely_hosted_llm
-    dummy_llm = DummyModel()
+@pytest.mark.parametrize(
+    "use_native_managerworkers_template",
+    [
+        pytest.param(False, id="non_native_managerworkers_template"),
+        pytest.param(True, id="native_managerworkers_template"),
+    ],
+)
+def test_worker_with_client_tool_works_as_expected(
+    use_native_managerworkers_template: bool,
+) -> None:
+    manager_llm = DummyModel()
+    worker_llm = DummyModel()
 
-    def _multiply_impl(a: int, b: int) -> int:
-        return a * b
+    multiplication_agent = _get_multiplication_agent_with_client_tool(worker_llm)
+    _set_multiplication_agent_client_tool_outputs(worker_llm)
 
-    def execute_client_tool_from_tool_request(tool_request: ToolRequest) -> Any:
-        if tool_request.name == "multiply":
-            return _multiply_impl(**tool_request.args)
-        else:
-            raise ValueError(f"Tool name {tool_request.name} is not recognized")
-
-    multiply_tool = ClientTool(
-        name="multiply",
-        description="Return the result of multiplication between number a and b.",
-        input_descriptors=[
-            IntegerProperty("a", description="first required integer"),
-            IntegerProperty("b", description="second required integer"),
-        ],
+    group, initial_manager_message = _get_managerworkers_group_and_message(
+        manager_llm,
+        multiplication_agent,
+        "Please compute 2145 * 123",
+        use_native_managerworkers_template,
     )
 
-    multiplication_agent = Agent(
-        name="multiplication_agent",
-        description="Agent that can do multiplication",
-        llm=llm,
-        tools=[multiply_tool],
-        custom_instruction="You can do multiplication.",
-    )
-
-    group = ManagerWorkers(group_manager=dummy_llm, workers=[multiplication_agent])
-
-    dummy_llm.set_next_output(
-        [_send_message(multiplication_agent, message="Please compute 2145 * 123")]
-    )
+    manager_llm.set_next_output([initial_manager_message])
 
     conversation = group.start_conversation()
     conversation.append_user_message("Dummy")
@@ -247,49 +548,40 @@ def test_worker_with_client_tool_works_as_expected(remotely_hosted_llm) -> None:
     assert isinstance(status, ToolRequestStatus)
 
     tool_request = status.tool_requests[0]
-    tool_result = execute_client_tool_from_tool_request(tool_request)
+    assert tool_request.args == {"a": 2145, "b": 123}
+    tool_result = _execute_multiply_tool_from_tool_request(tool_request)
     conversation.append_tool_result(ToolResult(tool_result, tool_request.tool_request_id))
 
     with pytest.raises(ValueError, match="Did you forget to set the output of the Dummy model"):
         status = conversation.execute()
 
 
-def test_worker_with_client_tool_with_confirmation_works_as_expected(remotely_hosted_llm) -> None:
-    llm = remotely_hosted_llm
-    dummy_llm = DummyModel()
+@pytest.mark.parametrize(
+    "use_native_managerworkers_template",
+    [
+        pytest.param(False, id="non_native_managerworkers_template"),
+        pytest.param(True, id="native_managerworkers_template"),
+    ],
+)
+def test_worker_with_client_tool_with_confirmation_works_as_expected(
+    use_native_managerworkers_template: bool,
+) -> None:
+    manager_llm = DummyModel()
+    worker_llm = DummyModel()
 
-    def _multiply_impl(a: int, b: int) -> int:
-        return a * b
+    multiplication_agent = _get_multiplication_agent_with_client_tool(
+        worker_llm, requires_confirmation=True
+    )
+    _set_multiplication_agent_client_tool_outputs(worker_llm)
 
-    def execute_client_tool_from_tool_request(tool_request: ToolRequest) -> Any:
-        if tool_request.name == "multiply":
-            return _multiply_impl(**tool_request.args)
-        else:
-            raise ValueError(f"Tool name {tool_request.name} is not recognized")
-
-    multiply_tool = ClientTool(
-        name="multiply",
-        description="Return the result of multiplication between number a and b.",
-        input_descriptors=[
-            IntegerProperty("a", description="first required integer"),
-            IntegerProperty("b", description="second required integer"),
-        ],
-        requires_confirmation=True,
+    group, initial_manager_message = _get_managerworkers_group_and_message(
+        manager_llm,
+        multiplication_agent,
+        "Please compute 2145 * 123",
+        use_native_managerworkers_template,
     )
 
-    multiplication_agent = Agent(
-        name="multiplication_agent",
-        description="Agent that can do multiplication",
-        llm=llm,
-        tools=[multiply_tool],
-        custom_instruction="You can do multiplication.",
-    )
-
-    group = ManagerWorkers(group_manager=dummy_llm, workers=[multiplication_agent])
-
-    dummy_llm.set_next_output(
-        [_send_message(multiplication_agent, message="Please compute 2145 * 123")]
-    )
+    manager_llm.set_next_output([initial_manager_message])
 
     conversation = group.start_conversation()
     conversation.append_user_message("Dummy")
@@ -302,10 +594,10 @@ def test_worker_with_client_tool_with_confirmation_works_as_expected(remotely_ho
     assert isinstance(status, ToolRequestStatus)
 
     tool_request = status.tool_requests[0]
-    tool_result = execute_client_tool_from_tool_request(tool_request)
+    tool_result = _execute_multiply_tool_from_tool_request(tool_request)
     conversation.append_tool_result(ToolResult(tool_result, tool_request.tool_request_id))
 
-    dummy_llm.set_next_output(["dummy assistant output"])
+    manager_llm.set_next_output(["dummy assistant output"])
     status = conversation.execute()
     assert isinstance(status, UserMessageRequestStatus)
 
@@ -331,7 +623,11 @@ def test_worker_with_server_tool_execution_does_not_raise_errors(remotely_hosted
     group = ManagerWorkers(group_manager=dummy_llm, workers=[multiplication_agent])
 
     dummy_llm.set_next_output(
-        [_send_message(multiplication_agent, message="Please compute 2145 * 123")]
+        [
+            _send_message_with_native_tool_call(
+                multiplication_agent, message="Please compute 2145 * 123"
+            )
+        ]
     )
     conversation = group.start_conversation()
     conversation.append_user_message("dummy")
@@ -362,17 +658,7 @@ def test_manager_with_server_tool_execution_does_not_raise_errors():
 
     llm.set_next_output(
         [
-            Message(
-                render_template(
-                    _MANAGER_TOOL_CALL_TEMPLATE,
-                    inputs=dict(
-                        thoughts="",
-                        tool_name="say_hello",
-                        tool_params={"user_name": "Iris"},
-                    ),
-                ),
-                message_type=MessageType.AGENT,
-            ),
+            _native_tool_call_message("say_hello", {"user_name": "Iris"}),
             "Dummy",
         ]
     )
@@ -416,17 +702,7 @@ def test_manager_with_client_tool_execution_works_as_expected():
 
     llm.set_next_output(
         [
-            Message(
-                render_template(
-                    _MANAGER_TOOL_CALL_TEMPLATE,
-                    inputs=dict(
-                        thoughts="",
-                        tool_name="say_hello",
-                        tool_params={"user_name": "Iris"},
-                    ),
-                ),
-                message_type=MessageType.AGENT,
-            ),
+            _native_tool_call_message("say_hello", {"user_name": "Iris"}),
         ]
     )
 
@@ -478,17 +754,7 @@ def test_manager_with_client_tool_with_confirmation_execution_works_as_expected(
 
     llm.set_next_output(
         [
-            Message(
-                render_template(
-                    _MANAGER_TOOL_CALL_TEMPLATE,
-                    inputs=dict(
-                        thoughts="",
-                        tool_name="say_hello",
-                        tool_params={"user_name": "Iris"},
-                    ),
-                ),
-                message_type=MessageType.AGENT,
-            ),
+            _native_tool_call_message("say_hello", {"user_name": "Iris"}),
         ]
     )
 
@@ -532,12 +798,12 @@ def check_name_in_db_tool(name: str) -> str:
 @retry_test(max_attempts=3)
 def test_managerworkers_execution_works_with_servertool_confirmation(big_llama):
     """
-    Failure rate:          1 out of 50
-    Observed on:           2025-09-23
-    Average success time:  14.08 seconds per successful attempt
-    Average failure time:  17.05 seconds per failed attempt
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-15
+    Average success time:  8.41 seconds per successful attempt
+    Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     llm = big_llama
     agent = Agent(
@@ -811,15 +1077,15 @@ def test_multiple_tool_calls_including_with_nonexistent_tools(vllm_responses_llm
         )
 
 
-@retry_test(max_attempts=4)
+@retry_test(max_attempts=5)
 def test_managerworkers_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
     """
-    Failure rate:          3 out of 50
-    Observed on:           2025-12-23
-    Average success time:  8.14 seconds per successful attempt
-    Average failure time:  5.36 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.08 ** 4) ~= 3.5 / 100'000
+    Failure rate:          6 out of 50
+    Observed on:           2026-05-17
+    Average success time:  7.83 seconds per successful attempt
+    Average failure time:  7.26 seconds per failed attempt
+    Max attempt:           5
+    Justification:         (0.13 ** 5) ~= 4.4 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -827,9 +1093,14 @@ def test_managerworkers_can_do_multiple_tool_calling_when_appropriate(vllm_respo
     bwip_agent = _get_bwip_agent(llm)
     zbuk_agent = _get_zbuk_agent(llm)
 
+    # openai/gpt-oss-120b does not support native parallel tool calling,
+    # so this test forces the legacy non-native manager prompt to exercise multiple tool-calling behavior.
+    # See https://github.com/openai/harmony/issues/68
     group = ManagerWorkers(
         group_manager=llm,
         workers=[fooza_agent, bwip_agent, zbuk_agent],
+        managerworkers_template=_DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE,
+        _add_talk_to_user_tool=False,
     )
 
     conv = group.start_conversation(
@@ -872,6 +1143,7 @@ def _setup_managerworkers_for_multiple_tool_calling(vllm_responses_llm, raise_ex
     group = ManagerWorkers(
         group_manager=fooza_agent,
         workers=[bwip_agent, zbuk_agent],
+        _add_talk_to_user_tool=False,
     )
 
     conv = group.start_conversation(
@@ -886,12 +1158,12 @@ def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception
     vllm_responses_llm,
 ):
     """
-    Failure rate:          0 out of 20
-    Observed on:           2026-01-27
-    Average success time:  3.07 seconds per successful attempt
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-17
+    Average success time:  2.09 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     conv = _setup_managerworkers_for_multiple_tool_calling(
         vllm_responses_llm, raise_exceptions=True
@@ -900,17 +1172,17 @@ def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception
         conv.execute()
 
 
-@retry_test(max_attempts=6)
+@retry_test(max_attempts=4)
 def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception_does_not_raise_error(
     vllm_responses_llm,
 ):
     """
-    Failure rate:          3 out of 20
-    Observed on:           2026-01-27
-    Average success time:  8.40 seconds per successful attempt
-    Average failure time:  8.56 seconds per failed attempt
-    Max attempt:           6
-    Justification:         (0.18 ** 6) ~= 3.6 / 100'000
+    Failure rate:          4 out of 50
+    Observed on:           2026-05-17
+    Average success time:  8.78 seconds per successful attempt
+    Average failure time:  5.05 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.10 ** 4) ~= 8.5 / 100'000
     """
     conv = _setup_managerworkers_for_multiple_tool_calling(
         vllm_responses_llm, raise_exceptions=False
@@ -920,15 +1192,15 @@ def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception
     assert str(result) in conv.get_last_message().content
 
 
-@retry_test(max_attempts=4)
+@retry_test(max_attempts=3)
 def test_managerworkers_without_user_input_can_execute_as_expected(vllm_responses_llm):
     """
-    Failure rate:          2 out of 50
-    Observed on:           2025-12-24
-    Average success time:  6.49 seconds per successful attempt
-    Average failure time:  4.43 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-15
+    Average success time:  9.36 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -963,6 +1235,7 @@ def test_two_level_managerworkers_with_mock_outputs(vllm_responses_llm):
         workers=[sub_worker],
         name="worker_2",
         description="worker 2",
+        _add_talk_to_user_tool=False,
     )
     group = ManagerWorkers(
         group_manager=Agent(
@@ -1016,15 +1289,15 @@ def test_two_level_managerworkers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
-@retry_test(max_attempts=4)
+@retry_test(max_attempts=3)
 def test_two_level_managerworkers_with_llms(vllm_responses_llm):
     """
-    Failure rate:          1 out of 20
-    Observed on:           2026-01-28
-    Average success time:  9.02 seconds per successful attempt
-    Average failure time:  11.81 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.09 ** 4) ~= 6.8 / 100'000
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-17
+    Average success time:  9.41 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -1039,6 +1312,7 @@ def test_two_level_managerworkers_with_llms(vllm_responses_llm):
         workers=[sub_worker],
         name="worker_2",
         description="worker 2",
+        _add_talk_to_user_tool=False,
     )
 
     group = ManagerWorkers(
@@ -1049,6 +1323,7 @@ def test_two_level_managerworkers_with_llms(vllm_responses_llm):
         workers=[worker_1, worker_2],
         name="first_level_group",
         description="First level group",
+        _add_talk_to_user_tool=False,
     )
 
     conv = group.start_conversation(
@@ -1164,12 +1439,12 @@ def test_three_level_managerworkers_with_mock_outputs(vllm_responses_llm):
 @retry_test(max_attempts=3)
 def test_three_level_managerworkers_with_llms(vllm_responses_llm):
     """
-    Failure rate:          0 out of 20
-    Observed on:           2026-01-28
-    Average success time:  15.27 seconds per successful attempt
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-17
+    Average success time:  14.77 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -1185,6 +1460,7 @@ def test_three_level_managerworkers_with_llms(vllm_responses_llm):
         workers=[fooza_agent],
         name="third_level_group",
         description="Third level group",
+        _add_talk_to_user_tool=False,
     )
     second_level_group = ManagerWorkers(
         group_manager=Agent(
@@ -1194,6 +1470,7 @@ def test_three_level_managerworkers_with_llms(vllm_responses_llm):
         workers=[third_level_group],
         name="second_level_group",
         description="Second level group",
+        _add_talk_to_user_tool=False,
     )
     first_level_group = ManagerWorkers(
         group_manager=Agent(
@@ -1203,6 +1480,7 @@ def test_three_level_managerworkers_with_llms(vllm_responses_llm):
         workers=[second_level_group, bwip_agent, zbuk_agent],
         name="first_level_group",
         description="First level group",
+        _add_talk_to_user_tool=False,
     )
 
     conv = first_level_group.start_conversation(
@@ -1321,15 +1599,15 @@ def test_linear_chain_managerworkers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
-@retry_test(max_attempts=5)
+@retry_test(max_attempts=3)
 def test_linear_chain_managerworkers_with_llms(vllm_responses_llm):
     """
-    Failure rate:          2 out of 20
-    Observed on:           2026-01-28
-    Average success time:  15.58 seconds per successful attempt
-    Average failure time:  7.67 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    Failure rate:          1 out of 50
+    Observed on:           2026-05-17
+    Average success time:  16.47 seconds per successful attempt
+    Average failure time:  13.34 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -1346,6 +1624,7 @@ def test_linear_chain_managerworkers_with_llms(vllm_responses_llm):
         workers=[fooza_agent],
         name="third_level_group",
         description="Third level group",
+        _add_talk_to_user_tool=False,
     )
     second_level_group = ManagerWorkers(
         group_manager=Agent(
@@ -1355,6 +1634,7 @@ def test_linear_chain_managerworkers_with_llms(vllm_responses_llm):
         workers=[third_level_group, zbuk_agent],
         name="second_level_group",
         description="Second level group",
+        _add_talk_to_user_tool=False,
     )
     first_level_group = ManagerWorkers(
         group_manager=Agent(
@@ -1364,6 +1644,7 @@ def test_linear_chain_managerworkers_with_llms(vllm_responses_llm):
         workers=[second_level_group, bwip_agent],
         name="first_level_group",
         description="First level group",
+        _add_talk_to_user_tool=False,
     )
 
     conv = first_level_group.start_conversation(
@@ -1480,15 +1761,15 @@ def test_multi_managers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
-@retry_test(max_attempts=5)
+@retry_test(max_attempts=3)
 def test_multi_managers_with_llms(vllm_responses_llm):
     """
-    Failure rate:          2 out of 20
-    Observed on:           2026-01-28
-    Average success time:  14.97 seconds per successful attempt
-    Average failure time:  20.80 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    Failure rate:          1 out of 50
+    Observed on:           2026-05-17
+    Average success time:  15.03 seconds per successful attempt
+    Average failure time:  2.31 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -1505,6 +1786,7 @@ def test_multi_managers_with_llms(vllm_responses_llm):
         workers=[fooza_agent],
         name="second_level_group_1",
         description="Second level group 1",
+        _add_talk_to_user_tool=False,
     )
     second_level_group_2 = ManagerWorkers(
         group_manager=Agent(
@@ -1514,6 +1796,7 @@ def test_multi_managers_with_llms(vllm_responses_llm):
         workers=[bwip_agent, zbuk_agent],
         name="second_level_group_2",
         description="Second level group 2",
+        _add_talk_to_user_tool=False,
     )
     first_level_group = ManagerWorkers(
         group_manager=Agent(
@@ -1523,6 +1806,7 @@ def test_multi_managers_with_llms(vllm_responses_llm):
         workers=[second_level_group_1, second_level_group_2],
         name="first_level_group",
         description="First level group",
+        _add_talk_to_user_tool=False,
     )
 
     conv = first_level_group.start_conversation(

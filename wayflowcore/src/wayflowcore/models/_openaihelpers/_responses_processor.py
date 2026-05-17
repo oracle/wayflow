@@ -128,16 +128,21 @@ class _ResponsesAPIProcessor(_APIProcessor):
                     {"type": "input_image", "image_url": content.base64_content, "detail": "auto"}
                 )
             elif isinstance(content, TextContent):
-                all_contents.append({"type": "input_text", "text": content.content})
+                content_type = "output_text" if role == "assistant" else "input_text"
+                all_contents.append({"type": content_type, "text": content.content})
             else:
                 raise RuntimeError(f"Unsupported content type: {content.__class__.__name__}")
 
         openai_dict: Dict[str, Any] = dict(role=role, type="message")
 
-        if len(all_contents) == 1 and all_contents[0]["type"] == "input_text":
+        if (
+            role != "assistant"
+            and len(all_contents) == 1
+            and all_contents[0]["type"] == "input_text"
+        ):
             openai_dict["content"] = all_contents[0]["text"]
         elif len(all_contents) == 0:
-            openai_dict["content"] = ""
+            openai_dict["content"] = [] if role == "assistant" else ""
         else:
             openai_dict["content"] = all_contents
 

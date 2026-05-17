@@ -51,7 +51,7 @@ from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
 from wayflowcore.property import JsonSchemaParam, Property, StringProperty
-from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
+from wayflowcore.tools import ClientTool, Tool, ToolBox, ToolRequest, ToolResult
 from wayflowcore.tools.tools import _descriptors_to_json_schema_map, _sanitize_tool_name
 from wayflowcore.tracing.span import AgentExecutionSpan
 
@@ -248,6 +248,14 @@ def _make_talk_to_user_tool() -> ClientTool:
         },
         output={},
     )
+
+
+def _remove_talk_to_user_tool(
+    tools: Sequence[Union[Tool, ToolBox]],
+) -> List[Union[Tool, ToolBox]]:
+    return [
+        tool for tool in tools if not isinstance(tool, Tool) or tool.name != _TALK_TO_USER_TOOL_NAME
+    ]
 
 
 class AgentConversationExecutor(ConversationExecutor):

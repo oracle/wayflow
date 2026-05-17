@@ -739,8 +739,8 @@ def test_agent_can_call_client_tool_with_confirmation_with_no_parameter(
 ) -> None:
     """
     Failure rate:          0 out of 50
-    Observed on:           2025-10-20
-    Average success time:  0.57 seconds per successful attempt
+    Observed on:           2026-05-15
+    Average success time:  0.35 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -759,12 +759,12 @@ def test_agent_can_call_client_tool_with_rejection_with_no_parameter(
     measure_room_temp_tool_with_confirmation: ClientTool,
 ) -> None:
     """
-    Failure rate:          2 out of 50
-    Observed on:           2025-10-20
-    Average success time:  1.93 seconds per successful attempt
-    Average failure time:  1.16 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-15
+    Average success time:  1.14 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     agent = Agent(
         tools=[measure_room_temp_tool_with_confirmation],
@@ -793,8 +793,8 @@ def test_agent_can_call_server_tool_with_confirmation(
 ) -> None:
     """
     Failure rate:          0 out of 50
-    Observed on:           2025-09-23
-    Average success time:  1.88 seconds per successful attempt
+    Observed on:           2026-05-15
+    Average success time:  1.46 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -827,8 +827,8 @@ def test_agent_can_call_server_tool_with_confirmation(
 def test_agent_can_handle_server_tool_rejection_multiple_times(agent_with_db_tool: Agent) -> None:
     """
     Failure rate:          0 out of 50
-    Observed on:           2025-09-29
-    Average success time:  1.60 seconds per successful attempt
+    Observed on:           2026-05-15
+    Average success time:  1.06 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -859,8 +859,8 @@ def test_agent_can_handle_server_tool_rejection_multiple_times(agent_with_db_too
 def test_agent_can_handle_server_tool_rejection_once(agent_with_db_tool: Agent) -> None:
     """
     Failure rate:          0 out of 50
-    Observed on:           2025-09-29
-    Average success time:  1.16 seconds per successful attempt
+    Observed on:           2026-05-15
+    Average success time:  0.72 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000

@@ -6,7 +6,7 @@
 
 import json
 from textwrap import dedent
-from typing import Annotated, Optional, Tuple
+from typing import Annotated, Callable, Optional, Tuple
 
 import pytest
 
@@ -28,6 +28,12 @@ from wayflowcore.property import IntegerProperty, StringProperty
 from wayflowcore.serialization import deserialize, serialize
 from wayflowcore.steps import OutputMessageStep
 from wayflowcore.swarm import HandoffMode, Swarm
+from wayflowcore.templates import PromptTemplate
+from wayflowcore.templates._swarmtemplate import (
+    _DEFAULT_SWARM_CHAT_TEMPLATE,
+    _DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE,
+    SwarmJsonToolOutputParser,
+)
 from wayflowcore.tools import ClientTool, ToolRequest, ToolResult, tool
 
 from .testhelpers.dummy import DummyModel
@@ -123,7 +129,13 @@ def example_math_agents(vllm_responses_llm) -> Tuple[Agent, Agent, Agent]:
     )
 
 
-def _get_math_swarm(bwip_agent, zbuk_agent, fooza_agent, handoff: HandoffMode):
+def _get_math_swarm(
+    bwip_agent,
+    zbuk_agent,
+    fooza_agent,
+    handoff: HandoffMode,
+    swarm_template: Optional[PromptTemplate] = None,
+):
     all_agents = (bwip_agent, zbuk_agent, fooza_agent)
     return Swarm(
         first_agent=fooza_agent,
@@ -131,6 +143,7 @@ def _get_math_swarm(bwip_agent, zbuk_agent, fooza_agent, handoff: HandoffMode):
             (ag1, ag2) for ag1 in all_agents for ag2 in all_agents if ag1 is not ag2
         ],
         handoff=handoff,
+        swarm_template=swarm_template,
     )
 
 
@@ -380,14 +393,18 @@ def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMo
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
 
     # HandoffMode.OPTIONAL
-    Failure rate:          0 out of 50
-    Observed on:           2026-01-19
-    Average success time:  3.87 seconds per successful attempt
-    Average failure time:  No time measurement
+    Failure rate:          1 out of 50
+    Observed on:           2026-05-15
+    Average success time:  34.63 seconds per successful attempt
+    Average failure time:  16.23 seconds per failed attempt
     Max attempt:           3
-    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
-    math_swarm = _get_math_swarm(*example_math_agents, handoff=handoff)
+    math_swarm = _get_math_swarm(
+        *example_math_agents,
+        handoff=handoff,
+        swarm_template=(_DEFAULT_SWARM_CHAT_TEMPLATE if handoff == HandoffMode.OPTIONAL else None),
+    )
     conv = math_swarm.start_conversation()  # first agent is fooza
     conv.append_user_message("compute the result the zbuk operation of 4 and 5")
     conv.execute()
@@ -456,6 +473,21 @@ def _send_message(
     )
 
 
+def _send_message_with_native_tool_call(
+    recipient_agent: Agent, message: Optional[str] = None
+) -> Message:
+    return Message(
+        tool_requests=[
+            ToolRequest(
+                name=_SEND_MESSAGE_TOOL_NAME,
+                args=dict(message=message or "MESSAGE", recipient=recipient_agent.name),
+                tool_request_id="send_message_1",
+            )
+        ],
+        message_type=MessageType.AGENT,
+    )
+
+
 def _handoff_message(recipient_agent: Agent, thoughts: Optional[str] = None) -> Message:
     return Message(
         render_template(
@@ -470,21 +502,225 @@ def _handoff_message(recipient_agent: Agent, thoughts: Optional[str] = None) -> 
     )
 
 
-def test_swarm_warns_agent_on_sending_message_to_caller_instead_of_using_talk_to_user_tool():
+def _handoff_message_with_native_tool_call(recipient_agent: Agent) -> Message:
+    return Message(
+        tool_requests=[
+            ToolRequest(
+                name=_HANDOFF_TOOL_NAME,
+                args=dict(recipient=recipient_agent.name),
+                tool_request_id="handoff_conversation_1",
+            )
+        ],
+        message_type=MessageType.AGENT,
+    )
+
+
+def test_swarm_uses_native_tool_calling_template_by_default_when_all_agent_llms_support_it():
+    llm = DummyModel()
+    agent1 = Agent(llm, name="agent1", description="agent 1")
+    agent2 = Agent(llm, name="agent2", description="agent 2")
+
+    swarm = Swarm(first_agent=agent1, relationships=[(agent1, agent2)])
+
+    assert swarm.swarm_template.native_tool_calling is True
+    assert swarm.swarm_template.output_parser is None
+
+
+def test_swarm_uses_non_native_tool_calling_template_when_an_agent_llm_does_not_support_it():
+    native_llm = DummyModel()
+    non_native_llm = DummyModel(supports_tool_calling=False)
+    agent1 = Agent(native_llm, name="agent1", description="agent 1")
+    agent2 = Agent(non_native_llm, name="agent2", description="agent 2")
+
+    swarm = Swarm(first_agent=agent1, relationships=[(agent1, agent2)])
+
+    assert swarm.swarm_template.native_tool_calling is False
+    assert isinstance(swarm.swarm_template.output_parser, SwarmJsonToolOutputParser)
+
+
+def test_swarm_can_use_non_native_tool_calling_template_when_explicitly_requested():
+    llm = DummyModel()
+    agent1 = Agent(llm, name="agent1", description="agent 1")
+    agent2 = Agent(llm, name="agent2", description="agent 2")
+
+    swarm = Swarm(
+        first_agent=agent1,
+        relationships=[(agent1, agent2)],
+        swarm_template=_DEFAULT_SWARM_CHAT_TEMPLATE,
+    )
+
+    assert swarm.swarm_template.native_tool_calling is False
+    assert isinstance(swarm.swarm_template.output_parser, SwarmJsonToolOutputParser)
+
+
+def test_swarm_can_use_native_tool_calling_template_when_explicitly_requested():
+    llm = DummyModel()
+    agent1 = Agent(llm, name="agent1", description="agent 1")
+    agent2 = Agent(llm, name="agent2", description="agent 2")
+
+    swarm = Swarm(
+        first_agent=agent1,
+        relationships=[(agent1, agent2)],
+        swarm_template=_DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE,
+    )
+
+    assert swarm.swarm_template.native_tool_calling is True
+    assert swarm.swarm_template.output_parser is None
+
+
+@pytest.mark.parametrize(
+    ("handoff", "expects_send_message", "expects_handoff_conversation"),
+    [
+        pytest.param(HandoffMode.NEVER, True, False, id="never"),
+        pytest.param(HandoffMode.OPTIONAL, True, True, id="optional"),
+        pytest.param(HandoffMode.ALWAYS, False, True, id="always"),
+    ],
+)
+def test_native_swarm_template_only_mentions_available_communication_tools(
+    handoff: HandoffMode,
+    expects_send_message: bool,
+    expects_handoff_conversation: bool,
+):
+    prompt = _DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE.format(
+        inputs={
+            "name": "agent1",
+            "description": "agent 1",
+            "caller_name": "HUMAN USER",
+            "other_agents": [{"name": "agent2", "description": "agent 2"}],
+            "handoff": handoff.value,
+            "_add_talk_to_user_tool": True,
+            "custom_instruction": "",
+            PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME: [],
+        },
+    )
+    rendered_prompt = "\n".join(message.content for message in prompt.messages)
+    mentions_send_message = "Use `send_message`" in rendered_prompt
+    mentions_handoff_conversation = "Use `handoff_conversation`" in rendered_prompt
+
+    assert mentions_send_message is expects_send_message
+    assert mentions_handoff_conversation is expects_handoff_conversation
+
+
+def test_native_swarm_template_omits_talk_to_user_when_disabled():
+    prompt = _DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE.format(
+        inputs={
+            "name": "agent1",
+            "description": "agent 1",
+            "caller_name": "HUMAN USER",
+            "other_agents": [{"name": "agent2", "description": "agent 2"}],
+            "handoff": HandoffMode.OPTIONAL.value,
+            "_add_talk_to_user_tool": False,
+            "custom_instruction": "",
+            PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME: [],
+        },
+    )
+    rendered_prompt = "\n".join(message.content for message in prompt.messages)
+
+    assert "talk_to_user" not in rendered_prompt
+    assert "Answer your caller directly" in rendered_prompt
+
+
+def test_non_native_swarm_template_allows_direct_answer_when_talk_to_user_disabled():
+    prompt = _DEFAULT_SWARM_CHAT_TEMPLATE.format(
+        inputs={
+            "name": "agent1",
+            "description": "agent 1",
+            "caller_name": "HUMAN USER",
+            "other_agents": [{"name": "agent2", "description": "agent 2"}],
+            "handoff": HandoffMode.OPTIONAL.value,
+            "_add_talk_to_user_tool": False,
+            "custom_instruction": "",
+            PromptTemplate.CHAT_HISTORY_PLACEHOLDER_NAME: [],
+        },
+    )
+    rendered_prompt = "\n".join(message.content for message in prompt.messages)
+
+    assert "talk_to_user" not in rendered_prompt
+    assert "When no tool call is needed, return only the visible answer text." in rendered_prompt
+    assert "Always structure your response as a thought" not in rendered_prompt
+
+
+def test_swarm_private_add_talk_to_user_tool_false_removes_tool_schema():
+    class CapturingDummyModel(DummyModel):
+        def __init__(self):
+            super().__init__()
+            self.captured_tool_names: list[str] = []
+
+        async def _generate_impl(self, prompt):
+            self.captured_tool_names = [tool.name for tool in prompt.tools or []]
+            return await super()._generate_impl(prompt)
+
+    llm = CapturingDummyModel()
+    llm.set_next_output("done")
+    agent1 = Agent(llm, name="agent1", description="agent 1")
+    agent2 = Agent(llm, name="agent2", description="agent 2")
+
+    swarm = Swarm(
+        first_agent=agent1,
+        relationships=[(agent1, agent2)],
+        _add_talk_to_user_tool=False,
+    )
+    status = swarm.start_conversation(messages="hello").execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert _SEND_MESSAGE_TOOL_NAME in llm.captured_tool_names
+    assert _TALK_TO_USER_TOOL_NAME not in llm.captured_tool_names
+
+
+@pytest.mark.parametrize(
+    ("swarm_template", "send_message_factory"),
+    [
+        pytest.param(
+            _DEFAULT_SWARM_CHAT_TEMPLATE,
+            _send_message,
+            id="non_native_swarm_template",
+        ),
+        pytest.param(
+            _DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE,
+            _send_message_with_native_tool_call,
+            id="native_swarm_template",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    ("add_talk_to_user_tool", "expected_guidance", "unexpected_guidance"),
+    [
+        pytest.param(
+            True,
+            f"Please use {_TALK_TO_USER_TOOL_NAME} instead.",
+            "Answer your caller directly",
+            id="talk_to_user_available",
+        ),
+        pytest.param(
+            False,
+            "Answer your caller directly with non-empty visible text instead.",
+            _TALK_TO_USER_TOOL_NAME,
+            id="talk_to_user_disabled",
+        ),
+    ],
+)
+def test_swarm_warns_agent_on_sending_message_to_caller_with_runtime_guidance(
+    swarm_template,
+    send_message_factory: Callable[[Agent, Optional[str]], Message],
+    add_talk_to_user_tool: bool,
+    expected_guidance: str,
+    unexpected_guidance: str,
+):
     llm = DummyModel()
 
     agent1 = Agent(llm, name="agent1", description="agent 1")
     agent2 = Agent(llm, name="agent2", description="agent 2")
 
-    swarm = Swarm(first_agent=agent1, relationships=[(agent1, agent2), (agent2, agent1)])
+    swarm = Swarm(
+        first_agent=agent1,
+        relationships=[(agent1, agent2), (agent2, agent1)],
+        swarm_template=swarm_template,
+        _add_talk_to_user_tool=add_talk_to_user_tool,
+    )
     llm.set_next_output(
         [
-            _send_message(
-                agent2, message="hey agent 2, can you do ...", thoughts="sending message to agent2"
-            ),
-            _send_message(
-                agent1, message="hey agent 1, can you do ...", thoughts="sending message to agent1"
-            ),
+            send_message_factory(agent2, "hey agent 2, can you do ..."),
+            send_message_factory(agent1, "hey agent 1, can you do ..."),
         ]
     )
 
@@ -500,10 +736,9 @@ def test_swarm_warns_agent_on_sending_message_to_caller_instead_of_using_talk_to
     last_message = (
         agent1_agent2_message_list.get_last_message()
     )  # Message warning the `agent2` about what it is doing wrong
-    assert (
-        f"Circular calling warning: Cannot use {_SEND_MESSAGE_TOOL_NAME} on a caller/user. Please use {_TALK_TO_USER_TOOL_NAME} instead"
-        in last_message.content
-    )
+    assert f"Cannot use {_SEND_MESSAGE_TOOL_NAME} to answer your caller." in last_message.content
+    assert expected_guidance in last_message.content
+    assert unexpected_guidance not in last_message.content
 
 
 def test_swarm_raises_on_missing_relationship_when_using_handoff():
@@ -525,11 +760,9 @@ def test_swarm_raises_on_missing_relationship_when_using_handoff():
 
     llm.set_next_output(
         [
-            _send_message(
-                agent2, message="hey agent 2, can you do ...", thoughts="sending message to agent2"
-            ),
+            _send_message_with_native_tool_call(agent2, message="hey agent 2, can you do ..."),
             "Yes, do this..",
-            _handoff_message(agent3, thoughts="handing off conversation to agent3"),
+            _handoff_message_with_native_tool_call(agent3),
             "Yes, User..",
         ]
     )
@@ -545,7 +778,28 @@ def test_swarm_raises_on_missing_relationship_when_using_handoff():
     )
 
 
-def test_circular_calling_warning_with_handoff():
+@pytest.mark.parametrize(
+    ("swarm_template", "send_message_factory", "handoff_message_factory"),
+    [
+        pytest.param(
+            _DEFAULT_SWARM_CHAT_TEMPLATE,
+            _send_message,
+            _handoff_message,
+            id="non_native_swarm_template",
+        ),
+        pytest.param(
+            _DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE,
+            _send_message_with_native_tool_call,
+            _handoff_message_with_native_tool_call,
+            id="native_swarm_template",
+        ),
+    ],
+)
+def test_circular_calling_warning_with_handoff(
+    swarm_template,
+    send_message_factory: Callable[[Agent, Optional[str]], Message],
+    handoff_message_factory: Callable[[Agent], Message],
+):
     llm = DummyModel()
 
     agent1 = Agent(llm, name="agent1", description="agent 1")
@@ -560,17 +814,14 @@ def test_circular_calling_warning_with_handoff():
             (agent2, agent3),
             (agent3, agent2),
         ],
+        swarm_template=swarm_template,
     )
 
     llm.set_next_output(
         [
-            _handoff_message(agent3, thoughts="handing off conversation to agent3"),
-            _send_message(
-                agent2, message="hey agent 2, can you do ...", thoughts="sending message to agent2"
-            ),
-            _send_message(
-                agent3, message="hey agent 3, can you do ...", thoughts="sending message to agent3"
-            ),
+            handoff_message_factory(agent3),
+            send_message_factory(agent2, "hey agent 2, can you do ..."),
+            send_message_factory(agent3, "hey agent 3, can you do ..."),
         ]
     )
 
@@ -588,7 +839,7 @@ def test_circular_calling_warning_with_handoff():
         agent3_agent2_message_list.get_last_message()
     )  # Message warning the `agent3` about what it is doing wrong
     assert (
-        f"Circular calling warning: Cannot use {_SEND_MESSAGE_TOOL_NAME} on a caller/user. Please use {_TALK_TO_USER_TOOL_NAME} instead"
+        f"Cannot use {_SEND_MESSAGE_TOOL_NAME} to answer your caller. Please use {_TALK_TO_USER_TOOL_NAME} instead"
         in last_message.content
     )
 
@@ -650,8 +901,8 @@ def check_name_in_db_tool(name: str) -> str:
 def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
     """
     Failure rate:          0 out of 50
-    Observed on:           2025-09-22
-    Average success time:  21.96 seconds per successful attempt
+    Observed on:           2026-05-15
+    Average success time:  9.86 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -713,15 +964,15 @@ def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
     assert isinstance(status2, UserMessageRequestStatus) or isinstance(status2, FinishedStatus)
 
 
-@retry_test(max_attempts=10)
+@retry_test(max_attempts=3)
 def test_swarm_can_handle_client_tool_with_confirmation(big_llama):
     """
-    Failure rate:          7 out of 20
-    Observed on:           2026-02-06
-    Average success time:  5.83 seconds per successful attempt
-    Average failure time:  16.28 seconds per failed attempt
-    Max attempt:           10
-    Justification:         (0.36 ** 10) ~= 4.0 / 100'000
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-15
+    Average success time:  2.49 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     check_name_in_db_tool = ClientTool(
         name="check_name_in_db_tool",
@@ -763,15 +1014,15 @@ def test_swarm_can_handle_client_tool_with_confirmation(big_llama):
     assert req.name == "check_name_in_db_tool"
 
 
-@retry_test(max_attempts=4)
+@retry_test(max_attempts=3)
 def test_swarm_can_handle_client_tool(big_llama):
     """
-    Failure rate:          2 out of 50
-    Observed on:           2025-10-09
-    Average success time:  10.91 seconds per successful attempt
-    Average failure time:  8.84 seconds per failed attempt
-    Max attempt:           4
-    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-15
+    Average success time:  4.61 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     llm = big_llama
     main_agent = Agent(
@@ -839,7 +1090,10 @@ def get_fixer_agent(llm: LlmModel) -> Agent:
 
     return Agent(
         llm=llm,
-        custom_instruction="You are a bug-fixer. Use your tools to fix bugs",
+        custom_instruction=(
+            "You are a bug-fixer. Use your tools to fix bugs. After calling a bug-fixing "
+            "tool, answer your caller with a non-empty visible confirmation of the fix."
+        ),
         name="fixer_agent",
         description="can fix bugs in the code-base given a bug detail",
         tools=[fix_bug],
@@ -854,7 +1108,12 @@ def get_debugger_agent(llm: LlmModel) -> Agent:
 
     return Agent(
         llm=llm,
-        custom_instruction="You are the debugger agent. Be truthful, do not make up any information. Use your tools to find information about bugs. Do not yield to user for confirmation.",
+        custom_instruction=(
+            "You are the debugger agent. Be truthful, do not make up any information. Use "
+            "your tools to find information about bugs. After calling a bug lookup tool, "
+            "answer your caller with a non-empty visible summary of the returned bug id and "
+            "details. Do not yield to user for confirmation."
+        ),
         name="debugger_agent",
         description="can investigate bugs in the code-base of a given product",
         tools=[get_bug],
@@ -864,21 +1123,26 @@ def get_debugger_agent(llm: LlmModel) -> Agent:
 def get_first_agent(llm: LlmModel) -> Agent:
     return Agent(
         llm=llm,
-        custom_instruction="You are the main agent",
+        custom_instruction=(
+            "You are the main agent. For bug investigation and repair requests, first ask "
+            "debugger_agent for the bug details. If debugger_agent returns any bug id or details, "
+            "ask fixer_agent to fix it using those returned details. Do not repeat the same "
+            "debugger_agent request after it returns a non-empty answer."
+        ),
         name="master_agent",
         description="Redirects the user requests to the sub agents, or handles the subagents communication. Do not solve the task on your own.",
     )
 
 
-@retry_test(max_attempts=6)
+@retry_test(max_attempts=5)
 def test_swarm_uses_handoff_tool_in_always_handoff_mode(vllm_responses_llm):
     """
-    Failure rate:          18 out of 100
-    Observed on:           2025-12-22
-    Average success time:  8.97 seconds per successful attempt
-    Average failure time:  3.65 seconds per failed attempt
-    Max attempt:           6
-    Justification:         (0.19 ** 6) ~= 4.2 / 100'000
+    Failure rate:          5 out of 50
+    Observed on:           2026-05-17
+    Average success time:  9.26 seconds per successful attempt
+    Average failure time:  12.64 seconds per failed attempt
+    Max attempt:           5
+    Justification:         (0.12 ** 5) ~= 2.0 / 100'000
     """
 
     llm = vllm_responses_llm
@@ -897,6 +1161,7 @@ def test_swarm_uses_handoff_tool_in_always_handoff_mode(vllm_responses_llm):
             (debugger_agent, fixer_agent),
         ],
         handoff=HandoffMode.ALWAYS,
+        _add_talk_to_user_tool=False,
     )
 
     conv = swarm.start_conversation(
@@ -933,12 +1198,12 @@ def test_swarm_uses_handoff_tool_when_sub_agent_can_take_over_in_optional_handof
     vllm_responses_llm,
 ):
     """
-    Failure rate:          1 out of 100
-    Observed on:           2025-12-10
-    Average success time:  3.50 seconds per successful attempt
-    Average failure time:  606.05 seconds per failed attempt
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-17
+    Average success time:  5.51 seconds per successful attempt
+    Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.02 ** 3) ~= 0.8 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
 
     llm = vllm_responses_llm
@@ -952,6 +1217,8 @@ def test_swarm_uses_handoff_tool_when_sub_agent_can_take_over_in_optional_handof
             (debugger_agent, main_agent),
         ],
         handoff=HandoffMode.ALWAYS,
+        swarm_template=_DEFAULT_SWARM_CHAT_TEMPLATE,
+        _add_talk_to_user_tool=False,
     )
 
     conv = swarm.start_conversation(messages="Do we have any bugs on the `amazon` product?")
@@ -972,17 +1239,17 @@ def test_swarm_uses_handoff_tool_when_sub_agent_can_take_over_in_optional_handof
             assert tool_request.args[k] == v
 
 
-@retry_test(max_attempts=6)
+@retry_test(max_attempts=3)
 def test_swarm_uses_send_message_when_collaboration_needed_in_optional_handoff_mode(
     vllm_responses_llm,
 ):
     """
-    Failure rate:          16 out of 100
-    Observed on:           2025-12-11
-    Average success time:  11.60 seconds per successful attempt
-    Average failure time:  13.25 seconds per failed attempt
-    Max attempt:           6
-    Justification:         (0.17 ** 6) ~= 2.1 / 100'000
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-17
+    Average success time:  8.89 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
 
     llm = vllm_responses_llm
@@ -1001,6 +1268,7 @@ def test_swarm_uses_send_message_when_collaboration_needed_in_optional_handoff_m
             (debugger_agent, fixer_agent),
         ],
         handoff=HandoffMode.OPTIONAL,
+        _add_talk_to_user_tool=False,
     )
 
     conv = swarm.start_conversation(
@@ -1284,12 +1552,12 @@ def test_multiple_tool_calls_after_handoff_get_cancelled(vllm_responses_llm):
 @retry_test(max_attempts=3)
 def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
     """
-    Failure rate:          1 out of 50
-    Observed on:           2025-12-22
-    Average success time:  11.72 seconds per successful attempt
-    Average failure time:  3.71 seconds per failed attempt
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-17
+    Average success time:  11.14 seconds per successful attempt
+    Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -1304,6 +1572,8 @@ def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm)
     math_swarm = Swarm(
         first_agent=main_agent,
         relationships=[(main_agent, agent) for agent in [fooza_agent, bwip_agent, zbuk_agent]],
+        swarm_template=_DEFAULT_SWARM_CHAT_TEMPLATE,
+        _add_talk_to_user_tool=False,
     )
 
     conv = math_swarm.start_conversation(
@@ -1346,6 +1616,7 @@ def _setup_swarm_for_multiple_tool_calling(vllm_responses_llm, raise_exceptions)
     math_swarm = Swarm(
         first_agent=main_agent,
         relationships=[(main_agent, agent) for agent in [fooza_agent, bwip_agent, zbuk_agent]],
+        _add_talk_to_user_tool=False,
     )
 
     conv = math_swarm.start_conversation(
@@ -1360,29 +1631,29 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_raises_e
     vllm_responses_llm,
 ):
     """
-    Failure rate:          0 out of 20
-    Observed on:           2026-01-28
-    Average success time:  5.19 seconds per successful attempt
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-17
+    Average success time:  3.49 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     conv = _setup_swarm_for_multiple_tool_calling(vllm_responses_llm, raise_exceptions=True)
     with pytest.raises(ValueError, match="Cannot compute result using fooza tool."):
         conv.execute()
 
 
-@retry_test(max_attempts=5)
+@retry_test(max_attempts=3)
 def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_does_not_raise_error(
     vllm_responses_llm,
 ):
     """
-    Failure rate:          2 out of 20
-    Observed on:           2026-01-28
-    Average success time:  14.45 seconds per successful attempt
-    Average failure time:  21.04 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    Failure rate:          1 out of 50
+    Observed on:           2026-05-17
+    Average success time:  12.47 seconds per successful attempt
+    Average failure time:  13.60 seconds per failed attempt
+    Max attempt:           3
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
     conv = _setup_swarm_for_multiple_tool_calling(vllm_responses_llm, raise_exceptions=False)
     conv.execute()
@@ -1390,12 +1661,12 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_does_not
     assert str(result) in conv.get_last_message().content
 
 
-@retry_test(max_attempts=4)
+@retry_test(max_attempts=3)
 def test_swarm_without_user_input_can_execute_as_expected(vllm_responses_llm):
     """
     Failure rate:          0 out of 50
-    Observed on:           2026-01-27
-    Average success time:  9.92 seconds per successful attempt
+    Observed on:           2026-05-15
+    Average success time:  12.27 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
