@@ -14,6 +14,7 @@ from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolExecutionConfirmationStatus,
     ToolRequestStatus,
+    UserMessageRequestStatus,
 )
 from wayflowcore.flow import Flow
 from wayflowcore.property import StringProperty
@@ -22,6 +23,7 @@ from wayflowcore.steps import (
     CompleteStep,
     FlowExecutionStep,
     InputMessageStep,
+    OutputMessageStep,
     ToolExecutionStep,
 )
 from wayflowcore.tools import ClientTool, ServerTool, ToolResult
@@ -257,6 +259,28 @@ def test_subflow_execution_might_yield_with_tool_request_inside() -> None:
     )
     status = conv.execute()
     assert isinstance(status, FinishedStatus)
+
+
+def test_subflow_execution_propagates_user_message_request_status() -> None:
+    subflow = Flow.from_steps(
+        steps=[
+            InputMessageStep("What should I write down?"),
+            OutputMessageStep(
+                "Recorded {{user_input}}",
+                input_mapping={"user_input": InputMessageStep.USER_PROVIDED_INPUT},
+            ),
+        ]
+    )
+    assistant = Flow.from_steps([FlowExecutionStep(flow=subflow)])
+
+    conv = assistant.start_conversation()
+    status = conv.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    conv.append_user_message("current user answer")
+    status = conv.execute()
+    assert isinstance(status, FinishedStatus)
+    assert conv.get_last_message().content == "Recorded current user answer"
 
 
 @pytest.fixture

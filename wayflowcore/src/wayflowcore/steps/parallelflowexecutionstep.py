@@ -12,7 +12,6 @@ from pyagentspec.property import json_schemas_have_same_type
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore._utils.async_helpers import run_async_function_in_parallel
-from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 from wayflowcore.executors.executionstatus import ExecutionStatus, FinishedStatus
 from wayflowcore.executors.interrupts.executioninterrupt import InterruptedExecutionStatus
 from wayflowcore.property import Property
@@ -261,17 +260,14 @@ class ParallelFlowExecutionStep(Step):
         ]
 
         # We run only the conversations that did not reach the end
-        sub_conversations_to_run = [
-            sub_conversation
-            for sub_conversation in sub_conversations
-            if sub_conversation.status is None or not isinstance(sub_conversation, FinishedStatus)
-        ]
-        # We collect the statuses of the conversations that did already finish as we need them for the cleanup
-        finished_statuses = [
-            sub_conversation.status
-            for sub_conversation in sub_conversations
-            if sub_conversation.status is not None and isinstance(sub_conversation, FinishedStatus)
-        ]
+        sub_conversations_to_run: List["FlowConversation"] = []
+        # Keep statuses from sub-conversations that finished before a previous interrupt.
+        finished_statuses: List[FinishedStatus] = []
+        for sub_conversation in sub_conversations:
+            if isinstance(sub_conversation.status, FinishedStatus):
+                finished_statuses.append(sub_conversation.status)
+            else:
+                sub_conversations_to_run.append(sub_conversation)
 
         async def _run_single_flow_target(sub_conv: "FlowConversation") -> ExecutionStatus:
             status = await sub_conv.execute_async()
@@ -311,10 +307,10 @@ class ParallelFlowExecutionStep(Step):
                 f"Illegal response from a subflow: some subflow returned a non-finished status: {non_finished_status}"
             )
 
-        for sub_conv in sub_conversations:
-            FlowConversationExecutor().cleanup_sub_conversation(
-                sub_conv.state,
-                self,
+        for flow in self.flows:
+            conversation._cleanup_sub_conversation(
+                step=self,
+                sub_conversation_id=flow.id,
             )
 
         if not all(isinstance(status, FinishedStatus) for status in statuses):
