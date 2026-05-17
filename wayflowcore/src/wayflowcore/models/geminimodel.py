@@ -359,9 +359,7 @@ class GeminiModel(LlmModel):
             from wayflowcore.templates import PromptTemplate
 
             prompt = PromptTemplate.from_string(prompt).format()
-        if prompt.generation_config is None:
-            prompt = prompt.copy(generation_config=self.generation_config)
-        return prompt
+        return self._apply_generation_config_defaults(prompt)
 
     def _get_litellm_model_id(self) -> str:
         if self.model_id.startswith(("gemini/", "vertex_ai/")):

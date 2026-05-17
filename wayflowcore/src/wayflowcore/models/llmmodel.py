@@ -202,6 +202,15 @@ class LlmModel(Component, SerializableObject, ABC):
             self.generate_async, prompt, _conversation, method_name="generate_async"
         )
 
+    def _apply_generation_config_defaults(self, prompt: Prompt) -> Prompt:
+        if self.generation_config is None:
+            return prompt.copy()
+        if prompt.generation_config is None:
+            return prompt.copy(generation_config=self.generation_config)
+        return prompt.copy(
+            generation_config=self.generation_config.merge_config(prompt.generation_config)
+        )
+
     async def generate_async(
         self, prompt: Union[str, Prompt], _conversation: Optional["Conversation"] = None
     ) -> LlmCompletion:
@@ -212,9 +221,7 @@ class LlmModel(Component, SerializableObject, ABC):
 
             prompt = await PromptTemplate.from_string(prompt).format_async()
 
-        # add model default values if no generation config is passed
-        if prompt.generation_config is None:
-            prompt = prompt.copy(generation_config=self.generation_config)
+        prompt = self._apply_generation_config_defaults(prompt)
 
         self._check_supports_prompt(prompt)
 
@@ -276,9 +283,7 @@ class LlmModel(Component, SerializableObject, ABC):
 
             prompt = await PromptTemplate.from_string(prompt).format_async()
 
-        # add model default values if no generation config is passed
-        if prompt.generation_config is None:
-            prompt = prompt.copy(generation_config=self.generation_config)
+        prompt = self._apply_generation_config_defaults(prompt)
 
         self._check_supports_prompt(prompt)
 

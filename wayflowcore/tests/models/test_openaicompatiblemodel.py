@@ -227,6 +227,31 @@ def test_responses_processor_formats_tool_result_as_tool_data():
     ]
 
 
+def test_responses_generation_params_merge_reasoning_and_include():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+    model_config = LlmGenerationConfig(extra_args={"reasoning": {"effort": "medium"}})
+    prompt_config = LlmGenerationConfig(extra_args={"include": ["message.output_text.logprobs"]})
+    generation_config = model_config.merge_config(prompt_config)
+
+    kwargs = processor._convert_generation_params(generation_config)
+
+    assert kwargs["reasoning"] == {"effort": "medium", "summary": "auto"}
+    assert kwargs["include"] == [
+        "reasoning.encrypted_content",
+        "message.output_text.logprobs",
+    ]
+    assert model_config.extra_args == {"reasoning": {"effort": "medium"}}
+    assert prompt_config.extra_args == {"include": ["message.output_text.logprobs"]}
+    assert generation_config.extra_args == {
+        "reasoning": {"effort": "medium"},
+        "include": ["message.output_text.logprobs"],
+    }
+
+
 def _get_fake_request_that_succeeds_after_x_trials(x: int, status_code: int = 429):
     counter = 0
 

@@ -8,12 +8,30 @@ from unittest.mock import patch
 import pytest
 
 from wayflowcore.messagelist import Message
+from wayflowcore.models.geminimodel import GeminiApiKeyAuth, GeminiModel
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import LlmModel, Prompt
 from wayflowcore.models.vllmmodel import VllmModel
 from wayflowcore.serialization import deserialize_from_dict, serialize_to_dict
 
 from ..conftest import VLLM_MODEL_CONFIG
+from ..testhelpers.dummy import DummyModel
+
+
+class _RecordingDummyModel(DummyModel):
+    def __init__(self) -> None:
+        super().__init__(fails_if_not_set=False)
+        self.recorded_prompts: list[Prompt] = []
+
+    async def _generate_impl(self, prompt: Prompt):
+        self.recorded_prompts.append(prompt)
+        return await super()._generate_impl(prompt)
+
+
+class _MutatingDummyModel(_RecordingDummyModel):
+    async def _generate_impl(self, prompt: Prompt):
+        prompt.messages.append(Message(content="mutated by model preprocessing"))
+        return await super()._generate_impl(prompt)
 
 
 def test_config_serde():
@@ -105,6 +123,100 @@ def test_overriding_configs_keeps_none_values():
     assert second_config.max_tokens is None
     assert second_config.temperature is None
     assert second_config.top_p == 0.4
+
+
+def test_model_without_generation_config_still_copies_prompt() -> None:
+    llm = _MutatingDummyModel()
+    prompt = Prompt(messages=[Message(content="hello")])
+
+    llm.generate(prompt)
+
+    assert [message.content for message in prompt.messages] == ["hello"]
+
+
+def test_model_generation_config_is_merged_with_prompt_generation_config() -> None:
+    llm = _RecordingDummyModel()
+    llm.generation_config = LlmGenerationConfig(
+        temperature=0.7,
+        max_tokens=1000,
+        extra_args={"reasoning": {"effort": "medium"}},
+    )
+    prompt = Prompt(
+        messages=[Message(content="hello")],
+        generation_config=LlmGenerationConfig(extra_args={"parallel_tool_calls": False}),
+    )
+
+    llm.generate(prompt)
+
+    assert llm.recorded_prompts[0].generation_config is not None
+    assert llm.recorded_prompts[0].generation_config.to_dict() == {
+        "max_tokens": 1000,
+        "temperature": 0.7,
+        "reasoning": {"effort": "medium"},
+        "parallel_tool_calls": False,
+    }
+
+
+def test_prompt_generation_config_takes_precedence_over_model_generation_config() -> None:
+    llm = _RecordingDummyModel()
+    llm.generation_config = LlmGenerationConfig(
+        temperature=0.7,
+        max_tokens=1000,
+        extra_args={
+            "parallel_tool_calls": True,
+            "reasoning": {"effort": "medium"},
+        },
+    )
+    prompt = Prompt(
+        messages=[Message(content="hello")],
+        generation_config=LlmGenerationConfig(
+            temperature=0.1,
+            max_tokens=500,
+            extra_args={"parallel_tool_calls": False},
+        ),
+    )
+
+    llm.generate(prompt)
+
+    assert llm.recorded_prompts[0].generation_config is not None
+    assert llm.recorded_prompts[0].generation_config.to_dict() == {
+        "max_tokens": 500,
+        "temperature": 0.1,
+        "parallel_tool_calls": False,
+        "reasoning": {"effort": "medium"},
+    }
+
+
+def test_gemini_sync_prompt_preparation_merges_model_generation_config() -> None:
+    llm = GeminiModel(
+        model_id="gemini-test",
+        auth=GeminiApiKeyAuth(api_key="dummy"),
+        generation_config=LlmGenerationConfig(
+            temperature=0.7,
+            max_tokens=1000,
+            extra_args={
+                "parallel_tool_calls": True,
+                "reasoning": {"effort": "medium"},
+            },
+        ),
+    )
+    prompt = Prompt(
+        messages=[Message(content="hello")],
+        generation_config=LlmGenerationConfig(
+            temperature=0.1,
+            extra_args={"parallel_tool_calls": False},
+        ),
+    )
+
+    prepared_prompt = llm._prepare_prompt(prompt)
+
+    assert prepared_prompt.generation_config is not None
+    assert prepared_prompt.generation_config.to_dict() == {
+        "max_tokens": 1000,
+        "temperature": 0.1,
+        "parallel_tool_calls": False,
+        "reasoning": {"effort": "medium"},
+    }
 
 
 @pytest.mark.parametrize(

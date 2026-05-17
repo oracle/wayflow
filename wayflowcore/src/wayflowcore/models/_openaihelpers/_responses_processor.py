@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
 import logging
+from copy import deepcopy
 from typing import Any, AsyncIterable, Callable, Dict, List, Optional
 
 from wayflowcore._utils.formatting import format_tool_output_for_llm
@@ -249,22 +250,28 @@ class _ResponsesAPIProcessor(_APIProcessor):
             if "message.output_text.logprobs" not in kwargs["include"]:
                 kwargs["include"].append("message.output_text.logprobs")
         if generation_config.extra_args:
-            if "reasoning" in generation_config.extra_args:
+            extra_args = deepcopy(generation_config.extra_args)
+            if "reasoning" in extra_args:
                 kwargs.setdefault("include", [])
                 if "reasoning.encrypted_content" not in kwargs["include"]:
                     kwargs["include"].append(
                         "reasoning.encrypted_content"
                     )  # Pass reasoning traces if user has configured the reasoning parameter
 
-                if "summary" not in generation_config.extra_args["reasoning"]:
-                    generation_config.extra_args["reasoning"]["summary"] = "auto"
+                if "summary" not in extra_args["reasoning"]:
+                    extra_args["reasoning"]["summary"] = "auto"
 
-            if "include" in kwargs and "include" in generation_config.extra_args:
+            if "include" in extra_args:
                 # prevent overriding any include
-                kwargs["include"].update(generation_config.extra_args["update"])
-                generation_config.extra_args.pop("include")
+                kwargs.setdefault("include", [])
+                include = extra_args.pop("include")
+                if isinstance(include, str):
+                    include = [include]
+                for include_item in include:
+                    if include_item not in kwargs["include"]:
+                        kwargs["include"].append(include_item)
 
-            kwargs.update(generation_config.extra_args)
+            kwargs.update(extra_args)
 
         return kwargs
 
