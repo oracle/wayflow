@@ -393,12 +393,12 @@ def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMo
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
 
     # HandoffMode.OPTIONAL
-    Failure rate:          1 out of 50
-    Observed on:           2026-05-15
-    Average success time:  34.63 seconds per successful attempt
-    Average failure time:  16.23 seconds per failed attempt
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-18
+    Average success time:  12.87 seconds per successful attempt
+    Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     math_swarm = _get_math_swarm(
         *example_math_agents,
@@ -796,6 +796,178 @@ def test_swarm_raises_on_missing_relationship_when_using_handoff():
     )
 
 
+def test_native_swarm_handoff_records_transfer_context_in_tool_result():
+    class CapturingDummyModel(DummyModel):
+        def __init__(self):
+            super().__init__()
+            self.captured_prompts = []
+
+        async def _generate_impl(self, prompt):
+            self.captured_prompts.append(prompt)
+            return await super()._generate_impl(prompt)
+
+    llm = CapturingDummyModel()
+
+    agent1 = Agent(llm, name="agent1", description="agent 1")
+    agent2 = Agent(llm, name="agent2", description="agent 2")
+
+    swarm = Swarm(
+        first_agent=agent1,
+        relationships=[(agent1, agent2)],
+        handoff=HandoffMode.ALWAYS,
+        swarm_template=_DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE,
+        _add_talk_to_user_tool=False,
+    )
+
+    llm.set_next_output([_handoff_message_with_native_tool_call(agent2), "done"])
+
+    conv = swarm.start_conversation(messages="dummy")
+    conv.execute()
+
+    tool_results = [message.tool_result for message in conv.get_messages() if message.tool_result]
+
+    assert len(tool_results) == 1
+    assert "transferred from agent 'agent1' to agent 'agent2'" in tool_results[0].content
+    assert "continuing from the user's original request" in tool_results[0].content
+    assert conv.state.main_thread.recipient_agent is agent2
+
+    assert len(llm.captured_prompts) == 2
+    handoff_recipient_prompt_messages = llm.captured_prompts[1].messages
+    assert not any(message.tool_requests for message in handoff_recipient_prompt_messages)
+    assert not any(message.tool_result for message in handoff_recipient_prompt_messages)
+    assert handoff_recipient_prompt_messages[-1].role == "user"
+    rendered_prompt = "\n".join(message.content for message in handoff_recipient_prompt_messages)
+    assert "--- CONVERSATION EVENT ---" in rendered_prompt
+    assert "transferred from agent 'agent1' to agent 'agent2'" in rendered_prompt
+
+
+def test_native_swarm_foreign_tool_history_is_not_rendered_as_current_agent_tool_history():
+    from wayflowcore.executors._swarmexecutor import _SwarmNativeForeignHistoryTransform
+
+    foreign_tool_request = ToolRequest(
+        name="get_bug",
+        args={"product": "amazon"},
+        tool_request_id="get_bug_1",
+    )
+    current_tool_request = ToolRequest(
+        name="fix_bug",
+        args={"bug": {"id": "fbuyeiwb"}},
+        tool_request_id="fix_bug_1",
+    )
+    messages = [
+        Message(role="user", content="Do we have bugs on amazon?"),
+        Message(role="assistant", content="Looking it up.", sender="debugger_agent"),
+        Message(
+            tool_requests=[foreign_tool_request],
+            message_type=MessageType.TOOL_REQUEST,
+            sender="debugger_agent",
+        ),
+        Message(
+            tool_result=ToolResult(
+                content={"id": "fbuyeiwb", "details": "Infinite recursion"},
+                tool_request_id="get_bug_1",
+            ),
+            message_type=MessageType.TOOL_RESULT,
+        ),
+        Message(
+            tool_requests=[current_tool_request],
+            message_type=MessageType.TOOL_REQUEST,
+            sender="fixer_agent",
+        ),
+        Message(
+            tool_result=ToolResult(content="fixed", tool_request_id="fix_bug_1"),
+            message_type=MessageType.TOOL_RESULT,
+        ),
+    ]
+
+    transformed_messages = _SwarmNativeForeignHistoryTransform("fixer_agent")(messages)
+
+    assert not any(
+        tool_request.tool_request_id == "get_bug_1"
+        for message in transformed_messages
+        for tool_request in (message.tool_requests or [])
+    )
+    assert not any(
+        message.tool_result and message.tool_result.tool_request_id == "get_bug_1"
+        for message in transformed_messages
+    )
+    assert any(
+        tool_request.tool_request_id == "fix_bug_1"
+        for message in transformed_messages
+        for tool_request in (message.tool_requests or [])
+    )
+    assert any(
+        message.tool_result and message.tool_result.tool_request_id == "fix_bug_1"
+        for message in transformed_messages
+    )
+    rendered_messages = "\n".join(message.content for message in transformed_messages)
+    assert "Agent 'debugger_agent' said:" in rendered_messages
+    assert "Agent 'debugger_agent' called tool 'get_bug'" in rendered_messages
+    assert "Infinite recursion" in rendered_messages
+
+
+def test_native_swarm_foreign_history_keeps_current_tool_results_with_colliding_ids():
+    from wayflowcore.executors._swarmexecutor import _SwarmNativeForeignHistoryTransform
+
+    colliding_tool_request_id = "tool_call_1"
+    foreign_tool_request = ToolRequest(
+        name="get_bug",
+        args={"product": "amazon"},
+        tool_request_id=colliding_tool_request_id,
+    )
+    current_tool_request = ToolRequest(
+        name="fix_bug",
+        args={"bug": {"id": "fbuyeiwb"}},
+        tool_request_id=colliding_tool_request_id,
+    )
+    messages = [
+        Message(
+            tool_requests=[foreign_tool_request],
+            message_type=MessageType.TOOL_REQUEST,
+            sender="debugger_agent",
+        ),
+        Message(
+            tool_result=ToolResult(
+                content={"id": "fbuyeiwb", "details": "Infinite recursion"},
+                tool_request_id=colliding_tool_request_id,
+            ),
+            message_type=MessageType.TOOL_RESULT,
+        ),
+        Message(
+            tool_requests=[current_tool_request],
+            message_type=MessageType.TOOL_REQUEST,
+            sender="fixer_agent",
+        ),
+        Message(
+            tool_result=ToolResult(
+                content="current fix output",
+                tool_request_id=colliding_tool_request_id,
+            ),
+            message_type=MessageType.TOOL_RESULT,
+        ),
+    ]
+
+    transformed_messages = _SwarmNativeForeignHistoryTransform("fixer_agent")(messages)
+
+    assert any(
+        tool_request.name == "fix_bug" and tool_request.tool_request_id == colliding_tool_request_id
+        for message in transformed_messages
+        for tool_request in (message.tool_requests or [])
+    )
+    assert any(
+        message.tool_result
+        and message.tool_result.tool_request_id == colliding_tool_request_id
+        and message.tool_result.content == "current fix output"
+        for message in transformed_messages
+    )
+    assert sum(1 for message in transformed_messages if message.tool_result) == 1
+    rendered_event_messages = "\n".join(
+        message.content for message in transformed_messages if not message.tool_result
+    )
+    assert "Agent 'debugger_agent' called tool 'get_bug'" in rendered_event_messages
+    assert "current fix output" not in rendered_event_messages
+
+
 @pytest.mark.parametrize(
     ("swarm_template", "send_message_factory", "handoff_message_factory"),
     [
@@ -919,8 +1091,8 @@ def check_name_in_db_tool(name: str) -> str:
 def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
     """
     Failure rate:          0 out of 50
-    Observed on:           2026-05-15
-    Average success time:  9.86 seconds per successful attempt
+    Observed on:           2026-05-18
+    Average success time:  9.39 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -986,8 +1158,8 @@ def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
 def test_swarm_can_handle_client_tool_with_confirmation(big_llama):
     """
     Failure rate:          0 out of 50
-    Observed on:           2026-05-15
-    Average success time:  2.49 seconds per successful attempt
+    Observed on:           2026-05-18
+    Average success time:  2.90 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1036,8 +1208,8 @@ def test_swarm_can_handle_client_tool_with_confirmation(big_llama):
 def test_swarm_can_handle_client_tool(big_llama):
     """
     Failure rate:          0 out of 50
-    Observed on:           2026-05-15
-    Average success time:  4.61 seconds per successful attempt
+    Observed on:           2026-05-18
+    Average success time:  5.29 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1152,15 +1324,15 @@ def get_first_agent(llm: LlmModel) -> Agent:
     )
 
 
-@retry_test(max_attempts=5)
+@retry_test(max_attempts=3)
 def test_swarm_uses_handoff_tool_in_always_handoff_mode(vllm_responses_llm):
     """
-    Failure rate:          5 out of 50
-    Observed on:           2026-05-17
-    Average success time:  9.26 seconds per successful attempt
-    Average failure time:  12.64 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.12 ** 5) ~= 2.0 / 100'000
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-18
+    Average success time:  17.68 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           3
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
 
     llm = vllm_responses_llm
@@ -1217,8 +1389,8 @@ def test_swarm_uses_handoff_tool_when_sub_agent_can_take_over_in_optional_handof
 ):
     """
     Failure rate:          0 out of 50
-    Observed on:           2026-05-17
-    Average success time:  5.51 seconds per successful attempt
+    Observed on:           2026-05-18
+    Average success time:  6.95 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1235,7 +1407,7 @@ def test_swarm_uses_handoff_tool_when_sub_agent_can_take_over_in_optional_handof
             (debugger_agent, main_agent),
         ],
         handoff=HandoffMode.ALWAYS,
-        swarm_template=_DEFAULT_SWARM_CHAT_TEMPLATE,
+        swarm_template=_DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE,
         _add_talk_to_user_tool=False,
     )
 
@@ -1263,8 +1435,8 @@ def test_swarm_uses_send_message_when_collaboration_needed_in_optional_handoff_m
 ):
     """
     Failure rate:          0 out of 50
-    Observed on:           2026-05-17
-    Average success time:  8.89 seconds per successful attempt
+    Observed on:           2026-05-18
+    Average success time:  11.60 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1570,12 +1742,12 @@ def test_multiple_tool_calls_after_handoff_get_cancelled(vllm_responses_llm):
 @retry_test(max_attempts=3)
 def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
     """
-    Failure rate:          0 out of 50
-    Observed on:           2026-05-17
-    Average success time:  11.14 seconds per successful attempt
-    Average failure time:  No time measurement
+    Failure rate:          1 out of 50
+    Observed on:           2026-05-18
+    Average success time:  15.11 seconds per successful attempt
+    Average failure time:  16.98 seconds per failed attempt
     Max attempt:           3
-    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -1650,8 +1822,8 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_raises_e
 ):
     """
     Failure rate:          0 out of 50
-    Observed on:           2026-05-17
-    Average success time:  3.49 seconds per successful attempt
+    Observed on:           2026-05-18
+    Average success time:  5.50 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1666,12 +1838,12 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_does_not
     vllm_responses_llm,
 ):
     """
-    Failure rate:          1 out of 50
-    Observed on:           2026-05-17
-    Average success time:  12.47 seconds per successful attempt
-    Average failure time:  13.60 seconds per failed attempt
+    Failure rate:          0 out of 50
+    Observed on:           2026-05-18
+    Average success time:  16.07 seconds per successful attempt
+    Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     conv = _setup_swarm_for_multiple_tool_calling(vllm_responses_llm, raise_exceptions=False)
     conv.execute()
@@ -1682,12 +1854,12 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_does_not
 @retry_test(max_attempts=3)
 def test_swarm_without_user_input_can_execute_as_expected(vllm_responses_llm):
     """
-    Failure rate:          0 out of 50
-    Observed on:           2026-05-15
-    Average success time:  12.27 seconds per successful attempt
-    Average failure time:  No time measurement
+    Failure rate:          1 out of 50
+    Observed on:           2026-05-18
+    Average success time:  12.48 seconds per successful attempt
+    Average failure time:  7.94 seconds per failed attempt
     Max attempt:           3
-    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
     llm = vllm_responses_llm
 

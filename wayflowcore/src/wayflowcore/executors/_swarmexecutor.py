@@ -4,12 +4,14 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import json
 import logging
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Optional, Sequence
 
 from wayflowcore import Conversation
 from wayflowcore._utils._templating_helpers import render_template
+from wayflowcore._utils.formatting import format_tool_output_for_llm
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.executors._agenticpattern_helpers import (
     _HANDOFF_TOOL_NAME,
@@ -32,6 +34,7 @@ from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.swarm import HandoffMode, Swarm, _get_recipient_agents_for_agent
 from wayflowcore.templates._swarmtemplate import _HANDOFF_CONFIRMATION_MESSAGE_TEMPLATE
 from wayflowcore.tools import ClientTool, ToolRequest, ToolResult
+from wayflowcore.transforms import MessageTransform
 
 if TYPE_CHECKING:
     from wayflowcore.executors._agentconversation import AgentConversation
@@ -71,6 +74,140 @@ def _caller_rejection_message(add_talk_to_user_tool: bool) -> str:
 
         return f"{message} Please use {_TALK_TO_USER_TOOL_NAME} instead."
     return f"{message} Answer your caller directly with non-empty visible text instead."
+
+
+def _handoff_confirmation_message(sender_agent_name: str, new_agent_name: str) -> str:
+    return render_template(
+        _HANDOFF_CONFIRMATION_MESSAGE_TEMPLATE,
+        {
+            "sender_agent_name": sender_agent_name,
+            "new_agent_name": new_agent_name,
+        },
+    )
+
+
+class _SwarmNativeForeignHistoryTransform(MessageTransform):
+    def __init__(self, current_agent_name: str) -> None:
+        super().__init__()
+        self.current_agent_name = current_agent_name
+
+    def __call__(self, messages: list[Message]) -> list[Message]:
+        has_foreign_agent_history = any(
+            message.sender not in (None, self.current_agent_name) for message in messages
+        )
+        if not has_foreign_agent_history:
+            return messages
+
+        def is_foreign_sender(sender: Optional[str]) -> bool:
+            return sender not in (None, self.current_agent_name)
+
+        answered_foreign_tool_request_ids: set[int] = set()
+        latest_tool_requests_by_id: dict[str, tuple[Optional[str], ToolRequest]] = {}
+        for message in messages:
+            if message.tool_result:
+                latest_request = latest_tool_requests_by_id.get(message.tool_result.tool_request_id)
+                if latest_request is not None:
+                    sender_name, tool_request = latest_request
+                    if is_foreign_sender(sender_name):
+                        answered_foreign_tool_request_ids.add(id(tool_request))
+
+            for tool_request in message.tool_requests or []:
+                latest_tool_requests_by_id[tool_request.tool_request_id] = (
+                    message.sender,
+                    tool_request,
+                )
+
+        transformed_messages: list[Message] = []
+        latest_tool_requests_by_id.clear()
+        for message in messages:
+            if (
+                message.tool_result
+                and (
+                    latest_request := latest_tool_requests_by_id.get(
+                        message.tool_result.tool_request_id
+                    )
+                )
+                and is_foreign_sender(latest_request[0])
+            ):
+                sender_name, tool_request = latest_request
+                transformed_messages.append(
+                    _foreign_tool_result_event_message(
+                        sender_name=sender_name,
+                        tool_request=tool_request,
+                        tool_result=message.tool_result,
+                    )
+                )
+                continue
+
+            for tool_request in message.tool_requests or []:
+                latest_tool_requests_by_id[tool_request.tool_request_id] = (
+                    message.sender,
+                    tool_request,
+                )
+
+            if is_foreign_sender(message.sender):
+                if message.content:
+                    transformed_messages.append(
+                        _foreign_agent_message_event(
+                            sender_name=message.sender,
+                            content=message.content,
+                        )
+                    )
+
+                for tool_request in message.tool_requests or []:
+                    if id(tool_request) not in answered_foreign_tool_request_ids:
+                        transformed_messages.append(
+                            _foreign_tool_request_event_message(
+                                sender_name=message.sender,
+                                tool_request=tool_request,
+                            )
+                        )
+                continue
+
+            if message.tool_requests:
+                transformed_messages.append(message)
+                continue
+
+            transformed_messages.append(message)
+
+        return transformed_messages
+
+
+def _foreign_agent_message_event(sender_name: Optional[str], content: str) -> Message:
+    return Message(
+        role="user",
+        content=f"--- CONVERSATION EVENT ---\nAgent '{sender_name}' said:\n{content}",
+    )
+
+
+def _foreign_tool_request_event_message(
+    sender_name: Optional[str],
+    tool_request: ToolRequest,
+) -> Message:
+    return Message(
+        role="user",
+        content=(
+            "--- CONVERSATION EVENT ---\n"
+            f"Agent '{sender_name}' requested tool '{tool_request.name}' with parameters: "
+            f"{json.dumps(tool_request.args, sort_keys=True, default=str)}"
+        ),
+    )
+
+
+def _foreign_tool_result_event_message(
+    sender_name: Optional[str],
+    tool_request: ToolRequest,
+    tool_result: ToolResult,
+) -> Message:
+    if tool_request.name == _HANDOFF_TOOL_NAME:
+        event_content = tool_result.content
+    else:
+        event_content = (
+            f"Agent '{sender_name}' called tool '{tool_request.name}' with parameters: "
+            f"{json.dumps(tool_request.args, sort_keys=True, default=str)}\n"
+            f"Tool result:\n{format_tool_output_for_llm(tool_result.content)}"
+        )
+    return Message(role="user", content=f"--- CONVERSATION EVENT ---\n{event_content}")
 
 
 class _ToolProcessSignal(Enum):
@@ -163,9 +300,15 @@ class SwarmRunner(ConversationExecutor):
             mutated_agent_tools = _remove_talk_to_user_tool(current_agent.tools)
             mutated_agent_tools.extend(communication_tools)
 
-            mutated_agent_template = swarm_config._compose_runtime_agent_template(
-                current_agent
-            ).with_partial(
+            runtime_agent_template = swarm_config._compose_runtime_agent_template(current_agent)
+            if runtime_agent_template.native_tool_calling:
+                runtime_agent_template = (
+                    runtime_agent_template.with_additional_pre_rendering_transform(
+                        _SwarmNativeForeignHistoryTransform(current_agent.name)
+                    )
+                )
+
+            mutated_agent_template = runtime_agent_template.with_partial(
                 {
                     "name": current_agent.name,
                     "description": current_agent.description,
@@ -478,16 +621,9 @@ class SwarmRunner(ConversationExecutor):
             logger.info("Failure when trying to call new agent: `%s`", error_message)
         else:
             previous_thread = current_thread
-            handoff_tool_result_content = (
-                ""
-                if swarm_config.swarm_template.native_tool_calling
-                else render_template(
-                    _HANDOFF_CONFIRMATION_MESSAGE_TEMPLATE,
-                    {
-                        "sender_agent_name": current_agent.name,
-                        "new_agent_name": recipient_agent_name,
-                    },
-                )
+            handoff_tool_result_content = _handoff_confirmation_message(
+                sender_agent_name=current_agent.name,
+                new_agent_name=recipient_agent_name,
             )
             previous_thread.message_list.append_tool_result(
                 ToolResult(

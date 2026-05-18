@@ -287,6 +287,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
         output_contents: List[MessageContent] = []
         reasoning_content: Optional[_ReasoningContent] = None
         prompt_cache_key = None
+        extra_output_items: List[Dict[str, Any]] = []
 
         if "incomplete_details" in response and response["incomplete_details"]:
             raise ValueError(
@@ -295,13 +296,13 @@ class _ResponsesAPIProcessor(_APIProcessor):
 
         for item in response["output"]:
             if item["type"] == "function_call":
-                current_tool_requests.append(
-                    ToolRequest(
-                        name=item["name"],
-                        args=_safe_json_loads(item["arguments"]),
-                        tool_request_id=item["call_id"],
-                    )
-                )
+                current_tool_requests.append(self._convert_tool_call_into_tool_request(item))
+
+            elif item["type"] == "mcp_call":
+                if self._mcp_call_looks_like_local_tool_request(item):
+                    current_tool_requests.append(self._convert_tool_call_into_tool_request(item))
+                else:
+                    extra_output_items.append(item.copy())
 
             elif item["type"] == "message":
                 if len(item["content"]) > 1:
@@ -335,12 +336,16 @@ class _ResponsesAPIProcessor(_APIProcessor):
         if "prompt_cache_key" in response:
             prompt_cache_key = response["prompt_cache_key"]
 
+        extra_content = (
+            {"responses_output_items": extra_output_items} if extra_output_items else None
+        )
         message = Message(
             contents=output_contents,
             tool_requests=tool_requests,
             role="assistant",
             _reasoning_content=reasoning_content,
             _prompt_cache_key=prompt_cache_key,
+            _extra_content=extra_content,
         )
 
         return message
@@ -393,6 +398,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
         reasoning_content: Optional[_ReasoningContent] = None
         prompt_cache_key = None
         image_content = []
+        extra_output_items: List[Dict[str, Any]] = []
 
         async for json_object in json_object_iterable:
             text_delta = ""
@@ -425,6 +431,11 @@ class _ResponsesAPIProcessor(_APIProcessor):
 
                 if json_object["item"]["type"] == "function_call":
                     tool_calls.append(json_object["item"])
+                elif json_object["item"]["type"] == "mcp_call":
+                    if self._mcp_call_looks_like_local_tool_request(json_object["item"]):
+                        tool_calls.append(json_object["item"])
+                    else:
+                        extra_output_items.append(json_object["item"].copy())
 
             if json_object["type"] == "response.output_text.delta":
                 text_delta = json_object["delta"]
@@ -445,6 +456,13 @@ class _ResponsesAPIProcessor(_APIProcessor):
 
                                 if content["type"] == "refusal":
                                     final_output_text = content["refusal"]
+                    elif output["type"] == "mcp_call":
+                        if self._mcp_call_looks_like_local_tool_request(
+                            output
+                        ) and not self._has_seen_tool_call(tool_calls, output):
+                            tool_calls.append(output)
+                        elif not self._has_seen_extra_output_item(extra_output_items, output):
+                            extra_output_items.append(output.copy())
 
             if (
                 "response" in json_object
@@ -470,6 +488,9 @@ class _ResponsesAPIProcessor(_APIProcessor):
         if final_output_text is not None:
             text = final_output_text  # We use final generated output_text if we miss any text delta during streaming
 
+        extra_content = (
+            {"responses_output_items": extra_output_items} if extra_output_items else None
+        )
         if len(image_content):
             message_contents: List[MessageContent] = [TextContent(text)]
             for image in image_content:
@@ -481,6 +502,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 tool_requests=tool_requests,
                 _reasoning_content=reasoning_content,
                 _prompt_cache_key=prompt_cache_key,
+                _extra_content=extra_content,
             )
         else:
             message = Message(
@@ -489,6 +511,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 tool_requests=tool_requests,
                 _reasoning_content=reasoning_content,
                 _prompt_cache_key=prompt_cache_key,
+                _extra_content=extra_content,
             )
 
         if post_processing is not None:
@@ -507,27 +530,58 @@ class _ResponsesAPIProcessor(_APIProcessor):
             return True
         return False
 
+    def _convert_tool_call_into_tool_request(self, tool_call: Any) -> ToolRequest:
+        """Converts Responses API tool-call output items to WayFlow tool requests."""
+        if isinstance(tool_call, ToolRequest):
+            return tool_call
+
+        return ToolRequest(
+            name=tool_call["name"],
+            tool_request_id=self._get_tool_call_id(tool_call),
+            args=_safe_json_loads(tool_call["arguments"]),
+        )
+
     def _convert_tool_calls_into_tool_requests(
         self, tool_calls: List[Any]
     ) -> Optional[List[ToolRequest]]:
         """Gets tool calls and return list of proper tool requests"""
-        tool_requests = []
-        for req in tool_calls:
-            if isinstance(req, ToolRequest):
-                tool_requests.append(req)
-                continue
-
-            tool_requests.append(
-                ToolRequest(
-                    name=req["name"],
-                    tool_request_id=req["call_id"],
-                    args=_safe_json_loads(req["arguments"]),
-                )
-            )
+        tool_requests = [self._convert_tool_call_into_tool_request(req) for req in tool_calls]
 
         if len(tool_requests) == 0:
             return None
         return tool_requests
+
+    def _has_seen_tool_call(self, tool_calls: List[Any], tool_call: Any) -> bool:
+        tool_call_id = self._get_tool_call_id(tool_call)
+        return any(self._get_tool_call_id(existing) == tool_call_id for existing in tool_calls)
+
+    def _has_seen_extra_output_item(self, output_items: List[Dict[str, Any]], item: Any) -> bool:
+        return any(existing.get("id") == item.get("id") for existing in output_items)
+
+    def _mcp_call_looks_like_local_tool_request(self, item: Dict[str, Any]) -> bool:
+        # In the official Responses API, `mcp_call` represents a remote MCP tool
+        # invocation handled by the API, not a local function call request.
+        #
+        # Some vLLM Responses deployments emit a completed `mcp_call` with no
+        # remote output/error for text-formatted tool calls. In that malformed
+        # shape, the only useful interpretation is the local tool request carried
+        # by `name` and `arguments`. Real remote MCP calls are preserved in
+        # `_extra_content` instead of being re-executed locally.
+        return (
+            item.get("type") == "mcp_call"
+            and item.get("status") == "completed"
+            and item.get("output") is None
+            and item.get("error") is None
+        )
+
+    def _get_tool_call_id(self, tool_call: Any) -> str:
+        if isinstance(tool_call, ToolRequest):
+            return tool_call.tool_request_id
+        if tool_call["type"] == "function_call":
+            return str(tool_call["call_id"])
+        if tool_call["type"] == "mcp_call":
+            return str(tool_call.get("call_id") or tool_call["id"])
+        raise ValueError(f"Unsupported tool call type: {tool_call['type']}")
 
     def _convert_vllm_tool_call(self, json_output: Dict[str, Any]) -> ToolRequest:
         """Tries to convert vLLM output text to tool calls"""
