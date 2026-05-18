@@ -17,6 +17,9 @@ import httpx
 import pytest
 
 from wayflowcore import Agent, Message, Tool
+from wayflowcore.agentserver.openairesponses.models.openairesponsespydanticmodels import (
+    CreateResponse,
+)
 from wayflowcore.messagelist import MessageType
 from wayflowcore.models import (
     LlmCompletion,
@@ -34,6 +37,7 @@ from wayflowcore.models._openaihelpers._responses_processor import _ResponsesAPI
 from wayflowcore.models.llmmodel import LlmGenerationConfig
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
+from wayflowcore.outputparser import JsonToolOutputParser
 from wayflowcore.property import StringProperty
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import serialize_to_dict
@@ -227,6 +231,34 @@ def test_responses_processor_formats_tool_result_as_tool_data():
     ]
 
 
+def test_responses_processor_formats_assistant_history_text_as_input_text():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+    prompt = Prompt(
+        messages=[
+            Message(role="assistant", content="Already computed."),
+            Message(role="user", content="What next?"),
+        ]
+    )
+
+    payload = processor._convert_prompt(prompt, supports_tool_role=True)
+
+    assert payload["input"][0] == {
+        "role": "assistant",
+        "type": "message",
+        "content": [{"type": "input_text", "text": "Already computed."}],
+    }
+    assert payload["input"][1] == {
+        "role": "user",
+        "type": "message",
+        "content": "What next?",
+    }
+    assert CreateResponse.model_validate({"input": payload["input"]})
+
+
 def test_responses_generation_params_merge_reasoning_and_include():
     processor = _ResponsesAPIProcessor(
         model_id="test-model",
@@ -252,23 +284,61 @@ def test_responses_generation_params_merge_reasoning_and_include():
     }
 
 
-def test_responses_processor_formats_assistant_text_as_output_text():
+def test_responses_processor_preserves_remote_mcp_call_with_empty_output():
     processor = _ResponsesAPIProcessor(
         model_id="test-model",
         base_url="http://example.test",
         api_type=OpenAIAPIType.RESPONSES,
     )
-    message = Message(role="assistant", content="Already computed.")
+    mcp_call = {
+        "type": "mcp_call",
+        "id": "mcp_1",
+        "call_id": "call_1",
+        "server_label": "remote_server",
+        "name": "remote_tool",
+        "arguments": '{"arg": "value"}',
+        "output": None,
+        "error": None,
+        "status": "completed",
+    }
 
+    message = processor._convert_openai_response_into_message({"output": [mcp_call]})
+
+    assert message.tool_requests is None
+    assert message._extra_content == {"responses_output_items": [mcp_call]}
     assert processor._convert_message_into_openai_message_dict(
         message, supports_tool_role=True
-    ) == [
-        {
-            "role": "assistant",
-            "type": "message",
-            "content": [{"type": "output_text", "text": "Already computed."}],
-        }
-    ]
+    ) == [mcp_call]
+
+
+def test_responses_processor_converts_malformed_local_mcp_call_with_server_label():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+    mcp_call = {
+        "type": "mcp_call",
+        "id": "mcp_1",
+        "call_id": "call_1",
+        "server_label": "hallucinated_server",
+        "name": "local_tool",
+        "arguments": '{"arg": "value"}',
+        "output": None,
+        "error": None,
+        "status": "completed",
+    }
+
+    message = processor._convert_openai_response_into_message(
+        {"output": [mcp_call]}, local_tool_names={"local_tool"}
+    )
+
+    assert message._extra_content is None
+    assert message.tool_requests is not None
+    assert len(message.tool_requests) == 1
+    assert message.tool_requests[0].name == "local_tool"
+    assert message.tool_requests[0].args == {"arg": "value"}
+    assert message.tool_requests[0].tool_request_id == "call_1"
 
 
 def _get_fake_request_that_succeeds_after_x_trials(x: int, status_code: int = 429):
@@ -524,6 +594,161 @@ async def test_responses_streaming_preserves_terminal_usage():
     assert chunks[-1][2].cached_tokens == 6
     assert chunks[-1][2].reasoning_tokens == 3
     assert chunks[-1][2].total_tokens == 14
+
+
+@pytest.mark.anyio
+async def test_responses_streaming_preserves_remote_mcp_call_with_empty_output():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+    mcp_call = {
+        "type": "mcp_call",
+        "id": "mcp_1",
+        "call_id": "call_1",
+        "server_label": "remote_server",
+        "name": "remote_tool",
+        "arguments": '{"arg": "value"}',
+        "output": None,
+        "error": None,
+        "status": "completed",
+    }
+
+    chunks = []
+    async for (
+        tagged_chunk
+    ) in processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
+        _yield_json_objects(
+            {"type": "response.output_item.done", "item": mcp_call},
+            {
+                "type": "response.completed",
+                "response": {
+                    "output": [deepcopy(mcp_call)],
+                    "usage": {
+                        "input_tokens": 10,
+                        "output_tokens": 4,
+                        "total_tokens": 14,
+                    },
+                },
+            },
+        )
+    ):
+        chunks.append(tagged_chunk)
+
+    final_message = chunks[-1][1]
+    assert final_message is not None
+    assert final_message.tool_requests is None
+    assert final_message._extra_content == {"responses_output_items": [mcp_call]}
+
+
+@pytest.mark.anyio
+async def test_responses_streaming_converts_malformed_constrained_json_mcp_call():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+    mcp_call = {
+        "type": "mcp_call",
+        "id": "mcp_1",
+        "server_label": "<|constrain|>json",
+        "name": "<|constrain|>json",
+        "arguments": '{"name": "local_tool", "parameters": {"arg": "value"}}',
+        "output": None,
+        "error": None,
+        "status": "completed",
+    }
+
+    chunks = []
+    async for (
+        tagged_chunk
+    ) in processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
+        _yield_json_objects(
+            {"type": "response.output_item.done", "item": mcp_call},
+            {
+                "type": "response.completed",
+                "response": {
+                    "output": [deepcopy(mcp_call)],
+                    "usage": {
+                        "input_tokens": 10,
+                        "output_tokens": 4,
+                        "total_tokens": 14,
+                    },
+                },
+            },
+        ),
+        local_tool_names={"local_tool"},
+    ):
+        chunks.append(tagged_chunk)
+
+    final_message = chunks[-1][1]
+    assert final_message is not None
+    assert final_message._extra_content is None
+    assert final_message.tool_requests is not None
+    assert len(final_message.tool_requests) == 1
+    assert final_message.tool_requests[0].name == "local_tool"
+    assert final_message.tool_requests[0].args == {"arg": "value"}
+    assert final_message.tool_requests[0].tool_request_id == "mcp_1"
+
+
+@pytest.mark.anyio
+async def test_responses_streaming_keeps_delta_text_when_terminal_output_differs():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+
+    raw_tool_text = (
+        '{"name": "send_message", "parameters": {"recipient": "fooza_agent", '
+        '"message": "Compute fooza(4, 2)"}}\n'
+        '{"name": "send_message", "parameters": {"recipient": "bwip_agent", '
+        '"message": "Compute bwip(4, 5)"}}\n'
+        "The requests were sent."
+    )
+
+    chunks = []
+    async for (
+        tagged_chunk
+    ) in processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
+        _yield_json_objects(
+            {"type": "response.output_text.delta", "delta": raw_tool_text},
+            {
+                "type": "response.completed",
+                "response": {
+                    "output": [
+                        {
+                            "type": "message",
+                            "content": [
+                                {
+                                    "type": "output_text",
+                                    "text": "The requests were sent.",
+                                }
+                            ],
+                        }
+                    ],
+                    "usage": {
+                        "input_tokens": 10,
+                        "output_tokens": 4,
+                        "total_tokens": 14,
+                    },
+                },
+            },
+        ),
+        post_processing=JsonToolOutputParser().parse_output,
+    ):
+        chunks.append(tagged_chunk)
+
+    final_message = chunks[-1][1]
+    assert final_message is not None
+    assert final_message.tool_requests is not None
+    assert [tool_request.name for tool_request in final_message.tool_requests] == [
+        "send_message",
+        "send_message",
+    ]
+    assert final_message.tool_requests[0].args["recipient"] == "fooza_agent"
+    assert final_message.tool_requests[1].args["recipient"] == "bwip_agent"
 
 
 def test_model_without_tool_support_raises_when_prompted_with_tools():

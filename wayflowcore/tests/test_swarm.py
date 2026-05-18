@@ -342,7 +342,7 @@ def test_swarm_raises_when_using_flows(example_medical_agents):
         )
 
 
-@retry_test(max_attempts=3)
+@retry_test(max_attempts=4)
 @pytest.mark.parametrize(
     argnames="handoff",
     argvalues=[HandoffMode.NEVER, HandoffMode.OPTIONAL],
@@ -376,7 +376,7 @@ def test_swarm_can_complete_task_without_specialist(example_math_agents, handoff
     assert "22" in last_message.content
 
 
-@retry_test(max_attempts=3)
+@retry_test(max_attempts=4)
 @pytest.mark.parametrize(
     argnames="handoff",
     argvalues=[HandoffMode.NEVER, HandoffMode.OPTIONAL],
@@ -393,12 +393,12 @@ def test_swarm_can_complete_routing_task(example_math_agents, handoff: HandoffMo
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
 
     # HandoffMode.OPTIONAL
-    Failure rate:          0 out of 50
-    Observed on:           2026-05-18
-    Average success time:  12.87 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    Failure rate:          2 out of 50
+    Observed on:           2026-05-19
+    Average success time:  8.05 seconds per successful attempt
+    Average failure time:  3.78 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
     """
     math_swarm = _get_math_swarm(
         *example_math_agents,
@@ -1122,7 +1122,7 @@ def test_swarm_can_handle_server_tool_with_confirmation(big_llama):
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  9.39 seconds per successful attempt
+    Average success time:  9.53 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1189,7 +1189,7 @@ def test_swarm_can_handle_client_tool_with_confirmation(big_llama):
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  2.90 seconds per successful attempt
+    Average success time:  2.99 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1239,7 +1239,7 @@ def test_swarm_can_handle_client_tool(big_llama):
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  5.29 seconds per successful attempt
+    Average success time:  5.46 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1357,12 +1357,12 @@ def get_first_agent(llm: LlmModel) -> Agent:
 @retry_test(max_attempts=3)
 def test_swarm_uses_handoff_tool_in_always_handoff_mode(vllm_responses_llm):
     """
-    Failure rate:          0 out of 50
+    Failure rate:          1 out of 50
     Observed on:           2026-05-18
-    Average success time:  17.68 seconds per successful attempt
-    Average failure time:  No time measurement
+    Average success time:  18.23 seconds per successful attempt
+    Average failure time:  38.24 seconds per failed attempt
     Max attempt:           3
-    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
 
     llm = vllm_responses_llm
@@ -1420,7 +1420,7 @@ def test_swarm_uses_handoff_tool_when_sub_agent_can_take_over_in_optional_handof
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  6.95 seconds per successful attempt
+    Average success time:  7.12 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1464,12 +1464,12 @@ def test_swarm_uses_send_message_when_collaboration_needed_in_optional_handoff_m
     vllm_responses_llm,
 ):
     """
-    Failure rate:          0 out of 50
+    Failure rate:          1 out of 50
     Observed on:           2026-05-18
-    Average success time:  11.60 seconds per successful attempt
-    Average failure time:  No time measurement
+    Average success time:  11.82 seconds per successful attempt
+    Average failure time:  7.01 seconds per failed attempt
     Max attempt:           3
-    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
 
     llm = vllm_responses_llm
@@ -1773,9 +1773,9 @@ def test_multiple_tool_calls_after_handoff_get_cancelled(vllm_responses_llm):
 def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
     """
     Failure rate:          1 out of 50
-    Observed on:           2026-05-18
-    Average success time:  15.11 seconds per successful attempt
-    Average failure time:  16.98 seconds per failed attempt
+    Observed on:           2026-05-19
+    Average success time:  10.68 seconds per successful attempt
+    Average failure time:  11.18 seconds per failed attempt
     Max attempt:           3
     Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
@@ -1853,7 +1853,7 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_raises_e
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  5.50 seconds per successful attempt
+    Average success time:  5.93 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1870,7 +1870,7 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_does_not
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  16.07 seconds per successful attempt
+    Average success time:  15.77 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1884,12 +1884,12 @@ def test_swarm_can_do_multiple_tool_calling_with_tool_raising_exception_does_not
 @retry_test(max_attempts=3)
 def test_swarm_without_user_input_can_execute_as_expected(vllm_responses_llm):
     """
-    Failure rate:          1 out of 50
+    Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  12.48 seconds per successful attempt
-    Average failure time:  7.94 seconds per failed attempt
+    Average success time:  12.77 seconds per successful attempt
+    Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     llm = vllm_responses_llm
 

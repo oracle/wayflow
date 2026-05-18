@@ -723,6 +723,63 @@ def test_parse_tool_call_using_json_raises_warning_on_non_dict_parameters(
     assert "Couldn't parse tool request" in caplog.text
 
 
+@pytest.mark.parametrize(
+    "raw_text",
+    [
+        '{"name": "json_wrapper", "parameters": {"name": "send_message", "parameters": {"recipient": "fooza_agent", "message": "Compute fooza(4, 2)"}}}',
+        '{"name": "json_wrapper", "parameters": {"calls": [{"name": "send_message", "parameters": {"recipient": "fooza_agent", "message": "Compute fooza(4, 2)"}}]}}',
+        '{"name": "json_wrapper", "parameters": {"thought": "I should call the worker", "calls": [{"name": "send_message", "parameters": {"recipient": "fooza_agent", "message": "Compute fooza(4, 2)"}}]}}',
+    ],
+)
+def test_parse_tool_call_using_json_unwraps_nested_tool_call_payloads(raw_text):
+    tool_requests = parse_tool_call_using_json(raw_text)
+
+    assert len(tool_requests) == 1
+    assert tool_requests[0].name == "send_message"
+    assert tool_requests[0].args == {
+        "recipient": "fooza_agent",
+        "message": "Compute fooza(4, 2)",
+    }
+
+
+def test_parse_tool_call_using_json_rejects_empty_json_wrapper_calls():
+    raw_text = '{"name": "json_wrapper", "parameters": {"calls": []}}'
+
+    tool_requests = parse_tool_call_using_json(raw_text)
+
+    assert tool_requests == []
+
+
+def test_parse_tool_call_using_json_preserves_real_json_wrapper_tool_calls():
+    raw_text = '{"name": "json_wrapper", "parameters": {"payload": "value"}}'
+
+    tool_requests = parse_tool_call_using_json(raw_text)
+
+    assert len(tool_requests) == 1
+    assert tool_requests[0].name == "json_wrapper"
+    assert tool_requests[0].args == {"payload": "value"}
+
+
+def test_parse_tool_call_using_json_does_not_scan_arbitrary_nested_answer_json():
+    raw_text = '{"person": {"name": "Alice", "parameters": {}}}'
+
+    tool_requests = parse_tool_call_using_json(raw_text)
+
+    assert tool_requests == []
+
+
+def test_parse_tool_call_using_json_preserves_outer_tool_with_tool_like_argument():
+    raw_text = """
+    {"name": "some_tool", "parameters": {"payload": {"name": "Alice", "parameters": {}}}}
+    """.strip()
+
+    tool_requests = parse_tool_call_using_json(raw_text)
+
+    assert len(tool_requests) == 1
+    assert tool_requests[0].name == "some_tool"
+    assert tool_requests[0].args == {"payload": {"name": "Alice", "parameters": {}}}
+
+
 def test_json_structured_generation_helper_function():
     template = PromptTemplate(
         messages=[

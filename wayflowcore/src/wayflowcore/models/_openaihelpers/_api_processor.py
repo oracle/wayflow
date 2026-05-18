@@ -5,7 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import logging
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, AsyncIterable, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any, AsyncIterable, Callable, Dict, Optional, Set
 
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import Message
@@ -78,13 +78,16 @@ class _APIProcessor(ABC):
         return json_obj
 
     @abstractmethod
-    def _convert_openai_response_into_message(self, response: Any) -> "Message":
+    def _convert_openai_response_into_message(
+        self, response: Any, local_tool_names: Optional[Set[str]] = None
+    ) -> "Message":
         """Convert OpenAI response to WayFlow Message"""
 
     async def _tagged_chunk_iterator_from_stream_of_openai_compatible_json(
         self,
         json_object_iterable: AsyncIterable[Any],
         post_processing: Optional[Callable[["Message"], "Message"]] = None,
+        local_tool_names: Optional[Set[str]] = None,
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
         """Iterator for streaming chunks"""
         if False:
@@ -122,6 +125,22 @@ class _APIProcessor(ABC):
             }
         else:
             return {}
+
+    @staticmethod
+    def _get_local_tool_names_from_prompt(prompt: "Prompt") -> Set[str]:
+        tool_names = {tool.name for tool in prompt.tools or []}
+
+        output_parsers = prompt.output_parser
+        if output_parsers is None:
+            return tool_names
+        if not isinstance(output_parsers, list):
+            output_parsers = [output_parsers]
+
+        for output_parser in output_parsers:
+            for tool in getattr(output_parser, "tools", None) or []:
+                tool_names.add(tool.name)
+
+        return tool_names
 
     @abstractmethod
     def _convert_prompt(self, prompt: "Prompt", supports_tool_role: bool) -> Dict[str, Any]:

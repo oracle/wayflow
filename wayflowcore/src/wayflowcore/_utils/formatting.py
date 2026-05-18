@@ -22,6 +22,16 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_JSON_TOOL_CALL_WRAPPER_NAME = "json_wrapper"
+_JSON_TOOL_CALL_WRAPPER_KEYS = {
+    "call",
+    "calls",
+    "tool_call",
+    "tool_calls",
+    "function_call",
+    "function_calls",
+}
+
 
 def _strtobool(v: str) -> bool:
     # we used to use that function from distutils, but distutils
@@ -384,30 +394,114 @@ def parse_tool_call_using_json(
 
     parsed_results = json_repair.loads(raw_txt)
 
-    if isinstance(parsed_results, dict):
-        parsed_results = [parsed_results]
-    elif not isinstance(parsed_results, list):
+    if not isinstance(parsed_results, (dict, list)):
         logger.debug("No tool found in: %s", raw_txt)
         return []
 
     valid_tool_calls = []
-    for tool_call in parsed_results:
-        if (
-            isinstance(tool_call, dict)
-            and all(key in tool_call for key in ["name", parameter_key])
-            and isinstance(tool_call[parameter_key], dict)
-        ):
-            valid_tool_calls.append(
-                ToolRequest(
-                    name=tool_call["name"],
-                    args=tool_call[parameter_key],
-                    tool_request_id=generate_tool_id(),
-                )
-            )
-        elif isinstance(tool_call, dict) and "name" in tool_call:
-            # it was a dict with name key, but not properly formatted
+    tool_call_dicts = _collect_json_tool_call_dicts(parsed_results, parameter_key)
+    if not tool_call_dicts:
+        for tool_call in _top_level_tool_like_dicts(parsed_results):
             logger.warning("Couldn't parse tool request: %s", tool_call)
+
+    for tool_call in tool_call_dicts:
+        valid_tool_calls.append(
+            ToolRequest(
+                name=tool_call["name"],
+                args=tool_call[parameter_key],
+                tool_request_id=generate_tool_id(),
+            )
+        )
     return valid_tool_calls
+
+
+def _collect_json_tool_call_dicts(value: Any, parameter_key: str) -> List[Dict[str, Any]]:
+    if isinstance(value, list):
+        return [
+            tool_call
+            for item in value
+            for tool_call in _collect_json_tool_call_dicts(item, parameter_key)
+        ]
+
+    if not isinstance(value, dict):
+        return []
+
+    parameters = value.get(parameter_key)
+    if "name" not in value or not isinstance(parameters, dict):
+        return []
+
+    if value.get("name") == _JSON_TOOL_CALL_WRAPPER_NAME:
+        wrapper_tool_calls = _collect_json_wrapper_tool_call_dicts(value, parameter_key)
+        if wrapper_tool_calls or _is_json_tool_call_wrapper_payload(value, parameter_key):
+            return wrapper_tool_calls
+        return [value]
+
+    return [value]
+
+
+def _is_json_tool_call_wrapper_payload(tool_call: Dict[str, Any], parameter_key: str) -> bool:
+    parameters = tool_call.get(parameter_key)
+    if not isinstance(parameters, dict):
+        return False
+
+    return _is_json_tool_call_dict(parameters, parameter_key) or any(
+        key in parameters for key in _JSON_TOOL_CALL_WRAPPER_KEYS
+    )
+
+
+def _collect_json_wrapper_tool_call_dicts(
+    tool_call: Dict[str, Any], parameter_key: str
+) -> List[Dict[str, Any]]:
+    if tool_call.get("name") != _JSON_TOOL_CALL_WRAPPER_NAME:
+        return []
+
+    parameters = tool_call.get(parameter_key)
+    if not isinstance(parameters, dict):
+        return []
+
+    direct_tool_calls = _collect_wrapped_json_tool_call_dicts(parameters, parameter_key)
+    if direct_tool_calls:
+        return direct_tool_calls
+
+    wrapper_values = [
+        value for key, value in parameters.items() if key in _JSON_TOOL_CALL_WRAPPER_KEYS
+    ]
+    if len(wrapper_values) != 1:
+        return []
+
+    return _collect_wrapped_json_tool_call_dicts(wrapper_values[0], parameter_key)
+
+
+def _collect_wrapped_json_tool_call_dicts(value: Any, parameter_key: str) -> List[Dict[str, Any]]:
+    if _is_json_tool_call_dict(value, parameter_key):
+        return _collect_json_tool_call_dicts(value, parameter_key)
+
+    if isinstance(value, list) and len(value) > 0:
+        tool_calls: List[Dict[str, Any]] = []
+        for item in value:
+            item_tool_calls = _collect_wrapped_json_tool_call_dicts(item, parameter_key)
+            if not item_tool_calls:
+                return []
+            tool_calls.extend(item_tool_calls)
+        return tool_calls
+
+    return []
+
+
+def _is_json_tool_call_dict(value: Any, parameter_key: str) -> bool:
+    return (
+        isinstance(value, dict) and "name" in value and isinstance(value.get(parameter_key), dict)
+    )
+
+
+def _top_level_tool_like_dicts(value: Any) -> List[Dict[str, Any]]:
+    if isinstance(value, dict):
+        return [value] if "name" in value else []
+
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, dict) and "name" in item]
+
+    return []
 
 
 def render_message_dict_template(message_dict: "MessageAsDictT") -> "Message":

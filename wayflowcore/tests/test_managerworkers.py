@@ -819,12 +819,12 @@ def check_name_in_db_tool(name: str) -> str:
 @retry_test(max_attempts=3)
 def test_managerworkers_execution_works_with_servertool_confirmation(big_llama):
     """
-    Failure rate:          1 out of 50
+    Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  8.71 seconds per successful attempt
-    Average failure time:  8.09 seconds per failed attempt
+    Average success time:  8.89 seconds per successful attempt
+    Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     llm = big_llama
     agent = Agent(
@@ -1101,12 +1101,12 @@ def test_multiple_tool_calls_including_with_nonexistent_tools(vllm_responses_llm
 @retry_test(max_attempts=5)
 def test_managerworkers_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
     """
-    Failure rate:          7 out of 50
-    Observed on:           2026-05-18
-    Average success time:  10.86 seconds per successful attempt
-    Average failure time:  10.55 seconds per failed attempt
+    Failure rate:          5 out of 50
+    Observed on:           2026-05-19
+    Average success time:  7.18 seconds per successful attempt
+    Average failure time:  5.55 seconds per failed attempt
     Max attempt:           5
-    Justification:         (0.15 ** 5) ~= 8.6 / 100'000
+    Justification:         (0.12 ** 5) ~= 2.0 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -1181,7 +1181,7 @@ def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  3.06 seconds per successful attempt
+    Average success time:  2.82 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1193,17 +1193,17 @@ def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception
         conv.execute()
 
 
-@retry_test(max_attempts=5)
+@retry_test(max_attempts=4)
 def test_managerworkers_can_do_multiple_tool_calling_with_tool_raising_exception_does_not_raise_error(
     vllm_responses_llm,
 ):
     """
-    Failure rate:          5 out of 50
-    Observed on:           2026-05-18
-    Average success time:  12.05 seconds per successful attempt
-    Average failure time:  5.94 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.12 ** 5) ~= 2.0 / 100'000
+    Failure rate:          2 out of 50
+    Observed on:           2026-05-19
+    Average success time:  8.19 seconds per successful attempt
+    Average failure time:  6.31 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
     """
     conv = _setup_managerworkers_for_multiple_tool_calling(
         vllm_responses_llm, raise_exceptions=False
@@ -1218,7 +1218,7 @@ def test_managerworkers_without_user_input_can_execute_as_expected(vllm_response
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  9.98 seconds per successful attempt
+    Average success time:  10.57 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1315,7 +1315,7 @@ def test_two_level_managerworkers_with_llms(vllm_responses_llm):
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  12.46 seconds per successful attempt
+    Average success time:  12.74 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1460,12 +1460,12 @@ def test_three_level_managerworkers_with_mock_outputs(vllm_responses_llm):
 @retry_test(max_attempts=3)
 def test_three_level_managerworkers_with_llms(vllm_responses_llm):
     """
-    Failure rate:          0 out of 50
+    Failure rate:          1 out of 50
     Observed on:           2026-05-18
-    Average success time:  17.71 seconds per successful attempt
-    Average failure time:  No time measurement
+    Average success time:  17.74 seconds per successful attempt
+    Average failure time:  5.58 seconds per failed attempt
     Max attempt:           3
-    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
+    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -1625,7 +1625,7 @@ def test_linear_chain_managerworkers_with_llms(vllm_responses_llm):
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  19.52 seconds per successful attempt
+    Average success time:  19.48 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
@@ -1787,7 +1787,7 @@ def test_multi_managers_with_llms(vllm_responses_llm):
     """
     Failure rate:          0 out of 50
     Observed on:           2026-05-18
-    Average success time:  17.97 seconds per successful attempt
+    Average success time:  18.32 seconds per successful attempt
     Average failure time:  No time measurement
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000

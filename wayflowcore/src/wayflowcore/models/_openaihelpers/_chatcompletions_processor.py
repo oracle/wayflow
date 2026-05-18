@@ -5,7 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
 import logging
-from typing import Any, AsyncIterable, Callable, Dict, List, Optional, TypedDict
+from typing import Any, AsyncIterable, Callable, Dict, List, Optional, Set, TypedDict
 
 from wayflowcore._utils.formatting import format_tool_output_for_llm
 from wayflowcore.messagelist import (
@@ -198,7 +198,9 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
             kwargs.update(generation_config.extra_args)
         return kwargs
 
-    def _convert_openai_response_into_message(self, response: Any) -> "Message":
+    def _convert_openai_response_into_message(
+        self, response: Any, local_tool_names: Optional[Set[str]] = None
+    ) -> "Message":
         extracted_message = response["choices"][0]["message"]
         if len(extracted_message.get("tool_calls") or []) > 0:
             message = Message(
@@ -287,6 +289,7 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
         self,
         json_object_iterable: AsyncIterable[Any],
         post_processing: Optional[Callable[["Message"], "Message"]] = None,
+        local_tool_names: Optional[Set[str]] = None,
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
         """Using API: https://platform.openai.com/docs/api-reference/chat-streaming/streaming"""
 

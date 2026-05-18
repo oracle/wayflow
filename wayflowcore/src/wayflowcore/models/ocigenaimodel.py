@@ -441,7 +441,10 @@ class OCIGenAIModel(LlmModel):
         # convert the openai models into dict
         response_data = response.model_dump()
         # convert this dict using the existing openai processors
-        message = self._api_processor._convert_openai_response_into_message(response_data)
+        message = self._api_processor._convert_openai_response_into_message(
+            response_data,
+            local_tool_names=self._api_processor._get_local_tool_names_from_prompt(prompt),
+        )
 
         message = prompt.parse_output(message)
         token_usage = self._api_processor._extract_usage(response_data)
@@ -631,6 +634,7 @@ class OCIGenAIModel(LlmModel):
             ) in self._api_processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
                 json_object_iterable=json_stream,
                 post_processing=prompt.parse_output,
+                local_tool_names=self._api_processor._get_local_tool_names_from_prompt(prompt),
             ):
                 yield chunk
 

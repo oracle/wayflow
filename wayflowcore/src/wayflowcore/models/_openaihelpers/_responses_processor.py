@@ -6,7 +6,7 @@
 import json
 import logging
 from copy import deepcopy
-from typing import Any, AsyncIterable, Callable, Dict, List, Optional
+from typing import Any, AsyncIterable, Callable, Dict, List, Optional, Set
 
 from wayflowcore._utils.formatting import format_tool_output_for_llm
 from wayflowcore.messagelist import (
@@ -128,8 +128,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
                     {"type": "input_image", "image_url": content.base64_content, "detail": "auto"}
                 )
             elif isinstance(content, TextContent):
-                content_type = "output_text" if role == "assistant" else "input_text"
-                all_contents.append({"type": content_type, "text": content.content})
+                all_contents.append({"type": "input_text", "text": content.content})
             else:
                 raise RuntimeError(f"Unsupported content type: {content.__class__.__name__}")
 
@@ -150,6 +149,21 @@ class _ResponsesAPIProcessor(_APIProcessor):
             return [m._reasoning_content, openai_dict]
         else:
             return [openai_dict]
+
+    def _get_preserved_responses_output_items(self, m: Message) -> Optional[List[Dict[str, Any]]]:
+        if not m._extra_content:
+            return None
+
+        output_items = m._extra_content.get("responses_output_items")
+        if output_items is None:
+            return None
+
+        if not isinstance(output_items, list):
+            raise ValueError(
+                "Invalid Responses API extra content: responses_output_items must be a list"
+            )
+
+        return deepcopy(output_items)
 
     def _convert_message_into_openai_message_dict(
         self, m: Message, supports_tool_role: bool
@@ -207,11 +221,20 @@ class _ResponsesAPIProcessor(_APIProcessor):
 
         """
         if m.tool_requests:
-            return self._convert_message_with_tool_requests_into_openai_message(m)
+            converted_messages = self._convert_message_with_tool_requests_into_openai_message(m)
         elif m.tool_result:
-            return self._convert_message_with_tool_result_into_openai_message(m)
+            converted_messages = self._convert_message_with_tool_result_into_openai_message(m)
         else:
-            return self._convert_message_with_content_into_openai_message(m)
+            converted_messages = self._convert_message_with_content_into_openai_message(m)
+
+        preserved_output_items = self._get_preserved_responses_output_items(m)
+        if preserved_output_items is None:
+            return converted_messages
+
+        if converted_messages == [{"role": "assistant", "type": "message", "content": []}]:
+            return preserved_output_items
+
+        return preserved_output_items + converted_messages
 
     def _convert_prompt(self, prompt: "Prompt", supports_tool_role: bool) -> Dict[str, Any]:
         payload_arguments: Dict[str, Any] = {
@@ -280,7 +303,9 @@ class _ResponsesAPIProcessor(_APIProcessor):
 
         return kwargs
 
-    def _convert_openai_response_into_message(self, response: Any) -> "Message":
+    def _convert_openai_response_into_message(
+        self, response: Any, local_tool_names: Optional[Set[str]] = None
+    ) -> "Message":
         from wayflowcore.messagelist import Message
 
         current_tool_requests: List[ToolRequest] = []
@@ -299,8 +324,11 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 current_tool_requests.append(self._convert_tool_call_into_tool_request(item))
 
             elif item["type"] == "mcp_call":
-                if self._mcp_call_looks_like_local_tool_request(item):
-                    current_tool_requests.append(self._convert_tool_call_into_tool_request(item))
+                tool_request = self._convert_malformed_mcp_call_into_local_tool_request(
+                    item, local_tool_names
+                )
+                if tool_request is not None:
+                    current_tool_requests.append(tool_request)
                 else:
                     extra_output_items.append(item.copy())
 
@@ -384,6 +412,7 @@ class _ResponsesAPIProcessor(_APIProcessor):
         self,
         json_object_iterable: AsyncIterable[Any],
         post_processing: Optional[Callable[["Message"], "Message"]] = None,
+        local_tool_names: Optional[Set[str]] = None,
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
         """Using API: https://platform.openai.com/docs/api-reference/responses-streaming/response"""
         from wayflowcore.messagelist import Message, MessageType
@@ -432,8 +461,11 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 if json_object["item"]["type"] == "function_call":
                     tool_calls.append(json_object["item"])
                 elif json_object["item"]["type"] == "mcp_call":
-                    if self._mcp_call_looks_like_local_tool_request(json_object["item"]):
-                        tool_calls.append(json_object["item"])
+                    tool_request = self._convert_malformed_mcp_call_into_local_tool_request(
+                        json_object["item"], local_tool_names
+                    )
+                    if tool_request is not None:
+                        tool_calls.append(tool_request)
                     else:
                         extra_output_items.append(json_object["item"].copy())
 
@@ -457,10 +489,12 @@ class _ResponsesAPIProcessor(_APIProcessor):
                                 if content["type"] == "refusal":
                                     final_output_text = content["refusal"]
                     elif output["type"] == "mcp_call":
-                        if self._mcp_call_looks_like_local_tool_request(
-                            output
-                        ) and not self._has_seen_tool_call(tool_calls, output):
-                            tool_calls.append(output)
+                        tool_request = self._convert_malformed_mcp_call_into_local_tool_request(
+                            output, local_tool_names
+                        )
+                        if tool_request is not None:
+                            if not self._has_seen_tool_call(tool_calls, tool_request):
+                                tool_calls.append(tool_request)
                         elif not self._has_seen_extra_output_item(extra_output_items, output):
                             extra_output_items.append(output.copy())
 
@@ -485,8 +519,12 @@ class _ResponsesAPIProcessor(_APIProcessor):
         else:
             tool_requests = None
 
-        if final_output_text is not None:
-            text = final_output_text  # We use final generated output_text if we miss any text delta during streaming
+        if final_output_text is not None and not text:
+            # Use the terminal response text as a fallback when a provider omits
+            # text deltas. If deltas were received, keep them: some Responses
+            # compatible providers emit parser-relevant text deltas that are not
+            # repeated in the terminal response output.
+            text = final_output_text
 
         extra_content = (
             {"responses_output_items": extra_output_items} if extra_output_items else None
@@ -558,20 +596,62 @@ class _ResponsesAPIProcessor(_APIProcessor):
     def _has_seen_extra_output_item(self, output_items: List[Dict[str, Any]], item: Any) -> bool:
         return any(existing.get("id") == item.get("id") for existing in output_items)
 
-    def _mcp_call_looks_like_local_tool_request(self, item: Dict[str, Any]) -> bool:
+    def _convert_malformed_mcp_call_into_local_tool_request(
+        self, item: Dict[str, Any], local_tool_names: Optional[Set[str]] = None
+    ) -> Optional[ToolRequest]:
         # In the official Responses API, `mcp_call` represents a remote MCP tool
         # invocation handled by the API, not a local function call request.
         #
         # Some vLLM Responses deployments emit a completed `mcp_call` with no
         # remote output/error for text-formatted tool calls. In that malformed
         # shape, the only useful interpretation is the local tool request carried
-        # by `name` and `arguments`. Real remote MCP calls are preserved in
-        # `_extra_content` instead of being re-executed locally.
-        return (
+        # by either `name`/`arguments` or a constrained-json wrapper inside
+        # `arguments`. Real remote MCP calls are preserved in `_extra_content`
+        # instead of being re-executed locally.
+        if not (
             item.get("type") == "mcp_call"
             and item.get("status") == "completed"
             and item.get("output") is None
             and item.get("error") is None
+        ):
+            return None
+
+        local_tool_names = local_tool_names or set()
+
+        if item.get("name") in local_tool_names and isinstance(item.get("arguments"), str):
+            return self._convert_tool_call_into_tool_request(item)
+
+        nested_tool_request = self._convert_mcp_arguments_wrapper_into_tool_request(
+            item, local_tool_names
+        )
+        if nested_tool_request is not None:
+            return nested_tool_request
+
+        if "server_label" not in item and isinstance(item.get("arguments"), str):
+            return self._convert_tool_call_into_tool_request(item)
+
+        return None
+
+    def _convert_mcp_arguments_wrapper_into_tool_request(
+        self, item: Dict[str, Any], local_tool_names: Set[str]
+    ) -> Optional[ToolRequest]:
+        if not local_tool_names:
+            return None
+
+        arguments_text = item.get("arguments")
+        if not isinstance(arguments_text, str):
+            return None
+
+        arguments = _safe_json_loads(arguments_text)
+        name = arguments.get("name")
+        parameters = arguments.get("parameters")
+        if name not in local_tool_names or not isinstance(parameters, dict):
+            return None
+
+        return ToolRequest(
+            name=name,
+            tool_request_id=self._get_tool_call_id(item),
+            args=parameters,
         )
 
     def _get_tool_call_id(self, tool_call: Any) -> str:

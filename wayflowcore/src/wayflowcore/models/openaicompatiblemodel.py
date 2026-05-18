@@ -157,7 +157,10 @@ class OpenAICompatibleModel(LlmModel):
             retry_policy=self.retry_policy,
         )
         logger.debug(f"Raw LLM answer: %s", response_data)
-        message = self.api_processor._convert_openai_response_into_message(response_data)
+        local_tool_names = self.api_processor._get_local_tool_names_from_prompt(prompt)
+        message = self.api_processor._convert_openai_response_into_message(
+            response_data, local_tool_names=local_tool_names
+        )
         message = self._post_process(message)
         message = prompt.parse_output(message)
         return LlmCompletion(
@@ -187,6 +190,7 @@ class OpenAICompatibleModel(LlmModel):
         ) in self.api_processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
             json_object_iterable=json_stream,
             post_processing=final_message_post_processing,
+            local_tool_names=self.api_processor._get_local_tool_names_from_prompt(prompt),
         ):
             yield chunk
 
