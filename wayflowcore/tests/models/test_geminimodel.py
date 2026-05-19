@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import importlib.util
 import json
 import os
 import ssl
@@ -12,6 +13,13 @@ from unittest.mock import patch
 
 import httpx
 import pytest
+
+if importlib.util.find_spec("litellm") is None:
+    pytest.skip(
+        "Skipping GeminiModel tests because optional dependency litellm is not installed.",
+        allow_module_level=True,
+    )
+
 from openai import APIConnectionError, APIStatusError
 
 from tests.testhelpers import litellm_testhelpers

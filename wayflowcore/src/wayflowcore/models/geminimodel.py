@@ -63,6 +63,14 @@ def _get_litellm() -> Any:
     # to the bundled local map, while still allowing callers to opt into remote
     # refreshes by explicitly setting the env var to "False".
     os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+    try:
+        litellm.completion
+    except ImportError as exc:
+        raise ImportError(
+            "GeminiModel requires optional dependency `litellm`, which is not installed. "
+            "Install `litellm>=1.84.0,<1.85.0` on Python <3.14, or install a LiteLLM "
+            "version that supports your Python version."
+        ) from exc
     return litellm
 
 

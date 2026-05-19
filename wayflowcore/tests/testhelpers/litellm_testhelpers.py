@@ -216,7 +216,10 @@ def _cleanup_litellm_threads(*, threads_before: set[int]) -> None:
 @pytest.fixture(scope="session")
 def litellm_thread_cleanup():
     """Disable LiteLLM background logging and cleanup spawned thread-pool workers."""
-    import litellm
+    try:
+        import litellm
+    except ImportError:
+        pytest.skip("Skipping because optional dependency litellm is not installed.")
 
     threads_before = {thread.ident for thread in threading.enumerate() if thread.ident is not None}
     litellm.disable_streaming_logging = True
@@ -228,7 +231,10 @@ def litellm_thread_cleanup():
 @pytest.fixture(autouse=True, scope="session")
 def litellm_anyio_cleanup() -> None:
     """Keep LiteLLM logging disabled without bootstrapping an async session fixture."""
-    import litellm
+    try:
+        import litellm
+    except ImportError:
+        pytest.skip("Skipping because optional dependency litellm is not installed.")
 
     litellm.disable_streaming_logging = True
     litellm.turn_off_message_logging = True

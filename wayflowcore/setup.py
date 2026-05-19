@@ -69,7 +69,7 @@ setup(
         "exceptiongroup>=1.0.2",
         "uvicorn>=0.23.1",
         "fastapi>=0.116.2,<1.0.0",
-        "litellm>=1.84.0,<1.85.0",
+        "litellm>=1.84.0,<1.85.0; python_version < '3.14'",
         # 4rth party dependencies version bounds, for CVE patching
         "annotated-types>=0.6.0",
         "certifi>=2025.4.26",

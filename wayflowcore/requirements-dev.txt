@@ -35,7 +35,7 @@ fastmcp>=2.14.3
 uvicorn>=0.23.1
 openai # testing the openai responses server
 google-adk[a2a] # testing the a2a server
-litellm>=1.84.0,<1.85.0 # testing the a2a agent
+litellm>=1.84.0,<1.85.0; python_version < "3.14" # testing the a2a agent
 
 # This is used to load database connection arguments in the unit tests
 python-dotenv
