@@ -685,6 +685,36 @@ def test_swarm_private_add_talk_to_user_tool_false_removes_tool_schema():
     assert _TALK_TO_USER_TOOL_NAME not in llm.captured_tool_names
 
 
+def test_swarm_runtime_communication_tools_are_not_duplicated():
+    class CapturingDummyModel(DummyModel):
+        def __init__(self):
+            super().__init__()
+            self.captured_tool_names: list[str] = []
+
+        async def _generate_impl(self, prompt):
+            self.captured_tool_names = [tool.name for tool in prompt.tools or []]
+            return await super()._generate_impl(prompt)
+
+    llm = CapturingDummyModel()
+    llm.set_next_output("done")
+    agent1 = Agent(llm, name="agent1", description="agent 1")
+    agent2 = Agent(llm, name="agent2", description="agent 2")
+
+    swarm = Swarm(
+        first_agent=agent1,
+        relationships=[(agent1, agent2)],
+        _add_talk_to_user_tool=False,
+    )
+    agent1.tools = list(agent1.tools) + swarm._communication_tools[agent1.name]
+
+    status = swarm.start_conversation(messages="hello").execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert llm.captured_tool_names.count(_SEND_MESSAGE_TOOL_NAME) == 1
+    assert llm.captured_tool_names.count(_HANDOFF_TOOL_NAME) == 1
+    assert _TALK_TO_USER_TOOL_NAME not in llm.captured_tool_names
+
+
 @pytest.mark.parametrize(
     ("swarm_template", "send_message_factory"),
     [

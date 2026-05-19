@@ -6,12 +6,12 @@
 
 import logging
 from contextvars import ContextVar
-from typing import List, Optional, Tuple
+from typing import List, Optional, Sequence, Tuple, Union
 
 from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.property import StringProperty
 from wayflowcore.swarm import HandoffMode
-from wayflowcore.tools import ClientTool, ToolRequest, ToolResult
+from wayflowcore.tools import ClientTool, Tool, ToolBox, ToolRequest, ToolResult
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +48,8 @@ Use this tool to transfer the entire conversation with the user to another agent
 - Once handed off, the receiving agent takes over the conversation entirely.
 - Specify the recipient agent’s name to complete the handoff.
 """.strip()
+
+_COMMUNICATION_TOOL_NAMES = {_SEND_MESSAGE_TOOL_NAME, _HANDOFF_TOOL_NAME}
 
 
 def _create_communication_tools(
@@ -89,6 +91,22 @@ def _create_communication_tools(
             )
         )
     return communication_tools
+
+
+def _replace_agentic_pattern_communication_tools(
+    tools: Sequence[Union[Tool, ToolBox]],
+    communication_tools: Sequence[ClientTool],
+) -> List[Union[Tool, ToolBox]]:
+    """
+    Replace any previously injected multi-agent communication tools with the
+    current runtime tools for this execution context.
+    """
+    base_tools = [
+        tool
+        for tool in tools
+        if not isinstance(tool, Tool) or tool.name not in _COMMUNICATION_TOOL_NAMES
+    ]
+    return [*base_tools, *communication_tools]
 
 
 def _get_tool_request_from_message(message: Message, tool_name: str) -> ToolRequest:

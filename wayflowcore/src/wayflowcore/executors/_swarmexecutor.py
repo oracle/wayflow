@@ -20,6 +20,7 @@ from wayflowcore.executors._agenticpattern_helpers import (
     _get_unanswered_tool_requests_from_agent_response,
     _parse_handoff_conversation_tool_request,
     _parse_send_message_tool_request,
+    _replace_agentic_pattern_communication_tools,
 )
 from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.executors.executionstatus import (
@@ -297,8 +298,10 @@ class SwarmRunner(ConversationExecutor):
             )
             from wayflowcore.executors._agentexecutor import _remove_talk_to_user_tool
 
-            mutated_agent_tools = _remove_talk_to_user_tool(current_agent.tools)
-            mutated_agent_tools.extend(communication_tools)
+            mutated_agent_tools = _replace_agentic_pattern_communication_tools(
+                _remove_talk_to_user_tool(current_agent.tools),
+                communication_tools,
+            )
 
             runtime_agent_template = swarm_config._compose_runtime_agent_template(current_agent)
             if runtime_agent_template.native_tool_calling:

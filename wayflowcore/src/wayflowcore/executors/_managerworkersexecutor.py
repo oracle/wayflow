@@ -15,6 +15,7 @@ from wayflowcore.executors._agenticpattern_helpers import (
     _SEND_MESSAGE_TOOL_NAME,
     _get_unanswered_tool_requests_from_agent_response,
     _parse_send_message_tool_request,
+    _replace_agentic_pattern_communication_tools,
 )
 from wayflowcore.executors._executor import ConversationExecutor
 from wayflowcore.executors.executionstatus import (
@@ -112,9 +113,9 @@ class ManagerWorkersRunner(ConversationExecutor):
         from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
         from wayflowcore.executors._agentexecutor import _remove_talk_to_user_tool
 
-        mutated_agent_tools = (
-            _remove_talk_to_user_tool(current_agent.tools)
-            + managerworkers_config._manager_communication_tools
+        mutated_agent_tools = _replace_agentic_pattern_communication_tools(
+            _remove_talk_to_user_tool(current_agent.tools),
+            managerworkers_config._manager_communication_tools,
         )
 
         add_talk_to_user_tool = (
