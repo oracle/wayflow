@@ -413,40 +413,93 @@ def test_geminimodel_sync_generate_retries_connection_errors(monkeypatch) -> Non
     assert timeouts == [retry_policy.request_timeout] * 3
 
 
-def test_geminimodel_sync_generate_retries_litellm_timeout_errors(monkeypatch) -> None:
+def test_geminimodel_sync_generate_handles_litellm_no_response_transport_wrappers(
+    monkeypatch,
+) -> None:
+    from litellm.exceptions import APIConnectionError as LiteLLMAPIConnectionError
     from litellm.exceptions import Timeout
 
+    prompt = Prompt(messages=[Message(role="user", content="Hello")])
+
+    def successful_response() -> dict[str, Any]:
+        return {
+            "choices": [{"message": {"role": "assistant", "content": "hello"}}],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+        }
+
+    for make_error in (
+        lambda llm: LiteLLMAPIConnectionError(
+            "connection lost", model=llm.model_id, llm_provider="gemini"
+        ),
+        lambda llm: Timeout(
+            "timed out",
+            model=llm.model_id,
+            llm_provider="gemini",
+            exception_status_code=504,
+        ),
+    ):
+        # LiteLLM connection/timeout wrappers carry a request and no response,
+        # but they also set synthetic 5xx status codes. They should retry as
+        # pre-response transport failures even when broad 5xx retries are off.
+        retry_policy = RetryPolicy(
+            max_attempts=1,
+            request_timeout=12.5,
+            initial_retry_delay=0.001,
+            max_retry_delay=0.001,
+            service_error_retry_on_any_5xx=False,
+        )
+        llm = GeminiModel(
+            model_id="gemini-2.5-flash",
+            auth=GeminiApiKeyAuth(api_key="test-key"),
+            retry_policy=retry_policy,
+        )
+        call_count = 0
+
+        def fake_completion(**_kwargs: Any) -> Any:
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise make_error(llm)
+            return successful_response()
+
+        monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.completion", fake_completion)
+
+        completion = llm.generate(prompt)
+
+        assert completion.message.content == "hello"
+        assert call_count == 2
+
+    # A certificate failure wrapped by LiteLLM's synthetic-500 connection error
+    # must still be detected as TLS and should not be retried.
     retry_policy = RetryPolicy(
-        max_attempts=1,
+        max_attempts=2,
         request_timeout=12.5,
         initial_retry_delay=0.001,
         max_retry_delay=0.001,
-        service_error_retry_on_any_5xx=False,
     )
     llm = GeminiModel(
         model_id="gemini-2.5-flash",
         auth=GeminiApiKeyAuth(api_key="test-key"),
         retry_policy=retry_policy,
     )
-    prompt = Prompt(messages=[Message(role="user", content="Hello")])
     call_count = 0
 
-    def fake_completion(**_kwargs: Any) -> Any:
+    def fake_tls_completion(**_kwargs: Any) -> Any:
         nonlocal call_count
         call_count += 1
-        if call_count == 1:
-            raise Timeout("timed out", model=llm.model_id, llm_provider="gemini")
-        return {
-            "choices": [{"message": {"role": "assistant", "content": "hello"}}],
-            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
-        }
+        try:
+            raise ssl.SSLCertVerificationError("certificate verify failed")
+        except ssl.SSLCertVerificationError as tls_error:
+            raise LiteLLMAPIConnectionError(
+                "connection lost", model=llm.model_id, llm_provider="gemini"
+            ) from tls_error
 
-    monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.completion", fake_completion)
+    monkeypatch.setattr("wayflowcore.models.geminimodel.litellm.completion", fake_tls_completion)
 
-    completion = llm.generate(prompt)
+    with pytest.raises(LiteLLMAPIConnectionError, match="connection lost"):
+        llm.generate(prompt)
 
-    assert completion.message.content == "hello"
-    assert call_count == 2
+    assert call_count == 1
 
 
 @pytest.mark.parametrize(

@@ -314,18 +314,44 @@ def _get_http_error_text_from_exception(exc: BaseException) -> str:
     return _stringify_response_error(body)
 
 
-def _is_transport_exception_without_response(exc: BaseException) -> bool:
+_PRE_RESPONSE_TRANSPORT_EXCEPTION_CLASS_NAMES = {
+    "APIConnectionError",
+    "APITimeoutError",
+    "Timeout",
+}
+
+
+def _is_transport_failure_without_http_response(exc: BaseException) -> bool:
+    """Return whether an exception is a network/client failure before an HTTP response."""
+    # Native httpx transport failures do not represent HTTP responses.
     if isinstance(exc, httpx.TransportError):
         return True
 
-    # Some OpenAI-compatible SDKs expose connection/timeout failures as their
-    # own exception classes with a request and sometimes a synthetic status_code,
-    # but no response. Treat only transport-shaped statuses this way.
-    if getattr(exc, "request", None) is None or getattr(exc, "response", None) is not None:
+    # SDK status errors normally carry a response and must be classified by HTTP
+    # status. Only SDK wrapper errors with a request and no response can be
+    # pre-response transport failures.
+    if getattr(exc, "request", None) is None:
+        return False
+    if getattr(exc, "response", None) is not None:
         return False
 
+    # No real HTTP response exists. Treat absent/invalid status values and the
+    # request-timeout status as transport failures.
     status_code = _get_http_status_code_from_exception(exc)
-    return status_code is None or status_code <= 0 or status_code == 408
+    if status_code is None or status_code <= 0 or status_code == 408:
+        return True
+
+    if not 500 <= status_code < 600:
+        return False
+
+    # LiteLLM/OpenAI connection and timeout wrappers can attach synthetic 5xx
+    # statuses despite having no response. Only transport-shaped wrappers get
+    # this treatment; real no-response APIError 5xx exceptions stay on the HTTP
+    # policy path. Avoid importing optional provider SDKs here; their stable
+    # class names are visible through the MRO when those SDKs are installed.
+    return any(
+        cls.__name__ in _PRE_RESPONSE_TRANSPORT_EXCEPTION_CLASS_NAMES for cls in type(exc).__mro__
+    )
 
 
 def _classify_http_exception_for_retry(
@@ -336,7 +362,7 @@ def _classify_http_exception_for_retry(
     # classes. Keep retry classification based on stable HTTP attributes and
     # httpx transport causes so importing those optional SDKs is not required.
     for current in _iter_exception_chain(exc):
-        if _is_transport_exception_without_response(current):
+        if _is_transport_failure_without_http_response(current):
             if _is_tls_or_cert_error(current):
                 return None
             return None, None
