@@ -35,6 +35,7 @@ from wayflowcore.models.ociclientconfig import (
     OCIUserAuthenticationConfig,
 )
 from wayflowcore.models.openaiapitype import OpenAIAPIType
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.steps import OutputMessageStep
 from wayflowcore.tools import ToolRequest
 from wayflowcore.warnings import SecurityWarning
@@ -147,12 +148,11 @@ DUMMY_OCI_USER_CONFIG_DICT = {
 }
 
 
-LIVE_LLM_TEST_RETRY_POLICY_CONFIG = {
-    # Live model tests already use pytest-level retries where needed. Keep the
-    # HTTP attempt bounded so a wedged model server does not stall CI for minutes.
-    "max_attempts": 0,
-    "request_timeout": 30.0,
-}
+# Live model tests already use pytest-level retries where needed. Keep the HTTP
+# attempt bounded so a wedged model server does not stall CI for minutes. This is
+# a runtime object because these Python fixtures are used both with
+# LlmModelFactory.from_config and direct model constructors.
+LIVE_LLM_TEST_RETRY_POLICY = RetryPolicy(max_attempts=0, request_timeout=30.0)
 
 
 @pytest.fixture
@@ -203,7 +203,7 @@ VLLM_MODEL_CONFIG = {
     "host_port": llama_api_url,
     "model_id": "meta-llama/Meta-Llama-3.1-8B-Instruct",
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 VLLM_OSS_CONFIG = {
@@ -212,7 +212,7 @@ VLLM_OSS_CONFIG = {
     "model_id": "openai/gpt-oss-120b",
     "generation_config": {"max_tokens": 512},
     "api_type": OpenAIAPIType.RESPONSES,
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 VLLM_OSS_REASONING_CONFIG = {
@@ -221,7 +221,7 @@ VLLM_OSS_REASONING_CONFIG = {
     "model_id": "openai/gpt-oss-120b",
     "generation_config": {"max_tokens": 4096, "reasoning": {"effort": "high"}},
     "api_type": OpenAIAPIType.RESPONSES,
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 OPENAI_COMPATIBLE_MODEL_CONFIG = {
@@ -231,7 +231,7 @@ OPENAI_COMPATIBLE_MODEL_CONFIG = {
     "generation_config": {"max_tokens": 512},
     "supports_structured_generation": True,
     "supports_tool_calling": True,
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 OPENAI_CONFIG = {
@@ -239,7 +239,7 @@ OPENAI_CONFIG = {
     "model_id": "gpt-4o-mini",
     "proxy": oracle_http_proxy,
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 OPENAI_RESPONSES_CONFIG = {
@@ -248,7 +248,7 @@ OPENAI_RESPONSES_CONFIG = {
     "proxy": oracle_http_proxy,
     "generation_config": {"max_tokens": 512, "reasoning": {"effort": "minimal"}},
     "api_type": OpenAIAPIType.RESPONSES,
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 OPENAI_REASONING_RESPONSES_CONFIG = {
@@ -257,7 +257,7 @@ OPENAI_REASONING_RESPONSES_CONFIG = {
     "proxy": oracle_http_proxy,
     "generation_config": {"max_tokens": 4096, "reasoning": {"effort": "high"}},
     "api_type": OpenAIAPIType.RESPONSES,
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 GEMMA_CONFIG = {
@@ -265,7 +265,7 @@ GEMMA_CONFIG = {
     "host_port": gemma_api_url,
     "model_id": "google/gemma-3-27b-it",
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 
@@ -274,7 +274,7 @@ OPENAI_REASONING_CONFIG = {
     "model_id": "o3-mini",
     "proxy": oracle_http_proxy,
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 COHERE_OCI_INSTANCE_PRINCIPAL_CONFIG = {
@@ -286,7 +286,7 @@ COHERE_OCI_INSTANCE_PRINCIPAL_CONFIG = {
         "auth_type": "INSTANCE_PRINCIPAL",
     },
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 COHERE_OCI_API_KEY_CONFIG = {
@@ -298,7 +298,7 @@ COHERE_OCI_API_KEY_CONFIG = {
         "auth_type": "API_KEY",
     },
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 LLAMA_OCI_INSTANCE_PRINCIPAL_CONFIG = {
@@ -310,7 +310,7 @@ LLAMA_OCI_INSTANCE_PRINCIPAL_CONFIG = {
         "auth_type": "INSTANCE_PRINCIPAL",
     },
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 LLAMA_OCI_API_KEY_CONFIG = {
@@ -322,7 +322,7 @@ LLAMA_OCI_API_KEY_CONFIG = {
         "auth_type": "API_KEY",
     },
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 LLAMA_4_OCI_API_KEY_CONFIG = {
@@ -334,25 +334,25 @@ LLAMA_4_OCI_API_KEY_CONFIG = {
         "auth_type": "API_KEY",
     },
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 
 GROK_OCI_API_KEY_CONFIG = {
     "model_type": "ocigenai",
-    "model_id": "xai.grok-3-mini",
+    "model_id": "xai.grok-4.3",
     "client_config": {
         "service_endpoint": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
         "compartment_id": compartment_id,
         "auth_type": "API_KEY",
     },
     "generation_config": {"max_tokens": 1024},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 GROK_OCI_RESPONSE_API_KEY_CONFIG = {
     "model_type": "ocigenai",
-    "model_id": "xai.grok-3-fast",
+    "model_id": "xai.grok-4.3",
     "client_config": {
         "service_endpoint": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
         "compartment_id": compartment_id,
@@ -360,12 +360,12 @@ GROK_OCI_RESPONSE_API_KEY_CONFIG = {
     },
     "generation_config": {"max_tokens": 1024},
     "api_type": "openai_responses",
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 GROK_OCI_CHAT_COMPLETIONS_API_KEY_CONFIG = {
     "model_type": "ocigenai",
-    "model_id": "xai.grok-3-fast",
+    "model_id": "xai.grok-4.3",
     "client_config": {
         "service_endpoint": "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
         "compartment_id": compartment_id,
@@ -373,7 +373,7 @@ GROK_OCI_CHAT_COMPLETIONS_API_KEY_CONFIG = {
     },
     "generation_config": {"max_tokens": 1024},
     "api_type": "openai_chat_completions",
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 
@@ -386,7 +386,7 @@ OCI_REASONING_MODEL_API_KEY_CONFIG = {
         "auth_type": "API_KEY",
     },
     "generation_config": {"max_tokens": 2000},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 OLLAMA_MODEL_CONFIG = {
@@ -394,7 +394,7 @@ OLLAMA_MODEL_CONFIG = {
     "host_port": ollama8bv31_api_url,  # example: 8.8.8.8:8000
     "model_id": "meta-llama/Meta-Llama-3.1-8B-Instruct",
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 BIG_VLLM_CONFIG = {
@@ -402,7 +402,7 @@ BIG_VLLM_CONFIG = {
     "host_port": LLAMA70BV33_API_URL,
     "model_id": "/storage/models/Llama-3.3-70B-Instruct",
     "generation_config": {"max_tokens": 512},
-    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY_CONFIG,
+    "retry_policy": LIVE_LLM_TEST_RETRY_POLICY,
 }
 
 ALL_VLLM_CONFIGS = [VLLM_MODEL_CONFIG]
