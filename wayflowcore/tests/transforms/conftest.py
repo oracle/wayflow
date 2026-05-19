@@ -13,6 +13,8 @@ from pyagentspec.datastores.datastore import (
     InMemoryCollectionDatastore as AgentSpecInMemoryCollection,
 )
 from pyagentspec.llms import VllmConfig as AgentSpecVllmConfig
+from pyagentspec.llms.llmgenerationconfig import LlmGenerationConfig as AgentSpecLlmGenerationConfig
+from pyagentspec.retrypolicy import RetryPolicy as AgentSpecRetryPolicy
 from pyagentspec.transforms import (
     ConversationSummarizationTransform as AgentSpecConversationSummarizationTransform,
 )
@@ -70,6 +72,8 @@ def find_datastore_by_schema(pool, schema):
 
 MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME = "messages_cache"
 CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME = "conversations_cache"
+AGENTSPEC_LIVE_LLM_GENERATION_CONFIG = AgentSpecLlmGenerationConfig(max_tokens=512)
+AGENTSPEC_LIVE_LLM_RETRY_POLICY = AgentSpecRetryPolicy(max_attempts=0, request_timeout=30.0)
 
 
 @pytest.fixture(scope="session")
@@ -248,7 +252,11 @@ def converted_wayflow_agent_with_message_summarization_transform_from_agentspec(
         },
     )
     summarization_llm_config = AgentSpecVllmConfig(
-        name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
+        name="vllm",
+        model_id=GEMMA_CONFIG["model_id"],
+        url=GEMMA_CONFIG["host_port"],
+        default_generation_parameters=AGENTSPEC_LIVE_LLM_GENERATION_CONFIG,
+        retry_policy=AGENTSPEC_LIVE_LLM_RETRY_POLICY,
     )
     agent_spec_transform = AgentSpecMessageSummarizationTransform(
         name="message-summarizer",
@@ -281,7 +289,11 @@ def converted_wayflow_agent_with_conversation_summarization_transform_from_agent
         },
     )
     summarization_llm_config = AgentSpecVllmConfig(
-        name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
+        name="vllm",
+        model_id=GEMMA_CONFIG["model_id"],
+        url=GEMMA_CONFIG["host_port"],
+        default_generation_parameters=AGENTSPEC_LIVE_LLM_GENERATION_CONFIG,
+        retry_policy=AGENTSPEC_LIVE_LLM_RETRY_POLICY,
     )
     agent_spec_transform = AgentSpecConversationSummarizationTransform(
         name="conversation-summarizer",
