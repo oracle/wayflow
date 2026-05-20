@@ -9,6 +9,14 @@ def test_tool_decorator_result_type_is_correct() -> None:
     assert_type(tool_one, Callable[[Callable[..., Any]], ServerTool])
     assert isinstance(tool_one, Callable)
 
+    def actual_func() -> None:
+        """Another func"""
+
+    func_tool = tool_one(actual_func)
+    assert_type(func_tool, ServerTool)
+    assert isinstance(func_tool, ServerTool)
+    assert func_tool.name == "tool_one"
+
     def func_two() -> None:
         """Just a func"""
 
