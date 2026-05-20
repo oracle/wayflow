@@ -29,6 +29,8 @@ module = [
     'IPython.*',
     'sentence_transformers.*',
     'fasta2a.*',
+    'litellm',
+    'litellm.*',
 ]
 ignore_missing_imports = true
 

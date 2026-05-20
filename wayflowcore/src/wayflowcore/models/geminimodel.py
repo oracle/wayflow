@@ -7,6 +7,7 @@
 import json
 import logging
 import os
+import sys
 from typing import TYPE_CHECKING, Any, AsyncIterable, Dict, Iterable, List, Optional, Union, cast
 
 from pydantic import BaseModel
@@ -63,6 +64,19 @@ def _get_litellm() -> Any:
     # to the bundled local map, while still allowing callers to opt into remote
     # refreshes by explicitly setting the env var to "False".
     os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+    try:
+        litellm.completion
+    except ImportError as exc:
+        install_hint = (
+            "On Python 3.14 or newer, install it explicitly with "
+            "`uv pip install 'litellm>=1.84.0,<2.0'`."
+            if sys.version_info >= (3, 14)
+            else "Install `litellm>=1.84.0,<2.0`."
+        )
+        raise ImportError(
+            "GeminiModel requires optional dependency `litellm`, which is not installed. "
+            + install_hint
+        ) from exc
     return litellm
 
 
