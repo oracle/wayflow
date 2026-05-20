@@ -7,6 +7,7 @@
 import json
 import logging
 import os
+import sys
 from typing import TYPE_CHECKING, Any, AsyncIterable, Dict, Iterable, List, Optional, Union, cast
 
 from pydantic import BaseModel
@@ -66,10 +67,15 @@ def _get_litellm() -> Any:
     try:
         litellm.completion
     except ImportError as exc:
+        install_hint = (
+            "On Python 3.14 or newer, install it explicitly with "
+            "`uv pip install 'litellm>=1.84.0,<2.0'`."
+            if sys.version_info >= (3, 14)
+            else "Install `litellm>=1.84.0,<2.0`."
+        )
         raise ImportError(
             "GeminiModel requires optional dependency `litellm`, which is not installed. "
-            "Install `litellm>=1.84.0,<1.85.0` on Python <3.14, or install a LiteLLM "
-            "version that supports your Python version."
+            + install_hint
         ) from exc
     return litellm
 

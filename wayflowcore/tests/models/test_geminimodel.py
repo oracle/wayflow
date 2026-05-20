@@ -14,11 +14,10 @@ from unittest.mock import patch
 import httpx
 import pytest
 
-if importlib.util.find_spec("litellm") is None:
-    pytest.skip(
-        "Skipping GeminiModel tests because optional dependency litellm is not installed.",
-        allow_module_level=True,
-    )
+pytestmark = pytest.mark.skipif(
+    importlib.util.find_spec("litellm") is None,
+    reason="Skipping GeminiModel tests because optional dependency litellm is not installed.",
+)
 
 from openai import APIConnectionError, APIStatusError
 
