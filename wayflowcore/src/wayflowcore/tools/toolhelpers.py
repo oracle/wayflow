@@ -455,7 +455,6 @@ def tool(
         and isinstance(func_or_name, str)
         and callable(func)
     ):
-        # if len(args) == 2 and (isinstance(args[0], str) and callable(args[1])):
         # Example case: wrapper with custom tool name
         # def my_callable():
         #     pass
@@ -471,7 +470,6 @@ def tool(
             requires_confirmation,
         )
     elif func_or_name is not None and isinstance(func_or_name, str):
-        # elif len(args) == 1 and isinstance(args[0], str):
         # Example case: decorator with custom tool name
         # @tool("my_callable1")
         # def my_callable():
