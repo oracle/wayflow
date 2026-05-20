@@ -10,7 +10,6 @@ from typing import List, Tuple
 
 from wayflowcore._utils.formatting import format_tool_output_for_llm
 from wayflowcore.messagelist import Message, TextContent
-from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.outputparser import JsonToolOutputParser
 from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.templates import PromptTemplate
@@ -385,5 +384,4 @@ _DEFAULT_MANAGERWORKERS_NATIVE_CHAT_TEMPLATE = PromptTemplate(
         CoalesceSystemMessagesTransform(),
         AppendTrailingSystemMessageToUserMessageTransform(),
     ],
-    generation_config=LlmGenerationConfig(extra_args={"parallel_tool_calls": False}),
 )

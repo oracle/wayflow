@@ -23,7 +23,7 @@ from wayflowcore.executors.executionstatus import (
 )
 from wayflowcore.flow import Flow
 from wayflowcore.messagelist import Message, MessageType
-from wayflowcore.models import LlmModel
+from wayflowcore.models import LlmModel, VllmModel
 from wayflowcore.property import IntegerProperty, StringProperty
 from wayflowcore.serialization import deserialize, serialize
 from wayflowcore.steps import OutputMessageStep
@@ -524,6 +524,7 @@ def test_swarm_uses_native_tool_calling_template_by_default_when_all_agent_llms_
 
     assert swarm.swarm_template.native_tool_calling is True
     assert swarm.swarm_template.output_parser is None
+    assert swarm.swarm_template.generation_config is None
 
 
 def test_swarm_uses_non_native_tool_calling_template_when_an_agent_llm_does_not_support_it():
@@ -534,6 +535,22 @@ def test_swarm_uses_non_native_tool_calling_template_when_an_agent_llm_does_not_
 
     swarm = Swarm(first_agent=agent1, relationships=[(agent1, agent2)])
 
+    assert swarm.swarm_template.native_tool_calling is False
+    assert isinstance(swarm.swarm_template.output_parser, SwarmJsonToolOutputParser)
+
+
+def test_swarm_uses_non_native_template_when_agent_llm_defaults_to_non_native_tools():
+    llm = VllmModel(
+        model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+        host_port="http://example.test",
+    )
+    agent1 = Agent(llm, name="agent1", description="agent 1")
+    agent2 = Agent(llm, name="agent2", description="agent 2")
+
+    swarm = Swarm(first_agent=agent1, relationships=[(agent1, agent2)])
+
+    assert llm.supports_tool_calling is True
+    assert llm.agent_template.native_tool_calling is False
     assert swarm.swarm_template.native_tool_calling is False
     assert isinstance(swarm.swarm_template.output_parser, SwarmJsonToolOutputParser)
 
@@ -566,6 +583,7 @@ def test_swarm_can_use_native_tool_calling_template_when_explicitly_requested():
 
     assert swarm.swarm_template.native_tool_calling is True
     assert swarm.swarm_template.output_parser is None
+    assert swarm.swarm_template.generation_config is None
 
 
 @pytest.mark.parametrize(

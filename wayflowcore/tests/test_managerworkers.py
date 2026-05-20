@@ -21,6 +21,7 @@ from wayflowcore.executors.executionstatus import (
 )
 from wayflowcore.managerworkers import ManagerWorkers
 from wayflowcore.messagelist import Message, MessageType
+from wayflowcore.models import VllmModel
 from wayflowcore.property import IntegerProperty, StringProperty
 from wayflowcore.templates import LLAMA_AGENT_TEMPLATE, PromptTemplate
 from wayflowcore.templates._managerworkerstemplate import (
@@ -207,6 +208,7 @@ def test_managerworkers_uses_native_tool_calling_template_by_default_when_manage
 
     assert group.managerworkers_template.native_tool_calling is True
     assert group.managerworkers_template.output_parser is None
+    assert group.managerworkers_template.generation_config is None
 
 
 def test_managerworkers_uses_non_native_tool_calling_template_when_manager_llm_does_not_support_it():
@@ -215,6 +217,24 @@ def test_managerworkers_uses_non_native_tool_calling_template_when_manager_llm_d
 
     group = ManagerWorkers(workers=[worker], group_manager=llm)
 
+    assert group.managerworkers_template.native_tool_calling is False
+    assert isinstance(
+        group.managerworkers_template.output_parser, ManagerWorkersJsonToolOutputParser
+    )
+
+
+def test_managerworkers_uses_non_native_template_when_manager_llm_defaults_to_non_native_tools():
+    manager_llm = VllmModel(
+        model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
+        host_port="http://example.test",
+    )
+    worker_llm = DummyModel()
+    worker = Agent(worker_llm, name="worker", description="worker")
+
+    group = ManagerWorkers(workers=[worker], group_manager=manager_llm)
+
+    assert manager_llm.supports_tool_calling is True
+    assert manager_llm.agent_template.native_tool_calling is False
     assert group.managerworkers_template.native_tool_calling is False
     assert isinstance(
         group.managerworkers_template.output_parser, ManagerWorkersJsonToolOutputParser
@@ -249,6 +269,7 @@ def test_managerworkers_can_use_native_tool_calling_template_when_explicitly_req
 
     assert group.managerworkers_template.native_tool_calling is True
     assert group.managerworkers_template.output_parser is None
+    assert group.managerworkers_template.generation_config is None
 
 
 def test_managerworkers_default_depends_on_manager_llm_not_manager_agent_template():

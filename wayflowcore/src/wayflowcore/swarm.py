@@ -87,7 +87,10 @@ def _get_recipient_agents_for_agent(
 
 
 def _get_default_swarm_template(agent_by_name: Dict[str, Agent]) -> PromptTemplate:
-    if all(agent.llm.supports_tool_calling for agent in agent_by_name.values()):
+    if all(
+        agent.llm.supports_tool_calling and agent.llm.agent_template.native_tool_calling
+        for agent in agent_by_name.values()
+    ):
         return _DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE
     return _DEFAULT_SWARM_CHAT_TEMPLATE
 

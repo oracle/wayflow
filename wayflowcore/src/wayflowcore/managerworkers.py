@@ -32,7 +32,10 @@ logger = logging.getLogger(__name__)
 
 
 def _get_default_managerworkers_template(manager_agent: Agent) -> PromptTemplate:
-    if manager_agent.llm.supports_tool_calling:
+    if (
+        manager_agent.llm.supports_tool_calling
+        and manager_agent.llm.agent_template.native_tool_calling
+    ):
         return _DEFAULT_MANAGERWORKERS_NATIVE_CHAT_TEMPLATE
     return _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
 
