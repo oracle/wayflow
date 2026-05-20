@@ -13,6 +13,8 @@ from pyagentspec.datastores.datastore import (
     InMemoryCollectionDatastore as AgentSpecInMemoryCollection,
 )
 from pyagentspec.llms import VllmConfig as AgentSpecVllmConfig
+from pyagentspec.llms.llmgenerationconfig import LlmGenerationConfig as AgentSpecLlmGenerationConfig
+from pyagentspec.retrypolicy import RetryPolicy as AgentSpecRetryPolicy
 from pyagentspec.transforms import (
     ConversationSummarizationTransform as AgentSpecConversationSummarizationTransform,
 )
@@ -70,6 +72,26 @@ def find_datastore_by_schema(pool, schema):
 
 MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME = "messages_cache"
 CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME = "conversations_cache"
+
+
+@pytest.fixture
+def agentspec_live_summarization_llm_config() -> AgentSpecVllmConfig:
+    return AgentSpecVllmConfig(
+        name="vllm",
+        model_id=GEMMA_CONFIG["model_id"],
+        url=GEMMA_CONFIG["host_port"],
+        default_generation_parameters=AgentSpecLlmGenerationConfig(max_tokens=512),
+        retry_policy=AgentSpecRetryPolicy(max_attempts=0, request_timeout=30.0),
+    )
+
+
+@pytest.fixture
+def agentspec_mock_llm_config() -> AgentSpecVllmConfig:
+    return AgentSpecVllmConfig(
+        name="vllm",
+        model_id=MOCK_LLM_CONFIG["model_id"],
+        url=MOCK_LLM_CONFIG["host_port"],
+    )
 
 
 @pytest.fixture(scope="session")
@@ -239,7 +261,10 @@ def _get_dll_for_deletion_of_one_entity_schema(schema: dict[str, "Entity"]) -> l
 
 
 @pytest.fixture
-def converted_wayflow_agent_with_message_summarization_transform_from_agentspec():
+def converted_wayflow_agent_with_message_summarization_transform_from_agentspec(
+    agentspec_live_summarization_llm_config: AgentSpecVllmConfig,
+    agentspec_mock_llm_config: AgentSpecVllmConfig,
+):
     collection_name = MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME
     agent_spec_datastore = AgentSpecInMemoryCollection(
         name="test-inmemory-datastore",
@@ -247,32 +272,27 @@ def converted_wayflow_agent_with_message_summarization_transform_from_agentspec(
             collection_name: AgentSpecMessageSummarizationTransform.get_entity_definition()
         },
     )
-    summarization_llm_config = AgentSpecVllmConfig(
-        name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
-    )
     agent_spec_transform = AgentSpecMessageSummarizationTransform(
         name="message-summarizer",
-        llm=summarization_llm_config,
+        llm=agentspec_live_summarization_llm_config,
         datastore=agent_spec_datastore,
         max_message_size=500,
         cache_collection_name=collection_name,
     )
-    agent_llm_config = AgentSpecVllmConfig(
-        name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
-    )
     agent_spec_agent = AgentSpecAgent(
         name="test-agent",
         system_prompt="",
-        llm_config=agent_llm_config,
+        llm_config=agentspec_mock_llm_config,
         transforms=[agent_spec_transform],
     )
-    loader = AgentSpecLoader()
-    wayflow_agent = loader.load_component(agent_spec_agent)
-    return wayflow_agent
+    return AgentSpecLoader().load_component(agent_spec_agent)
 
 
 @pytest.fixture
-def converted_wayflow_agent_with_conversation_summarization_transform_from_agentspec():
+def converted_wayflow_agent_with_conversation_summarization_transform_from_agentspec(
+    agentspec_live_summarization_llm_config: AgentSpecVllmConfig,
+    agentspec_mock_llm_config: AgentSpecVllmConfig,
+):
     collection_name = CONVERSATION_SUMMARIZATION_CACHE_COLLECTION_NAME
     agent_spec_datastore = AgentSpecInMemoryCollection(
         name="test-inmemory-datastore",
@@ -280,25 +300,18 @@ def converted_wayflow_agent_with_conversation_summarization_transform_from_agent
             collection_name: AgentSpecConversationSummarizationTransform.get_entity_definition()
         },
     )
-    summarization_llm_config = AgentSpecVllmConfig(
-        name="vllm", model_id=GEMMA_CONFIG["model_id"], url=GEMMA_CONFIG["host_port"]
-    )
     agent_spec_transform = AgentSpecConversationSummarizationTransform(
         name="conversation-summarizer",
-        llm=summarization_llm_config,
+        llm=agentspec_live_summarization_llm_config,
         datastore=agent_spec_datastore,
         max_num_messages=10,
         min_num_messages=5,
         cache_collection_name=collection_name,
     )
-    agent_llm_config = AgentSpecVllmConfig(
-        name="vllm", model_id=MOCK_LLM_CONFIG["model_id"], url=MOCK_LLM_CONFIG["host_port"]
-    )
     agent_spec_agent = AgentSpecAgent(
         name="test-agent",
         system_prompt="",
-        llm_config=agent_llm_config,
+        llm_config=agentspec_mock_llm_config,
         transforms=[agent_spec_transform],
     )
-    wayflow_agent = AgentSpecLoader().load_component(agent_spec_agent)
-    return wayflow_agent
+    return AgentSpecLoader().load_component(agent_spec_agent)

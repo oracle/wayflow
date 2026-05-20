@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import errno
 import os
 import signal
 import socket
@@ -166,13 +167,24 @@ def get_available_port(tmp_path: str):
     lock_path = f"{tmp_path}/wayflow_ports.lock"
 
     def _bindable(port: int) -> bool:
-        try:
-            with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                s.bind(("127.0.0.1", port))
-            return True
-        except OSError:
-            return False
+        # Some hosts resolve ``localhost`` to IPv6 for uvicorn. A port can be free
+        # on 127.0.0.1 while already occupied on ::1, so check both.
+        addresses = [
+            (socket.AF_INET, "127.0.0.1"),
+            (socket.AF_INET6, "::1"),
+        ]
+        for family, host in addresses:
+            try:
+                with closing(socket.socket(family, socket.SOCK_STREAM)) as s:
+                    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    s.bind((host, port))
+            except OSError as exc:
+                if family == socket.AF_INET6 and (
+                    not socket.has_ipv6 or exc.errno in {errno.EAFNOSUPPORT, errno.EADDRNOTAVAIL}
+                ):
+                    continue
+                return False
+        return True
 
     # Acquire an interprocess lock, POSIX only. On non-POSIX, degrade to probing loop.
     if os.name == "posix":

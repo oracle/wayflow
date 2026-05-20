@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import os
 import subprocess
+import sys
 import tempfile
 import time
 from dataclasses import asdict
@@ -271,7 +272,7 @@ wayflow_server_http_oracle = register_wayflow_server_fixture(
 def multi_agent_inmemory_server(session_tmp_path):
     available_port = get_available_port(session_tmp_path)
     print(f"Starting a multi-agent server on port {available_port}")
-    cmd = ["python", str(TEST_DIR / "multi_agent_server.py"), "--port", str(available_port)]
+    cmd = [sys.executable, str(TEST_DIR / "multi_agent_server.py"), "--port", str(available_port)]
     url = f"http://127.0.0.1:{available_port}"
 
     process, url, tee = _run_server(url, cmd, timeout=20)
@@ -299,7 +300,12 @@ def oracle_db_with_names():
 def datastore_agent_inmemory_server(oracle_db_with_names, session_tmp_path):
     available_port = get_available_port(session_tmp_path)
     print(f"Starting datastore agent server on port {available_port}")
-    cmd = ["python", str(TEST_DIR / "datastore_agent_server.py"), "--port", str(available_port)]
+    cmd = [
+        sys.executable,
+        str(TEST_DIR / "datastore_agent_server.py"),
+        "--port",
+        str(available_port),
+    ]
     url = f"http://127.0.0.1:{available_port}"
 
     process, url, tee = _run_server(url, cmd, timeout=20)

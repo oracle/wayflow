@@ -24,7 +24,6 @@ from typing import (
     cast,
 )
 
-from openai import APIConnectionError, APIStatusError, APITimeoutError
 from pydantic import BaseModel
 
 from wayflowcore._metadata import MetadataType
@@ -47,12 +46,9 @@ from ._requesthelpers import (
     _DEFAULT_RNG,
     StreamChunkType,
     TaggedMessageChunkTypeWithTokenUsage,
+    _classify_http_exception_for_retry,
     _classify_oci_service_error_for_retry,
     _compute_wait_before_next_attempt,
-    _get_retry_after_value_from_headers,
-    _is_retryable_http_error,
-    _is_tls_or_cert_error,
-    _stringify_response_error,
     execute_async_with_retry,
     execute_sync_with_retry,
 )
@@ -93,31 +89,6 @@ def _detect_serving_mode_from_model_id(model_id: str) -> ServingMode:
     if "generativeaimodel" in model_id:
         return ServingMode.DEDICATED
     return ServingMode.ON_DEMAND
-
-
-def _classify_openai_retry_exception(
-    exc: Exception, policy: RetryPolicy
-) -> Optional[Tuple[Optional[int], Optional[str]]]:
-    """Classify OpenAI-compatible client exceptions into retry metadata."""
-    if isinstance(exc, APIStatusError):
-        if exc.status_code is None:
-            return None
-        error_message = _stringify_response_error(exc.body)
-        if not _is_retryable_http_error(policy, exc.status_code, error_message):
-            return None
-        retry_after = (
-            _get_retry_after_value_from_headers(exc.response.headers)
-            if exc.response is not None
-            else None
-        )
-        return exc.status_code, retry_after
-
-    if isinstance(exc, (APITimeoutError, APIConnectionError)):
-        if _is_tls_or_cert_error(exc):
-            return None
-        return None, None
-
-    return None
 
 
 def _classify_oci_retry_exception(
@@ -411,7 +382,7 @@ class OCIGenAIModel(LlmModel):
         return await execute_async_with_retry(
             operation,
             retry_policy=self.retry_policy,
-            classify_exception=_classify_openai_retry_exception,
+            classify_exception=_classify_http_exception_for_retry,
             retry_budget_exhausted_message="OCI OpenAI-compatible request retry budget exhausted",
         )
 

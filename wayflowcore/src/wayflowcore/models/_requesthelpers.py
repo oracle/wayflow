@@ -23,6 +23,7 @@ from typing import (
     Callable,
     Dict,
     Generator,
+    Iterator,
     Mapping,
     Optional,
     Tuple,
@@ -150,10 +151,15 @@ def _get_retry_after_seconds(
 
 
 def _is_tls_or_cert_error(exc: BaseException) -> bool:
-    current: Optional[BaseException] = exc
-    while current is not None:
+    pending: list[BaseException] = [exc]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if id(current) in seen:
+            continue
         if isinstance(current, ssl.SSLCertVerificationError):
             return True
+        seen.add(id(current))
         msg = str(current)
         if any(
             s in msg
@@ -165,7 +171,10 @@ def _is_tls_or_cert_error(exc: BaseException) -> bool:
             ]
         ):
             return True
-        current = current.__cause__
+        if current.__context__ is not None:
+            pending.append(current.__context__)
+        if current.__cause__ is not None:
+            pending.append(current.__cause__)
     return False
 
 
@@ -253,6 +262,123 @@ def _classify_oci_service_error_for_retry(
     if not _is_retryable_http_error(policy, status_code, exc.message):
         return None
     return status_code, _get_retry_after_value_from_headers(exc.headers)
+
+
+def _iter_exception_chain(exc: BaseException) -> Iterator[BaseException]:
+    pending: list[BaseException] = [exc]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if id(current) in seen:
+            continue
+        yield current
+        seen.add(id(current))
+        # Provider SDKs sometimes wrap the transport exception in __cause__,
+        # and framework code may use __context__; walk both links when present.
+        if current.__context__ is not None:
+            pending.append(current.__context__)
+        if current.__cause__ is not None:
+            pending.append(current.__cause__)
+
+
+def _get_http_status_code_from_exception(exc: BaseException) -> Optional[int]:
+    # SDK status exceptions usually expose status_code/status directly; fall
+    # back to response.status_code for HTTP client exceptions such as httpx.
+    status_code = getattr(exc, "status_code", getattr(exc, "status", None))
+    if status_code is None:
+        response = getattr(exc, "response", None)
+        status_code = getattr(response, "status_code", None) if response is not None else None
+    try:
+        return int(status_code) if status_code is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _get_http_headers_from_exception(exc: BaseException) -> Optional[Mapping[str, Any]]:
+    # Retry-After may live either on the exception or the wrapped response.
+    headers = getattr(exc, "headers", None)
+    if headers is None:
+        response = getattr(exc, "response", None)
+        headers = getattr(response, "headers", None) if response is not None else None
+    return cast(Optional[Mapping[str, Any]], headers)
+
+
+def _get_http_error_text_from_exception(exc: BaseException) -> str:
+    # Prefer structured provider error bodies, because retry policies may match
+    # on provider-specific error codes embedded in the response payload.
+    body = getattr(exc, "body", None)
+    if body is None:
+        body = getattr(exc, "message", None)
+    if body is None:
+        body = str(exc)
+    return _stringify_response_error(body)
+
+
+_PRE_RESPONSE_TRANSPORT_EXCEPTION_CLASS_NAMES = {
+    "APIConnectionError",
+    "APITimeoutError",
+    "Timeout",
+}
+
+
+def _is_transport_failure_without_http_response(exc: BaseException) -> bool:
+    """Return whether an exception is a network/client failure before an HTTP response."""
+    # Native httpx transport failures do not represent HTTP responses.
+    if isinstance(exc, httpx.TransportError):
+        return True
+
+    # SDK status errors normally carry a response and must be classified by HTTP
+    # status. Only SDK wrapper errors with a request and no response can be
+    # pre-response transport failures.
+    if getattr(exc, "request", None) is None:
+        return False
+    if getattr(exc, "response", None) is not None:
+        return False
+
+    # No real HTTP response exists. Treat absent/invalid status values and the
+    # request-timeout status as transport failures.
+    status_code = _get_http_status_code_from_exception(exc)
+    if status_code is None or status_code <= 0 or status_code == 408:
+        return True
+
+    if not 500 <= status_code < 600:
+        return False
+
+    # LiteLLM/OpenAI connection and timeout wrappers can attach synthetic 5xx
+    # statuses despite having no response. Only transport-shaped wrappers get
+    # this treatment; real no-response APIError 5xx exceptions stay on the HTTP
+    # policy path. Avoid importing optional provider SDKs here; their stable
+    # class names are visible through the MRO when those SDKs are installed.
+    return any(
+        cls.__name__ in _PRE_RESPONSE_TRANSPORT_EXCEPTION_CLASS_NAMES for cls in type(exc).__mro__
+    )
+
+
+def _classify_http_exception_for_retry(
+    exc: BaseException,
+    policy: RetryPolicy,
+) -> RetryClassification:
+    # Some optional provider SDKs wrap HTTP failures in their own exception
+    # classes. Keep retry classification based on stable HTTP attributes and
+    # httpx transport causes so importing those optional SDKs is not required.
+    for current in _iter_exception_chain(exc):
+        if _is_transport_failure_without_http_response(current):
+            if _is_tls_or_cert_error(current):
+                return None
+            return None, None
+
+        status_code = _get_http_status_code_from_exception(current)
+        if status_code is None:
+            continue
+
+        error_message = _get_http_error_text_from_exception(current)
+        if not _is_retryable_http_error(policy, status_code, error_message):
+            return None
+        return status_code, _get_retry_after_value_from_headers(
+            _get_http_headers_from_exception(current)
+        )
+
+    return None
 
 
 def execute_sync_with_retry(

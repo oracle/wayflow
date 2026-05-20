@@ -19,6 +19,7 @@ from wayflowcore.messagelist import ImageContent, Message, MessageContent, TextC
 from wayflowcore.models import LlmGenerationConfig, LlmModelFactory, OCIGenAIModel, Prompt
 from wayflowcore.models.ociclientconfig import OCIClientConfig, _OCIAuthType
 from wayflowcore.models.ocigenaimodel import ModelProvider, OciAPIType, ServingMode
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.tools.tools import ToolRequest
 
@@ -413,15 +414,22 @@ def test_oci_cohere_invalid_content_and_unsupported_types(messages, match):
 
 
 def test_oci_model_raises_warning_when_parameters_are_not_supported(grok_oci_llm, caplog):
+    # The shared live-model retry policy disables HTTP retries. This test needs one
+    # retry so Wayflow can handle OCI's unsupported-parameter error by removing
+    # `stop` from the generation config and resubmitting the request.
+    grok_oci_llm.retry_policy = RetryPolicy(max_attempts=1, request_timeout=30.0)
+
     with caplog.at_level(logging.WARNING):
-        grok_oci_llm.generate(
+        completion = grok_oci_llm.generate(
             prompt=Prompt(
-                messages=[Message(content="2+2=", role="user")],
-                generation_config=LlmGenerationConfig(
-                    stop=["4"],
-                ),
+                messages=[Message(content="Reply with a short greeting.", role="user")],
+                generation_config=LlmGenerationConfig(max_tokens=32, stop=["unused_stop"]),
             )
         )
+
+    assert len(completion.message.contents) > 0
+    assert isinstance(completion.message.contents[0], TextContent)
+    assert len(completion.message.contents[0].content) > 0
     assert "Parameter `stop` is not supported by the OCI GenAI endpoint" in caplog.text
 
 

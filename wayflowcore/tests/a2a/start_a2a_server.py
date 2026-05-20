@@ -9,7 +9,6 @@ import os
 from enum import Enum
 from typing import Annotated, Callable
 
-import pytest
 import uvicorn
 
 from wayflowcore.agent import Agent, CallerInputMode
@@ -97,10 +96,6 @@ def get_agent_with_server_tool() -> Agent:
     )
 
 
-# google-adk warnings
-@pytest.mark.filterwarnings("ignore::UserWarning")
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 @register_agent(AgentType.ADK_AGENT)
 def get_adk_agent():
     from google.adk.agents import Agent as ADKAgent
@@ -256,14 +251,10 @@ def create_server(agent_type: AgentType, host: str, port: int):
     return server
 
 
-# google-adk warnings
-@pytest.mark.filterwarnings("ignore::UserWarning")
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 def main(host: str, port: int, agent_type: AgentType):
     if agent_type == AgentType.ADK_AGENT:
-        from a2a.types import AgentCard
-        from google.adk.a2a.utils.agent_to_a2a import to_a2a
+        from google.adk.a2a.utils.agent_to_a2a import to_a2a  # isort: skip
+        from a2a.types import AgentCard  # isort: skip
 
         my_agent_card = AgentCard(
             **{

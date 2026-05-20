@@ -7,6 +7,7 @@
 import importlib
 import os
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -29,7 +30,7 @@ def _start_a2a_server(
         if not is_package_installed("google.adk") or not is_package_installed("a2a"):
             pytest.skip("Skipping because the google-adk[a2a] package is not installed.")
     process_args = [
-        "python",
+        sys.executable,
         "-u",  # unbuffered output
         _START_SERVER_FILE_PATH,
         "--host",

@@ -5,6 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import subprocess
+import sys
 from textwrap import dedent
 
 from wayflowcore.serialization.serializer import _import_all_submodules
@@ -246,7 +247,7 @@ def test_componentregistry_is_complete(tmp_path):
     testfile = tmp_path / "_temp_test_componentregistry_is_complete.py"
     with open(testfile, "w") as f:
         f.write(script)
-    result = subprocess.run(["python", testfile], capture_output=True, text=True)
+    result = subprocess.run([sys.executable, testfile], capture_output=True, text=True)
     assert (
         result.returncode == 0
     ), f"Component registry does not match the components registry. Did you forget to add a new component to the test list?\n{result.stderr}"
@@ -268,7 +269,7 @@ def test_all_components_are_builtin_components(tmp_path):
     testfile = tmp_path / "_temp_test_all_components_are_builtin_components.py"
     with open(testfile, "w") as f:
         f.write(script)
-    result = subprocess.run(["python", testfile])
+    result = subprocess.run([sys.executable, testfile])
     assert (
         result.returncode == 0
     ), f"Builtins component registry does not match the components registry. Did you forget to add a new component to the _BUILTIN_COMPONENTS?\n{result}"
