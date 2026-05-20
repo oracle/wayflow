@@ -178,7 +178,7 @@ def _get_tool_schema_no_parsing(
         raise TypeError(f"Return annotation is not specified for tool {tool_name}")
     if _is_annotated_type(output_annotation):
         raise TypeError(
-            f"Annotated types are not permitted when using the description mode `only_docstring`. "
+            "Annotated types are not permitted when using the description mode `only_docstring`. "
             f"Return annotation of tool {tool_name} has type `{output_annotation}`"
         )
     output_schema = _get_partial_schema_from_annotation(output_annotation)
@@ -193,7 +193,7 @@ def _get_tool_schema_from_parsed_signature(
 
     if "self" in tool_signature.parameters.keys():
         raise TypeError(
-            f"The tool decorator cannot be used directly on a class method, use `tool(my_object.my_method)` instead"
+            "The tool decorator cannot be used directly on a class method, use `tool(my_object.my_method)` instead"
         )
 
     # Determining the schema of input parameters
@@ -273,7 +273,7 @@ def tool(
 
 @overload
 def tool(
-    func_or_name: str | None = None,
+    func_or_name: str,
     func: None = None,
     /,
     description_mode: Literal[
@@ -287,7 +287,7 @@ def tool(
 
 
 def tool(
-    func_or_name: Callable[..., Any] | str | None = None,
+    func_or_name: Callable[..., Any] | str,
     func: Callable[..., Any] | None = None,
     /,
     description_mode: Literal[
@@ -447,19 +447,14 @@ def tool(
             requires_confirmation=requires_confirmation,
         )
 
-    # When used as a wrapper, `args` can be [tool_name, callable] or [callable]
-    # When used as a decorator, `args` can be [tool_name, callable] or [callable]
-    if (
-        func_or_name is not None
-        and func is not None
-        and isinstance(func_or_name, str)
-        and callable(func)
-    ):
+    # When used as a wrapper, the function arguments can be [tool_name, callable] or [callable]
+    # When used as a decorator, the decorator arguments can be [tool_name, callable] or [callable]
+    if func is not None and isinstance(func_or_name, str) and callable(func):
         # Example case: wrapper with custom tool name
         # def my_callable():
         #     pass
         # my_tool = tool("my_callable1", my_callable)
-        # here args[0] is the tool name, and args[1] the callable
+        # here func_or_name is the tool name, and func the callable
         # we simply return the newly created ServerTool
         tool_name = func_or_name
         return _make_tool(
@@ -469,12 +464,12 @@ def tool(
             output_descriptors,
             requires_confirmation,
         )
-    elif func_or_name is not None and isinstance(func_or_name, str):
+    elif isinstance(func_or_name, str):
         # Example case: decorator with custom tool name
         # @tool("my_callable1")
         # def my_callable():
         #     pass
-        # here args[0] is the tool name
+        # here func_or_name is the tool name
         # Upon instantiation, first the `tool` function is called, directly followed
         # by the `_partial_with_name` function being called, thus converting the
         # callable to a ServerTool
@@ -490,12 +485,12 @@ def tool(
             )
 
         return _partial_with_name
-    elif func_or_name is not None and callable(func_or_name):
+    elif callable(func_or_name):
         # Example case: wrapper
         # def my_callable():
         #     pass
         # my_tool = tool(my_callable)
-        # here args[0] is the callable
+        # here func_or_name is the callable
         # we simply return the newly created ServerTool
         return _make_tool(
             func_or_name,
@@ -504,21 +499,6 @@ def tool(
             output_descriptors,
             requires_confirmation,
         )
-    elif func_or_name is None:
-        # Example case: decorator with user-specified description_mode
-        # @tool(description_mode='only_docstring')
-        # def my_callable(param1: int = 2) -> int:
-        #     """Callable description"""
-        #     return 0
-        # Upon instantiation, first the `tool` function is called, directly followed
-        # by the `_partial_no_name` function being called, thus converting the
-        # callable to a ServerTool
-        def _partial_no_name(func: Callable[..., Any]) -> ServerTool:
-            return _make_tool(
-                func, None, description_mode, output_descriptors, requires_confirmation
-            )
-
-        return _partial_no_name
     else:
         raise ValueError("Invalid usage of the `tool` helper")
 
