@@ -15,6 +15,7 @@ from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
+from wayflowcore.models._modelhelpers import _supports_native_parallel_tool_calling
 from wayflowcore.property import Property
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.templates import PromptTemplate
@@ -88,7 +89,9 @@ def _get_recipient_agents_for_agent(
 
 def _get_default_swarm_template(agent_by_name: Dict[str, Agent]) -> PromptTemplate:
     if all(
-        agent.llm.supports_tool_calling and agent.llm.agent_template.native_tool_calling
+        agent.llm.supports_tool_calling
+        and _supports_native_parallel_tool_calling(agent.llm)
+        and agent.llm.agent_template.native_tool_calling
         for agent in agent_by_name.values()
     ):
         return _DEFAULT_SWARM_NATIVE_CHAT_TEMPLATE

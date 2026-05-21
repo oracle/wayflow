@@ -241,6 +241,24 @@ def test_managerworkers_uses_non_native_template_when_manager_llm_defaults_to_no
     )
 
 
+def test_managerworkers_uses_non_native_template_for_gpt_oss_native_parallel_limitation():
+    manager_llm = VllmModel(
+        model_id="openai/gpt-oss-120b",
+        host_port="http://example.test",
+    )
+    worker_llm = DummyModel()
+    worker = Agent(worker_llm, name="worker", description="worker")
+
+    group = ManagerWorkers(workers=[worker], group_manager=manager_llm)
+
+    assert manager_llm.supports_tool_calling is True
+    assert manager_llm.agent_template.native_tool_calling is True
+    assert group.managerworkers_template.native_tool_calling is False
+    assert isinstance(
+        group.managerworkers_template.output_parser, ManagerWorkersJsonToolOutputParser
+    )
+
+
 def test_managerworkers_can_use_non_native_tool_calling_template_when_explicitly_requested():
     llm = DummyModel()
     worker = Agent(llm, name="worker", description="worker")

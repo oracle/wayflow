@@ -311,7 +311,7 @@ def test_responses_processor_preserves_remote_mcp_call_with_empty_output():
     ) == [mcp_call]
 
 
-def test_responses_processor_converts_malformed_local_mcp_call_with_server_label():
+def test_responses_processor_preserves_remote_mcp_call_with_local_name_collision():
     processor = _ResponsesAPIProcessor(
         model_id="test-model",
         base_url="http://example.test",
@@ -333,12 +333,69 @@ def test_responses_processor_converts_malformed_local_mcp_call_with_server_label
         {"output": [mcp_call]}, local_tool_names={"local_tool"}
     )
 
+    assert message.tool_requests is None
+    assert message._extra_content == {"responses_output_items": [mcp_call]}
+    assert processor._convert_message_into_openai_message_dict(
+        message, supports_tool_role=True
+    ) == [mcp_call]
+
+
+def test_responses_processor_converts_malformed_local_mcp_call_without_server_label():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+    mcp_call = {
+        "type": "mcp_call",
+        "id": "mcp_1",
+        "call_id": "call_1",
+        "name": "local_tool",
+        "arguments": '{"arg": "value"}',
+        "output": None,
+        "error": None,
+        "status": "completed",
+    }
+
+    message = processor._convert_openai_response_into_message(
+        {"output": [mcp_call]}, local_tool_names={"local_tool"}
+    )
+
     assert message._extra_content is None
     assert message.tool_requests is not None
     assert len(message.tool_requests) == 1
     assert message.tool_requests[0].name == "local_tool"
     assert message.tool_requests[0].args == {"arg": "value"}
     assert message.tool_requests[0].tool_request_id == "call_1"
+
+
+def test_responses_processor_converts_constrained_talk_to_user_mcp_call():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+    mcp_call = {
+        "type": "mcp_call",
+        "id": "mcp_1",
+        "server_label": "<|constrain|>talk_to_user",
+        "name": "<|constrain|>talk_to_user",
+        "arguments": "The result is 13.",
+        "output": None,
+        "error": None,
+        "status": "completed",
+    }
+
+    message = processor._convert_openai_response_into_message(
+        {"output": [mcp_call]}, local_tool_names={"talk_to_user"}
+    )
+
+    assert message._extra_content is None
+    assert message.tool_requests is not None
+    assert len(message.tool_requests) == 1
+    assert message.tool_requests[0].name == "talk_to_user"
+    assert message.tool_requests[0].args == {"text": "The result is 13."}
+    assert message.tool_requests[0].tool_request_id == "mcp_1"
 
 
 def _get_fake_request_that_succeeds_after_x_trials(x: int, status_code: int = 429):
@@ -632,7 +689,8 @@ async def test_responses_streaming_preserves_remote_mcp_call_with_empty_output()
                     },
                 },
             },
-        )
+        ),
+        local_tool_names={"remote_tool"},
     ):
         chunks.append(tagged_chunk)
 
@@ -689,6 +747,56 @@ async def test_responses_streaming_converts_malformed_constrained_json_mcp_call(
     assert len(final_message.tool_requests) == 1
     assert final_message.tool_requests[0].name == "local_tool"
     assert final_message.tool_requests[0].args == {"arg": "value"}
+    assert final_message.tool_requests[0].tool_request_id == "mcp_1"
+
+
+@pytest.mark.anyio
+async def test_responses_streaming_converts_constrained_talk_to_user_mcp_call():
+    processor = _ResponsesAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.RESPONSES,
+    )
+    mcp_call = {
+        "type": "mcp_call",
+        "id": "mcp_1",
+        "server_label": "<|constrain|>talk_to_user",
+        "name": "<|constrain|>talk_to_user",
+        "arguments": "The result is 13.",
+        "output": None,
+        "error": None,
+        "status": "completed",
+    }
+
+    chunks = []
+    async for (
+        tagged_chunk
+    ) in processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
+        _yield_json_objects(
+            {"type": "response.output_item.done", "item": mcp_call},
+            {
+                "type": "response.completed",
+                "response": {
+                    "output": [deepcopy(mcp_call)],
+                    "usage": {
+                        "input_tokens": 10,
+                        "output_tokens": 4,
+                        "total_tokens": 14,
+                    },
+                },
+            },
+        ),
+        local_tool_names={"talk_to_user"},
+    ):
+        chunks.append(tagged_chunk)
+
+    final_message = chunks[-1][1]
+    assert final_message is not None
+    assert final_message._extra_content is None
+    assert final_message.tool_requests is not None
+    assert len(final_message.tool_requests) == 1
+    assert final_message.tool_requests[0].name == "talk_to_user"
+    assert final_message.tool_requests[0].args == {"text": "The result is 13."}
     assert final_message.tool_requests[0].tool_request_id == "mcp_1"
 
 

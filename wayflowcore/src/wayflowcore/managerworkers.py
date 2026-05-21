@@ -14,6 +14,7 @@ from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import MessageList
 from wayflowcore.models import LlmModel
+from wayflowcore.models._modelhelpers import _supports_native_parallel_tool_calling
 from wayflowcore.property import Property
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.templates import PromptTemplate
@@ -34,6 +35,7 @@ logger = logging.getLogger(__name__)
 def _get_default_managerworkers_template(manager_agent: Agent) -> PromptTemplate:
     if (
         manager_agent.llm.supports_tool_calling
+        and _supports_native_parallel_tool_calling(manager_agent.llm)
         and manager_agent.llm.agent_template.native_tool_calling
     ):
         return _DEFAULT_MANAGERWORKERS_NATIVE_CHAT_TEMPLATE

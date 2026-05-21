@@ -233,7 +233,14 @@ You can communicate with the following entities.
 {% else %}
 - Answer your caller directly with non-empty visible text when your work is complete.
 {% endif %}
-- Call at most one tool in each response.
+{% if handoff!="always" %}
+- Calling MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user's query can be broken into INDEPENDENT subtasks.
+- For independent subtasks handled by different agents, output one `send_message` tool request for each agent in the same response before waiting for results.
+- If the request has N independent subtasks handled by N different agents, output exactly N `send_message` tool requests in the same response; do not omit, combine, or defer any of those first requests.
+- For independent multi-agent requests, calling only the first subtask and waiting is incorrect; the first response after the request must include every independent `send_message` call.
+- Every `send_message` tool request must include a non-empty `message` parameter that states the specific subtask for that recipient.
+{% endif %}
+If `handoff_conversation` is included in multiple tool calls, it must be the final tool call in the response.
 - When a relevant tool is available for a requested operation, you must call the tool instead of handling the operation yourself.
 - Never answer from memory or invented facts when a tool can retrieve, verify, compute, or change the requested information.
 - A status or progress message is not a valid response when a tool call can make progress; call the tool instead.
@@ -305,7 +312,14 @@ Use `talk_to_user` to answer your caller.
 {% else %}
 Answer your caller directly with non-empty visible text when your work is complete.
 {% endif %}
-Call at most one tool in each response.
+{% if handoff!="always" %}
+Calling MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user's query can be broken into INDEPENDENT subtasks.
+For independent subtasks handled by different agents, output one `send_message` tool request for each agent in the same response before waiting for results.
+If the request has N independent subtasks handled by N different agents, output exactly N `send_message` tool requests in the same response; do not omit, combine, or defer any of those first requests.
+For independent multi-agent requests, calling only the first subtask and waiting is incorrect; the first response after the request must include every independent `send_message` call.
+Every `send_message` tool request must include a non-empty `message` parameter that states the specific subtask for that recipient.
+{% endif %}
+If `handoff_conversation` is included in multiple tool calls, it must be the final tool call in the response.
 When a relevant tool is available for a requested operation, you must call the tool instead of handling the operation yourself.
 Never answer from memory or invented facts when a tool can retrieve, verify, compute, or change the requested information.
 A status or progress message is not a valid response when a tool call can make progress; call the tool instead.

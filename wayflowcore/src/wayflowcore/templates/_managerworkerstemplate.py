@@ -201,7 +201,11 @@ You can communicate with the following entities.
 {% else %}
 - Answer your caller directly with non-empty visible text when your work is complete.
 {% endif %}
-- Call at most one tool in each response.
+- Calling MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user's query can be broken into INDEPENDENT subtasks.
+- For independent subtasks handled by different workers, output one `send_message` tool request for each worker in the same response before waiting for results.
+- If the request has N independent subtasks handled by N different workers, output exactly N `send_message` tool requests in the same response; do not omit, combine, or defer any of those first requests.
+- For independent multi-worker requests, calling only the first subtask and waiting is incorrect; the first response after the request must include every independent `send_message` call.
+- Every `send_message` tool request must include a non-empty `message` parameter that states the specific subtask for that recipient.
 - When a relevant tool is available for a requested operation, you must call the tool instead of handling the operation yourself.
 - If you need information from a tool, call the tool now; do not tell the user you are checking or will check.
 - Do not say you will use a tool unless the same response contains that native tool call.
@@ -251,7 +255,11 @@ Use `talk_to_user` to answer your caller.
 {% else %}
 Answer your caller directly with non-empty visible text when your work is complete.
 {% endif %}
-Call at most one tool in each response.
+Calling MULTIPLE TOOLS at once is supported. Output multiple tool requests at once when the user's query can be broken into INDEPENDENT subtasks.
+For independent subtasks handled by different workers, output one `send_message` tool request for each worker in the same response before waiting for results.
+If the request has N independent subtasks handled by N different workers, output exactly N `send_message` tool requests in the same response; do not omit, combine, or defer any of those first requests.
+For independent multi-worker requests, calling only the first subtask and waiting is incorrect; the first response after the request must include every independent `send_message` call.
+Every `send_message` tool request must include a non-empty `message` parameter that states the specific subtask for that recipient.
 When a relevant tool is available for a requested operation, you must call the tool instead of handling the operation yourself.
 If you need information from a tool, call the tool now; do not tell the user you are checking or will check.
 Do not say you will use a tool unless the same response contains that native tool call.
@@ -327,17 +335,16 @@ class _ToolRequestAndCallsTransform(MessageTransform):
                     json.dumps({"name": tool_request.name, "parameters": tool_request.args})
                     for tool_request in message.tool_requests
                 )
-                for tool_request in message.tool_requests:
-                    formatted_messages.append(
-                        Message(
-                            content=(
-                                f"--- MESSAGE: From: {message.sender} ---\n"
-                                f"{message.content}\n"
-                                f"{formatted_tool_calls}"
-                            ),
-                            message_type=MessageType.AGENT,
-                        )
+                formatted_messages.append(
+                    Message(
+                        content=(
+                            f"--- MESSAGE: From: {message.sender} ---\n"
+                            f"{message.content}\n"
+                            f"{formatted_tool_calls}"
+                        ),
+                        message_type=MessageType.AGENT,
                     )
+                )
             elif message.message_type == MessageType.SYSTEM:
                 formatted_messages.append(message)
             else:

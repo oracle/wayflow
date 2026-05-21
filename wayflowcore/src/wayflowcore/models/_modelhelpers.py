@@ -86,3 +86,14 @@ def _is_gemma_model(model_id: str) -> bool:
 
 def _is_llama_legacy_model(model_id: str) -> bool:
     return "llama" in model_id.lower() and "3." in model_id
+
+
+def _is_gpt_oss_model(model_id: str) -> bool:
+    return "gpt-oss" in model_id.lower()
+
+
+def _supports_native_parallel_tool_calling(llm: "LlmModel") -> bool:
+    # GPT-OSS currently supports native single tool calls but not native parallel
+    # tool calls. Keep this internal so we do not expose another model capability
+    # flag before the provider behavior is stable.
+    return not _is_gpt_oss_model(llm.model_id)

@@ -21,6 +21,9 @@ from wayflowcore.templates import (
     REACT_AGENT_TEMPLATE,
     PromptTemplate,
 )
+from wayflowcore.templates._managerworkerstemplate import (
+    _ToolRequestAndCallsTransform as ManagerWorkersToolRequestAndCallsTransform,
+)
 from wayflowcore.templates.pythoncalltemplates import GEMMA_AGENT_TEMPLATE
 from wayflowcore.templates.reacttemplates import ReactToolOutputParser
 from wayflowcore.templates.structuredgeneration import (
@@ -241,6 +244,16 @@ TOOL_RESULT_2 = Message(
 
 
 ALL_MESSAGES = [SYSTEM_MESSAGE, USER_MESSAGE, TOOL_REQUEST_MESSAGE, TOOL_RESULT, AGENT_MESSAGE]
+
+
+def test_managerworkers_transform_keeps_parallel_tool_request_as_single_message():
+    output_messages = ManagerWorkersToolRequestAndCallsTransform()([TOOL_REQUEST_MESSAGE_PARALLEL])
+
+    assert len(output_messages) == 1
+    message = output_messages[0]
+    assert message.message_type == MessageType.AGENT
+    assert message.content.count('"name": "some_tool"') == 1
+    assert message.content.count('"name": "some_other_tool"') == 1
 
 
 @pytest.mark.parametrize(

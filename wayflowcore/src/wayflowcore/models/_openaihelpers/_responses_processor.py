@@ -29,6 +29,8 @@ from ._utils import _prepare_openai_compatible_json_schema, _safe_json_loads
 
 logger = logging.getLogger(__name__)
 
+_CONSTRAINED_MCP_TOOL_PREFIX = "<|constrain|>"
+
 
 class _ResponsesAPIProcessor(_APIProcessor):
     @staticmethod
@@ -618,8 +620,11 @@ class _ResponsesAPIProcessor(_APIProcessor):
 
         local_tool_names = local_tool_names or set()
 
-        if item.get("name") in local_tool_names and isinstance(item.get("arguments"), str):
-            return self._convert_tool_call_into_tool_request(item)
+        constrained_tool_request = self._convert_constrained_mcp_call_into_tool_request(
+            item, local_tool_names
+        )
+        if constrained_tool_request is not None:
+            return constrained_tool_request
 
         nested_tool_request = self._convert_mcp_arguments_wrapper_into_tool_request(
             item, local_tool_names
@@ -629,6 +634,52 @@ class _ResponsesAPIProcessor(_APIProcessor):
 
         if "server_label" not in item and isinstance(item.get("arguments"), str):
             return self._convert_tool_call_into_tool_request(item)
+
+        return None
+
+    def _convert_constrained_mcp_call_into_tool_request(
+        self, item: Dict[str, Any], local_tool_names: Set[str]
+    ) -> Optional[ToolRequest]:
+        constrained_tool_name = self._get_constrained_mcp_tool_name(item, local_tool_names)
+        if constrained_tool_name is None:
+            return None
+
+        arguments_text = item.get("arguments")
+        if not isinstance(arguments_text, str):
+            return None
+
+        try:
+            arguments = json.loads(arguments_text)
+        except json.JSONDecodeError:
+            if constrained_tool_name != "talk_to_user":
+                return None
+            arguments = {"text": arguments_text}
+        else:
+            if not isinstance(arguments, dict):
+                if constrained_tool_name != "talk_to_user" or not isinstance(arguments, str):
+                    return None
+                arguments = {"text": arguments}
+
+        return ToolRequest(
+            name=constrained_tool_name,
+            tool_request_id=self._get_tool_call_id(item),
+            args=arguments,
+        )
+
+    def _get_constrained_mcp_tool_name(
+        self, item: Dict[str, Any], local_tool_names: Set[str]
+    ) -> Optional[str]:
+        for field_name in ("name", "server_label"):
+            raw_name = item.get(field_name)
+            if not isinstance(raw_name, str):
+                continue
+
+            if not raw_name.startswith(_CONSTRAINED_MCP_TOOL_PREFIX):
+                continue
+
+            tool_name = raw_name[len(_CONSTRAINED_MCP_TOOL_PREFIX) :]
+            if tool_name in local_tool_names:
+                return tool_name
 
         return None
 

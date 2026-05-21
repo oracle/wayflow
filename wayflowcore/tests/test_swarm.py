@@ -555,6 +555,22 @@ def test_swarm_uses_non_native_template_when_agent_llm_defaults_to_non_native_to
     assert isinstance(swarm.swarm_template.output_parser, SwarmJsonToolOutputParser)
 
 
+def test_swarm_uses_non_native_template_for_gpt_oss_native_parallel_limitation():
+    llm = VllmModel(
+        model_id="openai/gpt-oss-120b",
+        host_port="http://example.test",
+    )
+    agent1 = Agent(llm, name="agent1", description="agent 1")
+    agent2 = Agent(llm, name="agent2", description="agent 2")
+
+    swarm = Swarm(first_agent=agent1, relationships=[(agent1, agent2)])
+
+    assert llm.supports_tool_calling is True
+    assert llm.agent_template.native_tool_calling is True
+    assert swarm.swarm_template.native_tool_calling is False
+    assert isinstance(swarm.swarm_template.output_parser, SwarmJsonToolOutputParser)
+
+
 def test_swarm_can_use_non_native_tool_calling_template_when_explicitly_requested():
     llm = DummyModel()
     agent1 = Agent(llm, name="agent1", description="agent 1")
