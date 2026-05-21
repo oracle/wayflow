@@ -99,7 +99,7 @@ if not ollama_embedding_api_url:
 
 compartment_id = os.environ.get("COMPARTMENT_ID")
 if not compartment_id:
-    raise Exception("compartment_id is not set in the environment")
+    raise Exception("COMPARTMENT_ID is not set in the environment")
 
 oracle_http_proxy = os.environ.get("ORACLE_HTTP_PROXY")
 
