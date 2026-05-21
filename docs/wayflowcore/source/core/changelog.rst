@@ -212,15 +212,6 @@ Bug fixes
 * Fix: Agent no longer ignores tool calls when the LLM attempts to both invoke a tool and respond directly to the user.
 
 
-WayFlow 26.1.1
---------------
-
-Bug fixes
-^^^^^^^^^
-
-* Fix: Gemini models with the OpenAiCompatible model now support native tool calling (#77)
-
-
 WayFlow 26.1.0
 --------------
 
