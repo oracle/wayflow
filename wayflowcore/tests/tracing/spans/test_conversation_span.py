@@ -92,7 +92,7 @@ def test_span_serialization_format(
         assert serialized_span["span_type"] == str(span.__class__.__name__)
         for attribute_name in attributes_to_check:
             assert getattr(span, attribute_name) == serialized_span[attribute_name]
-        assert serialized_span["conversation.id"] == span.conversation.conversation_id
+        assert serialized_span["conversation.id"] == span.conversation.id
         assert serialized_span["conversation.name"] == span.conversation.name
         assert (
             serialized_span["conversational_component.type"] == "Agent"

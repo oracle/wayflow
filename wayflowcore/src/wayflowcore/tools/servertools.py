@@ -339,8 +339,9 @@ class ServerTool(Tool):
                         raise_exceptions=raise_exceptions,
                     )
 
-                tool_result = ToolResult(
-                    content=output, tool_request_id=tool_request.tool_request_id
+                message_output = str(output) if isinstance(output, Exception) else output
+                message_tool_result = ToolResult(
+                    content=message_output, tool_request_id=tool_request.tool_request_id
                 )
                 sender = None
                 recipients = None
@@ -350,7 +351,7 @@ class ServerTool(Tool):
                     conversation.state.current_tool_request = None
                 conversation.message_list.append_message(
                     Message(
-                        tool_result=tool_result,
+                        tool_result=message_tool_result,
                         message_type=MessageType.TOOL_RESULT,
                         sender=sender,
                         recipients=recipients,
@@ -639,6 +640,7 @@ class _FlowAsToolCallable:
             conversation = self.flow.start_conversation(
                 inputs=inputs,
                 messages=self._parent_conversation.message_list,
+                _root_conversation_id=self._parent_conversation.root_conversation_id,
             )
             interrupts = self._parent_conversation._get_interrupts()
 

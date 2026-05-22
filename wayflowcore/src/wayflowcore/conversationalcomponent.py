@@ -7,23 +7,40 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Set, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
+from wayflowcore.idgeneration import IdGenerator
+from wayflowcore.messagelist import Message
 from wayflowcore.property import Property
 
 logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
+    from wayflowcore.checkpointing.checkpointer import ConversationCheckpoint
     from wayflowcore.conversation import Conversation
     from wayflowcore.executors._executor import ConversationExecutor
-    from wayflowcore.messagelist import Message, MessageList
+    from wayflowcore.messagelist import MessageList
     from wayflowcore.models.llmmodel import LlmModel
     from wayflowcore.tools import Tool
 
 _HUMAN_ENTITY_ID = "human_user"
+ConversationTypeT = TypeVar("ConversationTypeT", bound="Conversation")
 
 
 class ConversationalComponent(ComponentWithInputsOutputs, ABC):
@@ -66,8 +83,38 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
+        conversation_id: Optional[str] = None,
+        *,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        _root_conversation_id: Optional[str] = None,
+        _attach_checkpointer: bool = True,
     ) -> "Conversation":
-        pass
+        """
+        Start a conversation for this component.
+
+        Parameters
+        ----------
+        inputs:
+            Optional structured inputs used to initialize the conversation.
+        messages:
+            Optional initial message history. Concrete implementations normalize this into a
+            ``MessageList`` when needed.
+        conversation_id:
+            Optional identifier for the concrete conversation instance.
+        checkpointer:
+            Optional checkpoint backend used to restore and persist conversation state.
+        checkpoint_id:
+            Optional checkpoint identifier to restore. Requires ``checkpointer``.
+        _root_conversation_id:
+            Internal lineage identifier shared by nested conversations for usage accounting,
+            execution limits, and checkpoint lineage.
+
+        Returns
+        -------
+        Conversation
+            A new or restored conversation instance ready for execution.
+        """
 
     @property
     def llms(self) -> List["LlmModel"]:
@@ -114,6 +161,122 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         """
         Method to update the attributes inside.
         """
+
+    @staticmethod
+    def _messages_or_inputs_were_passed(
+        inputs: Optional[Dict[str, Any]],
+        messages: Union[None, str, "Message", List["Message"], "MessageList"],
+    ) -> bool:
+        if inputs:
+            return True
+        if messages is None:
+            return False
+        if isinstance(messages, str):
+            return len(messages) > 0
+        if isinstance(messages, Message):
+            return True
+        return len(messages) > 0
+
+    def _prepare_conversation_start(
+        self,
+        *,
+        inputs: Optional[Dict[str, Any]],
+        messages: Union[None, str, "Message", List["Message"], "MessageList"],
+        conversation_id: Optional[str],
+        _root_conversation_id: Optional[str],
+        checkpointer: Optional["Checkpointer"],
+        checkpoint_id: Optional[str],
+        expected_conversation_type: Type[ConversationTypeT],
+        attach_checkpointer: bool,
+    ) -> tuple[Optional[ConversationTypeT], str, str]:
+        if checkpointer is None:
+            if checkpoint_id is not None:
+                raise ValueError("`checkpoint_id` requires a `checkpointer`.")
+
+            runtime_conversation_id = IdGenerator.get_or_generate_id(conversation_id)
+            return None, runtime_conversation_id, _root_conversation_id or runtime_conversation_id
+
+        if (
+            _root_conversation_id is not None
+            and conversation_id is not None
+            and _root_conversation_id != conversation_id
+        ):
+            raise ValueError(
+                "`root_conversation_id` and `conversation_id` cannot differ when checkpointing is enabled."
+            )
+
+        resolved_conversation_id = conversation_id or _root_conversation_id
+        if resolved_conversation_id is None and checkpoint_id is not None:
+            raise ValueError("`checkpoint_id` requires a `conversation_id`.")
+        if resolved_conversation_id is None:
+            resolved_conversation_id = IdGenerator.get_or_generate_id()
+
+        checkpoint = (
+            checkpointer.load(resolved_conversation_id, checkpoint_id)
+            if checkpoint_id is not None
+            else checkpointer.load_latest(resolved_conversation_id)
+        )
+        if checkpoint is None:
+            return None, resolved_conversation_id, resolved_conversation_id
+
+        if self._messages_or_inputs_were_passed(inputs=inputs, messages=messages):
+            raise ValueError(
+                "Cannot restore a checkpoint while also passing new `inputs` or `messages`. "
+                "Load the conversation first, then append new user input explicitly."
+            )
+
+        conversation = self._restore_checkpointed_conversation(
+            checkpoint=checkpoint,
+            checkpointer=checkpointer,
+            expected_conversation_type=expected_conversation_type,
+            attach_checkpointer=attach_checkpointer,
+        )
+        return conversation, resolved_conversation_id, resolved_conversation_id
+
+    def _restore_checkpointed_conversation(
+        self,
+        *,
+        checkpoint: "ConversationCheckpoint",
+        checkpointer: "Checkpointer",
+        expected_conversation_type: Type[ConversationTypeT],
+        attach_checkpointer: bool,
+        accepted_checkpoint_component_ids: Optional[Sequence[str]] = None,
+    ) -> ConversationTypeT:
+        from wayflowcore.checkpointing.serialization import (
+            _deserialize_conversation_checkpoint_state,
+        )
+
+        accepted_checkpoint_component_ids = accepted_checkpoint_component_ids or []
+        if (
+            checkpoint.component_id != self.id
+            and checkpoint.component_id not in accepted_checkpoint_component_ids
+        ):
+            raise ValueError(
+                "Cannot restore this checkpoint because this conversation was started with another "
+                f"component. Checkpoint component id: `{checkpoint.component_id}`. Current component id: `{self.id}`. "
+                "For persistent restore across process restarts, construct the component with a stable `id` "
+                "or component-specific id alias, such as `agent_id` for `Agent`."
+            )
+
+        root_component_id_aliases = (
+            [checkpoint.component_id] if checkpoint.component_id != self.id else []
+        )
+        conversation = _deserialize_conversation_checkpoint_state(
+            checkpoint.state,
+            tool_registry={tool.name: tool for tool in self._referenced_tools()},
+            component=self,
+            root_component_id_aliases=root_component_id_aliases,
+        )
+        if not isinstance(conversation, expected_conversation_type):
+            raise ValueError(
+                "Cannot restore this checkpoint because this conversation was started with another "
+                f"component. Expected `{expected_conversation_type.__name__}`, got `{type(conversation).__name__}`."
+            )
+
+        if attach_checkpointer:
+            conversation.checkpointer = checkpointer
+        conversation.checkpoint_id = checkpoint.checkpoint_id
+        return conversation
 
 
 # Define a TypeVar that represents the component's type

@@ -220,11 +220,41 @@ class ToolRequestStatus(ExecutionStatus):
         return True
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
+        from wayflowcore.serialization.serializer import serialize_any_to_dict_or_stringify
+
         return {
-            "tool_requests": [asdict(tool) for tool in self.tool_requests],
+            "tool_requests": [
+                {
+                    "name": tool.name,
+                    "args": serialize_any_to_dict_or_stringify(
+                        tool.args,
+                        serialization_context,
+                    ),
+                    "tool_request_id": tool.tool_request_id,
+                    "_extra_content": serialize_any_to_dict_or_stringify(
+                        tool._extra_content,
+                        serialization_context,
+                    ),
+                    "_requires_confirmation": tool._requires_confirmation,
+                    "_tool_execution_confirmed": tool._tool_execution_confirmed,
+                    "_tool_rejection_reason": tool._tool_rejection_reason,
+                }
+                for tool in self.tool_requests
+            ],
             "_conversation_id": self._conversation_id,
             "_tool_results": (
-                [asdict(t) for t in self._tool_results] if self._tool_results is not None else None
+                [
+                    {
+                        "content": serialize_any_to_dict_or_stringify(
+                            tool_result.content,
+                            serialization_context,
+                        ),
+                        "tool_request_id": tool_result.tool_request_id,
+                    }
+                    for tool_result in self._tool_results
+                ]
+                if self._tool_results is not None
+                else None
             ),
             "id": self.id,
         }

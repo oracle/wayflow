@@ -6,29 +6,97 @@
 import base64
 import json
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union, cast
 
 import httpx
 import pytest
+import yaml
+from fastapi.testclient import TestClient
 
+from wayflowcore._utils.async_helpers import run_async_in_sync
+from wayflowcore.agentserver.openairesponses.models.openairesponsespydanticmodels import (
+    Conversation2,
+    CreateResponse,
+    Response,
+)
+from wayflowcore.agentserver.openairesponses.services.wayflowservice import (
+    WayFlowOpenAIResponsesService,
+)
+from wayflowcore.agentserver.server import OpenAIResponsesServer
+from wayflowcore.flowhelpers import create_single_step_flow
+from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models import OpenAIAPIType, OpenAICompatibleModel, StreamChunkType
 from wayflowcore.models.llmmodel import LlmCompletion, Prompt
+from wayflowcore.serialization import serialize
+from wayflowcore.steps import OutputMessageStep
 from wayflowcore.tools import ToolResult
 
 from ..testhelpers.testhelpers import retry_test
-from .conftest import _get_api_key_headers, get_all_server_fixtures_name
+from .conftest import _get_api_key_headers, get_all_server_fixtures_name, get_recent_server_logs
 
 all_available_servers = pytest.mark.parametrize(
     "server_fixture_name", get_all_server_fixtures_name()
 )
+
+_MAX_FAILURE_CONTEXT_CHARS = 12000
+
+
+def _truncate_for_failure_log(value: str, max_chars: int = _MAX_FAILURE_CONTEXT_CHARS) -> str:
+    if len(value) <= max_chars:
+        return value
+    return f"{value[:max_chars]}\n... truncated {len(value) - max_chars} chars ..."
+
+
+def _format_json_for_failure_log(value: Any) -> str:
+    try:
+        return json.dumps(value, indent=2, sort_keys=True, default=str)
+    except TypeError:
+        return repr(value)
+
+
+def _format_response_body_for_failure_log(response: httpx.Response) -> str:
+    try:
+        return _format_json_for_failure_log(response.json())
+    except ValueError:
+        return response.text
+
+
+def _raise_for_status_with_context(
+    response: httpx.Response,
+    *,
+    base_url: str,
+    payload: Dict[str, Any],
+) -> None:
+    try:
+        response.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        recent_logs = get_recent_server_logs(base_url)
+        message_parts = [
+            str(exc),
+            "",
+            "Request payload:",
+            _truncate_for_failure_log(_format_json_for_failure_log(payload)),
+            "",
+            "Response body:",
+            _truncate_for_failure_log(_format_response_body_for_failure_log(response)),
+        ]
+        if recent_logs:
+            message_parts.extend(
+                [
+                    "",
+                    "Recent server logs:",
+                    _truncate_for_failure_log(recent_logs),
+                ]
+            )
+        raise AssertionError("\n".join(message_parts)) from exc
 
 
 def _create_response(
     base_url: str,
     input_value: Any,
     model: str = "hr-assistant",
-    headers: Dict[str, str] = None,
+    headers: Optional[Dict[str, str]] = None,
     **payload_fields: Any,
 ) -> Dict[str, Any]:
     payload: Dict[str, Any] = {
@@ -37,8 +105,224 @@ def _create_response(
         **payload_fields,
     }
     response = httpx.post(f"{base_url}/v1/responses", json=payload, timeout=120.0, headers=headers)
-    response.raise_for_status()
+    _raise_for_status_with_context(response, base_url=base_url, payload=payload)
     return response.json()
+
+
+def _seed_legacy_openai_response_row(
+    service: WayFlowOpenAIResponsesService,
+    *,
+    model_id: str,
+    conversation_id: str,
+    response_id: str,
+) -> None:
+    """Seed storage with the row shape written by the pre-checkpointing server."""
+    conversation = service.agents[model_id].start_conversation(conversation_id=conversation_id)
+    conversation.execute()
+
+    serialized_conversation = yaml.safe_load(serialize(conversation))
+    serialized_conversation.pop("root_conversation_id", None)
+    serialized_conversation["conversation_id"] = "legacy-deprecated-conversation-id"
+
+    response = Response(
+        id=response_id,
+        created_at=1,
+        error=None,
+        incomplete_details=None,
+        instructions=None,
+        model=model_id,
+        object="response",
+        output=[],
+        parallel_tool_calls=True,
+        conversation=Conversation2(id=conversation_id),
+        status="completed",
+    )
+
+    service.storage.create(
+        collection_name=service.storage_config.table_name,
+        entities=[
+            {
+                service.storage_config.agent_id_column_name: model_id,
+                service.storage_config.conversation_id_column_name: conversation_id,
+                service.storage_config.turn_id_column_name: response_id,
+                service.storage_config.created_at_column_name: 1,
+                service.storage_config.conversation_turn_state_column_name: yaml.safe_dump(
+                    serialized_conversation
+                ),
+                service.storage_config.is_last_turn_column_name: 1,
+                service.storage_config.extra_metadata_column_name: json.dumps(
+                    {"response": response.model_dump_json()}
+                ),
+            }
+        ],
+    )
+
+
+def _create_response_with_service(
+    service: WayFlowOpenAIResponsesService,
+    body: CreateResponse,
+) -> Response:
+    async def collect_response() -> Response:
+        response = None
+        async for event in service.create_response(body):
+            if hasattr(event, "response"):
+                response = event.response
+        assert response is not None
+        return response
+
+    return run_async_in_sync(collect_response, method_name="create_response")
+
+
+@pytest.mark.filterwarnings("ignore:InMemoryDatastore is for DEVELOPMENT:UserWarning")
+def test_openai_responses_restores_checkpoint_after_component_restart_with_same_model() -> None:
+    model_id = "restart-stable-model"
+    original_flow = create_single_step_flow(OutputMessageStep(message_template="original response"))
+    original_service = WayFlowOpenAIResponsesService(agents={model_id: original_flow})
+    response = _create_response_with_service(
+        original_service,
+        CreateResponse(model=model_id, input="start"),
+    )
+    checkpoint = original_service._lookup_checkpoint_by_response_id(response.id)
+    assert checkpoint is not None
+    assert checkpoint.component_id == model_id
+
+    restarted_flow = create_single_step_flow(
+        OutputMessageStep(message_template="restarted response")
+    )
+    restarted_service = WayFlowOpenAIResponsesService(
+        agents={model_id: restarted_flow},
+        storage=original_service.storage,
+        storage_config=original_service.storage_config,
+    )
+
+    restored = restarted_service._load_state(
+        previous_response_id=response.id,
+        conversation_id=None,
+        agent_id=model_id,
+    )
+
+    assert restored is not None
+    assert restored.component is restarted_flow
+    assert restored.checkpoint_id == response.id
+
+
+@pytest.mark.parametrize(
+    "load_kwargs",
+    [
+        {"previous_response_id": "legacy-response-id", "conversation_id": None},
+        {"previous_response_id": None, "conversation_id": "legacy-conversation-id"},
+    ],
+    ids=["previous_response_id", "conversation_id"],
+)
+@pytest.mark.filterwarnings("ignore:InMemoryDatastore is for DEVELOPMENT:UserWarning")
+def test_openai_responses_restores_legacy_rows_with_model_alias_as_agent_id(
+    load_kwargs: Dict[str, Optional[str]],
+) -> None:
+    model_id = "legacy-flow-model"
+    conversation_id = "legacy-conversation-id"
+    response_id = "legacy-response-id"
+    flow = create_single_step_flow(OutputMessageStep(message_template="legacy response"))
+    service = WayFlowOpenAIResponsesService(agents={model_id: flow})
+    _seed_legacy_openai_response_row(
+        service,
+        model_id=model_id,
+        conversation_id=conversation_id,
+        response_id=response_id,
+    )
+
+    restored = service._load_state(
+        agent_id=model_id,
+        attach_checkpointer=True,
+        **load_kwargs,
+    )
+
+    assert restored is not None
+    assert restored.id == conversation_id
+    assert restored.root_conversation_id == "legacy-deprecated-conversation-id"
+    assert restored.component is flow
+    assert restored.checkpointer is service.checkpointer
+
+
+@pytest.mark.filterwarnings("ignore:InMemoryDatastore is for DEVELOPMENT:UserWarning")
+def test_openai_responses_does_not_leave_response_checkpoint_when_final_save_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    model_id = "partial-response-flow"
+    response_id = "partial-response-id"
+    flow = create_single_step_flow(OutputMessageStep(message_template="partial response"))
+    server = OpenAIResponsesServer(agents={model_id: flow})
+    service = cast(WayFlowOpenAIResponsesService, server.agent_service)
+
+    original_get_or_generate_id = IdGenerator.get_or_generate_id
+    deterministic_ids = [response_id]
+
+    def deterministic_response_id(id: Optional[str] = None) -> str:
+        if id is not None:
+            return id
+        if deterministic_ids:
+            return deterministic_ids.pop(0)
+        return original_get_or_generate_id()
+
+    monkeypatch.setattr(
+        IdGenerator,
+        "get_or_generate_id",
+        staticmethod(deterministic_response_id),
+    )
+
+    original_save_conversation = service.checkpointer.save_conversation
+    response_metadata_save_attempts = 0
+    failed_response_conversation_id: Optional[str] = None
+
+    def fail_response_metadata_save(*args: Any, **kwargs: Any) -> Any:
+        nonlocal failed_response_conversation_id, response_metadata_save_attempts
+        metadata = kwargs.get("metadata")
+        if isinstance(metadata, dict) and "response" in metadata:
+            response_metadata_save_attempts += 1
+            failed_response_conversation_id = args[0].id
+            if response_metadata_save_attempts == 1:
+                raise RuntimeError("response metadata save failed")
+        return original_save_conversation(*args, **kwargs)
+
+    monkeypatch.setattr(
+        service.checkpointer,
+        "save_conversation",
+        fail_response_metadata_save,
+    )
+
+    with TestClient(server.get_app(), raise_server_exceptions=False) as client:
+        response = client.post(
+            "/v1/responses",
+            json={"model": model_id, "input": "hello", "store": True},
+        )
+        assert response.status_code == 500
+        assert response_metadata_save_attempts == 1
+        assert failed_response_conversation_id is not None
+
+        missing_response = client.get(f"/v1/responses/{response_id}")
+        assert missing_response.status_code == 404
+
+        follow_up_response = client.post(
+            "/v1/responses",
+            json={
+                "model": model_id,
+                "input": "continue",
+                "previous_response_id": response_id,
+            },
+        )
+        conversation_follow_up_response = client.post(
+            "/v1/responses",
+            json={
+                "model": model_id,
+                "input": "continue",
+                "conversation": {"id": failed_response_conversation_id},
+            },
+        )
+
+    assert follow_up_response.status_code == 404
+    assert conversation_follow_up_response.status_code == 404
+    assert failed_response_conversation_id is not None
+    assert service.checkpointer.list_checkpoints(failed_response_conversation_id, limit=None) == []
+    assert service._lookup_checkpoint_by_response_id(response_id) is None
 
 
 @pytest.fixture
@@ -272,6 +556,52 @@ def test_create_response_unknown_response(server_url) -> None:
     assert resp.status_code == 404
     detail = resp.json().get("detail")
     assert "previous response" in detail.lower()
+
+
+@all_available_servers
+def test_create_response_previous_response_id_rejects_different_model(server_url) -> None:
+    created = _create_response(
+        base_url=server_url,
+        model="simple-flow",
+        input_value="whatever",
+    )
+
+    resp = httpx.post(
+        f"{server_url}/v1/responses",
+        json={
+            "model": "hr-assistant",
+            "input": "Continue the conversation.",
+            "previous_response_id": created["id"],
+        },
+        timeout=30.0,
+    )
+
+    assert resp.status_code == 400
+    detail = resp.json().get("detail")
+    assert "previous response was created with model `simple-flow`" in detail
+
+
+@all_available_servers
+def test_create_response_conversation_rejects_different_model(server_url) -> None:
+    created = _create_response(
+        base_url=server_url,
+        model="simple-flow",
+        input_value="whatever",
+    )
+
+    resp = httpx.post(
+        f"{server_url}/v1/responses",
+        json={
+            "model": "hr-assistant",
+            "input": "Continue the conversation.",
+            "conversation": created["conversation"]["id"],
+        },
+        timeout=30.0,
+    )
+
+    assert resp.status_code == 400
+    detail = resp.json().get("detail")
+    assert "latest response in that conversation was created with model `simple-flow`" in detail
 
 
 @all_available_servers
@@ -725,7 +1055,7 @@ def test_agent_with_datastore_is_supported(datastore_agent_inmemory_server):
     follow_up = _create_response(
         base_url=datastore_agent_inmemory_server,
         input_value="and the biggest city?",
-        model="datastore-assistant",
+        model="datastore-swarm",
         previous_response_id=response["id"],
     )
     output = follow_up["output"][0]["content"][0]["text"]

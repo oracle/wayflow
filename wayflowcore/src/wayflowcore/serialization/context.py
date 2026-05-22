@@ -47,6 +47,7 @@ class SerializationContext:
         """
         self.root = root
         self._serialized_objects: Dict[str, Any] = {}
+        self._external_references: set[str] = set()
         self._started_serialization: Dict[str, bool] = {}
         self.plugins = plugins or []
 
@@ -113,6 +114,16 @@ class SerializationContext:
         """
         self._serialized_objects[self.get_reference(obj)] = obj_as_dict
 
+    def register_external_reference(self, obj: Any) -> None:
+        """
+        Registers an object as provided externally to the serialized payload.
+
+        The serializer will emit a ``$ref`` for this object, but it will not add the object to
+        the root ``_referenced_objects`` section because the deserialization context is expected
+        to already contain it.
+        """
+        self._external_references.add(self.get_reference(obj))
+
     def check_obj_is_already_serialized(self, obj: Any) -> bool:
         """
         Returns True if the object has already been serialized
@@ -122,7 +133,11 @@ class SerializationContext:
         obj:
           The original, non-serialized object
         """
-        return self._serialized_objects.get(self.get_reference(obj)) is not None
+        obj_ref = self.get_reference(obj)
+        return (
+            obj_ref in self._external_references
+            or self._serialized_objects.get(obj_ref) is not None
+        )
 
     def get_reference_dict(self, obj: Any) -> Dict[str, str]:
         """
@@ -312,6 +327,21 @@ class DeserializationContext:
         """
         from wayflowcore.component import Component
 
+        def _iter_nested_components(value: Any) -> List["Component"]:
+            if isinstance(value, Component):
+                return [value]
+            if isinstance(value, dict):
+                nested_components: List["Component"] = []
+                for nested_value in value.values():
+                    nested_components.extend(_iter_nested_components(nested_value))
+                return nested_components
+            if isinstance(value, (list, tuple, set)):
+                nested_components = []
+                for nested_value in value:
+                    nested_components.extend(_iter_nested_components(nested_value))
+                return nested_components
+            return []
+
         component_ref = SerializationContext.get_reference(component)
 
         if component_ref in self._deserialized_objects:
@@ -322,14 +352,6 @@ class DeserializationContext:
         all_public_attrs = {
             name: value for name, value in vars(component).items() if not name.startswith("_")
         }
-        for attr_name, attr in all_public_attrs.items():
-            if isinstance(attr, Component):
-                self._add_component_to_context(attr)
-            if isinstance(attr, dict):
-                for value in attr.values():
-                    if isinstance(value, Component):
-                        self._add_component_to_context(value)
-            if isinstance(attr, list):
-                for value in attr:
-                    if isinstance(value, Component):
-                        self._add_component_to_context(value)
+        for attr in all_public_attrs.values():
+            for nested_component in _iter_nested_components(attr):
+                self._add_component_to_context(nested_component)

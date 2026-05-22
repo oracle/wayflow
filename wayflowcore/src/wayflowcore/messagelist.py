@@ -438,7 +438,10 @@ class Message(SerializableDataclass):
         return ""
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
-        from wayflowcore.serialization.serializer import serialize_to_dict
+        from wayflowcore.serialization.serializer import (
+            serialize_any_to_dict_or_stringify,
+            serialize_to_dict,
+        )
 
         # NOTE: Manual deserialization is required because of the tool request and tool result objects
 
@@ -456,7 +459,11 @@ class Message(SerializableDataclass):
             "__metadata_info__": self.__metadata_info__,
             "tool_requests": (
                 [
-                    {"name": t.name, "args": t.args, "tool_request_id": t.tool_request_id}
+                    {
+                        "name": t.name,
+                        "args": serialize_any_to_dict_or_stringify(t.args, serialization_context),
+                        "tool_request_id": t.tool_request_id,
+                    }
                     for t in self.tool_requests
                 ]
                 if self.tool_requests is not None
@@ -465,12 +472,18 @@ class Message(SerializableDataclass):
             "tool_result": (
                 {
                     "tool_request_id": self.tool_result.tool_request_id,
-                    "content": self.tool_result.content,
+                    "content": serialize_any_to_dict_or_stringify(
+                        self.tool_result.content,
+                        serialization_context,
+                    ),
                 }
                 if self.tool_result is not None
                 else None
             ),
-            "_extra_content": self._extra_content,
+            "_extra_content": serialize_any_to_dict_or_stringify(
+                self._extra_content,
+                serialization_context,
+            ),
         }
 
     @property

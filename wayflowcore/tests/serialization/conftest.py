@@ -29,6 +29,8 @@ def _start_a2a_server(
         host,
         "--port",
         str(port),
+        "--agent",
+        "flow_that_yields_once",
     ]
 
     url = f"http://{host}:{port}"

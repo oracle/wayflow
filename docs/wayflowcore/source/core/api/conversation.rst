@@ -57,6 +57,21 @@ Base class for conversations. Can manipulate a conversation object, and can be s
 .. _conversation:
 .. autoclass:: wayflowcore.conversation.Conversation
 
+Checkpointing
+-------------
+
+.. _conversationcheckpoint:
+.. autoclass:: wayflowcore.checkpointing.checkpointer.ConversationCheckpoint
+
+.. _checkpointinginterval:
+.. autoclass:: wayflowcore.checkpointing.checkpointer.CheckpointingInterval
+
+.. _storageconfig:
+.. autoclass:: wayflowcore.checkpointing.checkpointer.StorageConfig
+
+.. _checkpointer:
+.. autoclass:: wayflowcore.checkpointing.checkpointer.Checkpointer
+
 Execution Plan
 --------------
 

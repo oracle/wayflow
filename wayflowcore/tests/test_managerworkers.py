@@ -184,14 +184,14 @@ def test_managerworkers_can_execute_with_initial_params_passed_in_start_conversa
     conversation = group.start_conversation(
         messages=[Message(content="Please compute 3*4 + 2", message_type=MessageType.USER)],
         inputs={"USER": "Iris"},
-        conversation_id="12345",
+        _root_conversation_id="12345",
     )
 
     conversation.execute()
 
     # The first message must be not the default message as the init messages are passed.
     assert conversation.get_last_message().content != DEFAULT_INITIAL_MESSAGE
-    assert conversation.conversation_id == "12345"
+    assert conversation.root_conversation_id == "12345"
 
 
 @retry_test(max_attempts=2)
@@ -1480,15 +1480,15 @@ def test_multi_managers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
-@retry_test(max_attempts=5)
+@retry_test(max_attempts=14)
 def test_multi_managers_with_llms(vllm_responses_llm):
     """
-    Failure rate:          2 out of 20
-    Observed on:           2026-01-28
-    Average success time:  14.97 seconds per successful attempt
-    Average failure time:  20.80 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    Failure rate:          25 out of 50
+    Observed on:           2026-05-13
+    Average success time:  20.35 seconds per successful attempt
+    Average failure time:  11.01 seconds per failed attempt
+    Max attempt:           14
+    Justification:         (0.50 ** 14) ~= 6.1 / 100'000
     """
     llm = vllm_responses_llm
 

@@ -346,11 +346,11 @@ class LlmModel(Component, SerializableObject, ABC):
 
         if isinstance(conversation, FlowConversation):
             # generate with flow
-            self.token_usages_flow[conversation.conversation_id][
+            self.token_usages_flow[conversation.root_conversation_id][
                 conversation.current_step_name
             ] += token_usage
         else:
-            self.token_usages_flexible[conversation.conversation_id] += token_usage
+            self.token_usages_flexible[conversation.root_conversation_id] += token_usage
 
     def get_total_token_consumption(self, conversation_id: str) -> TokenUsage:
         """Calculate and return the total token consumption for a given conversation.

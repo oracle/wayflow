@@ -43,7 +43,7 @@ DIR_PATH = "path/to/your/dir"
 
 def store_conversation(path: str, conversation: Conversation) -> str:
     """Store the given conversation and return the conversation id."""
-    conversation_id = conversation.conversation_id
+    conversation_id = conversation.id
     serialized_conversation = serialize(conversation)
 
     # Read existing data
@@ -87,7 +87,7 @@ new_assistant: Agent = AgentSpecLoader().load_json(serialized_assistant) # docs-
 # .. start-##_Run_the_agent
 # Start a conversation
 conversation = assistant.start_conversation()
-conversation_id = conversation.conversation_id
+conversation_id = conversation.id
 print(f"1. Started conversation with ID: {conversation_id}")
 
 # Execute initial greeting
@@ -155,7 +155,7 @@ simple_flow = Flow(
 # .. end-##_Creating_a_flow
 # .. start-##_Run_the_flow
 flow_conversation = simple_flow.start_conversation()
-flow_id = flow_conversation.conversation_id
+flow_id = flow_conversation.id
 print(f"1. Started flow conversation with ID: {flow_id}")
 
 # Execute until user input is needed
@@ -208,7 +208,7 @@ def run_persistent_agent(assistant: Agent, store_path: str, conversation_id: str
             conversation = assistant.start_conversation()
     else:
         conversation = assistant.start_conversation()
-        print(f"Started new conversation {conversation.conversation_id}")
+        print(f"Started new conversation {conversation.id}")
 
     # Main conversation loop
     while True:

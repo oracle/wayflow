@@ -405,6 +405,16 @@ class RelationalDatastore(Datastore, ABC):
             description=description,
         )
 
+    def close(self) -> None:
+        """Close pooled database connections held by this datastore."""
+        self.engine.dispose()
+
+    def __del__(self) -> None:
+        try:
+            self.close()
+        except Exception:
+            return
+
     def _create_data_tables_from_entities(self) -> Dict[str, _RelationalDatatable]:
         metadata = sqlalchemy.MetaData()
 
