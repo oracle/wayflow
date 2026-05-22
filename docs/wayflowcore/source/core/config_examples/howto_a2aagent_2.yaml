@@ -1,0 +1,183 @@
+component_type: ManagerWorkers
+id: 21f138e2-c8c7-4373-af60-508cf0c1fd2e
+name: managerworkers_44603868__auto
+description: ''
+metadata:
+  __metadata_info__: {}
+inputs: []
+outputs: []
+group_manager:
+  component_type: ExtendedAgent
+  id: 02709a13-1916-4720-89e1-56b0c0ea6922
+  name: PrimeChecker
+  description: You are a PrimeChecker who can sample integers and check if they are
+    prime.
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs: []
+  llm_config:
+    component_type: VllmConfig
+    id: 91a8480a-3d6b-4160-b4a1-e1cd57b7c9a4
+    name: llm_647ebd5e__auto
+    description: null
+    metadata:
+      __metadata_info__: {}
+    default_generation_parameters: null
+    url: LLAMA_API_URL
+    model_id: LLAMA_MODEL_ID
+    api_type: chat_completions
+    api_key: null
+  system_prompt: 'You are a helpful assistant that can sample numbers and check if
+    the sampled numbers are prime.
+
+    You delegate sampling tasks to the `sample_agent` and prime checking tasks to
+    the `prime_agent`.
+
+    Follow these steps:
+
+    1. If the user asks to sample a number, delegate to the `sample_agent`.
+
+    2. If the user asks to check primes, delegate to the `prime_agent`.
+
+    3. If the user asks to sample a number and then check if the result is prime,
+    call `sample_agent` first, then pass the result to `prime_agent`.
+
+    Always clarify the results before proceeding.'
+  tools: []
+  toolboxes: []
+  human_in_the_loop: true
+  context_providers: null
+  can_finish_conversation: false
+  raise_exceptions: false
+  max_iterations: 10
+  initial_message: Hi! How can I help you?
+  caller_input_mode: always
+  agents: []
+  flows: []
+  agent_template:
+    component_type: PluginPromptTemplate
+    id: 23e82423-7df6-461e-a45b-31a6633348fe
+    name: ''
+    description: null
+    metadata:
+      __metadata_info__: {}
+    messages:
+    - role: system
+      contents:
+      - type: text
+        content: '{% if custom_instruction %}{{custom_instruction}}{% endif %}'
+      tool_requests: null
+      tool_result: null
+      display_only: false
+      sender: null
+      recipients: []
+      time_created: '2026-01-14T14:27:15.835239+00:00'
+      time_updated: '2026-01-14T14:27:15.835239+00:00'
+    - role: system
+      contents:
+      - type: text
+        content: $$__CHAT_HISTORY_PLACEHOLDER__$$
+      tool_requests: null
+      tool_result: null
+      display_only: false
+      sender: null
+      recipients: []
+      time_created: '2026-01-14T14:27:15.831100+00:00'
+      time_updated: '2026-01-14T14:27:15.831101+00:00'
+    - role: system
+      contents:
+      - type: text
+        content: "{% if __PLAN__ %}The current plan you should follow is the following:\
+          \ \n{{__PLAN__}}{% endif %}"
+      tool_requests: null
+      tool_result: null
+      display_only: false
+      sender: null
+      recipients: []
+      time_created: '2026-01-14T14:27:15.835267+00:00'
+      time_updated: '2026-01-14T14:27:15.835267+00:00'
+    output_parser: null
+    inputs:
+    - description: '"custom_instruction" input variable for the template'
+      type: string
+      title: custom_instruction
+      default: ''
+    - description: '"__PLAN__" input variable for the template'
+      type: string
+      title: __PLAN__
+      default: ''
+    - type: array
+      items: {}
+      title: __CHAT_HISTORY__
+    pre_rendering_transforms: null
+    post_rendering_transforms:
+    - component_type: PluginRemoveEmptyNonUserMessageTransform
+      id: 34f49abb-027f-4df6-96ab-a90763aeabbc
+      name: removeemptynonusermessage_messagetransform
+      description: null
+      metadata:
+        __metadata_info__: {}
+      component_plugin_name: MessageTransformPlugin
+      component_plugin_version: 26.1.0.dev5
+    tools: null
+    native_tool_calling: true
+    response_format: null
+    native_structured_generation: true
+    generation_config: null
+    component_plugin_name: PromptTemplatePlugin
+    component_plugin_version: 26.1.0.dev5
+  component_plugin_name: AgentPlugin
+  component_plugin_version: 26.1.0.dev5
+workers:
+- component_type: A2AAgent
+  id: b554446e-9c21-4aaf-b393-1e91cc9aeab8
+  name: sample_agent
+  description: Agent that can generate random numbers
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs: []
+  agent_url: http://<sample_agent_url>
+  connection_config:
+    component_type: A2AConnectionConfig
+    id: 061d0a87-cfec-49e4-a427-fec4b4326724
+    name: ''
+    description: null
+    metadata: {}
+    timeout: 600.0
+    headers: null
+    verify: false
+    key_file: null
+    cert_file: null
+    ssl_ca_cert: null
+  session_parameters:
+    timeout: 60.0
+    poll_interval: 2.0
+    max_retries: 5
+- component_type: A2AAgent
+  id: d6e6a95b-c144-469b-91ad-972121406b83
+  name: prime_agent
+  description: Agent that handles checking if numbers are prime.
+  metadata:
+    __metadata_info__: {}
+  inputs: []
+  outputs: []
+  agent_url: http://<prime_agent_url>
+  connection_config:
+    component_type: A2AConnectionConfig
+    id: 54c3ebde-5101-4c4c-9718-bced0142754c
+    name: ''
+    description: null
+    metadata: {}
+    timeout: 600.0
+    headers: null
+    verify: false
+    key_file: null
+    cert_file: null
+    ssl_ca_cert: null
+  session_parameters:
+    timeout: 60.0
+    poll_interval: 2.0
+    max_retries: 5
+agentspec_version: 25.4.2
