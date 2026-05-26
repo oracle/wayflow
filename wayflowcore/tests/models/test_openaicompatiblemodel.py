@@ -203,6 +203,79 @@ def test_chat_completions_processor_formats_tool_result_as_tool_data():
     ]
 
 
+def test_chat_completions_processor_converts_text_encoded_tool_call_content():
+    processor = _ChatCompletionsAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.CHAT_COMPLETIONS,
+    )
+    response = {
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": (
+                        '<|tool_call>call:send_message{"message":"please {inspect} '
+                        'the bug","recipient":"worker-1"}<tool_call|>'
+                    ),
+                }
+            }
+        ]
+    }
+
+    message = processor._convert_openai_response_into_message(response)
+
+    assert message.message_type == MessageType.TOOL_REQUEST
+    assert message.tool_requests is not None
+    assert len(message.tool_requests) == 1
+    assert message.tool_requests[0].name == "send_message"
+    assert message.tool_requests[0].args == {
+        "message": "please {inspect} the bug",
+        "recipient": "worker-1",
+    }
+
+
+def test_chat_completions_processor_converts_text_encoded_tool_call_without_closer():
+    processor = _ChatCompletionsAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.CHAT_COMPLETIONS,
+    )
+    response = {
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": '<|tool_call>call:send_message{"message":"hi","recipient":"worker-1"}',
+                }
+            }
+        ]
+    }
+
+    message = processor._convert_openai_response_into_message(response)
+
+    assert message.message_type == MessageType.TOOL_REQUEST
+    assert message.tool_requests is not None
+    assert message.tool_requests[0].name == "send_message"
+    assert message.tool_requests[0].args == {"message": "hi", "recipient": "worker-1"}
+
+
+def test_chat_completions_processor_ignores_malformed_text_encoded_tool_call_content():
+    processor = _ChatCompletionsAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.CHAT_COMPLETIONS,
+    )
+    raw_content = '<|tool_call>call:send_message{"message":"hi","recipient":'
+    response = {"choices": [{"message": {"role": "assistant", "content": raw_content}}]}
+
+    message = processor._convert_openai_response_into_message(response)
+
+    assert message.message_type == MessageType.AGENT
+    assert message.content == raw_content
+    assert message.tool_requests is None
+
+
 def test_responses_processor_formats_tool_result_as_tool_data():
     processor = _ResponsesAPIProcessor(
         model_id="test-model",
@@ -433,6 +506,64 @@ async def test_chat_completions_streaming_preserves_terminal_usage():
     assert chunks[-1][2].output_tokens == 2
     assert chunks[-1][2].cached_tokens == 6
     assert chunks[-1][2].total_tokens == 12
+
+
+@pytest.mark.anyio
+async def test_chat_completions_streaming_converts_text_encoded_tool_call_content():
+    processor = _ChatCompletionsAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.CHAT_COMPLETIONS,
+    )
+
+    chunks = []
+    async for (
+        tagged_chunk
+    ) in processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
+        _yield_json_objects(
+            {"choices": [{"delta": {"content": "<|tool_call>"}}]},
+            {"choices": [{"delta": {"content": 'call:send_message{"message":"please '}}]},
+            {"choices": [{"delta": {"content": '{inspect} the bug","recipient":"worker-1"}'}}]},
+            {"choices": [{"delta": {"content": "<tool_call|>"}}]},
+        )
+    ):
+        chunks.append(tagged_chunk)
+
+    final_message = chunks[-1][1]
+    assert final_message is not None
+    assert final_message.message_type == MessageType.TOOL_REQUEST
+    assert final_message.content == ""
+    assert final_message.tool_requests is not None
+    assert len(final_message.tool_requests) == 1
+    assert final_message.tool_requests[0].name == "send_message"
+    assert final_message.tool_requests[0].args == {
+        "message": "please {inspect} the bug",
+        "recipient": "worker-1",
+    }
+
+
+@pytest.mark.anyio
+async def test_chat_completions_streaming_ignores_malformed_text_encoded_tool_call_content():
+    processor = _ChatCompletionsAPIProcessor(
+        model_id="test-model",
+        base_url="http://example.test",
+        api_type=OpenAIAPIType.CHAT_COMPLETIONS,
+    )
+    raw_content = '<|tool_call>call:send_message{"message":"hi","recipient":'
+
+    chunks = []
+    async for (
+        tagged_chunk
+    ) in processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
+        _yield_json_objects({"choices": [{"delta": {"content": raw_content}}]})
+    ):
+        chunks.append(tagged_chunk)
+
+    final_message = chunks[-1][1]
+    assert final_message is not None
+    assert final_message.message_type == MessageType.AGENT
+    assert final_message.content == raw_content
+    assert final_message.tool_requests is None
 
 
 @pytest.mark.anyio
