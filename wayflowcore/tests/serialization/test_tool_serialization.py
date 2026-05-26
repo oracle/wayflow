@@ -10,6 +10,7 @@ import pytest
 
 from wayflowcore.agent import Agent
 from wayflowcore.flow import Flow
+from wayflowcore.mcp import MCPTool, MCPToolBox, SSETransport, authless_mcp_enabled
 from wayflowcore.property import IntegerProperty, NullProperty, StringProperty, UnionProperty
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization import autodeserialize, deserialize, serialize
@@ -251,6 +252,44 @@ def test_remote_tool_retry_policy_round_trips(remote_tool):
     assert isinstance(deserialized_tool, RemoteTool)
     assert deserialized_tool.retry_policy is not None
     assert deserialized_tool.retry_policy.max_attempts == 4
+
+
+def test_mcp_toolbox_retry_policy_round_trips() -> None:
+    toolbox = MCPToolBox(
+        client_transport=SSETransport(url="https://example.com/sse"),
+        tool_filter=["expected_tool"],
+        retry_policy=RetryPolicy(max_attempts=4),
+        _validate_mcp_client_transport=False,
+    )
+
+    with pytest.warns(match="without authentication"):
+        with authless_mcp_enabled():
+            deserialized_toolbox = autodeserialize(serialize(toolbox))
+
+    assert isinstance(deserialized_toolbox, MCPToolBox)
+    assert deserialized_toolbox.retry_policy is not None
+    assert deserialized_toolbox.retry_policy.max_attempts == 4
+
+
+def test_mcp_tool_retry_policy_round_trips() -> None:
+    with pytest.warns(match="without authentication"):
+        with authless_mcp_enabled():
+            mcp_tool = MCPTool(
+                name="expected_tool",
+                description="Expected tool",
+                input_descriptors=[],
+                client_transport=SSETransport(url="https://example.com/sse"),
+                _validate_server_exists=False,
+                retry_policy=RetryPolicy(max_attempts=5),
+            )
+
+    with pytest.warns(match="without authentication"):
+        with authless_mcp_enabled():
+            deserialized_tool = autodeserialize(serialize(mcp_tool))
+
+    assert isinstance(deserialized_tool, MCPTool)
+    assert deserialized_tool.retry_policy is not None
+    assert deserialized_tool.retry_policy.max_attempts == 5
 
 
 def test_serialize_agent_with_remote_tools(remotely_hosted_llm, remote_tool):

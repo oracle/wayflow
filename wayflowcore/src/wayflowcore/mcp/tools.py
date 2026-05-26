@@ -22,6 +22,7 @@ from wayflowcore.mcp.mcphelpers import (
     get_server_tools_from_mcp_server,
 )
 from wayflowcore.property import Property
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 from wayflowcore.tools.servertools import ServerTool
@@ -44,6 +45,15 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
     client_transport: ClientTransport
     """Transport to use for establishing and managing connections to the MCP server."""
 
+    retry_policy: Optional[RetryPolicy] = None
+    """
+    Optional retry policy for MCP tool-list resolution and tool execution.
+
+    For tool-list resolution, only the attempt and backoff fields of
+    :class:`RetryPolicy` are used. For tool execution, the retry policy is also
+    used to classify retryable HTTP errors.
+    """
+
     def __init__(
         self,
         name: str,
@@ -56,8 +66,12 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
         __metadata_info__: Optional[MetadataType] = None,
         id: Optional[str] = None,
         requires_confirmation: bool = False,
+        retry_policy: Optional[RetryPolicy] = None,
     ):
         self.client_transport = client_transport
+        self.retry_policy = retry_policy
+        if self.retry_policy is not None and not isinstance(self.retry_policy, RetryPolicy):
+            raise TypeError("retry_policy must be a wayflowcore.retrypolicy.RetryPolicy instance")
         _validate_auth(self.client_transport)
 
         should_validate_tool = _validate_server_exists and _validate_tool_exist_on_server
@@ -76,7 +90,13 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
 
         if should_validate_tool:
             # 2. Perform the call (from the portal)
-            tool = mcp_runtime.call(_get_tool_on_server, session, name, self.client_transport)
+            tool = mcp_runtime.call(
+                _get_tool_on_server,
+                session,
+                name,
+                self.client_transport,
+                self.retry_policy,
+            )
 
             if description is None:
                 description = tool.description
@@ -129,7 +149,12 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
         )
 
         return await mcp_runtime.call_async(
-            _invoke_mcp_tool_call_async, session, self.name, kwargs, self.output_descriptors
+            _invoke_mcp_tool_call_async,
+            session,
+            self.name,
+            kwargs,
+            self.output_descriptors,
+            self.retry_policy,
         )
 
     def run(self, *args: Any, **kwargs: Any) -> Any:
@@ -138,7 +163,12 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
         session = mcp_runtime.get_or_create_session(self.client_transport)
 
         return mcp_runtime.call(
-            _invoke_mcp_tool_call_async, session, self.name, kwargs, self.output_descriptors
+            _invoke_mcp_tool_call_async,
+            session,
+            self.name,
+            kwargs,
+            self.output_descriptors,
+            self.retry_policy,
         )
 
     def _serialize_to_dict(self, serialization_context: "SerializationContext") -> Dict[str, Any]:
@@ -153,6 +183,7 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
                 "output_descriptors",
                 "client_transport",
                 "requires_confirmation",
+                "retry_policy",
             ]
         }
 
@@ -162,19 +193,22 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
     ) -> "SerializableObject":
         from wayflowcore.serialization.serializer import autodeserialize_any_from_dict
 
+        field_names = [
+            "name",
+            "description",
+            "input_descriptors",
+            "output_descriptors",
+            "client_transport",
+            "requires_confirmation",
+            "retry_policy",
+        ]
         return MCPTool(
             **{
                 attr_name: autodeserialize_any_from_dict(
                     input_dict[attr_name], deserialization_context
                 )
-                for attr_name in [
-                    "name",
-                    "description",
-                    "input_descriptors",
-                    "output_descriptors",
-                    "client_transport",
-                    "requires_confirmation",
-                ]
+                for attr_name in field_names
+                if attr_name in input_dict
             },
             # deserialization should not require to be able to reach the server
             _validate_server_exists=False,
@@ -214,9 +248,20 @@ class MCPToolBox(ToolBox, DataclassComponent):
         * Input descriptors can be provided with description of each input. The names and types should match the remote tool schema.
     """
 
+    retry_policy: Optional[RetryPolicy] = None
+    """
+    Optional retry policy for MCP tool-list resolution and tool execution.
+
+    For tool-list resolution, only the attempt and backoff fields of
+    :class:`RetryPolicy` are used. Generated ``MCPTool`` instances also use this
+    policy while executing MCP tool calls.
+    """
+
     _validate_mcp_client_transport: InitVar[bool] = field(default=True, compare=False)
 
     def __post_init__(self, _validate_mcp_client_transport: bool) -> None:
+        if self.retry_policy is not None and not isinstance(self.retry_policy, RetryPolicy):
+            raise TypeError("retry_policy must be a wayflowcore.retrypolicy.RetryPolicy instance")
         if _validate_mcp_client_transport:
             _validate_auth(self.client_transport)
 
@@ -236,6 +281,7 @@ class MCPToolBox(ToolBox, DataclassComponent):
             session=session,
             expected_signatures_by_name=expected_signatures_by_name,
             client_transport=self.client_transport,
+            retry_policy=self.retry_policy,
         )
 
     async def _get_tools_inner_async(self) -> Sequence[ServerTool]:

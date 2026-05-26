@@ -106,6 +106,31 @@ Here you will use the toolbox (see the section on Flows to see how to use the ``
 Specify the :ref:`transport <clienttransport>` to use to handle the connection to the server and create the toolbox.
 You can then equip an agent with the toolbox similarly to tools.
 
+If the MCP server composes tools from external MCP servers and can temporarily
+return a partial tool list during health or remount events, declare the expected
+tools with ``tool_filter`` and configure ``retry_policy``.
+When an expected tool is missing from a successful ``list_tools`` response,
+WayFlow retries the tool-list resolution before failing. The same policy is
+propagated to generated ``MCPTool`` instances for transient tool execution
+failures.
+
+.. literalinclude:: ../code_examples/howto_mcp.py
+    :language: python
+    :start-after: # .. start-##_Configuring_toolbox_retry_policy
+    :end-before: # .. end-##_Configuring_toolbox_retry_policy
+
+.. note::
+   Tool-list missing-tool retry only applies when WayFlow knows which tools are
+   expected, for example through ``tool_filter`` or a direct ``MCPTool(name=...)``.
+   If ``tool_filter`` is ``None``, WayFlow cannot determine whether a successful
+   tool-list response is incomplete.
+
+.. note::
+   The MCP tool retry policy is separate from transport-level retry. It handles
+   successful tool-list responses that are missing expected tools and transient
+   tool execution failures. Configure ``retry_policy`` on the transport when you
+   need lower-level HTTP client retry or request timeout behavior.
+
 .. note::
    ``authless_mcp_enabled()`` disables authorization for local/testing only—do not use in production.
    Keep it scoped around the code that creates MCP tools or toolboxes.
@@ -153,6 +178,13 @@ Create the flow using the MCP tool:
 Here you specify the client transport as with the MCP ToolBox, as well as the name of the specific tool
 you want to use. Additionally, you can override the tool description (exposed by the MCP server) by
 specifying the ``description`` parameter.
+You can also pass ``retry_policy`` to retry direct tool resolution and transient
+tool execution failures.
+
+.. literalinclude:: ../code_examples/howto_mcp.py
+    :language: python
+    :start-after: # .. start-##_Configuring_direct_tool_retry_policy
+    :end-before: # .. end-##_Configuring_direct_tool_retry_policy
 
 .. tip::
 

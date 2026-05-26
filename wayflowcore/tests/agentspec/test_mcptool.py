@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
+import warnings
 
 import pytest
 from pyagentspec.adapters._agentspecloader import (
@@ -13,7 +14,11 @@ from pyagentspec.versioning import AgentSpecVersionEnum
 
 from wayflowcore import Agent
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
-from wayflowcore.agentspec.components.mcp import PluginMCPTool, PluginStdioTransport
+from wayflowcore.agentspec.components.mcp import (
+    PluginMCPTool,
+    PluginMCPToolBox,
+    PluginStdioTransport,
+)
 from wayflowcore.agentspec.runtimeloader import _DEFAULT_BLOCKED_COMPONENTS
 from wayflowcore.mcp import (
     MCPTool,
@@ -27,6 +32,7 @@ from wayflowcore.mcp import (
 )
 from wayflowcore.mcp._session_persistence import AsyncRuntime
 from wayflowcore.property import StringProperty
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.warnings import SecurityWarning
 
 
@@ -98,6 +104,62 @@ def test_mcp_tool_can_be_converted_to_agentspec_and_back(
     assert len(all_agent_tools) == len(all_reloaded_agent_tools)
     for key, value in all_agent_tools.items():
         assert value == all_reloaded_agent_tools[key]
+
+
+def test_mcp_toolbox_retry_policy_exports_to_agentspec_plugin_and_round_trips() -> None:
+    toolbox = MCPToolBox(
+        client_transport=SSETransport(url="https://example.com/sse"),
+        tool_filter=["expected_tool"],
+        retry_policy=RetryPolicy(max_attempts=4),
+        _validate_mcp_client_transport=False,
+    )
+
+    with warnings.catch_warnings(record=True) as captured_warnings:
+        warnings.simplefilter("always")
+        agentspec_toolbox = AgentSpecExporter().to_component(toolbox)
+
+    assert not [warning for warning in captured_warnings if "retry_policy" in str(warning.message)]
+    assert isinstance(agentspec_toolbox, PluginMCPToolBox)
+    assert agentspec_toolbox.retry_policy is not None
+    assert agentspec_toolbox.retry_policy.max_attempts == 4
+
+    with pytest.warns(match="without authentication"):
+        with authless_mcp_enabled():
+            deserialized_toolbox = AgentSpecLoader().load_component(agentspec_toolbox)
+
+    assert isinstance(deserialized_toolbox, MCPToolBox)
+    assert deserialized_toolbox.retry_policy is not None
+    assert deserialized_toolbox.retry_policy.max_attempts == 4
+
+
+def test_mcp_tool_retry_policy_exports_to_agentspec_plugin_and_round_trips() -> None:
+    with pytest.warns(match="without authentication"):
+        with authless_mcp_enabled():
+            mcp_tool = MCPTool(
+                name="expected_tool",
+                description="Expected tool",
+                input_descriptors=[],
+                client_transport=SSETransport(url="https://example.com/sse"),
+                _validate_server_exists=False,
+                retry_policy=RetryPolicy(max_attempts=5),
+            )
+
+    with warnings.catch_warnings(record=True) as captured_warnings:
+        warnings.simplefilter("always")
+        agentspec_tool = AgentSpecExporter().to_component(mcp_tool)
+
+    assert not [warning for warning in captured_warnings if "retry_policy" in str(warning.message)]
+    assert isinstance(agentspec_tool, PluginMCPTool)
+    assert agentspec_tool.retry_policy is not None
+    assert agentspec_tool.retry_policy.max_attempts == 5
+
+    with pytest.warns(match="without authentication"):
+        with authless_mcp_enabled():
+            deserialized_tool = AgentSpecLoader().load_component(agentspec_tool)
+
+    assert isinstance(deserialized_tool, MCPTool)
+    assert deserialized_tool.retry_policy is not None
+    assert deserialized_tool.retry_policy.max_attempts == 5
 
 
 def _make_agent_with_mcp_stdio_transport(remotely_hosted_llm):
