@@ -395,7 +395,7 @@ def test_template_non_native_tool_calling_needs_tool_template_and_raises_if_not_
     [
         (
             "[{% for tool in __TOOLS__%}{{tool | tojson}}{% endfor %}]",
-            'You are a helpful assistant with tools: [{"type": "function", "function": {"name": "some_tool", "description": "Some tool", "parameters": {}}}]',
+            'You are a helpful assistant with tools: [{"type": "function", "function": {"name": "some_tool", "description": "Some tool", "parameters": {"type": "object", "properties": {}}}}]',
         ),
         (
             "{% for tool in __TOOLS__%}{{tool.function.name}}{% endfor %}",
@@ -523,7 +523,7 @@ def test_llama_chat_template():
                     "Environment: ipython\nCutting Knowledge Date: December 2023\n\n"
                     "You are a helpful assistant with tool calling capabilities. Only reply with a tool call if the function exists in the library provided by the user. If it doesn't exist, just reply directly in natural language. When you receive a tool call response, use the output to format an answer to the original user question.\n\n"
                     'You have access to the following functions. To call a function, please respond with JSON for a function call.\nRespond in the format {"name": function name, "parameters": dictionary of argument name and its value}.\nDo not use variables.\n\n'
-                    '- {"name": "some_tool", "description": "Some tool", "parameters": {}}\n\n'
+                    '- {"name": "some_tool", "description": "Some tool", "parameters": {"type": "object", "properties": {}}}\n\n'
                     f"{_TOOL_OUTPUT_SYSTEM_RULE}\n\n"
                     "Additional instructions:\nYour name is Jerry"
                 ),
@@ -570,7 +570,7 @@ def test_bfcl_chat_template():
                     "You SHOULD NOT include any other text in the response.\n\n"
                     "At each turn, you should try your best to complete the tasks requested by the user within the current turn. Continue to output functions to call until you have fulfilled the user's request to the best of your ability. Once you have no more functions to call, the system will consider the current turn complete and proceed to the next turn or task.\n\n"
                     "Here is a list of functions in JSON format that you can invoke.\n"
-                    '[\n- {"name": "some_tool", "description": "Some tool", "parameters": {}},\n]\n'
+                    '[\n- {"name": "some_tool", "description": "Some tool", "parameters": {"type": "object", "properties": {}}},\n]\n'
                     f"{_TOOL_OUTPUT_SYSTEM_RULE}\n\n"
                     "Additional instructions:\nYour name is Jerry"
                 ),
@@ -635,7 +635,7 @@ def test_react_chat_template():
                     "Agent: The weather is sunny today in Zurich!\n"
                     "...\n\n"
                     "Here is a list of functions in JSON format that you can invoke.\n"
-                    '[\n- {"name": "some_tool", "description": "Some tool", "parameters": {}},\n]\n'
+                    '[\n- {"name": "some_tool", "description": "Some tool", "parameters": {"type": "object", "properties": {}}},\n]\n'
                     f"{_TOOL_OUTPUT_SYSTEM_RULE}\n\n"
                     "Additional instructions:\nYour name is Jerry\n\n"
                     "Reminder: always answer the user request with plain text or specify a tool call using the format above. Only use tools when necessary.\n"

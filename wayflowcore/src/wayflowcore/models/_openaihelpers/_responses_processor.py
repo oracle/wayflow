@@ -80,7 +80,6 @@ class _ResponsesAPIProcessor(_APIProcessor):
                 {
                     "content": m.content,
                     "role": "assistant",
-                    "type": "message",
                 }
             )
 
@@ -135,8 +134,16 @@ class _ResponsesAPIProcessor(_APIProcessor):
 
         if len(all_contents) == 1 and all_contents[0]["type"] == "input_text":
             openai_dict["content"] = all_contents[0]["text"]
+            if role == "assistant":
+                # vLLM's Responses schema treats assistant messages with
+                # ``type: "message"`` as output messages, whose content must be
+                # structured output parts. The easy-input shape is accepted by
+                # OpenAI and avoids that discriminator conflict.
+                openai_dict.pop("type")
         elif len(all_contents) == 0:
             openai_dict["content"] = ""
+            if role == "assistant":
+                openai_dict.pop("type")
         else:
             openai_dict["content"] = all_contents
 
