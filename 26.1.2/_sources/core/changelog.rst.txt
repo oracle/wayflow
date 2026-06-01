@@ -51,6 +51,12 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **Improved Agent Spec tracing compatibility**
+
+  Agent Spec tracing exports now serialize WayFlow Agent Spec plugin components with the
+  proper plugin context and report a valid flow end branch when a flow finishes through a
+  transition to ``None``.
+
 * **Scoped opt-in for authless MCP clients**
 
   Added ``authless_mcp_enabled()`` as a scoped context manager for local or test MCP clients
@@ -167,6 +173,11 @@ Possibly Breaking Changes
 
 Bug fixes
 ^^^^^^^^^
+
+* Fix: OpenAI-compatible Responses API requests now replay assistant text messages using
+  the easy-input shape accepted by OpenAI and vLLM, avoiding validation errors when vLLM
+  parses assistant history as output-message content. No-argument tools also emit an
+  explicit object parameters schema for providers that reject empty tool parameter schemas.
 
 * Fix: agents now handle tool calls more robustly with OpenAI-compatible and Llama models,
   ignoring ``null`` streamed tool-call delta fields, normalizing model-produced arguments
