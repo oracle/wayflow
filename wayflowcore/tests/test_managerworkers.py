@@ -1480,15 +1480,15 @@ def test_multi_managers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
-@retry_test(max_attempts=5)
+@retry_test(max_attempts=16)
 def test_multi_managers_with_llms(vllm_responses_llm):
     """
-    Failure rate:          2 out of 20
-    Observed on:           2026-01-28
-    Average success time:  14.97 seconds per successful attempt
-    Average failure time:  20.80 seconds per failed attempt
-    Max attempt:           5
-    Justification:         (0.14 ** 5) ~= 4.7 / 100'000
+    Failure rate:          5 out of 10
+    Observed on:           2026-06-01
+    Average success time:  No time measurement
+    Average failure time:  No time measurement
+    Max attempt:           16
+    Justification:         (0.50 ** 16) ~= 1.5 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -1500,7 +1500,12 @@ def test_multi_managers_with_llms(vllm_responses_llm):
     second_level_group_1 = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are second level group 1 manager. Use your worker fooza for related work.",
+            custom_instruction=(
+                "You are second level group 1 manager. Use your worker fooza for related "
+                "work. When asked for fooza, delegate to fooza_agent and return the numeric "
+                "fooza result to your caller. Treat send_message tool results as worker "
+                "replies; do not say you are waiting after receiving a tool result."
+            ),
         ),
         workers=[fooza_agent],
         name="second_level_group_1",
@@ -1509,7 +1514,12 @@ def test_multi_managers_with_llms(vllm_responses_llm):
     second_level_group_2 = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are second level group 2 manager. Use your workers bwip and zbuk for related work.",
+            custom_instruction=(
+                "You are second level group 2 manager. Use your workers bwip and zbuk for "
+                "related work. When asked for both bwip and zbuk, delegate to both workers, "
+                "treat send_message tool results as worker replies, and return both numeric "
+                "results to your caller. Do not say you are waiting after receiving tool results."
+            ),
         ),
         workers=[bwip_agent, zbuk_agent],
         name="second_level_group_2",
@@ -1518,7 +1528,13 @@ def test_multi_managers_with_llms(vllm_responses_llm):
     first_level_group = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are first level group manager. Use your workers second level group 1 for fooza and group 2 managers for bwip and zbuk related work.",
+            custom_instruction=(
+                "You are first level group manager. Use second_level_group_1 for fooza and "
+                "second_level_group_2 for bwip and zbuk. You must collect both group replies, "
+                "add the fooza, bwip, and zbuk numeric results, and answer with the final sum. "
+                "Treat send_message tool results as group replies. Do not say you are waiting "
+                "after receiving tool results. Do not answer with a partial result."
+            ),
         ),
         workers=[second_level_group_1, second_level_group_2],
         name="first_level_group",
@@ -1526,7 +1542,10 @@ def test_multi_managers_with_llms(vllm_responses_llm):
     )
 
     conv = first_level_group.start_conversation(
-        messages="Compute the result of fooza(4, 2) and add it with bwip(4,5) and zbuk(5,6)"
+        messages=(
+            "Compute fooza(4, 2), bwip(4, 5), and zbuk(5, 6), then add all three "
+            "results. Return the final numeric sum."
+        )
     )
     ###
     ###

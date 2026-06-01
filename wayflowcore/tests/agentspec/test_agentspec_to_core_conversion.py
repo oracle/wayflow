@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Union, cast
 
+import httpx
 import pytest
 from pyagentspec.agent import Agent as AgentSpecAgent
 from pyagentspec.flows.nodes.toolnode import ToolNode as AgentSpecToolNode
@@ -21,7 +22,7 @@ from wayflowcore.agent import CallerInputMode
 from wayflowcore.agentspec import AgentSpecLoader
 from wayflowcore.executors.executionstatus import ExecutionStatus, FinishedStatus
 from wayflowcore.flow import Flow as RuntimeFlow
-from wayflowcore.steps import ToolExecutionStep
+from wayflowcore.steps import ApiCallStep, ToolExecutionStep
 from wayflowcore.tools import RemoteTool as RuntimeRemoteTool
 from wayflowcore.tools.servertools import ServerTool
 
@@ -118,9 +119,13 @@ def test_agentspec_config_can_be_converted_to_core_then_executed(
     filename: str,
     conversation_inputs: Dict[str, str],
     mock_tool_registry: Dict[str, ServerTool],
+    monkeypatch: pytest.MonkeyPatch,
     with_mcp_enabled,
     sse_mcp_server_http,
 ) -> None:
+    if filename == "flow_6.yaml":
+        _mock_open_meteo_api(monkeypatch)
+
     run_example(
         filename=filename,
         conversation_inputs=conversation_inputs,
@@ -200,8 +205,25 @@ def run_example(
     assert isinstance(status, ExecutionStatus)
 
 
+def _mock_open_meteo_api(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def _execute_request(self: ApiCallStep, request: Dict[str, Any]) -> httpx.Response:
+        assert request["url"].startswith("https://api.open-meteo.com/v1/forecast")
+        return httpx.Response(
+            200,
+            json={
+                "latitude": 52.52,
+                "longitude": 13.41,
+                "hourly": {"temperature_2m": [12.3, 13.4]},
+            },
+        )
+
+    monkeypatch.setattr(ApiCallStep, "_execute_request", _execute_request)
+
+
 @retry_test(max_attempts=3)
-def test_apinode_exposes_http_response_among_outputs_when_executed() -> None:
+def test_apinode_exposes_http_response_among_outputs_when_executed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """
     Failure rate:          0 out of 50
     Observed on:           2025-12-16
@@ -210,6 +232,8 @@ def test_apinode_exposes_http_response_among_outputs_when_executed() -> None:
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
+    _mock_open_meteo_api(monkeypatch)
+
     loader = AgentSpecLoader()
 
     with open(CONFIGS_DIR / "flow_6.yaml", "r") as file:
