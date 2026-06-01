@@ -121,7 +121,9 @@ class _APIProcessor(ABC):
                 ],
             }
         else:
-            return {}
+            # OpenAI-compatible providers can reject an empty schema; no-arg tools
+            # still need an explicit object parameters schema.
+            return {"type": "object", "properties": {}}
 
     @abstractmethod
     def _convert_prompt(self, prompt: "Prompt", supports_tool_role: bool) -> Dict[str, Any]:

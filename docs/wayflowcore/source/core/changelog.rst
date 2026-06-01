@@ -168,6 +168,11 @@ Possibly Breaking Changes
 Bug fixes
 ^^^^^^^^^
 
+* Fix: OpenAI-compatible Responses API requests now replay assistant text messages using
+  the easy-input shape accepted by OpenAI and vLLM, avoiding validation errors when vLLM
+  parses assistant history as output-message content. No-argument tools also emit an
+  explicit object parameters schema for providers that reject empty tool parameter schemas.
+
 * Fix: agents now handle tool calls more robustly with OpenAI-compatible and Llama models,
   ignoring ``null`` streamed tool-call delta fields, normalizing model-produced arguments
   against declared tool schemas, and preserving non-string Llama tool-result values.

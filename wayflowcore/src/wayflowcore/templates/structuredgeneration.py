@@ -15,6 +15,7 @@ from wayflowcore.property import Property, _convert_list_of_properties_to_json_s
 from wayflowcore.templates import PromptTemplate
 
 JSON_CONSTRAINED_GENERATION_PROMPT = "At the end of your answer, finish with <final_answer>$your_answer$</final_answer> with $your_answer$ being a properly formatted json that is valid against this JSON schema:"
+FINAL_ANSWER_REGEX = r"<final_answer>\s*\$?(.*?)\$?\s*(?:</final_answer>|$)"
 
 
 def _create_json_instruction_message(
@@ -34,7 +35,7 @@ def _add_json_output_parser(
 ) -> PromptTemplate:
     return prompt_template.with_output_parser(
         [
-            RegexOutputParser(r"<final_answer>(.*)</final_answer>", strict=False),
+            RegexOutputParser(FINAL_ANSWER_REGEX, strict=False),
             JsonOutputParser(
                 properties=(
                     {prop_.name: f".{prop_.name}" for prop_ in response_properties}
