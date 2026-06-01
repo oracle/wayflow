@@ -13,7 +13,13 @@ from wayflowcore import Agent
 from wayflowcore._utils.formatting import parse_tool_call_using_json
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.outputparser import JsonToolOutputParser, PythonToolOutputParser, RegexOutputParser
-from wayflowcore.property import IntegerProperty, ListProperty, Property, StringProperty
+from wayflowcore.property import (
+    IntegerProperty,
+    ListProperty,
+    ObjectProperty,
+    Property,
+    StringProperty,
+)
 from wayflowcore.templates import (
     LLAMA_AGENT_TEMPLATE,
     NATIVE_AGENT_TEMPLATE,
@@ -746,6 +752,46 @@ def test_json_structured_generation_helper_function():
     # Check that it correctly preserves partial values and other configs
     assert prompt.messages[1].content == "You are a calculator with 20 years of experience."
     assert len(prompt.tools) == 1
+
+
+def test_json_structured_generation_parser_handles_missing_closing_final_answer_tag():
+    response_format = ObjectProperty(
+        name="conversation_info",
+        properties={
+            "name_1": ObjectProperty(properties={"name": StringProperty()}),
+            "name_2": ObjectProperty(properties={"name": StringProperty()}),
+        },
+    )
+    template = adapt_prompt_template_for_json_structured_generation(
+        PromptTemplate(
+            messages=[Message("Who is talking?", message_type=MessageType.USER)],
+            response_format=response_format,
+        )
+    )
+    prompt = template.format()
+    raw_output = """{
+  "name_1": {
+    "name": "Anna"
+  },
+  "name_2": {
+    "name": "Bob"
+  }
+}
+
+<final_answer>${
+  "name_1": {
+    "name": "Anna"
+  },
+  "name_2": {
+    "name": "Bob"
+  }
+}$"""
+
+    parsed_message = prompt.parse_output(
+        Message(content=raw_output, message_type=MessageType.AGENT)
+    )
+
+    assert parsed_message.content == ('{"name_1": {"name": "Anna"}, "name_2": {"name": "Bob"}}')
 
 
 def test_json_structured_generation_helper_function_errors():

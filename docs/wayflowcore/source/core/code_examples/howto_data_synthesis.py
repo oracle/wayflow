@@ -508,7 +508,7 @@ def get_justification_generation_step(llm: LlmModel) -> PromptExecutionStep:
     return PromptExecutionStep(
         prompt_template=JUSTIFICATION_PROMPT,
         llm=llm,
-        generation_config=LlmGenerationConfig(max_tokens=2048),
+        generation_config=LlmGenerationConfig(max_tokens=512),
         input_mapping={
             "seed_example": "seed_example",
             "generated_row": "generated_row",
@@ -541,7 +541,7 @@ def get_validation_step(llm: LlmModel) -> PromptExecutionStep:
     return PromptExecutionStep(
         prompt_template=VALIDATION_PROMPT,
         llm=llm,
-        generation_config=LlmGenerationConfig(max_tokens=2048),
+        generation_config=LlmGenerationConfig(max_tokens=512),
         input_mapping={
             "seed_example": "seed_example",
             "generated_row": "generated_row",
@@ -632,6 +632,8 @@ llm = VllmModel(
 # .. start-justification_generation:
 from wayflowcore.property import ListProperty
 from wayflowcore.steps import MapStep
+
+df_synthesized = df_synthesized.head(10).copy()  # docs-skiprow
 
 flow = create_single_step_flow(
     step=MapStep(
