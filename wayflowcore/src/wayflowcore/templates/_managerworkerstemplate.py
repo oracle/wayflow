@@ -4,13 +4,17 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from typing import Tuple
+from typing import List, Tuple
 
+import json_repair
+
+from wayflowcore._utils.formatting import parse_tool_call_using_json
 from wayflowcore.outputparser import JsonToolOutputParser
 from wayflowcore.serialization.serializer import SerializableObject
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.templates.agenticpatterntemplate import ToolRequestAndCallsTransform
 from wayflowcore.templates.template import _TOOL_OUTPUT_SYSTEM_RULE
+from wayflowcore.tools import ToolRequest
 from wayflowcore.transforms import (
     AppendTrailingSystemMessageToUserMessageTransform,
     CoalesceSystemMessagesTransform,
@@ -104,6 +108,18 @@ class ManagerWorkersJsonToolOutputParser(JsonToolOutputParser, SerializableObjec
             return "", raw_txt
         thoughts, raw_tool_calls = raw_txt.split("{", maxsplit=1)
         return thoughts.strip(), "{" + raw_tool_calls.replace("args={", "parameters={")
+
+    def parse_tool_request_from_str(self, raw_txt: str) -> List[ToolRequest]:
+        tool_requests = super().parse_tool_request_from_str(raw_txt)
+        if tool_requests:
+            return tool_requests
+
+        parsed_result = json_repair.loads(raw_txt)
+        if isinstance(parsed_result, dict) and isinstance(parsed_result.get("actions"), list):
+            # Some reasoning models wrap tool calls as {"thought": "...", "actions": [...]}.
+            return parse_tool_call_using_json(parsed_result["actions"])
+
+        return []
 
 
 _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE = PromptTemplate(
