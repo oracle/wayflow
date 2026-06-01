@@ -296,7 +296,7 @@ from wayflowcore.agentspec.components.transforms import (
     PluginSplitPromptOnMarkerMessageTransform as AgentSpecPluginSplitPromptOnMarkerMessageTransform,
 )
 from wayflowcore.agentspec.components.transforms import (
-    PluginSwarmToolRequestAndCallsTransform as AgentSpecPluginSwarmToolRequestAndCallsTransform,
+    PluginToolRequestAndCallsTransform as AgentSpecPluginToolRequestAndCallsTransform,
 )
 from wayflowcore.contextproviders import ContextProvider as RuntimeContextProvider
 from wayflowcore.contextproviders.constantcontextprovider import (
@@ -447,8 +447,8 @@ from wayflowcore.steps.variablesteps.variablewritestep import (
 )
 from wayflowcore.swarm import Swarm as RuntimeSwarm
 from wayflowcore.templates import PromptTemplate as RuntimePromptTemplate
-from wayflowcore.templates._swarmtemplate import (
-    _ToolRequestAndCallsTransform as RuntimeSwarmToolRequestAndCallsTransform,
+from wayflowcore.templates.agenticpatterntemplate import (
+    ToolRequestAndCallsTransform as RuntimeToolRequestAndCallsTransform,
 )
 from wayflowcore.templates.llamatemplates import (
     _LlamaMergeToolRequestAndCallsTransform as RuntimeLlamaMergeToolRequestAndCallsTransform,
@@ -1741,9 +1741,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     runtime_messagetransform
                 ),
             )
-        elif isinstance(runtime_messagetransform, RuntimeSwarmToolRequestAndCallsTransform):
-            return AgentSpecPluginSwarmToolRequestAndCallsTransform(
-                name="swarmtoolrequestandcalls_messagetransform",
+        elif isinstance(runtime_messagetransform, RuntimeToolRequestAndCallsTransform):
+            return AgentSpecPluginToolRequestAndCallsTransform(
+                name="toolrequestandcalls_messagetransform",
                 metadata=_create_agentspec_metadata_from_runtime_component(
                     runtime_messagetransform
                 ),

@@ -51,6 +51,12 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **Improved Agent Spec tracing compatibility**
+
+  Agent Spec tracing exports now serialize WayFlow Agent Spec plugin components with the
+  proper plugin context and report a valid flow end branch when a flow finishes through a
+  transition to ``None``.
+
 * **Scoped opt-in for authless MCP clients**
 
   Added ``authless_mcp_enabled()`` as a scoped context manager for local or test MCP clients

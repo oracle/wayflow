@@ -7,6 +7,7 @@
 from typing import Union
 
 import pytest
+import yaml
 
 from wayflowcore.agent import Agent
 from wayflowcore.executors._swarmconversation import (
@@ -17,6 +18,8 @@ from wayflowcore.executors._swarmconversation import (
 )
 from wayflowcore.serialization import deserialize, serialize, serialize_to_dict
 from wayflowcore.swarm import Swarm
+from wayflowcore.templates._swarmtemplate import _DEFAULT_SWARM_CHAT_TEMPLATE
+from wayflowcore.templates.agenticpatterntemplate import ToolRequestAndCallsTransform
 from wayflowcore.transforms import RemoveEmptyNonUserMessageTransform
 
 from ..conftest import _assert_config_are_equal
@@ -245,3 +248,22 @@ def test_can_continue_a_deserialized_swarm_conversation(simple_swarm: Swarm) -> 
     assert len(deser_conv.get_messages()) == conv_length_before_serialization
     deser_conv.append_user_message("Actually it's better now")
     deser_conv.execute()
+
+
+def test_legacy_swarm_transform_keeps_swarm_deserialization_behavior():
+    serialized_template = serialize_to_dict(_DEFAULT_SWARM_CHAT_TEMPLATE)
+    serialized_template["post_rendering_transforms"][0][
+        "_component_type"
+    ] = "_ToolRequestAndCallsTransform"
+
+    deserialized_template = deserialize(
+        type(_DEFAULT_SWARM_CHAT_TEMPLATE),
+        yaml.safe_dump(serialized_template, sort_keys=False),
+    )
+
+    assert isinstance(
+        deserialized_template.post_rendering_transforms[0], ToolRequestAndCallsTransform
+    )
+    reserialized_template = serialize(deserialized_template)
+    assert "_component_type: ToolRequestAndCallsTransform" in reserialized_template
+    assert "_component_type: _ToolRequestAndCallsTransform" not in reserialized_template

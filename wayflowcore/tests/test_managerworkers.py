@@ -1161,17 +1161,18 @@ def test_three_level_managerworkers_with_mock_outputs(vllm_responses_llm):
         assert conv.get_last_message().content == "first-level manager answers to user"
 
 
-@retry_test(max_attempts=3)
+@retry_test(max_attempts=6)
 def test_three_level_managerworkers_with_llms(vllm_responses_llm):
     """
-    Failure rate:          0 out of 20
-    Observed on:           2026-01-28
-    Average success time:  15.27 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
+    Failure rate:          4 out of 20
+    Observed on:           2026-06-01
+    Average success time:  26.55 seconds per successful attempt
+    Average failure time:  13.90 seconds per failed attempt
+    Max attempt:           6
+    Justification:         (0.20 ** 6) ~= 6.4 / 100'000
     """
     llm = vllm_responses_llm
+    llm.generation_config.max_tokens = 4096
 
     fooza_agent = _get_fooza_agent(llm)
     bwip_agent = _get_bwip_agent(llm)
@@ -1189,7 +1190,10 @@ def test_three_level_managerworkers_with_llms(vllm_responses_llm):
     second_level_group = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are a second-level manager. Use your third-level group for fooza related work.",
+            custom_instruction=(
+                "You are a second-level manager. Use your third-level group for fooza related work. "
+                "Do not answer before you have received the fooza result."
+            ),
         ),
         workers=[third_level_group],
         name="second_level_group",
@@ -1198,7 +1202,12 @@ def test_three_level_managerworkers_with_llms(vllm_responses_llm):
     first_level_group = ManagerWorkers(
         group_manager=Agent(
             llm=llm,
-            custom_instruction="You are a first-level manager. Use your workers for fooza, bwip, zbuk related computations.",
+            custom_instruction=(
+                "You are a first-level manager. Use your workers for fooza, bwip, zbuk related computations. "
+                "Delegate fooza to second_level_group, bwip to bwip_agent, and zbuk to zbuk_agent. "
+                "Do not answer the user until you have received all three results. "
+                "Your final answer to the user must include only the combined numeric result."
+            ),
         ),
         workers=[second_level_group, bwip_agent, zbuk_agent],
         name="first_level_group",
