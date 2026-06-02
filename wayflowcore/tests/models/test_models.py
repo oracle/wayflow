@@ -1274,7 +1274,13 @@ def test_can_generate_tool_call_stream(llm_config, request) -> None:
 
 
 @with_all_llm_tool_calling_configs
-def test_model_cannot_generate_tool_call_without_tool(llm_config: Dict[str, str]) -> None:
+def test_model_cannot_generate_tool_call_without_tool(llm_config: Dict[str, Any]) -> None:
+    llm_config = deepcopy(llm_config)
+    generation_config = llm_config.setdefault("generation_config", {})
+    max_tokens = generation_config.get("max_tokens")
+    if max_tokens is None or max_tokens < 1024:
+        generation_config["max_tokens"] = 1024
+
     llm = LlmModelFactory.from_config(llm_config)
     prompt = llm.chat_template.with_tools(None).format(
         inputs=dict(__CHAT_HISTORY__=CHAT_PROMPT_BEFORE_TOOL_CALL)
@@ -2072,12 +2078,10 @@ def test_structured_generation_with_enum(request, llm_fixture_name):
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
     """
     llm = request.getfixturevalue(llm_fixture_name)
-    text = dedent(
-        """
+    text = dedent("""
         Here is some text, extract some information about it:
         Sea turtles are animals living most of their lives in the ocean, in the deep waters. They are in danger, and are lonely animals.
-        """
-    )
+        """)
     habitat_enum = ("WATER", "FOREST", "DESERT", "MOUNTAINS")
     state_enum = ("NA", "IN_DANGER", "EXTINCTION")
     life_enum = ("ALONE", "FAMILY", "HERD")
