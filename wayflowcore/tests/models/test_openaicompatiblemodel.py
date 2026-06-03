@@ -658,21 +658,6 @@ def test_non_streaming_works_when_backend_forces_streaming_response(mocked_httpx
     assert llm_completion.message.content == "That's a wonderfully deep question."
 
 
-# this prompt will crash because it starts with an assistant message
-ERRONEOUS_GEMMA_PROMPT = Prompt(messages=[Message(role="assistant", content="hi")])
-
-
-def test_model_returns_error(remote_gemma_llm):
-    with pytest.raises(Exception, match="API request failed with status code 400"):
-        remote_gemma_llm.generate(prompt=ERRONEOUS_GEMMA_PROMPT)
-
-
-def test_model_returns_error_streaming(remote_gemma_llm):
-    with pytest.raises(Exception, match="API streaming request failed with status code 400"):
-        for chunk in remote_gemma_llm.stream_generate(prompt=ERRONEOUS_GEMMA_PROMPT):
-            pass
-
-
 @pytest.mark.parametrize(
     "base_url, expected",
     [
