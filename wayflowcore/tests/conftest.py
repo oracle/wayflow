@@ -154,7 +154,7 @@ DUMMY_OCI_USER_CONFIG_DICT = {
 def _create_live_llm_test_retry_policy() -> RetryPolicy:
     # Live model tests already use pytest-level retries where needed. Keep the
     # HTTP attempt bounded so a wedged model server does not stall CI for minutes.
-    return RetryPolicy(max_attempts=0, request_timeout=30.0)
+    return RetryPolicy(max_attempts=0, request_timeout=60.0)
 
 
 @pytest.fixture
