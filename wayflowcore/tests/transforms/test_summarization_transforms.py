@@ -19,6 +19,7 @@ from wayflowcore.models.llmmodel import LlmCompletion, LlmModel
 from wayflowcore.swarm import HandoffMode, Swarm
 from wayflowcore.templates._managerworkerstemplate import _DEFAULT_MANAGERWORKERS_CHAT_TEMPLATE
 from wayflowcore.templates._swarmtemplate import _DEFAULT_SWARM_CHAT_TEMPLATE
+from wayflowcore.templates.pythoncalltemplates import GEMMA_AGENT_TEMPLATE
 from wayflowcore.tools import ToolRequest, ToolResult, tool
 from wayflowcore.transforms import (
     ConversationSummarizationTransform,
@@ -1803,7 +1804,7 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
 
 
 @pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
-def test_agent_transforms_should_run_before_canonicalization_with_gemma(remote_gemma_llm):
+def test_agent_transforms_should_run_before_explicit_canonicalization_template(remote_gemma_llm):
 
     main_content = (
         "Absolutely! Dolphins are fascinating creatures, famous for their intelligence and complex behavior. "
@@ -1818,7 +1819,12 @@ def test_agent_transforms_should_run_before_canonicalization_with_gemma(remote_g
         min_num_messages=1,
     )
 
-    agent = Agent(llm=remote_gemma_llm, tools=[], transforms=[summarization_transform])
+    agent = Agent(
+        llm=remote_gemma_llm,
+        tools=[],
+        transforms=[summarization_transform],
+        agent_template=GEMMA_AGENT_TEMPLATE,
+    )
 
     conv = agent.start_conversation()
     for m in messages:
@@ -1840,13 +1846,16 @@ def test_agent_transforms_should_run_before_canonicalization_with_gemma(remote_g
                 for message in prompt.messages
             ]
 
-            # CanonicalizationMessageTransform should merge the summary and the last message into a single message.
-            assert len(transformed_messages) == 1
+            user_messages = [message for message in transformed_messages if message.role == "user"]
+
+            # CanonicalizationMessageTransform should merge the summary and the last user
+            # message into a single user message after the legacy template's system prompt.
+            assert len(user_messages) == 1
             # If CanonicalizationMessageTransform runs AFTER ConversationSummarizationTransform
             # then summarization should happen.
             assert mock_generate_summary.call_count > 0
             # The messages received by the LLM were summarized.
-            assert len(transformed_messages[0].content) <= len(main_content) * 2
+            assert len(user_messages[0].content) <= len(main_content) * 2
 
 
 @pytest.mark.parametrize(
