@@ -212,7 +212,7 @@ def get_flow_with_input_step_that_yields_once() -> Flow:
 def get_agent_with_vision_capability() -> Agent:
     llm = VllmModel(
         host_port=os.environ.get("GEMMA_API_URL"),
-        model_id="google/gemma-3-27b-it",
+        model_id=os.environ["GEMMA_MODEL_ID"],
     )
     agent = Agent(
         llm=llm,

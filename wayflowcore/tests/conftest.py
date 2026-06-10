@@ -88,6 +88,9 @@ if not oci_reasoning_model_name:
 gemma_api_url = os.environ.get("GEMMA_API_URL")
 if not gemma_api_url:
     raise Exception("GEMMA_API_URL is not set in the environment")
+GEMMA_MODEL_ID = os.environ.get("GEMMA_MODEL_ID")
+if not GEMMA_MODEL_ID:
+    raise Exception("GEMMA_MODEL_ID is not set in the environment")
 
 e5large_api_url = os.environ.get("E5largev2_EMBEDDING_API_URL")
 if not e5large_api_url:
@@ -262,7 +265,7 @@ OPENAI_REASONING_RESPONSES_CONFIG = {
 GEMMA_CONFIG = {
     "model_type": "vllm",
     "host_port": gemma_api_url,
-    "model_id": "google/gemma-3-27b-it",
+    "model_id": GEMMA_MODEL_ID,
     "generation_config": {"max_tokens": 512},
     "retry_policy": _create_live_llm_test_retry_policy(),
 }

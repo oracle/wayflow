@@ -10,7 +10,7 @@ from wayflowcore._metadata import MetadataType
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import serialize_to_dict
 
-from ._modelhelpers import _is_gemma_model, _is_llama_legacy_model
+from ._modelhelpers import _is_gemma_legacy_model, _is_llama_legacy_model
 from .llmgenerationconfig import LlmGenerationConfig
 from .openaiapitype import OpenAIAPIType
 from .openaicompatiblemodel import EMPTY_API_KEY, OpenAICompatibleModel
@@ -157,9 +157,11 @@ class VllmModel(OpenAICompatibleModel):
                 "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_CHAT_TEMPLATE`, which yields better performance than native tool calling"
             )
             return LLAMA_CHAT_TEMPLATE
-        if _is_gemma_model(self.model_id):
+        if _is_gemma_legacy_model(self.model_id):
             logger.debug(
-                "Gemma models only support alternating user and agent messages. The `CanonicalizationMessageTransform` will be added to this default's model template to ensure that."
+                "This model requires alternating user and agent messages. "
+                "The `CanonicalizationMessageTransform` will be added to this default "
+                "model template to ensure that."
             )
             return NATIVE_CHAT_TEMPLATE.with_additional_post_rendering_transform(
                 CanonicalizationMessageTransform()
@@ -177,9 +179,11 @@ class VllmModel(OpenAICompatibleModel):
                 "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_AGENT_TEMPLATE`, which yields better performance than native tool calling"
             )
             return LLAMA_AGENT_TEMPLATE
-        if _is_gemma_model(self.model_id):
+        if _is_gemma_legacy_model(self.model_id):
             logger.debug(
-                "Gemma models only support alternating user and agent messages. The `CanonicalizationMessageTransform` will be added to this default's model template to ensure that."
+                "This model requires alternating user and agent messages. "
+                "The `CanonicalizationMessageTransform` will be added to this default "
+                "model template to ensure that."
             )
             return NATIVE_AGENT_TEMPLATE.with_additional_post_rendering_transform(
                 CanonicalizationMessageTransform()

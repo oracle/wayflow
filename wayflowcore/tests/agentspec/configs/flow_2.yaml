@@ -234,8 +234,8 @@ $referenced_components:
     description: null
     id: d6de2132-469e-49af-8f68-515839474472
     metadata: {}
-    model_id: google/gemma-3-27b-it
-    name: gemma-3-27b-it
+    model_id: GEMMA_MODEL_ID
+    name: GEMMA_MODEL_NAME
     url: GEMMA_API_URL
   f7713311-8219-483a-bced-601dba820ce5:
     branches:

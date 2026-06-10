@@ -84,5 +84,14 @@ def _is_gemma_model(model_id: str) -> bool:
     return "gemma" in model_id.lower()
 
 
+def _is_gemma_native_tool_calling_model(model_id: str) -> bool:
+    model_id_lower = model_id.lower()
+    return "gemma-4" in model_id_lower or "gemma4" in model_id_lower
+
+
+def _is_gemma_legacy_model(model_id: str) -> bool:
+    return _is_gemma_model(model_id) and not _is_gemma_native_tool_calling_model(model_id)
+
+
 def _is_llama_legacy_model(model_id: str) -> bool:
     return "llama" in model_id.lower() and "3." in model_id

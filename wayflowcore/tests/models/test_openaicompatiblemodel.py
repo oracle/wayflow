@@ -39,8 +39,10 @@ from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import serialize_to_dict
 from wayflowcore.tools import ServerTool, ToolRequest
 from wayflowcore.tools.tools import ToolResult
+from wayflowcore.transforms import CanonicalizationMessageTransform
 
 from ..conftest import (
+    GEMMA_MODEL_ID,
     OPENAI_REASONING_RESPONSES_CONFIG,
     OPENAI_RESPONSES_CONFIG,
     VLLM_OSS_CONFIG,
@@ -680,6 +682,36 @@ def test_model_calls_correct_url(base_url, expected):
     assert payload["url"] == expected
     if os.environ.get("OPENAI_API_KEY") is None:
         assert payload.get("headers", {}).get("Authorization") is None  # no api_key was specified
+
+
+def test_gemma_4_openai_compatible_preserves_tool_role():
+    prompt = Prompt(
+        messages=[
+            Message(
+                tool_result=ToolResult(
+                    tool_request_id="call_1",
+                    content="5",
+                )
+            )
+        ]
+    )
+
+    payload = OpenAICompatibleModel(
+        model_id=GEMMA_MODEL_ID,
+        base_url="example.test",
+    )._generate_request_params(prompt, stream=False)
+
+    assert payload["json"]["messages"][0]["role"] == "tool"
+
+
+def test_gemma_4_vllm_uses_native_templates_without_default_canonicalization():
+    model = VllmModel(model_id=GEMMA_MODEL_ID, host_port="example.test")
+
+    for template in (model.chat_template, model.agent_template):
+        assert not any(
+            isinstance(transform, CanonicalizationMessageTransform)
+            for transform in template.post_rendering_transforms or []
+        )
 
 
 @mock.patch.dict(os.environ, {"OPENAI_API_KEY": "sk-012-MOCKED_KEY"})
