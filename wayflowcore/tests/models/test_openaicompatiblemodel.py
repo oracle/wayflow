@@ -684,7 +684,7 @@ def test_model_calls_correct_url(base_url, expected):
         assert payload.get("headers", {}).get("Authorization") is None  # no api_key was specified
 
 
-def test_gemma_4_openai_compatible_preserves_tool_role():
+def test_gemma_nonlegacy_openai_compatible_preserves_tool_role():
     prompt = Prompt(
         messages=[
             Message(
@@ -704,7 +704,7 @@ def test_gemma_4_openai_compatible_preserves_tool_role():
     assert payload["json"]["messages"][0]["role"] == "tool"
 
 
-def test_gemma_4_vllm_uses_native_templates_without_default_canonicalization():
+def test_gemma_nonlegacy_vllm_uses_native_templates_without_default_canonicalization():
     model = VllmModel(model_id=GEMMA_MODEL_ID, host_port="example.test")
 
     for template in (model.chat_template, model.agent_template):

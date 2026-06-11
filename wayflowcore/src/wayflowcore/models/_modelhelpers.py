@@ -88,6 +88,7 @@ def _is_gemma_model(model_id: str) -> bool:
 def _is_gemma_native_tool_calling_model(model_id: str) -> bool:
     # Match versioned Gemma names like `gemma-4-27b-it`, while avoiding compact
     # or size-only names like `gemma4` and `gemma-7b-it`.
+    # Here, we assume all Gemma models from version 4 support native tool-calling
     version_match = re.search(r"(?:^|[/_:.-])gemma-([0-9]+)(?=[/_:.-]|$)", model_id.lower())
     if version_match is None:
         return False
