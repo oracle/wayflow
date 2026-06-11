@@ -1804,7 +1804,7 @@ def test_conversation_summarization_respects_tool_request_response_consistency()
 
 
 @pytest.mark.filterwarnings(f"ignore:{_SUMMARIZATION_WARNING_MESSAGE}:UserWarning")
-def test_agent_transforms_should_run_before_explicit_canonicalization_template(remote_gemma_llm):
+def test_agent_transforms_run_before_explicit_canonicalization_template(remote_gemma_llm):
 
     main_content = (
         "Absolutely! Dolphins are fascinating creatures, famous for their intelligence and complex behavior. "
