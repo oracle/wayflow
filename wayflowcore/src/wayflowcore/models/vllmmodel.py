@@ -159,9 +159,10 @@ class VllmModel(OpenAICompatibleModel):
             return LLAMA_CHAT_TEMPLATE
         if _is_gemma_legacy_model(self.model_id):
             logger.debug(
-                "This model requires alternating user and agent messages. "
+                "%s and other gemma-3 models require alternating user and agent messages. "
                 "The `CanonicalizationMessageTransform` will be added to this default "
-                "model template to ensure that."
+                "model template to ensure that.",
+                self.model_id,
             )
             return NATIVE_CHAT_TEMPLATE.with_additional_post_rendering_transform(
                 CanonicalizationMessageTransform()
@@ -181,9 +182,10 @@ class VllmModel(OpenAICompatibleModel):
             return LLAMA_AGENT_TEMPLATE
         if _is_gemma_legacy_model(self.model_id):
             logger.debug(
-                "This model requires alternating user and agent messages. "
+                "%s and other gemma-3 models require alternating user and agent messages. "
                 "The `CanonicalizationMessageTransform` will be added to this default "
-                "model template to ensure that."
+                "model template to ensure that.",
+                self.model_id,
             )
             return NATIVE_AGENT_TEMPLATE.with_additional_post_rendering_transform(
                 CanonicalizationMessageTransform()
