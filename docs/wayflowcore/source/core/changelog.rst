@@ -4,6 +4,16 @@ Changelog
 WayFlow |current_version|
 -------------------------
 
+Improvements
+^^^^^^^^^^^^
+
+* **Add support for Gemma-4 models with native tool-calling**
+  :ref:`OpenAICompatibleModel <openaicompatiblemodel>` and :ref:`VllmModel <vllmmodel>`
+  now support Gemma-4 models with native tool-calling.
+
+WayFlow 26.1.2
+--------------
+
 New features
 ^^^^^^^^^^^^
 
