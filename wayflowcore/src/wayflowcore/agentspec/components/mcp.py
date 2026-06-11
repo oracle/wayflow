@@ -7,7 +7,6 @@
 from typing import List, Literal, Optional, Union
 
 from pyagentspec.mcp.clienttransport import ClientTransport, RemoteTransport, StdioTransport
-from pyagentspec.retrypolicy import RetryPolicy
 from pyagentspec.tools import ServerTool
 from pyagentspec.tools.tool import Tool
 from pydantic import ConfigDict, Field, SerializeAsAny
@@ -138,9 +137,6 @@ class PluginMCPTool(ServerTool):
     client_transport: SerializeAsAny[ClientTransport]
     """Transport to use for establishing and managing connections to the MCP server."""
 
-    retry_policy: Optional[RetryPolicy] = None
-    """Optional retry policy for MCP tool-list resolution and tool execution."""
-
 
 class PluginMCPToolBox(PluginToolBox):
     """
@@ -153,9 +149,6 @@ class PluginMCPToolBox(PluginToolBox):
 
     client_transport: SerializeAsAny[ClientTransport]
     """Transport to use for establishing and managing connections to the MCP server."""
-
-    retry_policy: Optional[RetryPolicy] = None
-    """Optional retry policy for MCP tool-list resolution and tool execution."""
 
     tool_filter: Optional[List[Union[PluginMCPToolSpec, str]]] = None
     """

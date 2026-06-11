@@ -50,8 +50,8 @@ class MCPTool(ServerTool, SerializableDataclassMixin, SerializableObject):
     Optional retry policy for MCP tool-list resolution and tool execution.
 
     For tool-list resolution, only the attempt and backoff fields of
-    :class:`RetryPolicy` are used. For tool execution, the retry policy is also
-    used to classify retryable HTTP errors.
+    ``RetryPolicy`` are used. For tool execution, the retry policy is also used
+    to classify retryable HTTP errors.
     """
 
     def __init__(
@@ -253,7 +253,7 @@ class MCPToolBox(ToolBox, DataclassComponent):
     Optional retry policy for MCP tool-list resolution and tool execution.
 
     For tool-list resolution, only the attempt and backoff fields of
-    :class:`RetryPolicy` are used. Generated ``MCPTool`` instances also use this
+    ``RetryPolicy`` are used. Generated ``MCPTool`` instances also use this
     policy while executing MCP tool calls.
     """
 

@@ -178,8 +178,6 @@ from wayflowcore.agentspec.components.datastores.oracle_datastore import (
     PluginOracleDatabaseDatastore as AgentSpecPluginOracleDatabaseDatastore,
 )
 from wayflowcore.agentspec.components.flow import ExtendedFlow as AgentSpecExtendedFlow
-from wayflowcore.agentspec.components.mcp import PluginMCPTool as AgentSpecPluginMCPTool
-from wayflowcore.agentspec.components.mcp import PluginMCPToolBox as AgentSpecPluginMCPToolBox
 from wayflowcore.agentspec.components.mcp import PluginMCPToolSpec as AgentSpecPluginMCPToolSpec
 from wayflowcore.agentspec.components.mcp import (
     PluginSSEmTLSTransport as AgentSpecPluginSSEmTLSTransport,
@@ -1547,13 +1545,13 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     referenced_objects,
                 ),
                 requires_confirmation=runtime_tool.requires_confirmation,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_tool.retry_policy)
+                    if runtime_tool.retry_policy is not None
+                    else None
+                ),
                 id=runtime_tool.id,
             )
-            if runtime_tool.retry_policy is not None:
-                return AgentSpecPluginMCPTool(
-                    **mcp_tool_kwargs,
-                    retry_policy=self._retrypolicy_convert_to_agentspec(runtime_tool.retry_policy),
-                )
             return AgentSpecMCPTool(**mcp_tool_kwargs)
         elif isinstance(runtime_tool, RuntimeServerTool):
             return AgentSpecServerTool(
@@ -2030,7 +2028,6 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecToolBox:
         if isinstance(runtime_toolbox, RuntimeMCPToolBox):
-            use_plugin_model = runtime_toolbox.retry_policy is not None
             tool_filter = (
                 [
                     (
@@ -2040,7 +2037,6 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                             conversion_context,
                             tool_,
                             referenced_objects,
-                            use_plugin_model=use_plugin_model,
                         )
                     )
                     for tool_ in runtime_toolbox.tool_filter
@@ -2059,14 +2055,12 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 id=runtime_toolbox.id,
                 description=runtime_toolbox.description,
                 requires_confirmation=runtime_toolbox.requires_confirmation or False,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_toolbox.retry_policy)
+                    if runtime_toolbox.retry_policy is not None
+                    else None
+                ),
             )
-            if runtime_toolbox.retry_policy is not None:
-                return AgentSpecPluginMCPToolBox(
-                    **mcp_toolbox_kwargs,
-                    retry_policy=self._retrypolicy_convert_to_agentspec(
-                        runtime_toolbox.retry_policy
-                    ),
-                )
             return AgentSpecMCPToolBox(**mcp_toolbox_kwargs)
         if isinstance(runtime_toolbox, RuntimeSearchToolBox):
             return AgentSpecPluginSearchToolBox(

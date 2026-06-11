@@ -8,7 +8,7 @@ import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Dict, Generator, List, Tuple, cast
+from typing import Any, Awaitable, Callable, Dict, Generator, List, Tuple, cast
 from unittest.mock import patch
 
 import anyio
@@ -49,7 +49,7 @@ from wayflowcore.mcp import (
 from wayflowcore.mcp._auth import headless_auth_flow_handler
 from wayflowcore.mcp._session_persistence import AsyncRuntime, get_mcp_async_runtime
 from wayflowcore.mcp.mcphelpers import (
-    _invoke_mcp_tool_call_async,
+    _classify_mcp_tool_call_for_retry,
     _reset_mcp_contextvar,
     get_server_tools_from_mcp_server,
     mcp_streaming_tool,
@@ -221,7 +221,7 @@ def run_toolbox_test(transport: ClientTransport) -> None:
     assert mcp_tool.input_descriptors == [IntegerProperty(name="a"), IntegerProperty(name="b")]
 
 
-def _mcp_tool_signature(name: str) -> mcp_types.Tool:
+def _make_mcp_tool_signature(name: str) -> mcp_types.Tool:
     return mcp_types.Tool(
         name=name,
         description=f"{name} description",
@@ -245,7 +245,7 @@ class _ListToolsSession:
         self.calls += 1
         return mcp_types.ListToolsResult(
             tools=[
-                _mcp_tool_signature(tool_name)
+                _make_mcp_tool_signature(tool_name)
                 for tool_name in self.tool_names_by_attempt[attempt_index]
             ]
         )
@@ -271,7 +271,26 @@ class _CallToolSession:
         return mcp_types.CallToolResult(content=[mcp_types.TextContent(type="text", text=outcome)])
 
 
-def _http_status_error(status_code: int) -> httpx.HTTPStatusError:
+class _RunAsyncRuntime:
+    """Test double for MCPTool.run_async runtime calls using a fixed session."""
+
+    def __init__(self, session: _CallToolSession) -> None:
+        self.session = session
+
+    def get_or_create_session(self, _transport: ClientTransport) -> object:
+        return self.session
+
+    async def call_async(
+        self,
+        async_fn: Callable[..., Awaitable[Any]],
+        /,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        return await async_fn(*args, **kwargs)
+
+
+def _make_http_status_error(status_code: int) -> httpx.HTTPStatusError:
     request = httpx.Request("POST", "https://mcp.example.com/mcp")
     response = httpx.Response(status_code, request=request)
     return httpx.HTTPStatusError(
@@ -281,7 +300,8 @@ def _http_status_error(status_code: int) -> httpx.HTTPStatusError:
     )
 
 
-def test_mcp_tool_list_resolution_retry_recovers_missing_expected_tool(with_mcp_enabled):
+@pytest.mark.anyio
+async def test_mcp_tool_list_resolution_retry_recovers_missing_expected_tool(with_mcp_enabled):
     session = _ListToolsSession([["b_tool", "c_tool"], ["a_tool", "b_tool", "c_tool"]])
     retry_policy = RetryPolicy(
         max_attempts=1,
@@ -291,8 +311,7 @@ def test_mcp_tool_list_resolution_retry_recovers_missing_expected_tool(with_mcp_
     )
 
     with authless_mcp_enabled():
-        tools = anyio.run(
-            get_server_tools_from_mcp_server,
+        tools = await get_server_tools_from_mcp_server(
             cast(ClientSession, session),
             {"a_tool": None},
             SSETransport(url="anything"),
@@ -304,7 +323,8 @@ def test_mcp_tool_list_resolution_retry_recovers_missing_expected_tool(with_mcp_
     assert cast(MCPTool, tools[0]).retry_policy is retry_policy
 
 
-def test_mcp_tool_list_resolution_retry_exhaustion_has_missing_tool_metadata(
+@pytest.mark.anyio
+async def test_mcp_tool_list_resolution_retry_exhaustion_has_missing_tool_metadata(
     with_mcp_enabled,
 ):
     session = _ListToolsSession([["b_tool", "c_tool"], ["b_tool", "c_tool"]])
@@ -316,8 +336,7 @@ def test_mcp_tool_list_resolution_retry_exhaustion_has_missing_tool_metadata(
     )
 
     with pytest.raises(NoSuchToolFoundOnMCPServerError) as exc_info:
-        anyio.run(
-            get_server_tools_from_mcp_server,
+        await get_server_tools_from_mcp_server(
             cast(ClientSession, session),
             {"a_tool": None},
             SSETransport(url="anything"),
@@ -331,7 +350,8 @@ def test_mcp_tool_list_resolution_retry_exhaustion_has_missing_tool_metadata(
     assert exc_info.value.attempts == 2
 
 
-def test_mcp_tool_list_resolution_does_not_retry_without_expected_tools(with_mcp_enabled):
+@pytest.mark.anyio
+async def test_mcp_tool_list_resolution_does_not_retry_without_expected_tools(with_mcp_enabled):
     session = _ListToolsSession([["b_tool"], ["a_tool", "b_tool"]])
     retry_policy = RetryPolicy(
         max_attempts=1,
@@ -341,8 +361,7 @@ def test_mcp_tool_list_resolution_does_not_retry_without_expected_tools(with_mcp
     )
 
     with authless_mcp_enabled():
-        tools = anyio.run(
-            get_server_tools_from_mcp_server,
+        tools = await get_server_tools_from_mcp_server(
             cast(ClientSession, session),
             {},
             SSETransport(url="anything"),
@@ -354,8 +373,11 @@ def test_mcp_tool_list_resolution_does_not_retry_without_expected_tools(with_mcp
     assert cast(MCPTool, tools[0]).retry_policy is retry_policy
 
 
-def test_mcp_tool_call_retry_recovers_from_transient_404() -> None:
-    session = _CallToolSession([_http_status_error(404), "tool result"])
+@pytest.mark.anyio
+async def test_mcp_tool_call_retry_recovers_from_transient_404(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session = _CallToolSession([_make_http_status_error(404), "tool result"])
     retry_policy = RetryPolicy(
         max_attempts=1,
         initial_retry_delay=0.001,
@@ -363,30 +385,102 @@ def test_mcp_tool_call_retry_recovers_from_transient_404() -> None:
         jitter=None,
     )
 
-    result = anyio.run(
-        _invoke_mcp_tool_call_async,
-        cast(ClientSession, session),
-        "a_tool",
-        {},
-        [StringProperty()],
-        retry_policy,
+    monkeypatch.setattr(
+        "wayflowcore.mcp.tools.get_mcp_async_runtime",
+        lambda: _RunAsyncRuntime(session),
     )
+
+    with pytest.warns(SecurityWarning, match="without authentication"):
+        with authless_mcp_enabled():
+            tool = MCPTool(
+                name="a_tool",
+                description="a_tool description",
+                input_descriptors=[],
+                output_descriptors=[StringProperty()],
+                client_transport=SSETransport(url="anything"),
+                _validate_server_exists=False,
+                retry_policy=retry_policy,
+            )
+
+    result = await tool.run_async()
 
     assert session.calls == 2
     assert result == "tool result"
 
 
-def test_mcp_tool_call_does_not_retry_without_retry_policy() -> None:
-    session = _CallToolSession([_http_status_error(404), "tool result"])
+@pytest.mark.anyio
+async def test_mcp_tool_call_passes_arguments_to_public_run_async(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session = _CallToolSession(["tool result"])
+    received_arguments: List[Dict[str, Any]] = []
+    original_call_tool = session.call_tool
+
+    async def call_tool_with_argument_capture(
+        name: str,
+        arguments: Dict[str, Any],
+        progress_callback: Any = None,
+    ) -> mcp_types.CallToolResult:
+        received_arguments.append(arguments)
+        return await original_call_tool(name, arguments, progress_callback)
+
+    session.call_tool = call_tool_with_argument_capture  # type: ignore[method-assign]
+
+    monkeypatch.setattr(
+        "wayflowcore.mcp.tools.get_mcp_async_runtime",
+        lambda: _RunAsyncRuntime(session),
+    )
+
+    with pytest.warns(SecurityWarning, match="without authentication"):
+        with authless_mcp_enabled():
+            tool = MCPTool(
+                name="a_tool",
+                description="a_tool description",
+                input_descriptors=[StringProperty(name="query")],
+                output_descriptors=[StringProperty()],
+                client_transport=SSETransport(url="anything"),
+                _validate_server_exists=False,
+                retry_policy=RetryPolicy(max_attempts=1),
+            )
+
+    result = await tool.run_async(query="hello")
+
+    assert result == "tool result"
+    assert received_arguments == [{"query": "hello"}]
+
+
+def test_mcp_tool_call_retry_classification_detects_wrapped_404() -> None:
+    retry_policy = RetryPolicy(max_attempts=1)
+    wrapped_error = RuntimeError("MCP call failed")
+    wrapped_error.__cause__ = _make_http_status_error(404)
+
+    assert _classify_mcp_tool_call_for_retry(wrapped_error, retry_policy) == (404, None)
+
+
+@pytest.mark.anyio
+async def test_mcp_tool_call_does_not_retry_without_retry_policy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session = _CallToolSession([_make_http_status_error(404), "tool result"])
+
+    monkeypatch.setattr(
+        "wayflowcore.mcp.tools.get_mcp_async_runtime",
+        lambda: _RunAsyncRuntime(session),
+    )
+
+    with pytest.warns(SecurityWarning, match="without authentication"):
+        with authless_mcp_enabled():
+            tool = MCPTool(
+                name="a_tool",
+                description="a_tool description",
+                input_descriptors=[],
+                output_descriptors=[StringProperty()],
+                client_transport=SSETransport(url="anything"),
+                _validate_server_exists=False,
+            )
 
     with pytest.raises(httpx.HTTPStatusError):
-        anyio.run(
-            _invoke_mcp_tool_call_async,
-            cast(ClientSession, session),
-            "a_tool",
-            {},
-            [StringProperty()],
-        )
+        await tool.run_async()
 
     assert session.calls == 1
 

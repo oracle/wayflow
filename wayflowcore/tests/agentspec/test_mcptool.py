@@ -10,15 +10,13 @@ import pytest
 from pyagentspec.adapters._agentspecloader import (
     _DEFAULT_BLOCKED_COMPONENTS as _AGENTSPEC_DEFAULT_BLOCKED_COMPONENTS,
 )
+from pyagentspec.mcp import MCPTool as AgentSpecMCPTool
+from pyagentspec.mcp import MCPToolBox as AgentSpecMCPToolBox
 from pyagentspec.versioning import AgentSpecVersionEnum
 
 from wayflowcore import Agent
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader
-from wayflowcore.agentspec.components.mcp import (
-    PluginMCPTool,
-    PluginMCPToolBox,
-    PluginStdioTransport,
-)
+from wayflowcore.agentspec.components.mcp import PluginMCPTool, PluginStdioTransport
 from wayflowcore.agentspec.runtimeloader import _DEFAULT_BLOCKED_COMPONENTS
 from wayflowcore.mcp import (
     MCPTool,
@@ -106,7 +104,7 @@ def test_mcp_tool_can_be_converted_to_agentspec_and_back(
         assert value == all_reloaded_agent_tools[key]
 
 
-def test_mcp_toolbox_retry_policy_exports_to_agentspec_plugin_and_round_trips() -> None:
+def test_mcp_toolbox_retry_policy_exports_to_native_agentspec_and_round_trips() -> None:
     toolbox = MCPToolBox(
         client_transport=SSETransport(url="https://example.com/sse"),
         tool_filter=["expected_tool"],
@@ -119,7 +117,7 @@ def test_mcp_toolbox_retry_policy_exports_to_agentspec_plugin_and_round_trips() 
         agentspec_toolbox = AgentSpecExporter().to_component(toolbox)
 
     assert not [warning for warning in captured_warnings if "retry_policy" in str(warning.message)]
-    assert isinstance(agentspec_toolbox, PluginMCPToolBox)
+    assert isinstance(agentspec_toolbox, AgentSpecMCPToolBox)
     assert agentspec_toolbox.retry_policy is not None
     assert agentspec_toolbox.retry_policy.max_attempts == 4
 
@@ -132,7 +130,7 @@ def test_mcp_toolbox_retry_policy_exports_to_agentspec_plugin_and_round_trips() 
     assert deserialized_toolbox.retry_policy.max_attempts == 4
 
 
-def test_mcp_tool_retry_policy_exports_to_agentspec_plugin_and_round_trips() -> None:
+def test_mcp_tool_retry_policy_exports_to_native_agentspec_and_round_trips() -> None:
     with pytest.warns(match="without authentication"):
         with authless_mcp_enabled():
             mcp_tool = MCPTool(
@@ -149,7 +147,7 @@ def test_mcp_tool_retry_policy_exports_to_agentspec_plugin_and_round_trips() -> 
         agentspec_tool = AgentSpecExporter().to_component(mcp_tool)
 
     assert not [warning for warning in captured_warnings if "retry_policy" in str(warning.message)]
-    assert isinstance(agentspec_tool, PluginMCPTool)
+    assert isinstance(agentspec_tool, AgentSpecMCPTool)
     assert agentspec_tool.retry_policy is not None
     assert agentspec_tool.retry_policy.max_attempts == 5
 
