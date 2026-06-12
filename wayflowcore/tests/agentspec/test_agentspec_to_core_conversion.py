@@ -29,6 +29,7 @@ from wayflowcore.tools.servertools import ServerTool
 from ..testhelpers.testhelpers import retry_test
 
 from ..conftest import (  # isort:skip
+    GEMMA_MODEL_ID,
     LLAMA_OCI_API_KEY_CONFIG,
     OLLAMA_MODEL_CONFIG,
     oracle_http_proxy,
@@ -181,6 +182,8 @@ def run_example(
     with open(CONFIGS_DIR / filename, "r") as file:
         text = file.read()
         text = text.replace("GEMMA_API_URL", gemma_endpoint)
+        text = text.replace("GEMMA_MODEL_ID", GEMMA_MODEL_ID)
+        text = text.replace("GEMMA_MODEL_NAME", GEMMA_MODEL_ID.rsplit("/", 1)[-1])
         text = text.replace("LLAMA70BV33_API_URL", llama70b_endpoint)
         text = text.replace("LLAMA70BV33_API_URL", llama70bv33_endpoint)
         text = text.replace("OLLAMA8BV31_API_ENDPOINT", OLLAMA_MODEL_CONFIG["host_port"])

@@ -39,8 +39,10 @@ from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import serialize_to_dict
 from wayflowcore.tools import ServerTool, ToolRequest
 from wayflowcore.tools.tools import ToolResult
+from wayflowcore.transforms import CanonicalizationMessageTransform
 
 from ..conftest import (
+    GEMMA_MODEL_ID,
     OPENAI_REASONING_RESPONSES_CONFIG,
     OPENAI_RESPONSES_CONFIG,
     VLLM_OSS_CONFIG,
@@ -680,6 +682,57 @@ def test_model_calls_correct_url(base_url, expected):
     assert payload["url"] == expected
     if os.environ.get("OPENAI_API_KEY") is None:
         assert payload.get("headers", {}).get("Authorization") is None  # no api_key was specified
+
+
+@pytest.mark.parametrize(
+    "model_id, expected_role",
+    [
+        ("gemma-4-31B-it", "tool"),
+        ("gemma-4-26B-A4B-it", "tool"),
+        ("gemma-5-27b-it", "tool"),
+        ("gemma-3-27b-it", "user"),
+        ("gemma4", "user"),  # Compact names do not match our Gemma version regex.
+        ("llama-4", "tool"),
+    ],
+)
+def test_openai_compatible_formats_tool_role_based_on_model_support(model_id, expected_role):
+    prompt = Prompt(
+        messages=[
+            Message(
+                tool_result=ToolResult(
+                    tool_request_id="call_1",
+                    content="5",
+                )
+            )
+        ]
+    )
+
+    payload = OpenAICompatibleModel(
+        model_id=model_id,
+        base_url="example.test",
+    )._generate_request_params(prompt, stream=False)
+
+    assert payload["json"]["messages"][0]["role"] == expected_role
+
+
+def test_gemma_nonlegacy_vllm_uses_native_templates_without_default_canonicalization():
+    model = VllmModel(model_id=GEMMA_MODEL_ID, host_port="example.test")
+
+    for template in (model.chat_template, model.agent_template):
+        assert not any(
+            isinstance(transform, CanonicalizationMessageTransform)
+            for transform in template.post_rendering_transforms or []
+        )
+
+
+def test_gemma_legacy_vllm_uses_default_canonicalization():
+    model = VllmModel(model_id="gemma-3-27b-it", host_port="example.test")
+
+    for template in (model.chat_template, model.agent_template):
+        assert any(
+            isinstance(transform, CanonicalizationMessageTransform)
+            for transform in template.post_rendering_transforms or []
+        )
 
 
 @mock.patch.dict(os.environ, {"OPENAI_API_KEY": "sk-012-MOCKED_KEY"})

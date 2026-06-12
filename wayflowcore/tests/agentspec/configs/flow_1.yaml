@@ -92,8 +92,8 @@ $referenced_components:
     description: null
     id: 73e490fa-075a-4ba8-ab47-3d6926bb3a1a
     metadata: {}
-    model_id: google/gemma-3-27b-it
-    name: gemma-3-27b-it
+    model_id: GEMMA_MODEL_ID
+    name: GEMMA_MODEL_NAME
     url: GEMMA_API_URL
   bfa11d0d-97a3-4514-9b0d-dd88d657d854:
     component_type: DataFlowEdge

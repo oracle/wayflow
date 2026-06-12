@@ -163,8 +163,8 @@ $referenced_components:
     description: null
     id: 52d63e41-e763-4cc6-864c-8ba2151b2ab2
     metadata: {}
-    model_id: google/gemma-3-27b-it
-    name: gemma-3-27b-it
+    model_id: GEMMA_MODEL_ID
+    name: GEMMA_MODEL_NAME
     url: GEMMA_API_URL
   6546ffe0-3e82-4428-9f79-134a708cc74c:
     component_type: ControlFlowEdge

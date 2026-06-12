@@ -39,7 +39,11 @@ from wayflowcore.tokenusage import TokenUsage
 from wayflowcore.tools import Tool, ToolRequest
 from wayflowcore.transforms import CanonicalizationMessageTransform
 
-from ._modelhelpers import _is_gemma_model, _is_llama_legacy_model
+from ._modelhelpers import (
+    _is_llama_legacy_model,
+    _is_native_tool_calling_gemma_model,
+    _supports_tool_role,
+)
 from ._openaihelpers import _ChatCompletionsAPIProcessor, _ResponsesAPIProcessor
 from ._openaihelpers._utils import _safe_json_loads
 from ._requesthelpers import (
@@ -422,9 +426,10 @@ class OCIGenAIModel(LlmModel):
         if self._api_processor is None:
             raise ValueError("Could not initialize the OCI client")
 
-        supports_tool_role = not _is_gemma_model(self.model_id)
         openai_parameters = {
-            **self._api_processor._convert_prompt(prompt, supports_tool_role=supports_tool_role),
+            **self._api_processor._convert_prompt(
+                prompt, supports_tool_role=_supports_tool_role(self.model_id)
+            ),
             **self._api_processor._convert_generation_params(prompt.generation_config),
         }
 
@@ -634,7 +639,9 @@ class OCIGenAIModel(LlmModel):
                 "Llama-3.x models have limited performance with native tool calling. Wayflow will instead use the `LLAMA_CHAT_TEMPLATE`, which yields better performance than native tool calling"
             )
             return LLAMA_CHAT_TEMPLATE
-        if self.provider == ModelProvider.GOOGLE:
+        if self.provider == ModelProvider.GOOGLE and not _is_native_tool_calling_gemma_model(
+            self.model_id
+        ):
             # google models do not support standalone system messages
             logger.debug(
                 "Google models in OCI do not support standalone system messages. Wayflow will add an empty user message to prompts if needed."
@@ -656,7 +663,9 @@ class OCIGenAIModel(LlmModel):
             )
             # llama3.x works better with custom template
             return LLAMA_AGENT_TEMPLATE
-        if self.provider == ModelProvider.GOOGLE:
+        if self.provider == ModelProvider.GOOGLE and not _is_native_tool_calling_gemma_model(
+            self.model_id
+        ):
             # google models do not support standalone system messages
             logger.debug(
                 "Google models in OCI do not support standalone system messages. Wayflow will add an empty user message to prompts if needed."

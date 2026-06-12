@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
+import re
 from json import JSONDecodeError
 
 from wayflowcore._utils.async_helpers import run_async_in_sync
@@ -82,6 +83,22 @@ def _fetch_tool_calling_support(llm: "LlmModel") -> bool:
 
 def _is_gemma_model(model_id: str) -> bool:
     return "gemma" in model_id.lower()
+
+
+def _is_native_tool_calling_gemma_model(model_id: str) -> bool:
+    # Match versioned Gemma names like `gemma-4-27b-it`, while avoiding compact
+    # or size-only names like `gemma4` and `gemma-7b-it`.
+    # Here, we assume all Gemma models from version 4 support native tool-calling
+    version_match = re.search(r"(?:^|[/_:.-])gemma-([0-9]+)(?=[/_:.-]|$)", model_id.lower())
+    if version_match is None:
+        return False
+    return int(version_match.group(1)) >= 4
+
+
+def _supports_tool_role(model_id: str) -> bool:
+    if _is_gemma_model(model_id):
+        return _is_native_tool_calling_gemma_model(model_id)
+    return True
 
 
 def _is_llama_legacy_model(model_id: str) -> bool:

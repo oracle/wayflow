@@ -71,7 +71,7 @@ class PluginCanonicalizationMessageTransform(MessageTransform):
         Assistant
         ...
 
-    This is useful because some models (like Gemma) require such formatting of the messages.
+    This is useful because some legacy models require such formatting of the messages.
 
     * several system messages are merged
     * consecutive assistant (resp. user) messages are merged, unless there are several tool calls,
