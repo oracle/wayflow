@@ -684,7 +684,18 @@ def test_model_calls_correct_url(base_url, expected):
         assert payload.get("headers", {}).get("Authorization") is None  # no api_key was specified
 
 
-def test_gemma_nonlegacy_openai_compatible_preserves_tool_role():
+@pytest.mark.parametrize(
+    "model_id, expected_role",
+    [
+        ("gemma-4-31B-it", "tool"),
+        ("gemma-4-26B-A4B-it", "tool"),
+        ("gemma-5-27b-it", "tool"),
+        ("gemma-3-27b-it", "user"),
+        ("gemma4", "user"),  # Compact names do not match our Gemma version regex.
+        ("llama-4", "tool"),
+    ],
+)
+def test_openai_compatible_formats_tool_role_based_on_model_support(model_id, expected_role):
     prompt = Prompt(
         messages=[
             Message(
@@ -697,11 +708,11 @@ def test_gemma_nonlegacy_openai_compatible_preserves_tool_role():
     )
 
     payload = OpenAICompatibleModel(
-        model_id=GEMMA_MODEL_ID,
+        model_id=model_id,
         base_url="example.test",
     )._generate_request_params(prompt, stream=False)
 
-    assert payload["json"]["messages"][0]["role"] == "tool"
+    assert payload["json"]["messages"][0]["role"] == expected_role
 
 
 def test_gemma_nonlegacy_vllm_uses_native_templates_without_default_canonicalization():
@@ -709,6 +720,16 @@ def test_gemma_nonlegacy_vllm_uses_native_templates_without_default_canonicaliza
 
     for template in (model.chat_template, model.agent_template):
         assert not any(
+            isinstance(transform, CanonicalizationMessageTransform)
+            for transform in template.post_rendering_transforms or []
+        )
+
+
+def test_gemma_legacy_vllm_uses_default_canonicalization():
+    model = VllmModel(model_id="gemma-3-27b-it", host_port="example.test")
+
+    for template in (model.chat_template, model.agent_template):
+        assert any(
             isinstance(transform, CanonicalizationMessageTransform)
             for transform in template.post_rendering_transforms or []
         )

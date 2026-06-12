@@ -13,7 +13,7 @@ from wayflowcore._metadata import MetadataType
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import serialize_to_dict
 
-from ._modelhelpers import _is_gemma_legacy_model
+from ._modelhelpers import _supports_tool_role
 from ._openaihelpers import _APIProcessor, _ChatCompletionsAPIProcessor, _ResponsesAPIProcessor
 from ._requesthelpers import (
     TaggedMessageChunkTypeWithTokenUsage,
@@ -282,8 +282,7 @@ class OpenAICompatibleModel(LlmModel):
 
     def _generate_request_params(self, prompt: "Prompt", stream: bool) -> Dict[str, Any]:
         """Generate Request Parameters for the API type"""
-        # Legacy Gemma models do not support `tool` role, even through OpenAI-compatible APIs.
-        supports_tool_role = not _is_gemma_legacy_model(self.model_id)
+        supports_tool_role = _supports_tool_role(self.model_id)
         return self.api_processor._generate_request_params(
             prompt, stream=stream, supports_tool_role=supports_tool_role
         )

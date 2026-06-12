@@ -85,7 +85,7 @@ def _is_gemma_model(model_id: str) -> bool:
     return "gemma" in model_id.lower()
 
 
-def _is_gemma_native_tool_calling_model(model_id: str) -> bool:
+def _is_native_tool_calling_gemma_model(model_id: str) -> bool:
     # Match versioned Gemma names like `gemma-4-27b-it`, while avoiding compact
     # or size-only names like `gemma4` and `gemma-7b-it`.
     # Here, we assume all Gemma models from version 4 support native tool-calling
@@ -95,8 +95,10 @@ def _is_gemma_native_tool_calling_model(model_id: str) -> bool:
     return int(version_match.group(1)) >= 4
 
 
-def _is_gemma_legacy_model(model_id: str) -> bool:
-    return _is_gemma_model(model_id) and not _is_gemma_native_tool_calling_model(model_id)
+def _supports_tool_role(model_id: str) -> bool:
+    if _is_gemma_model(model_id):
+        return _is_native_tool_calling_gemma_model(model_id)
+    return True
 
 
 def _is_llama_legacy_model(model_id: str) -> bool:
