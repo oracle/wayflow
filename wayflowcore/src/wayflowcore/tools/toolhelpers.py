@@ -19,11 +19,13 @@ from typing import (
     Optional,
     Tuple,
     Type,
+    TypeAlias,
     Union,
     get_args,
     get_origin,
     overload,
 )
+from typing_extensions import reveal_type
 
 from wayflowcore.property import JsonSchemaParam, Property
 
@@ -241,16 +243,22 @@ def _get_tool_schema_from_parsed_signature(
     return args_schema, output_schema
 
 
+DescriptionModeOptions: TypeAlias = Literal[
+    DescriptionMode.INFER_FROM_SIGNATURE,
+    DescriptionMode.ONLY_DOCSTRING,
+    DescriptionMode.EXTRACT_FROM_DOCSTRING,
+    "infer_from_signature",
+    "only_docstring",
+    "extract_from_docstring",
+]
+
+
 @overload
 def tool(
     func_or_name: str,
     func: Callable[..., Any],
     /,
-    description_mode: Literal[
-        DescriptionMode.INFER_FROM_SIGNATURE,
-        DescriptionMode.ONLY_DOCSTRING,
-        DescriptionMode.EXTRACT_FROM_DOCSTRING,
-    ] = DescriptionMode.INFER_FROM_SIGNATURE,
+    description_mode: DescriptionModeOptions = DescriptionMode.INFER_FROM_SIGNATURE,
     output_descriptors: Optional[List[Property]] = None,
     requires_confirmation: bool = False,
 ) -> ServerTool: ...
@@ -261,11 +269,7 @@ def tool(
     func_or_name: Callable[..., Any],
     func: None = None,
     /,
-    description_mode: Literal[
-        DescriptionMode.INFER_FROM_SIGNATURE,
-        DescriptionMode.ONLY_DOCSTRING,
-        DescriptionMode.EXTRACT_FROM_DOCSTRING,
-    ] = DescriptionMode.INFER_FROM_SIGNATURE,
+    description_mode: DescriptionModeOptions = DescriptionMode.INFER_FROM_SIGNATURE,
     output_descriptors: Optional[List[Property]] = None,
     requires_confirmation: bool = False,
 ) -> ServerTool: ...
@@ -273,28 +277,20 @@ def tool(
 
 @overload
 def tool(
-    func_or_name: str,
+    func_or_name: str | None = None,
     func: None = None,
     /,
-    description_mode: Literal[
-        DescriptionMode.INFER_FROM_SIGNATURE,
-        DescriptionMode.ONLY_DOCSTRING,
-        DescriptionMode.EXTRACT_FROM_DOCSTRING,
-    ] = DescriptionMode.INFER_FROM_SIGNATURE,
+    description_mode: DescriptionModeOptions = DescriptionMode.INFER_FROM_SIGNATURE,
     output_descriptors: Optional[List[Property]] = None,
     requires_confirmation: bool = False,
 ) -> Callable[[Callable[..., Any]], ServerTool]: ...
 
 
 def tool(
-    func_or_name: Callable[..., Any] | str,
+    func_or_name: Callable[..., Any] | str | None = None,
     func: Callable[..., Any] | None = None,
     /,
-    description_mode: Literal[
-        DescriptionMode.INFER_FROM_SIGNATURE,
-        DescriptionMode.ONLY_DOCSTRING,
-        DescriptionMode.EXTRACT_FROM_DOCSTRING,
-    ] = DescriptionMode.INFER_FROM_SIGNATURE,
+    description_mode: DescriptionModeOptions = DescriptionMode.INFER_FROM_SIGNATURE,
     output_descriptors: Optional[List[Property]] = None,
     requires_confirmation: bool = False,
 ) -> Union[ServerTool, Callable[[Callable[..., Any]], ServerTool]]:
@@ -401,11 +397,7 @@ def tool(
     def _make_tool(
         func: Callable[..., Any],
         tool_name: Optional[str] = None,
-        description_mode: Literal[
-            DescriptionMode.INFER_FROM_SIGNATURE,
-            DescriptionMode.ONLY_DOCSTRING,
-            DescriptionMode.EXTRACT_FROM_DOCSTRING,
-        ] = DescriptionMode.INFER_FROM_SIGNATURE,
+        description_mode: DescriptionModeOptions = DescriptionMode.INFER_FROM_SIGNATURE,
         output_descriptors: Optional[List[Property]] = None,
         requires_confirmation: bool = False,
     ) -> ServerTool:
@@ -499,6 +491,21 @@ def tool(
             output_descriptors,
             requires_confirmation,
         )
+    elif func_or_name is None:
+        # Example case: decorator with user-specified description_mode
+        # @tool(description_mode='only_docstring')
+        # def my_callable(param1: int = 2) -> int:
+        #     """Callable description"""
+        #     return 0
+        # Upon instantiation, first the `tool` function is called, directly followed
+        # by the `_partial_no_name` function being called, thus converting the
+        # callable to a ServerTool
+        def _partial_no_name(func: Callable[..., Any]) -> ServerTool:
+            return _make_tool(
+                func, None, description_mode, output_descriptors, requires_confirmation
+            )
+
+        return _partial_no_name
     else:
         raise ValueError("Invalid usage of the `tool` helper")
 
