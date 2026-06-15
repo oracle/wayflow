@@ -25,7 +25,6 @@ from typing import (
     get_origin,
     overload,
 )
-from typing_extensions import reveal_type
 
 from wayflowcore.property import JsonSchemaParam, Property
 
@@ -143,7 +142,6 @@ def _unpack_annotated_types(arg_type: Type[Any]) -> Tuple[Type[Any], str]:
 
 def _get_tool_schema_no_parsing(
     tool_signature: inspect.Signature,
-    tool_description: str,
     tool_name: str,
 ) -> Tuple[Dict[str, JsonSchemaParam], JsonSchemaParam]:
 
@@ -189,7 +187,6 @@ def _get_tool_schema_no_parsing(
 
 def _get_tool_schema_from_parsed_signature(
     tool_signature: inspect.Signature,
-    tool_description: str,
     tool_name: str,
 ) -> Tuple[Dict[str, JsonSchemaParam], JsonSchemaParam]:
 
@@ -416,11 +413,11 @@ def tool(
 
         if description_mode == DescriptionMode.ONLY_DOCSTRING:
             args_schema, output_schema = _get_tool_schema_no_parsing(
-                tool_signature, tool_description, tool_name
+                tool_signature, tool_name
             )
         elif description_mode == DescriptionMode.INFER_FROM_SIGNATURE:
             args_schema, output_schema = _get_tool_schema_from_parsed_signature(
-                tool_signature, tool_description, tool_name
+                tool_signature, tool_name
             )
         elif description_mode == DescriptionMode.EXTRACT_FROM_DOCSTRING:
             raise NotImplementedError(

@@ -107,6 +107,8 @@ def test_tool_decorator_result_type_is_correct() -> None:
     assert tool_nine.name == "servertool_nine"
     assert not tool_nine.requires_confirmation
 
+    assert tool_nine.description == "tool_nine function"
+
     output_desc_nine = tool_nine.output_descriptors[0]
     assert output_desc_nine.name == "result_nine"
     assert isinstance(output_desc_nine, StringProperty)
