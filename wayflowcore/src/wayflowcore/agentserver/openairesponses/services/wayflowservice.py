@@ -21,7 +21,11 @@ from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.datastore import Datastore, InMemoryDatastore
 from wayflowcore.datastore._relational import RelationalDatastore
 from wayflowcore.events import register_event_listeners
-from wayflowcore.executors.executionstatus import ExecutionStatus, ToolRequestStatus
+from wayflowcore.executors.executionstatus import (
+    ExecutionStatus,
+    ToolRequestStatus,
+    UserMessageRequestStatus,
+)
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.serialization import serialize
 
@@ -46,6 +50,7 @@ from ..models.openairesponsespydanticmodels import (
 from ._wayflowconversion import (
     _convert_tool_request_status_into_function_tool_call_items,
     _convert_wayflow_token_usage_into_oai_token_usage,
+    _create_output_text_stream_events,
     _create_response_args_from_wayflow_status,
     _get_conversation_new_input_messages,
     _TextStreamingListener,
@@ -275,6 +280,15 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             raise raised_exception
 
         outputs, error = _create_response_args_from_wayflow_status(status)
+
+        if isinstance(status, UserMessageRequestStatus):
+            final_text = status.message.content
+            if final_text and final_text not in yielding_listener.streamed_text_outputs:
+                # The agent may produce the final user-visible response through
+                # the internal talk_to_user tool. That conversion happens after
+                # LLM streaming, so emit the completed text here for streaming clients.
+                for event in _create_output_text_stream_events(final_text):
+                    yield event
 
         if isinstance(status, ToolRequestStatus):
             for idx, item in enumerate(

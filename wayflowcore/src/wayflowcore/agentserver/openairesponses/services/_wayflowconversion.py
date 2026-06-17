@@ -74,12 +74,16 @@ class _TokenCounterListener(EventListener):
 
 
 class _TextStreamingListener(EventListener):
-    """Listener that catches all the text generation wayflow events and enqueues openai responses events for the server to yield"""
+    """Convert Wayflow message stream events into OpenAI Responses text events."""
 
     def __init__(self, queue: MemoryObjectSendStream[ResponseStreamEvent]) -> None:
         self.queue = queue
         self.counter = 0
         self.current_item_id = ""
+        # Track visible text output items so internal tool-only streams do not
+        # create empty OpenAI items and fallback text is not emitted twice.
+        self.current_output_item_is_open = False
+        self.streamed_text_outputs: List[str] = []
 
     def _enqueue(self, content: Any) -> None:
         try:
@@ -89,73 +93,157 @@ class _TextStreamingListener(EventListener):
             # buffer full
             logger.warning("Async event queue is full, dropping an event: %s", content)
 
+    def _start_output_item(self, initial_text: str = "") -> None:
+        """Open the current Responses output item once there is visible text to expose."""
+        if self.current_output_item_is_open:
+            return
+        self.current_output_item_is_open = True
+        self._enqueue(
+            ResponseOutputItemAddedEvent(
+                output_index=0,
+                item=OutputMessage(
+                    content=[
+                        OutputTextContent(
+                            text=initial_text,
+                            type="output_text",
+                            annotations=[],
+                        )
+                    ],
+                    role="assistant",
+                    status="in_progress",
+                    id=self.current_item_id,
+                    type="message",
+                ),
+                sequence_number=0,
+                type="response.output_item.added",
+            )
+        )
+
+    def _stream_text_delta(self, text: str) -> None:
+        """Emit a text delta for the current output item, opening it lazily if needed."""
+        if not text:
+            return
+        self._start_output_item()
+        self._enqueue(
+            ResponseTextDeltaEvent(
+                content_index=0,
+                delta=text,
+                item_id=self.current_item_id,
+                logprobs=[],
+                output_index=0,
+                sequence_number=0,
+                type="response.output_text.delta",
+            )
+        )
+
+    def _complete_output_item(self, text: str) -> None:
+        """Finalize the current text output item and remember what was streamed."""
+        self._enqueue(
+            ResponseTextDoneEvent(
+                content_index=0,
+                item_id=self.current_item_id,
+                logprobs=[],
+                output_index=0,
+                sequence_number=0,
+                text=text,
+                type="response.output_text.done",
+            )
+        )
+        self._enqueue(
+            ResponseOutputItemDoneEvent(
+                item=OutputMessage(
+                    content=[
+                        OutputTextContent(
+                            text=text,
+                            type="output_text",
+                            annotations=[],
+                        )
+                    ],
+                    role="assistant",
+                    status="completed",
+                    id=self.current_item_id,
+                    type="message",
+                ),
+                output_index=0,
+                sequence_number=0,
+                type="response.output_item.done",
+            )
+        )
+        self.streamed_text_outputs.append(text)
+
     def __call__(self, event: Event) -> None:
         if isinstance(event, ConversationMessageStreamChunkEvent):
-            self._enqueue(
-                ResponseTextDeltaEvent(
-                    content_index=0,
-                    delta=event.chunk,
-                    item_id=self.current_item_id,
-                    logprobs=[],
-                    output_index=0,
-                    sequence_number=0,
-                    type="response.output_text.delta",
-                )
-            )
+            self._stream_text_delta(event.chunk)
         elif isinstance(event, ConversationMessageStreamStartedEvent):
             self.current_item_id = IdGenerator.get_or_generate_id()
-            self._enqueue(
-                ResponseOutputItemAddedEvent(
-                    output_index=0,
-                    item=OutputMessage(
-                        content=[
-                            OutputTextContent(
-                                text=event.message.content,
-                                type="output_text",
-                                annotations=[],
-                            )
-                        ],
-                        role="assistant",
-                        status="in_progress",
-                        id=self.current_item_id,
-                        type="message",
-                    ),
-                    sequence_number=0,
-                    type="response.output_item.added",
-                )
-            )
+            self.current_output_item_is_open = False
+            # Some Wayflow stream spans are internal tool-call generations. Delay
+            # creating the OpenAI output item until we see user-visible text.
+            if event.message.content:
+                self._start_output_item(initial_text=event.message.content)
         elif isinstance(event, ConversationMessageStreamEndedEvent):
-            self._enqueue(
-                ResponseTextDoneEvent(
-                    content_index=0,
-                    item_id=self.current_item_id,
-                    logprobs=[],
-                    output_index=0,
-                    sequence_number=0,
-                    text=event.message.content,
-                    type="response.output_text.done",
-                )
-            )
-            self._enqueue(
-                ResponseOutputItemDoneEvent(
-                    item=OutputMessage(
-                        content=[
-                            OutputTextContent(
-                                text=event.message.content,
-                                type="output_text",
-                                annotations=[],
-                            )
-                        ],
-                        role="assistant",
-                        status="completed",
-                        id=self.current_item_id,
-                        type="message",
-                    ),
-                    output_index=0,
-                    sequence_number=0,
-                    type="response.output_item.done",
-                )
-            )
+            # Tool requests have no assistant text of their own. Internal tools
+            # like talk_to_user are converted to visible messages after the
+            # stream ends, so the service emits that final text separately.
+            if event.message.tool_requests is not None and not self.current_output_item_is_open:
+                return
+            final_text = event.message.content
+            if final_text and not self.current_output_item_is_open:
+                self._stream_text_delta(final_text)
+            if self.current_output_item_is_open:
+                self._complete_output_item(final_text)
+
+
+def _create_output_text_stream_events(
+    text: str, item_id: Optional[str] = None
+) -> List[ResponseStreamEvent]:
+    """Create a complete Responses text stream for text finalized outside LLM streaming."""
+    item_id = item_id or IdGenerator.get_or_generate_id()
+    item = OutputMessage(
+        content=[OutputTextContent(text=text, type="output_text", annotations=[])],
+        role="assistant",
+        status="completed",
+        id=item_id,
+        type="message",
+    )
+    return [
+        ResponseOutputItemAddedEvent(
+            output_index=0,
+            item=OutputMessage(
+                content=[OutputTextContent(text="", type="output_text", annotations=[])],
+                role="assistant",
+                status="in_progress",
+                id=item_id,
+                type="message",
+            ),
+            sequence_number=0,
+            type="response.output_item.added",
+        ),
+        ResponseTextDeltaEvent(
+            content_index=0,
+            delta=text,
+            item_id=item_id,
+            logprobs=[],
+            output_index=0,
+            sequence_number=0,
+            type="response.output_text.delta",
+        ),
+        ResponseTextDoneEvent(
+            content_index=0,
+            item_id=item_id,
+            logprobs=[],
+            output_index=0,
+            sequence_number=0,
+            text=text,
+            type="response.output_text.done",
+        ),
+        ResponseOutputItemDoneEvent(
+            item=item,
+            output_index=0,
+            sequence_number=0,
+            type="response.output_item.done",
+        ),
+    ]
 
 
 def _convert_wayflow_token_usage_into_oai_token_usage(token_usage: TokenUsage) -> ResponseUsage:
