@@ -9,7 +9,7 @@ def test_tool_decorator_result_type_is_correct() -> None:
     # Wrapper with different name
     tool_one = tool("tool_one")
     assert_type(tool_one, Callable[[Callable[..., Any]], ServerTool])
-    assert isinstance(tool_one, Callable)
+    assert callable(tool_one)
 
     def actual_func() -> None:
         """Actual func"""

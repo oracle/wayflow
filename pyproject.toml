@@ -24,6 +24,11 @@ module = [
 ignore_errors = true
 
 [[tool.mypy.overrides]]
+module = [ 'tests.tools.test_tool_decorator' ]
+ignore_errors = false
+
+
+[[tool.mypy.overrides]]
 module = [
     'jq.*',
     'IPython.*',
