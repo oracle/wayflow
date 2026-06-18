@@ -8,13 +8,22 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Union
 
+import anyio
 import httpx
 import pytest
 
+from wayflowcore.agentserver.openairesponses.services._wayflowconversion import (
+    _create_output_text_stream_events,
+    _TextStreamingListener,
+)
+from wayflowcore.events.event import (
+    ConversationMessageStreamEndedEvent,
+    ConversationMessageStreamStartedEvent,
+)
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models import OpenAIAPIType, OpenAICompatibleModel, StreamChunkType
 from wayflowcore.models.llmmodel import LlmCompletion, Prompt
-from wayflowcore.tools import ToolResult
+from wayflowcore.tools import ToolRequest, ToolResult
 
 from ..testhelpers.testhelpers import retry_test
 from .conftest import _get_api_key_headers, get_all_server_fixtures_name
@@ -582,11 +591,64 @@ def _stream_request_and_return_output(
 
     response = response_completed[0].get("response")
 
+    # Validate deltas against the full event stream; response.completed only
+    # carries the final response object and cannot contain text delta events.
     deltas = [
-        e.get("delta") for e in response_completed if e.get("type") == "response.output_text.delta"
+        e.get("delta") for e in non_empty_events if e.get("type") == "response.output_text.delta"
     ]
     assert all(d in str(response) for d in deltas)
     return response
+
+
+async def _collect_text_streaming_listener_events(events):
+    send_stream, receive_stream = anyio.create_memory_object_stream(100)
+    try:
+        listener = _TextStreamingListener(queue=send_stream)
+        for event in events:
+            listener(event)
+        await send_stream.aclose()
+        return [event async for event in receive_stream]
+    finally:
+        await receive_stream.aclose()
+
+
+@pytest.mark.anyio
+async def test_text_streaming_listener_ignores_internal_tool_request_streams() -> None:
+    events = await _collect_text_streaming_listener_events(
+        [
+            ConversationMessageStreamStartedEvent(
+                message=Message(content="", message_type=MessageType.AGENT)
+            ),
+            ConversationMessageStreamEndedEvent(
+                message=Message(
+                    content="",
+                    message_type=MessageType.TOOL_REQUEST,
+                    tool_requests=[
+                        ToolRequest(
+                            name="talk_to_user",
+                            args={"text": "Visible response"},
+                            tool_request_id="call_1",
+                        )
+                    ],
+                )
+            ),
+        ],
+    )
+
+    assert events == []
+
+
+def test_create_output_text_stream_events_emits_visible_text_delta() -> None:
+    events = _create_output_text_stream_events("Visible response", item_id="item_1")
+
+    assert [event.type for event in events] == [
+        "response.output_item.added",
+        "response.output_text.delta",
+        "response.output_text.done",
+        "response.output_item.done",
+    ]
+    assert events[1].delta == "Visible response"
+    assert events[2].text == "Visible response"
 
 
 @retry_test(max_attempts=10)  # not uniform

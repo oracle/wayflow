@@ -17,6 +17,21 @@ WayFlow 26.1.2
 New features
 ^^^^^^^^^^^^
 
+* **Configurable retry policies for MCP tools**
+
+  Added ``retry_policy`` to ``MCPTool`` and ``MCPToolBox`` to retry transient
+  missing-tool responses and MCP tool execution failures, including WayFlow
+  Agent Spec plugin serialization support.
+
+  For usage details, see :doc:`the MCP tools guide <howtoguides/howto_mcp>`.
+
+
+WayFlow 26.1.2
+--------------
+
+New features
+^^^^^^^^^^^^
+
 * **Configurable retry policies for remote components**
 
   Added the ``RetryPolicy`` object to configure retries, backoff,

@@ -82,11 +82,13 @@ from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageReq
 from wayflowcore.agent import Agent
 from wayflowcore.mcp import MCPTool, MCPToolBox, SSETransport, authless_mcp_enabled
 from wayflowcore.flow import Flow
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.steps import ToolExecutionStep
 
 mcp_server_url = f"http://localhost:8080/sse" # change to your own URL
 # We will see below how to connect a specific tool to an assistant, e.g.
 MCP_TOOL_NAME = "get_user_session"
+MCP_TOOLBOX_TOOL_FILTER = ["get_user_session", "get_payslips"]
 # And see how to build an agent that can answer questions, e.g.
 USER_QUERY = "What was the payment date of the last payslip for the current user?"
 # .. end-##_Imports_for_this_guide
@@ -101,6 +103,8 @@ llm: VllmModel  # docs-skiprow
 mcp_server_url: str # docs-skiprow
 USER_QUERY: str # docs-skiprow
 (llm, mcp_server_url, USER_QUERY, MCP_TOOL_NAME) = _update_globals(["llm_small", "sse_mcp_server", "mcp_user_query", "mcp_example_tool_name"]) # docs-skiprow # type: ignore
+if MCP_TOOL_NAME != "get_user_session": # docs-skiprow
+    MCP_TOOLBOX_TOOL_FILTER = [MCP_TOOL_NAME] # docs-skiprow
 
 # .. start-##_Connecting_an_agent_to_the_MCP_server
 mcp_client = SSETransport(url=mcp_server_url)
@@ -112,6 +116,22 @@ assistant = Agent(
     tools=[mcp_toolbox]
 )
 # .. end-##_Connecting_an_agent_to_the_MCP_server
+# .. start-##_Configuring_toolbox_retry_policy
+mcp_toolbox_with_retries = MCPToolBox(
+    client_transport=mcp_client,
+    tool_filter=MCP_TOOLBOX_TOOL_FILTER,
+    retry_policy=RetryPolicy(
+        max_attempts=3,
+        initial_retry_delay=0.25,
+        max_retry_delay=2.0,
+    ),
+)
+
+assistant = Agent(
+    llm=llm,
+    tools=[mcp_toolbox_with_retries]
+)
+# .. end-##_Configuring_toolbox_retry_policy
 from wayflowcore.agentspec import AgentSpecExporter # docs-skiprow
 serialized_assistant = AgentSpecExporter().to_json(assistant) # docs-skiprow
 
@@ -156,9 +176,17 @@ with authless_mcp_enabled():
         name=MCP_TOOL_NAME,
         client_transport=mcp_client
     )
+# .. start-##_Configuring_direct_tool_retry_policy
+with authless_mcp_enabled():
+    mcp_tool_with_retries = MCPTool(
+        name=MCP_TOOL_NAME,
+        client_transport=mcp_client,
+        retry_policy=RetryPolicy(max_attempts=3),
+    )
+# .. end-##_Configuring_direct_tool_retry_policy
 
 assistant = Flow.from_steps([
-    ToolExecutionStep(name="mcp_tool_step", tool=mcp_tool)
+    ToolExecutionStep(name="mcp_tool_step", tool=mcp_tool_with_retries)
 ])
 # .. end-##_Connecting_a_flow_to_the_MCP_server
 from wayflowcore.agentspec import AgentSpecExporter, AgentSpecLoader # docs-skiprow

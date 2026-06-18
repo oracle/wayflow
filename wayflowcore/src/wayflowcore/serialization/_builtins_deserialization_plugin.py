@@ -719,6 +719,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 id=agentspec_component.id,
                 _validate_server_exists=False,
                 _validate_tool_exist_on_server=False,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    getattr(agentspec_component, "retry_policy", None)
+                ),
             )
         elif isinstance(agentspec_component, AgentSpecPluginConstantValuesNode):
             # Map PluginConstantValuesNode -> RuntimeConstantValuesStep
@@ -1740,6 +1743,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 tool_filter=tool_filter,
                 **self._get_component_arguments(agentspec_component),
                 requires_confirmation=agentspec_component.requires_confirmation,
+                retry_policy=self._convert_retry_policy_to_runtime(
+                    getattr(agentspec_component, "retry_policy", None)
+                ),
             )
         elif isinstance(agentspec_component, AgentSpecAgentNode):
             return RuntimeAgentExecutionStep(

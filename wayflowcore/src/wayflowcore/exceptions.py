@@ -70,6 +70,20 @@ class MaxNumTrialsExceededException(ValueError):
 class NoSuchToolFoundOnMCPServerError(ValueError):
     """Error thrown when MCP server returns no tools with a given signature"""
 
+    def __init__(
+        self,
+        message: str,
+        missing_tool_names: list[str] | None = None,
+        expected_tool_names: list[str] | None = None,
+        exposed_tool_names: list[str] | None = None,
+        attempts: int | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.missing_tool_names = missing_tool_names or []
+        self.expected_tool_names = expected_tool_names or []
+        self.exposed_tool_names = exposed_tool_names or []
+        self.attempts = attempts
+
 
 class DataclassFieldDeserializationError(ValueError):
     """Error thrown when the deserialization of a field of a dataclass fails"""

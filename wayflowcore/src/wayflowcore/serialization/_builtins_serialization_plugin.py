@@ -178,6 +178,7 @@ from wayflowcore.agentspec.components.datastores.oracle_datastore import (
     PluginOracleDatabaseDatastore as AgentSpecPluginOracleDatabaseDatastore,
 )
 from wayflowcore.agentspec.components.flow import ExtendedFlow as AgentSpecExtendedFlow
+from wayflowcore.agentspec.components.mcp import PluginMCPToolSpec as AgentSpecPluginMCPToolSpec
 from wayflowcore.agentspec.components.mcp import (
     PluginSSEmTLSTransport as AgentSpecPluginSSEmTLSTransport,
 )
@@ -1526,7 +1527,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
             )
         # other cases: mcpservertool, server, client tools
         if isinstance(runtime_tool, RuntimeMCPTool):
-            return AgentSpecMCPTool(
+            mcp_tool_kwargs = dict(
                 name=runtime_tool.name,
                 description=runtime_tool.description,
                 metadata=metadata,
@@ -1544,8 +1545,14 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     referenced_objects,
                 ),
                 requires_confirmation=runtime_tool.requires_confirmation,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_tool.retry_policy)
+                    if runtime_tool.retry_policy is not None
+                    else None
+                ),
                 id=runtime_tool.id,
             )
+            return AgentSpecMCPTool(**mcp_tool_kwargs)
         elif isinstance(runtime_tool, RuntimeServerTool):
             return AgentSpecServerTool(
                 name=runtime_tool.name,
@@ -1992,21 +1999,26 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         conversion_context: "WayflowToAgentSpecConversionContext",
         runtime_mcptoolspec: RuntimeTool,
         referenced_objects: Optional[Dict[str, Any]] = None,
-    ) -> AgentSpecMCPToolSpec:
+        use_plugin_model: bool = False,
+    ) -> Union[AgentSpecMCPToolSpec, AgentSpecPluginMCPToolSpec]:
 
-        return AgentSpecMCPToolSpec(
-            name=runtime_mcptoolspec.name,
-            description=runtime_mcptoolspec.description,
-            inputs=[
-                _runtime_property_to_pyagentspec_property(input_)
-                for input_ in runtime_mcptoolspec.input_descriptors or []
-            ],
-            outputs=[
-                _runtime_property_to_pyagentspec_property(output)
-                for output in runtime_mcptoolspec.output_descriptors or []
-            ],
-            requires_confirmation=runtime_mcptoolspec.requires_confirmation,
-            metadata=_create_agentspec_metadata_from_runtime_component(runtime_mcptoolspec),
+        agentspec_model = AgentSpecPluginMCPToolSpec if use_plugin_model else AgentSpecMCPToolSpec
+        return cast(
+            Union[AgentSpecMCPToolSpec, AgentSpecPluginMCPToolSpec],
+            agentspec_model(
+                name=runtime_mcptoolspec.name,
+                description=runtime_mcptoolspec.description,
+                inputs=[
+                    _runtime_property_to_pyagentspec_property(input_)
+                    for input_ in runtime_mcptoolspec.input_descriptors or []
+                ],
+                outputs=[
+                    _runtime_property_to_pyagentspec_property(output)
+                    for output in runtime_mcptoolspec.output_descriptors or []
+                ],
+                requires_confirmation=runtime_mcptoolspec.requires_confirmation,
+                metadata=_create_agentspec_metadata_from_runtime_component(runtime_mcptoolspec),
+            ),
         )
 
     def _toolbox_convert_to_agentspec(
@@ -2022,7 +2034,9 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                         tool_
                         if isinstance(tool_, str)
                         else self._mcptoolspec_convert_to_agentspec(
-                            conversion_context, tool_, referenced_objects
+                            conversion_context,
+                            tool_,
+                            referenced_objects,
                         )
                     )
                     for tool_ in runtime_toolbox.tool_filter
@@ -2030,7 +2044,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 if runtime_toolbox.tool_filter is not None
                 else None
             )
-            return AgentSpecMCPToolBox(
+            mcp_toolbox_kwargs = dict(
                 name=runtime_toolbox.name,
                 client_transport=self._mcp_clienttransport_convert_to_agentspec(
                     conversion_context,
@@ -2041,7 +2055,13 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 id=runtime_toolbox.id,
                 description=runtime_toolbox.description,
                 requires_confirmation=runtime_toolbox.requires_confirmation or False,
+                retry_policy=(
+                    self._retrypolicy_convert_to_agentspec(runtime_toolbox.retry_policy)
+                    if runtime_toolbox.retry_policy is not None
+                    else None
+                ),
             )
+            return AgentSpecMCPToolBox(**mcp_toolbox_kwargs)
         if isinstance(runtime_toolbox, RuntimeSearchToolBox):
             return AgentSpecPluginSearchToolBox(
                 name=runtime_toolbox.name,

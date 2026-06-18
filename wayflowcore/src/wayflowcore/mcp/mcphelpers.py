@@ -36,6 +36,7 @@ from mcp import types as types
 from mcp.server.fastmcp import Context
 from mcp.server.session import ServerSessionT
 from mcp.shared.context import LifespanContextT, RequestT
+from mcp.shared.exceptions import McpError
 
 from wayflowcore.events.event import ToolExecutionStreamingChunkReceivedEvent
 from wayflowcore.events.eventlistener import record_event
@@ -45,6 +46,14 @@ from wayflowcore.mcp._session_persistence import (
     get_mcp_async_runtime,
 )
 from wayflowcore.mcp.clienttransport import ClientTransport, ClientTransportWithAuth
+from wayflowcore.models._requesthelpers import (
+    RetryClassification,
+    _classify_http_exception_for_retry,
+    _get_http_headers_from_exception,
+    _get_http_status_code_from_exception,
+    _get_retry_after_value_from_headers,
+    execute_async_with_retry,
+)
 from wayflowcore.property import (
     DictProperty,
     JsonSchemaParam,
@@ -53,6 +62,7 @@ from wayflowcore.property import (
     Property,
     UnionProperty,
 )
+from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.tools import Tool
 from wayflowcore.tracing.span import ToolExecutionSpan, get_current_span
@@ -308,22 +318,177 @@ async def _invoke_mcp_tool_call_async(
     tool_name: str,
     tool_args: Dict[str, Any],
     output_descriptors: List[Property],
+    retry_policy: Optional[RetryPolicy] = None,
 ) -> Any:
-    with _catch_and_raise_mcp_connection_errors():
-        result: types.CallToolResult = await session.call_tool(
-            tool_name, tool_args, progress_callback=_mcp_progress_handler
-        )
+    """Call an MCP tool and apply retry policy to retryable execution failures."""
 
-        output = _try_handle_structured_content_from_tool_result(result, output_descriptors)
-        if output is not None:
-            return output
+    async def operation() -> Any:
+        with _catch_and_raise_mcp_connection_errors():
+            result: types.CallToolResult = await session.call_tool(
+                tool_name, tool_args, progress_callback=_mcp_progress_handler
+            )
 
-        return _extract_text_content_from_tool_result(result)
+            output = _try_handle_structured_content_from_tool_result(result, output_descriptors)
+            if output is not None:
+                return output
+
+            return _extract_text_content_from_tool_result(result)
+
+    if retry_policy is None:
+        return await operation()
+
+    return await execute_async_with_retry(
+        operation,
+        retry_policy=retry_policy,
+        classify_exception=_classify_mcp_tool_call_for_retry,
+        retry_budget_exhausted_message="MCP tool execution retry budget exhausted",
+    )
+
+
+def _is_missing_mcp_tool_error(exc: BaseException) -> bool:
+    """Return whether an MCP error means the requested tool is temporarily missing."""
+
+    if not isinstance(exc, McpError):
+        return False
+
+    message = exc.error.message.lower()
+    return "tool" in message and (
+        "not found" in message or "unknown" in message or "does not exist" in message
+    )
+
+
+def _classify_mcp_tool_call_for_retry(exc: Exception, policy: RetryPolicy) -> RetryClassification:
+    """Classify MCP tool-call failures that are safe to retry under the policy."""
+
+    retry_classification = _classify_http_exception_for_retry(exc, policy)
+    if retry_classification is not None:
+        return retry_classification
+
+    # MCP clients often wrap transport errors in domain exceptions, so inspect
+    # the whole exception chain before deciding the failure is not retryable.
+    pending: List[BaseException] = [exc]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
+
+        status_code = _get_http_status_code_from_exception(current)
+        if status_code == 404:
+            return status_code, _get_retry_after_value_from_headers(
+                _get_http_headers_from_exception(current)
+            )
+
+        if _is_missing_mcp_tool_error(current):
+            return None, None
+
+        if current.__context__ is not None:
+            pending.append(current.__context__)
+        if current.__cause__ is not None:
+            pending.append(current.__cause__)
+
+    return None
 
 
 async def _get_server_signatures_from_mcp_server(session: ClientSession) -> types.ListToolsResult:
+    """Fetch the raw MCP tool list from the server with connection errors normalized."""
+
     with _catch_and_raise_mcp_connection_errors():
         return await session.list_tools()
+
+
+def _classify_missing_mcp_tool_for_retry(
+    exc: Exception, policy: RetryPolicy
+) -> RetryClassification:
+    """Retry only semantic MCP tool-list misses detected during validation."""
+
+    if isinstance(exc, NoSuchToolFoundOnMCPServerError):
+        return None, None
+    return None
+
+
+def _raise_if_expected_tools_missing(
+    remote_mcp_signature: types.ListToolsResult,
+    expected_signatures_by_name: Dict[str, Optional[Tool]],
+    attempts: Optional[int],
+) -> None:
+    """Raise with diagnostics if expected tools are absent from the MCP tool list."""
+
+    expected_tool_names = list(expected_signatures_by_name or {})
+    if not expected_tool_names:
+        return
+
+    exposed_tool_names = sorted({exposed_tool.name for exposed_tool in remote_mcp_signature.tools})
+    exposed_tool_names_set = set(exposed_tool_names)
+    missing_tool_names = [
+        expected_tool_name
+        for expected_tool_name in expected_tool_names
+        if expected_tool_name not in exposed_tool_names_set
+    ]
+    if not missing_tool_names:
+        return
+
+    attempts_msg = f" after {attempts} tool-list attempt(s)" if attempts is not None else ""
+    raise NoSuchToolFoundOnMCPServerError(
+        f"Expected MCP tool(s) {missing_tool_names} but they were missing from the "
+        f"list of exposed tools{attempts_msg}. Exposed tools: {exposed_tool_names}",
+        missing_tool_names=missing_tool_names,
+        expected_tool_names=expected_tool_names,
+        exposed_tool_names=exposed_tool_names,
+        attempts=attempts,
+    )
+
+
+async def _get_validated_server_signatures_from_mcp_server(
+    session: ClientSession,
+    expected_signatures_by_name: Dict[str, Optional[Tool]],
+    attempts: Optional[int],
+) -> types.ListToolsResult:
+    """Fetch MCP tool signatures and validate that all expected tools are exposed."""
+
+    remote_mcp_signature = await _get_server_signatures_from_mcp_server(session)
+    _raise_if_expected_tools_missing(
+        remote_mcp_signature,
+        expected_signatures_by_name,
+        attempts,
+    )
+    return remote_mcp_signature
+
+
+async def _get_validated_server_signatures_with_retry(
+    session: ClientSession,
+    expected_signatures_by_name: Dict[str, Optional[Tool]],
+    retry_policy: Optional[RetryPolicy],
+) -> types.ListToolsResult:
+    """Fetch MCP tool signatures with semantic retry for missing expected tools."""
+
+    if not expected_signatures_by_name or retry_policy is None:
+        # A partial list can only be identified when callers declare which tools
+        # they expect. For "list all tools", preserve the single-call behavior.
+        return await _get_validated_server_signatures_from_mcp_server(
+            session,
+            expected_signatures_by_name,
+            1 if expected_signatures_by_name else None,
+        )
+
+    attempts = 0
+
+    async def operation() -> types.ListToolsResult:
+        nonlocal attempts
+        attempts += 1
+        return await _get_validated_server_signatures_from_mcp_server(
+            session,
+            expected_signatures_by_name,
+            attempts,
+        )
+
+    return await execute_async_with_retry(
+        operation,
+        retry_policy=retry_policy,
+        classify_exception=_classify_missing_mcp_tool_for_retry,
+        retry_budget_exhausted_message="MCP tool-list resolution retry budget exhausted",
+    )
 
 
 def _try_convert_mcp_output_schema_to_properties(
@@ -386,29 +551,16 @@ async def get_server_tools_from_mcp_server(
     session: ClientSession,
     expected_signatures_by_name: Dict[str, Optional[Tool]],
     client_transport: ClientTransport,
+    retry_policy: Optional[RetryPolicy] = None,
 ) -> List[ServerTool]:
     from wayflowcore.mcp.tools import MCPTool
 
     processed_tool_signatures: List[ServerTool] = []
-    remote_mcp_signature = await _get_server_signatures_from_mcp_server(session)
-
-    if missing_tool_name := next(
-        (
-            expected_tool_name
-            for expected_tool_name in expected_signatures_by_name or {}
-            if expected_tool_name
-            not in (
-                exposed_tool_names := {
-                    exposed_tool.name for exposed_tool in remote_mcp_signature.tools
-                }
-            )
-        ),
-        None,
-    ):
-        raise NoSuchToolFoundOnMCPServerError(
-            f"Expected tool '{missing_tool_name}' but tool was missing from the list of exposed tools. "
-            f"Exposed tools: {exposed_tool_names}"
-        )
+    remote_mcp_signature = await _get_validated_server_signatures_with_retry(
+        session,
+        expected_signatures_by_name,
+        retry_policy,
+    )
 
     for exposed_tool in remote_mcp_signature.tools:
         exposed_tool_name = exposed_tool.name
@@ -478,18 +630,33 @@ async def get_server_tools_from_mcp_server(
                 client_transport=client_transport,
                 _validate_tool_exist_on_server=False,
                 requires_confirmation=requires_confirmation,
+                retry_policy=retry_policy,
             )
         )
     return processed_tool_signatures
 
 
 async def _get_tool_on_server(
-    session: ClientSession, name: str, client_transport: ClientTransport
+    session: ClientSession,
+    name: str,
+    client_transport: ClientTransport,
+    retry_policy: Optional[RetryPolicy] = None,
 ) -> Tool:
     try:
-        tools = await get_server_tools_from_mcp_server(session, {name: None}, client_transport)
+        tools = await get_server_tools_from_mcp_server(
+            session,
+            {name: None},
+            client_transport,
+            retry_policy=retry_policy,
+        )
     except NoSuchToolFoundOnMCPServerError as e:
-        tools = []
+        raise NoSuchToolFoundOnMCPServerError(
+            f"Cannot find a tool named {name} on the MCP server. {e}",
+            missing_tool_names=e.missing_tool_names,
+            expected_tool_names=e.expected_tool_names,
+            exposed_tool_names=e.exposed_tool_names,
+            attempts=e.attempts,
+        ) from e
     except Exception as e:
         raise ConnectionError(f"Cannot connect to the MCP server {client_transport}") from e
 
