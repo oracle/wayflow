@@ -268,7 +268,7 @@ class SearchToolBox(ToolBox, Component, SerializableObject):
         )
 
         args_schema, output_schema = _get_tool_schema_no_parsing(
-            new_signature, tool_description, tool_name
+            new_signature, tool_name
         )
 
         copy_func = functools.partial(func, self._datastore)
