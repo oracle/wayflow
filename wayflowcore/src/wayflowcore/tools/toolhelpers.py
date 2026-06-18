@@ -81,9 +81,7 @@ def _get_partial_schema_from_annotation(arg_type: Type[Any]) -> JsonSchemaParam:
     # Handle Dict[str, X]
     if origin is dict or origin is Dict:
         if len(args) != 2:
-            raise TypeError(
-                "Dict must have exactly two type arguments, e.g., Dict[str, int]"
-            )
+            raise TypeError("Dict must have exactly two type arguments, e.g., Dict[str, int]")
         key_type, value_type = args
         if key_type is not str:
             raise TypeError("JSON object keys must be strings")
@@ -210,9 +208,7 @@ def _get_tool_schema_from_parsed_signature(
                 f"Description mode is `infer_from_signature` but parameter {param_name} of tool {tool_name} is not Annotated "
                 f"(has type {annotated_param.annotation}). Either annotate the parameter or use the `only_docstring` description mode."
             )
-        param_annotation, param_description = _unpack_annotated_types(
-            annotated_param.annotation
-        )
+        param_annotation, param_description = _unpack_annotated_types(annotated_param.annotation)
         param_schema = _get_partial_schema_from_annotation(param_annotation)
 
         param_schema["description"] = param_description
@@ -227,9 +223,7 @@ def _get_tool_schema_from_parsed_signature(
         raise TypeError(f"Return annotation is not specified for tool {tool_name}")
     output_annotation: Any
     if _is_annotated_type(annotated_output_type):
-        output_annotation, output_description = _unpack_annotated_types(
-            annotated_output_type
-        )
+        output_annotation, output_description = _unpack_annotated_types(annotated_output_type)
     else:
         output_annotation, output_description = annotated_output_type, ""
 
@@ -412,9 +406,7 @@ def tool(
         tool_name = tool_name or func.__name__
 
         if description_mode == DescriptionMode.ONLY_DOCSTRING:
-            args_schema, output_schema = _get_tool_schema_no_parsing(
-                tool_signature, tool_name
-            )
+            args_schema, output_schema = _get_tool_schema_no_parsing(tool_signature, tool_name)
         elif description_mode == DescriptionMode.INFER_FROM_SIGNATURE:
             args_schema, output_schema = _get_tool_schema_from_parsed_signature(
                 tool_signature, tool_name
@@ -532,9 +524,7 @@ def _to_react_template_dict(tool: Tool) -> Dict[str, str]:
                     f"- {parameter_name}: {_find_json_schema_full_type(parameter_info)}"
                 )
                 if "default" in parameter_info:
-                    param_description += (
-                        f" (Optional, default={parameter_info['default']})"
-                    )
+                    param_description += f" (Optional, default={parameter_info['default']})"
                 else:
                     param_description += " (Required)"
                 if "description" in parameter_info:
@@ -542,9 +532,7 @@ def _to_react_template_dict(tool: Tool) -> Dict[str, str]:
                 parameter_descriptions.append(param_description)
 
             formatted_parameter_descriptions = "\n".join(parameter_descriptions)
-            description = (
-                tool_as_str + f"Parameters:\n{formatted_parameter_descriptions}"
-            )
+            description = tool_as_str + f"Parameters:\n{formatted_parameter_descriptions}"
     return {
         "name": tool.name,
         "description": description,

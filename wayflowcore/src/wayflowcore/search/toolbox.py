@@ -267,9 +267,7 @@ class SearchToolBox(ToolBox, Component, SerializableObject):
             parameters=[p for p in signature.parameters.values() if p.name != "datastore"]
         )
 
-        args_schema, output_schema = _get_tool_schema_no_parsing(
-            new_signature, tool_name
-        )
+        args_schema, output_schema = _get_tool_schema_no_parsing(new_signature, tool_name)
 
         copy_func = functools.partial(func, self._datastore)
         functools.update_wrapper(copy_func, func)

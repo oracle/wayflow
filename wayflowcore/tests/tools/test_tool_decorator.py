@@ -5,7 +5,9 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 from typing import Any, Callable
+
 from typing_extensions import assert_type
+
 from wayflowcore.property import StringProperty
 from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.toolhelpers import DescriptionMode, tool
