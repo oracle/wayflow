@@ -36,14 +36,16 @@ def test_tool_decorator_result_type_is_correct() -> None:
     tool_two = tool("tool_two", func_two)
     assert_type(tool_two, ServerTool)
     assert isinstance(tool_two, ServerTool)
+    assert tool_two.name == "tool_two"
 
     # Decorator with description mode
     @tool("tool_three", description_mode=DescriptionMode.ONLY_DOCSTRING)
-    def tool_three() -> None:
+    def func_three() -> None:
         """tool_three function"""
 
-    assert_type(tool_three, ServerTool)
-    assert isinstance(tool_three, ServerTool)
+    assert_type(func_three, ServerTool)
+    assert isinstance(func_three, ServerTool)
+    assert func_three.name == "tool_three"
 
     # Decorator with no arguments passed
     @tool
@@ -52,6 +54,7 @@ def test_tool_decorator_result_type_is_correct() -> None:
 
     assert_type(tool_four, ServerTool)
     assert isinstance(tool_four, ServerTool)
+    assert tool_four.name == "tool_four"
 
     # Decorator with only description mode passed
     @tool(description_mode=DescriptionMode.ONLY_DOCSTRING)
@@ -60,6 +63,7 @@ def test_tool_decorator_result_type_is_correct() -> None:
 
     assert_type(tool_five, ServerTool)
     assert isinstance(tool_five, ServerTool)
+    assert tool_five.name == "tool_five"
 
     # Decorator with only description mode passed as a string
     @tool(description_mode="only_docstring")
@@ -68,6 +72,7 @@ def test_tool_decorator_result_type_is_correct() -> None:
 
     assert_type(tool_six, ServerTool)
     assert isinstance(tool_six, ServerTool)
+    assert tool_six.name == "tool_six"
 
     # Decorator with only output_descriptors
     @tool(output_descriptors=[StringProperty("result")])
@@ -77,6 +82,7 @@ def test_tool_decorator_result_type_is_correct() -> None:
 
     assert_type(tool_seven, ServerTool)
     assert isinstance(tool_seven, ServerTool)
+    assert tool_seven.name == "tool_seven"
     output_desc = tool_seven.output_descriptors[0]
     assert output_desc.name == "result"
     assert isinstance(output_desc, StringProperty)
@@ -89,6 +95,7 @@ def test_tool_decorator_result_type_is_correct() -> None:
     assert_type(tool_eight, ServerTool)
     assert isinstance(tool_eight, ServerTool)
     assert tool_eight.requires_confirmation
+    assert tool_eight.name == "tool_eight"
 
     # Decorator with name, output_descriptors and requires_confirmation
     @tool(

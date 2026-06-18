@@ -445,10 +445,9 @@ def tool(
         # my_tool = tool("my_callable1", my_callable)
         # here func_or_name is the tool name, and func the callable
         # we simply return the newly created ServerTool
-        tool_name = func_or_name
         return _make_tool(
             func,
-            tool_name,
+            func_or_name,
             description_mode,
             output_descriptors,
             requires_confirmation,
@@ -462,12 +461,10 @@ def tool(
         # Upon instantiation, first the `tool` function is called, directly followed
         # by the `_partial_with_name` function being called, thus converting the
         # callable to a ServerTool
-        tool_name = func_or_name
-
         def _partial_with_name(func: Callable[..., Any]) -> ServerTool:
             return _make_tool(
                 func,
-                tool_name,
+                func_or_name,
                 description_mode,
                 output_descriptors,
                 requires_confirmation,
