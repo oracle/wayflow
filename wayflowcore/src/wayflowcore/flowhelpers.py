@@ -130,6 +130,7 @@ def create_single_step_flow(
     data_flow_edges: Optional[List[DataFlowEdge]] = None,
     variables: Optional[List["Variable"]] = None,
     flow_name: Optional[str] = None,
+    flow_id: Optional[str] = None,
     flow_description: str = "",
 ) -> Flow:
     """Create a flow that consist of one step only
@@ -148,6 +149,8 @@ def create_single_step_flow(
         list of variables of the flow
     flow_name:
         optional name of the flow
+    flow_id:
+        optional id of the flow
     flow_description:
         optional description of the flow
     """
@@ -173,6 +176,7 @@ def create_single_step_flow(
         data_flow_edges=data_flow_edges,
         variables=variables,
         name=flow_name,
+        flow_id=flow_id,
         description=flow_description,
     )
 

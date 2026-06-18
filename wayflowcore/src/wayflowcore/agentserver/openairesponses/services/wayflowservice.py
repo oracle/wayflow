@@ -6,6 +6,7 @@
 
 import logging
 import time
+from collections import OrderedDict
 from typing import Any, AsyncIterable, Dict, List, Optional, Union, cast
 
 import anyio
@@ -15,6 +16,11 @@ from fastapi import status as http_status_code
 
 from wayflowcore.agentserver.serverstorageconfig import ServerStorageConfig
 from wayflowcore.checkpointing import ConversationCheckpoint, DatastoreCheckpointer
+from wayflowcore.checkpointing.checkpoint_state import (
+    _CheckpointRestoreCompatibilityError,
+    _save_live_conversation_checkpoint,
+    _supports_checkpointing,
+)
 from wayflowcore.conversation import Conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.datastore import Datastore, InMemoryDatastore
@@ -58,6 +64,8 @@ logger = logging.getLogger(__name__)
 
 
 class WayFlowOpenAIResponsesService(OpenAIResponsesService):
+    _RESPONSE_CONVERSATION_CACHE_MAX_SIZE = 1024
+
     def __init__(
         self,
         agents: Dict[str, ConversationalComponent],
@@ -72,7 +80,10 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             storage_config=self.storage_config,
         )
         self.created_at = int(time.time())
-        self._response_conversation_ids: Dict[str, str] = {}
+        # Process-local fast path from public OpenAI `response_id` to the owning
+        # WayFlow `conversation_id`, so we can fetch the exact saved checkpoint for
+        # that response via `checkpointer.load(conversation_id, response_id)`.
+        self._response_conversation_ids: OrderedDict[str, str] = OrderedDict()
         self.tool_registries = {
             agent_name: {t.name: t for t in agent._referenced_tools()}
             for agent_name, agent in self.agents.items()
@@ -127,7 +138,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
                 detail="Get endpoint for wayflow server only supports non-streaming requests",
             )
 
-        checkpoint = self._lookup_checkpoint_by_response_id(response_id)
+        checkpoint = self._find_checkpoint_for_response_id(response_id)
         if checkpoint is None:
             raise HTTPException(
                 status_code=http_status_code.HTTP_404_NOT_FOUND, detail="Response not found"
@@ -140,10 +151,10 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         return Response.model_validate_json(response_as_txt)
 
     async def delete_response(self, response_id: str) -> Optional[ResponseError]:
-        checkpoint = self._lookup_checkpoint_by_response_id(response_id)
+        checkpoint = self._find_checkpoint_for_response_id(response_id)
         if checkpoint is not None:
             self.checkpointer.delete(checkpoint.conversation_id, checkpoint.checkpoint_id)
-            self._response_conversation_ids.pop(response_id, None)
+            self._response_conversation_ids.pop(response_id)
         return None
 
     async def cancel_response(self, response_id: str) -> Union[Response, ResponseError]:
@@ -193,16 +204,29 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         if conversation_id is not None and not isinstance(conversation_id, str):
             conversation_id = conversation_id.id
 
-        should_store_response = body.store is None or body.store is True
+        # Stored OpenAI responses are backed by durable WayFlow checkpoints. Components
+        # that cannot checkpoint may still serve non-stored, non-resumed responses.
+        should_store_response = body.store is not False
+        if not _supports_checkpointing(agent):
+            if previous_response_id is not None or conversation_id is not None:
+                raise HTTPException(
+                    status_code=http_status_code.HTTP_501_NOT_IMPLEMENTED,
+                    detail=(
+                        f"`{agent.__class__.__name__}` does not support stored response resume yet."
+                    ),
+                )
+            if should_store_response:
+                raise HTTPException(
+                    status_code=http_status_code.HTTP_501_NOT_IMPLEMENTED,
+                    detail=(f"`{agent.__class__.__name__}` does not support stored responses."),
+                )
 
         state = self._load_state(
             previous_response_id=previous_response_id,
             conversation_id=conversation_id,
             agent_id=model,
-            attach_checkpointer=should_store_response,
         )
 
-        response_id = IdGenerator.get_or_generate_id()
         state = await self._create_state(
             agent=agent,
             state=state,
@@ -210,7 +234,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         )
 
         current_response = Response(
-            id=response_id,
+            id=IdGenerator.get_or_generate_id(),
             created_at=int(time.time()),
             error=None,
             incomplete_details=None,
@@ -261,9 +285,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             nonlocal status
             try:
                 with register_event_listeners([token_usage_listener, yielding_listener]):
-                    status = await conversation.execute_async(
-                        _final_checkpoint_id=response_id if should_store_response else None,
-                    )
+                    status = await conversation.execute_async()
             except Exception as e:
                 nonlocal raised_exception
                 raised_exception = e
@@ -277,6 +299,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             async for ev in receive_stream:
                 # These events come from the synchronous callback
                 yield ev
+            await receive_stream.aclose()
 
         if raised_exception:
             if "not a multimodal model" in str(raised_exception):
@@ -316,13 +339,22 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             token_usage_listener.usage
         )
 
-        if should_store_response and state.checkpointer is not None:
-            self.checkpointer.save_conversation(
+        # persists a completed OpenAI Responses response as a WayFlow checkpoint
+        if should_store_response:
+            _save_live_conversation_checkpoint(
+                self.checkpointer,
                 state,
+                # Use the public response id as the checkpoint id so GET/DELETE/resume
+                # can locate the exact checkpoint from only the OpenAI Responses API id.
                 checkpoint_id=current_response.id,
-                metadata={"response": current_response.model_dump_json()},
+                # The stored component id is the served model id that owns this
+                # persisted conversation state. Resume must use the same model id.
+                component_id=model,
+                metadata={
+                    "response": current_response.model_dump_json(),
+                },
             )
-            self._response_conversation_ids[current_response.id] = state.id
+            self._cache_response_conversation_id(current_response.id, state.id)
 
         if current_response.error is not None:
             yield ResponseFailedEvent(
@@ -376,63 +408,101 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         previous_response_id: Optional[str],
         conversation_id: Optional[str],
         agent_id: str,
-        attach_checkpointer: bool = True,
     ) -> Optional[Conversation]:
         if previous_response_id:
-            checkpoint = self._lookup_checkpoint_by_response_id(previous_response_id)
+            # previous_response_id resumes the exact checkpoint created for that public
+            # response id, not just the latest checkpoint in the conversation.
+            checkpoint = self._find_checkpoint_for_response_id(previous_response_id)
             if checkpoint is None:
                 raise HTTPException(
                     status_code=http_status_code.HTTP_404_NOT_FOUND,
                     detail=f"No previous response with id `{previous_response_id}` was found",
                 )
-            self._response_conversation_ids[checkpoint.checkpoint_id] = checkpoint.conversation_id
-            try:
-                return self.agents[agent_id].start_conversation(
-                    conversation_id=checkpoint.conversation_id,
-                    checkpoint_id=checkpoint.checkpoint_id,
-                    checkpointer=self.checkpointer,
-                    _attach_checkpointer=attach_checkpointer,
-                )
-            except (TypeError, ValueError) as e:
-                raise HTTPException(
-                    status_code=http_status_code.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Conversation state is corrupted, it cannot be de-serialized: {e}",
-                ) from e
+            incompatible_detail = (
+                f"Previous response `{previous_response_id}` is not compatible "
+                f"with model `{agent_id}`"
+            )
         elif conversation_id:
+            # conversation resume follows OpenAI Responses semantics: continue from the
+            # latest stored turn in that conversation rather than a specific response id.
             checkpoint = self.checkpointer.load_latest(conversation_id)
             if checkpoint is None:
                 raise HTTPException(
                     status_code=http_status_code.HTTP_404_NOT_FOUND,
                     detail=f"No conversation with id `{conversation_id}` was found",
                 )
-            self._response_conversation_ids[checkpoint.checkpoint_id] = checkpoint.conversation_id
-            try:
-                return self.agents[agent_id].start_conversation(
-                    conversation_id=conversation_id,
-                    checkpointer=self.checkpointer,
-                    _attach_checkpointer=attach_checkpointer,
-                )
-            except (TypeError, ValueError) as e:
-                raise HTTPException(
-                    status_code=http_status_code.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Conversation state is corrupted, it cannot be de-serialized: {e}",
-                ) from e
+            incompatible_detail = (
+                f"Conversation `{conversation_id}` is not compatible with model `{agent_id}`"
+            )
         else:
             return None
 
-    def _lookup_checkpoint_by_response_id(
+        checkpoint_model = checkpoint.component_id
+        if checkpoint_model != agent_id:
+            raise HTTPException(
+                status_code=http_status_code.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"{incompatible_detail}: checkpoint belongs to model "
+                    f"`{checkpoint_model}` and cannot be resumed with model `{agent_id}`."
+                ),
+            )
+
+        self._cache_response_conversation_id(checkpoint.checkpoint_id, checkpoint.conversation_id)
+        agent = self.agents[agent_id]
+        try:
+            # Use start_conversation() only to restore the checkpoint identified by
+            # (conversation_id, checkpoint_id), then clear conversation.checkpointer
+            # so execute() resumes without adding automatic checkpoint saves.
+            conversation = agent.start_conversation(
+                conversation_id=checkpoint.conversation_id,
+                checkpointer=self.checkpointer,
+                checkpoint_id=checkpoint.checkpoint_id,
+            )
+            conversation.checkpointer = None
+            return conversation
+        except _CheckpointRestoreCompatibilityError as e:
+            raise HTTPException(
+                status_code=http_status_code.HTTP_400_BAD_REQUEST,
+                detail=f"{incompatible_detail}: {e}",
+            ) from e
+        except (TypeError, ValueError) as e:
+            raise HTTPException(
+                status_code=http_status_code.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Conversation state is corrupted, it cannot be de-serialized: {e}",
+            ) from e
+
+    def _find_checkpoint_for_response_id(
+        self, response_id: str
+    ) -> Optional[ConversationCheckpoint]:
+        """Resolve the checkpoint stored under a public OpenAI Responses `response_id`."""
+        checkpoint = self._load_cached_checkpoint_for_response_id(response_id)
+        if checkpoint is not None:
+            return checkpoint
+
+        checkpoint = self.checkpointer._find_checkpoint_by_id(response_id)
+        if checkpoint is not None:
+            self._cache_response_conversation_id(response_id, checkpoint.conversation_id)
+        return checkpoint
+
+    def _load_cached_checkpoint_for_response_id(
         self, response_id: str
     ) -> Optional[ConversationCheckpoint]:
         conversation_id = self._response_conversation_ids.get(response_id)
-        if conversation_id is not None:
-            try:
-                return self.checkpointer.load(conversation_id, response_id)
-            except ValueError:
-                self._response_conversation_ids.pop(response_id, None)
-        checkpoint = self.checkpointer._find_checkpoint_by_id(response_id)
-        if checkpoint is not None:
-            self._response_conversation_ids[response_id] = checkpoint.conversation_id
-        return checkpoint
+        if conversation_id is None:
+            return None
+
+        self._response_conversation_ids.move_to_end(response_id)
+        try:
+            return self.checkpointer.load(conversation_id, response_id)
+        except ValueError:
+            self._response_conversation_ids.pop(response_id)
+            return None
+
+    def _cache_response_conversation_id(self, response_id: str, conversation_id: str) -> None:
+        self._response_conversation_ids[response_id] = conversation_id
+        self._response_conversation_ids.move_to_end(response_id)
+        if len(self._response_conversation_ids) > self._RESPONSE_CONVERSATION_CACHE_MAX_SIZE:
+            self._response_conversation_ids.popitem(last=False)
 
     async def _create_state(
         self,
@@ -459,14 +529,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
                         detail="Agent should have an `instructions` input descriptor to be able to take instructions as input",
                     )
                 inputs = {"instructions": instructions}
-            if request.store is None or request.store is True:
-                state = agent.start_conversation(
-                    inputs=inputs,
-                    messages=new_messages,
-                    checkpointer=self.checkpointer,
-                )
-            else:
-                state = agent.start_conversation(inputs=inputs, messages=new_messages)
+            state = agent.start_conversation(inputs=inputs, messages=new_messages)
         else:
             # later: implement context provider for custom instructions
             if instructions is not None:

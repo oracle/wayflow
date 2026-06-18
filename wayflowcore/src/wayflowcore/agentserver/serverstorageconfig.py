@@ -11,4 +11,4 @@ from wayflowcore.checkpointing import StorageConfig
 
 @dataclass
 class ServerStorageConfig(StorageConfig):
-    """Configuration for agent-server conversation storage."""
+    """Configuration for server storage management."""

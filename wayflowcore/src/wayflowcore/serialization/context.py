@@ -38,6 +38,42 @@ def _create_component_type_to_plugin_mapping(
     return component_types_to_plugins
 
 
+class MissingDeserializationReferenceError(ValueError):
+    """Raised when deserialization encounters a reference missing from the root object."""
+
+
+def _iter_nested_components(value: Any) -> List["Component"]:
+    """Return one ordered pass over all public nested components reachable from `value`."""
+    from wayflowcore.component import Component
+
+    ordered_components: List["Component"] = []
+    visited_component_refs: set[str] = set()
+
+    def _collect_nested_components(current_value: Any) -> None:
+        if isinstance(current_value, Component):
+            component_ref = SerializationContext.get_reference(current_value)
+            if component_ref in visited_component_refs:
+                return
+            visited_component_refs.add(component_ref)
+            ordered_components.append(current_value)
+            for name, attr in vars(current_value).items():
+                if not name.startswith("_"):
+                    _collect_nested_components(attr)
+            return
+
+        if isinstance(current_value, dict):
+            for nested_value in current_value.values():
+                _collect_nested_components(nested_value)
+            return
+
+        if isinstance(current_value, (list, tuple, set)):
+            for nested_value in current_value:
+                _collect_nested_components(nested_value)
+
+    _collect_nested_components(value)
+    return ordered_components
+
+
 class SerializationContext:
 
     def __init__(self, root: Any, plugins: Optional[List["WayflowSerializationPlugin"]] = None):
@@ -114,15 +150,13 @@ class SerializationContext:
         """
         self._serialized_objects[self.get_reference(obj)] = obj_as_dict
 
-    def register_external_reference(self, obj: Any) -> None:
+    def _add_component_to_context(self, component: "Component") -> None:
         """
-        Registers an object as provided externally to the serialized payload.
-
-        The serializer will emit a ``$ref`` for this object, but it will not add the object to
-        the root ``_referenced_objects`` section because the deserialization context is expected
-        to already contain it.
+        Marks the current component and all its nested components as provided externally to the
+        serialized object graph.
         """
-        self._external_references.add(self.get_reference(obj))
+        for nested_component in _iter_nested_components(component):
+            self._external_references.add(self.get_reference(nested_component))
 
     def check_obj_is_already_serialized(self, obj: Any) -> bool:
         """
@@ -244,7 +278,7 @@ class DeserializationContext:
           The reference of the object being deserialized
         """
         if object_reference not in self._referenced_objects:
-            raise ValueError(
+            raise MissingDeserializationReferenceError(
                 f"During deserialization, encountered reference {object_reference} that is missing "
                 f"in the _referenced_objects of the serialized root object."
             )
@@ -325,33 +359,6 @@ class DeserializationContext:
         Adds the current components and all its subcomponents to this
         deserialization context.
         """
-        from wayflowcore.component import Component
-
-        def _iter_nested_components(value: Any) -> List["Component"]:
-            if isinstance(value, Component):
-                return [value]
-            if isinstance(value, dict):
-                nested_components: List["Component"] = []
-                for nested_value in value.values():
-                    nested_components.extend(_iter_nested_components(nested_value))
-                return nested_components
-            if isinstance(value, (list, tuple, set)):
-                nested_components = []
-                for nested_value in value:
-                    nested_components.extend(_iter_nested_components(nested_value))
-                return nested_components
-            return []
-
-        component_ref = SerializationContext.get_reference(component)
-
-        if component_ref in self._deserialized_objects:
-            return
-
-        self._deserialized_objects[component_ref] = component
-
-        all_public_attrs = {
-            name: value for name, value in vars(component).items() if not name.startswith("_")
-        }
-        for attr in all_public_attrs.values():
-            for nested_component in _iter_nested_components(attr):
-                self._add_component_to_context(nested_component)
+        for nested_component in _iter_nested_components(component):
+            component_ref = SerializationContext.get_reference(nested_component)
+            self._deserialized_objects.setdefault(component_ref, nested_component)

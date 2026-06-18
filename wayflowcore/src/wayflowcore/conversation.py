@@ -63,15 +63,20 @@ def _get_active_conversations(return_copy: bool = True) -> List["Conversation"]:
     return copy(active_conversations) if return_copy else active_conversations
 
 
-def is_outermost_execution() -> bool:
-    return len(_get_active_conversations(return_copy=False)) == 0
-
-
 def _get_current_conversation_id() -> Optional[str]:
+    """Return the runtime id of the currently executing conversation object."""
     active_conversations = _get_active_conversations(return_copy=True)
     if not active_conversations:
         return None
     return active_conversations[-1].id
+
+
+def _get_current_root_conversation_id() -> Optional[str]:
+    """Return the root conversation id shared by nested conversations."""
+    active_conversations = _get_active_conversations(return_copy=True)
+    if not active_conversations:
+        return None
+    return active_conversations[-1].conversation_id
 
 
 @contextmanager
@@ -96,15 +101,17 @@ class Conversation(DataclassComponent):
     message_list: MessageList
     status: Optional[ExecutionStatus]
     token_usage: TokenUsage = field(default_factory=TokenUsage, init=False)
-    root_conversation_id: str = ""
+    conversation_id: str = ""
+    """Root conversation id used for checkpoint persistence and resume."""
     checkpointer: Optional["Checkpointer"] = field(
         default=None,
         repr=False,
         compare=False,
         metadata={"serialize": False},
     )
+    """Optional checkpointer to save the conversation"""
     checkpoint_id: Optional[str] = field(default=None, init=False, repr=False, compare=False)
-
+    """ID of the current checkpoint the conversation is stored with"""
     status_handled: bool = False
     """Whether the current status associated to this conversation was already handled or not
      (messages/tool results were added to the conversation)"""
@@ -112,8 +119,8 @@ class Conversation(DataclassComponent):
     def __post_init__(self) -> None:
         if self.inputs is None:
             self.inputs = {}
-        if not self.root_conversation_id:
-            self.root_conversation_id = self.id
+        if not self.conversation_id:
+            self.conversation_id = self.id
 
     @property
     def plan(self) -> Optional[ExecutionPlan]:
@@ -128,9 +135,6 @@ class Conversation(DataclassComponent):
     def execute(
         self,
         execution_interrupts: Optional[Sequence["ExecutionInterrupt"]] = None,
-        *,
-        _final_checkpoint_id: Optional[str] = None,
-        _final_checkpoint_metadata: Optional[Dict[str, Any]] = None,
     ) -> "ExecutionStatus":
         """
         Execute the conversation and get its ``ExecutionStatus`` based on the outcome.
@@ -140,20 +144,13 @@ class Conversation(DataclassComponent):
         """
 
         async def _execute_async_wrapper() -> "ExecutionStatus":
-            return await self.execute_async(
-                execution_interrupts,
-                _final_checkpoint_id=_final_checkpoint_id,
-                _final_checkpoint_metadata=_final_checkpoint_metadata,
-            )
+            return await self.execute_async(execution_interrupts)
 
         return run_async_in_sync(_execute_async_wrapper, method_name="execute_async")
 
     async def execute_async(
         self,
         execution_interrupts: Optional[Sequence["ExecutionInterrupt"]] = None,
-        *,
-        _final_checkpoint_id: Optional[str] = None,
-        _final_checkpoint_metadata: Optional[Dict[str, Any]] = None,
     ) -> "ExecutionStatus":
         """
         Execute the conversation and get its ``ExecutionStatus`` based on the outcome.
@@ -170,13 +167,10 @@ class Conversation(DataclassComponent):
 
         with get_conversation_checkpoint_execution_context(
             self,
-            is_outermost_execution=is_outermost_execution(),
-            final_checkpoint_id=_final_checkpoint_id,
-            final_checkpoint_metadata=_final_checkpoint_metadata,
+            is_outermost_execution=len(_get_active_conversations(return_copy=False)) == 0,
         ):
             with _register_conversation(self):
-                new_status = await self.component.runner.execute_async(self, execution_interrupts)
-            self.status = new_status
+                self.status = await self.component.runner.execute_async(self, execution_interrupts)
             self.status_handled = False
         return self.status
 
@@ -194,8 +188,16 @@ class Conversation(DataclassComponent):
 
     @abstractmethod
     def _get_all_sub_conversations(self) -> List["Conversation"]:
-        """Gathers all sub conversations"""
+        """Return direct child subconversations."""
         raise NotImplementedError()
+
+    def _get_all_sub_conversations_recursive(self) -> List["Conversation"]:
+        """Return all nested child subconversations recursively."""
+        all_sub_conversations: List["Conversation"] = []
+        for child_conversation in self._get_all_sub_conversations():
+            all_sub_conversations.append(child_conversation)
+            all_sub_conversations.extend(child_conversation._get_all_sub_conversations_recursive())
+        return all_sub_conversations
 
     @abstractmethod
     def __repr__(self) -> str:

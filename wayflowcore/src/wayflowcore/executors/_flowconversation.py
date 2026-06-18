@@ -16,6 +16,7 @@ from wayflowcore.variable import Variable
 
 if TYPE_CHECKING:
     from wayflowcore.executors._flowexecutor import FlowConversationExecutor
+    from wayflowcore.serialization.context import DeserializationContext
     from wayflowcore.steps.step import Step
 
 
@@ -23,6 +24,22 @@ if TYPE_CHECKING:
 class FlowConversation(Conversation):
     component: Flow
     state: FlowConversationExecutionState
+
+    @classmethod
+    def _deserialize_from_dict(
+        cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
+    ) -> "FlowConversation":
+        conversation = cast(
+            FlowConversation,
+            super()._deserialize_from_dict(input_dict, deserialization_context),
+        )
+        # FlowConversationExecutionState._serialize_context_value serializes
+        # _SUPER_CONVERSATION_KEY as None to avoid a parent -> child -> parent cycle,
+        # so restore direct child flow parents here.
+        for child_conversation in conversation._get_all_sub_conversations():
+            if isinstance(child_conversation, FlowConversation):
+                child_conversation.state._register_super_conversation(conversation)
+        return conversation
 
     def _gather_flow_outputs(self) -> Dict[str, Any]:
         return FlowConversationExecutor.gather_flow_outputs(
@@ -33,8 +50,8 @@ class FlowConversation(Conversation):
     def _get_internal_context_value_for_step(self, assistant_step: "Step", key: str) -> Any:
         from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 
-        key = FlowConversationExecutor().make_key_for_step(assistant_step, key)
-        return self.state.internal_context_key_values.get(key, None)
+        context_key = FlowConversationExecutor().make_key_for_step(assistant_step, key)
+        return self.state.internal_context_key_values.get(context_key)
 
     def _put_internal_context_key_value(self, key: str, value: Any) -> None:
         self.state.internal_context_key_values[key] = value
@@ -70,15 +87,17 @@ class FlowConversation(Conversation):
         return self.state.flow.steps[step_name]
 
     def _get_current_sub_conversation(
-        self, step: "Step", sub_conversation_id: Optional[str] = None
+        self,
+        step: "Step",
+        sub_conversation_id: Optional[str] = None,
     ) -> Optional["Conversation"]:
         from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 
         key = FlowConversationExecutor().make_key_for_step(
-            step, sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY
+            step,
+            sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY,
         )
-        value = self.state.internal_context_key_values.get(key, None)
-        return cast(Optional["Conversation"], value)
+        return cast(Optional["Conversation"], self.state.internal_context_key_values.get(key))
 
     def _update_sub_conversation(
         self,
@@ -101,7 +120,8 @@ class FlowConversation(Conversation):
         sub_conversation_id: Optional[str] = None,
     ) -> "FlowConversation":
         sub_conversation = self._get_current_sub_conversation(
-            step=step, sub_conversation_id=sub_conversation_id
+            step=step,
+            sub_conversation_id=sub_conversation_id,
         )
         if sub_conversation is None:
             sub_conversation = self._create_sub_conversation(
@@ -141,7 +161,8 @@ class FlowConversation(Conversation):
         from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 
         key = FlowConversationExecutor().make_key_for_step(
-            step, sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY
+            step,
+            sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY,
         )
         self.state.internal_context_key_values.pop(key, None)
 
@@ -184,14 +205,16 @@ class FlowConversation(Conversation):
         result = f"State: {self.state}\nList of messages:\n"
 
         for i, message in enumerate(self.message_list.messages):
-            message_str = dedent("""
+            message_str = dedent(
+                """
                 Message #{}
                 Message type: {}
                 Message content:\n
                 {}\n
                 tool_requests: {}
                 tool_results: {}
-            """).format(
+            """
+            ).format(
                 i, message.message_type, message.content, message.tool_requests, message.tool_result
             )
 

@@ -25,6 +25,7 @@ API Reference
    :maxdepth: 3
 
    Agent Spec Adapters <agentspec>
+   Checkpointing <checkpointing>
    Conversations <conversation>
    LLMs <llmmodels>
    Events <events>

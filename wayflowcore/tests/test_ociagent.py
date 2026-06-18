@@ -8,6 +8,8 @@ import os
 import pytest
 
 from wayflowcore import Agent, Flow
+from wayflowcore.checkpointing import InMemoryCheckpointer
+from wayflowcore.models.ociclientconfig import OCIClientConfigWithApiKey
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.serialization.serializer import deserialize_from_dict, serialize_to_dict
 from wayflowcore.steps import AgentExecutionStep
@@ -49,6 +51,17 @@ def test_oci_knowledge_agent_simple_rag_question(agent):
     last_message = conv.get_last_message().content
     assert "licensed" in last_message.lower()
     assert "technology" in last_message.lower()
+
+
+def test_ociagent_explicitly_rejects_checkpoint_restore_arguments() -> None:
+    oci_agent = OciAgent(
+        agent_endpoint_id="ocid1.test.oc1..example",
+        client_config=OCIClientConfigWithApiKey(service_endpoint="https://example.com"),
+        name="checkpoint_oci_agent",
+    )
+
+    with pytest.raises(NotImplementedError, match="checkpoint restore"):
+        oci_agent.start_conversation(checkpointer=InMemoryCheckpointer())
 
 
 # oci agent performance seems to fluctuate, we increase max_attempts to ensure CI reliability

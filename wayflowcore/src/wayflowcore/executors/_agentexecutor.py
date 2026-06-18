@@ -140,6 +140,14 @@ class AgentConversationExecutionState(ConversationExecutionState):
         if self.current_tool_request is None and self.tool_call_queue:
             self.current_tool_request = self.tool_call_queue.pop(0)
 
+    def _finalize_execute_turn(self) -> None:
+        # curr_iter is scoped to one top-level execute() call. Conversation-turn
+        # checkpoints and ordinary follow-up executes should restart with a fresh
+        # iteration budget, while internal-turn checkpoints preserve the live value
+        # captured before this finalization runs.
+        self.curr_iter = 0
+        self.current_retrieved_tools = None
+
 
 def _agent_as_client_tool(agent: Union[Agent, OciAgent]) -> ClientTool:
     agent_input_parameters: Dict[str, JsonSchemaParam] = {}
@@ -464,7 +472,8 @@ class AgentConversationExecutor(ConversationExecutor):
         sub_agent_conversation = expert_agent.start_conversation(
             messages=init_messages,
             inputs=inputs,
-            _root_conversation_id=caller_conv.root_conversation_id,
+            conversation_id=caller_conv.conversation_id,
+            _runtime_conversation_id=caller_conv._sub_component_conversation_key(expert_agent),
         )
         return sub_agent_conversation
 
@@ -521,7 +530,8 @@ class AgentConversationExecutor(ConversationExecutor):
         messages: MessageList,
         flow: Flow,
         inputs: Dict[str, Any],
-        root_conversation_id: Optional[str],
+        conversation_id: Optional[str],
+        runtime_conversation_id: Optional[str],
     ) -> Tuple[Any, str, ExecutionStatus]:
         """
         Execute a flow and return its outputs and its execution status.
@@ -534,7 +544,8 @@ class AgentConversationExecutor(ConversationExecutor):
                 state.current_flow_conversation = flow.start_conversation(
                     inputs=inputs,
                     messages=messages,
-                    _root_conversation_id=root_conversation_id,
+                    conversation_id=conversation_id,
+                    _runtime_conversation_id=runtime_conversation_id,
                 )
                 messages.append_message(
                     Message(
@@ -764,7 +775,8 @@ class AgentConversationExecutor(ConversationExecutor):
                 messages,
                 flow,
                 tool_request.args,
-                conversation.root_conversation_id,
+                conversation.conversation_id,
+                conversation._sub_component_conversation_key(flow),
             )
         )
 
@@ -1081,8 +1093,11 @@ class AgentConversationExecutor(ConversationExecutor):
         agent_state = conversation.state
 
         messages = conversation.message_list
-        agent_state.curr_iter = 0
         should_yield = False
+
+        def _return_status(execution_status: ExecutionStatus) -> ExecutionStatus:
+            agent_state._finalize_execute_turn()
+            return execution_status
 
         while not should_yield:
 
@@ -1101,7 +1116,7 @@ class AgentConversationExecutor(ConversationExecutor):
                     conversation=conversation,
                 )
                 if execution_status is not None:
-                    return execution_status
+                    return _return_status(execution_status)
 
                 agent_state.current_tool_request = None
 
@@ -1119,8 +1134,10 @@ class AgentConversationExecutor(ConversationExecutor):
                             output.name: default_outputs.get(output.name, output.default_value)
                             for output in agent_config.output_descriptors
                         }
-                    return FinishedStatus(
-                        output_values=default_outputs, _conversation_id=conversation.id
+                    return _return_status(
+                        FinishedStatus(
+                            output_values=default_outputs, _conversation_id=conversation.id
+                        )
                     )
                 break
             else:
@@ -1129,7 +1146,7 @@ class AgentConversationExecutor(ConversationExecutor):
                         config=agent_config, curr_iter=agent_state.curr_iter
                     )
                 except AuthInterrupt as auth_interrupt:
-                    return auth_interrupt.status
+                    return _return_status(auth_interrupt.status)
 
                 logger.debug("No open tool call, will decide next action by prompting the llm")
                 agent_state.current_retrieved_tools = retrieved_tools
@@ -1173,11 +1190,13 @@ class AgentConversationExecutor(ConversationExecutor):
             last_message = conversation.get_last_message()
             if last_message is None:
                 raise ValueError("Something went wrong, should not happen")
-            return UserMessageRequestStatus(
-                message=last_message,
-                _conversation_id=conversation.id,
+            return _return_status(
+                UserMessageRequestStatus(
+                    message=last_message,
+                    _conversation_id=conversation.id,
+                )
             )
-        return FinishedStatus(output_values={}, _conversation_id=conversation.id)
+        return _return_status(FinishedStatus(output_values={}, _conversation_id=conversation.id))
 
     @staticmethod
     def _get_submit_tool_name(agent_config: Agent) -> str:

@@ -394,38 +394,42 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
-        *,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _root_conversation_id: Optional[str] = None,
+        _runtime_conversation_id: Optional[str] = None,
         _attach_checkpointer: bool = True,
     ) -> "AgentConversation":
         """
-        Start a conversation with the agent.
+        Initializes a conversation with the agent.
 
         Parameters
         ----------
         inputs:
-            Optional input values for the agent's declared input descriptors.
+            This argument is not used.
+            It is included for compatibility with the Flow class.
         messages:
-            Optional message history for the conversation.
+            Message list to which the agent will participate
         conversation_id:
-            Optional identifier for this agent conversation.
+            Durable conversation id used for resume, storage, and usage accounting.
         checkpointer:
             Optional checkpoint backend used to restore and persist this conversation.
         checkpoint_id:
-            Optional checkpoint identifier to restore. Requires ``checkpointer``.
-        _root_conversation_id:
-            Internal lineage identifier shared with nested or parent conversations.
+            Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
+            ``conversation_id``.
+        _runtime_conversation_id:
+            Internal runtime id for a fresh conversation. When provided, it becomes
+            the created conversation object's ``.id`` instead of defaulting to
+            ``conversation_id``.
 
         Returns
         -------
-        AgentConversation
-            A new or restored agent conversation.
+        Conversation:
+            The conversation object of the agent.
         """
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.executors._agentconversation import AgentConversation
+        from wayflowcore.executors._agentexecutor import AgentConversationExecutionState
 
         restored_conversation, conversation_runtime_id, conversation_root_id = (
             self._prepare_conversation_start(
@@ -434,7 +438,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 conversation_id=conversation_id,
                 checkpointer=checkpointer,
                 checkpoint_id=checkpoint_id,
-                _root_conversation_id=_root_conversation_id,
+                _runtime_conversation_id=_runtime_conversation_id,
                 expected_conversation_type=AgentConversation,
                 attach_checkpointer=_attach_checkpointer,
             )
@@ -489,9 +493,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             )
         )
 
-        from wayflowcore.executors._agentexecutor import AgentConversationExecutionState
-
-        conversation = AgentConversation(
+        return AgentConversation(
             component=self,
             message_list=messages,
             id=conversation_runtime_id,
@@ -500,10 +502,9 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             name="agent_conversation",
             state=AgentConversationExecutionState(),
             status=None,
-            root_conversation_id=conversation_root_id,
+            conversation_id=conversation_root_id,
             __metadata_info__={},
         )
-        return conversation
 
     @property
     def llms(self) -> List["LlmModel"]:

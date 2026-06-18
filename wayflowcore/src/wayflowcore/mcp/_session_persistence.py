@@ -51,9 +51,9 @@ _DEFAULT_MCP_SESSION_CONTEXT_ID = "DEFAULT_CONTEXT_ID"
 
 
 def get_current_conv_id_or_default() -> str:
-    from wayflowcore.conversation import _get_current_conversation_id
+    from wayflowcore.conversation import _get_current_root_conversation_id
 
-    return _get_current_conversation_id() or _DEFAULT_MCP_SESSION_CONTEXT_ID
+    return _get_current_root_conversation_id() or _DEFAULT_MCP_SESSION_CONTEXT_ID
 
 
 async def _call_with_parent_span(
@@ -486,10 +486,10 @@ def shutdown_mcp_async_runtime() -> None:
 
 
 def _get_oauth_flow_handler(client_transport: "ClientTransport") -> "OAuthFlowHandler":
-    from wayflowcore.conversation import _get_current_conversation_id
+    from wayflowcore.conversation import _get_current_root_conversation_id
 
     runtime = get_mcp_async_runtime()
-    conversation_id = _get_current_conversation_id() or _DEFAULT_MCP_SESSION_CONTEXT_ID
+    conversation_id = _get_current_root_conversation_id() or _DEFAULT_MCP_SESSION_CONTEXT_ID
     transport_id = client_transport.id
 
     handler = runtime._oauth_handlers.get(transport_id, {}).get(conversation_id)

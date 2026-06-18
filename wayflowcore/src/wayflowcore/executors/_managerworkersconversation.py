@@ -26,12 +26,15 @@ logger = logging.getLogger(__name__)
 class ManagerWorkersConversationExecutionState(ConversationExecutionState):
     current_agent_name: str
     subconversations: Dict[str, Union["AgentConversation", "ManagerWorkersConversation"]]
-    root_conversation_id: str = ""
+    conversation_id: str = ""
 
     def _create_subconversation_for_agent(
         self, agent: Union[Agent, ManagerWorkers]
     ) -> Union["AgentConversation", "ManagerWorkersConversation"]:
-        subconv = agent.start_conversation(_root_conversation_id=self.root_conversation_id or None)
+        subconv = agent.start_conversation(
+            conversation_id=self.conversation_id or None,
+            _runtime_conversation_id=agent.name,
+        )
         self.subconversations[agent.name] = subconv
 
         return subconv

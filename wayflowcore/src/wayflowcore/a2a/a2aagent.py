@@ -250,35 +250,41 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, Message, List[Message], MessageList] = None,
         conversation_id: Optional[str] = None,
-        *,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _root_conversation_id: Optional[str] = None,
+        _runtime_conversation_id: Optional[str] = None,
         _attach_checkpointer: bool = True,
     ) -> "A2AAgentConversation":
         """
-        Start a conversation with the remote A2A agent.
+        Initiates a new conversation with the remote server agent.
+
+        Creates and returns a conversation instance tied to this agent, optionally initialized
+        with input data and a message history.
 
         Parameters
         ----------
         inputs:
-            Optional structured inputs stored on the conversation for interface compatibility.
-            The A2A runtime currently executes from messages rather than these inputs.
+            Optional dictionary of initial input data for the conversation. Defaults to an empty
+            dictionary if not provided.
         messages:
-            Optional initial message history for the remote conversation.
+            Optional initial message list for the conversation. Can be either a ``MessageList``
+            or a list of ``Message`` objects. Defaults to an empty ``MessageList`` if not provided.
         conversation_id:
-            Optional identifier for this A2A conversation.
+            Durable conversation id used for resume, storage, and usage accounting.
         checkpointer:
             Optional checkpoint backend used to restore and persist this conversation.
         checkpoint_id:
-            Optional checkpoint identifier to restore. Requires ``checkpointer``.
-        _root_conversation_id:
-            Internal lineage identifier shared with nested or parent conversations.
+            Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
+            ``conversation_id``.
+        _runtime_conversation_id:
+            Internal runtime id for a fresh conversation. When provided, it becomes
+            the created conversation object's ``.id`` instead of defaulting to
+            ``conversation_id``.
 
         Returns
         -------
-        A2AAgentConversation
-            A new or restored A2A agent conversation.
+        Conversation:
+            A new conversation object associated with this agent.
         """
         from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
         from wayflowcore.executors._a2aagentexecutor import A2AAgentState
@@ -290,7 +296,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
                 conversation_id=conversation_id,
                 checkpointer=checkpointer,
                 checkpoint_id=checkpoint_id,
-                _root_conversation_id=_root_conversation_id,
+                _runtime_conversation_id=_runtime_conversation_id,
                 expected_conversation_type=A2AAgentConversation,
                 attach_checkpointer=_attach_checkpointer,
             )
@@ -301,7 +307,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
 
-        conversation = A2AAgentConversation(
+        return A2AAgentConversation(
             component=self,
             state=A2AAgentState(last_message_idx=-1),
             inputs=inputs or {},  # Inputs are ignored in execution
@@ -310,10 +316,9 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             id=conversation_runtime_id,
             checkpointer=checkpointer,
             name="a2a_conversation",
-            root_conversation_id=conversation_root_id,
+            conversation_id=conversation_root_id,
             __metadata_info__={},
         )
-        return conversation
 
     @property
     def agent_id(self) -> str:

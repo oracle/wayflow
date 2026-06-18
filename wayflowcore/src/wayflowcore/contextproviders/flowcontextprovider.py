@@ -95,7 +95,7 @@ class FlowContextProvider(ContextProvider):
             conversation = self.flow.start_conversation(
                 inputs={},
                 messages=conversation.message_list,
-                _root_conversation_id=conversation.root_conversation_id,
+                conversation_id=conversation.conversation_id,
             )
             status = await conversation.execute_async()
             if status._requires_yielding:

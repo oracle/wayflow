@@ -1,4 +1,4 @@
-# Copyright © 2025, 2026 Oracle and/or its affiliates.
+# Copyright © 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -27,9 +27,10 @@ from wayflowcore.checkpointing import InMemoryCheckpointer
 
 agent = Agent(llm=llm)
 checkpointer = InMemoryCheckpointer()
+conversation_id = "support-conversation-1"
 
 conversation = agent.start_conversation(
-    conversation_id="support-thread-1",
+    conversation_id=conversation_id,
     checkpointer=checkpointer,
 )
 
@@ -38,7 +39,7 @@ status = conversation.execute()
 
 # .. start-##_Resume_the_latest_checkpoint
 restored_conversation = agent.start_conversation(
-    conversation_id="support-thread-1",
+    conversation_id=conversation_id,
     checkpointer=checkpointer,
 )
 
@@ -47,11 +48,12 @@ status = restored_conversation.execute()
 # .. end-##_Resume_the_latest_checkpoint
 
 # .. start-##_Load_a_specific_checkpoint
-checkpoints = checkpointer.list_checkpoints("support-thread-1")
+# Checkpoints are ordered oldest -> newest.
+checkpoints = checkpointer.list_checkpoints(conversation_id)
 
 previous_checkpoint = checkpoints[-2]
 rewound_conversation = agent.start_conversation(
-    conversation_id="support-thread-1",
+    conversation_id=conversation_id,
     checkpoint_id=previous_checkpoint.checkpoint_id,
     checkpointer=checkpointer,
 )

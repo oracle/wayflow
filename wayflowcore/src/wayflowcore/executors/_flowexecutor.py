@@ -246,7 +246,7 @@ class FlowConversationExecutor(ConversationExecutor):
 
     @staticmethod
     def make_key_for_step(assistant_step: Step, key: str) -> str:
-        return str(assistant_step.id) + "_" + key
+        return str(assistant_step.name) + "_" + key
 
     @staticmethod
     def get_parent_conversation(state: FlowConversationExecutionState) -> Optional[Conversation]:
@@ -286,17 +286,21 @@ class FlowConversationExecutor(ConversationExecutor):
             k: v for k, v in inputs.items() if k not in all_context_provider_keys
         }
 
+        resolved_sub_conversation_id = (
+            sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY
+        )
         sub_conversation = flow.start_conversation(
             inputs_not_from_context_providers,
-            _root_conversation_id=conversation.root_conversation_id,
+            conversation_id=conversation.conversation_id,
+            _runtime_conversation_id=FlowConversationExecutor.make_key_for_step(
+                step, resolved_sub_conversation_id
+            ),
             messages=conversation.message_list,
             nesting_level=conversation.state.nesting_level + 1,
             context_providers_from_parent_flow=all_context_provider_keys,
         )
 
-        key = FlowConversationExecutor.make_key_for_step(
-            step, sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY
-        )
+        key = FlowConversationExecutor.make_key_for_step(step, resolved_sub_conversation_id)
         conversation.state.internal_context_key_values[key] = sub_conversation
         sub_conversation._put_internal_context_key_value(
             FlowConversationExecutor._SUPER_CONVERSATION_KEY, conversation
@@ -308,12 +312,14 @@ class FlowConversationExecutor(ConversationExecutor):
     def cleanup_sub_conversation(
         state: FlowConversationExecutionState,
         step: Step,
+        sub_conversation_id: Optional[str] = None,
     ) -> None:
         """
         Remove a subconversation saved in the internal context of the flow execution state, to cleanup the state after the subconversation is finished.
         """
         key = FlowConversationExecutor.make_key_for_step(
-            step, FlowConversationExecutor._SUB_CONVERSATION_KEY
+            step,
+            sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY,
         )
         # We have to pop finished sub-conversations from the context store as other methods assume the conversation
         # (dict value) is not `None`.
@@ -325,10 +331,11 @@ class FlowConversationExecutor(ConversationExecutor):
         step: Step,
     ) -> Optional[Conversation]:
         """Get the current sub conversation of a given step"""
-        key1 = FlowConversationExecutor.make_key_for_step(
-            step, FlowConversationExecutor._SUB_CONVERSATION_KEY
+        key = FlowConversationExecutor.make_key_for_step(
+            step,
+            FlowConversationExecutor._SUB_CONVERSATION_KEY,
         )
-        sub_conv = state.internal_context_key_values.get(key1, None)
+        sub_conv = state.internal_context_key_values.get(key, None)
         return cast(Conversation, sub_conv) if sub_conv is not None else None
 
     @staticmethod
@@ -928,8 +935,11 @@ class FlowConversationExecutor(ConversationExecutor):
     def get_all_sub_conversations(
         state: FlowConversationExecutionState,
     ) -> List["Conversation"]:
+        from wayflowcore.conversation import Conversation
+
         return [
             conv
             for k, conv in state.internal_context_key_values.items()
-            if FlowConversationExecutor._SUB_CONVERSATION_KEY in k
+            if k != FlowConversationExecutor._SUPER_CONVERSATION_KEY
+            and isinstance(conv, Conversation)
         ]

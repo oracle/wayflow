@@ -312,37 +312,17 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], MessageList] = None,
         conversation_id: Optional[str] = None,
-        conversation_name: Optional[str] = None,
-        *,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _root_conversation_id: Optional[str] = None,
+        _runtime_conversation_id: Optional[str] = None,
         _attach_checkpointer: bool = True,
+        conversation_name: Optional[str] = None,
     ) -> "Conversation":
-        """
-        Start a conversation for the swarm.
+        """Start a fresh swarm conversation or restore one from a checkpoint.
 
-        Parameters
-        ----------
-        inputs:
-            Optional input values available to the swarm execution state.
-        messages:
-            Optional shared message history for the swarm conversation.
-        conversation_id:
-            Optional identifier for this swarm conversation.
-        conversation_name:
-            Optional display name used for the created conversation object.
-        checkpointer:
-            Optional checkpoint backend used to restore and persist this conversation.
-        checkpoint_id:
-            Optional checkpoint identifier to restore. Requires ``checkpointer``.
-        _root_conversation_id:
-            Internal lineage identifier shared with nested or parent conversations.
-
-        Returns
-        -------
-        Conversation
-            A new or restored swarm conversation.
+        ``conversation_id`` is the durable conversation id. For fresh conversations,
+        ``_runtime_conversation_id`` becomes the created conversation object's
+        ``.id`` when provided.
         """
         from wayflowcore.executors._swarmconversation import (
             SwarmConversation,
@@ -358,7 +338,7 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 conversation_id=conversation_id,
                 checkpointer=checkpointer,
                 checkpoint_id=checkpoint_id,
-                _root_conversation_id=_root_conversation_id,
+                _runtime_conversation_id=_runtime_conversation_id,
                 expected_conversation_type=SwarmConversation,
                 attach_checkpointer=_attach_checkpointer,
             )
@@ -387,9 +367,9 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             context_providers=[],
             inputs=inputs,
             messages=messages,
-            root_conversation_id=conversation_root_id,
+            conversation_id=conversation_root_id,
         )
-        conversation = SwarmConversation(
+        return SwarmConversation(
             component=self,
             inputs=inputs or {},
             message_list=messages,
@@ -398,10 +378,9 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             state=state,
             status=None,
             checkpointer=checkpointer,
-            root_conversation_id=conversation_root_id,
+            conversation_id=conversation_root_id,
             __metadata_info__={},
         )
-        return conversation
 
     def _referenced_tools_dict_inner(
         self, recursive: bool, visited_set: Set[str]

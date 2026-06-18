@@ -222,37 +222,38 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
-        conversation_name: Optional[str] = None,
-        *,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _root_conversation_id: Optional[str] = None,
+        _runtime_conversation_id: Optional[str] = None,
         _attach_checkpointer: bool = True,
+        conversation_name: Optional[str] = None,
     ) -> "ManagerWorkersConversation":
         """
-        Start a conversation for the manager-workers group.
+        Initializes a conversation with the managerworkers.
 
         Parameters
         ----------
         inputs:
-            Optional input values passed to the manager's main conversation.
+            Dictionary of inputs. Keys are the variable identifiers and
+            values are the actual inputs to start the main conversation.
         messages:
-            Optional shared message history between the user and the manager.
+            Message list of the manager agent and the end-user.
         conversation_id:
-            Optional identifier for this manager-workers conversation.
-        conversation_name:
-            Optional display name used for the created conversation object.
+            Durable conversation id used for resume, storage, and usage accounting.
         checkpointer:
             Optional checkpoint backend used to restore and persist this conversation.
         checkpoint_id:
-            Optional checkpoint identifier to restore. Requires ``checkpointer``.
-        _root_conversation_id:
-            Internal lineage identifier shared with nested or parent conversations.
+            Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
+            ``conversation_id``.
+        _runtime_conversation_id:
+            Internal runtime id for a fresh conversation. When provided, it becomes
+            the created conversation object's ``.id`` instead of defaulting to
+            ``conversation_id``.
 
         Returns
         -------
-        ManagerWorkersConversation
-            A new or restored manager-workers conversation.
+        Conversation:
+            The conversation object of the managerworkers.
         """
         from wayflowcore.agentconversation import AgentConversation
         from wayflowcore.events.event import ConversationCreatedEvent
@@ -269,7 +270,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
                 conversation_id=conversation_id,
                 checkpointer=checkpointer,
                 checkpoint_id=checkpoint_id,
-                _root_conversation_id=_root_conversation_id,
+                _runtime_conversation_id=_runtime_conversation_id,
                 expected_conversation_type=ManagerWorkersConversation,
                 attach_checkpointer=_attach_checkpointer,
             )
@@ -294,13 +295,14 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         subconversations[self.manager_agent.name] = self.manager_agent.start_conversation(
             inputs=inputs,
             messages=messages,
-            _root_conversation_id=conversation_root_id,
+            conversation_id=conversation_root_id,
+            _runtime_conversation_id=self.manager_agent.name,
         )
 
         state = ManagerWorkersConversationExecutionState(
             current_agent_name=self.manager_agent.name,
             subconversations=subconversations,
-            root_conversation_id=conversation_root_id,
+            conversation_id=conversation_root_id,
         )
 
         conversation = ManagerWorkersConversation(
@@ -312,7 +314,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             state=state,
             status=None,
             checkpointer=checkpointer,
-            root_conversation_id=conversation_root_id,
+            conversation_id=conversation_root_id,
             __metadata_info__={},
         )
         return conversation

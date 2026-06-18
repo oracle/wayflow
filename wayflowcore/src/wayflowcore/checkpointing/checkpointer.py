@@ -1,21 +1,15 @@
-# Copyright © 2025, 2026 Oracle and/or its affiliates.
+# Copyright © 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from wayflowcore.idgeneration import IdGenerator
-
-from .serialization import _serialize_conversation_checkpoint_state
-
 if TYPE_CHECKING:
-    from wayflowcore.conversation import Conversation
     from wayflowcore.datastore import Datastore
 
 
@@ -24,11 +18,17 @@ class ConversationCheckpoint:
     """Durable snapshot of a conversation at a checkpoint boundary."""
 
     checkpoint_id: str
+    """External identifier of this saved checkpoint."""
     conversation_id: str
+    """Durable conversation id that this checkpoint belongs to."""
     component_id: str
+    """Best-effort root component id stored for diagnostics and storage queries."""
     created_at: int
+    """Checkpoint creation time in seconds since the Unix epoch."""
     state: str
+    """Serialized conversation state."""
     metadata: Dict[str, Any] = field(default_factory=dict)
+    """Auxiliary checkpoint metadata used for ordering and inspection."""
 
     @property
     def id(self) -> str:
@@ -36,12 +36,13 @@ class ConversationCheckpoint:
 
 
 class CheckpointingInterval(Enum):
-    """
-    Configure when the conversation is saved during execution.
-    """
+    """Configure which completed execution boundary triggers a checkpoint save."""
 
+    # Save only after the outermost `Conversation.execute()` returns.
     CONVERSATION_TURNS = "conversation_turns"
+    # Save after completed internal turns that actually used an LLM.
     LLM_TURNS = "llm_turns"
+    # Save after every completed internal agent/flow turn boundary.
     ALL_INTERNAL_TURNS = "all_internal_turns"
 
 
@@ -50,16 +51,27 @@ class StorageConfig:
     """Configuration for checkpoint storage."""
 
     datastore: Optional["Datastore"] = None
+    """Datastore to use for persistence"""
     table_name: str = "conversations"
+    """Name of the table in which the states are stored"""
     agent_id_column_name: str = "agent_id"
+    """Name of the column where the agent id of the state is stored"""
     conversation_id_column_name: str = "conversation_id"
+    """Name of the column where the id of the conversation is stored"""
     turn_id_column_name: str = "turn_id"
+    """Name of the column where the turn id / response id is stored"""
     created_at_column_name: str = "created_at"
+    """Name of the column where the creation timestamp is stored"""
     remove_by_column_name: str = "remove_by"
+    """Name of the column where the retention deadline timestamp is stored"""
     conversation_turn_state_column_name: str = "conversation_turn_state"
+    """Name of the column where the serialized state of turn is store"""
     is_last_turn_column_name: str = "is_last_turn"
+    """Name of the column where the marker for the most recent turn of a given conversation is stored"""
     extra_metadata_column_name: str = "extra_metadata"
+    """Name of the column where the server stores its own attributes"""
     max_retention: Optional[int] = None
+    """Number of seconds for which to retain a conversation before discarding it"""
 
     def to_schema(self) -> Dict[str, Any]:
         from wayflowcore.datastore import Entity, nullable
@@ -101,48 +113,14 @@ class Checkpointer(ABC):
     def load(self, conversation_id: str, checkpoint_id: str) -> ConversationCheckpoint:
         raise NotImplementedError()
 
-    def save(self, checkpoint: Any) -> None:
-        from wayflowcore.conversation import Conversation
-
-        if isinstance(checkpoint, Conversation):
-            self.save_conversation(checkpoint)
-            return
-        if not isinstance(checkpoint, ConversationCheckpoint):
-            raise TypeError(
-                f"Expected a Conversation or ConversationCheckpoint, got {type(checkpoint).__name__}."
-            )
-        self._save_checkpoint(checkpoint)
-
-    async def save_async(self, checkpoint: Any) -> None:
-        self.save(checkpoint)
-
-    def save_conversation(
-        self,
-        conversation: "Conversation",
-        *,
-        checkpoint_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> ConversationCheckpoint:
-        next_save_sequence = self._save_sequence_by_conversation.get(conversation.id, 0) + 1
-        self._save_sequence_by_conversation[conversation.id] = next_save_sequence
-        checkpoint_metadata = {"save_sequence": next_save_sequence}
-        if metadata:
-            checkpoint_metadata.update(metadata)
-        checkpoint = ConversationCheckpoint(
-            checkpoint_id=checkpoint_id or IdGenerator.get_or_generate_id(),
-            conversation_id=conversation.id,
-            component_id=conversation.component.id,
-            created_at=int(time.time()),
-            state=_serialize_conversation_checkpoint_state(conversation),
-            metadata=checkpoint_metadata,
-        )
-        self._save_checkpoint(checkpoint)
-        conversation.checkpoint_id = checkpoint.checkpoint_id
-        return checkpoint
-
     @abstractmethod
-    def _save_checkpoint(self, checkpoint: ConversationCheckpoint) -> None:
+    def save(self, checkpoint: ConversationCheckpoint) -> None:
         raise NotImplementedError()
+
+    async def save_async(self, checkpoint: ConversationCheckpoint) -> None:
+        # Async persistence is not implemented yet; this preserves the async API
+        # contract while delegating to the synchronous backend implementation.
+        self.save(checkpoint)
 
     @abstractmethod
     def list_checkpoints(

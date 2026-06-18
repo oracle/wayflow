@@ -108,36 +108,38 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, Message, List[Message], MessageList] = None,
         conversation_id: Optional[str] = None,
-        *,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _root_conversation_id: Optional[str] = None,
+        _runtime_conversation_id: Optional[str] = None,
         _attach_checkpointer: bool = True,
     ) -> "Conversation":
         """
-        Start a conversation with the OCI agent.
+        Initializes a conversation with the agent.
 
         Parameters
         ----------
         inputs:
-            Optional structured inputs stored on the conversation for interface compatibility.
+            This argument is not used.
+            It is included for compatibility with the Flow class.
         messages:
-            Optional initial message history for the OCI agent session.
+            Message list to which the agent will participate
         conversation_id:
-            Optional identifier for this OCI agent conversation.
+            Durable conversation id used for resume, storage, and usage accounting.
         checkpointer:
             Optional checkpoint backend. ``OciAgent`` does not support checkpoint restore yet, so
             passing this raises ``NotImplementedError``.
         checkpoint_id:
             Optional checkpoint identifier. ``OciAgent`` does not support checkpoint restore yet,
             so passing this raises ``NotImplementedError``.
-        _root_conversation_id:
-            Internal lineage identifier shared with nested or parent conversations.
+        _runtime_conversation_id:
+            Internal runtime id for a fresh conversation. When provided, it becomes
+            the created conversation object's ``.id`` instead of defaulting to
+            ``conversation_id``.
 
         Returns
         -------
-        Conversation
-            A new OCI agent conversation.
+        Conversation:
+            The conversation object of the agent.
         """
         from wayflowcore.executors._ociagentconversation import OciAgentConversation
         from wayflowcore.executors._ociagentexecutor import (
@@ -159,7 +161,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
                 conversation_id=conversation_id,
                 checkpointer=None,
                 checkpoint_id=None,
-                _root_conversation_id=_root_conversation_id,
+                _runtime_conversation_id=_runtime_conversation_id,
                 expected_conversation_type=OciAgentConversation,
                 attach_checkpointer=_attach_checkpointer,
             )
@@ -179,7 +181,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             status=None,
             id=conversation_runtime_id,
             name="oci_conversation",
-            root_conversation_id=conversation_root_id,
+            conversation_id=conversation_root_id,
             __metadata_info__={},
         )
 

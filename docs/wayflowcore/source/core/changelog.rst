@@ -4,6 +4,22 @@ Changelog
 WayFlow |current_version|
 -------------------------
 
+New features
+^^^^^^^^^^^^
+
+* **First-class conversation checkpointing**
+
+  Added shared conversation checkpointing for Agents, Flows, Swarms, ManagerWorkers, and A2A agents through
+  ``ConversationCheckpoint``, ``Checkpointer``, ``InMemoryCheckpointer``, ``PostgresCheckpointer``, and
+  ``OracleDatabaseCheckpointer``. Conversations can now resume from ``conversation_id``, load specific checkpoints for
+  time-travel debugging, and choose checkpoint save frequency with ``CheckpointingInterval``.
+
+  The OpenAI Responses server path now uses this shared checkpointing subsystem as well, so persisted
+  ``previous_response_id`` and ``conversation`` behavior is handled through the same checkpoint model.
+
+  For more information, see :doc:`how to checkpoint and resume conversations <howtoguides/howto_checkpointing>`
+  and the :doc:`API reference on checkpointing <api/checkpointing>`.
+
 Improvements
 ^^^^^^^^^^^^
 
@@ -92,18 +108,6 @@ New features
   Add per-token log-probabilities support with the ``top_logprobs`` generation config parameter and support returning
   per-token log-probabilities in the ``PromptExecutionStep``.
   For more information please read the guide on :ref:`How to request per-token log-probabilities <request_logprobs>`
-
-* **First-class conversation checkpointing**
-
-  Added shared conversation checkpointing for Agents, Flows, Swarms, ManagerWorkers, and A2A agents through
-  ``ConversationCheckpoint``, ``Checkpointer``, ``InMemoryCheckpointer``, ``PostgresCheckpointer``, and
-  ``OracleDatabaseCheckpointer``. Conversations can now resume from ``conversation_id``, load specific checkpoints for
-  time-travel debugging, and choose checkpoint save frequency with ``CheckpointingInterval``.
-
-  The OpenAI Responses server path now uses this shared checkpointing subsystem as well, so persisted
-  ``previous_response_id`` and ``conversation`` behavior is handled through the same checkpoint model.
-
-  For more information, see :doc:`how to checkpoint and resume conversations <howtoguides/howto_checkpointing>`.
 
 Improvements
 ^^^^^^^^^^^^
