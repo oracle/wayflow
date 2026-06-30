@@ -526,6 +526,9 @@ class OCIGenAIModel(LlmModel):
         request = provider.convert_prompt_into_request(prompt, self.model_id)
         logger.debug(f"Streaming request to remote oci genai endpoint: {json.loads(str(request))}")
         request.is_stream = True
+        request.stream_options = oci.generative_ai_inference.models.StreamOptions(
+            is_include_usage=True
+        )
 
         return execute_sync_with_retry(
             lambda: self._client.chat(
@@ -719,6 +722,38 @@ class _OciApiFormatter(ABC):
             exact_count=True,
         )
 
+    @staticmethod
+    def _extract_stream_usage(response_data: Dict[str, Any]) -> Optional[TokenUsage]:
+        response = response_data.get("usage", response_data)
+        if not isinstance(response, dict):
+            return None
+        if not all(
+            usage_key in response
+            for usage_key in ["promptTokens", "completionTokens", "totalTokens"]
+        ):
+            return None
+
+        cached_tokens = 0
+        if "promptTokensDetails" in response and "cachedTokens" in (
+            response["promptTokensDetails"] or []
+        ):
+            cached_tokens = response["promptTokensDetails"]["cachedTokens"]
+
+        reasoning_tokens = 0
+        if "completionTokensDetails" in response and "reasoningTokens" in (
+            response["completionTokensDetails"] or []
+        ):
+            reasoning_tokens = response["completionTokensDetails"]["reasoningTokens"]
+
+        return TokenUsage(
+            input_tokens=response["promptTokens"],
+            output_tokens=response["completionTokens"],
+            total_tokens=response["totalTokens"],
+            cached_tokens=cached_tokens,
+            reasoning_tokens=reasoning_tokens,
+            exact_count=True,
+        )
+
 
 class _GenericOciApiFormatter(_OciApiFormatter):
 
@@ -860,9 +895,14 @@ class _GenericOciApiFormatter(_OciApiFormatter):
 
         accumulated_text = ""
         tool_deltas = []
+        token_usage: Optional[TokenUsage] = None
         for raw_chunk in iterator:
             chunk = json.loads(raw_chunk.data)
             text_delta, tool_requests = "", None
+
+            if "usage" in chunk and chunk["usage"] is not None:
+                raw_usage = chunk["usage"]
+                token_usage = _GenericOciApiFormatter._extract_stream_usage(raw_usage)
 
             if "message" not in chunk:
                 delta = {}
@@ -899,7 +939,7 @@ class _GenericOciApiFormatter(_OciApiFormatter):
         )
         if post_processing is not None:
             message = post_processing(message)
-        yield StreamChunkType.END_CHUNK, message, None  # oci doesn't have token counts
+        yield StreamChunkType.END_CHUNK, message, token_usage
 
 
 class _MetaOciApiFormatter(_GenericOciApiFormatter):
@@ -1153,10 +1193,16 @@ class _CohereOciApiFormatter(_OciApiFormatter):
 
         tool_calls = []
         accumulated_text = ""
+        token_usage: Optional[TokenUsage] = None
 
         for raw_chunk in iterator:
             response = json.loads(raw_chunk.data)
             text_content = ""
+
+            if "usage" in response and response["usage"] is not None:
+                raw_usage = response["usage"]
+                token_usage = _CohereOciApiFormatter._extract_stream_usage(raw_usage)
+                continue
 
             if "text" in response and response["text"] is not None:
                 text_content = response["text"]
@@ -1168,7 +1214,7 @@ class _CohereOciApiFormatter(_OciApiFormatter):
                         accumulated_text,
                         text_content,
                     )
-                break
+                continue
 
             if "toolCalls" in response:
                 tool_calls = [
@@ -1192,7 +1238,7 @@ class _CohereOciApiFormatter(_OciApiFormatter):
             tool_requests=tool_calls or None,
             role="assistant",
         )
-        yield StreamChunkType.END_CHUNK, final_message, None
+        yield StreamChunkType.END_CHUNK, final_message, token_usage
 
 
 def _convert_message_into_cohere_oci_message(
