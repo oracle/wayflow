@@ -10,6 +10,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore._outputvalidation import validate_strict_outputs
 from wayflowcore._utils._templating_helpers import MessageAsDictT, check_template_validity
 from wayflowcore.messagelist import Message, MessageList, MessageType, TextContent
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
@@ -436,7 +437,11 @@ class PromptExecutionStep(Step):
                 conversation.message_list.append_message(new_message)
 
         outputs, next_branch = self._gather_outputs(new_message)
-        validated_outputs = self._validate_outputs(outputs, self._internal_output_descriptors)
+        validated_outputs = self._validate_outputs(
+            outputs,
+            self._internal_output_descriptors,
+            strict=self.prepared_template.strict_output_validation,
+        )
         return StepResult(outputs=validated_outputs, branch_name=next_branch)
 
     def _gather_outputs(self, new_message: Message) -> Tuple[Dict[str, Any], str]:
@@ -507,7 +512,10 @@ class PromptExecutionStep(Step):
     def _validate_outputs(
         outputs: Dict[str, Any],
         expected_outputs: List[Property],
-    ) -> Dict[str, type]:
+        strict: bool = False,
+    ) -> Dict[str, Any]:
+        if strict:
+            return validate_strict_outputs(outputs, expected_outputs)
         logger.debug(
             "PromptExecutionStep generated output: %s\nExpected outputs: %s",
             outputs,

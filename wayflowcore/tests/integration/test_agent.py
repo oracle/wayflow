@@ -145,6 +145,35 @@ def _get_single_tool_request(conversation: Conversation) -> ToolRequest:
     return tool_requests[0]
 
 
+def test_strict_agent_resubmits_invalid_output(remotely_hosted_llm) -> None:
+    template = remotely_hosted_llm.agent_template.copy()
+    template.strict_output_validation = True
+    agent = Agent(
+        llm=remotely_hosted_llm,
+        agent_template=template,
+        custom_instruction="Submit the outputs using the submit_result tool.",
+        initial_message=None,
+        output_descriptors=[StringProperty(name="description")],
+    )
+    conversation = agent.start_conversation(messages="Submit the investigation description.")
+    with patch_llm(
+        remotely_hosted_llm,
+        outputs=[
+            [ToolRequest(name="submit_result", args={"description": ["first condition"]})],
+            [ToolRequest(name="submit_result", args={"description": "first condition"})],
+        ],
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values == {"description": "first condition"}
+    assert any(
+        message.tool_result is not None
+        and "description: expected StringProperty, got list" in message.tool_result.content
+        for message in conversation.get_messages()
+    )
+
+
 @pytest.fixture
 def agent_with_yielding_subflow(remotely_hosted_llm: LlmModel) -> Agent:
     llm = remotely_hosted_llm

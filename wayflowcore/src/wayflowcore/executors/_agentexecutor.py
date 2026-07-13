@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from wayflowcore import Flow
+from wayflowcore._outputvalidation import validate_strict_outputs
 from wayflowcore._utils._templating_helpers import (
     _DEFAULT_VARIABLE_DESCRIPTION_TEMPLATE,
     render_template,
@@ -29,7 +30,7 @@ from wayflowcore.events.event import (
     ToolConfirmationRequestStartEvent,
     ToolExecutionStartEvent,
 )
-from wayflowcore.exceptions import AuthInterrupt
+from wayflowcore.exceptions import AuthInterrupt, StructuredOutputValidationError
 from wayflowcore.executors._executionstate import ConversationExecutionState
 from wayflowcore.executors._executor import ConversationExecutor, ExecutionInterruptedException
 from wayflowcore.executors._interrupts_eventlistener import (
@@ -1008,10 +1009,11 @@ class AgentConversationExecutor(ConversationExecutor):
     ) -> Tuple[Optional[ExecutionStatus], bool]:
         should_yield = False
         if tool_request.name == _SUBMIT_TOOL_NAME:
-            _normalize_tool_request_args(
-                tool_request,
-                _descriptors_to_json_schema_map(agent_config.output_descriptors),
-            )
+            if not agent_config.agent_template.strict_output_validation:
+                _normalize_tool_request_args(
+                    tool_request,
+                    _descriptors_to_json_schema_map(agent_config.output_descriptors),
+                )
             outputs = AgentConversationExecutor._collect_submit_tool_outputs(
                 config=agent_config,
                 submit_tool_call=tool_request,
@@ -1102,6 +1104,12 @@ class AgentConversationExecutor(ConversationExecutor):
                 agent_state._get_current_tool_request()
             elif agent_state.curr_iter >= agent_config.max_iterations:
                 if len(agent_config.output_descriptors) > 0:
+                    if agent_config.agent_template.strict_output_validation:
+                        raise StructuredOutputValidationError(
+                            violations=[
+                                "agent reached max_iterations without a valid submit_result"
+                            ]
+                        )
                     # need to generate some outputs
                     default_outputs = {
                         o.name: o.default_value for o in agent_config.output_descriptors
@@ -1217,6 +1225,8 @@ class AgentConversationExecutor(ConversationExecutor):
         We check if the submit tool arguments are the expected outputs. If yes, we return, if not, we loop
         back to ask the agent to correct itself.
         """
+        validation_error: Optional[StructuredOutputValidationError] = None
+        missing_inputs: List[str] = []
         if len(config.output_descriptors) == 0:
             if config.caller_input_mode != CallerInputMode.NEVER:
                 raise ValueError("Internal error, the agent should not have the submit tool")
@@ -1224,15 +1234,32 @@ class AgentConversationExecutor(ConversationExecutor):
             successful_submission = True
         else:
             tool_inputs = submit_tool_call.args or {}
-            missing_inputs = [
-                o.name
-                for o in config.output_descriptors
-                if o.name not in tool_inputs and not o.has_default
-            ]
-            successful_submission = len(missing_inputs) == 0
+            if config.agent_template.strict_output_validation:
+                try:
+                    tool_inputs = validate_strict_outputs(tool_inputs, config.output_descriptors)
+                    successful_submission = True
+                except StructuredOutputValidationError as error:
+                    validation_error = error
+                    successful_submission = False
+            else:
+                missing_inputs = [
+                    o.name
+                    for o in config.output_descriptors
+                    if o.name not in tool_inputs and not o.has_default
+                ]
+                successful_submission = len(missing_inputs) == 0
 
         if successful_submission:
             tool_output_content = "The submission was successful"
+        elif validation_error is not None:
+            tool_output_content = (
+                "The submission is invalid:\n- "
+                + "\n- ".join(validation_error.violations)
+                + "\nPlease resubmit with exactly the declared fields and types."
+            )
+            logger.debug(
+                "The agent made an invalid output submission: %s", validation_error.violations
+            )
         else:
             tool_output_content = f"The submission: {tool_inputs}\n is missing some inputs: {missing_inputs}. Please resubmit with the correct inputs."
             logger.debug(
