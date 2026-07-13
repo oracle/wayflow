@@ -98,6 +98,8 @@ class PromptTemplate(DataclassComponent):
     """Specific format the llm answer should follow."""
     native_structured_generation: bool = True
     """Whether to use native structured generation or not. All llm providers might not support it."""
+    strict_output_validation: bool = False
+    """Whether Wayflow should reject, rather than coerce, invalid structured output."""
 
     generation_config: Optional["LlmGenerationConfig"] = None
     """Parameters to configure the generation."""
@@ -332,6 +334,7 @@ class PromptTemplate(DataclassComponent):
         native_tool_calling: bool = True,
         response_format: Optional[Property] = None,
         native_structured_generation: bool = True,
+        strict_output_validation: bool = False,
         generation_config: Optional["LlmGenerationConfig"] = None,
     ) -> "PromptTemplate":
         """Creates a prompt template from a string."""
@@ -345,6 +348,7 @@ class PromptTemplate(DataclassComponent):
             native_tool_calling=native_tool_calling,
             response_format=response_format,
             native_structured_generation=native_structured_generation,
+            strict_output_validation=strict_output_validation,
             generation_config=generation_config,
         )
 

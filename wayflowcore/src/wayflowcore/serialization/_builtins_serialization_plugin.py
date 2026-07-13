@@ -1912,6 +1912,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 else None
             ),
             native_structured_generation=runtime_prompttemplate.native_structured_generation,
+            strict_output_validation=runtime_prompttemplate.strict_output_validation,
             generation_config=(
                 self._llmgenerationconfig_convert_to_agentspec(
                     runtime_prompttemplate.generation_config

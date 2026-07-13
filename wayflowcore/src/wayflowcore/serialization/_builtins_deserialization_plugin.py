@@ -2319,6 +2319,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 else None
             ),
             native_structured_generation=agentspec_template.native_structured_generation,
+            strict_output_validation=agentspec_template.strict_output_validation,
             generation_config=(
                 self._convert_llmgenerationconfig_to_runtime(agentspec_template.generation_config)
                 if agentspec_template.generation_config
