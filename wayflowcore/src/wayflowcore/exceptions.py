@@ -14,6 +14,14 @@ class WayFlowException(Exception):
     """Base exception for wayflowcore-related errors."""
 
 
+class StructuredOutputValidationError(WayFlowException, ValueError):
+    """Raised when locally validated structured LLM output is invalid."""
+
+    def __init__(self, violations: list[str]):
+        self.violations = violations
+        super().__init__("Structured output validation failed: " + "; ".join(violations))
+
+
 class SecurityException(WayFlowException):
     """Exception raised for security-related issues."""
 
