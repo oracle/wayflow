@@ -115,6 +115,15 @@ class Property(SerializableObject, ABC):
             return False
         return self._is_value_of_expected_type(value)
 
+    def _validate_strict_value(self, value: Any) -> tuple[Any, list[tuple[str, str]]]:
+        """Validate a value without coercion or implicit defaults."""
+        if self.is_value_of_expected_type(value):
+            return value, []
+        return value, [("", self._strict_type_violation(value))]
+
+    def _strict_type_violation(self, value: Any) -> str:
+        return f"expected {self.get_type_str()}, got {type(value).__name__}"
+
     @abstractmethod
     def _is_value_of_expected_type(self, value: Any) -> bool:
         """For classes override"""
@@ -782,6 +791,20 @@ class ListProperty(Property):
             all(self.item_type.is_value_of_expected_type(v) for v in value)
         )
 
+    def _validate_strict_value(self, value: Any) -> tuple[Any, list[tuple[str, str]]]:
+        if not isinstance(value, list):
+            return value, [("", self._strict_type_violation(value))]
+
+        validated_value = []
+        violations: list[tuple[str, str]] = []
+        for index, item in enumerate(value):
+            nested_value, nested_violations = self.item_type._validate_strict_value(item)
+            validated_value.append(nested_value)
+            violations.extend(
+                (f"[{index}]{location}", message) for location, message in nested_violations
+            )
+        return validated_value, violations
+
     @property
     def _type_default_value(self) -> Any:
         return []
@@ -846,6 +869,24 @@ class DictProperty(Property):
             and all(self.key_type.is_value_of_expected_type(k) for k in value.keys())
             and all(self.value_type.is_value_of_expected_type(v) for v in value.values())
         )
+
+    def _validate_strict_value(self, value: Any) -> tuple[Any, list[tuple[str, str]]]:
+        if not isinstance(value, dict):
+            return value, [("", self._strict_type_violation(value))]
+
+        validated_value = {}
+        violations: list[tuple[str, str]] = []
+        for key, item in value.items():
+            _, key_violations = self.key_type._validate_strict_value(key)
+            nested_value, nested_violations = self.value_type._validate_strict_value(item)
+            validated_value[key] = nested_value
+            violations.extend(
+                (f".<key>{location}", message) for location, message in key_violations
+            )
+            violations.extend(
+                (f".{key}{location}", message) for location, message in nested_violations
+            )
+        return validated_value, violations
 
     @property
     def _type_default_value(self) -> Any:
@@ -953,6 +994,29 @@ class ObjectProperty(Property):
             self.additional_properties.is_value_of_expected_type(property_value)
             for property_value in additional_values
         )
+
+    def _validate_strict_value(self, value: Any) -> tuple[Any, list[tuple[str, str]]]:
+        if not isinstance(value, dict):
+            return value, [("", self._strict_type_violation(value))]
+
+        validated_value = {}
+        violations: list[tuple[str, str]] = []
+        for key in value:
+            if key not in self.properties:
+                violations.append((f".{key}", "unexpected field"))
+        for name, nested_property in self.properties.items():
+            if name not in value:
+                if nested_property.has_default:
+                    validated_value[name] = nested_property.default_value
+                else:
+                    violations.append((f".{name}", "missing required field"))
+                continue
+            nested_value, nested_violations = nested_property._validate_strict_value(value[name])
+            validated_value[name] = nested_value
+            violations.extend(
+                (f".{name}{location}", message) for location, message in nested_violations
+            )
+        return validated_value, violations
 
     @staticmethod
     def _check_dict_has_correct_entry(
@@ -1070,6 +1134,13 @@ class UnionProperty(Property):
 
     def _is_value_of_expected_type(self, value: Any) -> bool:
         return any(property_.is_value_of_expected_type(value) for property_ in self.any_of)
+
+    def _validate_strict_value(self, value: Any) -> tuple[Any, list[tuple[str, str]]]:
+        for property_ in self.any_of:
+            validated_value, violations = property_._validate_strict_value(value)
+            if not violations:
+                return validated_value, []
+        return super()._validate_strict_value(value)
 
     @property
     def _type_default_value(self) -> Any:
