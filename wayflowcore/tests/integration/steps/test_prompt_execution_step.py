@@ -452,7 +452,9 @@ def test_strict_structured_generation_rejects_wrong_type(remotely_hosted_llm):
         output_descriptors=[StringProperty(name="description")],
     )
     with patch_llm(remotely_hosted_llm, outputs=['{"description": ["first condition"]}']):
-        with pytest.raises(StructuredOutputValidationError, match="description"):
+        with pytest.raises(
+            StructuredOutputValidationError, match="description: expected StringProperty, got list"
+        ):
             _run_single_step_to_finish(step)
 
 
