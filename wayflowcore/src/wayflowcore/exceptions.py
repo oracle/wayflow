@@ -19,7 +19,7 @@ class StructuredOutputValidationError(WayFlowException, ValueError):
 
     def __init__(self, violations: list[str]):
         self.violations = violations
-        super().__init__("Structured output validation failed: " + "; ".join(violations))
+        super().__init__("Structured output validation failed: " + ";\n".join(violations))
 
 
 class SecurityException(WayFlowException):
