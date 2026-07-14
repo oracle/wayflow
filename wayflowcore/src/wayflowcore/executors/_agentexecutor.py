@@ -11,7 +11,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from wayflowcore import Flow
-from wayflowcore._outputvalidation import validate_strict_outputs
 from wayflowcore._utils._templating_helpers import (
     _DEFAULT_VARIABLE_DESCRIPTION_TEMPLATE,
     render_template,
@@ -51,7 +50,7 @@ from wayflowcore.executors.interrupts.executioninterrupt import (
 from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
-from wayflowcore.property import JsonSchemaParam, Property, StringProperty
+from wayflowcore.property import JsonSchemaParam, Property, StringProperty, validate_strict_outputs
 from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
 from wayflowcore.tools.tools import _descriptors_to_json_schema_map, _sanitize_tool_name
 from wayflowcore.tracing.span import AgentExecutionSpan

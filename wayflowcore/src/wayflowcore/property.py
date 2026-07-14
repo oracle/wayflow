@@ -15,6 +15,7 @@ from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Type, TypedD
 import numpy as np
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.exceptions import StructuredOutputValidationError
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
 
@@ -1226,6 +1227,36 @@ def _format_default_value(property_: Property) -> Any:
     if default_value is not Property.empty_default:
         return default_value
     return property_._type_default_value
+
+
+def validate_strict_outputs(
+    outputs: Dict[str, Any], expected_outputs: List[Property]
+) -> Dict[str, Any]:
+    """Validate structured outputs without coercion or implicit defaults."""
+    validated_outputs: Dict[str, Any] = {}
+    violations: List[str] = []
+    expected_by_name = {output.name: output for output in expected_outputs}
+
+    for output_name in outputs:
+        if output_name not in expected_by_name:
+            violations.append(f"{output_name}: unexpected field")
+
+    for output_name, output in expected_by_name.items():
+        if output_name not in outputs:
+            if output.has_default:
+                validated_outputs[output_name] = output.default_value
+            else:
+                violations.append(f"{output_name}: missing required field")
+        else:
+            value, value_violations = output._validate_strict_value(outputs[output_name])
+            validated_outputs[output_name] = value
+            violations.extend(
+                f"{output_name}{location}: {message}" for location, message in value_violations
+            )
+
+    if violations:
+        raise StructuredOutputValidationError(violations=violations)
+    return validated_outputs
 
 
 def _convert_list_of_properties_to_json_schema(properties: List[Property]) -> JsonSchemaParam:

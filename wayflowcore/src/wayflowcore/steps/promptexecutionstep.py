@@ -10,7 +10,6 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore._outputvalidation import validate_strict_outputs
 from wayflowcore._utils._templating_helpers import MessageAsDictT, check_template_validity
 from wayflowcore.messagelist import Message, MessageList, MessageType, TextContent
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
@@ -23,6 +22,7 @@ from wayflowcore.property import (
     StringProperty,
     _format_default_value,
     _output_properties_to_response_format_property,
+    validate_strict_outputs,
 )
 from wayflowcore.steps.step import Step, StepResult
 from wayflowcore.steps.templaterenderingstep import TemplateRenderingStep

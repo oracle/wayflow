@@ -9,6 +9,7 @@ from typing import Any, List, Tuple
 
 import pytest
 
+from wayflowcore.exceptions import StructuredOutputValidationError
 from wayflowcore.property import (
     AnyProperty,
     BooleanProperty,
@@ -22,6 +23,7 @@ from wayflowcore.property import (
     StringProperty,
     UnionProperty,
     _property_can_be_casted_into_property,
+    validate_strict_outputs,
 )
 
 DESCRIPTIONS_AND_SCHEMAS = [
@@ -204,6 +206,67 @@ def test_check_type_is_correctly_checked(value_type, value):
     for _, other_value in TYPES_AND_VALUES:
         if other_value != value:
             assert not value_type.is_value_of_expected_type(other_value)
+
+
+@pytest.mark.parametrize(
+    ("outputs", "descriptors"),
+    [
+        ({"description": ["condition"]}, [StringProperty(name="description")]),
+        ({"count": "one"}, [IntegerProperty(name="count")]),
+        ({"answer": "maybe"}, [StringProperty(name="answer", enum=("yes", "no"))]),
+        ({"findings": ["valid", 1]}, [ListProperty(name="findings", item_type=StringProperty())]),
+        ({"scores": {"first": "mid"}}, [DictProperty(name="scores", value_type=IntegerProperty())]),
+        (
+            {"details": {"reason": "valid", "unexpected": "value"}},
+            [ObjectProperty(name="details", properties={"reason": StringProperty(name="reason")})],
+        ),
+        (
+            {"report": {"findings": [{"description": ["condition"]}]}},
+            [
+                ObjectProperty(
+                    name="report",
+                    properties={
+                        "findings": ListProperty(
+                            name="findings",
+                            item_type=ObjectProperty(properties={"description": StringProperty()}),
+                        )
+                    },
+                )
+            ],
+        ),
+        ({"extra": "value"}, [StringProperty(name="required")]),
+    ],
+    ids=[
+        "string-receives-list",
+        "integer-receives-string",
+        "enum-value-is-invalid",
+        "list-item-has-wrong-type",
+        "dict-value-has-wrong-type",
+        "object-has-unexpected-field",
+        "nested-object-has-wrong-type",
+        "missing-and-unexpected-top-level-fields",
+    ],
+)
+def test_strict_validation_rejects_invalid_outputs(outputs, descriptors):
+    with pytest.raises(StructuredOutputValidationError):
+        validate_strict_outputs(outputs, descriptors)
+
+
+def test_strict_validation_uses_explicit_defaults():
+    descriptors = [
+        StringProperty(name="description"),
+        ObjectProperty(
+            name="details",
+            properties={"reason": StringProperty(name="reason", default_value="unknown")},
+        ),
+        StringProperty(name="optional", default_value="default"),
+    ]
+
+    assert validate_strict_outputs({"description": "condition", "details": {}}, descriptors) == {
+        "description": "condition",
+        "details": {"reason": "unknown"},
+        "optional": "default",
+    }
 
 
 @pytest.mark.parametrize(
