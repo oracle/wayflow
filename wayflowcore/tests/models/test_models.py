@@ -2030,6 +2030,34 @@ def test_structured_generation_uses_default(remotely_hosted_llm, caplog):
     )
 
 
+def test_native_structured_generation_fills_explicit_defaults(monkeypatch):
+    prompt = Prompt(
+        messages=[Message(role="user", content="hello")],
+        response_format=ObjectProperty(
+            name="result",
+            properties={
+                "answer": StringProperty(),
+                "reason": StringProperty(default_value="No reason provided."),
+            },
+        ),
+    )
+    llm = OpenAICompatibleModel(
+        model_id="some_model", base_url="some/url", supports_structured_generation=True
+    )
+
+    async def _post(*_args, **_kwargs):
+        return {"choices": [{"message": {"content": '{"answer": "yes"}'}}]}
+
+    monkeypatch.setattr(llm, "_post", _post)
+
+    completion = llm.generate(prompt)
+
+    assert json.loads(completion.message.content) == {
+        "answer": "yes",
+        "reason": "No reason provided.",
+    }
+
+
 @retry_test(max_attempts=3)
 @pytest.mark.parametrize(
     "llm_fixture_name",
