@@ -652,6 +652,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 extra_arguments["max_iterations"] = agentspec_component.max_iterations
                 extra_arguments["initial_message"] = agentspec_component.initial_message
                 extra_arguments["caller_input_mode"] = agentspec_component.caller_input_mode
+                extra_arguments["strict_output_validation"] = (
+                    agentspec_component.strict_output_validation
+                )
                 extra_arguments["agents"] = [
                     conversion_context.convert(a, tool_registry, converted_components)
                     for a in agentspec_component.agents
