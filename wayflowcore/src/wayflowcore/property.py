@@ -1019,12 +1019,14 @@ class ObjectProperty(Property):
             # https://platform.openai.com/docs/guides/structured-outputs#all-fields-must-be-required
             if self.additional_properties:
                 json_schema["additionalProperties"] = False
-                warnings.warn(
-                    "additionalProperties value different from False is not compatible "
-                    f"with OpenAI APIs; The value will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+                if isinstance(self.additional_properties, Property):
+                    # We don't warn if True because it's the default value
+                    warnings.warn(
+                        "additionalProperties are not compatible with OpenAI APIs; "
+                        f"The value will be ignored.",
+                        UserWarning,
+                        stacklevel=2,
+                    )
             json_schema["required"] = list(json_schema["properties"].keys())
             for property_name, property_ in json_schema["properties"].items():
                 if "default" in property_:
