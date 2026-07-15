@@ -735,13 +735,13 @@ class _OciApiFormatter(ABC):
 
         cached_tokens = 0
         if "promptTokensDetails" in response and "cachedTokens" in (
-            response["promptTokensDetails"] or []
+            response["promptTokensDetails"] or {}
         ):
             cached_tokens = response["promptTokensDetails"]["cachedTokens"]
 
         reasoning_tokens = 0
         if "completionTokensDetails" in response and "reasoningTokens" in (
-            response["completionTokensDetails"] or []
+            response["completionTokensDetails"] or {}
         ):
             reasoning_tokens = response["completionTokensDetails"]["reasoningTokens"]
 
