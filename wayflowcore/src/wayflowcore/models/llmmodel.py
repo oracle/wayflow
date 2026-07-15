@@ -74,7 +74,7 @@ class Prompt(SerializableDataclassMixin, SerializableObject):
             except json.JSONDecodeError:
                 pass
             else:
-                filled_value = self.response_format.fill_explicit_defaults(value)
+                filled_value = self.response_format._fill_explicit_defaults(value)
                 if filled_value != value:
                     from wayflowcore.messagelist import TextContent
 

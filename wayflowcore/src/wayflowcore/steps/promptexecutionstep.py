@@ -22,7 +22,7 @@ from wayflowcore.property import (
     StringProperty,
     _format_default_value,
     _output_properties_to_response_format_property,
-    validate_strict_outputs,
+    _validate_strict_outputs,
 )
 from wayflowcore.steps.step import Step, StepResult
 from wayflowcore.steps.templaterenderingstep import TemplateRenderingStep
@@ -515,7 +515,7 @@ class PromptExecutionStep(Step):
         strict: bool = False,
     ) -> Dict[str, Any]:
         if strict:
-            return validate_strict_outputs(outputs, expected_outputs)
+            return _validate_strict_outputs(outputs, expected_outputs)
         logger.debug(
             "PromptExecutionStep generated output: %s\nExpected outputs: %s",
             outputs,

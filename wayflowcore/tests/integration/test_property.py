@@ -23,7 +23,7 @@ from wayflowcore.property import (
     StringProperty,
     UnionProperty,
     _property_can_be_casted_into_property,
-    validate_strict_outputs,
+    _validate_strict_outputs,
 )
 
 DESCRIPTIONS_AND_SCHEMAS = [
@@ -249,7 +249,7 @@ def test_check_type_is_correctly_checked(value_type, value):
 )
 def test_strict_validation_rejects_invalid_outputs(outputs, descriptors):
     with pytest.raises(StructuredOutputValidationError):
-        validate_strict_outputs(outputs, descriptors)
+        _validate_strict_outputs(outputs, descriptors)
 
 
 def test_strict_validation_rejects_missing_explicit_defaults():
@@ -263,7 +263,7 @@ def test_strict_validation_rejects_missing_explicit_defaults():
     ]
 
     with pytest.raises(StructuredOutputValidationError):
-        validate_strict_outputs({"description": "condition", "details": {}}, descriptors)
+        _validate_strict_outputs({"description": "condition", "details": {}}, descriptors)
 
 
 def test_object_property_fills_nested_explicit_defaults():
@@ -272,7 +272,7 @@ def test_object_property_fills_nested_explicit_defaults():
         properties={"reason": StringProperty(name="reason", default_value="unknown")},
     )
 
-    assert output.fill_explicit_defaults({}) == {"reason": "unknown"}
+    assert output._fill_explicit_defaults({}) == {"reason": "unknown"}
 
 
 @pytest.mark.parametrize(

@@ -54,7 +54,7 @@ from wayflowcore.property import (
     JsonSchemaParam,
     Property,
     StringProperty,
-    validate_strict_outputs,
+    _validate_strict_outputs,
 )
 from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
 from wayflowcore.tools.tools import _descriptors_to_json_schema_map, _sanitize_tool_name
@@ -1107,7 +1107,7 @@ class AgentConversationExecutor(ConversationExecutor):
                         {}, agent_config.output_descriptors
                     )
                     if agent_config.strict_output_validation:
-                        default_outputs = validate_strict_outputs(
+                        default_outputs = _validate_strict_outputs(
                             default_outputs, agent_config.output_descriptors
                         )
                     else:
@@ -1239,7 +1239,7 @@ class AgentConversationExecutor(ConversationExecutor):
             )
             if config.strict_output_validation:
                 try:
-                    tool_inputs = validate_strict_outputs(tool_inputs, config.output_descriptors)
+                    tool_inputs = _validate_strict_outputs(tool_inputs, config.output_descriptors)
                     successful_submission = True
                 except StructuredOutputValidationError as error:
                     validation_error = error
@@ -1413,5 +1413,7 @@ def _fill_submit_result_defaults(
             if output.has_default:
                 filled_outputs[output.name] = output.default_value
         else:
-            filled_outputs[output.name] = output.fill_explicit_defaults(filled_outputs[output.name])
+            filled_outputs[output.name] = output._fill_explicit_defaults(
+                filled_outputs[output.name]
+            )
     return filled_outputs
