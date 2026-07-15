@@ -122,6 +122,10 @@ class Property(SerializableObject, ABC):
             return value, []
         return value, [("", self._strict_type_violation(value))]
 
+    def fill_explicit_defaults(self, value: Any) -> Any:
+        """Fill explicit defaults in a value without validating or coercing it."""
+        return value
+
     def _strict_type_violation(self, value: Any) -> str:
         return f"expected {self.get_type_str()}, got {type(value).__name__}"
 
@@ -806,6 +810,11 @@ class ListProperty(Property):
             )
         return validated_value, violations
 
+    def fill_explicit_defaults(self, value: Any) -> Any:
+        if not isinstance(value, list):
+            return value
+        return [self.item_type.fill_explicit_defaults(item) for item in value]
+
     @property
     def _type_default_value(self) -> Any:
         return []
@@ -888,6 +897,11 @@ class DictProperty(Property):
                 (f".{key}{location}", message) for location, message in nested_violations
             )
         return validated_value, violations
+
+    def fill_explicit_defaults(self, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        return {key: self.value_type.fill_explicit_defaults(item) for key, item in value.items()}
 
     @property
     def _type_default_value(self) -> Any:
@@ -1019,6 +1033,19 @@ class ObjectProperty(Property):
             )
         return validated_value, violations
 
+    def fill_explicit_defaults(self, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+
+        filled_value = dict(value)
+        for name, nested_property in self.properties.items():
+            if name not in filled_value:
+                if nested_property.has_default:
+                    filled_value[name] = nested_property.default_value
+            else:
+                filled_value[name] = nested_property.fill_explicit_defaults(filled_value[name])
+        return filled_value
+
     @staticmethod
     def _check_dict_has_correct_entry(
         value: Dict[str, Any], name: str, property_: Property
@@ -1142,6 +1169,13 @@ class UnionProperty(Property):
             if not violations:
                 return validated_value, []
         return super()._validate_strict_value(value)
+
+    def fill_explicit_defaults(self, value: Any) -> Any:
+        for property_ in self.any_of:
+            filled_value = property_.fill_explicit_defaults(value)
+            if property_.is_value_of_expected_type(filled_value):
+                return filled_value
+        return value
 
     @property
     def _type_default_value(self) -> Any:
