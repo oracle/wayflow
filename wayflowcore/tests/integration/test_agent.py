@@ -146,14 +146,15 @@ def _get_single_tool_request(conversation: Conversation) -> ToolRequest:
 
 
 def test_strict_agent_resubmits_invalid_output(remotely_hosted_llm) -> None:
-    template = remotely_hosted_llm.agent_template.copy()
-    template.strict_output_validation = True
     agent = Agent(
         llm=remotely_hosted_llm,
-        agent_template=template,
         custom_instruction="Submit the outputs using the submit_result tool.",
         initial_message=None,
-        output_descriptors=[StringProperty(name="description")],
+        output_descriptors=[
+            StringProperty(name="description"),
+            StringProperty(name="reason", default_value="No reason provided."),
+        ],
+        strict_output_validation=True,
     )
     conversation = agent.start_conversation(messages="Submit the investigation description.")
     with patch_llm(
@@ -166,12 +167,29 @@ def test_strict_agent_resubmits_invalid_output(remotely_hosted_llm) -> None:
         status = conversation.execute()
 
     assert isinstance(status, FinishedStatus)
-    assert status.output_values == {"description": "first condition"}
+    assert status.output_values == {
+        "description": "first condition",
+        "reason": "No reason provided.",
+    }
     assert any(
         message.tool_result is not None
         and "description: expected StringProperty, got list" in message.tool_result.content
         for message in conversation.get_messages()
     )
+
+
+def test_strict_agent_uses_explicit_defaults_at_iteration_limit(remotely_hosted_llm) -> None:
+    agent = Agent(
+        llm=remotely_hosted_llm,
+        max_iterations=0,
+        output_descriptors=[StringProperty(name="description", default_value="No description.")],
+        strict_output_validation=True,
+    )
+
+    status = agent.start_conversation(messages="Do not generate.").execute()
+
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values == {"description": "No description."}
 
 
 @pytest.fixture

@@ -252,7 +252,7 @@ def test_strict_validation_rejects_invalid_outputs(outputs, descriptors):
         validate_strict_outputs(outputs, descriptors)
 
 
-def test_strict_validation_uses_explicit_defaults():
+def test_strict_validation_rejects_missing_explicit_defaults():
     descriptors = [
         StringProperty(name="description"),
         ObjectProperty(
@@ -262,11 +262,17 @@ def test_strict_validation_uses_explicit_defaults():
         StringProperty(name="optional", default_value="default"),
     ]
 
-    assert validate_strict_outputs({"description": "condition", "details": {}}, descriptors) == {
-        "description": "condition",
-        "details": {"reason": "unknown"},
-        "optional": "default",
-    }
+    with pytest.raises(StructuredOutputValidationError):
+        validate_strict_outputs({"description": "condition", "details": {}}, descriptors)
+
+
+def test_object_property_fills_nested_explicit_defaults():
+    output = ObjectProperty(
+        name="details",
+        properties={"reason": StringProperty(name="reason", default_value="unknown")},
+    )
+
+    assert output.fill_explicit_defaults({}) == {"reason": "unknown"}
 
 
 @pytest.mark.parametrize(

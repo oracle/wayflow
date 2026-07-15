@@ -50,7 +50,12 @@ from wayflowcore.executors.interrupts.executioninterrupt import (
 from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
-from wayflowcore.property import JsonSchemaParam, Property, StringProperty, validate_strict_outputs
+from wayflowcore.property import (
+    JsonSchemaParam,
+    Property,
+    StringProperty,
+    validate_strict_outputs,
+)
 from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
 from wayflowcore.tools.tools import _descriptors_to_json_schema_map, _sanitize_tool_name
 from wayflowcore.tracing.span import AgentExecutionSpan
@@ -1008,11 +1013,6 @@ class AgentConversationExecutor(ConversationExecutor):
     ) -> Tuple[Optional[ExecutionStatus], bool]:
         should_yield = False
         if tool_request.name == _SUBMIT_TOOL_NAME:
-            if not agent_config.agent_template.strict_output_validation:
-                _normalize_tool_request_args(
-                    tool_request,
-                    _descriptors_to_json_schema_map(agent_config.output_descriptors),
-                )
             outputs = AgentConversationExecutor._collect_submit_tool_outputs(
                 config=agent_config,
                 submit_tool_call=tool_request,
@@ -1103,16 +1103,18 @@ class AgentConversationExecutor(ConversationExecutor):
                 agent_state._get_current_tool_request()
             elif agent_state.curr_iter >= agent_config.max_iterations:
                 if len(agent_config.output_descriptors) > 0:
-                    if agent_config.agent_template.strict_output_validation:
-                        raise StructuredOutputValidationError(
-                            violations=[
-                                "agent reached max_iterations without a valid submit_result"
-                            ]
+                    default_outputs = _fill_submit_result_defaults(
+                        {}, agent_config.output_descriptors
+                    )
+                    if agent_config.strict_output_validation:
+                        default_outputs = validate_strict_outputs(
+                            default_outputs, agent_config.output_descriptors
                         )
-                    # need to generate some outputs
-                    default_outputs = {
-                        o.name: o.default_value for o in agent_config.output_descriptors
-                    }
+                    else:
+                        default_outputs = {
+                            output.name: default_outputs.get(output.name, output.default_value)
+                            for output in agent_config.output_descriptors
+                        }
                     return FinishedStatus(
                         output_values=default_outputs, _conversation_id=conversation.id
                     )
@@ -1232,8 +1234,10 @@ class AgentConversationExecutor(ConversationExecutor):
             tool_inputs = {}
             successful_submission = True
         else:
-            tool_inputs = submit_tool_call.args or {}
-            if config.agent_template.strict_output_validation:
+            tool_inputs = _fill_submit_result_defaults(
+                submit_tool_call.args or {}, config.output_descriptors
+            )
+            if config.strict_output_validation:
                 try:
                     tool_inputs = validate_strict_outputs(tool_inputs, config.output_descriptors)
                     successful_submission = True
@@ -1241,6 +1245,12 @@ class AgentConversationExecutor(ConversationExecutor):
                     validation_error = error
                     successful_submission = False
             else:
+                submit_tool_call.args = tool_inputs
+                _normalize_tool_request_args(
+                    submit_tool_call,
+                    _descriptors_to_json_schema_map(config.output_descriptors),
+                )
+                tool_inputs = submit_tool_call.args or {}
                 missing_inputs = [
                     o.name
                     for o in config.output_descriptors
@@ -1391,3 +1401,17 @@ def _get_end_filtering_delimiter(state: AgentConversationExecutionState) -> str:
 
 def _conversation_contains_user_messages(conversation: Conversation) -> bool:
     return any(m.message_type == MessageType.USER for m in conversation.get_messages())
+
+
+def _fill_submit_result_defaults(
+    outputs: Dict[str, Any], expected_outputs: List[Property]
+) -> Dict[str, Any]:
+    """Fill absent explicit defaults in submit_result arguments."""
+    filled_outputs = dict(outputs)
+    for output in expected_outputs:
+        if output.name not in filled_outputs:
+            if output.has_default:
+                filled_outputs[output.name] = output.default_value
+        else:
+            filled_outputs[output.name] = output.fill_explicit_defaults(filled_outputs[output.name])
+    return filled_outputs

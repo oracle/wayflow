@@ -1021,10 +1021,7 @@ class ObjectProperty(Property):
                 violations.append((f".{key}", "unexpected field"))
         for name, nested_property in self.properties.items():
             if name not in value:
-                if nested_property.has_default:
-                    validated_value[name] = nested_property.default_value
-                else:
-                    violations.append((f".{name}", "missing required field"))
+                violations.append((f".{name}", "missing required field"))
                 continue
             nested_value, nested_violations = nested_property._validate_strict_value(value[name])
             validated_value[name] = nested_value
@@ -1266,7 +1263,7 @@ def _format_default_value(property_: Property) -> Any:
 def validate_strict_outputs(
     outputs: Dict[str, Any], expected_outputs: List[Property]
 ) -> Dict[str, Any]:
-    """Validate structured outputs without coercion or implicit defaults."""
+    """Validate structured outputs without coercion or default filling."""
     validated_outputs: Dict[str, Any] = {}
     violations: List[str] = []
     expected_by_name = {output.name: output for output in expected_outputs}
@@ -1277,10 +1274,7 @@ def validate_strict_outputs(
 
     for output_name, output in expected_by_name.items():
         if output_name not in outputs:
-            if output.has_default:
-                validated_outputs[output_name] = output.default_value
-            else:
-                violations.append(f"{output_name}: missing required field")
+            violations.append(f"{output_name}: missing required field")
         else:
             value, value_violations = output._validate_strict_value(outputs[output_name])
             validated_outputs[output_name] = value
