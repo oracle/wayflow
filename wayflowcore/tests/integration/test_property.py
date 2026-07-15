@@ -46,6 +46,7 @@ DESCRIPTIONS_AND_SCHEMAS = [
         ObjectProperty(properties={"some_field": IntegerProperty(description="some_description")}),
         {
             "type": "object",
+            "additionalProperties": True,
             "properties": {
                 "some_field": {
                     "type": "integer",
@@ -110,6 +111,7 @@ DESCRIPTIONS_AND_SCHEMAS = [
             "title": "some_struct",
             "description": "some_description",
             "type": "object",
+            "additionalProperties": True,
             "properties": {
                 "some_field": {
                     "type": "integer",
@@ -244,6 +246,91 @@ def test_mixed_enum_type_is_supported_nested():
     assert property_.is_value_of_expected_type("3") is True
     assert property_.is_value_of_expected_type(1) is True
     assert property_.is_value_of_expected_type(4) is False
+
+
+@pytest.mark.parametrize(
+    "additional_properties,value,is_valid",
+    [
+        (True, {"known": 1, "extra": "any value"}, True),
+        (False, {"known": 1, "extra": "not allowed"}, False),
+        (StringProperty(), {"known": 1, "extra": "valid"}, True),
+        (StringProperty(), {"known": 1, "extra": 1}, False),
+        (
+            ObjectProperty(properties={"a1": StringProperty(), "a2": IntegerProperty()}),
+            {"known": 1, "extra": {"a1": "hey", "a2": 1}},
+            True,
+        ),
+        (
+            ObjectProperty(properties={"a1": StringProperty(), "a2": IntegerProperty()}),
+            {"known": 1, "extra": {"a1": "hey", "a2": "no"}},
+            False,
+        ),
+        (
+            ListProperty(item_type=StringProperty()),
+            {"known": 1, "extra": ["h", "e", "l", "l", "o"]},
+            True,
+        ),
+        (
+            ListProperty(item_type=StringProperty()),
+            {"known": 1, "extra": [2, 1, 3]},
+            False,
+        ),
+        (
+            ListProperty(item_type=ListProperty(item_type=StringProperty())),
+            {"known": 1, "extra": [["h", "e"], ["l", "l", "o"]]},
+            True,
+        ),
+        (
+            ListProperty(item_type=ListProperty(item_type=StringProperty())),
+            {"known": 1, "extra": [[1], ["h", "e", "y"]]},
+            False,
+        ),
+        (
+            ObjectProperty(properties={"some_other_field": IntegerProperty()}),
+            {"known": 1, "extra": MyCustomObject(2)},
+            True,
+        ),
+    ],
+)
+def test_object_property_validates_additional_properties(additional_properties, value, is_valid):
+    property_ = ObjectProperty(
+        properties={"known": IntegerProperty()}, additional_properties=additional_properties
+    )
+    assert property_.is_value_of_expected_type(value) is is_valid
+
+
+@pytest.mark.parametrize(
+    "additional_properties,expected_schema",
+    [
+        (True, True),
+        (False, False),
+        (StringProperty(), {"type": "string"}),
+        (
+            ObjectProperty(
+                properties={"a1": StringProperty(), "a2": IntegerProperty()},
+                additional_properties=False,
+            ),
+            {
+                "type": "object",
+                "properties": {
+                    "a1": {"type": "string"},
+                    "a2": {"type": "integer"},
+                },
+                "additionalProperties": False,
+            },
+        ),
+    ],
+)
+def test_object_property_additional_properties_json_schema_round_trip(
+    additional_properties, expected_schema
+):
+    property_ = ObjectProperty(
+        properties={"known": IntegerProperty()}, additional_properties=additional_properties
+    )
+    schema = property_.to_json_schema()
+
+    assert schema["additionalProperties"] == expected_schema
+    assert Property.from_json_schema(schema) == property_
 
 
 def test_mixed_enum_type_is_supported():
