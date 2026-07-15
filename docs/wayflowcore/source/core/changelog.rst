@@ -7,6 +7,12 @@ WayFlow |current_version|
 Improvements
 ^^^^^^^^^^^^
 
+* **Configurable additional object properties**
+
+  ``ObjectProperty`` now supports JSON Schema ``additionalProperties`` configuration.
+  Additional fields can be allowed, rejected, or validated with a property definition,
+  and the configuration is preserved when importing and exporting JSON Schema.
+
 * **Add support for Gemma-4 models with native tool-calling**
   :ref:`OpenAICompatibleModel <openaicompatiblemodel>` and :ref:`VllmModel <vllmmodel>`
   now support Gemma-4 models with native tool-calling.
