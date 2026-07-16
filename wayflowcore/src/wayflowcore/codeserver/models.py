@@ -14,6 +14,8 @@ from typing import Final, Literal, TypeAlias
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from typing_extensions import TypeAliasType
 
+from wayflowcore._utils.notgiven import NOT_GIVEN, NotGiven
+
 JsonValue = TypeAliasType(
     "JsonValue",
     "None | bool | int | float | str | list[JsonValue] | dict[str, JsonValue]",
@@ -100,12 +102,18 @@ class CodeExecutionRequest(CodeExecutorModel):
 class ExecutionResult(CodeExecutorModel):
     """Output item returned by an execution."""
 
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
+
     type: Literal["output"]
     content: list[TextContent] = Field(default_factory=list)
     """Content blocks such as captured text output."""
 
-    structured_content: JsonValue = Field(default=None, alias="structuredContent")
-    """Optional JSON-compatible structured result, including scalar values and null."""
+    structured_content: JsonValue | NotGiven = Field(
+        default=NOT_GIVEN,
+        alias="structuredContent",
+        exclude_if=lambda value: value is NOT_GIVEN,
+    )
+    """Optional JSON-compatible structured result, including an explicit null."""
 
     is_error: bool = Field(default=False, alias="isError")
     """Whether the output describes an execution error."""

@@ -36,6 +36,7 @@ from wayflowcore.codeserver.models import (
     SessionSnapshot,
     TextContent,
 )
+from wayflowcore.codeserver.sessions import BackendSession
 from wayflowcore.codeserver.storage import CodeExecutorStorage
 
 
@@ -57,6 +58,7 @@ class CodeExecutionService:
         self.backend = backend
         self.storage = storage or CodeExecutorStorage()
         self._execution_contexts: dict[str, BackendExecutionContext] = {}
+        self._sessions: dict[str, BackendSession] = {}
 
     def execute(self, request: CodeExecutionRequest) -> ExecutionResponse:
         """Create an execution and optionally wait for its completion.
@@ -77,6 +79,8 @@ class CodeExecutionService:
         initial_response = self.create_execution(request)
         context = self._execution_contexts[initial_response.id]
         result = context.wait()
+        if isinstance(request.input[0], HostCallbackResponse) and result.error is not None:
+            raise ValueError(f"host request rejected: {result.error}")
         return self._update_execution(initial_response, result)
 
     def create_execution(self, request: CodeExecutionRequest) -> ExecutionResponse:
@@ -108,20 +112,28 @@ class CodeExecutionService:
     def _start_execution(self, request: CodeExecutionRequest) -> BackendExecutionContext:
         """Start one stateless script or function request on the backend."""
         self.backend.validate_language(request.language_id)
+        session = None
         if request.session_id is not None:
-            raise NotImplementedError("Session execution is not implemented yet.")
+            session = self._get_backend_session(request.session_id)
+            if request.language_id != session.language_id:
+                raise ValueError("Execution language does not match session language.")
+            if not session.is_active:
+                raise ValueError("Session is closed.")
 
         input_item = request.input[0]
         if isinstance(input_item, ScriptInput):
-            return self.backend.start_script(input_item.source_code)
+            return self.backend.start_script(input_item.source_code, session=session)
         if isinstance(input_item, FunctionInput):
             return self.backend.start_function(
                 input_item.source_code,
                 input_item.function_name,
                 input_item.arguments,
+                session=session,
             )
         if isinstance(input_item, HostCallbackResponse):
-            raise ValueError("Host callback responses require a session.")
+            if session is None:
+                raise ValueError("Host callback responses require a session.")
+            return self.backend.resume_callback(session, input_item)
         raise TypeError(f"Unsupported execution input: {type(input_item).__name__}")
 
     def _update_execution(
@@ -269,7 +281,23 @@ class CodeExecutionService:
         SessionSnapshot
             Initial active session snapshot.
         """
-        raise NotImplementedError
+        self.backend.validate_language(request.language_id)
+        session_id = self._create_session_id()
+        backend_session = self.backend.create_session(
+            session_id,
+            request.language_id,
+            host_interactions=request.host_interactions,
+        )
+        self._sessions[session_id] = backend_session
+        snapshot = SessionSnapshot(
+            id=session_id,
+            object="session",
+            status="active",
+            language_id=request.language_id,
+            host_interactions=request.host_interactions,
+            metadata=request.metadata,
+        )
+        return self.storage.create_session(snapshot)
 
     def get_session(self, session_id: str) -> SessionSnapshot:
         """Return the latest snapshot for a session.
@@ -284,7 +312,7 @@ class CodeExecutionService:
         SessionSnapshot
             Latest session snapshot.
         """
-        raise NotImplementedError
+        return self.storage.get_session(session_id)
 
     def close_session(self, session_id: str) -> SessionSnapshot:
         """Close a stateful execution session.
@@ -299,4 +327,29 @@ class CodeExecutionService:
         SessionSnapshot
             Session snapshot after closure is requested.
         """
-        raise NotImplementedError
+        snapshot = self.storage.get_session(session_id)
+        if snapshot.status == "closed":
+            return snapshot
+        backend_session = self._get_backend_session(session_id)
+        self.backend.close_session(backend_session)
+        self._sessions.pop(session_id, None)
+        closed = snapshot.model_copy(update={"status": "closed"})
+        return self.storage.update_session(closed)
+
+    @staticmethod
+    def _create_session_id() -> str:
+        """Create one public session identifier."""
+        return f"sess_{uuid4().hex}"
+
+    def _get_backend_session(self, session_id: str) -> BackendSession:
+        """Return the backend session associated with a public identifier."""
+        try:
+            return self._sessions[session_id]
+        except KeyError as exc:
+            try:
+                snapshot = self.storage.get_session(session_id)
+            except KeyError:
+                raise ValueError(f"Unknown session id: {session_id}") from exc
+            if snapshot.status == "closed":
+                raise ValueError("Session is closed.") from exc
+            raise ValueError(f"Unknown session id: {session_id}") from exc

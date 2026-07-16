@@ -13,7 +13,9 @@ from fastapi import FastAPI, HTTPException, status
 from wayflowcore.codeserver.models import (
     CodeExecutionRequest,
     CodeExecutorCapabilities,
+    CreateSessionRequest,
     ExecutionResponse,
+    SessionSnapshot,
 )
 from wayflowcore.codeserver.service import CodeExecutionService
 
@@ -68,5 +70,23 @@ def create_code_executor_app(
             return service.cancel_execution(execution_id)
         except KeyError as exc:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+    @app.post("/v1/sessions", response_model=SessionSnapshot)
+    def create_session(request: CreateSessionRequest) -> SessionSnapshot:
+        """Create a stateful execution session."""
+        try:
+            return service.create_session(request)
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    @app.delete("/v1/sessions/{session_id}", response_model=SessionSnapshot)
+    def close_session(session_id: str) -> SessionSnapshot:
+        """Close a stateful execution session."""
+        try:
+            return service.close_session(session_id)
+        except KeyError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     return app

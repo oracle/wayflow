@@ -15,6 +15,7 @@ from wayflowcore.codeserver.models import (
     CreateSessionRequest,
     HostCallbackRequest,
     HostCallbackResponse,
+    HostInteractions,
     ScriptInput,
 )
 from wayflowcore.codeserver.service import CodeExecutionService
@@ -24,7 +25,14 @@ def test_service_with_python_backend_returns_callback_host_request(
     python_service: CodeExecutionService,
 ) -> None:
     """Returns a callback host request when Python code invokes a host function."""
-    session = python_service.create_session(CreateSessionRequest(language_id="python"))
+    session = python_service.create_session(
+        CreateSessionRequest(
+            language_id="python",
+            host_interactions=HostInteractions(
+                enabled=True, allowed_request_types=["tool_execution"]
+            ),
+        )
+    )
     source_code = """
 result = host.tool_execution("lookup_weather", city="Paris")
 print(result)
@@ -48,7 +56,14 @@ def test_service_waits_for_callback_host_response(
     python_service: CodeExecutionService,
 ) -> None:
     """Leaves an execution waiting while a callback host request is pending."""
-    session = python_service.create_session(CreateSessionRequest(language_id="python"))
+    session = python_service.create_session(
+        CreateSessionRequest(
+            language_id="python",
+            host_interactions=HostInteractions(
+                enabled=True, allowed_request_types=["tool_execution"]
+            ),
+        )
+    )
     request = CodeExecutionRequest(
         language_id="python",
         session_id=session.id,
@@ -72,7 +87,14 @@ def test_service_resumes_execution_after_callback_host_response(
     python_service: CodeExecutionService,
 ) -> None:
     """Resumes a callback execution with a response in the same session."""
-    session = python_service.create_session(CreateSessionRequest(language_id="python"))
+    session = python_service.create_session(
+        CreateSessionRequest(
+            language_id="python",
+            host_interactions=HostInteractions(
+                enabled=True, allowed_request_types=["tool_execution"]
+            ),
+        )
+    )
     request = CodeExecutionRequest(
         language_id="python",
         session_id=session.id,
@@ -111,7 +133,14 @@ def test_service_rejects_unknown_callback_host_request_id(
     python_service: CodeExecutionService,
 ) -> None:
     """Rejects a callback response without a matching pending host request."""
-    session = python_service.create_session(CreateSessionRequest(language_id="python"))
+    session = python_service.create_session(
+        CreateSessionRequest(
+            language_id="python",
+            host_interactions=HostInteractions(
+                enabled=True, allowed_request_types=["tool_execution"]
+            ),
+        )
+    )
     request = CodeExecutionRequest(
         language_id="python",
         session_id=session.id,
