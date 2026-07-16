@@ -142,19 +142,3 @@ class BackendExecutionContext(ABC):
     def cancel(self) -> BackendExecutionResult:
         """Request cancellation and return the resulting backend state."""
         raise NotImplementedError
-
-
-class PythonExecutionPolicy:
-    """Policy controlling Python source execution inside a worker."""
-
-    def validate_script(self, source_code: str) -> None:
-        """Validate source code intended for script execution."""
-        raise NotImplementedError
-
-    def validate_function(self, source_code: str, function_name: str) -> None:
-        """Validate source code and entry point for function execution."""
-        raise NotImplementedError
-
-    def build_namespace(self) -> dict[str, object]:
-        """Build the initial namespace for a worker execution."""
-        raise NotImplementedError

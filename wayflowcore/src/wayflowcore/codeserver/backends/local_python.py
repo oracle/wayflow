@@ -26,8 +26,8 @@ from wayflowcore.codeserver.backend import (
     BackendExecutionResult,
     BackendHostCallbackRequest,
     CodeExecutorBackend,
-    PythonExecutionPolicy,
 )
+from wayflowcore.codeserver.backends.pythonexecutionpolicy import PythonExecutionPolicy
 from wayflowcore.codeserver.backends.pythonworker import worker_main
 from wayflowcore.codeserver.models import (
     TASK_STATUS_CANCELLED,

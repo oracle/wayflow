@@ -19,7 +19,7 @@ from multiprocessing.queues import Queue
 from typing import cast
 
 from wayflowcore._utils.notgiven import NOT_GIVEN, NotGiven
-from wayflowcore.codeserver.backend import PythonExecutionPolicy
+from wayflowcore.codeserver.backends.pythonexecutionpolicy import PythonExecutionPolicy
 from wayflowcore.codeserver.models import JsonValue
 
 WorkerCommand = dict[str, object]
