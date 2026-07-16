@@ -111,7 +111,7 @@ def test_service_preserves_json_null_function_result(python_service: CodeExecuti
         wait=True,
     )
 
-    response = service.execute(request)
+    response = python_service.execute(request)
 
     output = response.output[0]
     assert isinstance(output, ExecutionResult)
@@ -132,7 +132,7 @@ def test_service_captures_stdout_and_stderr(python_service: CodeExecutionService
         wait=True,
     )
 
-    response = service.execute(request)
+    response = python_service.execute(request)
 
     assert response.output == [
         ExecutionResult(

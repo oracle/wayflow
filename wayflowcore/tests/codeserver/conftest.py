@@ -14,3 +14,11 @@ from wayflowcore.codeserver.service import CodeExecutionService
 def python_service() -> CodeExecutionService:
     """Provides a service backed by the local Python implementation."""
     return CodeExecutionService(backend=LocalPythonBackend())
+
+
+@pytest.fixture
+def python_backend() -> LocalPythonBackend:
+    """Provides a local Python backend for direct backend tests."""
+    backend = LocalPythonBackend()
+    yield backend
+    backend.close_all_sessions()

@@ -26,10 +26,9 @@ def test_service_with_python_backend_returns_callback_host_request(
     """Returns a callback host request when Python code invokes a host function."""
     session = python_service.create_session(CreateSessionRequest(language_id="python"))
     source_code = """
-result = lookup_weather(city="Paris")
+result = host.tool_execution("lookup_weather", city="Paris")
 print(result)
 """
-    # The syntax used to create a callback host request may be backend-dependent.
     request = CodeExecutionRequest(
         language_id="python",
         session_id=session.id,
@@ -56,7 +55,7 @@ def test_service_waits_for_callback_host_response(
         input=[
             ScriptInput(
                 type="script",
-                source_code='result = lookup_weather(city="Paris")',
+                source_code='result = host.tool_execution("lookup_weather", city="Paris")',
             )
         ],
     )
@@ -80,7 +79,9 @@ def test_service_resumes_execution_after_callback_host_response(
         input=[
             ScriptInput(
                 type="script",
-                source_code=('result = lookup_weather(city="Paris")\n' "print(result)"),
+                source_code=(
+                    'result = host.tool_execution("lookup_weather", city="Paris")\n' "print(result)"
+                ),
             )
         ],
     )

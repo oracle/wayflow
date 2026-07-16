@@ -1,4 +1,4 @@
-# Copyright © 2025 Oracle and/or its affiliates.
+# Copyright © 2025, 2026 Oracle and/or its affiliates.
 #
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
@@ -9,9 +9,16 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Final, Literal, TypeAlias
+from typing import Final, Literal, TypeAlias
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from typing_extensions import TypeAliasType
+
+JsonValue = TypeAliasType(
+    "JsonValue",
+    "None | bool | int | float | str | list[JsonValue] | dict[str, JsonValue]",
+)
+"""A JSON-compatible value."""
 
 TaskStatus: TypeAlias = Literal[
     "working", "input_required", "completed", "failed", "cancelled", "timed_out"
@@ -44,7 +51,7 @@ class FunctionInput(CodeExecutorModel):
     type: Literal["function"]
     source_code: str
     function_name: str
-    arguments: dict[str, Any]
+    arguments: dict[str, JsonValue]
     """Named JSON-compatible arguments passed to the function."""
 
 
@@ -53,7 +60,7 @@ class HostCallbackResponse(CodeExecutorModel):
 
     type: Literal["host_response"]
     request_id: str
-    result: Any = None
+    result: JsonValue = None
     """JSON-compatible result returned by the host."""
 
 
@@ -80,7 +87,7 @@ class CodeExecutionRequest(CodeExecutorModel):
     """Dependencies expected to be available in the execution environment."""
 
     session_id: str | None = None
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, JsonValue] = Field(default_factory=dict)
     wait: bool = True
 
     @model_validator(mode="after")
@@ -97,7 +104,7 @@ class ExecutionResult(CodeExecutorModel):
     content: list[TextContent] = Field(default_factory=list)
     """Content blocks such as captured text output."""
 
-    structured_content: Any = Field(default=None, alias="structuredContent")
+    structured_content: JsonValue = Field(default=None, alias="structuredContent")
     """Optional JSON-compatible structured result, including scalar values and null."""
 
     is_error: bool = Field(default=False, alias="isError")
@@ -111,7 +118,7 @@ class HostCallbackRequest(CodeExecutorModel):
     request_id: str
     request_type: Literal["tool_execution"]
     name: str
-    arguments: dict[str, Any]
+    arguments: dict[str, JsonValue]
 
 
 ExecutionOutputItem: TypeAlias = ExecutionResult | HostCallbackRequest
@@ -128,7 +135,7 @@ class ExecutionResponse(CodeExecutorModel):
     completed_at: datetime | None = None
     language_id: str
     output: list[ExecutionOutputItem] = Field(default_factory=list)
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class HostInteractions(CodeExecutorModel):
@@ -143,7 +150,7 @@ class CreateSessionRequest(CodeExecutorModel):
 
     language_id: str
     host_interactions: HostInteractions | None = None
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class SessionSnapshot(CodeExecutorModel):
@@ -154,4 +161,13 @@ class SessionSnapshot(CodeExecutorModel):
     status: Literal["active", "closing", "closed", "expired"]
     language_id: str
     host_interactions: HostInteractions | None = None
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, JsonValue] = Field(default_factory=dict)
+
+
+class CodeExecutorCapabilities(CodeExecutorModel):
+    """Public capabilities advertised by a Code Executor server."""
+
+    view: Literal["public"] = "public"
+    protocol_version: str
+    server_name: str
+    capabilities: dict[str, JsonValue] = Field(default_factory=dict)

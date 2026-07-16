@@ -10,13 +10,13 @@ import pytest
 
 from wayflowcore.codeserver.models import (
     CodeExecutionRequest,
+    CreateSessionRequest,
     ExecutionResponse,
     ExecutionResult,
     FunctionInput,
     HostCallbackRequest,
-    HostResponse,
+    HostCallbackResponse,
     ScriptInput,
-    SessionRequest,
     SessionSnapshot,
     TextContent,
 )
@@ -85,7 +85,7 @@ def test_execution_request_raises_on_unknown_input_type() -> None:
 
 
 def test_execution_request_raises_on_multiple_input_items() -> None:
-    """Raises when more than one executable input item is supplied in v1."""
+    """Raises when more than one executable input item is supplied."""
     with pytest.raises(ValueError):
         CodeExecutionRequest.model_validate(
             {
@@ -187,7 +187,7 @@ def test_host_request_and_host_response_models() -> None:
             "arguments": {"city": "Paris"},
         }
     )
-    response = HostResponse.model_validate(
+    response = HostCallbackResponse.model_validate(
         {
             "type": "host_response",
             "request_id": "req_123",
@@ -203,10 +203,9 @@ def test_host_request_and_host_response_models() -> None:
 
 def test_session_request_and_snapshot_models() -> None:
     """Validates session creation and lifecycle snapshot models."""
-    request = SessionRequest.model_validate(
+    request = CreateSessionRequest.model_validate(
         {
             "language_id": "python",
-            "language_version": "3.12",
             "host_interactions": {
                 "enabled": True,
                 "allowed_request_types": ["tool_execution"],
@@ -220,7 +219,6 @@ def test_session_request_and_snapshot_models() -> None:
             "object": "session",
             "status": "active",
             "language_id": "python",
-            "language_version": "3.12",
             "host_interactions": {
                 "enabled": True,
                 "allowed_request_types": ["tool_execution"],

@@ -6,17 +6,9 @@
 
 
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import Any
 
-
-class NotGiven:
-    """Marker for a value that was not supplied."""
-
-    def __bool__(self) -> Literal[False]:
-        return False
-
-
-NOT_GIVEN = NotGiven()
+from wayflowcore._utils.notgiven import NOT_GIVEN, NotGiven
 
 
 @dataclass(frozen=True, kw_only=True)
