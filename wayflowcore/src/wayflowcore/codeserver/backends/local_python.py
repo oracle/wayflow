@@ -245,8 +245,10 @@ class LocalPythonBackend(CodeExecutorBackend):
     ) -> tuple[Queue[object], Queue[object], BaseProcess]:
         """Create and start one local Python worker process."""
         context = multiprocessing.get_context("spawn")
-        command_queue = cast(Queue[object], context.Queue())
-        result_queue = cast(Queue[object], context.Queue())
+        # multiprocessing.queues.Queue is not subscriptable at runtime on
+        # Python 3.11, so keep the generic form in annotations only.
+        command_queue = context.Queue()
+        result_queue = context.Queue()
         process = context.Process(
             target=worker_main,
             args=(command_queue, result_queue, self.policy),

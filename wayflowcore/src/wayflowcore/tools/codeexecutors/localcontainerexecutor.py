@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from .executor import CodeExecutor
 
 
-@dataclass
+@dataclass(kw_only=True)
 class LocalContainerCodeExecutor(CodeExecutor):
     """Run code through a locally started container-backed Code Executor."""
 

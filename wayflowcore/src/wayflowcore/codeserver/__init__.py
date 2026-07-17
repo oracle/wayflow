@@ -7,5 +7,6 @@
 """Code Executor Protocol server models and services."""
 
 from wayflowcore.codeserver.server import CodeExecutorServer
+from wayflowcore.codeserver.serverstorageconfig import CodeExecutorServerStorageConfig
 
-__all__ = ["CodeExecutorServer"]
+__all__ = ["CodeExecutorServer", "CodeExecutorServerStorageConfig"]

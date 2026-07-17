@@ -17,11 +17,6 @@ from typing import Any, Callable, Dict, List, Literal, Optional, Sequence, Tuple
 import yaml
 
 from wayflowcore.agentserver import ServerStorageConfig
-from wayflowcore.agentserver._storagehelpers import (
-    _prepare_oracle_datastore,
-    _prepare_postgres_datastore,
-)
-from wayflowcore.agentserver.app import create_server_app
 from wayflowcore.agentspec import AgentSpecLoader
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.datastore import (
@@ -218,6 +213,8 @@ def serve(
     api_key: Optional[str] = None,
 ) -> None:
 
+    from wayflowcore.agentserver.app import create_server_app
+
     agents: dict[str, ConversationalComponent] = {}
     if len(agent_configs) != len(agent_ids):
         raise ValueError("You specified different numbers of agents and configs")
@@ -288,6 +285,12 @@ def _get_persistence_arguments(
     datastore_connection_config: Optional[Any] = None,
     setup_datastore: bool = False,
 ) -> Tuple[Datastore, ServerStorageConfig]:
+    from wayflowcore.agentserver import ServerStorageConfig
+    from wayflowcore.agentserver._storagehelpers import (
+        _prepare_oracle_datastore,
+        _prepare_postgres_datastore,
+    )
+
     storage_config = storage_config or ServerStorageConfig()
     storage_schema = storage_config.to_schema()
     storage: Datastore
@@ -363,6 +366,8 @@ def _load_yaml_dict(path: Path) -> Dict[str, Any]:
 
 
 def _load_server_storage_config(path_str: Optional[str]) -> Optional[ServerStorageConfig]:
+    from wayflowcore.agentserver import ServerStorageConfig
+
     if path_str is None:
         return None
     config_path = Path(path_str).expanduser()
