@@ -150,7 +150,7 @@ class SerializationContext:
         """
         self._serialized_objects[self.get_reference(obj)] = obj_as_dict
 
-    def _add_component_to_context(self, component: "Component") -> None:
+    def _register_external_component_references(self, component: "Component") -> None:
         """
         Marks the current component and all its nested components as provided externally to the
         serialized object graph.
@@ -354,7 +354,7 @@ class DeserializationContext:
 
         return WayflowBuiltinsDeserializationPlugin()
 
-    def _add_component_to_context(self, component: "Component") -> None:
+    def _register_external_component_references(self, component: "Component") -> None:
         """
         Adds the current components and all its subcomponents to this
         deserialization context.

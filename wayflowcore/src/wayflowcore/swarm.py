@@ -354,10 +354,10 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         )
         agents_and_threads: Dict[str, Dict[str, SwarmThread]] = {}
         for caller_agent, recipient_agent in self.relationships:
-            if caller_agent.name not in agents_and_threads:
-                agents_and_threads[caller_agent.name] = {}
+            if caller_agent.id not in agents_and_threads:
+                agents_and_threads[caller_agent.id] = {}
 
-            agents_and_threads[caller_agent.name][recipient_agent.name] = SwarmThread(
+            agents_and_threads[caller_agent.id][recipient_agent.id] = SwarmThread(
                 caller=caller_agent,
                 recipient_agent=recipient_agent,
             )

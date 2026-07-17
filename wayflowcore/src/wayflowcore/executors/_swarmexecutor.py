@@ -421,8 +421,9 @@ class SwarmRunner(ConversationExecutor):
             )
         else:
             swarm_conversation.state.thread_stack.append(current_thread)
-            current_thread = swarm_conversation.state.agents_and_threads[current_agent.name][
-                recipient_agent_name
+            recipient_agent = swarm_conversation.component._agent_by_name[recipient_agent_name]
+            current_thread = swarm_conversation.state.agents_and_threads[current_agent.id][
+                recipient_agent.id
             ]
 
             current_thread.message_list.append_message(

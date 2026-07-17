@@ -68,7 +68,8 @@ class AgentConversation(Conversation):
     @staticmethod
     def _sub_component_conversation_key(component: ConversationalComponent) -> str:
         """Return the canonical runtime key for a subcomponent conversation slot."""
-        return f"{component.__class__.__name__}:{component.name}"
+        # return f"{component.__class__.__name__}:{component.name}"
+        return component.id
 
     def _get_sub_component_conversation(
         self, component: ConversationalComponent

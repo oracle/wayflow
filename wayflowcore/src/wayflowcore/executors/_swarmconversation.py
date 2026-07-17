@@ -75,7 +75,7 @@ class SwarmConversationExecutionState(ConversationExecutionState):
         inputs: Optional[Dict[str, Any]] = None,
         message_list: Optional[Union[MessageList, List[Message]]] = None,
     ) -> "AgentConversation":
-        thread_id = thread.identifier
+        thread_id = thread.id
         if thread_id in self.thread_subconversations:
             raise KeyError(
                 f"Trying to create a new subconversation for thread {thread_id} but a conversation already exists"
@@ -166,9 +166,12 @@ class SwarmConversation(Conversation):
     def _get_subconversation_for_thread(
         self, thread: "SwarmThread"
     ) -> Optional["AgentConversation"]:
-        return self.thread_subconversations.get(thread.identifier)
+        return self.thread_subconversations.get(thread.id)
 
     def _get_recipient_names_for_agent(self, agent: Agent) -> List[str]:
-        if agent.name not in self.state.agents_and_threads:
+        if agent.id not in self.state.agents_and_threads:
             raise ValueError(f"Agent {agent} is not a sender of any thread")
-        return list(self.state.agents_and_threads[agent.name].keys())
+        return [
+            thread.recipient_agent.name
+            for thread in self.state.agents_and_threads[agent.id].values()
+        ]

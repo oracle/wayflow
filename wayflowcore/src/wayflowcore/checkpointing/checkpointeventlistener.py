@@ -5,7 +5,7 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional
+from typing import TYPE_CHECKING, Any, Dict, Generator, Optional
 
 from ..events import Event, EventListener
 from ..events.event import (
@@ -174,7 +174,7 @@ class _ConversationCheckpointEventListener(EventListener):
 def get_conversation_checkpoint_execution_context(
     conversation: "Conversation",
     is_outermost_execution: bool,
-) -> Iterator[None]:
+) -> Generator[None, None, None]:
     """Context manager that wraps one outermost execute() with checkpointing.
 
     The ordering is deliberate:

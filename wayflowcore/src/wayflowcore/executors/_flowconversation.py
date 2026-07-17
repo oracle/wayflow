@@ -87,17 +87,15 @@ class FlowConversation(Conversation):
         return self.state.flow.steps[step_name]
 
     def _get_current_sub_conversation(
-        self,
-        step: "Step",
-        sub_conversation_id: Optional[str] = None,
+        self, step: "Step", sub_conversation_id: Optional[str] = None
     ) -> Optional["Conversation"]:
         from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 
         key = FlowConversationExecutor().make_key_for_step(
-            step,
-            sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY,
+            step, sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY
         )
-        return cast(Optional["Conversation"], self.state.internal_context_key_values.get(key))
+        value = self.state.internal_context_key_values.get(key, None)
+        return cast(Optional["Conversation"], value)
 
     def _update_sub_conversation(
         self,

@@ -246,7 +246,8 @@ class FlowConversationExecutor(ConversationExecutor):
 
     @staticmethod
     def make_key_for_step(assistant_step: Step, key: str) -> str:
-        return str(assistant_step.name) + "_" + key
+        return str(assistant_step.id) + "_" + key
+        # return str(assistant_step.name) + "_" + key
 
     @staticmethod
     def get_parent_conversation(state: FlowConversationExecutionState) -> Optional[Conversation]:

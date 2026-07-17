@@ -129,15 +129,23 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         if len(workers) == 0:
             raise ValueError("Cannot define a group with no worker agent.")
 
+        managerworkers_id = IdGenerator.get_or_generate_id(id)
+
         self.group_manager = group_manager
-        self.manager_agent = _create_manager_agent(self.group_manager)
+        self.manager_agent = _create_manager_agent(
+            self.group_manager, manager_agent_id=f"{managerworkers_id}:manager"
+        )
 
         self.workers = workers
         self.transforms = transforms or []
 
+        agents = self.workers + [self.manager_agent]
         self._agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = _validate_agent_unicity(
-            self.workers + [self.manager_agent]
+            agents
         )
+        self._agent_by_id: Dict[str, Union["Agent", "ManagerWorkers"]] = {
+            agent.id: agent for agent in agents
+        }
 
         # Create send message tools for the group manager
         self._manager_communication_tools = _create_communication_tools()
@@ -154,7 +162,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         super().__init__(
             name=IdGenerator.get_or_generate_name(name, prefix="managerworkers_", length=8),
             description=description,
-            id=id,
+            id=managerworkers_id,
             input_descriptors=input_descriptors or [],
             output_descriptors=output_descriptors or [],
             runner=ManagerWorkersRunner,
@@ -292,15 +300,15 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         )
 
         subconversations: Dict[str, Union[AgentConversation, ManagerWorkersConversation]] = {}
-        subconversations[self.manager_agent.name] = self.manager_agent.start_conversation(
+        subconversations[self.manager_agent.id] = self.manager_agent.start_conversation(
             inputs=inputs,
             messages=messages,
             conversation_id=conversation_root_id,
-            _runtime_conversation_id=self.manager_agent.name,
+            _runtime_conversation_id=self.manager_agent.id,
         )
 
         state = ManagerWorkersConversationExecutionState(
-            current_agent_name=self.manager_agent.name,
+            current_agent_id=self.manager_agent.id,
             subconversations=subconversations,
             conversation_id=conversation_root_id,
         )
@@ -343,7 +351,11 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             _validate_agent_unicity,
         )
 
-        self.manager_agent = _create_manager_agent(self.group_manager)
-        self._agent_by_name = _validate_agent_unicity(self.workers + [self.manager_agent])
+        self.manager_agent = _create_manager_agent(
+            self.group_manager, manager_agent_id=f"{self.id}:manager"
+        )
+        agents = self.workers + [self.manager_agent]
+        self._agent_by_name = _validate_agent_unicity(agents)
+        self._agent_by_id = {agent.id: agent for agent in agents}
         self._manager_communication_tools = _create_communication_tools()
         self._runtime_managerworkers_template = self._compose_runtime_managerworkers_template()

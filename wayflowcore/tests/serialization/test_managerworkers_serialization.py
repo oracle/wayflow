@@ -118,7 +118,7 @@ def assert_managerworkers_conversation_states_are_equal(
     old_state: ManagerWorkersConversationExecutionState,
     new_state: ManagerWorkersConversationExecutionState,
 ):
-    assert old_state.current_agent_name == new_state.current_agent_name
+    assert old_state.current_agent_id == new_state.current_agent_id
     assert old_state.subconversations.keys() == new_state.subconversations.keys()
     for key in old_state.subconversations.keys():
         assert_agent_conversations_are_equal(
@@ -201,7 +201,7 @@ def test_can_deserialize_a_serialized_conversation(
     simple_conversation: ManagerWorkersConversation, simple_math_agents_example
 ):
     addition_agent, _ = simple_math_agents_example
-    simple_conversation.subconversations[addition_agent.name] = addition_agent.start_conversation()
+    simple_conversation.subconversations[addition_agent.id] = addition_agent.start_conversation()
     new_conversation = deserialize(ManagerWorkersConversation, serialize(simple_conversation))
 
     assert_managerworkers_conversations_are_equal(simple_conversation, new_conversation)
@@ -415,7 +415,7 @@ def test_can_deserialize_a_multi_level_managerworkers_serialized_conversation(
     multi_level_managerworkers_conversation: ManagerWorkersConversation, simple_math_agents_example
 ):
     addition_agent, _ = simple_math_agents_example
-    multi_level_managerworkers_conversation.subconversations[addition_agent.name] = (
+    multi_level_managerworkers_conversation.subconversations[addition_agent.id] = (
         addition_agent.start_conversation()
     )
     new_conversation = deserialize(

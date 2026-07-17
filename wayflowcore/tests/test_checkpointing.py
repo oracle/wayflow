@@ -10,13 +10,19 @@ import pytest
 
 from wayflowcore.agent import Agent
 from wayflowcore.checkpointing import CheckpointingInterval, InMemoryCheckpointer
+from wayflowcore.controlconnection import ControlFlowEdge
+from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
+from wayflowcore.flow import Flow
 from wayflowcore.flowhelpers import create_single_step_flow
-from wayflowcore.steps import OutputMessageStep
+from wayflowcore.managerworkers import ManagerWorkers
+from wayflowcore.serialization import deserialize, serialize
+from wayflowcore.steps import CompleteStep, ConstantValuesStep, OutputMessageStep, RetryStep
 from wayflowcore.steps.promptexecutionstep import PromptExecutionStep
 from wayflowcore.swarm import Swarm
 
 from .serialization.test_assistant_serialization import create_flow
+from .test_managerworkers import _send_message
 from .testhelpers.dummy import DummyModel
 
 
@@ -199,6 +205,141 @@ def test_checkpoint_restore_requires_conversation_id_when_checkpoint_id_is_provi
             checkpointer=checkpointer,
             checkpoint_id=checkpoint.checkpoint_id,
         )
+
+
+def test_checkpoint_restore_with_serialized_component_graph() -> None:
+    checkpointer = InMemoryCheckpointer()
+    original_flow = create_flow()
+
+    conversation = original_flow.start_conversation(
+        conversation_id="checkpoint-serialized-component-graph",
+        checkpointer=checkpointer,
+    )
+    first_status = conversation.execute()
+    assert isinstance(first_status, UserMessageRequestStatus)
+
+    serialized_flow = serialize(original_flow)
+    reloaded_flow = deserialize(Flow, serialized_flow)
+    assert reloaded_flow.id == original_flow.id
+    assert {name: step.id for name, step in reloaded_flow.steps.items()} == {
+        name: step.id for name, step in original_flow.steps.items()
+    }
+
+    restored_conversation = reloaded_flow.start_conversation(
+        conversation_id=conversation.conversation_id,
+        checkpointer=checkpointer,
+    )
+    assert isinstance(restored_conversation.status, UserMessageRequestStatus)
+
+    restored_conversation.append_user_message("continue")
+    assert isinstance(restored_conversation.execute(), FinishedStatus)
+
+
+def test_checkpoint_restore_preserves_retry_counter_with_recreated_step() -> None:
+    inner_flow = create_single_step_flow(
+        ConstantValuesStep(constant_values={"success": False}, name="retry_result")
+    )
+    retry_step = RetryStep(
+        flow=inner_flow,
+        success_condition="success",
+        max_num_trials=2,
+        name="retry_step",
+    )
+    success_step = CompleteStep(name="success")
+    failure_step = CompleteStep(name="failure")
+    flow = Flow(
+        begin_step=retry_step,
+        steps={"retry_step": retry_step, "success": success_step, "failure": failure_step},
+        control_flow_edges=[
+            ControlFlowEdge(
+                source_step=retry_step,
+                source_branch=RetryStep.BRANCH_NEXT,
+                destination_step=success_step,
+            ),
+            ControlFlowEdge(
+                source_step=retry_step,
+                source_branch=RetryStep.BRANCH_FAILURE,
+                destination_step=failure_step,
+            ),
+        ],
+    )
+    checkpointer = InMemoryCheckpointer(
+        checkpointing_interval=CheckpointingInterval.ALL_INTERNAL_TURNS
+    )
+
+    conversation = flow.start_conversation(
+        conversation_id="checkpoint-retry-counter",
+        checkpointer=checkpointer,
+    )
+    assert isinstance(conversation.execute(), FinishedStatus)
+
+    counter_key = FlowConversationExecutor.make_key_for_step(
+        retry_step, RetryStep._RETRY_COUNTER_KEY
+    )
+    checkpoint = next(
+        checkpoint
+        for checkpoint in checkpointer.list_checkpoints(conversation.conversation_id)
+        if f"{counter_key}: 1" in checkpoint.state
+    )
+
+    reloaded_flow = deserialize(Flow, serialize(flow))
+    reloaded_retry_step = reloaded_flow.steps["retry_step"]
+    reloaded_retry_step.name = "renamed_retry_step"
+    restored_conversation = reloaded_flow.start_conversation(
+        conversation_id=conversation.conversation_id,
+        checkpoint_id=checkpoint.checkpoint_id,
+        checkpointer=checkpointer,
+    )
+
+    restored_counter_key = FlowConversationExecutor.make_key_for_step(
+        reloaded_retry_step, RetryStep._RETRY_COUNTER_KEY
+    )
+    assert restored_counter_key == counter_key
+    assert restored_conversation.state.internal_context_key_values[restored_counter_key] == 1
+    restored_status = restored_conversation.execute()
+    assert isinstance(restored_status, FinishedStatus)
+    assert restored_status.complete_step_name == "failure"
+
+
+def test_managerworkers_checkpoint_restore_preserves_worker_subconversation() -> None:
+    manager_llm = DummyModel()
+    worker = Agent(
+        llm=DummyModel(fails_if_not_set=False),
+        name="checkpoint_worker",
+        description="Checkpoint worker",
+        initial_message="Worker ready.",
+    )
+    group = ManagerWorkers(
+        group_manager=manager_llm,
+        workers=[worker],
+        name="checkpoint_managerworkers",
+        id="checkpoint-managerworkers",
+    )
+    checkpointer = InMemoryCheckpointer(
+        checkpointing_interval=CheckpointingInterval.ALL_INTERNAL_TURNS
+    )
+
+    conversation = group.start_conversation(
+        conversation_id="checkpoint-managerworkers",
+        checkpointer=checkpointer,
+    )
+    conversation.append_user_message("Delegate this task.")
+    manager_llm.set_next_output([_send_message(worker, message="Please help."), "All done."])
+
+    status = conversation.execute()
+    assert isinstance(status, UserMessageRequestStatus)
+    assert worker.id in conversation.subconversations
+
+    checkpoint = checkpointer.load_latest(conversation.conversation_id)
+    assert checkpoint is not None
+    restored_conversation = group.start_conversation(
+        conversation_id=conversation.conversation_id,
+        checkpoint_id=checkpoint.checkpoint_id,
+        checkpointer=checkpointer,
+    )
+
+    assert worker.id in restored_conversation.subconversations
+    assert restored_conversation.subconversations[worker.id].component is worker
 
 
 @pytest.mark.parametrize(

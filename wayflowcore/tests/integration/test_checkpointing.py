@@ -11,7 +11,6 @@ import pytest
 from wayflowcore.agent import Agent
 from wayflowcore.checkpointing import InMemoryCheckpointer
 from wayflowcore.checkpointing.checkpoint_state import _save_live_conversation_checkpoint
-from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.conversation import Conversation
 from wayflowcore.executors._events.event import Event, EventType
 from wayflowcore.executors._executionstate import ConversationExecutionState
@@ -24,9 +23,8 @@ from wayflowcore.executors.interrupts.executioninterrupt import (
 )
 from wayflowcore.flow import Flow
 from wayflowcore.flowbuilder import FlowBuilder
-from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.managerworkers import ManagerWorkers
-from wayflowcore.steps import FlowExecutionStep, OutputMessageStep
+from wayflowcore.steps import FlowExecutionStep
 from wayflowcore.swarm import Swarm
 
 from ..serialization.test_assistant_serialization import create_flow
@@ -180,50 +178,6 @@ def _build_checkpointable_managerworkers() -> tuple[ManagerWorkers, DummyModel]:
     return managerworkers, manager_llm
 
 
-def test_flow_checkpoint_restore_rejects_generated_step_name_reinstantiation() -> None:
-    checkpointer = InMemoryCheckpointer()
-
-    def build_flow() -> tuple[Flow, OutputMessageStep]:
-        first_step = DoNothingStep()
-        second_step = OutputMessageStep(message_template="Generated step resumed.")
-        first_step.id = "generated_step_restore_flow_first_step"
-        second_step.id = "generated_step_restore_flow_second_step"
-        return (
-            Flow(
-                begin_step=first_step,
-                steps=[first_step, second_step],
-                control_flow_edges=[
-                    ControlFlowEdge(source_step=first_step, destination_step=second_step),
-                    ControlFlowEdge(source_step=second_step, destination_step=None),
-                ],
-                name="generated_step_restore_flow",
-                flow_id="generated_step_restore_flow",
-            ),
-            second_step,
-        )
-
-    original_flow, original_second_step = build_flow()
-    assert IdGenerator.is_auto_generated(original_second_step.name)
-    conversation = original_flow.start_conversation(
-        conversation_id="generated-step-name-restore",
-        checkpointer=checkpointer,
-    )
-    first_status = conversation.execute(
-        execution_interrupts=[_OnStepStartExecutionInterrupt(original_second_step.name)]
-    )
-
-    assert isinstance(first_status, InterruptedExecutionStatus)
-    assert checkpointer.load_latest(conversation.conversation_id) is not None
-
-    restarted_flow, _ = build_flow()
-
-    with pytest.raises(ValueError, match="stable step names"):
-        restarted_flow.start_conversation(
-            conversation_id=conversation.conversation_id,
-            checkpointer=checkpointer,
-        )
-
-
 def test_flow_checkpoint_restore_relinks_nested_flow_parent_for_interrupt_inheritance() -> None:
     checkpointer = InMemoryCheckpointer()
 
@@ -251,7 +205,7 @@ def test_flow_checkpoint_restore_relinks_nested_flow_parent_for_interrupt_inheri
         checkpointer=checkpointer,
     )
     restored_child_conversation = restored_conversation._get_current_sub_conversation(
-        restarted_flow.steps["parent_flow_step"]
+        original_flow.steps["parent_flow_step"]
     )
     assert restored_child_conversation is not None
     assert restored_child_conversation._get_parent_conversation() is restored_conversation
@@ -357,7 +311,7 @@ def test_multi_agent_checkpointing_supports_resume_and_time_travel(
     assert rewound_conversation.get_last_message().content == rewound_output
 
 
-def test_swarm_checkpoint_restore_rebuilds_generated_agent_name_threads() -> None:
+def test_swarm_checkpoint_restore_uses_generated_agent_ids_for_threads() -> None:
     checkpointer = InMemoryCheckpointer()
 
     def build_swarm() -> tuple[Swarm, Agent, Agent]:
@@ -389,8 +343,8 @@ def test_swarm_checkpoint_restore_rebuilds_generated_agent_name_threads() -> Non
         conversation_id="swarm-generated-agent-name-restart",
         checkpointer=checkpointer,
     )
-    original_thread = conversation.state.agents_and_threads[original_first_agent.name][
-        original_second_agent.name
+    original_thread = conversation.state.agents_and_threads[original_first_agent.id][
+        original_second_agent.id
     ]
     conversation.state._create_subconversation_for_thread(original_thread)
     conversation.state.current_thread = original_thread
@@ -404,6 +358,10 @@ def test_swarm_checkpoint_restore_rebuilds_generated_agent_name_threads() -> Non
     assert restored_conversation.state.current_thread is not None
     assert restored_conversation.state.current_thread.identifier == (
         f"{restarted_first_agent.name}#{restarted_second_agent.name}"
+    )
+    restored_thread = restored_conversation.state.current_thread
+    assert restored_conversation.thread_subconversations[restored_thread.id].component is (
+        restarted_second_agent
     )
 
 
@@ -451,7 +409,7 @@ def test_agent_checkpoint_restore_relinks_current_flow_parent() -> None:
     restored_parent_flow_conversation = restored_conversation.state.current_flow_conversation
     assert restored_parent_flow_conversation is not None
     restored_child_conversation = restored_parent_flow_conversation._get_current_sub_conversation(
-        restarted_parent_flow.steps["agent_parent_flow_step"]
+        original_parent_flow.steps["agent_parent_flow_step"]
     )
     assert restored_child_conversation is not None
     assert (
@@ -459,7 +417,7 @@ def test_agent_checkpoint_restore_relinks_current_flow_parent() -> None:
     )
 
 
-def test_managerworkers_checkpoint_restore_rejects_nested_generated_agent_names() -> None:
+def test_managerworkers_checkpoint_restore_uses_nested_agent_ids() -> None:
     checkpointer = InMemoryCheckpointer()
 
     def build_managerworkers() -> tuple[ManagerWorkers, Agent, ManagerWorkers, Agent, Agent]:
@@ -515,14 +473,19 @@ def test_managerworkers_checkpoint_restore_rejects_nested_generated_agent_names(
         original_nested_managerworkers
     )
     nested_conversation.state._create_subconversation_for_agent(original_nested_worker_agent)
-    conversation.state.current_agent_name = original_nested_managerworkers.name
-    nested_conversation.state.current_agent_name = original_nested_worker_agent.name
-    _save_live_conversation_checkpoint(checkpointer, conversation)
+    nested_conversation.state.current_agent_id = original_nested_worker_agent.id
+    conversation.append_user_message("Save this nested conversation.")
+    original_outer_manager_agent.llm.set_next_output("Saved.")
+    conversation.execute()
 
     restarted_managerworkers, *_ = build_managerworkers()
 
-    with pytest.raises(ValueError, match="stable agent names"):
-        restarted_managerworkers.start_conversation(
-            conversation_id=conversation.conversation_id,
-            checkpointer=checkpointer,
-        )
+    restored_conversation = restarted_managerworkers.start_conversation(
+        conversation_id=conversation.conversation_id,
+        checkpointer=checkpointer,
+    )
+    assert restored_conversation.state.current_agent_id == original_outer_manager_agent.id
+    restored_nested_conversation = restored_conversation.subconversations[
+        original_nested_managerworkers.id
+    ]
+    assert restored_nested_conversation.state.current_agent_id == original_nested_worker_agent.id
