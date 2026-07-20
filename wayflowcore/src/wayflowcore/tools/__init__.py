@@ -10,6 +10,7 @@ from .flowbasedtools import DescribedFlow
 from .remotetools import RemoteTool
 from .servertools import ServerTool, register_server_tool
 from .toolbox import ToolBox
+from .toolfromcode import ToolFromCode
 from .toolhelpers import tool
 from .tools import Tool, ToolRequest, ToolResult
 
@@ -19,6 +20,7 @@ __all__ = [
     "tool",
     "Tool",
     "ToolBox",
+    "ToolFromCode",
     "ToolRequest",
     "ToolResult",
     "DescribedFlow",
