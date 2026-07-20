@@ -59,6 +59,12 @@ class LocalPythonBackend(CodeExecutorBackend):
     max_stderr_chars: int = 50_000
     """Maximum captured standard-error characters per execution."""
 
+    # TODO: Move live-session registry ownership to CodeExecutionService (or a dedicated
+    # runtime SessionRegistry). The backend should create and operate on BackendSession
+    # handles supplied by the service, while CodeExecutorStorage should remain responsible
+    # only for persisted public session snapshots. This will also keep backend configuration
+    # independent from live process and queue state, which is important when passing a backend
+    # configuration into SubProcessCodeExecutor.
     _sessions: dict[str, LocalPythonSession] = field(default_factory=dict, init=False, repr=False)
 
     def get_capabilities(self) -> dict[str, JsonValue]:

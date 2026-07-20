@@ -17,6 +17,7 @@ from wayflowcore.codeserver.models import (
     CodeExecutorCapabilities,
     ExecutionResponse,
 )
+from wayflowcore.exceptions import CodeServerError
 
 
 class CodeExecutorHttpClient:
@@ -48,21 +49,31 @@ class CodeExecutorHttpClient:
             f"{self.base_url}/v1/executions",
             json=request.model_dump(by_alias=True, exclude_none=True),
         )
-        response.raise_for_status()
-        return ExecutionResponse.model_validate(response.json())
+        return _convert_response(response)
 
     def get_execution(self, execution_id: str) -> ExecutionResponse:
         """Fetch an execution snapshot."""
         response = self._client.get(f"{self.base_url}/v1/executions/{execution_id}")
-        response.raise_for_status()
-        return ExecutionResponse.model_validate(response.json())
+        return _convert_response(response)
 
     def cancel_execution(self, execution_id: str) -> ExecutionResponse:
         """Cancel an execution."""
         response = self._client.post(f"{self.base_url}/v1/executions/{execution_id}/cancel")
-        response.raise_for_status()
-        return ExecutionResponse.model_validate(response.json())
+        return _convert_response(response)
 
     def close(self) -> None:
         """Close the underlying HTTP client."""
         self._client.close()
+
+
+def _convert_response(response: httpx.Response) -> ExecutionResponse:
+    try:
+        response.raise_for_status()
+        return ExecutionResponse.model_validate(response.json())
+    except httpx.HTTPStatusError as e:
+        try:
+            detail = e.response.json().get("detail", "None")
+        except ValueError:
+            detail = e.response.text or "None"
+
+        raise CodeServerError(detail=detail) from e

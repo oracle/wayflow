@@ -15,11 +15,14 @@ from queue import Empty
 from typing import Any, Iterator
 
 from wayflowcore.codeserver import CodeExecutorServer
+from wayflowcore.codeserver.backend import CodeExecutorBackend
+from wayflowcore.codeserver.backends.local_python import LocalPythonBackend
 from wayflowcore.codeserver.models import (
     CodeExecutionRequest,
     CodeExecutorCapabilities,
     ExecutionResponse,
 )
+from wayflowcore.exceptions import CodeServerError
 
 from .executor import CodeExecutor
 
@@ -33,9 +36,13 @@ _MAX_LIVE_PROCESSES = 4
 _MAX_QUEUED_REQUESTS = 32
 
 
-def _subprocess_worker(request_queue: QueueType[str], response_queue: QueueType[str]) -> None:
+def _subprocess_worker(
+    request_queue: QueueType[str],
+    response_queue: QueueType[str],
+    backend: CodeExecutorBackend,
+) -> None:
     """Serve serialized Code Executor requests in a child process."""
-    server = CodeExecutorServer()
+    server = CodeExecutorServer(backend=backend)
     service = server.service
     while True:
         message = request_queue.get()
@@ -85,6 +92,8 @@ def _encode_response(value: object) -> str:
 class SubProcessCodeExecutor(CodeExecutor):
     """Run code through a Code Executor subprocess."""
 
+    backend: CodeExecutorBackend = field(default_factory=LocalPythonBackend)
+
     request_timeout_seconds: float = _DEFAULT_REQUEST_TIMEOUT_SECONDS
     """Maximum time allowed for one IPC request."""
 
@@ -102,7 +111,7 @@ class SubProcessCodeExecutor(CodeExecutor):
         self._response_queue = Queue()
         self._process = Process(
             target=_subprocess_worker,
-            args=(self._request_queue, self._response_queue),
+            args=(self._request_queue, self._response_queue, self.backend),
         )
         self._process.start()
 
@@ -125,12 +134,15 @@ class SubProcessCodeExecutor(CodeExecutor):
 
     def _create_execution(self, request: CodeExecutionRequest) -> ExecutionResponse:
         """Submit an execution request through the subprocess worker."""
-        value = self._request(
-            {
-                "operation": "create_execution",
-                "payload": request.model_dump_json(by_alias=True),
-            }
-        )
+        try:
+            value = self._request(
+                {
+                    "operation": "create_execution",
+                    "payload": request.model_dump_json(by_alias=True),
+                }
+            )
+        except RuntimeError as e:
+            raise CodeServerError(detail=str(e))
         return ExecutionResponse.model_validate_json(str(value["result"]))
 
     def _get_execution(self, execution_id: str) -> ExecutionResponse:

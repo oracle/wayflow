@@ -29,6 +29,7 @@ from wayflowcore.codeserver.models import (
     ScriptInput,
 )
 from wayflowcore.component import DataclassComponent
+from wayflowcore.exceptions import CodeServerError
 
 from ._utils import (
     CodeExecutionCancelled,
@@ -190,7 +191,7 @@ class CodeExecutor(DataclassComponent, ABC):
         started_at = time.monotonic()
         try:
             response = self._create_execution(request)
-        except Exception as exc:  # noqa: BLE001 - transport boundary.
+        except CodeServerError as exc:  # noqa: BLE001 - transport boundary.
             return CodeExecutionRejected(
                 execution_id="",
                 message=str(exc),
