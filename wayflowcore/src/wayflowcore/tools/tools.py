@@ -44,7 +44,9 @@ VALID_JSON_TYPES = {"boolean", "number", "integer", "string", "bool", "object", 
 
 JSON_SCHEMA_NONE_TYPE = "null"
 
-SupportedToolTypesT = Literal["client", "server", "remote", "tool", "toolfromtoolbox"]
+SupportedToolTypesT = Literal[
+    "client", "server", "remote", "tool", "toolfromtoolbox", "toolfromcode"
+]
 
 # We use any here for loose typechecking, which works so long as we don't
 # expect to process the _extra_content (which is the case with the
@@ -325,6 +327,11 @@ class Tool(ComponentWithInputsOutputs, SerializableObject, ABC):
         from wayflowcore.tools.servertools import (
             _convert_previously_supported_tool_into_server_tool,
         )
+
+        if isinstance(input_dict, dict) and input_dict.get("tool_type") == "toolfromcode":
+            from wayflowcore.tools.toolfromcode import ToolFromCode
+
+            return ToolFromCode._deserialize_from_dict(input_dict, deserialization_context)
 
         if not (isinstance(input_dict, str) or input_dict["tool_type"] == "server"):
             return ClientTool(
