@@ -1309,12 +1309,12 @@ def test_multiple_tool_calls_after_handoff_get_cancelled(vllm_responses_llm):
 @retry_test(max_attempts=3)
 def test_swarm_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
     """
-    Failure rate:          1 out of 50
-    Observed on:           2025-12-22
-    Average success time:  11.72 seconds per successful attempt
-    Average failure time:  3.71 seconds per failed attempt
-    Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    Failure rate:          2 out of 50
+    Observed on:           2026-07-21
+    Average success time:  7.75 seconds per successful attempt
+    Average failure time:  11.20 seconds per failed attempt
+    Max attempt:           4
+    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
     """
     llm = vllm_responses_llm
 

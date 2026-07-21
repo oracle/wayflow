@@ -27,6 +27,7 @@ from wayflowcore.templates import (
     REACT_AGENT_TEMPLATE,
     PromptTemplate,
 )
+from wayflowcore.templates._swarmtemplate import SwarmJsonToolOutputParser
 from wayflowcore.templates.pythoncalltemplates import GEMMA_AGENT_TEMPLATE
 from wayflowcore.templates.reacttemplates import ReactToolOutputParser
 from wayflowcore.templates.structuredgeneration import (
@@ -727,6 +728,90 @@ def test_parse_tool_call_using_json_raises_warning_on_non_dict_parameters(
     prompt.parse_output(Message(content=failing_raw_text, message_type=MessageType.AGENT))
     _ = parse_tool_call_using_json(failing_raw_text)
     assert "Couldn't parse tool request" in caplog.text
+
+
+def test_parse_tool_call_using_json_preserves_newline_separated_objects():
+    raw_tool_calls = """{"name":"send_message","parameters":{"recipient":"fooza_agent"}}
+{"name":"send_message","parameters":{"recipient":"bwip_agent"}}
+{"name":"send_message","parameters":{"recipient":"zbuk_agent"}}"""
+
+    tool_requests = parse_tool_call_using_json(raw_tool_calls)
+
+    assert [request.args["recipient"] for request in tool_requests] == [
+        "fooza_agent",
+        "bwip_agent",
+        "zbuk_agent",
+    ]
+
+
+def test_parse_tool_call_using_json_preserves_objects_inside_array():
+    raw_tool_calls = """[
+{"name":"send_message","parameters":{"recipient":"fooza_agent"}},
+{"name":"send_message","parameters":{"recipient":"bwip_agent"}},
+{"name":"send_message","parameters":{"recipient":"zbuk_agent"}}
+]"""
+
+    tool_requests = parse_tool_call_using_json(raw_tool_calls)
+
+    assert len(tool_requests) == 3
+    assert [request.args["recipient"] for request in tool_requests] == [
+        "fooza_agent",
+        "bwip_agent",
+        "zbuk_agent",
+    ]
+
+
+def test_swarm_json_tool_output_parser_preserves_multiple_tool_call_array():
+    raw_output = """I will delegate the independent tasks in parallel.
+[
+    {"name": "send_message", "parameters": {"recipient": "fooza_agent"}},
+    {"name": "send_message", "parameters": {"recipient": "bwip_agent"}}
+]"""
+
+    output = SwarmJsonToolOutputParser().parse_output(
+        Message(content=raw_output, message_type=MessageType.AGENT)
+    )
+
+    assert output.content == "I will delegate the independent tasks in parallel."
+    assert [request.args["recipient"] for request in output.tool_requests or []] == [
+        "fooza_agent",
+        "bwip_agent",
+    ]
+
+
+def test_parse_tool_call_using_json_ignores_braces_and_newlines_in_strings():
+    raw_tool_calls = r"""{"name":"send_message","parameters":{"message":"first { brace }
+second line"}}
+{"name":"send_message","parameters":{"message":"escaped quote \" and } brace"}}"""
+
+    tool_requests = parse_tool_call_using_json(raw_tool_calls)
+
+    assert len(tool_requests) == 2
+    assert tool_requests[0].args["message"] == "first { brace }\nsecond line"
+    assert tool_requests[1].args["message"] == 'escaped quote " and } brace'
+
+
+@pytest.mark.parametrize(
+    "raw_tool_call,expected_args",
+    [
+        (
+            '{"name":"send_message","parameters":{"recipient":"fooza_agent"}}',
+            {"recipient": "fooza_agent"},
+        ),
+        (
+            '{"name":"send_message","parameters":{"recipient":"fooza_agent"}',
+            {"recipient": "fooza_agent"},
+        ),
+    ],
+)
+def test_parse_tool_call_using_json_preserves_single_object_repair_behavior(
+    raw_tool_call, expected_args
+):
+    tool_requests = parse_tool_call_using_json(raw_tool_call)
+
+    assert len(tool_requests) == 1
+    assert tool_requests[0].name == "send_message"
+    assert tool_requests[0].args == expected_args
 
 
 def test_json_structured_generation_helper_function():
