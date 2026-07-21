@@ -814,12 +814,12 @@ def test_multiple_tool_calls_including_with_nonexistent_tools(vllm_responses_llm
 @retry_test(max_attempts=4)
 def test_managerworkers_can_do_multiple_tool_calling_when_appropriate(vllm_responses_llm):
     """
-    Failure rate:          3 out of 50
-    Observed on:           2025-12-23
-    Average success time:  8.14 seconds per successful attempt
-    Average failure time:  5.36 seconds per failed attempt
+    Failure rate:          2 out of 50
+    Observed on:           2026-07-21
+    Average success time:  5.38 seconds per successful attempt
+    Average failure time:  6.00 seconds per failed attempt
     Max attempt:           4
-    Justification:         (0.08 ** 4) ~= 3.5 / 100'000
+    Justification:         (0.06 ** 4) ~= 1.1 / 100'000
     """
     llm = vllm_responses_llm
 

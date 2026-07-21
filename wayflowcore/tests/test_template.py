@@ -27,6 +27,7 @@ from wayflowcore.templates import (
     REACT_AGENT_TEMPLATE,
     PromptTemplate,
 )
+from wayflowcore.templates._managerworkerstemplate import ManagerWorkersJsonToolOutputParser
 from wayflowcore.templates._swarmtemplate import SwarmJsonToolOutputParser
 from wayflowcore.templates.pythoncalltemplates import GEMMA_AGENT_TEMPLATE
 from wayflowcore.templates.reacttemplates import ReactToolOutputParser
@@ -769,6 +770,24 @@ def test_swarm_json_tool_output_parser_preserves_multiple_tool_call_array():
 ]"""
 
     output = SwarmJsonToolOutputParser().parse_output(
+        Message(content=raw_output, message_type=MessageType.AGENT)
+    )
+
+    assert output.content == "I will delegate the independent tasks in parallel."
+    assert [request.args["recipient"] for request in output.tool_requests or []] == [
+        "fooza_agent",
+        "bwip_agent",
+    ]
+
+
+def test_managerworkers_json_tool_output_parser_preserves_multiple_tool_call_array():
+    raw_output = """I will delegate the independent tasks in parallel.
+[
+    {"name": "send_message", "parameters": {"recipient": "fooza_agent"}},
+    {"name": "send_message", "parameters": {"recipient": "bwip_agent"}}
+]"""
+
+    output = ManagerWorkersJsonToolOutputParser().parse_output(
         Message(content=raw_output, message_type=MessageType.AGENT)
     )
 
