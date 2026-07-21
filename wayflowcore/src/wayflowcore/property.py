@@ -914,7 +914,7 @@ class ObjectProperty(Property):
         Dictionary of property names and their types. Defaults without any property.
     additional_properties:
         Boolean indicating if the object accepts arbitrary properties, or Property that defines which types
-        of additional properties are accepted.
+        of additional properties are accepted. Default is True.
     """
 
     properties: Dict[str, "Property"] = field(default_factory=dict)
