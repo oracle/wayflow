@@ -342,6 +342,8 @@ class Property(SerializableObject, ABC):
             return AnyProperty(**kwargs)
 
         if "properties" in schema:
+            # JSON Schema allows an object to define named fields and a rule for other fields.
+            additional_properties = schema.get("additionalProperties", True)
             return ObjectProperty(
                 **kwargs,
                 properties={
@@ -351,6 +353,14 @@ class Property(SerializableObject, ABC):
                     )
                     for param_name, param_schema in schema["properties"].items()
                 },
+                additional_properties=(
+                    Property.from_json_schema(
+                        schema=additional_properties,
+                        validate_default_type=validate_default_type,
+                    )
+                    if isinstance(additional_properties, dict)
+                    else additional_properties
+                ),
             )
 
         if "additionalProperties" in schema:
@@ -902,18 +912,46 @@ class ObjectProperty(Property):
               the flow can always execute properly with some defaults if needed.
     properties:
         Dictionary of property names and their types. Defaults without any property.
+    additional_properties:
+        Boolean indicating if the object accepts arbitrary properties, or Property that defines which types
+        of additional properties are accepted. Default is True.
     """
 
     properties: Dict[str, "Property"] = field(default_factory=dict)
+    additional_properties: Union[bool, Property] = True
 
     def _is_value_of_expected_type(self, value: Any) -> bool:
-        return all(
+        known_properties_are_valid = all(
             (
                 self._check_dict_has_correct_entry(value, prop_name, property_)
                 if isinstance(value, dict)
                 else self._check_object_has_correct_attribute(value, prop_name, property_)
             )
             for prop_name, property_ in self.properties.items()
+        )
+        if not known_properties_are_valid:
+            return False
+
+        # Dictionaries have keys, while Python objects keep their instance attributes in __dict__.
+        # Values without either form have no additional properties to check.
+        all_values = (
+            value.items()
+            if isinstance(value, dict)
+            else vars(value).items() if hasattr(value, "__dict__") else ()
+        )
+        # Named properties were checked above. Only validate the remaining values here.
+        additional_values = (
+            property_value
+            for property_name, property_value in all_values
+            if property_name not in self.properties
+        )
+        if self.additional_properties is False:
+            return not any(True for _ in additional_values)
+        if self.additional_properties is True:
+            return True
+        return all(
+            self.additional_properties.is_value_of_expected_type(property_value)
+            for property_value in additional_values
         )
 
     @staticmethod
@@ -940,15 +978,35 @@ class ObjectProperty(Property):
 
         # if dict, we can try to validate or default each element
         new_dict = {}
+        for prop_name, property_value in value.items():
+            if prop_name in self.properties:
+                new_dict[prop_name] = self.properties[prop_name]._validate_or_return_default_value(
+                    property_value
+                )
+            elif self.additional_properties is True:
+                # Keep arbitrary extra values when they are explicitly allowed.
+                new_dict[prop_name] = property_value
+            elif isinstance(self.additional_properties, Property):
+                # Normalize extra values with the type configured for them.
+                new_dict[prop_name] = self.additional_properties._validate_or_return_default_value(
+                    property_value
+                )
+
         for prop_name, property_ in self.properties.items():
-            new_dict[prop_name] = property_._validate_or_return_default_value(
-                value.get(prop_name, None)
-            )
+            # If the property is not in the new dictionary we fallback to None, if the validation allows it
+            if prop_name not in new_dict:
+                new_dict[prop_name] = property_._validate_or_return_default_value(None)
         return new_dict
 
     def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
         json_schema: JsonSchemaParam = {
             "type": "object",
+            # JSON Schema accepts either a boolean or a schema for unknown fields.
+            "additionalProperties": (
+                self.additional_properties.to_json_schema(openai_compatible=openai_compatible)
+                if isinstance(self.additional_properties, Property)
+                else self.additional_properties
+            ),
             "properties": {
                 prop_name: property_.to_json_schema(openai_compatible=openai_compatible)
                 for prop_name, property_ in self.properties.items()
@@ -959,7 +1017,16 @@ class ObjectProperty(Property):
             # as all properties to be included as required (parameters can be made optional by
             # creating a union with the NullProperty):
             # https://platform.openai.com/docs/guides/structured-outputs#all-fields-must-be-required
-            json_schema["additionalProperties"] = False
+            if self.additional_properties:
+                json_schema["additionalProperties"] = False
+                if isinstance(self.additional_properties, Property):
+                    # We don't warn if True because it's the default value
+                    warnings.warn(
+                        "additionalProperties are not compatible with OpenAI APIs; "
+                        f"The value will be ignored.",
+                        UserWarning,
+                        stacklevel=2,
+                    )
             json_schema["required"] = list(json_schema["properties"].keys())
             for property_name, property_ in json_schema["properties"].items():
                 if "default" in property_:

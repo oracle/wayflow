@@ -612,10 +612,15 @@ def _json_schemas_have_same_type(
             ):
                 return False
     if "additionalProperties" in json_schema_a or "additionalProperties" in json_schema_b:
-        if not _json_schemas_have_same_type(
-            json_schema_a.get("additionalProperties", {}),
-            json_schema_b.get("additionalProperties", {}),
-        ):
+        json_schema_a_ap = json_schema_a.get("additionalProperties", {})
+        json_schema_b_ap = json_schema_b.get("additionalProperties", {})
+        # additionalProperties can be a dictionary containing another JSON schema or a boolean
+        # if both are dictionaries, we recursively check additionalProperties JSON schemas
+        if isinstance(json_schema_a_ap, dict) and isinstance(json_schema_b_ap, dict):
+            if not _json_schemas_have_same_type(json_schema_a_ap, json_schema_b_ap):
+                return False
+        elif json_schema_a_ap != json_schema_b_ap:
+            # if at least one of the two is not a dictionary, they must match exactly
             return False
     return True
 
