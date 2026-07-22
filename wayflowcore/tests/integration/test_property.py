@@ -218,7 +218,13 @@ def test_check_type_is_correctly_checked(value_type, value):
         ({"scores": {"first": "mid"}}, [DictProperty(name="scores", value_type=IntegerProperty())]),
         (
             {"details": {"reason": "valid", "unexpected": "value"}},
-            [ObjectProperty(name="details", properties={"reason": StringProperty(name="reason")})],
+            [
+                ObjectProperty(
+                    name="details",
+                    properties={"reason": StringProperty(name="reason")},
+                    additional_properties=False,
+                )
+            ],
         ),
         (
             {"report": {"findings": [{"description": ["condition"]}]}},
@@ -266,6 +272,34 @@ def test_strict_validation_rejects_missing_explicit_defaults():
         _validate_strict_outputs({"description": "condition", "details": {}}, descriptors)
 
 
+@pytest.mark.parametrize(
+    "additional_properties,value,raises",
+    [
+        (False, {"name": "Ada", "rank": 1}, True),
+        (True, {"name": "Ada", "rank": 1}, False),
+        (IntegerProperty(), {"name": "Ada", "rank": 1}, False),
+        (IntegerProperty(), {"name": "Ada", "rank": "first"}, True),
+    ],
+    ids=["forbidden", "allowed", "typed-valid", "typed-invalid"],
+)
+def test_strict_validation_respects_object_additional_properties(
+    additional_properties, value, raises
+):
+    descriptors = [
+        ObjectProperty(
+            name="details",
+            properties={"name": StringProperty()},
+            additional_properties=additional_properties,
+        )
+    ]
+
+    if raises:
+        with pytest.raises(StructuredOutputValidationError):
+            _validate_strict_outputs({"details": value}, descriptors)
+    else:
+        assert _validate_strict_outputs({"details": value}, descriptors) == {"details": value}
+
+
 def test_object_property_fills_nested_explicit_defaults():
     output = ObjectProperty(
         name="details",
@@ -273,6 +307,18 @@ def test_object_property_fills_nested_explicit_defaults():
     )
 
     assert output._fill_explicit_defaults({}) == {"reason": "unknown"}
+
+
+def test_object_property_fills_nested_explicit_defaults_for_additional_properties():
+    output = ObjectProperty(
+        additional_properties=ObjectProperty(
+            properties={"reason": StringProperty(default_value="unknown")}
+        )
+    )
+
+    assert output._fill_explicit_defaults({"dynamic_result": {}}) == {
+        "dynamic_result": {"reason": "unknown"}
+    }
 
 
 @pytest.mark.parametrize(

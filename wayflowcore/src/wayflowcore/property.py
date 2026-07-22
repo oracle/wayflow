@@ -1016,9 +1016,21 @@ class ObjectProperty(Property):
 
         validated_value = {}
         violations: list[tuple[str, str]] = []
-        for key in value:
-            if key not in self.properties:
+        for key, property_value in value.items():
+            if key in self.properties:
+                continue
+            if self.additional_properties is False:
                 violations.append((f".{key}", "unexpected field"))
+            elif self.additional_properties is True:
+                validated_value[key] = property_value
+            else:
+                nested_value, nested_violations = self.additional_properties._validate_strict_value(
+                    property_value
+                )
+                validated_value[key] = nested_value
+                violations.extend(
+                    (f".{key}{location}", message) for location, message in nested_violations
+                )
         for name, nested_property in self.properties.items():
             if name not in value:
                 violations.append((f".{name}", "missing required field"))
@@ -1041,6 +1053,12 @@ class ObjectProperty(Property):
                     filled_value[name] = nested_property.default_value
             else:
                 filled_value[name] = nested_property._fill_explicit_defaults(filled_value[name])
+        if isinstance(self.additional_properties, Property):
+            for name, nested_value in filled_value.items():
+                if name not in self.properties:
+                    filled_value[name] = self.additional_properties._fill_explicit_defaults(
+                        nested_value
+                    )
         return filled_value
 
     @staticmethod
