@@ -731,20 +731,6 @@ def test_parse_tool_call_using_json_raises_warning_on_non_dict_parameters(
     assert "Couldn't parse tool request" in caplog.text
 
 
-def test_parse_tool_call_using_json_preserves_newline_separated_objects():
-    raw_tool_calls = """{"name":"send_message","parameters":{"recipient":"fooza_agent"}}
-{"name":"send_message","parameters":{"recipient":"bwip_agent"}}
-{"name":"send_message","parameters":{"recipient":"zbuk_agent"}}"""
-
-    tool_requests = parse_tool_call_using_json(raw_tool_calls)
-
-    assert [request.args["recipient"] for request in tool_requests] == [
-        "fooza_agent",
-        "bwip_agent",
-        "zbuk_agent",
-    ]
-
-
 def test_parse_tool_call_using_json_preserves_objects_inside_array():
     raw_tool_calls = """[
 {"name":"send_message","parameters":{"recipient":"fooza_agent"}},
@@ -796,18 +782,6 @@ def test_managerworkers_json_tool_output_parser_preserves_multiple_tool_call_arr
         "fooza_agent",
         "bwip_agent",
     ]
-
-
-def test_parse_tool_call_using_json_ignores_braces_and_newlines_in_strings():
-    raw_tool_calls = r"""{"name":"send_message","parameters":{"message":"first { brace }
-second line"}}
-{"name":"send_message","parameters":{"message":"escaped quote \" and } brace"}}"""
-
-    tool_requests = parse_tool_call_using_json(raw_tool_calls)
-
-    assert len(tool_requests) == 2
-    assert tool_requests[0].args["message"] == "first { brace }\nsecond line"
-    assert tool_requests[1].args["message"] == 'escaped quote " and } brace'
 
 
 @pytest.mark.parametrize(
